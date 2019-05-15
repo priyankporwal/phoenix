@@ -40,6 +40,8 @@ import org.apache.phoenix.query.QueryServicesOptions;
 import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PTableType;
 import org.apache.phoenix.schema.SortOrder;
+import org.apache.phoenix.schema.RowValueConstructorOffsetNotAllowedInQueryException;
+import org.apache.phoenix.schema.RowValueConstructorOffsetNotCoercibleException;
 import org.apache.phoenix.schema.types.PInteger;
 
 import com.google.common.collect.ImmutableList;
@@ -84,8 +86,9 @@ public class OrderByCompiler {
      */
     public static OrderBy compile(StatementContext context,
                                   SelectStatement statement,
-                                  GroupBy groupBy, Integer limit,
-                                  Integer offset,
+                                  GroupBy groupBy,
+                                  Integer limit,
+                                  CompiledOffset offset,
                                   RowProjector rowProjector,
                                   TupleProjector tupleProjector,
                                   boolean isInRowKeyOrder) throws SQLException {
@@ -148,6 +151,16 @@ public class OrderByCompiler {
             }
             compiler.reset();
         }
+
+        //If we are not ordered we shouldn't be using RVC Offset
+        //I think this makes sense for the pagination case but perhaps we can relax this for
+        //other use cases.
+        //Note If the table is salted we still mark as row ordered in this code path
+        if (offset.getByteOffset().isPresent() && orderByExpressions.isEmpty()) {
+            throw new RowValueConstructorOffsetNotAllowedInQueryException(
+                    "RVC OFFSET requires either forceRowKeyOrder or explict ORDERBY with row key order");
+        }
+
         // we can remove ORDER BY clauses in case of only COUNT(DISTINCT...) clauses
         if (orderByExpressions.isEmpty() || groupBy.isUngroupedAggregate()) {
             return OrderBy.EMPTY_ORDER_BY;
@@ -165,13 +178,19 @@ public class OrderByCompiler {
                         && context.getCurrentTable().getTable().getType() != PTableType.PROJECTED
                         && context.getCurrentTable().getTable().getType() != PTableType.SUBQUERY
                         && !statement.getHint().hasHint(Hint.FORWARD_SCAN)) {
+                    if(offset.getByteOffset().isPresent()){
+                        throw new SQLException("Do not allow non-pk ORDER BY with RVC OFFSET");
+                    }
                     return OrderBy.REV_ROW_KEY_ORDER_BY;
                 }
             } else {
                 return OrderBy.FWD_ROW_KEY_ORDER_BY;
             }
         }
-
+        //If we were in row order this would be optimized out above
+        if(offset.getByteOffset().isPresent()){
+            throw new RowValueConstructorOffsetNotCoercibleException("Do not allow non-pk ORDER BY with RVC OFFSET");
+        }
         return new OrderBy(Lists.newArrayList(orderByExpressions.iterator()));
     }
 

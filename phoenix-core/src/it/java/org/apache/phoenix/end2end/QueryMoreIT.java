@@ -403,11 +403,10 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         // but because we're matching a descending key, our comparison has to be switched.
         try (Statement stmt = conn.createStatement()) {
             final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" + 
-                    "FROM " + fullTableName + "\n" + 
-                    "WHERE organization_id = 'org1'\n" + 
-                    "AND (score, entity_id) > (2, '04')\n" + 
-                    "ORDER BY score DESC, entity_id DESC\n" + 
-                    "LIMIT 3");
+                    "FROM " + fullTableName + "\n" +
+                    "ORDER BY ORGANIZATION_ID, score DESC, entity_id DESC\n" +
+                    "LIMIT 3\n" +
+                    "OFFSET  (ORGANIZATION_ID, SCORE, ENTITY_ID)=('org1', 2, '04')");
             assertTrue(rs.next());
             assertEquals("03", rs.getString(1));
             assertEquals(2.0, rs.getDouble(2), 0.001);
@@ -419,12 +418,12 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         // FIXME: PHOENIX-3384
         // It should not be necessary to specify organization_id in this query
         try (Statement stmt = conn.createStatement()) {
-            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" + 
-                    "FROM " + fullTableName + "\n" + 
-                    "WHERE organization_id = 'org1'\n" + 
-                    "AND (organization_id, score, entity_id) > ('org1', 2, '04')\n" + 
-                    "ORDER BY score DESC, entity_id DESC\n" + 
-                    "LIMIT 3");
+            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" +
+                    "FROM " + fullTableName + "\n" +
+                    "WHERE ORGANIZATION_ID='org1'\n" +
+                    "ORDER BY organization_id, score DESC, entity_id DESC\n" +
+                    "LIMIT 3\n" +
+                    "OFFSET (ORGANIZATION_ID, SCORE, ENTITY_ID)=('org1', 2, '04')");
             assertTrue(rs.next());
             assertEquals("03", rs.getString(1));
             assertEquals(2.0, rs.getDouble(2), 0.001);

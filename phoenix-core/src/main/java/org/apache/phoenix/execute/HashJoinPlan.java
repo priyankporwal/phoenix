@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.base.Optional;
 
 public class HashJoinPlan extends DelegateQueryPlan {
     private static final Logger LOGGER = LoggerFactory.getLogger(HashJoinPlan.class);
@@ -226,10 +227,10 @@ public class HashJoinPlan extends DelegateQueryPlan {
             ParseNode viewWhere = table.getViewStatement() == null ? null : new SQLParser(table.getViewStatement()).parseQuery().getWhere();
             context.setResolver(FromCompiler.getResolverForQuery((SelectStatement) (delegate.getStatement()), delegate.getContext().getConnection()));
             if (recompileWhereClause) {
-                postFilter = WhereCompiler.compile(delegate.getContext(), delegate.getStatement(), viewWhere, null);
+                postFilter = WhereCompiler.compile(delegate.getContext(), delegate.getStatement(), viewWhere, null, Optional.<byte[]>absent());
             }
             if (hasKeyRangeExpressions) {
-                WhereCompiler.compile(delegate.getContext(), delegate.getStatement(), viewWhere, keyRangeExpressions, null);
+                WhereCompiler.compile(delegate.getContext(), delegate.getStatement(), viewWhere, keyRangeExpressions, null, Optional.<byte[]>absent());
             }
         }
 

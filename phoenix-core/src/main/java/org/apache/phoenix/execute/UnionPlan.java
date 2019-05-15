@@ -299,4 +299,9 @@ public class UnionPlan implements QueryPlan {
             }
         }
     }
+
+    @Override
+    public boolean isApplicable() {
+        return true;
+    }
 }

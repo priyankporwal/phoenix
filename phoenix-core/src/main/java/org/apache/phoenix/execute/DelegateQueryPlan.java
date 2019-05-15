@@ -162,4 +162,7 @@ public abstract class DelegateQueryPlan implements QueryPlan {
     public Long getEstimateInfoTimestamp() throws SQLException {
         return delegate.getEstimateInfoTimestamp();
     }
+
+    @Override
+    public boolean isApplicable() { return delegate.isApplicable(); }
 }

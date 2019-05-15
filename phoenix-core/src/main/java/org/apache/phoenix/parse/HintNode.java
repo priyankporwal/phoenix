@@ -19,6 +19,7 @@ package org.apache.phoenix.parse;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.phoenix.util.SchemaUtil;
 import org.apache.phoenix.util.StringUtil;
@@ -203,6 +204,10 @@ public class HintNode {
      */
     public boolean hasHint(Hint hint) {
         return hints.containsKey(hint);
+    }
+
+    public Set<Hint> getHints(){
+        return hints.keySet();
     }
     
     @Override

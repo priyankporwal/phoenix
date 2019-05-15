@@ -75,6 +75,7 @@ import org.apache.phoenix.util.SchemaUtil;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.base.Optional;
 
 
 /**
@@ -95,18 +96,18 @@ public class WhereOptimizer {
     /**
      * Pushes row key expressions from the where clause into the start/stop key of the scan.
      * @param context the shared context during query compilation
-     * @param statement the statement being compiled
+     * @param hints the set, possibly empty, of hints in this statement
      * @param whereClause the where clause expression
      * @return the new where clause with the key expressions removed
      */
-    public static Expression pushKeyExpressionsToScan(StatementContext context, FilterableStatement statement, Expression whereClause)
+    public static Expression pushKeyExpressionsToScan(StatementContext context, Set<Hint> hints, Expression whereClause)
             throws SQLException{
-        return pushKeyExpressionsToScan(context, statement, whereClause, null);
+        return pushKeyExpressionsToScan(context, hints, whereClause, null, Optional.<byte[]>absent());
     }
 
     // For testing so that the extractedNodes can be verified
-    public static Expression pushKeyExpressionsToScan(StatementContext context, FilterableStatement statement,
-            Expression whereClause, Set<Expression> extractNodes) throws SQLException {
+    public static Expression pushKeyExpressionsToScan(StatementContext context, Set<Hint> hints,
+            Expression whereClause, Set<Expression> extractNodes, Optional<byte[]> minOffset) throws SQLException {
         PName tenantId = context.getConnection().getTenantId();
         byte[] tenantIdBytes = null;
         PTable table = context.getCurrentTable().getTable();
@@ -120,7 +121,7 @@ public class WhereOptimizer {
             tenantIdBytes = ScanUtil.getTenantIdBytes(schema, isSalted, tenantId, isSharedIndex);
     	}
 
-        if (whereClause == null && (tenantId == null || !table.isMultiTenant()) && table.getViewIndexId() == null) {
+        if (whereClause == null && (tenantId == null || !table.isMultiTenant()) && table.getViewIndexId() == null && !minOffset.isPresent()) {
             context.setScanRanges(ScanRanges.EVERYTHING);
             return whereClause;
         }
@@ -136,7 +137,7 @@ public class WhereOptimizer {
             // becomes consistent.
             keySlots = whereClause.accept(visitor);
     
-            if (keySlots == null && (tenantId == null || !table.isMultiTenant()) && table.getViewIndexId() == null) {
+            if (keySlots == null && (tenantId == null || !table.isMultiTenant()) && table.getViewIndexId() == null && !minOffset.isPresent()) {
                 context.setScanRanges(ScanRanges.EVERYTHING);
                 return whereClause;
             }
@@ -223,8 +224,8 @@ public class WhereOptimizer {
         if (hasMinMaxRange) {
             minMaxRange = minMaxRange.prependRange(minMaxRangePrefix, 0, minMaxRangeOffset);
         }
-        boolean forcedSkipScan = statement.getHint().hasHint(Hint.SKIP_SCAN);
-        boolean forcedRangeScan = statement.getHint().hasHint(Hint.RANGE_SCAN);
+        boolean forcedSkipScan = hints.contains(Hint.SKIP_SCAN);
+        boolean forcedRangeScan = hints.contains(Hint.RANGE_SCAN);
         boolean hasUnboundedRange = false;
         boolean hasMultiRanges = false;
         boolean hasRangeKey = false;
@@ -302,7 +303,7 @@ public class WhereOptimizer {
         // we can still use our skip scan. The ScanRanges.create() call will explode
         // out the keys.
         slotSpan = Arrays.copyOf(slotSpan, cnf.size());
-        ScanRanges scanRanges = ScanRanges.create(schema, cnf, slotSpan, minMaxRange, nBuckets, useSkipScan, table.getRowTimestampColPos());
+        ScanRanges scanRanges = ScanRanges.create(schema, cnf, slotSpan, minMaxRange, nBuckets, useSkipScan, table.getRowTimestampColPos(), minOffset);
         context.setScanRanges(scanRanges);
         if (whereClause == null) {
             return null;
@@ -377,7 +378,12 @@ public class WhereOptimizer {
             Expression firstRhs = count == 0 ? sampleValues.get(0).get(0) : new RowValueConstructorExpression(sampleValues.get(0).subList(0, count + 1), true);
             Expression secondRhs = count == 0 ? sampleValues.get(1).get(0) : new RowValueConstructorExpression(sampleValues.get(1).subList(0, count + 1), true);
             Expression testExpression = InListExpression.create(Lists.newArrayList(lhs, firstRhs, secondRhs), false, context.getTempPtr(), context.getCurrentTable().getTable().rowKeyOrderOptimizable());
-            remaining = pushKeyExpressionsToScan(context, statement, testExpression);
+            Set<Hint> hints = new HashSet<>();
+            if(statement.getHint() != null){
+                hints = statement.getHint().getHints();
+            }
+
+            remaining = pushKeyExpressionsToScan(context, hints, testExpression);
             if (context.getScanRanges().isPointLookup()) {
                 count++;
                 break; // found the best match

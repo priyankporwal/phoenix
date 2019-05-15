@@ -784,4 +784,9 @@ public class SortMergeJoinPlan implements QueryPlan {
                     getMin(lhsPlan.getEstimateInfoTimestamp(), rhsPlan.getEstimateInfoTimestamp());
         }
     }
+
+    @Override
+    public boolean isApplicable() {
+        return true;
+    }
 }

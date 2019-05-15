@@ -766,6 +766,11 @@ public class PhoenixStatement implements Statement, SQLCloseable {
                 public Long getEstimateInfoTimestamp() throws SQLException {
                     return estimateTs;
                 }
+
+                @Override
+                public boolean isApplicable() {
+                    return true;
+                }
             };
         }
     }
@@ -1666,7 +1671,7 @@ public class PhoenixStatement implements Statement, SQLCloseable {
 
     /**
      * Execute the current batch of statements. If any exception occurs
-     * during execution, a {@link org.apache.phoenix.exception.BatchUpdateException}
+     * during execution, a {@link org.apache.phoenix.exception.BatchUpdateExecution}
      * is thrown which includes the index of the statement within the
      * batch when the exception occurred.
      */
