@@ -28,23 +28,22 @@ import org.apache.phoenix.hbase.index.ValueGetter;
 import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
 
 /**
- * 
  * Class used to construct a {@link Tuple} in order to evaluate an {@link Expression}
  */
 public class ValueGetterTuple extends BaseTuple {
-	private final ValueGetter valueGetter;
-	private final long ts;
-    
+    private final ValueGetter valueGetter;
+    private final long ts;
+
     public ValueGetterTuple(ValueGetter valueGetter, long ts) {
         this.valueGetter = valueGetter;
         this.ts = ts;
     }
-    
+
     public ValueGetterTuple() {
         this.valueGetter = null;
         this.ts = HConstants.LATEST_TIMESTAMP;
     }
-    
+
     @Override
     public void getKey(ImmutableBytesWritable ptr) {
         ptr.set(valueGetter.getRowKey());
@@ -72,7 +71,7 @@ public class ValueGetterTuple extends BaseTuple {
             valueOffset = value.getOffset();
             valueLength = value.getLength();
         }
-    	return new KeyValue(rowKey, 0, rowKey.length, family, 0, family.length, qualifier, 0, qualifier.length, HConstants.LATEST_TIMESTAMP, Type.Put, valueBytes, valueOffset, valueLength);
+        return new KeyValue(rowKey, 0, rowKey.length, family, 0, family.length, qualifier, 0, qualifier.length, HConstants.LATEST_TIMESTAMP, Type.Put, valueBytes, valueOffset, valueLength);
     }
 
     @Override
@@ -92,10 +91,11 @@ public class ValueGetterTuple extends BaseTuple {
 
     @Override
     public boolean getValue(byte[] family, byte[] qualifier,
-            ImmutableBytesWritable ptr) {
+                            ImmutableBytesWritable ptr) {
         KeyValue kv = getValue(family, qualifier);
-        if (kv == null)
+        if (kv == null) {
             return false;
+        }
         ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
         return true;
     }

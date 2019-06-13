@@ -88,6 +88,7 @@ public class ConfigurableCacheIT extends ParallelStatsEnabledIT {
 
     /**
      * Test that if we don't specify the cacheFactory we won't increase the count of test.
+     *
      * @throws Exception
      */
     @Test
@@ -101,6 +102,7 @@ public class ConfigurableCacheIT extends ParallelStatsEnabledIT {
 
     /**
      * Tests that with a single ConnectionInfo we will not create more than one.
+     *
      * @throws Exception
      */
     @Test
@@ -108,11 +110,11 @@ public class ConfigurableCacheIT extends ParallelStatsEnabledIT {
         int initialCount = ITGuidePostsCacheFactory.getCount();
 
         try (Connection conn =
-                getCacheFactory("User1", ITGuidePostsCacheFactory.class.getTypeName())) {
+                     getCacheFactory("User1", ITGuidePostsCacheFactory.class.getTypeName())) {
             conn.createStatement().executeQuery("SELECT * FROM " + table);
         }
         try (Connection conn =
-                getCacheFactory("User1", ITGuidePostsCacheFactory.class.getTypeName())) {
+                     getCacheFactory("User1", ITGuidePostsCacheFactory.class.getTypeName())) {
             conn.createStatement().executeQuery("SELECT * FROM " + table);
         }
         assertEquals(initialCount + 1, ITGuidePostsCacheFactory.getCount());
@@ -120,17 +122,18 @@ public class ConfigurableCacheIT extends ParallelStatsEnabledIT {
 
     /**
      * Tests with 2 ConnectionInfo's
+     *
      * @throws Exception
      */
     @Test
     public void testWithMultiple() throws Exception {
         int initialCount = ITGuidePostsCacheFactory.getCount();
         try (Connection conn =
-                getCacheFactory("User4", ITGuidePostsCacheFactory.class.getTypeName())) {
+                     getCacheFactory("User4", ITGuidePostsCacheFactory.class.getTypeName())) {
             conn.createStatement().executeQuery("SELECT * FROM " + table);
         }
         try (Connection conn =
-                getCacheFactory("User6", ITGuidePostsCacheFactory.class.getTypeName())) {
+                     getCacheFactory("User6", ITGuidePostsCacheFactory.class.getTypeName())) {
             conn.createStatement().executeQuery("SELECT * FROM " + table);
         }
         assertEquals(initialCount + 2, ITGuidePostsCacheFactory.getCount());
@@ -138,12 +141,13 @@ public class ConfigurableCacheIT extends ParallelStatsEnabledIT {
 
     /**
      * Tests that non-existent cacheFactory fails with exception
+     *
      * @throws Exception
      */
     @Test(expected = Exception.class)
     public void testBadCache() throws Exception {
         try (Connection conn =
-                getCacheFactory("User8", "org.notreal.class")) {
+                     getCacheFactory("User8", "org.notreal.class")) {
         }
         fail();
     }

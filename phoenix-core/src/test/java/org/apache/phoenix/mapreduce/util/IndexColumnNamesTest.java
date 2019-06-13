@@ -57,6 +57,7 @@ public class IndexColumnNamesTest extends BaseIndexTest {
 
     /**
      * Tests that col types with a precision are outputted correctly in the dynamic columns
+     *
      * @throws SQLException
      */
     @Test

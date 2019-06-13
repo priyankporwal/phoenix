@@ -31,18 +31,18 @@ import org.apache.phoenix.schema.PTableType;
 
 public interface MetaDataEndpointObserver extends Coprocessor {
 
-    void preGetTable( ObserverContext<PhoenixMetaDataControllerEnvironment> ctx,  String tenantId,String tableName,
-             TableName physicalTableName) throws IOException;
+    void preGetTable(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId, String tableName,
+                     TableName physicalTableName) throws IOException;
 
     void preCreateTable(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId,
-            String tableName, TableName physicalTableName, final TableName parentPhysicalTableName,
-            PTableType tableType, final Set<byte[]> familySet, Set<TableName> indexes) throws IOException;
+                        String tableName, TableName physicalTableName, final TableName parentPhysicalTableName,
+                        PTableType tableType, final Set<byte[]> familySet, Set<TableName> indexes) throws IOException;
 
     void preDropTable(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId,
-            final String tableName,TableName physicalTableName, TableName parentPhysicalTableName, PTableType tableType, List<PTable> indexes) throws IOException;
+                      final String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType tableType, List<PTable> indexes) throws IOException;
 
-    void preAlterTable(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId,final String tableName,
-            final TableName physicalTableName,final TableName parentPhysicalTableName, PTableType type) throws IOException;
+    void preAlterTable(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId, final String tableName,
+                       final TableName physicalTableName, final TableName parentPhysicalTableName, PTableType type) throws IOException;
 
     void preGetSchema(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String schemaName)
             throws IOException;
@@ -54,15 +54,15 @@ public interface MetaDataEndpointObserver extends Coprocessor {
             throws IOException;
 
     void preCreateFunction(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId,
-            final String functionName) throws IOException;
+                           final String functionName) throws IOException;
 
     void preDropFunction(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId,
-            final String functionName) throws IOException;
+                         final String functionName) throws IOException;
 
     void preGetFunctions(final ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, final String tenantId,
-            final String functionName) throws IOException;
+                         final String functionName) throws IOException;
 
     void preIndexUpdate(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId,
-            String indexName, TableName physicalTableName, TableName parentPhysicalTableName, PIndexState newState) throws IOException;
+                        String indexName, TableName physicalTableName, TableName parentPhysicalTableName, PIndexState newState) throws IOException;
 
 }

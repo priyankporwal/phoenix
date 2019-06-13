@@ -43,7 +43,7 @@ import org.junit.Test;
 public class SchemaReaderIT extends BaseHBaseManagedTimeIT {
     protected static PhoenixUtil util = PhoenixUtil.create(true);
 
-    @Test 
+    @Test
     public void testSchemaReader() {
         // Test for the unit test version of the schema files.
         assertApplySchemaTest();
@@ -57,7 +57,7 @@ public class SchemaReaderIT extends BaseHBaseManagedTimeIT {
             List<Path> resources = new ArrayList<>(reader.getResourceList());
             assertTrue("Could not pull list of schema files.", resources.size() > 0);
             assertNotNull("Could not read schema file.", this.getClass().getResourceAsStream(
-                PherfConstants.RESOURCE_DATAMODEL + "/" + resources.get(0).getFileName().toString()));
+                    PherfConstants.RESOURCE_DATAMODEL + "/" + resources.get(0).getFileName().toString()));
             assertNotNull("Could not read schema file.", reader.resourceToString(resources.get(0)));
             try {
                 reader.applySchema();

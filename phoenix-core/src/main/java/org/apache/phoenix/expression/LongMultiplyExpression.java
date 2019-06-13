@@ -36,9 +36,9 @@ public class LongMultiplyExpression extends MultiplyExpression {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        long finalResult=1;
-        
-        for(int i=0;i<children.size();i++) {
+        long finalResult = 1;
+
+        for (int i = 0; i < children.size(); i++) {
             Expression child = children.get(i);
             if (!child.evaluate(tuple, ptr)) {
                 return false;
@@ -49,7 +49,7 @@ public class LongMultiplyExpression extends MultiplyExpression {
             long childvalue = child.getDataType().getCodec().decodeLong(ptr, child.getSortOrder());
             finalResult *= childvalue;
         }
-        byte[] resultPtr=new byte[getDataType().getByteSize()];
+        byte[] resultPtr = new byte[getDataType().getByteSize()];
         getDataType().getCodec().encodeLong(finalResult, resultPtr, 0);
         ptr.set(resultPtr);
         return true;

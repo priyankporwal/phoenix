@@ -73,53 +73,53 @@ public class ConnectionlessTest {
     private static String getUrl() {
         return PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + PhoenixRuntime.CONNECTIONLESS;
     }
-    
+
     @BeforeClass
     public static void verifyDriverRegistered() throws SQLException {
         assertTrue(DriverManager.getDriver(getUrl()) == PhoenixDriver.INSTANCE);
     }
-    
+
     @Test
     public void testConnectionlessUpsert() throws Exception {
         testConnectionlessUpsert(null);
     }
-    
+
     @Test
     public void testSaltedConnectionlessUpsert() throws Exception {
         testConnectionlessUpsert(saltBuckets);
     }
-  
+
     private void testConnectionlessUpsert(Integer saltBuckets) throws Exception {
         String dmlStmt = "create table core.entity_history(\n" +
-        "    organization_id char(15) not null, \n" + 
-        "    key_prefix char(3) not null,\n" +
-        "    entity_history_id char(12) not null,\n" + 
-        "    created_by varchar,\n" + 
-        "    created_date date\n" +
-        "    CONSTRAINT pk PRIMARY KEY (organization_id, key_prefix, entity_history_id) ) COLUMN_ENCODED_BYTES=4 " +
-        (saltBuckets == null ? "" : " , " + (PhoenixDatabaseMetaData.SALT_BUCKETS + "=" + saltBuckets));
+                "    organization_id char(15) not null, \n" +
+                "    key_prefix char(3) not null,\n" +
+                "    entity_history_id char(12) not null,\n" +
+                "    created_by varchar,\n" +
+                "    created_date date\n" +
+                "    CONSTRAINT pk PRIMARY KEY (organization_id, key_prefix, entity_history_id) ) COLUMN_ENCODED_BYTES=4 " +
+                (saltBuckets == null ? "" : " , " + (PhoenixDatabaseMetaData.SALT_BUCKETS + "=" + saltBuckets));
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         PreparedStatement statement = conn.prepareStatement(dmlStmt);
         statement.execute();
-        
+
         String upsertStmt = "upsert into core.entity_history(organization_id,key_prefix,entity_history_id, created_by, created_date)\n" +
-        "values(?,?,?,?,?)";
+                "values(?,?,?,?,?)";
         statement = conn.prepareStatement(upsertStmt);
         statement.setString(1, orgId);
         statement.setString(2, keyPrefix2);
         statement.setString(3, entityHistoryId2);
         statement.setString(4, name2);
-        statement.setDate(5,now);
+        statement.setDate(5, now);
         statement.execute();
         statement.setString(1, orgId);
         statement.setString(2, keyPrefix1);
         statement.setString(3, entityHistoryId1);
         statement.setString(4, name1);
-        statement.setDate(5,now);
+        statement.setDate(5, now);
         statement.execute();
-        
-        Iterator<Pair<byte[],List<Cell>>> dataIterator = PhoenixRuntime.getUncommittedDataIterator(conn);
+
+        Iterator<Pair<byte[], List<Cell>>> dataIterator = PhoenixRuntime.getUncommittedDataIterator(conn);
         Iterator<Cell> iterator = dataIterator.next().getSecond().iterator();
 
         byte[] expectedRowKey1 = saltBuckets == null ? unsaltedRowKey1 : saltedRowKey1;
@@ -131,42 +131,42 @@ public class ConnectionlessTest {
             assertRow2(iterator, expectedRowKey2);
             assertRow1(iterator, expectedRowKey1);
         }
-        
+
         assertFalse(iterator.hasNext());
         assertFalse(dataIterator.hasNext());
         conn.rollback(); // to clear the list of mutations for the next
     }
-    
+
     private static void assertRow1(Iterator<Cell> iterator, byte[] expectedRowKey1) {
         Cell kv;
         assertTrue(iterator.hasNext());
         kv = iterator.next();
-        assertArrayEquals(expectedRowKey1, CellUtil.cloneRow(kv));        
+        assertArrayEquals(expectedRowKey1, CellUtil.cloneRow(kv));
         assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(CellUtil.cloneValue(kv)));
         kv = iterator.next();
-        assertArrayEquals(expectedRowKey1, CellUtil.cloneRow(kv));        
+        assertArrayEquals(expectedRowKey1, CellUtil.cloneRow(kv));
         assertEquals(name1, PVarchar.INSTANCE.toObject(CellUtil.cloneValue(kv)));
         assertTrue(iterator.hasNext());
         kv = iterator.next();
-        assertArrayEquals(expectedRowKey1, CellUtil.cloneRow(kv));        
+        assertArrayEquals(expectedRowKey1, CellUtil.cloneRow(kv));
         assertEquals(now, PDate.INSTANCE.toObject(CellUtil.cloneValue(kv)));
     }
 
     private static void assertRow2(Iterator<Cell> iterator, byte[] expectedRowKey2) {
         Cell kv;
         kv = iterator.next();
-        assertArrayEquals(expectedRowKey2, CellUtil.cloneRow(kv));        
+        assertArrayEquals(expectedRowKey2, CellUtil.cloneRow(kv));
         assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(CellUtil.cloneValue(kv)));
         assertTrue(iterator.hasNext());
         kv = iterator.next();
-        assertArrayEquals(expectedRowKey2, CellUtil.cloneRow(kv));        
+        assertArrayEquals(expectedRowKey2, CellUtil.cloneRow(kv));
         assertEquals(name2, PVarchar.INSTANCE.toObject(CellUtil.cloneValue(kv)));
         assertTrue(iterator.hasNext());
         kv = iterator.next();
-        assertArrayEquals(expectedRowKey2, CellUtil.cloneRow(kv));        
+        assertArrayEquals(expectedRowKey2, CellUtil.cloneRow(kv));
         assertEquals(now, PDate.INSTANCE.toObject(CellUtil.cloneValue(kv)));
     }
-    
+
     @Test
     public void testMultipleConnectionQueryServices() throws Exception {
         String url1 = getUrl();
@@ -200,7 +200,7 @@ public class ConnectionlessTest {
         } finally {
             conn1.close();
         }
-        
+
     }
 
 }

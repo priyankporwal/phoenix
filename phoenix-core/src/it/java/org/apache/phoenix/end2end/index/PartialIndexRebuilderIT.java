@@ -88,7 +88,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
     private static RegionCoprocessorEnvironment indexRebuildTaskRegionEnvironment;
     private static Boolean runRebuildOnce = true;
 
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(10);
@@ -102,30 +102,31 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         clientProps.put(QueryServices.INDEX_REGION_OBSERVER_ENABLED_ATTRIB, Boolean.FALSE.toString());
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
         indexRebuildTaskRegionEnvironment =
-               getUtility()
+                getUtility()
                         .getRSForFirstRegionInTable(
-                            PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
+                                PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
                         .getRegions(PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
                         .get(0).getCoprocessorHost()
                         .findCoprocessorEnvironment(MetaDataRegionObserver.class.getName());
         MetaDataRegionObserver.initRebuildIndexConnectionProps(
-            indexRebuildTaskRegionEnvironment.getConfiguration());
+                indexRebuildTaskRegionEnvironment.getConfiguration());
     }
 
     private static void runIndexRebuilder(String table) throws InterruptedException, SQLException {
         runIndexRebuilder(Collections.<String>singletonList(table));
     }
-    
+
     private static void runIndexRebuilder(List<String> tables) throws InterruptedException, SQLException {
         BuildIndexScheduleTask task =
                 new MetaDataRegionObserver.BuildIndexScheduleTask(
                         indexRebuildTaskRegionEnvironment, tables);
         task.run();
     }
-    
+
     private static void runIndexRebuilderAsync(final int interval, final boolean[] cancel, String table) {
         runIndexRebuilderAsync(interval, cancel, Collections.<String>singletonList(table));
     }
+
     private static void runIndexRebuilderAsync(final int interval, final boolean[] cancel, final List<String> tables) {
         runRebuildOnce = true;
         Thread thread = new Thread(new Runnable() {
@@ -139,7 +140,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
                         Thread.interrupted();
                         throw new RuntimeException(e);
                     } catch (SQLException e) {
-                        LOGGER.error(e.getMessage(),e);
+                        LOGGER.error(e.getMessage(), e);
                     } finally {
                         runRebuildOnce = false;
                     }
@@ -153,46 +154,46 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
     private static void mutateRandomly(final String fullTableName, final int nThreads, final int nRows, final int nIndexValues, final int batchSize, final CountDownLatch doneSignal) {
         Runnable[] runnables = new Runnable[nThreads];
         for (int i = 0; i < nThreads; i++) {
-           runnables[i] = new Runnable() {
-    
-               @Override
-               public void run() {
-                   try {
-                       Connection conn = DriverManager.getConnection(getUrl());
-                       for (int i = 0; i < 3000; i++) {
-                           boolean isNull = RAND.nextBoolean();
-                           int randInt = RAND.nextInt() % nIndexValues;
-                           int pk = Math.abs(RAND.nextInt()) % nRows;
-                           conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES (" + pk + ", 0, " + (isNull ? null : randInt) + ")");
-                           if ((i % batchSize) == 0) {
-                               conn.commit();
-                           }
-                       }
-                       conn.commit();
-                       for (int i = 0; i < 3000; i++) {
-                           int pk = Math.abs(RAND.nextInt()) % nRows;
-                           conn.createStatement().execute("DELETE FROM " + fullTableName + " WHERE k1= " + pk + " AND k2=0");
-                           if (i % batchSize == 0) {
-                               conn.commit();
-                           }
-                       }
-                       conn.commit();
-                       for (int i = 0; i < 3000; i++) {
-                           int randInt = RAND.nextInt() % nIndexValues;
-                           int pk = Math.abs(RAND.nextInt()) % nRows;
-                           conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES (" + pk + ", 0, " + randInt + ")");
-                           if ((i % batchSize) == 0) {
-                               conn.commit();
-                           }
-                       }
-                       conn.commit();
-                   } catch (SQLException e) {
-                       throw new RuntimeException(e);
-                   } finally {
-                       doneSignal.countDown();
-                   }
-               }
-                
+            runnables[i] = new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        Connection conn = DriverManager.getConnection(getUrl());
+                        for (int i = 0; i < 3000; i++) {
+                            boolean isNull = RAND.nextBoolean();
+                            int randInt = RAND.nextInt() % nIndexValues;
+                            int pk = Math.abs(RAND.nextInt()) % nRows;
+                            conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES (" + pk + ", 0, " + (isNull ? null : randInt) + ")");
+                            if ((i % batchSize) == 0) {
+                                conn.commit();
+                            }
+                        }
+                        conn.commit();
+                        for (int i = 0; i < 3000; i++) {
+                            int pk = Math.abs(RAND.nextInt()) % nRows;
+                            conn.createStatement().execute("DELETE FROM " + fullTableName + " WHERE k1= " + pk + " AND k2=0");
+                            if (i % batchSize == 0) {
+                                conn.commit();
+                            }
+                        }
+                        conn.commit();
+                        for (int i = 0; i < 3000; i++) {
+                            int randInt = RAND.nextInt() % nIndexValues;
+                            int pk = Math.abs(RAND.nextInt()) % nRows;
+                            conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES (" + pk + ", 0, " + randInt + ")");
+                            if ((i % batchSize) == 0) {
+                                conn.commit();
+                            }
+                        }
+                        conn.commit();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        doneSignal.countDown();
+                    }
+                }
+
             };
         }
         for (int i = 0; i < nThreads; i++) {
@@ -200,6 +201,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             t.start();
         }
     }
+
     @Test
     public void testConcurrentUpsertsWithRebuild() throws Throwable {
         int nThreads = 5;
@@ -215,20 +217,21 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         Table metaTable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES);
         conn.createStatement().execute("CREATE TABLE " + fullTableName + "(k1 INTEGER NOT NULL, k2 INTEGER NOT NULL, v1 INTEGER, CONSTRAINT pk PRIMARY KEY (k1,k2)) STORE_NULLS=true, VERSIONS=1");
         conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + fullTableName + "(v1)");
-        
+
         final CountDownLatch doneSignal1 = new CountDownLatch(nThreads);
         mutateRandomly(fullTableName, nThreads, nRows, nIndexValues, batchSize, doneSignal1);
         assertTrue("Ran out of time", doneSignal1.await(120, TimeUnit.SECONDS));
-        
+
         IndexUtil.updateIndexState(fullIndexName, EnvironmentEdgeManager.currentTimeMillis(), metaTable, PIndexState.DISABLE);
         boolean[] cancel = new boolean[1];
         try {
             do {
                 final CountDownLatch doneSignal2 = new CountDownLatch(nThreads);
-                runIndexRebuilderAsync(500,cancel,fullTableName);
+                runIndexRebuilderAsync(500, cancel, fullTableName);
                 mutateRandomly(fullTableName, nThreads, nRows, nIndexValues, batchSize, doneSignal2);
                 assertTrue("Ran out of time", doneSignal2.await(500, TimeUnit.SECONDS));
-            } while (!TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));
+            }
+            while (!TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));
         } finally {
             cancel[0] = true;
         }
@@ -239,7 +242,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
     private static boolean mutateRandomly(Connection conn, String fullTableName, int nRows) throws Exception {
         return mutateRandomly(conn, fullTableName, nRows, false, null);
     }
-    
+
     private static boolean hasInactiveIndex(PMetaData metaCache, PTableKey key) throws TableNotFoundException {
         PTable table = metaCache.getTableRef(key).getTable();
         for (PTable index : table.getIndexes()) {
@@ -265,7 +268,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
     }
 
     private static boolean mutateRandomly(Connection conn, String fullTableName, int nRows, boolean checkForInactive, String fullIndexName) throws SQLException, InterruptedException {
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         PMetaData metaCache = conn.unwrap(PhoenixConnection.class).getMetaDataCache();
         boolean hasInactiveIndex = false;
         int batchSize = 200;
@@ -342,18 +345,18 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             IndexUtil.updateIndexState(fullIndexName, disableTS, metaTable, PIndexState.DISABLE);
             boolean[] cancel = new boolean[1];
             try {
-                runIndexRebuilderAsync(500,cancel,fullTableName);
+                runIndexRebuilderAsync(500, cancel, fullTableName);
                 mutateRandomly(conn, fullTableName, nRows);
                 TestUtil.waitForIndexRebuild(conn, fullIndexName, PIndexState.ACTIVE);
             } finally {
                 cancel[0] = true;
             }
-            
+
             long actualRowCount = IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
-            assertEquals(nRows,actualRowCount);
-       }
+            assertEquals(nRows, actualRowCount);
+        }
     }
-    
+
     @Test
     public void testWriteWhileRebuilding() throws Throwable {
         final int nRows = 10;
@@ -381,7 +384,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
                         doneSignal.countDown();
                     }
                 }
-                
+
             };
             Thread t = new Thread(r);
             t.setDaemon(true);
@@ -390,18 +393,18 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             IndexUtil.updateIndexState(fullIndexName, disableTS, metaTable, PIndexState.DISABLE);
             boolean[] cancel = new boolean[1];
             try {
-                runIndexRebuilderAsync(500,cancel,fullTableName);
+                runIndexRebuilderAsync(500, cancel, fullTableName);
                 TestUtil.waitForIndexRebuild(conn, fullIndexName, PIndexState.ACTIVE);
                 doneSignal.await(60, TimeUnit.SECONDS);
             } finally {
                 cancel[0] = true;
             }
             assertTrue(hasInactiveIndex[0]);
-            
+
             long actualRowCount = IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
-            assertEquals(nRows,actualRowCount);
-            
-       }
+            assertEquals(nRows, actualRowCount);
+
+        }
     }
 
     @Test
@@ -433,7 +436,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
         }
     }
-    
+
     @Test
     public void testUpsertNullAfterFailure() throws Throwable {
         String schemaName = generateUniqueName();
@@ -463,7 +466,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
         }
     }
-    
+
     @Test
     public void testUpsertNullTwiceAfterFailure() throws Throwable {
         String schemaName = generateUniqueName();
@@ -493,7 +496,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
         }
     }
-    
+
     @Test
     public void testDeleteAfterFailure() throws Throwable {
         String schemaName = generateUniqueName();
@@ -519,9 +522,9 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             assertTrue(TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));
 
             IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
-       }
+        }
     }
-    
+
     @Test
     public void testDeleteBeforeFailure() throws Throwable {
         String schemaName = generateUniqueName();
@@ -549,28 +552,29 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
         }
     }
-    
+
     private static class MyClock extends EnvironmentEdge {
         public volatile long time;
         boolean shouldAdvance = true;
-        
-        public MyClock (long time) {
+
+        public MyClock(long time) {
             this.time = time;
         }
-        
+
         @Override
         public long currentTime() {
-            if(shouldAdvance) {
+            if (shouldAdvance) {
                 return time++;
             } else {
                 return time;
             }
         }
+
         public void setAdvance(boolean val) {
             shouldAdvance = val;
         }
     }
-    
+
     private static void waitForIndexState(Connection conn, String fullTableName, String fullIndexName, PIndexState expectedIndexState) throws InterruptedException, SQLException {
         int nRetries = 2;
         PIndexState actualIndexState = null;
@@ -583,7 +587,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         } while (--nRetries > 0);
         fail("Expected index state of " + expectedIndexState + ", but was " + actualIndexState);
     }
-    
+
     @Test
     public void testMultiValuesAtSameTS() throws Throwable {
         String schemaName = generateUniqueName();
@@ -616,7 +620,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             EnvironmentEdgeManager.injectEdge(null);
         }
     }
-    
+
     @Test
     public void testTimeBatchesInCoprocessorRequired() throws Throwable {
         String schemaName = generateUniqueName();
@@ -624,7 +628,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         String indexName = generateUniqueName();
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         final String fullIndexName = SchemaUtil.getTableName(schemaName, indexName);
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         final MyClock clock = new MyClock(1000);
         EnvironmentEdgeManager.injectEdge(clock);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -639,8 +643,8 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('b','bb', '11')");
             conn.commit();
             assertTrue(hasDisabledIndex(metaCache, key));
-            assertEquals(2,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(1,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(2, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullIndexName));
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('a','ccc','0')");
             conn.commit();
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('a','a')");
@@ -655,7 +659,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             EnvironmentEdgeManager.injectEdge(null);
         }
     }
-    
+
     @Test
     public void testBatchingDuringRebuild() throws Throwable {
         String schemaName = generateUniqueName();
@@ -663,7 +667,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         String indexName = generateUniqueName();
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         final String fullIndexName = SchemaUtil.getTableName(schemaName, indexName);
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         final MyClock clock = new MyClock(1000);
         EnvironmentEdgeManager.injectEdge(clock);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -679,18 +683,18 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             conn.commit();
             clock.time += REBUILD_PERIOD;
             assertTrue(hasDisabledIndex(metaCache, key));
-            assertEquals(2,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(1,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(2, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullIndexName));
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('ccc','ccc','222')");
             conn.commit();
-            assertEquals(3,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(1,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(3, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullIndexName));
 
             waitForIndexState(conn, fullTableName, fullIndexName, PIndexState.INACTIVE);
             clock.time += WAIT_AFTER_DISABLED;
             runIndexRebuilder(fullTableName);
-            assertEquals(2,TestUtil.getRowCount(conn, fullIndexName));
-            
+            assertEquals(2, TestUtil.getRowCount(conn, fullIndexName));
+
             clock.time += REBUILD_PERIOD;
             runIndexRebuilder(fullTableName);
             // Verify that other batches were processed
@@ -700,7 +704,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             EnvironmentEdgeManager.injectEdge(null);
         }
     }
-    
+
     @Test
     public void testUpperBoundSetOnRebuild() throws Throwable {
         String schemaName = generateUniqueName();
@@ -708,7 +712,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         String indexName = generateUniqueName();
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         final String fullIndexName = SchemaUtil.getTableName(schemaName, indexName);
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         final MyClock clock = new MyClock(1000);
         EnvironmentEdgeManager.injectEdge(clock);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -723,12 +727,12 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             // Set clock forward in time past the "overlap" amount we wait for index maintenance to kick in
             clock.time += 2 * WAIT_AFTER_DISABLED;
             assertTrue(hasDisabledIndex(metaCache, key));
-            assertEquals(1,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(0,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(0, TestUtil.getRowCount(conn, fullIndexName));
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('bb','bb','11')");
             conn.commit();
-            assertEquals(2,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(0,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(2, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(0, TestUtil.getRowCount(conn, fullIndexName));
             // Set clock back in time and start rebuild
             clock.time = disableTime + 100;
             IndexUtil.updateIndexState(fullIndexName, disableTime, metaTable, PIndexState.DISABLE);
@@ -736,9 +740,9 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             clock.time += WAIT_AFTER_DISABLED;
             runIndexRebuilder(fullTableName);
             assertTrue(TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));
-            assertEquals(2,TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(2, TestUtil.getRowCount(conn, fullTableName));
             // If an upper bound was set on the rebuilder, we should only have found one row
-            assertEquals(1,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullIndexName));
         } finally {
             EnvironmentEdgeManager.injectEdge(null);
         }
@@ -751,7 +755,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         String indexName = generateUniqueName();
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         final String fullIndexName = SchemaUtil.getTableName(schemaName, indexName);
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         final MyClock clock = new MyClock(1000);
         EnvironmentEdgeManager.injectEdge(clock);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -797,19 +801,19 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
     public void testIndexWriteFailureDisablingIndex() throws Throwable {
         testIndexWriteFailureDuringRebuild(PIndexState.DISABLE);
     }
-    
+
     @Test
     public void testIndexWriteFailureLeavingIndexActive() throws Throwable {
         testIndexWriteFailureDuringRebuild(PIndexState.PENDING_ACTIVE);
     }
-    
+
     private void testIndexWriteFailureDuringRebuild(PIndexState indexStateOnFailure) throws Throwable {
         String schemaName = generateUniqueName();
         String tableName = generateUniqueName();
         String indexName = generateUniqueName();
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         final String fullIndexName = SchemaUtil.getTableName(schemaName, indexName);
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         final MyClock clock = new MyClock(1000);
         EnvironmentEdgeManager.injectEdge(clock);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -823,26 +827,26 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             long disableTime = clock.currentTime();
             // Simulates an index write failure
             IndexUtil.updateIndexState(fullIndexName, indexStateOnFailure == PIndexState.DISABLE ? disableTime : -disableTime, metaTable, indexStateOnFailure);
-            
+
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('bb','bb', '11')");
             conn.commit();
-            
+
             // Large enough to be in separate time batch
             clock.time += 2 * REBUILD_PERIOD;
             assertTrue(hasIndexWithState(metaCache, key, indexStateOnFailure));
-            assertEquals(2,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(1,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(2, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullIndexName));
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('ccc','ccc','222')");
             conn.commit();
-            assertEquals(3,TestUtil.getRowCount(conn, fullTableName));
-            assertEquals(1,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(3, TestUtil.getRowCount(conn, fullTableName));
+            assertEquals(1, TestUtil.getRowCount(conn, fullIndexName));
 
             waitForIndexState(conn, fullTableName, fullIndexName, indexStateOnFailure == PIndexState.DISABLE ? PIndexState.INACTIVE : PIndexState.ACTIVE);
             clock.time += WAIT_AFTER_DISABLED;
-            
+
             // First batch should have been processed
             runIndexRebuilder(fullTableName);
-            assertEquals(2,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(2, TestUtil.getRowCount(conn, fullIndexName));
 
             // Simulate write failure
             TestUtil.addCoprocessor(conn, fullIndexName, WriteFailingRegionObserver.class);
@@ -863,10 +867,10 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
 
             waitForIndexState(conn, fullTableName, fullIndexName, indexStateOnFailure == PIndexState.DISABLE ? PIndexState.INACTIVE : PIndexState.ACTIVE);
             clock.time += WAIT_AFTER_DISABLED;
-            
+
             // First batch should have been processed again because we started over
             runIndexRebuilder(fullTableName);
-            assertEquals(3,TestUtil.getRowCount(conn, fullIndexName));
+            assertEquals(3, TestUtil.getRowCount(conn, fullIndexName));
 
             clock.time += 2 * REBUILD_PERIOD;
             // Second batch should have been processed now
@@ -874,14 +878,14 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             clock.time += 2 * REBUILD_PERIOD;
             runIndexRebuilder(fullTableName);
             TestUtil.assertIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L);
-            
+
             // Verify that other batches were processed
             IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
         } finally {
             EnvironmentEdgeManager.injectEdge(null);
         }
     }
-    
+
     @Test
     public void testDeleteAndUpsertValuesAtSameTS1() throws Throwable {
         String schemaName = generateUniqueName();
@@ -913,7 +917,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             EnvironmentEdgeManager.injectEdge(null);
         }
     }
-    
+
     @Test
     public void testDeleteAndUpsertValuesAtSameTS2() throws Throwable {
         String schemaName = generateUniqueName();
@@ -951,7 +955,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         String schemaName = generateUniqueName();
         String tableName = generateUniqueName();
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
-        PTableKey key = new PTableKey(null,fullTableName);
+        PTableKey key = new PTableKey(null, fullTableName);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             PMetaData metaCache = conn.unwrap(PhoenixConnection.class).getMetaDataCache();
             conn.createStatement().execute("CREATE TABLE " + fullTableName + "(k VARCHAR PRIMARY KEY)");
@@ -1000,7 +1004,7 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
             assertEquals(fullIndexName, stmt.getQueryPlan().getContext().getCurrentTable().getTable().getName().getString());
             // over threshold should not use the index
             long pendingDisableThreshold = conf.getLong(QueryServices.INDEX_PENDING_DISABLE_THRESHOLD,
-                QueryServicesOptions.DEFAULT_INDEX_PENDING_DISABLE_THRESHOLD);
+                    QueryServicesOptions.DEFAULT_INDEX_PENDING_DISABLE_THRESHOLD);
             clock.time += pendingDisableThreshold + 1000;
             stmt = conn.createStatement().unwrap(PhoenixStatement.class);
             rs = stmt.executeQuery("SELECT V2 FROM " + fullTableName + " WHERE V1 = 'a'");
@@ -1065,33 +1069,33 @@ public class PartialIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             try {
                 conn.createStatement().execute("CREATE TABLE " + fullTableName
-                    + "(k1 INTEGER NOT NULL, k2 INTEGER NOT NULL, v1 INTEGER, "
-                    + "CONSTRAINT pk PRIMARY KEY (k1,k2)) STORE_NULLS=true, VERSIONS=1");
+                        + "(k1 INTEGER NOT NULL, k2 INTEGER NOT NULL, v1 INTEGER, "
+                        + "CONSTRAINT pk PRIMARY KEY (k1,k2)) STORE_NULLS=true, VERSIONS=1");
                 conn.createStatement().execute("CREATE INDEX " + indexName + " ON "
-                    + fullTableName + "(v1)");
+                        + fullTableName + "(v1)");
                 conn.commit();
                 long disableTS = clock.currentTime();
                 Table metaTable = conn.unwrap(PhoenixConnection.class).getQueryServices()
                         .getTable(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES);
                 IndexUtil.updateIndexState(fullIndexName, disableTS,
-                    metaTable, PIndexState.DISABLE);
+                        metaTable, PIndexState.DISABLE);
                 assertTrue(TestUtil.checkIndexState(conn, fullIndexName,
-                    PIndexState.DISABLE, disableTS));
+                        PIndexState.DISABLE, disableTS));
                 mutateRandomly(fullTableName, nThreads, nRows,
-                    nIndexValues, batchSize, doneSignal);
+                        nIndexValues, batchSize, doneSignal);
                 assertTrue("Ran out of time", doneSignal.await(120, TimeUnit.SECONDS));
                 runIndexRebuilder(fullTableName);
                 assertTrue(TestUtil.checkIndexState(conn, fullIndexName,
-                    PIndexState.INACTIVE, disableTS));
+                        PIndexState.INACTIVE, disableTS));
                 clock.time += WAIT_AFTER_DISABLED;
-                runIndexRebuilderAsync(500,cancel,fullTableName);
+                runIndexRebuilderAsync(500, cancel, fullTableName);
                 unassignRegionAsync(fullIndexName);
                 while (runRebuildOnce) {
                     PIndexState indexState = TestUtil.getIndexState(conn, fullIndexName);
                     if (indexState != PIndexState.INACTIVE && indexState != PIndexState.ACTIVE) {
                         cancel[0] = true;
                         throw new Exception("Index State should not transtion from INACTIVE to "
-                            + indexState);
+                                + indexState);
                     }
                 }
                 assertTrue(TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));

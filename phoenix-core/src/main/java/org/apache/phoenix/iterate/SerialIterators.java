@@ -49,20 +49,18 @@ import com.google.common.collect.Lists;
 
 
 /**
- *
  * Class that parallelizes the scan over a table using the ExecutorService provided.  Each region of the table will be scanned in parallel with
  * the results accessible through {@link #getIterators()}
  *
- * 
  * @since 0.1
  */
 public class SerialIterators extends BaseResultIterators {
-	private static final String NAME = "SERIAL";
+    private static final String NAME = "SERIAL";
     private final ParallelIteratorFactory iteratorFactory;
     private final Integer offset;
-    
+
     public SerialIterators(QueryPlan plan, Integer perScanLimit, Integer offset,
-            ParallelIteratorFactory iteratorFactory, ParallelScanGrouper scanGrouper, Scan scan, Map<ImmutableBytesPtr,ServerCache> caches, QueryPlan dataPlan)
+                           ParallelIteratorFactory iteratorFactory, ParallelScanGrouper scanGrouper, Scan scan, Map<ImmutableBytesPtr, ServerCache> caches, QueryPlan dataPlan)
             throws SQLException {
         super(plan, perScanLimit, offset, scanGrouper, scan, caches, dataPlan);
         this.offset = offset;
@@ -78,8 +76,8 @@ public class SerialIterators extends BaseResultIterators {
     }
 
     @Override
-    protected void submitWork(final List<List<Scan>> nestedScans, List<List<Pair<Scan,Future<PeekingResultIterator>>>> nestedFutures,
-            final Queue<PeekingResultIterator> allIterators, int estFlattenedSize, boolean isReverse, final ParallelScanGrouper scanGrouper) {
+    protected void submitWork(final List<List<Scan>> nestedScans, List<List<Pair<Scan, Future<PeekingResultIterator>>>> nestedFutures,
+                              final Queue<PeekingResultIterator> allIterators, int estFlattenedSize, boolean isReverse, final ParallelScanGrouper scanGrouper) {
         ExecutorService executor = context.getConnection().getQueryServices().getExecutor();
         final String tableName = tableRef.getTable().getPhysicalName().getString();
         final TaskExecutionMetricsHolder taskMetrics = new TaskExecutionMetricsHolder(context.getReadMetricsQueue(), tableName);
@@ -90,7 +88,7 @@ public class SerialIterators extends BaseResultIterators {
         for (List<Scan> list : nestedScans) {
             flattenedScans.addAll(list);
         }
-        if (!flattenedScans.isEmpty()) { 
+        if (!flattenedScans.isEmpty()) {
             if (isReverse) {
                 flattenedScans = Lists.reverse(flattenedScans);
             }
@@ -126,9 +124,8 @@ public class SerialIterators extends BaseResultIterators {
     protected String getName() {
         return NAME;
     }
-    
+
     /**
-     * 
      * Iterator that creates iterators for scans only when needed.
      * This helps reduce the cost of pre-constructing all the iterators
      * which we may not even use.
@@ -140,9 +137,9 @@ public class SerialIterators extends BaseResultIterators {
         private int index;
         private PeekingResultIterator currentIterator;
         private Integer remainingOffset;
-        private Map<ImmutableBytesPtr,ServerCache> caches;
-        
-        private SerialIterator(List<Scan> flattenedScans, String tableName, long renewLeaseThreshold, Integer offset, Map<ImmutableBytesPtr,ServerCache> caches) throws SQLException {
+        private Map<ImmutableBytesPtr, ServerCache> caches;
+
+        private SerialIterator(List<Scan> flattenedScans, String tableName, long renewLeaseThreshold, Integer offset, Map<ImmutableBytesPtr, ServerCache> caches) throws SQLException {
             this.scans = Lists.newArrayListWithExpectedSize(flattenedScans.size());
             this.tableName = tableName;
             this.renewLeaseThreshold = renewLeaseThreshold;
@@ -154,7 +151,7 @@ public class SerialIterators extends BaseResultIterators {
                 this.scans.get(this.scans.size() - 1).setAttribute(QueryConstants.LAST_SCAN, Bytes.toBytes(Boolean.TRUE));
             }
         }
-        
+
         private PeekingResultIterator currentIterator() throws SQLException {
             if (currentIterator == null) {
                 return currentIterator = nextIterator();
@@ -165,7 +162,7 @@ public class SerialIterators extends BaseResultIterators {
             }
             return currentIterator;
         }
-        
+
         private PeekingResultIterator nextIterator() throws SQLException {
             if (index >= scans.size()) {
                 return EMPTY_ITERATOR;
@@ -178,7 +175,7 @@ public class SerialIterators extends BaseResultIterators {
                 }
                 ScanMetricsHolder scanMetricsHolder =
                         ScanMetricsHolder.getInstance(readMetrics, tableName, currentScan,
-                            context.getConnection().getLogLevel());
+                                context.getConnection().getLogLevel());
                 TableResultIterator itr =
                         new TableResultIterator(mutationState, currentScan, scanMetricsHolder,
                                 renewLeaseThreshold, plan, scanGrouper, caches);
@@ -197,14 +194,15 @@ public class SerialIterators extends BaseResultIterators {
             }
             return EMPTY_ITERATOR;
         }
-        
+
         @Override
         public Tuple next() throws SQLException {
             return currentIterator().next();
         }
 
         @Override
-        public void explain(List<String> planSteps) {}
+        public void explain(List<String> planSteps) {
+        }
 
         @Override
         public void close() throws SQLException {
@@ -217,6 +215,6 @@ public class SerialIterators extends BaseResultIterators {
         public Tuple peek() throws SQLException {
             return currentIterator().peek();
         }
-        
+
     }
 }

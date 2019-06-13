@@ -20,28 +20,26 @@ package org.apache.phoenix.monitoring;
 import org.apache.phoenix.util.PhoenixStopWatch;
 
 /**
- * 
  * Stop watch that is cognizant of the fact whether or not metrics is enabled.
  * If metrics isn't enabled it doesn't do anything. Otherwise, it delegates
  * calls to a {@code PhoenixStopWatch}.
- *
  */
 final class MetricsStopWatch {
-    
+
     private final boolean isMetricsEnabled;
     private final PhoenixStopWatch stopwatch;
-    
+
     MetricsStopWatch(boolean isMetricsEnabled) {
         this.isMetricsEnabled = isMetricsEnabled;
         this.stopwatch = new PhoenixStopWatch();
     }
-    
-    void start()  {
+
+    void start() {
         if (isMetricsEnabled) {
             stopwatch.start();
         }
     }
-    
+
     void stop() {
         if (isMetricsEnabled) {
             if (stopwatch.isRunning()) {
@@ -49,7 +47,7 @@ final class MetricsStopWatch {
             }
         }
     }
-    
+
     long getElapsedTimeInMs() {
         if (isMetricsEnabled) {
             return stopwatch.elapsedMillis();

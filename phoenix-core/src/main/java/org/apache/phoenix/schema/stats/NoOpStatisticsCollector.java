@@ -59,7 +59,8 @@ public class NoOpStatisticsCollector implements StatisticsCollector {
         // No-op
     }
 
-    @Override public GuidePostsInfo getGuidePosts(ImmutableBytesPtr fam) {
+    @Override
+    public GuidePostsInfo getGuidePosts(ImmutableBytesPtr fam) {
         return null;
     }
 

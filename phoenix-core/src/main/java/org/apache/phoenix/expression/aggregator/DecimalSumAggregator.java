@@ -29,16 +29,14 @@ import org.apache.phoenix.util.SizedUtil;
 
 
 /**
- * 
  * Aggregator that sums BigDecimal values
  *
- * 
  * @since 0.1
  */
 public class DecimalSumAggregator extends BaseAggregator {
     private BigDecimal sum = BigDecimal.ZERO;
     private byte[] sumBuffer;
-    
+
     public DecimalSumAggregator(SortOrder sortOrder, ImmutableBytesWritable ptr) {
         super(sortOrder);
         if (ptr != null) {
@@ -46,11 +44,11 @@ public class DecimalSumAggregator extends BaseAggregator {
             sum = (BigDecimal) PDecimal.INSTANCE.toObject(ptr);
         }
     }
-    
+
     private PDataType getInputDataType() {
         return PDecimal.INSTANCE;
     }
-    
+
     private int getBufferLength() {
         return getDataType().getByteSize();
     }
@@ -58,16 +56,16 @@ public class DecimalSumAggregator extends BaseAggregator {
     private void initBuffer() {
         sumBuffer = new byte[getBufferLength()];
     }
-    
+
     @Override
     public void aggregate(Tuple tuple, ImmutableBytesWritable ptr) {
-        BigDecimal value = (BigDecimal)getDataType().toObject(ptr, getInputDataType(), sortOrder);
+        BigDecimal value = (BigDecimal) getDataType().toObject(ptr, getInputDataType(), sortOrder);
         sum = sum.add(value);
         if (sumBuffer == null) {
             sumBuffer = new byte[getDataType().getByteSize()];
         }
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (sumBuffer == null) {
@@ -77,12 +75,12 @@ public class DecimalSumAggregator extends BaseAggregator {
         ptr.set(sumBuffer, 0, len);
         return true;
     }
-    
+
     @Override
     public final PDataType getDataType() {
         return PDecimal.INSTANCE;
     }
-    
+
     @Override
     public void reset() {
         sum = BigDecimal.ZERO;

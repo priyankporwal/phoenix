@@ -47,7 +47,7 @@ public class Array1IT extends ArrayIT {
         assertEquals(expectedArray, rs.getArray(arrayIndex));
         assertEquals("[" + expectedString + "]", rs.getString(arrayIndex));
     }
-    
+
     private static String createTableWithAllArrayTypes(String url, byte[][] bs, Object object) throws SQLException {
         String tableName = generateUniqueName();
         String ddlStmt = "create table "
@@ -67,7 +67,7 @@ public class Array1IT extends ArrayIT {
         BaseTest.createTestTable(url, ddlStmt, bs, null);
         return tableName;
     }
-    
+
     private static String createSimpleTableWithArray(String url, byte[][] bs, Object object) throws SQLException {
         String tableName = generateUniqueName();
         String ddlStmt = "create table "
@@ -84,24 +84,24 @@ public class Array1IT extends ArrayIT {
     }
 
     private static void initSimpleArrayTable(String tableName, String tenantId, Date date, boolean useNull) throws Exception {
-       Properties props = new Properties();
+        Properties props = new Properties();
 
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             // Insert all rows at ts
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + tableName +
-                    "(" +
-                    "    ORGANIZATION_ID, " +
-                    "    ENTITY_ID, " +
-                    "    x_double, " +
-                    "    a_double_array, a_char_array)" +
-                    "VALUES (?, ?, ?, ?, ?)");
+                            "(" +
+                            "    ORGANIZATION_ID, " +
+                            "    ENTITY_ID, " +
+                            "    x_double, " +
+                            "    a_double_array, a_char_array)" +
+                            "VALUES (?, ?, ?, ?, ?)");
             stmt.setString(1, tenantId);
             stmt.setString(2, ROW1);
             stmt.setDouble(3, 1.2d);
             // Need to support primitive
-            Double[] doubleArr =  new Double[2];
+            Double[] doubleArr = new Double[2];
             doubleArr[0] = 64.87;
             doubleArr[1] = 89.96;
             //doubleArr[2] = 9.9;
@@ -109,7 +109,7 @@ public class Array1IT extends ArrayIT {
             stmt.setArray(4, array);
 
             // create character array
-            String[] charArr =  new String[2];
+            String[] charArr = new String[2];
             charArr[0] = "a";
             charArr[1] = "b";
             array = conn.createArrayOf("CHAR", charArr);
@@ -120,7 +120,7 @@ public class Array1IT extends ArrayIT {
         } finally {
             conn.close();
         }
-   }
+    }
 
     @Test
     public void testScanByArrayValue() throws Exception {
@@ -282,7 +282,7 @@ public class Array1IT extends ArrayIT {
             Double[] doubleArr = new Double[1];
             doubleArr[0] = 36.763;
             conn.createArrayOf("DOUBLE", doubleArr);
-            Double result =  rs.getDouble(1);
+            Double result = rs.getDouble(1);
             assertEquals(doubleArr[0], result);
             assertFalse(rs.next());
         } finally {
@@ -306,7 +306,7 @@ public class Array1IT extends ArrayIT {
             // Need to support primitive
             Double[] doubleArr = new Double[1];
             doubleArr[0] = 37.56;
-            Double result =  rs.getDouble(1);
+            Double result = rs.getDouble(1);
             assertEquals(doubleArr[0], result);
             assertFalse(rs.next());
         } finally {
@@ -330,7 +330,7 @@ public class Array1IT extends ArrayIT {
             // Need to support primitive
             Double[] doubleArr = new Double[1];
             doubleArr[0] = 37.56;
-            Double result =  rs.getDouble(1);
+            Double result = rs.getDouble(1);
             assertEquals(doubleArr[0], result);
             assertFalse(rs.next());
         } finally {
@@ -345,7 +345,7 @@ public class Array1IT extends ArrayIT {
         String query = "upsert into  " + tableName + " (ORGANIZATION_ID,ENTITY_ID,a_double_array) values('" + tenantId
                 + "','00A123122312312',ARRAY[2.0,345.8])";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-                                                                                 // at
+        // at
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
@@ -547,7 +547,7 @@ public class Array1IT extends ArrayIT {
     public void testArraySelectWithANYUsingVarLengthArray() throws Exception {
         Connection conn = null;
         try {
-    
+
             String tenantId = getOrganizationId();
             String table = createTableWithArray(getUrl(), getDefaultSplits(tenantId), null);
             initTablesWithArrays(table, tenantId, null, false, getUrl());
@@ -635,7 +635,7 @@ public class Array1IT extends ArrayIT {
             // since array is var length, last string element is messed up
             String expectedPrefix = "['abc', 'defgh', 'b";
             assertTrue("Expected to start with " + expectedPrefix,
-                rs.getString(2).startsWith(expectedPrefix));
+                    rs.getString(2).startsWith(expectedPrefix));
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -671,7 +671,7 @@ public class Array1IT extends ArrayIT {
             assertEquals(resultArr, array);
             String expectedPrefix = "['abc', null, 'bcd', null, null, 'b";
             assertTrue("Expected to start with " + expectedPrefix,
-                rs.getString(2).startsWith(expectedPrefix));
+                    rs.getString(2).startsWith(expectedPrefix));
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -757,10 +757,10 @@ public class Array1IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO " + table + " VALUES(?,?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] { "abc", "def", "ghi", "jkll", null, null, "xxx" };
+        String[] s = new String[] {"abc", "def", "ghi", "jkll", null, null, "xxx"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "abc", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"abc", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -770,7 +770,7 @@ public class Array1IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("SELECT b_string_array FROM  " + table);
         assertTrue(rs.next());
-        PhoenixArray strArr = (PhoenixArray)rs.getArray(1);
+        PhoenixArray strArr = (PhoenixArray) rs.getArray(1);
         assertEquals(array, strArr);
         assertEquals("['abc', 'def', 'ghi', 'jkll', null, null, null, 'xxx']", rs.getString(1));
         conn.close();
@@ -798,7 +798,7 @@ public class Array1IT extends ArrayIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_ELEM(a,2) FROM  " + table);
         assertTrue(rs.next());
         Float f = new Float(3.0);
-        assertEquals(f, (Float)rs.getFloat(1));
+        assertEquals(f, (Float) rs.getFloat(1));
         conn.close();
     }
 
@@ -851,9 +851,9 @@ public class Array1IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("SELECT k, CAST(a[2] AS DOUBLE) FROM  " + table);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
+        assertEquals("a", rs.getString(1));
         Double d = new Double(2.0);
-        assertEquals(d, (Double)rs.getDouble(2));
+        assertEquals(d, (Double) rs.getDouble(2));
         conn.close();
     }
 
@@ -878,35 +878,35 @@ public class Array1IT extends ArrayIT {
         stmt.setString(1, tenantId);
         stmt.setString(2, ROW1);
         // boolean array
-        Array boolArray = conn.createArrayOf("BOOLEAN", new Boolean[] { true, false });
+        Array boolArray = conn.createArrayOf("BOOLEAN", new Boolean[] {true, false});
         int boolIndex = 3;
         stmt.setArray(boolIndex, boolArray);
         // byte array
-        Array byteArray = conn.createArrayOf("TINYINT", new Byte[] { 11, 22 });
+        Array byteArray = conn.createArrayOf("TINYINT", new Byte[] {11, 22});
         int byteIndex = 4;
         stmt.setArray(byteIndex, byteArray);
         // double array
-        Array doubleArray = conn.createArrayOf("DOUBLE", new Double[] { 67.78, 78.89 });
+        Array doubleArray = conn.createArrayOf("DOUBLE", new Double[] {67.78, 78.89});
         int doubleIndex = 5;
         stmt.setArray(doubleIndex, doubleArray);
         // float array
-        Array floatArray = conn.createArrayOf("FLOAT", new Float[] { 12.23f, 45.56f });
+        Array floatArray = conn.createArrayOf("FLOAT", new Float[] {12.23f, 45.56f});
         int floatIndex = 6;
         stmt.setArray(floatIndex, floatArray);
         // int array
-        Array intArray = conn.createArrayOf("INTEGER", new Integer[] { 5555, 6666 });
+        Array intArray = conn.createArrayOf("INTEGER", new Integer[] {5555, 6666});
         int intIndex = 7;
         stmt.setArray(intIndex, intArray);
         // long array
-        Array longArray = conn.createArrayOf("BIGINT", new Long[] { 7777777L, 8888888L });
+        Array longArray = conn.createArrayOf("BIGINT", new Long[] {7777777L, 8888888L});
         int longIndex = 8;
         stmt.setArray(longIndex, longArray);
         // short array
-        Array shortArray = conn.createArrayOf("SMALLINT", new Short[] { 333, 444 });
+        Array shortArray = conn.createArrayOf("SMALLINT", new Short[] {333, 444});
         int shortIndex = 9;
         stmt.setArray(shortIndex, shortArray);
         // create character array
-        Array stringArray = conn.createArrayOf("VARCHAR", new String[] { "a", "b" });
+        Array stringArray = conn.createArrayOf("VARCHAR", new String[] {"a", "b"});
         int stringIndex = 10;
         stmt.setArray(stringIndex, stringArray);
         stmt.execute();
@@ -924,7 +924,7 @@ public class Array1IT extends ArrayIT {
 
         assertEquals(tenantId, rs.getString(1));
         assertEquals(ROW1, rs.getString(2));
-        
+
         assertArrayGetString(rs, boolIndex, boolArray, "true, false");
         assertArrayGetString(rs, byteIndex, byteArray, "11, 22");
         assertArrayGetString(rs, doubleIndex, doubleArray, "67.78, 78.89");
@@ -944,14 +944,14 @@ public class Array1IT extends ArrayIT {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         conn = DriverManager.getConnection(getUrl(), props);
-        String table = generateUniqueName(); 
+        String table = generateUniqueName();
         conn.createStatement().execute("CREATE TABLE " + table + " ( k VARCHAR PRIMARY KEY, a bigint ARRAY[])");
         conn.close();
 
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?)");
         stmt.setString(1, "a");
-        Long[] s = new Long[] { 1l, 2l };
+        Long[] s = new Long[] {1l, 2l};
         Array array = conn.createArrayOf("BIGINT", s);
         stmt.setArray(2, array);
         stmt.execute();
@@ -960,9 +960,9 @@ public class Array1IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("SELECT CAST(a AS DOUBLE []) FROM  " + table);
         assertTrue(rs.next());
-        Double[] d = new Double[] { 1.0, 2.0 };
+        Double[] d = new Double[] {1.0, 2.0};
         array = conn.createArrayOf("DOUBLE", d);
-        PhoenixArray arr = (PhoenixArray)rs.getArray(1);
+        PhoenixArray arr = (PhoenixArray) rs.getArray(1);
         assertEquals(array, arr);
         assertEquals("[1.0, 2.0]", rs.getString(1));
         conn.close();
@@ -982,8 +982,8 @@ public class Array1IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] { "1", "2" };
-        PhoenixArray array = (PhoenixArray)conn.createArrayOf("VARCHAR", s);
+        String[] s = new String[] {"1", "2"};
+        PhoenixArray array = (PhoenixArray) conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
         stmt.execute();
         conn.commit();
@@ -992,9 +992,9 @@ public class Array1IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("SELECT CAST(a AS CHAR ARRAY) FROM  " + table);
         assertTrue(rs.next());
-        PhoenixArray arr = (PhoenixArray)rs.getArray(1);
-        String[] array2 = (String[])array.getArray();
-        String[] array3 = (String[])arr.getArray();
+        PhoenixArray arr = (PhoenixArray) rs.getArray(1);
+        String[] array2 = (String[]) array.getArray();
+        String[] array3 = (String[]) arr.getArray();
         assertEquals(array2[0], array3[0]);
         assertEquals(array2[1], array3[1]);
         assertEquals("['1', '2']", rs.getString(1));

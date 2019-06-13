@@ -71,9 +71,10 @@ public class StatisticsCollectionRunTrackerIT extends ParallelStatsEnabledIT {
         runUpdateStats(tableName);
         // assert that after update stats is complete, tracker isn't tracking the region any more
         assertFalse(tracker.removeUpdateStatsCommandRegion(regionInfo, new HashSet<byte[]>(Arrays.asList(Bytes.toBytes("0")))));
-        assertFalse(tracker.removeUpdateStatsCommandRegion(regionInfo, new HashSet<byte[]>(Arrays.asList(Bytes.toBytes("L#0")))));;
+        assertFalse(tracker.removeUpdateStatsCommandRegion(regionInfo, new HashSet<byte[]>(Arrays.asList(Bytes.toBytes("L#0")))));
+        ;
     }
-    
+
     @Test
     public void testStateBeforeAndAfterMajorCompaction() throws Exception {
         String tableName = fullTableName;
@@ -97,11 +98,11 @@ public class StatisticsCollectionRunTrackerIT extends ParallelStatsEnabledIT {
         // assert that removing the region from the tracker works
         assertTrue(tracker.removeCompactingRegion(regionInfo));
         runMajorCompaction(tableName);
-        
+
         // assert that after major compaction is complete, tracker isn't tracking the region any more
         assertFalse(tracker.removeCompactingRegion(regionInfo));
     }
-    
+
     @Test
     public void testMajorCompactionPreventsUpdateStatsFromRunning() throws Exception {
         String tableName = fullTableName;
@@ -114,24 +115,24 @@ public class StatisticsCollectionRunTrackerIT extends ParallelStatsEnabledIT {
                 StatisticsCollectionRunTracker.getInstance(new Configuration());
         // assert that the tracker state was cleared.
         HashSet<byte[]> familyMap = new HashSet<byte[]>(Arrays.asList(Bytes.toBytes("0")));
-        assertFalse(tracker.removeUpdateStatsCommandRegion(regionInfo,familyMap));
+        assertFalse(tracker.removeUpdateStatsCommandRegion(regionInfo, familyMap));
     }
-    
+
     @Test
     public void testUpdateStatsPreventsAnotherUpdateStatsFromRunning() throws Exception {
         String tableName = fullTableName;
         RegionInfo regionInfo = createTableAndGetRegion(tableName);
         HashSet<byte[]> familyMap = new HashSet<byte[]>(Arrays.asList(Bytes.toBytes("0")));
-        markRunningUpdateStats(regionInfo,familyMap);
+        markRunningUpdateStats(regionInfo, familyMap);
         //there will be no update for a table but local index should succeed, so checking 2 * COMPACTION_UPDATE_STATS_ROW_COUNT
         assertTrue("Local index stats are not updated!", CONCURRENT_UPDATE_STATS_ROW_COUNT < runUpdateStats(tableName));
-        
+
         // assert that running the concurrent and race-losing update stats didn't clear the region
         // from the tracker. If the method returned true it means the tracker was still tracking
         // the region. Slightly counter-intuitive, yes.
-        assertTrue(tracker.removeUpdateStatsCommandRegion(regionInfo,familyMap));
+        assertTrue(tracker.removeUpdateStatsCommandRegion(regionInfo, familyMap));
     }
-    
+
     private void markRegionAsCompacting(RegionInfo regionInfo) {
         StatisticsCollectionRunTracker tracker =
                 StatisticsCollectionRunTracker.getInstance(new Configuration());
@@ -141,7 +142,7 @@ public class StatisticsCollectionRunTrackerIT extends ParallelStatsEnabledIT {
     private void markRunningUpdateStats(RegionInfo regionInfo, HashSet<byte[]> familyMap) {
         StatisticsCollectionRunTracker tracker =
                 StatisticsCollectionRunTracker.getInstance(new Configuration());
-        tracker.addUpdateStatsCommandRegion(regionInfo,familyMap);
+        tracker.addUpdateStatsCommandRegion(regionInfo, familyMap);
     }
 
     private RegionInfo createTableAndGetRegion(String tableName) throws Exception {
@@ -157,13 +158,13 @@ public class StatisticsCollectionRunTrackerIT extends ParallelStatsEnabledIT {
             }
         }
     }
-    
+
     private long runUpdateStats(String tableName) throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             return conn.createStatement().executeUpdate("UPDATE STATISTICS " + tableName);
         }
     }
-    
+
     private void runMajorCompaction(String tableName) throws Exception {
         try (PhoenixConnection conn = DriverManager.getConnection(getUrl()).unwrap(PhoenixConnection.class)) {
             try (Admin admin = conn.getQueryServices().getAdmin()) {

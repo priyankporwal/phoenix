@@ -26,7 +26,7 @@ import java.sql.Statement;
 public class DelegateStatement implements Statement {
 
     protected Statement stmt;
-    
+
     public DelegateStatement(Statement stmt) {
         this.stmt = stmt;
     }

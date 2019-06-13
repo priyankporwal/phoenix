@@ -32,7 +32,7 @@ public class DoubleDivideExpression extends DivideExpression {
     public DoubleDivideExpression(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         double result = 0.0;

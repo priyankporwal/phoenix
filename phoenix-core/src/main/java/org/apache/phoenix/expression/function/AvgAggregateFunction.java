@@ -32,7 +32,7 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 
-@BuiltInFunction(name=AvgAggregateFunction.NAME, nodeClass=AvgAggregateParseNode.class, args= {@Argument(allowedTypes={PDecimal.class})} )
+@BuiltInFunction(name = AvgAggregateFunction.NAME, nodeClass = AvgAggregateParseNode.class, args = {@Argument(allowedTypes = {PDecimal.class})})
 public class AvgAggregateFunction extends CompositeAggregateFunction {
     public static final String NAME = "AVG";
     private final CountAggregateFunction countFunc;
@@ -56,7 +56,7 @@ public class AvgAggregateFunction extends CompositeAggregateFunction {
 
     private void setScale(List<Expression> children) {
         scale = PDataType.MIN_DECIMAL_AVG_SCALE; // At least 4;
-        for (Expression child: children) {
+        for (Expression child : children) {
             if (child.getScale() != null) {
                 scale = Math.max(scale, child.getScale());
             }
@@ -77,7 +77,7 @@ public class AvgAggregateFunction extends CompositeAggregateFunction {
         if (count == 0) {
             return false;
         }
-        
+
         // Normal case where a column reference was used as the argument to AVG
         if (!countFunc.isConstantExpression()) {
             sumFunc.evaluate(tuple, ptr);
@@ -89,7 +89,7 @@ public class AvgAggregateFunction extends CompositeAggregateFunction {
             ptr.set(PDecimal.INSTANCE.toBytes(avg));
             return true;
         }
-        BigDecimal value = (BigDecimal) ((LiteralExpression)countFunc.getChildren().get(0)).getValue();
+        BigDecimal value = (BigDecimal) ((LiteralExpression) countFunc.getChildren().get(0)).getValue();
         value = value.setScale(scale, BigDecimal.ROUND_DOWN);
         ptr.set(PDecimal.INSTANCE.toBytes(value));
         return true;

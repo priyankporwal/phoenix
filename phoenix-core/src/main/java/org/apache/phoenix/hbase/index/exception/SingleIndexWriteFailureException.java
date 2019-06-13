@@ -31,57 +31,60 @@ import com.google.common.base.Objects;
 @SuppressWarnings("serial")
 public class SingleIndexWriteFailureException extends IndexWriteException {
 
-  public static final String FAILED_MSG = "Failed to make index update:";
-  private String table;
-  private String mutationsMsg;
+    public static final String FAILED_MSG = "Failed to make index update:";
+    private String table;
+    private String mutationsMsg;
 
-  /**
-   * Cannot reach the index, but not sure of the table or the mutations that caused the failure
-   * @param msg more description of what happened
-   * @param cause original cause
-   */
-  public SingleIndexWriteFailureException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+    /**
+     * Cannot reach the index, but not sure of the table or the mutations that caused the failure
+     *
+     * @param msg   more description of what happened
+     * @param cause original cause
+     */
+    public SingleIndexWriteFailureException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 
-  /**
-   * Failed to write the passed mutations to an index table for some reason.
-   * @param targetTableName index table to which we attempted to write
-   * @param mutations mutations that were attempted
-   * @param cause underlying reason for the failure
-   */
-  public SingleIndexWriteFailureException(String targetTableName, List<Mutation> mutations,
-      Exception cause, boolean disableIndexOnFailure) {
-    super(cause, disableIndexOnFailure);
-    this.table = targetTableName;
-    this.mutationsMsg = mutations.toString();
-  }
+    /**
+     * Failed to write the passed mutations to an index table for some reason.
+     *
+     * @param targetTableName index table to which we attempted to write
+     * @param mutations       mutations that were attempted
+     * @param cause           underlying reason for the failure
+     */
+    public SingleIndexWriteFailureException(String targetTableName, List<Mutation> mutations,
+                                            Exception cause, boolean disableIndexOnFailure) {
+        super(cause, disableIndexOnFailure);
+        this.table = targetTableName;
+        this.mutationsMsg = mutations.toString();
+    }
 
-  /**
-   * This constructor used to rematerialize this exception when receiving
-   * an rpc exception from the server
-   * @param message detail message
-   */
-  public SingleIndexWriteFailureException(String msg) {
-      super(IndexWriteException.parseDisableIndexOnFailure(msg));
-      Pattern pattern = Pattern.compile(FAILED_MSG + ".* table: ([\\S]*)\\s.*", Pattern.DOTALL);
-      Matcher m = pattern.matcher(msg);
-      if (m.find()) {
-          this.table = m.group(1);
-      }
-  }
+    /**
+     * This constructor used to rematerialize this exception when receiving
+     * an rpc exception from the server
+     *
+     * @param message detail message
+     */
+    public SingleIndexWriteFailureException(String msg) {
+        super(IndexWriteException.parseDisableIndexOnFailure(msg));
+        Pattern pattern = Pattern.compile(FAILED_MSG + ".* table: ([\\S]*)\\s.*", Pattern.DOTALL);
+        Matcher m = pattern.matcher(msg);
+        if (m.find()) {
+            this.table = m.group(1);
+        }
+    }
 
-  /**
-   * @return The table to which we failed to write the index updates. If unknown, returns
-   *         <tt>null</tt>
-   */
-  public String getTableName() {
-    return this.table;
-  }
+    /**
+     * @return The table to which we failed to write the index updates. If unknown, returns
+     * <tt>null</tt>
+     */
+    public String getTableName() {
+        return this.table;
+    }
 
-  @Override
+    @Override
     public String getMessage() {
-      return Objects.firstNonNull(super.getMessage(), "") + " " + FAILED_MSG + "\n\t table: " + this.table + "\n\t edits: " + mutationsMsg
-      + "\n\tcause: " + getCause() == null ? "UNKNOWN" : getCause().getMessage();
+        return Objects.firstNonNull(super.getMessage(), "") + " " + FAILED_MSG + "\n\t table: " + this.table + "\n\t edits: " + mutationsMsg
+                + "\n\tcause: " + getCause() == null ? "UNKNOWN" : getCause().getMessage();
     }
 }

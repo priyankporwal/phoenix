@@ -28,13 +28,11 @@ import org.apache.phoenix.util.ServerUtil;
 import com.google.common.collect.Multimap;
 
 /**
- * 
  * Implementation of IndexFailurePolicy which takes no action when an
  * index cannot be updated. As with the standard flow of control, an
  * exception will still be thrown back to the client. Using this failure
  * policy means that the action to take upon failure is completely up
  * to the client.
- *
  */
 public class LeaveIndexActiveFailurePolicy implements IndexFailurePolicy {
 

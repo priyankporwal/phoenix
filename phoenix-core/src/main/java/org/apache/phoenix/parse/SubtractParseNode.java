@@ -22,12 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 
-
 /**
- * 
  * Node representing subtraction in a SQL expression
  *
- * 
  * @since 0.1
  */
 public class SubtractParseNode extends ArithmeticParseNode {

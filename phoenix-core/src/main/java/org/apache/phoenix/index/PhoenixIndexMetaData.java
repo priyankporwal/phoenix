@@ -35,16 +35,16 @@ public class PhoenixIndexMetaData implements IndexMetaData {
     private final boolean isImmutable;
     private final boolean hasNonPkColumns;
     private final boolean hasLocalIndexes;
-    
-    public static boolean isIndexRebuild(Map<String,byte[]> attributes) {
+
+    public static boolean isIndexRebuild(Map<String, byte[]> attributes) {
         return attributes.get(BaseScannerRegionObserver.REPLAY_WRITES)
                 == BaseScannerRegionObserver.REPLAY_INDEX_REBUILD_WRITES;
     }
-    
-    public static ReplayWrite getReplayWrite(Map<String,byte[]> attributes) {
+
+    public static ReplayWrite getReplayWrite(Map<String, byte[]> attributes) {
         return ReplayWrite.fromBytes(attributes.get(BaseScannerRegionObserver.REPLAY_WRITES));
     }
-    
+
     public PhoenixIndexMetaData(IndexMetaDataCache indexMetaDataCache, Map<String, byte[]> attributes) throws IOException {
         this.indexMetaDataCache = indexMetaDataCache;
         boolean isImmutable = true;
@@ -61,11 +61,11 @@ public class PhoenixIndexMetaData implements IndexMetaData {
         this.replayWrite = getReplayWrite(attributes);
         this.hasLocalIndexes = hasLocalIndexes;
     }
-    
+
     public PhoenixTransactionContext getTransactionContext() {
         return indexMetaDataCache.getTransactionContext();
     }
-    
+
     public List<IndexMaintainer> getIndexMaintainers() {
         return indexMetaDataCache.getIndexMaintainers();
     }
@@ -73,20 +73,20 @@ public class PhoenixIndexMetaData implements IndexMetaData {
     public Map<String, byte[]> getAttributes() {
         return attributes;
     }
-    
+
     public int getClientVersion() {
         return indexMetaDataCache.getClientVersion();
     }
-    
+
     @Override
     public ReplayWrite getReplayWrite() {
         return replayWrite;
     }
-    
+
     public boolean isImmutableRows() {
         return isImmutable;
     }
-    
+
     public boolean hasLocalIndexes() {
         return hasLocalIndexes;
     }

@@ -27,21 +27,19 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Base class for non composite aggregation functions that optimize aggregation by
- * delegating to {@link CountAggregateFunction} when the child expression is a 
+ * delegating to {@link CountAggregateFunction} when the child expression is a
  * constant.
  *
- * 
  * @since 0.1
  */
 abstract public class DelegateConstantToCountAggregateFunction extends SingleAggregateFunction {
     private static final ImmutableBytesWritable ZERO = new ImmutableBytesWritable(PLong.INSTANCE.toBytes(0L));
     private CountAggregateFunction delegate;
-    
+
     public DelegateConstantToCountAggregateFunction() {
     }
-    
+
     public DelegateConstantToCountAggregateFunction(List<Expression> childExpressions, CountAggregateFunction delegate) {
         super(childExpressions);
         // Using a delegate here causes us to optimize the number of aggregators
@@ -58,7 +56,7 @@ abstract public class DelegateConstantToCountAggregateFunction extends SingleAgg
             return super.evaluate(tuple, ptr);
         }
         delegate.evaluate(tuple, ptr);
-        if (PLong.INSTANCE.compareTo(ptr,ZERO) == 0) {
+        if (PLong.INSTANCE.compareTo(ptr, ZERO) == 0) {
             return false;
         }
         return true;

@@ -30,10 +30,10 @@ import org.apache.phoenix.util.PhoenixKeyValueUtil;
 public class UngroupedAggregatingResultIterator extends GroupedAggregatingResultIterator {
     private boolean hasRows = false;
 
-    public UngroupedAggregatingResultIterator( PeekingResultIterator resultIterator, Aggregators aggregators) {
+    public UngroupedAggregatingResultIterator(PeekingResultIterator resultIterator, Aggregators aggregators) {
         super(resultIterator, aggregators);
     }
-    
+
     @Override
     public Tuple next() throws SQLException {
         Tuple result = super.next();
@@ -43,19 +43,19 @@ public class UngroupedAggregatingResultIterator extends GroupedAggregatingResult
             aggregators.reset(aggregators.getAggregators());
             byte[] value = aggregators.toBytes(aggregators.getAggregators());
             result = new SingleKeyValueTuple(
-                    PhoenixKeyValueUtil.newKeyValue(UNGROUPED_AGG_ROW_KEY, 
-                            SINGLE_COLUMN_FAMILY, 
-                            SINGLE_COLUMN, 
-                            AGG_TIMESTAMP, 
+                    PhoenixKeyValueUtil.newKeyValue(UNGROUPED_AGG_ROW_KEY,
+                            SINGLE_COLUMN_FAMILY,
+                            SINGLE_COLUMN,
+                            AGG_TIMESTAMP,
                             value));
         }
         hasRows = true;
         return result;
     }
 
-	@Override
-	public String toString() {
-		return "UngroupedAggregatingResultIterator [hasRows=" + hasRows
-				+ ", aggregators=" + aggregators + "]";
-	}
+    @Override
+    public String toString() {
+        return "UngroupedAggregatingResultIterator [hasRows=" + hasRows
+                + ", aggregators=" + aggregators + "]";
+    }
 }

@@ -26,7 +26,7 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PDouble;
 
-@BuiltInFunction(name = LnFunction.NAME, args = { @Argument(allowedTypes = { PDouble.class, PDecimal.class }) })
+@BuiltInFunction(name = LnFunction.NAME, args = {@Argument(allowedTypes = {PDouble.class, PDecimal.class})})
 public class LnFunction extends JavaMathOneArgumentFunction {
 
     public static final String NAME = "LN";

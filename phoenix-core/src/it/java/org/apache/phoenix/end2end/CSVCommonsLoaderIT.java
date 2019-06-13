@@ -58,9 +58,9 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             + "INTC,Intel\n" + "MSFT,Microsoft\n" + "WAG,Walgreens\n"
             + "WMT,Walmart\n";
     private static final String[] STOCK_COLUMNS_WITH_BOGUS = new String[] {
-            "SYMBOL", "BOGUS" };
-    private static final String[] STOCK_COLUMNS = new String[] { "SYMBOL",
-            "COMPANY" };
+            "SYMBOL", "BOGUS"};
+    private static final String[] STOCK_COLUMNS = new String[] {"SYMBOL",
+            "COMPANY"};
     private static final String STOCK_CSV_VALUES_WITH_HEADER = STOCK_COLUMNS[0]
             + "," + STOCK_COLUMNS[1] + "\n" + STOCK_CSV_VALUES;
     private static final String STOCK_CSV_VALUES_WITH_DELIMITER = "APPL"
@@ -78,7 +78,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
     private static final String ENCAPSULATED_CHARS_TABLE = "ENCAPSULATEDCHAR";
     private static final String[] ENCAPSULATED_CHARS_COLUMNS = new String[] {
-            "MYKEY", "MYVALUE" };
+            "MYKEY", "MYVALUE"};
     private static final String CSV_VALUES_ENCAPSULATED_CONTROL_CHARS = "ALL THREEF,\"This has a all three , , \"\" \r\n in it. \"\n"
             + "COMMA,\"This has a comma , in it. \"\n"
             + "CRLF,\"This has a crlf \r\n in it. \"\n"
@@ -114,7 +114,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn, stockTableName,
-                    Collections.<String> emptyList(), true);
+                    Collections.<String>emptyList(), true);
             csvUtil.upsert(new StringReader(STOCK_CSV_VALUES_WITH_HEADER));
 
             // Compare Phoenix ResultSet with CSV file content
@@ -134,10 +134,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             }
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -164,7 +166,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(tenantConn, stockTableMultiName,
-                    Collections.<String> emptyList(), true);
+                    Collections.<String>emptyList(), true);
             csvUtil.upsert(new StringReader(STOCK_CSV_VALUES_WITH_HEADER));
 
             // Compare Phoenix ResultSet with CSV file content
@@ -184,10 +186,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             }
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (tenantConn != null)
+            }
+            if (tenantConn != null) {
                 tenantConn.close();
+            }
         }
     }
 
@@ -207,7 +211,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
                     new StringReader(statements), null);
 
             // Upsert TDV file
-            CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn, stockTableName,Collections.<String> emptyList()
+            CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn, stockTableName, Collections.<String>emptyList()
                     , true, '\t', '"', null, CSVCommonsLoader.DEFAULT_ARRAY_ELEMENT_SEPARATOR);
             csvUtil.upsert(new StringReader(STOCK_TDV_VALUES_WITH_HEADER));
 
@@ -228,10 +232,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             }
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -252,7 +258,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn, stockTableName,
-                    Arrays.<String> asList(STOCK_COLUMNS), true,
+                    Arrays.<String>asList(STOCK_COLUMNS), true,
                     '1', '2', '3', CSVCommonsLoader.DEFAULT_ARRAY_ELEMENT_SEPARATOR);
             csvUtil.upsert(new StringReader(STOCK_CSV_VALUES_WITH_DELIMITER));
 
@@ -273,10 +279,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             }
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -297,7 +305,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn, stockTableName,
-                    Arrays.<String> asList(STOCK_COLUMNS), true);
+                    Arrays.<String>asList(STOCK_COLUMNS), true);
             // no header
             csvUtil.upsert(new StringReader(STOCK_CSV_VALUES));
 
@@ -319,10 +327,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -364,10 +374,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -406,10 +418,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -442,10 +456,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             }
 
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -479,10 +495,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
                                         "ERROR 504 (42703): Undefined column. columnName=" + stockTableName + ".[FOO, BAR]"));
             }
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -515,10 +533,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
                                         "ERROR 504 (42703): Undefined column. columnName=" + stockTableName + ".BOGUS"));
             }
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -539,7 +559,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn,
-                    DATATYPE_TABLE, Collections.<String> emptyList(), true);
+                    DATATYPE_TABLE, Collections.<String>emptyList(), true);
             csvUtil.upsert(new StringReader(DATATYPES_CSV_VALUES));
 
             // Compare Phoenix ResultSet with CSV file content
@@ -557,8 +577,9 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
                 for (String value : record) {
                     assertEquals(value, phoenixResultSet.getObject(i + 1)
                             .toString().toUpperCase());
-                    if (i < size - 2)
+                    if (i < size - 2) {
                         break;
+                    }
                     i++;
                 }
                 // special case for matching date, time values
@@ -573,10 +594,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -596,7 +619,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn,
-                    ENCAPSULATED_CHARS_TABLE, Collections.<String> emptyList(),
+                    ENCAPSULATED_CHARS_TABLE, Collections.<String>emptyList(),
                     true);
             csvUtil.upsert(new StringReader(
                     CSV_VALUES_ENCAPSULATED_CONTROL_CHARS_WITH_HEADER));
@@ -620,10 +643,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -644,7 +669,7 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
 
             // Upsert CSV file
             CSVCommonsLoader csvUtil = new CSVCommonsLoader(conn,
-                    ENCAPSULATED_CHARS_TABLE, Collections.<String> emptyList(),
+                    ENCAPSULATED_CHARS_TABLE, Collections.<String>emptyList(),
                     true);
             try {
                 csvUtil.upsert(new StringReader(
@@ -658,10 +683,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
                                         "invalid char between encapsulated token and delimiter"));
             }
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -693,14 +720,16 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             assertTrue(phoenixResultSet.next());
             assertEquals(1L, phoenixResultSet.getLong(1));
             assertEquals(
-                    PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Integer[]{2, 3, 4}),
+                    PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Integer[] {2, 3, 4}),
                     phoenixResultSet.getArray(2));
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 
@@ -738,10 +767,12 @@ public class CSVCommonsLoaderIT extends ParallelStatsDisabledIT {
             assertEquals(10123L, phoenixResultSet.getTimestamp(2).getTime());
             assertFalse(phoenixResultSet.next());
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.close();
-            if (conn != null)
+            }
+            if (conn != null) {
                 conn.close();
+            }
         }
     }
 

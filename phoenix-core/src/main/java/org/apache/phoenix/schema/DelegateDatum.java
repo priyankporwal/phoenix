@@ -21,11 +21,11 @@ import org.apache.phoenix.schema.types.PDataType;
 
 public class DelegateDatum implements PDatum {
     private final PDatum delegate;
-    
+
     public DelegateDatum(PDatum delegate) {
         this.delegate = delegate;
     }
-    
+
     @Override
     public boolean isNullable() {
         return delegate.isNullable();
@@ -45,11 +45,11 @@ public class DelegateDatum implements PDatum {
     public Integer getScale() {
         return delegate.getScale();
     }
-    
-	@Override
-	public SortOrder getSortOrder() {
-		return delegate.getSortOrder();
-	}
+
+    @Override
+    public SortOrder getSortOrder() {
+        return delegate.getSortOrder();
+    }
 
     protected PDatum getDelegate() {
         return delegate;

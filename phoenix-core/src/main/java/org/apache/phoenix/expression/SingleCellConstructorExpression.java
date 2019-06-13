@@ -27,9 +27,9 @@ import org.apache.phoenix.schema.types.PVarbinary;
  * Expression used to create a single cell containing all the column values for a column family
  */
 public class SingleCellConstructorExpression extends BaseCompoundExpression {
-    
+
     private ImmutableStorageScheme immutableStorageScheme;
-    
+
     public SingleCellConstructorExpression(ImmutableStorageScheme immutableStorageScheme, List<Expression> children) {
         super(children);
         this.immutableStorageScheme = immutableStorageScheme;
@@ -43,7 +43,7 @@ public class SingleCellConstructorExpression extends BaseCompoundExpression {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         ColumnValueEncoder encoderDecoder = immutableStorageScheme.getEncoder(children.size());
-        for (int i=0; i < children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             Expression child = children.get(i);
             if (!child.evaluate(tuple, ptr)) {
                 encoderDecoder.appendAbsentValue();
@@ -68,21 +68,22 @@ public class SingleCellConstructorExpression extends BaseCompoundExpression {
         super.write(output);
         WritableUtils.writeEnum(output, immutableStorageScheme);
     }
-    
+
     @Override
     public boolean requiresFinalEvaluation() {
         return true;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder("[");
-        if (children.size()==0)
+        if (children.size() == 0) {
             return buf.append("]").toString();
+        }
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + ",");
         }
-        buf.append(children.get(children.size()-1) + "]");
+        buf.append(children.get(children.size() - 1) + "]");
         return buf.toString();
     }
 

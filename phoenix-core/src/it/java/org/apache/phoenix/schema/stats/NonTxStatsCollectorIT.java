@@ -33,12 +33,12 @@ public class NonTxStatsCollectorIT extends BaseStatsCollectorIT {
     public static Collection<Object[]> provideData() {
         return Arrays.asList(
                 new Object[][] {
-                    // Immutable, Column Encoded
-                    { false, null, true },
-                    // Mutable, Column Encoded
-                    { true, null, true },
-                    // Immutable, Not Column Encoded
-                    { false, null, false }
+                        // Immutable, Column Encoded
+                        {false, null, true},
+                        // Mutable, Column Encoded
+                        {true, null, true},
+                        // Immutable, Not Column Encoded
+                        {false, null, false}
                 }
         );
     }

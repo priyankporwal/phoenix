@@ -32,7 +32,7 @@ public class DoubleMultiplyExpression extends MultiplyExpression {
     public DoubleMultiplyExpression(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         double result = 1.0;

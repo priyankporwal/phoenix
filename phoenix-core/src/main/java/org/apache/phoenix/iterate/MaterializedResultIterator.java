@@ -24,20 +24,18 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Fully materialized result iterator backed by the result list provided.
  * No copy is made of the backing results collection.
  *
- * 
  * @since 0.1
  */
 public class MaterializedResultIterator implements PeekingResultIterator {
     private final PeekingCollectionIterator iterator;
-    
+
     public MaterializedResultIterator(Collection<Tuple> results) {
         iterator = new PeekingCollectionIterator(results);
     }
-    
+
     @Override
     public void close() {
     }
@@ -54,13 +52,13 @@ public class MaterializedResultIterator implements PeekingResultIterator {
 
     private static class PeekingCollectionIterator implements Iterator<Tuple> {
         private final Iterator<Tuple> iterator;
-        private Tuple current;            
-        
+        private Tuple current;
+
         private PeekingCollectionIterator(Collection<Tuple> results) {
             iterator = results.iterator();
             advance();
         }
-        
+
         private Tuple advance() {
             if (iterator.hasNext()) {
                 current = iterator.next();
@@ -69,7 +67,7 @@ public class MaterializedResultIterator implements PeekingResultIterator {
             }
             return current;
         }
-        
+
         @Override
         public boolean hasNext() {
             return current != null;
@@ -97,7 +95,7 @@ public class MaterializedResultIterator implements PeekingResultIterator {
         public void remove() {
             throw new UnsupportedOperationException();
         }
-        
+
         public Tuple peek() {
             return current;
         }

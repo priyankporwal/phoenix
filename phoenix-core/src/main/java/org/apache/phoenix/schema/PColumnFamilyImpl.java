@@ -41,7 +41,7 @@ public class PColumnFamilyImpl implements PColumnFamily {
     public int getEstimatedSize() {
         return estimatedSize;
     }
-    
+
     public PColumnFamilyImpl(PName name, List<PColumn> columns) {
         Preconditions.checkNotNull(name);
         // Include guidePosts also in estimating the size
@@ -65,10 +65,10 @@ public class PColumnFamilyImpl implements PColumnFamily {
         }
         this.columnNamesByBytes = columnNamesByBytesBuilder.build();
         this.columnNamesByStrings = columnNamesByStringBuilder.build();
-        this.columnsByQualifiers =  columnsByQualifiersBuilder.build();
-        this.estimatedSize = (int)estimatedSize;
+        this.columnsByQualifiers = columnsByQualifiersBuilder.build();
+        this.estimatedSize = (int) estimatedSize;
     }
-    
+
     @Override
     public PName getName() {
         return name;
@@ -80,24 +80,24 @@ public class PColumnFamilyImpl implements PColumnFamily {
     }
 
     @Override
-    public PColumn getPColumnForColumnNameBytes(byte[] columnNameBytes) throws ColumnNotFoundException  {
+    public PColumn getPColumnForColumnNameBytes(byte[] columnNameBytes) throws ColumnNotFoundException {
         PColumn column = columnNamesByBytes.get(columnNameBytes);
         if (column == null) {
             throw new ColumnNotFoundException(Bytes.toString(columnNameBytes));
         }
         return column;
     }
-    
+
     @Override
-    public PColumn getPColumnForColumnName(String columnName) throws ColumnNotFoundException  {
+    public PColumn getPColumnForColumnName(String columnName) throws ColumnNotFoundException {
         PColumn column = columnNamesByStrings.get(columnName);
         if (column == null) {
             throw new ColumnNotFoundException(columnName);
         }
         return column;
     }
-    
-    
+
+
     //TODO: samarth think about backward compatibility here
     @Override
     public PColumn getPColumnForColumnQualifier(byte[] cq) throws ColumnNotFoundException {

@@ -33,7 +33,7 @@ import java.util.List;
 public class QueryResult extends Query {
     private List<ThreadTime> threadTimes = new ArrayList<>();
     private static PhoenixUtil pUtil = PhoenixUtil.create();
-    
+
     public QueryResult() {
         super();
     }
@@ -115,28 +115,28 @@ public class QueryResult extends Query {
         rowValues.add(new ResultValue(util.convertNull(String.valueOf(getResultRowCount()))));
         return rowValues;
     }
-    
+
     private String getExplainPlan(Scenario scenario, RulesApplier ruleApplier) {
-    	try {
-			return pUtil.getExplainPlan(this, scenario, ruleApplier);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	return null;
+        try {
+            return pUtil.getExplainPlan(this, scenario, ruleApplier);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
-    
+
     private long getResultRowCount() {
         long resultRowCount = -1;
         for (ThreadTime tt : getThreadTimes()) {
-        	for (int i = 0; i < tt.getRunTimesInMs().size(); i++) {
-        		if (resultRowCount == -1) {
-        			resultRowCount = tt.getRunTimesInMs().get(i).getResultRowCount();
-        		} else {
-        			if (resultRowCount != tt.getRunTimesInMs().get(i).getResultRowCount()) {
-        				return -1;
-        			}
-        		}
-        	}
+            for (int i = 0; i < tt.getRunTimesInMs().size(); i++) {
+                if (resultRowCount == -1) {
+                    resultRowCount = tt.getRunTimesInMs().get(i).getResultRowCount();
+                } else {
+                    if (resultRowCount != tt.getRunTimesInMs().get(i).getResultRowCount()) {
+                        return -1;
+                    }
+                }
+            }
         }
         return resultRowCount;
     }

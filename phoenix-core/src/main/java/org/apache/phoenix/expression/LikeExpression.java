@@ -39,15 +39,13 @@ import com.google.common.collect.Lists;
 
 
 /**
- * 
  * Implementation for LIKE operation where the first child expression is the string
- * and the second is the pattern. The pattern supports '_' character for single 
+ * and the second is the pattern. The pattern supports '_' character for single
  * character wildcard match and '%' for zero or more character match. where these
  * characters may be escaped by preceding them with a '\'.
- * 
+ * <p>
  * Example: foo LIKE 'ab%' will match a row in which foo starts with 'ab'
  *
- * 
  * @since 0.1
  */
 public abstract class LikeExpression extends BaseCompoundExpression {
@@ -67,12 +65,12 @@ public abstract class LikeExpression extends BaseCompoundExpression {
 
     /**
      * @return the substring of s for which we have a literal string
-     *  that we can potentially use to set the start/end key, or null
-     *  if there is none.
+     * that we can potentially use to set the start/end key, or null
+     * if there is none.
      */
     public static String getStartsWithPrefix(String s) {
         int i = indexOfWildcard(s);
-        return i == -1 ? s : s.substring(0,i);
+        return i == -1 ? s : s.substring(0, i);
     }
 
     public static boolean hasWildcards(String s) {
@@ -85,10 +83,11 @@ public abstract class LikeExpression extends BaseCompoundExpression {
      * Provides an alternate way of expressing a LIKE pattern which is
      * more friendly for wildcard matching when the source string is
      * likely to contain an '%' or '_' character.
+     *
      * @param s wildcard pattern that may use '*' for multi character
-     * match and '?' for single character match, escaped by the backslash
-     * character
-     * @return replaced 
+     *          match and '?' for single character match, escaped by the backslash
+     *          character
+     * @return replaced
      */
     public static String wildCardToLike(String s) {
         s = StringUtil.escapeLike(s);
@@ -109,11 +108,11 @@ public abstract class LikeExpression extends BaseCompoundExpression {
 
             if (i > 0 && s.charAt(i - 1) == '\\') {
                 // If we found protection then keep looking
-                buf.append(s.substring(j,i-1));
+                buf.append(s.substring(j, i - 1));
                 buf.append(s.charAt(i));
             } else {
                 // We found an unprotected % or _ in the middle
-                buf.append(s.substring(j,i));
+                buf.append(s.substring(j, i));
                 buf.append(s.charAt(i) == StringUtil.MULTI_CHAR_WILDCARD ? StringUtil.MULTI_CHAR_LIKE : StringUtil.SINGLE_CHAR_LIKE);
             }
             j = ++i;
@@ -198,30 +197,32 @@ public abstract class LikeExpression extends BaseCompoundExpression {
 
     private static final int LIKE_TYPE_INDEX = 2;
     private static final LiteralExpression[] LIKE_TYPE_LITERAL = new LiteralExpression[LikeType.values().length];
+
     static {
         for (LikeType likeType : LikeType.values()) {
             LIKE_TYPE_LITERAL[likeType.ordinal()] = LiteralExpression.newConstant(likeType.name());
         }
     }
+
     private AbstractBasePattern pattern;
 
     public LikeExpression() {
     }
 
     protected static List<Expression> addLikeTypeChild(List<Expression> children, LikeType likeType) {
-        List<Expression> newChildren = Lists.newArrayListWithExpectedSize(children.size()+1);
+        List<Expression> newChildren = Lists.newArrayListWithExpectedSize(children.size() + 1);
         newChildren.addAll(children);
         newChildren.add(LIKE_TYPE_LITERAL[likeType.ordinal()]);
         return newChildren;
     }
-    
+
     public LikeExpression(List<Expression> children) {
         super(children);
         init();
     }
-    
-    public LikeType getLikeType () {
-      return likeType;
+
+    public LikeType getLikeType() {
+        return likeType;
     }
 
     public boolean startsWithWildcard() {
@@ -233,8 +234,8 @@ public abstract class LikeExpression extends BaseCompoundExpression {
         if (children.size() <= LIKE_TYPE_INDEX) {
             this.likeType = LikeType.CASE_SENSITIVE;
         } else {
-            LiteralExpression likeTypeExpression = (LiteralExpression)children.get(LIKE_TYPE_INDEX);
-            this.likeType = LikeType.valueOf((String)likeTypeExpression.getValue());
+            LiteralExpression likeTypeExpression = (LiteralExpression) children.get(LIKE_TYPE_INDEX);
+            this.likeType = LikeType.valueOf((String) likeTypeExpression.getValue());
         }
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         Expression e = getPatternExpression();
@@ -343,9 +344,9 @@ public abstract class LikeExpression extends BaseCompoundExpression {
         }
         String pattern = this.pattern.pattern();
         String endsWith = ZERO_OR_MORE + "\\E";
-        return pattern.endsWith(endsWith) && 
-        pattern.lastIndexOf(ANY_ONE, pattern.length() - endsWith.length() - 1) == -1 &&
-        pattern.lastIndexOf(ZERO_OR_MORE, pattern.length() - endsWith.length() - 1) == -1;
+        return pattern.endsWith(endsWith) &&
+                pattern.lastIndexOf(ANY_ONE, pattern.length() - endsWith.length() - 1) == -1 &&
+                pattern.lastIndexOf(ZERO_OR_MORE, pattern.length() - endsWith.length() - 1) == -1;
     }
 
     @Override

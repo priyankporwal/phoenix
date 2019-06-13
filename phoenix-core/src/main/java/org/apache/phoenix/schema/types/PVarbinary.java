@@ -67,7 +67,7 @@ public class PVarbinary extends PBinaryBase {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType,
-            SortOrder sortOrder, Integer maxLength, Integer scale) {
+                           SortOrder sortOrder, Integer maxLength, Integer scale) {
         if (length == 0) {
             return null;
         }
@@ -132,8 +132,10 @@ public class PVarbinary extends PBinaryBase {
             return null;
         }
         Object object = Base64.getDecoder().decode(value);
-        if (object == null) { throw newIllegalDataException(
-                "Input: [" + value + "]  is not base64 encoded"); }
+        if (object == null) {
+            throw newIllegalDataException(
+                    "Input: [" + value + "]  is not base64 encoded");
+        }
         return object;
     }
 
@@ -146,7 +148,7 @@ public class PVarbinary extends PBinaryBase {
                 buf.append(0xFF & b[i]);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         buf.append(']');
         return buf.toString();
@@ -154,7 +156,7 @@ public class PVarbinary extends PBinaryBase {
 
     @Override
     public String toStringLiteral(Object o, Format formatter) {
-        return toStringLiteral((byte[])o, 0, ((byte[]) o).length, formatter);
+        return toStringLiteral((byte[]) o, 0, ((byte[]) o).length, formatter);
     }
 
     @Override

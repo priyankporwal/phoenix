@@ -28,7 +28,7 @@ public class UpgradeRequiredException extends RetriableUpgradeException {
 
     public UpgradeRequiredException(long systemCatalogTimeStamp) {
         super("Operation not allowed since cluster hasn't been upgraded. Call EXECUTE UPGRADE. ",
-          SQLExceptionCode.UPGRADE_REQUIRED.getSQLState(), SQLExceptionCode.UPGRADE_REQUIRED.getErrorCode());
+                SQLExceptionCode.UPGRADE_REQUIRED.getSQLState(), SQLExceptionCode.UPGRADE_REQUIRED.getErrorCode());
         this.systemCatalogTimestamp = systemCatalogTimeStamp;
     }
 

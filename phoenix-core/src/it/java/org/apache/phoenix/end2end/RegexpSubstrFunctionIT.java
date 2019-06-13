@@ -61,7 +61,7 @@ public class RegexpSubstrFunctionIT extends ParallelStatsDisabledIT {
     }
 
     private void testGroupByScanWithRegexpSubstr(Connection conn, Integer offset, String exceptedSubstr) throws Exception {
-        String cmd = "select REGEXP_SUBSTR(uri, '[^\\\\?]+'" + ((offset == null) ? "" : ", " + offset.intValue()) +") suburi, sum(appcpu) sumcpu from " + tableName + " group by suburi";
+        String cmd = "select REGEXP_SUBSTR(uri, '[^\\\\?]+'" + ((offset == null) ? "" : ", " + offset.intValue()) + ") suburi, sum(appcpu) sumcpu from " + tableName + " group by suburi";
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(cmd);
         assertTrue(rs.next());
@@ -89,7 +89,7 @@ public class RegexpSubstrFunctionIT extends ParallelStatsDisabledIT {
     }
 
     private void testFilterWithRegexSubstr(Connection conn, Integer offset, String exceptedSubstr) throws Exception {
-        String cmd = "select id from " + tableName + " where REGEXP_SUBSTR(uri, '[^\\\\?]+'"+ ((offset == null) ? "" : ", " + offset.intValue()) +") = '" + exceptedSubstr + "1'";
+        String cmd = "select id from " + tableName + " where REGEXP_SUBSTR(uri, '[^\\\\?]+'" + ((offset == null) ? "" : ", " + offset.intValue()) + ") = '" + exceptedSubstr + "1'";
         ResultSet rs = conn.createStatement().executeQuery(cmd);
         assertTrue(rs.next());
         assertEquals("id0", rs.getString(1));

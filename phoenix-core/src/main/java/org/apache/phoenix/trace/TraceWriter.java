@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -106,7 +106,7 @@ public class TraceWriter {
         traceSpanReceiver = getTraceSpanReceiver();
         if (traceSpanReceiver == null) {
             LOGGER.warn(
-                "No receiver has been initialized for TraceWriter. Traces will not be written.");
+                    "No receiver has been initialized for TraceWriter. Traces will not be written.");
             LOGGER.warn("Restart Phoenix to try again.");
             return;
         }
@@ -138,10 +138,14 @@ public class TraceWriter {
 
         @Override
         public void run() {
-            if (conn == null) return;
+            if (conn == null) {
+                return;
+            }
             while (!traceSpanReceiver.isSpanAvailable()) {
                 Span span = traceSpanReceiver.getSpan();
-                if (null == span) break;
+                if (null == span) {
+                    break;
+                }
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Span received: " + span.toJson());
                 }
@@ -189,7 +193,7 @@ public class TraceWriter {
             // add the tags to the span. They were written in order received so we mark them as such
             for (TimelineAnnotation ta : span.getTimelineAnnotations()) {
                 addDynamicEntry(keys, values, variableValues, TAG_FAMILY,
-                    Long.toString(ta.getTime()), ta.getMessage(), TAG, tagCount);
+                        Long.toString(ta.getTime()), ta.getMessage(), TAG, tagCount);
                 tagCount++;
             }
 
@@ -201,7 +205,7 @@ public class TraceWriter {
                 Pair<String, String> val =
                         TracingUtils.readAnnotation(annotation.getKey(), annotation.getValue());
                 addDynamicEntry(keys, values, variableValues, ANNOTATION_FAMILY, val.getFirst(),
-                    val.getSecond(), ANNOTATION, annotationCount);
+                        val.getSecond(), ANNOTATION, annotationCount);
                 annotationCount++;
             }
 
@@ -238,7 +242,7 @@ public class TraceWriter {
                 state.join(newState);
             } catch (SQLException e) {
                 LOGGER.error("Could not write metric: \n" + span + " to prepared statement:\n" + stmt,
-                    e);
+                        e);
             }
         }
     }
@@ -248,8 +252,8 @@ public class TraceWriter {
     }
 
     private void addDynamicEntry(List<String> keys, List<Object> values,
-            List<String> variableValues, String family, String desc, String value,
-            MetricInfo metric, int count) {
+                                 List<String> variableValues, String family, String desc, String value,
+                                 MetricInfo metric, int count) {
         // <family><.dynColumn><count> <VARCHAR>
         keys.add(getDynamicColumnName(family, metric.columnName, count) + " VARCHAR");
 
@@ -273,12 +277,12 @@ public class TraceWriter {
             }
 
             LOGGER.info(
-                "Created new connection for tracing " + conn.toString() + " Table: " + tableName);
+                    "Created new connection for tracing " + conn.toString() + " Table: " + tableName);
             return conn;
         } catch (Exception e) {
             LOGGER.error("Tracing will NOT be pursued. New connection failed for tracing Table: "
-                    + tableName,
-                e);
+                            + tableName,
+                    e);
             LOGGER.error("Restart Phoenix to retry.");
             return null;
         }
@@ -325,8 +329,8 @@ public class TraceWriter {
             conn.commit();
         } catch (SQLException e) {
             LOGGER.error(
-                "Unable to commit traces on conn: " + conn.toString() + " to table: " + tableName,
-                e);
+                    "Unable to commit traces on conn: " + conn.toString() + " to table: " + tableName,
+                    e);
         }
     }
 

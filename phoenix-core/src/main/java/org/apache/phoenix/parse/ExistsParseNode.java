@@ -24,12 +24,9 @@ import java.util.List;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Node representing EXISTS and NOT EXISTS expressions in SQL
  *
- * 
  * @since 0.1
  */
 public class ExistsParseNode extends UnaryParseNode {
@@ -39,7 +36,7 @@ public class ExistsParseNode extends UnaryParseNode {
         super(child);
         this.negate = negate;
     }
-    
+
     public boolean isNegate() {
         return negate;
     }
@@ -53,31 +50,37 @@ public class ExistsParseNode extends UnaryParseNode {
         return visitor.visitLeave(this, l);
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + (negate ? 1231 : 1237);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + (negate ? 1231 : 1237);
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ExistsParseNode other = (ExistsParseNode) obj;
-		if (negate != other.negate)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ExistsParseNode other = (ExistsParseNode) obj;
+        if (negate != other.negate) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
-        if (negate) buf.append(" NOT");
+        if (negate) {
+            buf.append(" NOT");
+        }
         buf.append(" EXISTS ");
         getChildren().get(0).toSQL(resolver, buf);
     }

@@ -59,7 +59,7 @@ public class LikeExpressionIT extends ParallelStatsDisabledIT {
 
     private void insertRow(Connection conn, String k, int i) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(
-            "UPSERT INTO " + tableName + " VALUES (?, ?)");
+                "UPSERT INTO " + tableName + " VALUES (?, ?)");
         stmt.setString(1, k);
         stmt.setInt(2, i);
         stmt.executeUpdate();
@@ -148,7 +148,7 @@ public class LikeExpressionIT extends ParallelStatsDisabledIT {
 
         conn.close();
     }
-    
+
     @Test
     public void testLikeWithEscapenLParen() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -159,9 +159,9 @@ public class LikeExpressionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO " + t + " VALUES('a\\(d','xx')");
         conn.createStatement().execute("UPSERT INTO " + t + " VALUES('dd',null)");
         conn.commit();
-        
+
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT * FROM " + t + " WHERE k not like '%\\(%'");
+                "SELECT * FROM " + t + " WHERE k not like '%\\(%'");
         assertTrue(rs.next());
         assertEquals("aa", rs.getString(1));
         assertEquals("bb", rs.getString(2));
@@ -430,6 +430,7 @@ public class LikeExpressionIT extends ParallelStatsDisabledIT {
         rs = select.executeQuery();
         assertFalse(rs.next());
     }
+
     //associated to PHOENIX-5173 jira
     @Test
     public void testLikeExpressionWithoutWildcards() throws Exception {
@@ -440,15 +441,15 @@ public class LikeExpressionIT extends ParallelStatsDisabledIT {
         String likeSelect = "SELECT * FROM " + table + " WHERE USER_NAME LIKE 'Some Name'";
         String iLikeSelect = "SELECT * FROM " + table + " WHERE USER_NAME ILIKE 'soMe nAme'";
 
-        try(Connection conn = DriverManager.getConnection(getUrl())) {
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.setAutoCommit(true);
             conn.createStatement().execute(createTable);
             conn.createStatement().executeUpdate(upsertTable);
-            try(ResultSet rs = conn.createStatement().executeQuery(likeSelect)) {
+            try (ResultSet rs = conn.createStatement().executeQuery(likeSelect)) {
                 assertTrue(rs.next());
                 assertFalse(rs.next());
             }
-            try(ResultSet rs = conn.createStatement().executeQuery(iLikeSelect)) {
+            try (ResultSet rs = conn.createStatement().executeQuery(iLikeSelect)) {
                 assertTrue(rs.next());
                 assertFalse(rs.next());
             }

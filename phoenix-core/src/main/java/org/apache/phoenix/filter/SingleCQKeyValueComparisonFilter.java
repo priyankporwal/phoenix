@@ -26,11 +26,9 @@ import org.apache.phoenix.expression.Expression;
 
 
 /**
- * 
  * SingleKeyValueComparisonFilter that needs to only compare the column qualifier
  * part of the key value since the column qualifier is unique across all column
  * families.
- *
  */
 public class SingleCQKeyValueComparisonFilter extends SingleKeyValueComparisonFilter {
     public SingleCQKeyValueComparisonFilter() {
@@ -45,9 +43,9 @@ public class SingleCQKeyValueComparisonFilter extends SingleKeyValueComparisonFi
         return Bytes.compareTo(cq, 0, cq.length, cqBuf, cqOffset, cqLength);
     }
 
-    public static SingleCQKeyValueComparisonFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+    public static SingleCQKeyValueComparisonFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            SingleCQKeyValueComparisonFilter writable = (SingleCQKeyValueComparisonFilter)Writables.getWritable(pbBytes, new SingleCQKeyValueComparisonFilter());
+            SingleCQKeyValueComparisonFilter writable = (SingleCQKeyValueComparisonFilter) Writables.getWritable(pbBytes, new SingleCQKeyValueComparisonFilter());
             return writable;
         } catch (IOException e) {
             throw new DeserializationException(e);

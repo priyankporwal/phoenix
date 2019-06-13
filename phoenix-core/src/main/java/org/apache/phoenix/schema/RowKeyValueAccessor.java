@@ -31,25 +31,23 @@ import org.apache.phoenix.util.ByteUtil;
 
 
 /**
- * 
  * Class that encapsulates accessing a value stored in the row key.
  *
- * 
  * @since 0.1
  */
-public class RowKeyValueAccessor implements Writable   {
+public class RowKeyValueAccessor implements Writable {
     /**
      * Constructor solely for use during deserialization. Should not
      * otherwise be used.
      */
     public RowKeyValueAccessor() {
     }
-    
+
     /**
      * Constructor to compile access to the value in the row key formed from
      * a list of PData.
-     * 
-     * @param data the list of data that make up the key
+     *
+     * @param data  the list of data that make up the key
      * @param index the zero-based index of the data item to access.
      */
     public RowKeyValueAccessor(List<? extends PDatum> data, int index) {
@@ -66,7 +64,7 @@ public class RowKeyValueAccessor implements Writable   {
                     // For non parameterized types such as BIGINT, the type will return its max length.
                     // For parameterized types, for example CHAR(10) the type cannot know the max length,
                     // so in this case, the max length is retrieved from the datum.
-                    Integer maxLength = datum.getDataType().getByteSize(); 
+                    Integer maxLength = datum.getDataType().getByteSize();
                     offset += maxLength == null ? datum.getMaxLength() : maxLength;
                     datum = iterator.next();
                     pos++;
@@ -90,7 +88,7 @@ public class RowKeyValueAccessor implements Writable   {
         this.isFixedLength = datum.getDataType().isFixedWidth();
         this.hasSeparator = !isFixedLength && iterator.hasNext();
     }
-    
+
     RowKeyValueAccessor(int[] offsets, boolean isFixedLength, boolean hasSeparator) {
         this.offsets = offsets;
         this.isFixedLength = isFixedLength;
@@ -105,7 +103,7 @@ public class RowKeyValueAccessor implements Writable   {
     public int getIndex() {
         return index;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -115,15 +113,28 @@ public class RowKeyValueAccessor implements Writable   {
         result = prime * result + Arrays.hashCode(offsets);
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        RowKeyValueAccessor other = (RowKeyValueAccessor)obj;
-        if (hasSeparator != other.hasSeparator) return false;
-        if (isFixedLength != other.isFixedLength) return false;
-        if (!Arrays.equals(offsets, other.offsets)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RowKeyValueAccessor other = (RowKeyValueAccessor) obj;
+        if (hasSeparator != other.hasSeparator) {
+            return false;
+        }
+        if (isFixedLength != other.isFixedLength) {
+            return false;
+        }
+        if (!Arrays.equals(offsets, other.offsets)) {
+            return false;
+        }
         return true;
     }
 
@@ -151,12 +162,14 @@ public class RowKeyValueAccessor implements Writable   {
         length |= (hasSeparator ? 1 << 1 : 0) | (isFixedLength ? 1 : 0);
         ByteUtil.serializeVIntArray(output, offsets, length);
     }
-    
+
     private static boolean isSeparatorByte(byte b) {
         return b == QueryConstants.SEPARATOR_BYTE || b == QueryConstants.DESC_SEPARATOR_BYTE;
     }
+
     /**
      * Calculate the byte offset in the row key to the start of the PK column value
+     *
      * @param keyBuffer the byte array of the row key
      * @param keyOffset the offset in the byte array of where the key begins
      * @return byte offset to the start of the PK column value
@@ -176,17 +189,18 @@ public class RowKeyValueAccessor implements Writable   {
         }
         return keyOffset;
     }
-    
+
     /**
      * Calculate the length of the PK column value
+     *
      * @param keyBuffer the byte array of the row key
      * @param keyOffset the offset in the byte array of where the key begins
-     * @param maxOffset maximum offset to use while calculating length 
+     * @param maxOffset maximum offset to use while calculating length
      * @return the length of the PK column value
      */
     public int getLength(byte[] keyBuffer, int keyOffset, int maxOffset) {
         if (!hasSeparator) {
-            return maxOffset - keyOffset - (keyBuffer[maxOffset-1] == QueryConstants.DESC_SEPARATOR_BYTE ? 1 : 0);
+            return maxOffset - keyOffset - (keyBuffer[maxOffset - 1] == QueryConstants.DESC_SEPARATOR_BYTE ? 1 : 0);
         }
         int offset = keyOffset;
         // FIXME: offset < maxOffset required because HBase passes bogus keys to filter to position scan (HBASE-6562)

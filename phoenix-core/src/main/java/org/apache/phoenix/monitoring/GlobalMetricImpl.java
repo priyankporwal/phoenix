@@ -51,9 +51,9 @@ public class GlobalMetricImpl implements GlobalMetric {
     }
 
     @Override
-	public MetricType getMetricType() {
-		return metric.getMetricType();
-	}
+    public MetricType getMetricType() {
+        return metric.getMetricType();
+    }
 
     @Override
     public long getValue() {

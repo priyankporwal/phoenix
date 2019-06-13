@@ -45,7 +45,7 @@ import org.apache.phoenix.util.SchemaUtil;
 
 import com.google.common.collect.Lists;
 
-public class CorrelatePlan extends DelegateQueryPlan {    
+public class CorrelatePlan extends DelegateQueryPlan {
     private final QueryPlan rhs;
     private final String variableId;
     private final JoinType joinType;
@@ -56,14 +56,15 @@ public class CorrelatePlan extends DelegateQueryPlan {
     private final KeyValueSchema rhsSchema;
     private final int rhsFieldPosition;
 
-    public CorrelatePlan(QueryPlan lhs, QueryPlan rhs, String variableId, 
-            JoinType joinType, boolean isSingleValueOnly, 
-            RuntimeContext runtimeContext, PTable joinedTable, 
-            PTable lhsTable, PTable rhsTable, int rhsFieldPosition) {
+    public CorrelatePlan(QueryPlan lhs, QueryPlan rhs, String variableId,
+                         JoinType joinType, boolean isSingleValueOnly,
+                         RuntimeContext runtimeContext, PTable joinedTable,
+                         PTable lhsTable, PTable rhsTable, int rhsFieldPosition) {
         super(lhs);
-        if (joinType != JoinType.Inner && joinType != JoinType.Left && joinType != JoinType.Semi && joinType != JoinType.Anti)
+        if (joinType != JoinType.Inner && joinType != JoinType.Left && joinType != JoinType.Semi && joinType != JoinType.Anti) {
             throw new IllegalArgumentException("Unsupported join type '" + joinType + "' by CorrelatePlan");
-        
+        }
+
         this.rhs = rhs;
         this.variableId = variableId;
         this.joinType = joinType;
@@ -92,11 +93,11 @@ public class CorrelatePlan extends DelegateQueryPlan {
         List<String> steps = Lists.newArrayList();
         steps.add("NESTED-LOOP-JOIN (" + joinType.toString().toUpperCase() + ") TABLES");
         for (String step : delegate.getExplainPlan().getPlanSteps()) {
-            steps.add("    " + step);            
+            steps.add("    " + step);
         }
         steps.add("AND" + (rhsSchema.getFieldCount() == 0 ? " (SKIP MERGE)" : ""));
         for (String step : rhs.getExplainPlan().getPlanSteps()) {
-            steps.add("    " + step);            
+            steps.add("    " + step);
         }
         return new ExplainPlan(steps);
     }
@@ -107,10 +108,10 @@ public class CorrelatePlan extends DelegateQueryPlan {
         return new ResultIterator() {
             private final ValueBitSet destBitSet = ValueBitSet.newInstance(joinedSchema);
             private final ValueBitSet lhsBitSet = ValueBitSet.newInstance(lhsSchema);
-            private final ValueBitSet rhsBitSet = 
+            private final ValueBitSet rhsBitSet =
                     (joinType == JoinType.Semi || joinType == JoinType.Anti) ?
-                            ValueBitSet.EMPTY_VALUE_BITSET 
-                          : ValueBitSet.newInstance(rhsSchema);
+                            ValueBitSet.EMPTY_VALUE_BITSET
+                            : ValueBitSet.newInstance(rhsSchema);
             private final ResultIterator iter = delegate.iterator(scanGrouper, scan);
             private ResultIterator rhsIter = null;
             private Tuple current = null;
@@ -129,9 +130,10 @@ public class CorrelatePlan extends DelegateQueryPlan {
 
             @Override
             public Tuple next() throws SQLException {
-                if (closed)
+                if (closed) {
                     return null;
-                
+                }
+
                 Tuple rhsCurrent = null;
                 if (rhsIter != null) {
                     rhsCurrent = rhsIter.next();
@@ -157,29 +159,29 @@ public class CorrelatePlan extends DelegateQueryPlan {
                         rhsIter = null;
                     }
                 }
-                
+
                 Tuple joined;
                 try {
                     joined = rhsBitSet == ValueBitSet.EMPTY_VALUE_BITSET ?
                             current : TupleProjector.mergeProjectedValue(
-                                    convertLhs(current), destBitSet,
-                                    rhsCurrent, rhsBitSet, rhsFieldPosition, true);
+                            convertLhs(current), destBitSet,
+                            rhsCurrent, rhsBitSet, rhsFieldPosition, true);
                 } catch (IOException e) {
                     throw new SQLException(e);
                 }
-                                
+
                 if ((joinType == JoinType.Semi || rhsCurrent == null) && rhsIter != null) {
                     rhsIter.close();
                     rhsIter = null;
                 }
-                
+
                 return joined;
             }
 
             @Override
             public void explain(List<String> planSteps) {
             }
-            
+
             private ProjectedValueTuple convertLhs(Tuple lhs) throws IOException {
                 ProjectedValueTuple t;
                 if (lhs instanceof ProjectedValueTuple) {
@@ -190,7 +192,7 @@ public class CorrelatePlan extends DelegateQueryPlan {
                     lhsBitSet.clear();
                     lhsBitSet.or(ptr);
                     int bitSetLen = lhsBitSet.getEstimatedLength();
-                    t = new ProjectedValueTuple(lhs, lhs.getValue(0).getTimestamp(), 
+                    t = new ProjectedValueTuple(lhs, lhs.getValue(0).getTimestamp(),
                             ptr.get(), ptr.getOffset(), ptr.getLength(), bitSetLen);
 
                 }

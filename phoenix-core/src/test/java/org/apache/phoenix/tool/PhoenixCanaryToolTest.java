@@ -23,8 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
 import static org.mockito.Mockito.when;
+
 import org.mockito.MockitoAnnotations;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -84,6 +87,6 @@ public class PhoenixCanaryToolTest {
         when(rs.next()).thenReturn(true).thenReturn(false);
         CanaryTestResult result = new PhoenixCanaryTool.ReadTableTest().runTest(connection);
         assertEquals(false, result.isSuccessful());
-        assert (result.getMessage().contains("Retrieved values do not match the inserted values"));
+        assert(result.getMessage().contains("Retrieved values do not match the inserted values"));
     }
 }

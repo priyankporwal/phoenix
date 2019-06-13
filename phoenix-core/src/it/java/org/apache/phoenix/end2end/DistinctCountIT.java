@@ -58,9 +58,9 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT count(DISTINCT A_STRING) FROM "+tableName;
+        String query = "SELECT count(DISTINCT A_STRING) FROM " + tableName;
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-        Connection conn = DriverManager.getConnection(getUrl(),props);
+        Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
@@ -78,7 +78,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT count(DISTINCT ORGANIZATION_ID) FROM "+tableName;
+        String query = "SELECT count(DISTINCT ORGANIZATION_ID) FROM " + tableName;
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -99,7 +99,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT A_STRING, count(DISTINCT B_STRING) FROM "+tableName+" group by A_STRING";
+        String query = "SELECT A_STRING, count(DISTINCT B_STRING) FROM " + tableName + " group by A_STRING";
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -127,7 +127,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT A_STRING, count(DISTINCT B_STRING) FROM "+tableName+" group by A_STRING order by A_STRING desc";
+        String query = "SELECT A_STRING, count(DISTINCT B_STRING) FROM " + tableName + " group by A_STRING order by A_STRING desc";
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -155,7 +155,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT A_STRING, count(DISTINCT B_STRING) as COUNT_B_STRING FROM "+tableName+" group by A_STRING order by COUNT_B_STRING";
+        String query = "SELECT A_STRING, count(DISTINCT B_STRING) as COUNT_B_STRING FROM " + tableName + " group by A_STRING order by COUNT_B_STRING";
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -184,7 +184,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, tenantId2, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT organization_id, count(DISTINCT A_STRING) FROM "+tableName+" group by organization_id";
+        String query = "SELECT organization_id, count(DISTINCT A_STRING) FROM " + tableName + " group by organization_id";
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -209,7 +209,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT count(DISTINCT A_STRING), count(DISTINCT B_STRING) FROM "+tableName;
+        String query = "SELECT count(DISTINCT A_STRING), count(DISTINCT B_STRING) FROM " + tableName;
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -224,14 +224,14 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDistinctCountONE() throws Exception {
         String tenantId = getOrganizationId();
         String tableName = generateUniqueName();
         initATableValues(tenantId, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT count(DISTINCT 1) FROM "+tableName;
+        String query = "SELECT count(DISTINCT 1) FROM " + tableName;
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -245,14 +245,14 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDistinctCountOneWithEmptyResult() throws Exception {
         String tenantId = getOrganizationId();
         String tableName = generateUniqueName();
         initATableValues(null, null, getDefaultSplits(tenantId), null, tableName);
 
-        String query = "SELECT count(DISTINCT 1) FROM "+tableName;
+        String query = "SELECT count(DISTINCT 1) FROM " + tableName;
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -266,29 +266,29 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     protected static void initATableValues(String tenantId1, String tenantId2, byte[][] splits, Date date,
-            String tableName) throws Exception {
+                                           String tableName) throws Exception {
         ensureTableCreated(getUrl(), tableName, ATABLE_NAME, splits, null);
-        
+
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             // Insert all rows at ts
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + tableName +
-                    " (" +
-                    "    ORGANIZATION_ID, " +
-                    "    ENTITY_ID, " +
-                    "    A_STRING, " +
-                    "    B_STRING, " +
-                    "    A_INTEGER, " +
-                    "    A_DATE, " +
-                    "    X_DECIMAL, " +
-                    "    X_LONG, " +
-                    "    X_INTEGER," +
-                    "    Y_INTEGER)" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                            " (" +
+                            "    ORGANIZATION_ID, " +
+                            "    ENTITY_ID, " +
+                            "    A_STRING, " +
+                            "    B_STRING, " +
+                            "    A_INTEGER, " +
+                            "    A_DATE, " +
+                            "    X_DECIMAL, " +
+                            "    X_LONG, " +
+                            "    X_INTEGER," +
+                            "    Y_INTEGER)" +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             if (tenantId1 != null) {
                 stmt.setString(1, tenantId1);
                 stmt.setString(2, ROW1);
@@ -382,7 +382,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
                 stmt.setDate(6, date == null ? null : new Date(date.getTime() + MILLIS_IN_DAY * 1));
                 stmt.setBigDecimal(7, BigDecimal.valueOf(3.9));
                 long l = Integer.MIN_VALUE - 1L;
-                assert (l < Integer.MIN_VALUE);
+                assert(l < Integer.MIN_VALUE);
                 stmt.setLong(8, l);
                 stmt.setInt(9, 4);
                 stmt.setNull(10, Types.INTEGER);
@@ -396,7 +396,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
                 stmt.setDate(6, date == null ? null : new Date(date.getTime() + MILLIS_IN_DAY * 2));
                 stmt.setBigDecimal(7, BigDecimal.valueOf(3.3));
                 l = Integer.MAX_VALUE + 1L;
-                assert (l > Integer.MAX_VALUE);
+                assert(l > Integer.MAX_VALUE);
                 stmt.setLong(8, l);
                 stmt.setInt(9, 3);
                 stmt.setInt(10, 300);
@@ -435,18 +435,18 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDistinctCountOnIndexTab() throws Exception {
-        String tableName=generateUniqueName();
-        String indexName=generateUniqueName();
-        String ddl = "create table "+tableName+" (id integer not null, first_name char(15),\n"
+        String tableName = generateUniqueName();
+        String indexName = generateUniqueName();
+        String ddl = "create table " + tableName + " (id integer not null, first_name char(15),\n"
                 + "    last_name char(15), CONSTRAINT pk PRIMARY KEY (id))";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         PreparedStatement stmt = conn.prepareStatement(ddl);
         stmt.execute(ddl);
-        
-        conn.createStatement().execute("CREATE INDEX "+indexName+" ON "+tableName+"(first_name)");
 
-        stmt = conn.prepareStatement("upsert into "+tableName+" (id, first_name, "
+        conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + tableName + "(first_name)");
+
+        stmt = conn.prepareStatement("upsert into " + tableName + " (id, first_name, "
                 + "last_name) VALUES (?, ?, ?)");
         stmt.setInt(1, 1);
         stmt.setString(2, "NAME1");
@@ -462,7 +462,7 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
         stmt.execute();
         conn.commit();
 
-        String query = "SELECT COUNT (DISTINCT first_name) FROM "+tableName;
+        String query = "SELECT COUNT (DISTINCT first_name) FROM " + tableName;
         PreparedStatement statement = conn.prepareStatement(query);
         ResultSet rs = statement.executeQuery();
         assertTrue(rs.next());
@@ -477,21 +477,21 @@ public class DistinctCountIT extends ParallelStatsDisabledIT {
             Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
             conn = DriverManager.getConnection(getUrl(), props);
             String tableName = generateUniqueName();
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 integer not null , " +
                     " pk2 integer not null, " +
                     " v integer, " +
                     " CONSTRAINT TEST_PK PRIMARY KEY (pk1,pk2))";
             conn.createStatement().execute(sql);
-            conn.createStatement().execute("UPSERT INTO "+tableName+"(pk1,pk2,v) VALUES (1,1,1)");
-            conn.createStatement().execute("UPSERT INTO "+tableName+"(pk1,pk2,v) VALUES (2,2,2)");
+            conn.createStatement().execute("UPSERT INTO " + tableName + "(pk1,pk2,v) VALUES (1,1,1)");
+            conn.createStatement().execute("UPSERT INTO " + tableName + "(pk1,pk2,v) VALUES (2,2,2)");
             conn.commit();
 
             sql = "select count(distinct pk1) from " + tableName + " limit 1";
             ResultSet rs = conn.prepareStatement(sql).executeQuery();
-            assertResultSet(rs, new Object[][]{{Long.valueOf(2L)}});
+            assertResultSet(rs, new Object[][] {{Long.valueOf(2L)}});
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }

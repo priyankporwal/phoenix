@@ -42,7 +42,7 @@ public class QueryLogger {
     private Builder<QueryLogInfo, Object> queryLogBuilder = ImmutableMap.builder();
     private boolean isSynced;
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryLogger.class);
-    
+
     private QueryLogger(PhoenixConnection connection) {
         this.queryId = UUID.randomUUID().toString();
         this.queryDisruptor = connection.getQueryServices().getQueryDisruptor();
@@ -50,11 +50,11 @@ public class QueryLogger {
         log(QueryLogInfo.QUERY_ID_I, queryId);
         log(QueryLogInfo.START_TIME_I, EnvironmentEdgeManager.currentTimeMillis());
     }
-    
+
     private QueryLogger() {
         logLevel = LogLevel.OFF;
     }
-    
+
     private RingBufferEventTranslator getCachedTranslator() {
         RingBufferEventTranslator result = threadLocalTranslator.get();
         if (result == null) {
@@ -63,7 +63,7 @@ public class QueryLogger {
         }
         return result;
     }
-    
+
     public static final QueryLogger NO_OP_INSTANCE = new QueryLogger() {
         @Override
         public void log(QueryLogInfo queryLogInfo, Object info) {
@@ -85,21 +85,23 @@ public class QueryLogger {
                 Map<String, Map<MetricType, Long>> readMetrics, Map<MetricType, Long> overAllMetrics) {
 
         }
-        
+
         @Override
-        public boolean isSynced(){
+        public boolean isSynced() {
             return true;
         }
     };
 
     public static QueryLogger getInstance(PhoenixConnection connection, boolean isSystemTable) {
         if (connection.getLogLevel() == LogLevel.OFF || isSystemTable || ThreadLocalRandom.current()
-                .nextDouble() > connection.getLogSamplingRate()) { return NO_OP_INSTANCE; }
+                .nextDouble() > connection.getLogSamplingRate()) {
+            return NO_OP_INSTANCE;
+        }
         return new QueryLogger(connection);
     }
 
     /**
-     * Add query log in the table, columns will be logged depending upon the connection logLevel 
+     * Add query log in the table, columns will be logged depending upon the connection logLevel
      */
     public void log(QueryLogInfo queryLogInfo, Object info) {
         try {
@@ -108,9 +110,11 @@ public class QueryLogger {
             LOGGER.warn("Unable to add log info because of " + e.getMessage());
         }
     }
-    
+
     private boolean publishLogs(RingBufferEventTranslator translator) {
-        if (queryDisruptor == null) { return false; }
+        if (queryDisruptor == null) {
+            return false;
+        }
         boolean isLogged = queryDisruptor.tryPublish(translator);
         if (!isLogged && LOGGER.isDebugEnabled()) {
             LOGGER.debug("Unable to write query log in table as ring buffer queue is full!!");
@@ -119,40 +123,41 @@ public class QueryLogger {
     }
 
     /**
-     *  Is debug logging currently enabled?
-     *  Call this method to prevent having to perform expensive operations (for example, String concatenation) when the log level is more than debug.
+     * Is debug logging currently enabled?
+     * Call this method to prevent having to perform expensive operations (for example, String concatenation) when the log level is more than debug.
      */
-    public boolean isDebugEnabled(){
+    public boolean isDebugEnabled() {
         return isLevelEnabled(LogLevel.DEBUG);
     }
-    
-    private boolean isLevelEnabled(LogLevel logLevel){
+
+    private boolean isLevelEnabled(LogLevel logLevel) {
         return this.logLevel != null && logLevel != LogLevel.OFF ? logLevel.ordinal() <= this.logLevel.ordinal()
                 : false;
     }
-    
+
     /**
      * Is Info logging currently enabled?
      * Call this method to prevent having to perform expensive operations (for example, String concatenation) when the log level is more than info.
+     *
      * @return
      */
-    public boolean isInfoEnabled(){
+    public boolean isInfoEnabled() {
         return isLevelEnabled(LogLevel.INFO);
     }
 
     /**
-     * Return queryId of the current query logger , needed by the application 
+     * Return queryId of the current query logger , needed by the application
      * to correlate with the logging table.
      * Eg(usage):-
      * StatementContext context = ((PhoenixResultSet)rs).getContext();
      * String queryId = context.getQueryLogger().getQueryId();
-     * 
+     *
      * @return
      */
     public String getQueryId() {
         return this.queryId;
     }
-    
+
 
     public void sync(Map<String, Map<MetricType, Long>> readMetrics, Map<MetricType, Long> overAllMetrics) {
         if (!isSynced) {
@@ -162,12 +167,12 @@ public class QueryLogger {
             publishLogs(translator);
         }
     }
-    
+
     /**
      * Is Synced already
      */
-    public boolean isSynced(){
+    public boolean isSynced() {
         return this.isSynced;
     }
-    
+
 }

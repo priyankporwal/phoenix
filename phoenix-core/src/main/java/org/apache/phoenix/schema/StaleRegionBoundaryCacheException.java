@@ -32,15 +32,15 @@ public class StaleRegionBoundaryCacheException extends SQLException {
     }
 
     public StaleRegionBoundaryCacheException(byte[] fullTableName) {
-        this(SchemaUtil.getSchemaNameFromFullName(fullTableName),SchemaUtil.getTableNameFromFullName(fullTableName));
+        this(SchemaUtil.getSchemaNameFromFullName(fullTableName), SchemaUtil.getTableNameFromFullName(fullTableName));
     }
 
     public StaleRegionBoundaryCacheException(String fullTableName) {
-        this(SchemaUtil.getSchemaNameFromFullName(fullTableName),SchemaUtil.getTableNameFromFullName(fullTableName));
+        this(SchemaUtil.getSchemaNameFromFullName(fullTableName), SchemaUtil.getTableNameFromFullName(fullTableName));
     }
 
     public StaleRegionBoundaryCacheException(String schemaName, String tableName) {
         super(new SQLExceptionInfo.Builder(ERROR_CODE).setSchemaName(schemaName).setTableName(tableName).build().toString(),
-            ERROR_CODE.getSQLState(), ERROR_CODE.getErrorCode(), null);
+                ERROR_CODE.getSQLState(), ERROR_CODE.getErrorCode(), null);
     }
 }

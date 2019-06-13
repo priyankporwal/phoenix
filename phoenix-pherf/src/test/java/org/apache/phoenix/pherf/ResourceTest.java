@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ResourceTest {
     @Test
-    public void testSchemaResourceList() throws Exception{
+    public void testSchemaResourceList() throws Exception {
         String extension = ".sql";
         assertResources(PherfConstants.SCHEMA_ROOT_PATTERN + extension, PherfConstants.RESOURCE_DATAMODEL, extension);
     }

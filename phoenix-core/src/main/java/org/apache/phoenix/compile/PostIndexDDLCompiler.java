@@ -43,7 +43,7 @@ public class PostIndexDDLCompiler {
     private List<String> indexColumnNames;
     private List<String> dataColumnNames;
     private String selectQuery;
-    
+
     public PostIndexDDLCompiler(PhoenixConnection connection, TableRef dataTableRef) {
         this.connection = connection;
         this.dataTableRef = dataTableRef;
@@ -57,13 +57,13 @@ public class PostIndexDDLCompiler {
          */
         StringBuilder indexColumns = new StringBuilder();
         StringBuilder dataColumns = new StringBuilder();
-        
+
         // Add the pk index columns
         List<PColumn> indexPKColumns = indexTable.getPKColumns();
         int nIndexPKColumns = indexTable.getPKColumns().size();
         boolean isSalted = indexTable.getBucketNum() != null;
         boolean isMultiTenant = connection.getTenantId() != null && indexTable.isMultiTenant();
-        boolean isViewIndex = indexTable.getViewIndexId()!=null;
+        boolean isViewIndex = indexTable.getViewIndexId() != null;
         int posOffset = (isSalted ? 1 : 0) + (isMultiTenant ? 1 : 0) + (isViewIndex ? 1 : 0);
         for (int i = posOffset; i < nIndexPKColumns; i++) {
             PColumn col = indexPKColumns.get(i);
@@ -75,7 +75,7 @@ public class PostIndexDDLCompiler {
             indexColumnNames.add(indexColName);
             dataColumnNames.add(dataColName);
         }
-        
+
         // Add the covered columns
         for (PColumnFamily family : indexTable.getColumnFamilies()) {
             for (PColumn col : family.getColumns()) {
@@ -95,20 +95,20 @@ public class PostIndexDDLCompiler {
         }
 
         final PTable dataTable = dataTableRef.getTable();
-        dataColumns.setLength(dataColumns.length()-1);
-        indexColumns.setLength(indexColumns.length()-1);
+        dataColumns.setLength(dataColumns.length() - 1);
+        indexColumns.setLength(indexColumns.length() - 1);
         String schemaName = dataTable.getSchemaName().getString();
         String tableName = indexTable.getTableName().getString();
-        
+
         StringBuilder updateStmtStr = new StringBuilder();
         updateStmtStr.append("UPSERT /*+ NO_INDEX */ INTO ").append(schemaName.length() == 0 ? "" : '"' + schemaName + "\".").append('"').append(tableName).append("\"(")
-           .append(indexColumns).append(") ");
+                .append(indexColumns).append(") ");
         final StringBuilder selectQueryBuilder = new StringBuilder();
         selectQueryBuilder.append(" SELECT /*+ NO_INDEX */ ").append(dataColumns).append(" FROM ")
-        .append(schemaName.length() == 0 ? "" : '"' + schemaName + "\".").append('"').append(dataTable.getTableName().getString()).append('"');
+                .append(schemaName.length() == 0 ? "" : '"' + schemaName + "\".").append('"').append(dataTable.getTableName().getString()).append('"');
         this.selectQuery = selectQueryBuilder.toString();
         updateStmtStr.append(this.selectQuery);
-        
+
         try (final PhoenixStatement statement = new PhoenixStatement(connection)) {
             DelegateMutationPlan delegate = new DelegateMutationPlan(statement.compileMutation(updateStmtStr.toString())) {
                 @Override

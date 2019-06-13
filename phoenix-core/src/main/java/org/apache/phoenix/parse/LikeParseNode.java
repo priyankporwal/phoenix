@@ -24,17 +24,18 @@ import java.util.List;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Node representing LIKE and NOT LIKE in SQL
  *
- * 
  * @since 0.1
  */
 public class LikeParseNode extends BinaryParseNode {
 
-    public enum LikeType {CASE_SENSITIVE, CASE_INSENSITIVE}
+    public enum LikeType
+
+    {
+        CASE_SENSITIVE, CASE_INSENSITIVE
+    }
 
     private final boolean negate;
     private final LikeType likeType;
@@ -50,7 +51,7 @@ public class LikeParseNode extends BinaryParseNode {
     }
 
     public LikeType getLikeType() {
-      return likeType;
+        return likeType;
     }
 
     @Override
@@ -62,38 +63,45 @@ public class LikeParseNode extends BinaryParseNode {
         return visitor.visitLeave(this, l);
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((likeType == null) ? 0 : likeType.hashCode());
-		result = prime * result + (negate ? 1231 : 1237);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((likeType == null) ? 0 : likeType.hashCode());
+        result = prime * result + (negate ? 1231 : 1237);
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		LikeParseNode other = (LikeParseNode) obj;
-		if (likeType != other.likeType)
-			return false;
-		if (negate != other.negate)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        LikeParseNode other = (LikeParseNode) obj;
+        if (likeType != other.likeType) {
+            return false;
+        }
+        if (negate != other.negate) {
+            return false;
+        }
+        return true;
+    }
 
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         List<ParseNode> children = getChildren();
         children.get(0).toSQL(resolver, buf);
-        if (negate) buf.append(" NOT");
+        if (negate) {
+            buf.append(" NOT");
+        }
         buf.append(" " + (likeType == LikeType.CASE_SENSITIVE ? "LIKE" : "ILIKE") + " ");
         children.get(1).toSQL(resolver, buf);
     }

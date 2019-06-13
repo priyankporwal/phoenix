@@ -50,22 +50,22 @@ public class ToDateFunctionIT extends ParallelStatsDisabledIT {
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(String.format("SELECT %s FROM \"SYSTEM\".CATALOG LIMIT 1", invocation));
         assertTrue(rs.next());
-        java.util.Date returnValue = (java.util.Date)rs.getObject(1);
+        java.util.Date returnValue = (java.util.Date) rs.getObject(1);
         rs.close();
         stmt.close();
         return returnValue;
     }
 
     private Date callToDateFunction(String invocation) throws SQLException {
-        return (Date)callToDateFunction(conn, invocation);
+        return (Date) callToDateFunction(conn, invocation);
     }
 
     private Time callToTimeFunction(String invocation) throws SQLException {
-        return (Time)callToDateFunction(conn, invocation);
+        return (Time) callToDateFunction(conn, invocation);
     }
 
     private Timestamp callToTimestampFunction(String invocation) throws SQLException {
-        return (Timestamp)callToDateFunction(conn, invocation);
+        return (Timestamp) callToDateFunction(conn, invocation);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class ToDateFunctionIT extends ParallelStatsDisabledIT {
                 callToDateFunction(
                         customTimeZoneConn, "TO_DATE('1970-01-01', 'yyyy-MM-dd')").getTime());
     }
-    
+
     @Test
     public void testTimestampCast() throws SQLException {
         Properties props = new Properties();
@@ -176,10 +176,10 @@ public class ToDateFunctionIT extends ParallelStatsDisabledIT {
         Connection customTimeZoneConn = DriverManager.getConnection(getUrl(), props);
 
         assertEquals(
-            1426188807198L,
+                1426188807198L,
                 callToDateFunction(
                         customTimeZoneConn, "CAST(1426188807198 AS TIMESTAMP)").getTime());
-        
+
 
         try {
             callToDateFunction(
@@ -189,7 +189,7 @@ public class ToDateFunctionIT extends ParallelStatsDisabledIT {
 
         }
     }
-    
+
     @Test
     public void testUnsignedLongToTimestampCast() throws SQLException {
         Properties props = new Properties();
@@ -198,16 +198,16 @@ public class ToDateFunctionIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(false);
         try {
             conn.prepareStatement(
-                "create table TT("
-                        + "a unsigned_int not null, "
-                        + "b unsigned_int not null, "
-                        + "ts unsigned_long not null "
-                        + "constraint PK primary key (a, b, ts))").execute();
+                    "create table TT("
+                            + "a unsigned_int not null, "
+                            + "b unsigned_int not null, "
+                            + "ts unsigned_long not null "
+                            + "constraint PK primary key (a, b, ts))").execute();
             conn.commit();
 
             conn.prepareStatement("upsert into TT values (0, 22120, 1426188807198)").execute();
             conn.commit();
-            
+
             ResultSet rs = conn.prepareStatement("select a, b, ts, CAST(ts AS TIMESTAMP) from TT").executeQuery();
             assertTrue(rs.next());
             assertEquals(new Date(1426188807198L), rs.getObject(4));
@@ -251,18 +251,18 @@ public class ToDateFunctionIT extends ParallelStatsDisabledIT {
         assertEquals("Did not get value that was inserted!!", dateString2, obtainedString);
         assertFalse("No more rows expected!!", rs.next());
     }
-    
+
     @Test
     public void testToDateWithCloneMethod() throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-    	String ddl = "create table " + tableName + " (k varchar primary key, v varchar[])";
+        String ddl = "create table " + tableName + " (k varchar primary key, v varchar[])";
         conn.createStatement().execute(ddl);
         String dateStr = "2100-01-01";
-        conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('x',ARRAY['"+dateStr+"'])");
+        conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('x',ARRAY['" + dateStr + "'])");
         conn.commit();
         ResultSet rs = conn.createStatement().executeQuery("select to_date(v[1], 'yyyy-MM-dd', 'local') from " + tableName);
-        
+
         assertTrue(rs.next());
         assertEquals("Unexpected value for date ", Date.valueOf(dateStr), rs.getDate(1));
         assertFalse(rs.next());

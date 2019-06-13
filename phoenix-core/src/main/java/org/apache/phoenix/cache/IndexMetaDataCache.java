@@ -43,14 +43,17 @@ public interface IndexMetaDataCache extends Closeable {
         public PhoenixTransactionContext getTransactionContext() {
             return null;
         }
-        
+
         @Override
         public int getClientVersion() {
             return ScanUtil.UNKNOWN_CLIENT_VERSION;
         }
-        
+
     };
+
     public List<IndexMaintainer> getIndexMaintainers();
+
     public PhoenixTransactionContext getTransactionContext();
+
     public int getClientVersion();
 }

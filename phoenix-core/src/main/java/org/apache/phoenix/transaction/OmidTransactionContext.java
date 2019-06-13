@@ -58,8 +58,8 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
 
     public OmidTransactionContext(PhoenixConnection connection) throws SQLException {
         PhoenixTransactionClient client = connection.getQueryServices().initTransactionClient(getProvider());
-        assert (client instanceof OmidTransactionProvider.OmidTransactionClient);
-        this.tm = ((OmidTransactionProvider.OmidTransactionClient)client).getTransactionClient();
+        assert(client instanceof OmidTransactionProvider.OmidTransactionClient);
+        this.tm = ((OmidTransactionProvider.OmidTransactionClient) client).getTransactionClient();
         this.tx = null;
     }
 
@@ -75,7 +75,7 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
     }
 
     public OmidTransactionContext(PhoenixTransactionContext ctx, boolean subTask) {
-        assert (ctx instanceof OmidTransactionContext);
+        assert(ctx instanceof OmidTransactionContext);
         OmidTransactionContext omidTransactionContext = (OmidTransactionContext) ctx;
 
         this.tm = omidTransactionContext.tm;
@@ -117,8 +117,9 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
 
     @Override
     public void commit() throws SQLException {
-        if (tx == null || tm == null)
+        if (tx == null || tm == null) {
             return;
+        }
 
         try {
             tm.commit(tx);
@@ -173,9 +174,9 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
         } catch (TransactionException e) {
             throw new SQLExceptionInfo.Builder(
                     SQLExceptionCode.TX_UNABLE_TO_GET_WRITE_FENCE)
-            .setSchemaName(dataTable.getSchemaName().getString())
-            .setTableName(dataTable.getTableName().getString()).build()
-            .buildException();
+                    .setSchemaName(dataTable.getSchemaName().getString())
+                    .setTableName(dataTable.getTableName().getString()).build()
+                    .buildException();
         }
     }
 
@@ -186,11 +187,13 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
             return;
         }
 
-        assert (ctx instanceof OmidTransactionContext);
+        assert(ctx instanceof OmidTransactionContext);
         OmidTransactionContext omidContext = (OmidTransactionContext) ctx;
 
         HBaseTransaction transaction = omidContext.getTransaction();
-        if (transaction == null || tx == null) return;
+        if (transaction == null || tx == null) {
+            return;
+        }
 
         Set<HBaseCellId> writeSet = transaction.getWriteSet();
 
@@ -233,16 +236,16 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
 
         PhoenixVisibilityLevel phoenixVisibilityLevel;
         switch (visibilityLevel) {
-        case SNAPSHOT:
-            phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT;
-            break;
-        case SNAPSHOT_EXCLUDE_CURRENT:
-            phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
-            break;
-        case SNAPSHOT_ALL:
-            phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_ALL;
-        default:
-            phoenixVisibilityLevel = null;
+            case SNAPSHOT:
+                phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT;
+                break;
+            case SNAPSHOT_EXCLUDE_CURRENT:
+                phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
+                break;
+            case SNAPSHOT_ALL:
+                phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_ALL;
+            default:
+                phoenixVisibilityLevel = null;
         }
 
         return phoenixVisibilityLevel;
@@ -254,17 +257,17 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
         VisibilityLevel omidVisibilityLevel = null;
 
         switch (visibilityLevel) {
-        case SNAPSHOT:
-            omidVisibilityLevel = VisibilityLevel.SNAPSHOT;
-            break;
-        case SNAPSHOT_EXCLUDE_CURRENT:
-            omidVisibilityLevel = VisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
-            break;
-        case SNAPSHOT_ALL:
-            omidVisibilityLevel = VisibilityLevel.SNAPSHOT_ALL;
-            break;
-        default:
-            assert (false);
+            case SNAPSHOT:
+                omidVisibilityLevel = VisibilityLevel.SNAPSHOT;
+                break;
+            case SNAPSHOT_EXCLUDE_CURRENT:
+                omidVisibilityLevel = VisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
+                break;
+            case SNAPSHOT_ALL:
+                omidVisibilityLevel = VisibilityLevel.SNAPSHOT_ALL;
+                break;
+            default:
+                assert(false);
         }
 
         assert(tx != null);
@@ -303,8 +306,8 @@ public class OmidTransactionContext implements PhoenixTransactionContext {
     }
 
     /**
-    *  OmidTransactionContext specific functions
-    */
+     * OmidTransactionContext specific functions
+     */
 
     public HBaseTransaction getTransaction() {
         return tx;

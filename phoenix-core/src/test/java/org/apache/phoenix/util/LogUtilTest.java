@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,30 +31,31 @@ import com.google.common.collect.ImmutableMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogUtilTest {
-    
-	@Mock PhoenixConnection con;
-	
+
+    @Mock
+    PhoenixConnection con;
+
     @Test
     public void testAddCustomAnnotationsWithNullConnection() {
-    	String logLine = LogUtil.addCustomAnnotations("log line", (PhoenixConnection)null);
-    	assertEquals(logLine, "log line");
+        String logLine = LogUtil.addCustomAnnotations("log line", (PhoenixConnection) null);
+        assertEquals(logLine, "log line");
     }
-	
+
     @Test
     public void testAddCustomAnnotationsWithNullAnnotations() {
-    	when(con.getCustomTracingAnnotations()).thenReturn(null);
-    	
-    	String logLine = LogUtil.addCustomAnnotations("log line", con);
-    	assertEquals(logLine, "log line");
+        when(con.getCustomTracingAnnotations()).thenReturn(null);
+
+        String logLine = LogUtil.addCustomAnnotations("log line", con);
+        assertEquals(logLine, "log line");
     }
-    
+
     @Test
     public void testAddCustomAnnotations() {
-    	when(con.getCustomTracingAnnotations()).thenReturn(ImmutableMap.of("a1", "v1", "a2", "v2"));
-    	
-    	String logLine = LogUtil.addCustomAnnotations("log line", con);
-    	assertTrue(logLine.contains("log line"));
-    	assertTrue(logLine.contains("a1=v1"));
-    	assertTrue(logLine.contains("a2=v2"));
+        when(con.getCustomTracingAnnotations()).thenReturn(ImmutableMap.of("a1", "v1", "a2", "v2"));
+
+        String logLine = LogUtil.addCustomAnnotations("log line", con);
+        assertTrue(logLine.contains("log line"));
+        assertTrue(logLine.contains("a1=v1"));
+        assertTrue(logLine.contains("a2=v2"));
     }
 }

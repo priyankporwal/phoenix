@@ -24,14 +24,14 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType
 public class DataOverride {
-	private List<Column> column;
+    private List<Column> column;
 
-	public List<Column> getColumn() {
-		return column;
-	}
+    public List<Column> getColumn() {
+        return column;
+    }
 
     @SuppressWarnings("unused")
     public void setColumn(List<Column> column) {
-		this.column = column;
-	}
+        this.column = column;
+    }
 }

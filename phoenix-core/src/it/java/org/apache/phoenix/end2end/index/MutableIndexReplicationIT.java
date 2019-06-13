@@ -136,7 +136,7 @@ public class MutableIndexReplicationIT extends BaseTest {
         // than default
         conf1 = utility1.getConfiguration();
         zkw1 = new ZKWatcher(conf1, "cluster1", null, true);
-        admin=ConnectionFactory.createConnection(conf1).getAdmin();
+        admin = ConnectionFactory.createConnection(conf1).getAdmin();
         LOGGER.info("Setup first Zk");
 
         // Base conf2 on conf1 so it gets the right zk cluster, and general cluster configs
@@ -153,7 +153,7 @@ public class MutableIndexReplicationIT extends BaseTest {
         LOGGER.info("Setup second Zk");
         utility1.startMiniCluster(2);
         utility2.startMiniCluster(2);
-      //replicate from cluster 1 -> cluster 2, but not back again
+        //replicate from cluster 1 -> cluster 2, but not back again
         admin.addReplicationPeer("1", new ReplicationPeerConfig().setClusterKey(utility2.getClusterKey()));
     }
 
@@ -165,7 +165,7 @@ public class MutableIndexReplicationIT extends BaseTest {
         props.put(QueryServices.DROP_METADATA_ATTRIB, Boolean.toString(true));
         // Must update config before starting server
         URL = getLocalClusterUrl(utility1);
-        LOGGER.info("Connecting driver to "+URL);
+        LOGGER.info("Connecting driver to " + URL);
         driver = initAndRegisterTestDriver(URL, new ReadOnlyProps(props.entrySet().iterator()));
     }
 
@@ -204,17 +204,17 @@ public class MutableIndexReplicationIT extends BaseTest {
             //create it as-is on the remote cluster
             admin2.createTable(desc);
 
-            LOGGER.info("Enabling replication on source table: "+tableName);
+            LOGGER.info("Enabling replication on source table: " + tableName);
             ColumnFamilyDescriptor[] cols = desc.getColumnFamilies();
             assertEquals(1, cols.length);
             // add the replication scope to the column
             ColumnFamilyDescriptor col = ColumnFamilyDescriptorBuilder.newBuilder(cols[0].getName()).setScope(HConstants.REPLICATION_SCOPE_GLOBAL).build();
-            desc=TableDescriptorBuilder.newBuilder(desc).removeColumnFamily(cols[0].getName()).addColumnFamily(col).build();
+            desc = TableDescriptorBuilder.newBuilder(desc).removeColumnFamily(cols[0].getName()).addColumnFamily(col).build();
             //disable/modify/enable table so it has replication enabled
             admin.disableTable(desc.getTableName());
             admin.modifyTable(desc);
             admin.enableTable(desc.getTableName());
-            LOGGER.info("Replication enabled on source table: "+tableName);
+            LOGGER.info("Replication enabled on source table: " + tableName);
         }
 
 

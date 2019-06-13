@@ -23,20 +23,21 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 
 public class ConfigUtil {
-  /**
-   * This function set missed replication configuration settings. It should only be used in testing
-   * env.
-   * @param conf
-   */
-  public static void setReplicationConfigIfAbsent(Configuration conf) {
-    // set replication required parameter
-    String plugins = conf.get(HBASE_MASTER_LOGCLEANER_PLUGINS);
-    if (plugins == null) {
-      conf.set(HBASE_MASTER_LOGCLEANER_PLUGINS, "");
+    /**
+     * This function set missed replication configuration settings. It should only be used in testing
+     * env.
+     *
+     * @param conf
+     */
+    public static void setReplicationConfigIfAbsent(Configuration conf) {
+        // set replication required parameter
+        String plugins = conf.get(HBASE_MASTER_LOGCLEANER_PLUGINS);
+        if (plugins == null) {
+            conf.set(HBASE_MASTER_LOGCLEANER_PLUGINS, "");
+        }
+        String ensemble = conf.get(HConstants.ZOOKEEPER_QUORUM);
+        if (ensemble == null) {
+            conf.set(HConstants.ZOOKEEPER_QUORUM, "localhost");
+        }
     }
-    String ensemble = conf.get(HConstants.ZOOKEEPER_QUORUM);
-    if (ensemble == null) {
-      conf.set(HConstants.ZOOKEEPER_QUORUM, "localhost");
-    }
-  }
 }

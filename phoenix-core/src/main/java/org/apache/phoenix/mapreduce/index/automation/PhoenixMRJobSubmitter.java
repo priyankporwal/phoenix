@@ -92,7 +92,7 @@ public class PhoenixMRJobSubmitter {
     public static final int DEFAULT_MR_CLIENT_RETRIES_NUMBER = 10;
     public static final int DEFAULT_MR_CLIENT_PAUSE = 1000;
     public static final int DEFAULT_MR_ZK_RECOVERY_RETRY = 1;
-    
+
     public static final String CANDIDATE_INDEX_INFO_QUERY = "SELECT "
             + PhoenixDatabaseMetaData.INDEX_TYPE + ","
             + PhoenixDatabaseMetaData.DATA_TABLE_NAME + ", "
@@ -103,7 +103,7 @@ public class PhoenixMRJobSubmitter {
             + " FROM "
             + PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA + ".\"" + PhoenixDatabaseMetaData.SYSTEM_CATALOG_TABLE + "\""
             + " (" + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " " + PDate.INSTANCE.getSqlTypeName() + ", "
-            +  PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " +  PLong.INSTANCE.getSqlTypeName() + ") "
+            + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " + PLong.INSTANCE.getSqlTypeName() + ") "
             + " WHERE "
             + PhoenixDatabaseMetaData.COLUMN_NAME + " IS NULL and "
             + PhoenixDatabaseMetaData.COLUMN_FAMILY + " IS NULL  and "
@@ -111,7 +111,7 @@ public class PhoenixMRJobSubmitter {
             + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " IS NOT NULL ) and "
             + PhoenixDatabaseMetaData.TABLE_TYPE + " = '" + PTableType.INDEX.getSerializedValue() + "' and "
             + PhoenixDatabaseMetaData.INDEX_STATE + " = '" + PIndexState.BUILDING.getSerializedValue() + "'";
-    
+
     // TODO - Move this to a property?
     private static final int JOB_SUBMIT_POOL_TIMEOUT = 5;
     private Configuration conf;
@@ -129,44 +129,44 @@ public class PhoenixMRJobSubmitter {
         this.conf = conf;
 
         // Have Phoenix specific properties for defaults to enable potential override
-        conf.setLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, 
+        conf.setLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD,
                 conf.getLong(PHOENIX_MR_CLIENT_SCANNER_TIMEOUT_PERIOD,
                         DEFAULT_MR_CLIENT_SCANNER_TIMEOUT_PERIOD));
-        conf.setLong(HConstants.HBASE_RPC_TIMEOUT_KEY, 
+        conf.setLong(HConstants.HBASE_RPC_TIMEOUT_KEY,
                 conf.getLong(PHOENIX_MR_RPC_TIMEOUT,
                         DEFAULT_MR_RPC_TIMEOUT));
-        conf.setLong(MRJobConfig.TASK_TIMEOUT, 
+        conf.setLong(MRJobConfig.TASK_TIMEOUT,
                 conf.getLong(PHOENIX_MR_TASK_TIMEOUT,
                         DEFAULT_MR_TASK_TIMEOUT));
 
         // Reduced HBase Client Retries
-        conf.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER, 
+        conf.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER,
                 conf.getInt(PHOENIX_MR_CLIENT_RETRIES_NUMBER,
                         DEFAULT_MR_CLIENT_RETRIES_NUMBER));
-        conf.setInt(HConstants.HBASE_CLIENT_PAUSE, 
+        conf.setInt(HConstants.HBASE_CLIENT_PAUSE,
                 conf.getInt(PHOENIX_MR_CLIENT_PAUSE,
                         DEFAULT_MR_CLIENT_PAUSE));
-        conf.setInt("zookeeper.recovery.retry", 
+        conf.setInt("zookeeper.recovery.retry",
                 conf.getInt(PHOENIX_MR_ZK_RECOVERY_RETRY,
                         DEFAULT_MR_ZK_RECOVERY_RETRY));
-        
+
         String schedulerType =
                 conf.get(PhoenixMRJobUtil.PHOENIX_MR_SCHEDULER_TYPE_NAME,
-                    MR_SCHEDULER_TYPE.NONE.toString());
+                        MR_SCHEDULER_TYPE.NONE.toString());
 
         MR_SCHEDULER_TYPE type = MR_SCHEDULER_TYPE.valueOf(schedulerType);
 
         switch (type) {
-        case CAPACITY:
-            LOGGER.info("Applying the Capacity Scheduler Queue Configurations");
-            PhoenixMRJobUtil.updateCapacityQueueInfo(conf);
-            break;
-        case FAIR:
-            LOGGER.warn("Fair Scheduler type is not yet supported");
-            throw new IOException("Fair Scheduler is not yet supported");
-        case NONE:
-        default:
-            break;
+            case CAPACITY:
+                LOGGER.info("Applying the Capacity Scheduler Queue Configurations");
+                PhoenixMRJobUtil.updateCapacityQueueInfo(conf);
+                break;
+            case FAIR:
+                LOGGER.warn("Fair Scheduler type is not yet supported");
+                throw new IOException("Fair Scheduler is not yet supported");
+            case NONE:
+            default:
+                break;
         }
         zkQuorum = conf.get(HConstants.ZOOKEEPER_QUORUM);
         // Use UGI.loginUserFromKeytab to login and work with secure clusters
@@ -224,7 +224,7 @@ public class PhoenixMRJobSubmitter {
             indexInfo.setTableSchem(rs.getString(PhoenixDatabaseMetaData.TABLE_SCHEM));
             indexInfo.setTableName(rs.getString(PhoenixDatabaseMetaData.TABLE_NAME));
             candidateIndexes.put(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
-                indexInfo.getTableSchem(), indexInfo.getDataTableName(), indexInfo.getTableName()), indexInfo);
+                    indexInfo.getTableSchem(), indexInfo.getDataTableName(), indexInfo.getTableName()), indexInfo);
         }
 
         return candidateIndexes;
@@ -236,7 +236,7 @@ public class PhoenixMRJobSubmitter {
                 new ZKWatcher(conf, "phoenixAutomatedMRIndexBuild", null);
 
         if (!ZKBasedMasterElectionUtil.acquireLock(zookeeperWatcher, PHOENIX_LOCKS_PARENT,
-            AUTO_INDEX_BUILD_LOCK_NAME)) {
+                AUTO_INDEX_BUILD_LOCK_NAME)) {
             LOGGER.info("Some other node is already running Automated Index Build. Skipping execution!");
             return -1;
         }
@@ -292,7 +292,7 @@ public class PhoenixMRJobSubmitter {
     }
 
     public Set<PhoenixAsyncIndex> getJobsToSubmit(Map<String, PhoenixAsyncIndex> candidateJobs,
-            Set<String> submittedJobs) {
+                                                  Set<String> submittedJobs) {
         Set<PhoenixAsyncIndex> toScheduleJobs =
                 new HashSet<PhoenixAsyncIndex>(candidateJobs.values());
         for (String jobId : submittedJobs) {
@@ -329,8 +329,8 @@ public class PhoenixMRJobSubmitter {
             Gson gson = new GsonBuilder().create();
             YarnApplication yarnApplication =
                     gson.fromJson(appJson.getJSONObject(i).toString(),
-                        new TypeToken<YarnApplication>() {
-                        }.getType());
+                            new TypeToken<YarnApplication>() {
+                            }.getType());
             yarnApplicationSet.add(yarnApplication.getName());
         }
 

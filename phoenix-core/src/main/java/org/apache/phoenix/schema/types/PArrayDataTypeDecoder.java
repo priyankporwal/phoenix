@@ -28,29 +28,31 @@ import org.apache.phoenix.util.ByteUtil;
 
 
 public class PArrayDataTypeDecoder implements ColumnValueDecoder {
-    
+
     @Override
     public boolean decode(ImmutableBytesWritable ptr, int index) {
         return PArrayDataTypeDecoder.positionAtArrayElement(ptr, index, PVarbinary.INSTANCE, null);
     }
 
     public static boolean positionAtArrayElement(Tuple tuple, ImmutableBytesWritable ptr, int index,
-            Expression arrayExpr, PDataType pDataType, Integer maxLen) {
+                                                 Expression arrayExpr, PDataType pDataType, Integer maxLen) {
         if (!arrayExpr.evaluate(tuple, ptr)) {
             return false;
-        } else if (ptr.getLength() == 0) { return true; }
-    
+        } else if (ptr.getLength() == 0) {
+            return true;
+        }
+
         // Given a ptr to the entire array, set ptr to point to a particular element within that array
         // given the type of an array element (see comments in PDataTypeForArray)
         return positionAtArrayElement(ptr, index - 1, pDataType, maxLen);
     }
 
     public static boolean positionAtArrayElement(ImmutableBytesWritable ptr, int arrayIndex, PDataType baseDataType,
-            Integer byteSize) {
+                                                 Integer byteSize) {
         byte[] bytes = ptr.get();
         int initPos = ptr.getOffset();
         if (!baseDataType.isFixedWidth()) {
-        	byte serializationVersion = bytes[ptr.getOffset() + ptr.getLength() - Bytes.SIZEOF_BYTE];
+            byte serializationVersion = bytes[ptr.getOffset() + ptr.getLength() - Bytes.SIZEOF_BYTE];
             int noOfElements = Bytes.toInt(bytes,
                     (ptr.getOffset() + ptr.getLength() - (Bytes.SIZEOF_BYTE + Bytes.SIZEOF_INT)), Bytes.SIZEOF_INT);
             boolean useShort = true;
@@ -62,7 +64,7 @@ public class PArrayDataTypeDecoder implements ColumnValueDecoder {
                 ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
                 return false;
             }
-    
+
             int indexOffset = Bytes.toInt(bytes,
                     (ptr.getOffset() + ptr.getLength() - (Bytes.SIZEOF_BYTE + 2 * Bytes.SIZEOF_INT))) + ptr.getOffset();
             // Skip those many offsets as given in the arrayIndex
@@ -73,8 +75,8 @@ public class PArrayDataTypeDecoder implements ColumnValueDecoder {
             // Subtracting the offset of 5th element and 4th element will give the length of 4th element
             // So we could just skip reading the other elements.
             int currOffset = PArrayDataType.getSerializedOffset(bytes, arrayIndex, useShort, indexOffset, serializationVersion);
-            if (currOffset<0) {
-            	ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
+            if (currOffset < 0) {
+                ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
                 return false;
             }
             int elementLength = 0;
@@ -93,14 +95,14 @@ public class PArrayDataTypeDecoder implements ColumnValueDecoder {
                         elementLength = 0;
                     }
                 } else {
-                    int separatorBytes =  serializationVersion == PArrayDataType.SORTABLE_SERIALIZATION_VERSION ? 3 : 0;
+                    int separatorBytes = serializationVersion == PArrayDataType.SORTABLE_SERIALIZATION_VERSION ? 3 : 0;
                     elementLength = isSeparatorByte(bytes, initPos, currOffset) && serializationVersion == PArrayDataType.SORTABLE_SERIALIZATION_VERSION ? 0 : indexOffset
                             - (currOffset + initPos) - separatorBytes;
                 }
             } else {
                 if (serializationVersion == PArrayDataType.IMMUTABLE_SERIALIZATION_VERSION) {
                     elementLength = PArrayDataType.getOffset(bytes, arrayIndex + 1,
-                        useShort, indexOffset, serializationVersion)
+                            useShort, indexOffset, serializationVersion)
                             - currOffset;
                     if (isNullValue(arrayIndex, bytes, initPos, serializationVersion, useShort, indexOffset, currOffset, elementLength)) {
                         elementLength = 0;
@@ -113,10 +115,10 @@ public class PArrayDataTypeDecoder implements ColumnValueDecoder {
                     elementLength =
                             isSeparatorByte(bytes, initPos, currOffset)
                                     && serializationVersion == PArrayDataType.SORTABLE_SERIALIZATION_VERSION
-                                            ? 0
-                                            : PArrayDataType.getOffset(bytes, arrayIndex + 1,
-                                                useShort, indexOffset, serializationVersion)
-                                                    - currOffset - separatorByte;
+                                    ? 0
+                                    : PArrayDataType.getOffset(bytes, arrayIndex + 1,
+                                    useShort, indexOffset, serializationVersion)
+                                    - currOffset - separatorByte;
                 }
             }
             ptr.set(bytes, currOffset + initPos, elementLength);
@@ -134,19 +136,19 @@ public class PArrayDataTypeDecoder implements ColumnValueDecoder {
 
     // returns true if the prior element in the array is a null
     private static boolean isNullValue(int arrayIndex, byte[] bytes, int initPos,
-            byte serializationVersion, boolean useShort, int indexOffset, int currOffset,
-            int elementLength) {
+                                       byte serializationVersion, boolean useShort, int indexOffset, int currOffset,
+                                       int elementLength) {
         if (isSeparatorByte(bytes, initPos, currOffset)) {
             if (isPriorValueZeroLength(arrayIndex, bytes,
-                serializationVersion, useShort, indexOffset, currOffset)) {
+                    serializationVersion, useShort, indexOffset, currOffset)) {
                 return true;
             } else {
                 // if there's no prior null, there can be at most 1 null
                 if (elementLength == 2) {
                     // nullByte calculation comes from the encoding of one null
                     // see PArrayDataType#serializeNulls
-                    byte nullByte = SortOrder.invert((byte)(0));
-                    if (bytes[initPos+currOffset+1] == nullByte) {
+                    byte nullByte = SortOrder.invert((byte) (0));
+                    if (bytes[initPos + currOffset + 1] == nullByte) {
                         return true;
                     }
                 }
@@ -157,9 +159,9 @@ public class PArrayDataTypeDecoder implements ColumnValueDecoder {
 
     // checks prior value length by subtracting offset of the previous item from the current offset
     private static boolean isPriorValueZeroLength(int arrayIndex, byte[] bytes, byte serializationVersion,
-            boolean useShort, int indexOffset, int currOffset) {
+                                                  boolean useShort, int indexOffset, int currOffset) {
         return arrayIndex > 0 && currOffset - PArrayDataType.getOffset(bytes, arrayIndex - 1,
-            useShort, indexOffset, serializationVersion) == 0;
+                useShort, indexOffset, serializationVersion) == 0;
     }
 
     private static boolean isSeparatorByte(byte[] bytes, int initPos, int currOffset) {

@@ -31,13 +31,11 @@ import org.apache.phoenix.schema.types.PTimestamp;
 import org.joda.time.DateTime;
 
 /**
- * 
  * Implementation of the Month() buildin. Input Date/Timestamp/Time.
  * Returns an integer from 1 to 12 representing the month omponent of date
- * 
  */
-@BuiltInFunction(name=MonthFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = MonthFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class MonthFunction extends DateScalarFunction {
     public static final String NAME = "MONTH";
 
@@ -54,7 +52,7 @@ public class MonthFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());

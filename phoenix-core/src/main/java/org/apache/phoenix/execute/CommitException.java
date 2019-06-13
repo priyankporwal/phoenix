@@ -31,7 +31,7 @@ public class CommitException extends SQLException {
         this.uncommittedStatementIndexes = uncommittedStatementIndexes;
         this.serverTimestamp = serverTimestamp;
     }
-    
+
     public long getServerTimestamp() {
         return this.serverTimestamp;
     }
@@ -43,14 +43,14 @@ public class CommitException extends SQLException {
      * <p>
      * Statements whose index is returned in this set correspond to one or more HBase mutations that have failed.
      * <p>
-     * Statement indexes are maintained correctly for connections that mutate and query 
+     * Statement indexes are maintained correctly for connections that mutate and query
      * <b>data</b> (DELETE, UPSERT and SELECT) only. Statement (and their subsequent failure) order
      * is undefined for connections that execute metadata operations due to the fact that Phoenix rolls
      * back connections after metadata mutations.
-     * 
+     *
      * @see PhoenixConnection#getStatementExecutionCounter()
      */
     public int[] getUncommittedStatementIndexes() {
-    	return uncommittedStatementIndexes;
+        return uncommittedStatementIndexes;
     }
 }

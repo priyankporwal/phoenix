@@ -50,12 +50,10 @@ import org.slf4j.LoggerFactory;
 import static org.apache.phoenix.schema.types.PDataType.TRUE_BYTES;
 
 /**
- *
  * Wraps the scan performing a non aggregate query to prevent needless retries
  * if a Phoenix bug is encountered from our custom filter expression evaluation.
  * Unfortunately, until HBASE-7481 gets fixed, there's no way to do this from our
  * custom filters.
- *
  *
  * @since 0.1
  */
@@ -71,11 +69,11 @@ public class ScanRegionObserver extends BaseScannerRegionObserver implements Reg
 
     @Override
     public Optional<RegionObserver> getRegionObserver() {
-      return Optional.of(this);
+        return Optional.of(this);
     }
 
     public static void serializeIntoScan(Scan scan, int limit,
-            List<OrderByExpression> orderByExpressions, int estimatedRowSize) {
+                                         List<OrderByExpression> orderByExpressions, int estimatedRowSize) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream(); // TODO: size?
         try {
             DataOutputStream output = new DataOutputStream(stream);
@@ -99,11 +97,11 @@ public class ScanRegionObserver extends BaseScannerRegionObserver implements Reg
 
     @Override
     public void preBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c,
-            MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
+                               MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
         try {
             preBatchMutateWithExceptions(miniBatchOp, c.getEnvironment().getRegion()
                     .getTableDescriptor().getTableName().getNameAsString());
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             // Wrap all exceptions in an IOException to prevent region server crashes
             throw ServerUtil.createIOException("Unable to Put cells corresponding to dynamic" +
                     "column metadata for " +
@@ -119,13 +117,14 @@ public class ScanRegionObserver extends BaseScannerRegionObserver implements Reg
      * the value is the serialized list of dynamic columns.
      * Here we iterate over all Put mutations and add metadata for the list of dynamic columns for
      * each column family in its own cell under reserved qualifiers. See PHOENIX-374
+     *
      * @param miniBatchOp batch of mutations getting applied to region
-     * @param tableName Name of table served by region
+     * @param tableName   Name of table served by region
      * @throws IOException If an I/O error occurs when parsing protobuf
      */
     private void preBatchMutateWithExceptions(MiniBatchOperationInProgress<Mutation> miniBatchOp,
-            String tableName)
-    throws IOException {
+                                              String tableName)
+            throws IOException {
         for (int i = 0; i < miniBatchOp.size(); i++) {
             Mutation m = miniBatchOp.getOperation(i);
             // There is at max 1 extra Put (for dynamic column shadow cells) per original Put
@@ -161,7 +160,7 @@ public class ScanRegionObserver extends BaseScannerRegionObserver implements Reg
                 }
             }
             if (dynColShadowCellsPut != null) {
-                miniBatchOp.addOperationsFromCP(i, new Mutation[]{dynColShadowCellsPut});
+                miniBatchOp.addOperationsFromCP(i, new Mutation[] {dynColShadowCellsPut});
             }
         }
     }
@@ -171,12 +170,13 @@ public class ScanRegionObserver extends BaseScannerRegionObserver implements Reg
      * The column qualifier for this cell is:
      * {@link ScanRegionObserver#DYN_COLS_METADATA_CELL_QUALIFIER} concatenated with the
      * qualifier of the actual dynamic column
+     *
      * @param dynColProto Protobuf representation of the dynamic column PColumn
      * @return Final qualifier for the metadata cell
      * @throws IOException If an I/O error occurs when parsing the byte array output stream
      */
     private static byte[] getQualifierForDynamicColumnMetaDataCell(PTableProtos.PColumn dynColProto)
-    throws IOException {
+            throws IOException {
         PColumn dynCol = PColumnImpl.createFromProto(dynColProto);
         ByteArrayOutputStream qual = new ByteArrayOutputStream();
         qual.write(DYN_COLS_METADATA_CELL_QUALIFIER);

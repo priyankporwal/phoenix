@@ -34,8 +34,8 @@ public class VersionUtil {
 
     // Encode the major as 2nd byte in the int, minor as the first byte and patch as the last byte.
     public static int encodeVersion(String major, String minor, String patch) {
-        return encodeVersion(major == null ? 0 : Integer.parseInt(major), minor == null ? 0 : Integer.parseInt(minor), 
-                        patch == null ? 0 : Integer.parseInt(patch));
+        return encodeVersion(major == null ? 0 : Integer.parseInt(major), minor == null ? 0 : Integer.parseInt(minor),
+                patch == null ? 0 : Integer.parseInt(patch));
     }
 
     public static int encodeVersion(int major, int minor, int patch) {

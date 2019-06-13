@@ -50,10 +50,10 @@ import com.google.common.collect.Lists;
 public class WhereConstantParser {
 
     static PTable addViewInfoToPColumnsIfNeeded(PTable view) throws SQLException {
-    	boolean[] viewColumnConstantsMatched = new boolean[view.getColumns().size()];
+        boolean[] viewColumnConstantsMatched = new boolean[view.getColumns().size()];
         byte[][] viewColumnConstantsToBe = new byte[view.getColumns().size()][];
         if (view.getViewStatement() == null) {
-        	return view;
+            return view;
         }
         SelectStatement select = new SQLParser(view.getViewStatement()).parseQuery();
         ParseNode whereNode = select.getWhere();
@@ -61,36 +61,34 @@ public class WhereConstantParser {
         StatementContext context = new StatementContext(new PhoenixStatement(getConnectionlessConnection()), resolver);
         Expression expression = null;
         try {
-        	expression = WhereCompiler.compile(context, whereNode);
-        }
-        catch (ColumnNotFoundException e) {
-        	// if we could not find a column used in the view statement (which means its was dropped)
-        	// this view is not valid any more
-        	return null;
+            expression = WhereCompiler.compile(context, whereNode);
+        } catch (ColumnNotFoundException e) {
+            // if we could not find a column used in the view statement (which means its was dropped)
+            // this view is not valid any more
+            return null;
         }
         CreateTableCompiler.ViewWhereExpressionVisitor visitor =
-            new CreateTableCompiler.ViewWhereExpressionVisitor(view, viewColumnConstantsToBe);
+                new CreateTableCompiler.ViewWhereExpressionVisitor(view, viewColumnConstantsToBe);
         expression.accept(visitor);
-        
+
         BitSet isViewColumnReferencedToBe = new BitSet(view.getColumns().size());
         // Used to track column references in a view
         ExpressionCompiler expressionCompiler = new CreateTableCompiler.ColumnTrackingExpressionCompiler(context, isViewColumnReferencedToBe);
         whereNode.accept(expressionCompiler);
-        
+
         List<PColumn> result = Lists.newArrayList();
         for (PColumn column : PTableImpl.getColumnsToClone(view)) {
-        	boolean isViewReferenced = isViewColumnReferencedToBe.get(column.getPosition());
-        	if ( (visitor.isUpdatable() || view.getPKColumns().get(MetaDataUtil.getAutoPartitionColIndex(view)).equals(column)) 
-        			&& viewColumnConstantsToBe[column.getPosition()] != null) {
-				result.add(new PColumnImpl(column, viewColumnConstantsToBe[column.getPosition()], isViewReferenced));
-				viewColumnConstantsMatched[column.getPosition()]=true;
+            boolean isViewReferenced = isViewColumnReferencedToBe.get(column.getPosition());
+            if ((visitor.isUpdatable() || view.getPKColumns().get(MetaDataUtil.getAutoPartitionColIndex(view)).equals(column))
+                    && viewColumnConstantsToBe[column.getPosition()] != null) {
+                result.add(new PColumnImpl(column, viewColumnConstantsToBe[column.getPosition()], isViewReferenced));
+                viewColumnConstantsMatched[column.getPosition()] = true;
             }
-        	// If view is not updatable, viewColumnConstants should be empty. We will still
+            // If view is not updatable, viewColumnConstants should be empty. We will still
             // inherit our parent viewConstants, but we have no additional ones.
-        	else if(isViewReferenced ){
-        		result.add(new PColumnImpl(column, column.getViewConstant(), isViewReferenced));
-        	}
-        	else {
+            else if (isViewReferenced) {
+                result.add(new PColumnImpl(column, column.getViewConstant(), isViewReferenced));
+            } else {
                 result.add(column);
             }
         }
@@ -100,8 +98,8 @@ public class WhereConstantParser {
 
     private static PhoenixConnection getConnectionlessConnection() throws SQLException {
         return DriverManager
-            .getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + CONNECTIONLESS)
-            .unwrap(PhoenixConnection.class);
+                .getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + CONNECTIONLESS)
+                .unwrap(PhoenixConnection.class);
     }
 
 }

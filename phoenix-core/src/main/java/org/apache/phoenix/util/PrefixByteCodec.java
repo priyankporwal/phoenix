@@ -31,7 +31,7 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import com.google.common.collect.Lists;
 
 public class PrefixByteCodec {
-    
+
     public static List<byte[]> decodeBytes(ImmutableBytesWritable encodedBytes, int maxLength) throws IOException {
         ByteArrayInputStream stream = new ByteArrayInputStream(encodedBytes.get(), encodedBytes.getOffset(), encodedBytes.getLength());
         DataInput input = new DataInputStream(stream);
@@ -45,11 +45,11 @@ public class PrefixByteCodec {
                 listOfBytes.add(ptr.copyBytes());
             }
         } catch (EOFException e) { // Ignore as this signifies we're done
-            
+
         }
         return listOfBytes;
     }
-    
+
     public static int encodeBytes(List<byte[]> listOfBytes, ImmutableBytesWritable ptr) throws IOException {
         try (TrustedByteArrayOutputStream stream = new TrustedByteArrayOutputStream(calculateSize(listOfBytes))) {
             DataOutput output = new DataOutputStream(stream);
@@ -61,7 +61,7 @@ public class PrefixByteCodec {
             return encoder.getMaxLength();
         }
     }
-    
+
     public static int calculateSize(List<byte[]> listOfBytes) {
         int size = 0;
         for (byte[] bytes : listOfBytes) {
@@ -72,11 +72,11 @@ public class PrefixByteCodec {
 
     public static ImmutableBytesWritable decode(PrefixByteDecoder decoder, DataInput input) throws EOFException {
         try {
-            ImmutableBytesWritable val= decoder.decode(input);
+            ImmutableBytesWritable val = decoder.decode(input);
             return val;
-        } catch(EOFException eof){
+        } catch (EOFException eof) {
             throw eof;
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -33,8 +33,8 @@ import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PVarbinary;
 
 @BuiltInFunction(name = GetBitFunction.NAME, args = {
-        @Argument(allowedTypes = { PBinary.class, PVarbinary.class }),
-        @Argument(allowedTypes = { PInteger.class }) })
+        @Argument(allowedTypes = {PBinary.class, PVarbinary.class}),
+        @Argument(allowedTypes = {PInteger.class})})
 public class GetBitFunction extends PrefixFunction {
 
     public static final String NAME = "GET_BIT";
@@ -60,14 +60,24 @@ public class GetBitFunction extends PrefixFunction {
         int offset;
         if (offsetPreCompute == null) {
             Expression offsetExpr = children.get(1);
-            if (!offsetExpr.evaluate(tuple, ptr)) return false;
-            if (ptr.getLength() == 0) return true;
+            if (!offsetExpr.evaluate(tuple, ptr)) {
+                return false;
+            }
+            if (ptr.getLength() == 0) {
+                return true;
+            }
             offset = (Integer) PInteger.INSTANCE.toObject(ptr, offsetExpr.getSortOrder());
-        } else offset = offsetPreCompute;
+        } else {
+            offset = offsetPreCompute;
+        }
         // get binary data parameter
         Expression dataExpr = children.get(0);
-        if (!dataExpr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength() == 0) return true;
+        if (!dataExpr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         int len = ptr.getLength() * Byte.SIZE;
         offset = (offset % len + len) % len;
         // set result
@@ -86,7 +96,9 @@ public class GetBitFunction extends PrefixFunction {
         if (offsetExpr.isStateless() && offsetExpr.getDeterminism() == Determinism.ALWAYS
                 && offsetExpr.evaluate(null, ptr)) {
             offsetPreCompute = (Integer) PInteger.INSTANCE.toObject(ptr, offsetExpr.getSortOrder());
-        } else offsetPreCompute = null;
+        } else {
+            offsetPreCompute = null;
+        }
     }
 
     @Override

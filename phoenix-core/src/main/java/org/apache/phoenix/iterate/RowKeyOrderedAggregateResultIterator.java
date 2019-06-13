@@ -34,10 +34,8 @@ import org.apache.phoenix.util.ServerUtil;
 
 
 /**
- * 
  * Client-side aggregate for key ordered aggregation. Prevents the comparison of
  * row keys for rows returned unless we cross a scan boundary.
- * 
  */
 public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterator implements AggregatingResultIterator {
     private final ResultIterators resultIterators;
@@ -48,21 +46,21 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
     private boolean traversedIterator = true;
     private boolean nextTraversedIterators;
     private Tuple next;
-    
-   private int index;
-    
+
+    private int index;
+
     public RowKeyOrderedAggregateResultIterator(ResultIterators iterators, Aggregators aggregators) {
         this.resultIterators = iterators;
         this.aggregators = aggregators;
     }
-    
+
     private List<PeekingResultIterator> getIterators() throws SQLException {
         if (iterators == null && resultIterators != null) {
             iterators = resultIterators.getIterators();
         }
         return iterators;
     }
-    
+
     @Override
     public void close() throws SQLException {
         SQLException toThrow = null;
@@ -71,11 +69,11 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
                 resultIterators.close();
             }
         } catch (Exception e) {
-           toThrow = ServerUtil.parseServerException(e);
+            toThrow = ServerUtil.parseServerException(e);
         } finally {
             try {
                 if (iterators != null) {
-                    for (;index < iterators.size(); index++) {
+                    for (; index < iterators.size(); index++) {
                         PeekingResultIterator iterator = iterators.get(index);
                         try {
                             iterator.close();
@@ -118,7 +116,7 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
         }
         return null;
     }
-    
+
     private boolean continueAggregating(Tuple previous, Tuple next) {
         if (next == null) {
             return false;
@@ -127,7 +125,7 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
         previous.getKey(previousKey);
         return (currentKey.compareTo(previousKey) == 0);
     }
-    
+
     @Override
     public Tuple next() throws SQLException {
         Tuple t = super.next();
@@ -137,7 +135,7 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
         aggregate(t);
         return t;
     }
-    
+
     @Override
     protected Tuple advance() throws SQLException {
         Tuple current = this.next;
@@ -157,7 +155,7 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
                 if (rowAggregators == null) {
                     rowAggregators = aggregate(previous);
                 }
-                aggregators.aggregate(rowAggregators, current); 
+                aggregators.aggregate(rowAggregators, current);
                 traversedIterators = this.traversedIterator;
             }
             this.next = current;
@@ -175,10 +173,10 @@ public class RowKeyOrderedAggregateResultIterator extends LookAheadResultIterato
         return current;
     }
 
-	@Override
-	public String toString() {
-		return "RowKeyOrderedAggregateResultIterator [resultIterators=" + resultIterators + ", index=" + index + "]";
-	}
+    @Override
+    public String toString() {
+        return "RowKeyOrderedAggregateResultIterator [resultIterators=" + resultIterators + ", index=" + index + "]";
+    }
 
     @Override
     public Aggregator[] aggregate(Tuple result) {

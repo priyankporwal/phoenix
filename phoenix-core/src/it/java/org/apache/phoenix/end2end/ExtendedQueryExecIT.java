@@ -35,9 +35,7 @@ import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
 
 /**
- * 
  * Extended tests for Phoenix JDBC implementation
- * 
  */
 
 public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
@@ -47,8 +45,8 @@ public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
         Date date = new Date(1);
         String tenantId = getOrganizationId();
 
-        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId),date, null, getUrl(), null);
-        
+        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId), date, null, getUrl(), null);
+
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -63,12 +61,12 @@ public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-            value="RV_RETURN_VALUE_IGNORED",
-            justification="Test code.")
+            value = "RV_RETURN_VALUE_IGNORED",
+            justification = "Test code.")
     @Test
     public void testTypeMismatchToDateFunctionBind() throws Exception {
         String tenantId = getOrganizationId();
-        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId),null, null, getUrl(), null);
+        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(), null);
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -88,6 +86,7 @@ public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
     /**
      * Basic tests for date function
      * Related bug: W-1190856
+     *
      * @throws Exception
      */
     @Test
@@ -95,7 +94,7 @@ public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
         Date date = new Date(1);
         String tenantId = getOrganizationId();
 
-        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId),date, null, getUrl(), null);
+        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId), date, null, getUrl(), null);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -119,18 +118,19 @@ public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
 //          } catch (SQLException ex) {
 //              // expected
 //          }
-            
+
             queryDateArg = "a_date >= TO_DATE('1970-1-2 23:59:59') and a_date <= TO_DATE('1970-1-3 0:0:1')";
             rs = getResultSet(conn, queryPrefix + queryDateArg);
-            verifyDateResultSet(rs, new Date(date.getTime() + (2*60*60*24*1000)), 3);
+            verifyDateResultSet(rs, new Date(date.getTime() + (2 * 60 * 60 * 24 * 1000)), 3);
 
         } finally {
             conn.close();
         }
     }
-    
+
     /**
      * aggregation - group by
+     *
      * @throws Exception
      */
     @Test
@@ -139,45 +139,45 @@ public class ExtendedQueryExecIT extends ParallelStatsDisabledIT {
         Date date = new Date(1);
         String tenantId = getOrganizationId();
 
-        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId),date, null, getUrl(), null);
+        String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId), date, null, getUrl(), null);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             ResultSet rs;
             String query = "SELECT a_date, count(1) FROM " + tableName + "  WHERE organization_id='" + tenantId + "' group by a_date";
             rs = getResultSet(conn, query);
-            
+
             /* 3 rows in expected result:
              * 1969-12-31   3
              * 1970-01-01   3
              * 1970-01-02   3
              * */
-                        
+
             assertTrue(rs.next());
             assertEquals(date, rs.getDate(1));
             assertEquals(3, rs.getInt(2));
-            
+
             // the following assertions fails
             assertTrue(rs.next());
             assertEquals(3, rs.getInt(2));
             assertTrue(rs.next());
             assertEquals(3, rs.getInt(2));
             assertFalse(rs.next());
-            
+
 
         } finally {
             conn.close();
         }
     }
-    
+
     private ResultSet getResultSet(Connection conn, String query) throws SQLException {
         PreparedStatement statement = conn.prepareStatement(query);
         ResultSet rs = statement.executeQuery();
         return rs;
     }
-    
+
     private void verifyDateResultSet(ResultSet rs, Date date, int rowCount) throws SQLException {
-        for (int i=0; i<rowCount; i++) {
+        for (int i = 0; i < rowCount; i++) {
             assertTrue(rs.next());
             assertEquals(date, rs.getDate(1));
         }

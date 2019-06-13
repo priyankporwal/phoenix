@@ -20,19 +20,20 @@ package org.apache.phoenix.hbase.index.metrics;
  * Factory class for creating {@link MetricsIndexerSource} instances.
  */
 public class MetricsIndexerSourceFactory {
-  private static final MetricsIndexerSourceFactory INSTANCE = new MetricsIndexerSourceFactory();
-  private MetricsIndexerSource source;
+    private static final MetricsIndexerSourceFactory INSTANCE = new MetricsIndexerSourceFactory();
+    private MetricsIndexerSource source;
 
-  private MetricsIndexerSourceFactory() {}
-
-  public static MetricsIndexerSourceFactory getInstance() {
-    return INSTANCE;
-  }
-
-  public synchronized MetricsIndexerSource create() {
-    if (INSTANCE.source == null) {
-      INSTANCE.source = new MetricsIndexerSourceImpl();
+    private MetricsIndexerSourceFactory() {
     }
-    return INSTANCE.source;
-  }
+
+    public static MetricsIndexerSourceFactory getInstance() {
+        return INSTANCE;
+    }
+
+    public synchronized MetricsIndexerSource create() {
+        if (INSTANCE.source == null) {
+            INSTANCE.source = new MetricsIndexerSourceImpl();
+        }
+        return INSTANCE.source;
+    }
 }

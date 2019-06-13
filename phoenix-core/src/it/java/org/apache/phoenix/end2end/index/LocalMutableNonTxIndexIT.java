@@ -28,11 +28,12 @@ public class LocalMutableNonTxIndexIT extends BaseIndexIT {
         super(localIndex, mutable, transactionProvider, columnEncoded);
     }
 
-    @Parameters(name="LocalMutableNonTxIndexIT_localIndex={0},mutable={1},transactionProvider={2},columnEncoded={3}") // name is used by failsafe as file name in reports
+    @Parameters(name = "LocalMutableNonTxIndexIT_localIndex={0},mutable={1},transactionProvider={2},columnEncoded={3}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { true, true, null, false }, { true, true, null, true }
-           });
+                {true, true, null, false}, {true, true, null, true}
+        });
     }
 
 }

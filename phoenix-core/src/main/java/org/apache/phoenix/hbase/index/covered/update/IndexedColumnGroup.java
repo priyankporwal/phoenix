@@ -24,5 +24,5 @@ import java.util.List;
  */
 public interface IndexedColumnGroup {
 
-  public List<ColumnReference> getColumns();
+    public List<ColumnReference> getColumns();
 }

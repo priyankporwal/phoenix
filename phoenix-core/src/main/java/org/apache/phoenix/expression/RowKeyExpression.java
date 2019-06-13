@@ -26,7 +26,7 @@ import org.apache.phoenix.schema.types.PVarbinary;
 
 public class RowKeyExpression extends BaseTerminalExpression {
     public static final RowKeyExpression INSTANCE = new RowKeyExpression();
-    
+
     private RowKeyExpression() {
     }
 

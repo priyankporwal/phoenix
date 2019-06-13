@@ -30,18 +30,20 @@ public class PhoenixStopWatch {
     /**
      * Creates a new stop watch without starting it.
      */
-    public PhoenixStopWatch() {}
+    public PhoenixStopWatch() {
+    }
 
     /**
      * Starts the stopwatch.
-     * 
+     *
      * @return this {@code PhoenixStopWatch} instance
-     * @throws IllegalStateException
-     *             if the stopwatch is already running.
+     * @throws IllegalStateException if the stopwatch is already running.
      */
     public PhoenixStopWatch start() {
         long currentTime = System.currentTimeMillis();
-        if (isRunning) { throw new IllegalStateException("Watch is already running"); }
+        if (isRunning) {
+            throw new IllegalStateException("Watch is already running");
+        }
         startTime = currentTime;
         isRunning = true;
         return this;
@@ -50,14 +52,15 @@ public class PhoenixStopWatch {
     /**
      * Stops the stopwatch. Future calls to {@link #elapsedMillis()} will return the fixed duration that had elapsed up
      * to this point.
-     * 
+     *
      * @return this {@code PhoenixStopWatch} instance
-     * @throws IllegalStateException
-     *             if the stopwatch is already stopped.
+     * @throws IllegalStateException if the stopwatch is already stopped.
      */
     public PhoenixStopWatch stop() {
         long currentTime = System.currentTimeMillis();
-        if (!isRunning) { throw new IllegalStateException("Watch wasn't started"); }
+        if (!isRunning) {
+            throw new IllegalStateException("Watch wasn't started");
+        }
         elapsedTimeMs = currentTime - startTime;
         startTime = 0;
         isRunning = false;

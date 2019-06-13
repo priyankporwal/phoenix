@@ -22,60 +22,62 @@ import java.io.IOException;
 import org.apache.phoenix.coprocessor.MetaDataProtocol;
 
 
-
 public class TransactionFactory {
-    public enum Provider {
-        TEPHRA((byte)1, TephraTransactionProvider.getInstance(), true),
-        OMID((byte)2, OmidTransactionProvider.getInstance(), true);
-        
+    public enum Provider
+
+    {
+        TEPHRA((byte) 1, TephraTransactionProvider.getInstance(), true),
+                OMID((byte) 2, OmidTransactionProvider.getInstance(), true);
+
         private final byte code;
         private final PhoenixTransactionProvider provider;
         private final boolean runTests;
-        
-        Provider(byte code, PhoenixTransactionProvider provider, boolean runTests) {
-            this.code = code;
-            this.provider = provider;
-            this.runTests = runTests;
-        }
-        
-        public byte getCode() {
-            return this.code;
-        }
 
-        public static Provider fromCode(int code) {
-            if (code < 1 || code > Provider.values().length) {
-                throw new IllegalArgumentException("Invalid TransactionFactory.Provider " + code);
-            }
-            return Provider.values()[code-1];
-        }
-        
-        public static Provider getDefault() {
-            return OMID;
-        }
+        Provider( byte code, PhoenixTransactionProvider provider,
+        boolean runTests){
+        this.code = code;
+        this.provider = provider;
+        this.runTests = runTests;
+    }
 
-        public PhoenixTransactionProvider getTransactionProvider()  {
-            return provider;
+        public byte getCode () {
+        return this.code;
+    }
+
+        public static Provider fromCode ( int code){
+        if (code < 1 || code > Provider.values().length) {
+            throw new IllegalArgumentException("Invalid TransactionFactory.Provider " + code);
         }
-        
-        public boolean runTests() {
-            return runTests;
-        }
+        return Provider.values()[code - 1];
+    }
+
+        public static Provider getDefault () {
+        return OMID;
+    }
+
+        public PhoenixTransactionProvider getTransactionProvider () {
+        return provider;
+    }
+
+        public boolean runTests () {
+        return runTests;
+    }
     }
 
     public static PhoenixTransactionProvider getTransactionProvider(Provider provider) {
         return provider.getTransactionProvider();
     }
-    
+
     public static PhoenixTransactionProvider getTransactionProvider(byte[] txState, int clientVersion) {
         if (txState == null || txState.length == 0) {
             return null;
         }
-        Provider provider = (clientVersion < MetaDataProtocol.MIN_SYSTEM_TABLE_TIMESTAMP_4_14_0) 
+        Provider provider = (clientVersion < MetaDataProtocol.MIN_SYSTEM_TABLE_TIMESTAMP_4_14_0)
                 ? Provider.TEPHRA
-                : Provider.fromCode(txState[txState.length-1]);
+                : Provider.fromCode(txState[txState.length - 1]);
         return provider.getTransactionProvider();
     }
-    
+
     public static PhoenixTransactionContext getTransactionContext(byte[] txState, int clientVersion) throws IOException {
         PhoenixTransactionProvider provider = getTransactionProvider(txState, clientVersion);
         if (provider == null) {

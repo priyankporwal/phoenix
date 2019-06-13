@@ -40,8 +40,9 @@ public class ResultBaseTest {
         new ResultUtil().ensureBaseDirExists(properties.getProperty("pherf.default.results.dir"));
         isSetUpDone = true;
     }
-    
-    @AfterClass public static void tearDown() throws Exception {
-    	new ResultUtil().deleteDir(properties.getProperty("pherf.default.results.dir"));
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        new ResultUtil().deleteDir(properties.getProperty("pherf.default.results.dir"));
     }
 }

@@ -34,26 +34,25 @@ import org.slf4j.LoggerFactory;
 
 /**
  * {@link OutputFormat} implementation for Phoenix.
- *
  */
-public class PhoenixOutputFormat <T extends DBWritable> extends OutputFormat<NullWritable,T> {
+public class PhoenixOutputFormat<T extends DBWritable> extends OutputFormat<NullWritable, T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixOutputFormat.class);
     private final Set<String> propsToIgnore;
-    
+
     public PhoenixOutputFormat() {
         this(Collections.<String>emptySet());
     }
-    
+
     public PhoenixOutputFormat(Set<String> propsToIgnore) {
         this.propsToIgnore = propsToIgnore;
     }
-    
+
     @Override
-    public void checkOutputSpecs(JobContext jobContext) throws IOException, InterruptedException {      
+    public void checkOutputSpecs(JobContext jobContext) throws IOException, InterruptedException {
     }
-    
+
     /**
-     * 
+     *
      */
     @Override
     public OutputCommitter getOutputCommitter(TaskAttemptContext context) throws IOException, InterruptedException {
@@ -65,7 +64,7 @@ public class PhoenixOutputFormat <T extends DBWritable> extends OutputFormat<Nul
         try {
             return new PhoenixRecordWriter<T>(context.getConfiguration(), propsToIgnore);
         } catch (SQLException e) {
-            LOGGER.error("Error calling PhoenixRecordWriter "  + e.getMessage());
+            LOGGER.error("Error calling PhoenixRecordWriter " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

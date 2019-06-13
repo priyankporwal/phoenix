@@ -40,8 +40,7 @@ import org.junit.Test;
 
 /**
  * Basic tests for Phoenix dynamic upserting
- * 
- * 
+ *
  * @since 1.3
  */
 
@@ -51,7 +50,7 @@ public class DynamicUpsertIT extends ParallelStatsDisabledIT {
 
     @Before
     public void doBeforeTestSetup() throws Exception {
-    	tableName = BaseTest.generateUniqueName();
+        tableName = BaseTest.generateUniqueName();
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String ddl = "create table " + tableName + "   (entry varchar not null primary key,"
@@ -59,7 +58,7 @@ public class DynamicUpsertIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
         conn.close();
     }
-    
+
     /**
      * Test a simple upsert with a dynamic Column
      */
@@ -173,7 +172,7 @@ public class DynamicUpsertIT extends ParallelStatsDisabledIT {
             statement.execute();
             fail();
         } catch (SQLException e) {
-            assertEquals(SQLExceptionCode.UPSERT_COLUMN_NUMBERS_MISMATCH.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.UPSERT_COLUMN_NUMBERS_MISMATCH.getErrorCode(), e.getErrorCode());
         } finally {
             conn.close();
         }

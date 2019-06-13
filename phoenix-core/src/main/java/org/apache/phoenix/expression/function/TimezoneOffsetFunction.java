@@ -36,8 +36,8 @@ import org.joda.time.DateTimeZone;
  * Returns offset (shift in minutes) of timezone at particular datetime in minutes.
  */
 @FunctionParseNode.BuiltInFunction(name = TimezoneOffsetFunction.NAME, args = {
-    @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}),
-    @FunctionParseNode.Argument(allowedTypes = {PDate.class})})
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}),
+        @FunctionParseNode.Argument(allowedTypes = {PDate.class})})
 public class TimezoneOffsetFunction extends ScalarFunction {
 
     public static final String NAME = "TIMEZONE_OFFSET";
@@ -83,7 +83,7 @@ public class TimezoneOffsetFunction extends ScalarFunction {
         return PInteger.INSTANCE;
     }
 
-	@Override
+    @Override
     public boolean isNullable() {
         return children.get(0).isNullable() || children.get(1).isNullable();
     }

@@ -59,7 +59,7 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
         this.columnEncoded = columnEncoded;
         this.tableDDLOptions = columnEncoded ? "" : "COLUMN_ENCODED_BYTES=0";
     }
-    
+
     @Before
     public void setupTableNames() throws Exception {
         schemaName = "";
@@ -74,8 +74,9 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
             sb.append(options);
         }
         if (!tableDDLOptions.isEmpty()) {
-            if (sb.length()!=0)
+            if (sb.length() != 0) {
                 sb.append(",");
+            }
             sb.append(tableDDLOptions);
         }
         return sb.toString();
@@ -85,12 +86,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetHColumnProperties() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET REPLICATION_SCOPE=1";
@@ -108,12 +109,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetHTableProperties() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET COMPACTION_ENABLED=FALSE";
@@ -130,12 +131,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetHTableAndHColumnProperties() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET COMPACTION_ENABLED = FALSE, REPLICATION_SCOPE = 1";
@@ -154,12 +155,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetHTableHColumnAndPhoenixTableProperties() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CF1.CREATION_TIME BIGINT,\n"
-                +"CF2.LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("IMMUTABLE_ROWS=true"
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CF1.CREATION_TIME BIGINT,\n"
+                + "CF2.LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("IMMUTABLE_ROWS=true"
                 + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : ""));
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.createStatement().execute(ddl);
@@ -201,12 +202,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSpecifyingColumnFamilyForHTablePropertyFails() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET CF.COMPACTION_ENABLED = FALSE";
@@ -222,12 +223,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSpecifyingColumnFamilyForPhoenixTablePropertyFails() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET CF.DISABLE_WAL = TRUE";
@@ -243,12 +244,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSpecifyingColumnFamilyForTTLFails() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"CF.LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "CF.LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET CF.TTL = 86400";
@@ -264,12 +265,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetPropertyNeedsColumnFamilyToExist() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET CF.BLOCKSIZE = 50000";
@@ -285,12 +286,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetDefaultColumnFamilyNotAllowed() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions(" SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions(" SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " SET DEFAULT_COLUMN_FAMILY = 'A'";
@@ -306,12 +307,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetHColumnOrHTablePropertiesOnViewsNotAllowed() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "CREATE VIEW " + viewName + "  AS SELECT * FROM " + dataTableFullName + " WHERE CREATION_TIME = 1";
@@ -336,12 +337,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSetForSomePhoenixTablePropertiesOnViewsAllowed() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("SALT_BUCKETS = 8");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         String viewFullName = SchemaUtil.getTableName(schemaName, generateUniqueName());
@@ -378,12 +379,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testSettingPropertiesWhenTableHasDefaultColFamilySpecified() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE  " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"CF.LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("IMMUTABLE_ROWS=true, DEFAULT_COLUMN_FAMILY = 'XYZ'"
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "CF.LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + generateDDLOptions("IMMUTABLE_ROWS=true, DEFAULT_COLUMN_FAMILY = 'XYZ'"
                 + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : ""));
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.createStatement().execute(ddl);
@@ -516,7 +517,7 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
         String ddl = "CREATE TABLE " + dataTableFullName + " "
                 +
                 "  (a_string varchar not null, col1 integer, CF1.col2 integer" +
-                "  CONSTRAINT pk PRIMARY KEY (a_string)) "+ generateDDLOptions("DEFAULT_COLUMN_FAMILY = 'XYZ'");
+                "  CONSTRAINT pk PRIMARY KEY (a_string)) " + generateDDLOptions("DEFAULT_COLUMN_FAMILY = 'XYZ'");
         try {
             conn.createStatement().execute(ddl);
             try {
@@ -524,7 +525,7 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
                         "ALTER TABLE " + dataTableFullName
                                 + " ADD col4 integer CF1.BLOCKSIZE=50000, XYZ.IN_MEMORY=true ");
                 fail();
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_SET_PROPERTY_FOR_COLUMN_NOT_ADDED.getErrorCode(), e.getErrorCode());
             }
         } finally {
@@ -633,12 +634,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
 
         try {
             conn.createStatement()
-            .execute(
+                    .execute(
                             "CREATE TABLE "
                                     + dataTableFullName
-                            + "  (a_string varchar not null, col1 integer, cf1.col2 integer, col3 integer , cf2.col4 integer "
-                            + "  CONSTRAINT pk PRIMARY KEY (a_string)) " + generateDDLOptions("immutable_rows=true , SALT_BUCKETS=3 "
-                            + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : ""))); 
+                                    + "  (a_string varchar not null, col1 integer, cf1.col2 integer, col3 integer , cf2.col4 integer "
+                                    + "  CONSTRAINT pk PRIMARY KEY (a_string)) " + generateDDLOptions("immutable_rows=true , SALT_BUCKETS=3 "
+                                    + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));
 
             String ddl = "Alter table " + dataTableFullName + " add cf3.col5 integer, cf4.col6 integer in_memory=true";
             conn.createStatement().execute(ddl);
@@ -672,12 +673,12 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
 
         try {
             conn.createStatement()
-            .execute(
+                    .execute(
                             "CREATE TABLE "
                                     + dataTableFullName
-                            + "  (a_string varchar not null, col1 integer, cf1.col2 integer, col3 integer , cf2.col4 integer "
-                            + "  CONSTRAINT pk PRIMARY KEY (a_string)) " + generateDDLOptions("immutable_rows=true , SALT_BUCKETS=3 "
-                            + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));    
+                                    + "  (a_string varchar not null, col1 integer, cf1.col2 integer, col3 integer , cf2.col4 integer "
+                                    + "  CONSTRAINT pk PRIMARY KEY (a_string)) " + generateDDLOptions("immutable_rows=true , SALT_BUCKETS=3 "
+                                    + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));
 
             String ddl = "Alter table " + dataTableFullName + " add cf1.col5 integer in_memory=true";
             conn.createStatement().execute(ddl);
@@ -970,7 +971,7 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
                     + " col1 integer NOT NULL,"
                     + " col2 bigint NOT NULL,"
                     + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)"
-                    + " ) " +  tableDDLOptions;
+                    + " ) " + tableDDLOptions;
             conn.createStatement().execute(ddl);
             ddl = "ALTER TABLE " + dataTableFullName + " ADD NEWCF.COL3 INTEGER NEWCF.UNKNOWN_PROP='ABC'";
             try {
@@ -994,10 +995,10 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
     public void testAlterImmutableRowsPropertyForOneCellPerKeyValueColumnStorageScheme() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID)) " + tableDDLOptions;
+                + "ID VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID)) " + tableDDLOptions;
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.createStatement().execute(ddl);
         assertImmutableRows(conn, dataTableFullName, false);
@@ -1005,15 +1006,15 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
         assertImmutableRows(conn, dataTableFullName, true);
     }
-    
+
     @Test
     public void testAlterImmutableRowsPropertyForOneCellPerColumnFamilyStorageScheme() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID)) " + generateDDLOptions("COLUMN_ENCODED_BYTES=4, IMMUTABLE_ROWS=true"
+                + "ID VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID)) " + generateDDLOptions("COLUMN_ENCODED_BYTES=4, IMMUTABLE_ROWS=true"
                 + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : ""));
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.createStatement().execute(ddl);
@@ -1024,11 +1025,10 @@ public abstract class SetPropertyIT extends ParallelStatsDisabledIT {
             if (columnEncoded) {
                 fail();
             }
-        }
-        catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.CANNOT_ALTER_IMMUTABLE_ROWS_PROPERTY.getErrorCode(), e.getErrorCode());
         }
         assertImmutableRows(conn, dataTableFullName, columnEncoded);
     }
-       
+
 }

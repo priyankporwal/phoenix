@@ -28,11 +28,11 @@ public class UpsertStatement extends DMLStatement {
     private final List<ParseNode> values;
     private final SelectStatement select;
     private final HintNode hint;
-    private final List<Pair<ColumnName,ParseNode>> onDupKeyPairs;
+    private final List<Pair<ColumnName, ParseNode>> onDupKeyPairs;
 
     public UpsertStatement(NamedTableNode table, HintNode hint, List<ColumnName> columns,
-            List<ParseNode> values, SelectStatement select, int bindCount,
-            Map<String, UDFParseNode> udfParseNodes, List<Pair<ColumnName,ParseNode>> onDupKeyPairs) {
+                           List<ParseNode> values, SelectStatement select, int bindCount,
+                           Map<String, UDFParseNode> udfParseNodes, List<Pair<ColumnName, ParseNode>> onDupKeyPairs) {
         super(table, bindCount, udfParseNodes);
         this.columns = columns == null ? Collections.<ColumnName>emptyList() : columns;
         this.values = values;
@@ -57,7 +57,7 @@ public class UpsertStatement extends DMLStatement {
         return hint;
     }
 
-    public List<Pair<ColumnName,ParseNode>> getOnDupKeyPairs() {
+    public List<Pair<ColumnName, ParseNode>> getOnDupKeyPairs() {
         return onDupKeyPairs;
     }
 }

@@ -41,9 +41,11 @@ public class PhoenixRecordWritable implements DBWritable {
 
     private final List<Object> upsertValues = new ArrayList<>();
     private final Map<String, Object> resultMap = new LinkedHashMap<>();
-    private List<ColumnInfo> columnMetaDataList; 
+    private List<ColumnInfo> columnMetaDataList;
 
-    /** For serialization; do not use. */
+    /**
+     * For serialization; do not use.
+     */
     public PhoenixRecordWritable() {
         this(new ArrayList<ColumnInfo>());
     }
@@ -57,7 +59,7 @@ public class PhoenixRecordWritable implements DBWritable {
      * the provided {@code stmt}.
      */
     private static void setArrayInStatement(PreparedStatement stmt, PDataType<?> type,
-            Object[] obj, int position) throws SQLException {
+                                            Object[] obj, int position) throws SQLException {
         Array sqlArray = stmt.getConnection().createArrayOf(
                 PDataType.arrayBaseType(type).getSqlTypeName(), obj);
         stmt.setArray(position, sqlArray);
@@ -111,7 +113,8 @@ public class PhoenixRecordWritable implements DBWritable {
         return ret;
     }
 
-    @Override public void write(PreparedStatement statement) throws SQLException {
+    @Override
+    public void write(PreparedStatement statement) throws SQLException {
         // make sure we at least line up in size
         if (upsertValues.size() != columnMetaDataList.size()) {
             throw new UnsupportedOperationException("Provided " + upsertValues.size()
@@ -170,7 +173,8 @@ public class PhoenixRecordWritable implements DBWritable {
         }
     }
 
-    @Override public void readFields(ResultSet resultSet) throws SQLException {
+    @Override
+    public void readFields(ResultSet resultSet) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         for (int i = 1; i <= metaData.getColumnCount(); i++) {
             // return the contents of a PhoenixArray, if necessary
@@ -180,12 +184,16 @@ public class PhoenixRecordWritable implements DBWritable {
         }
     }
 
-    /** Append an object to the list of values to upsert. */
+    /**
+     * Append an object to the list of values to upsert.
+     */
     public void add(Object value) {
         upsertValues.add(value);
     }
 
-    /** @return an immutable view on the {@link ResultSet} content. */
+    /**
+     * @return an immutable view on the {@link ResultSet} content.
+     */
     public Map<String, Object> getResultMap() {
         return Collections.unmodifiableMap(resultMap);
     }

@@ -30,83 +30,85 @@ import org.apache.hadoop.hbase.util.Bytes;
  */
 public class ColumnGroup implements Iterable<CoveredColumn> {
 
-  private List<CoveredColumn> columns = new ArrayList<CoveredColumn>();
-  private String table;
+    private List<CoveredColumn> columns = new ArrayList<CoveredColumn>();
+    private String table;
 
-  public ColumnGroup(String tableName) {
-    this.table = tableName;
-  }
-
-  public void add(CoveredColumn column) {
-    this.columns.add(column);
-  }
-
-  public String getTable() {
-    return table;
-  }
-
-  /**
-   * Check to see if any {@link CoveredColumn} in <tt>this</tt> matches the given family
-   * @param family to check
-   * @return <tt>true</tt> if any column covers the family
-   */
-  public boolean matches(String family) {
-    for (CoveredColumn column : columns) {
-      if (column.matchesFamily(family)) {
-        return true;
-      }
+    public ColumnGroup(String tableName) {
+        this.table = tableName;
     }
 
-    return false;
-  }
+    public void add(CoveredColumn column) {
+        this.columns.add(column);
+    }
 
-  /**
-   * Check to see if any column matches the family/qualifier pair
-   * @param family family to match against
-   * @param qualifier qualifier to match, can be <tt>null</tt>, in which case we match all
-   *          qualifiers
-   * @return <tt>true</tt> if any column matches, <tt>false</tt> otherwise
-   */
-  public boolean matches(byte[] family, byte[] qualifier) {
-    // families are always printable characters
-    String fam = Bytes.toString(family);
-    for (CoveredColumn column : columns) {
-      if (column.matchesFamily(fam)) {
-        // check the qualifier
-          if (column.matchesQualifier(qualifier)) {
-            return true;
+    public String getTable() {
+        return table;
+    }
+
+    /**
+     * Check to see if any {@link CoveredColumn} in <tt>this</tt> matches the given family
+     *
+     * @param family to check
+     * @return <tt>true</tt> if any column covers the family
+     */
+    public boolean matches(String family) {
+        for (CoveredColumn column : columns) {
+            if (column.matchesFamily(family)) {
+                return true;
+            }
         }
-      }
+
+        return false;
     }
-    return false;
-  }
 
-  /**
-   * @return the number of columns in the group
-   */
-  public int size() {
-    return this.columns.size();
-  }
+    /**
+     * Check to see if any column matches the family/qualifier pair
+     *
+     * @param family    family to match against
+     * @param qualifier qualifier to match, can be <tt>null</tt>, in which case we match all
+     *                  qualifiers
+     * @return <tt>true</tt> if any column matches, <tt>false</tt> otherwise
+     */
+    public boolean matches(byte[] family, byte[] qualifier) {
+        // families are always printable characters
+        String fam = Bytes.toString(family);
+        for (CoveredColumn column : columns) {
+            if (column.matchesFamily(fam)) {
+                // check the qualifier
+                if (column.matchesQualifier(qualifier)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-  @Override
-  public Iterator<CoveredColumn> iterator() {
-    return columns.iterator();
-  }
+    /**
+     * @return the number of columns in the group
+     */
+    public int size() {
+        return this.columns.size();
+    }
 
-  /**
-   * @param index index of the column to get
-   * @return the specified column
-   */
-  public CoveredColumn getColumnForTesting(int index) {
-    return this.columns.get(index);
-  }
+    @Override
+    public Iterator<CoveredColumn> iterator() {
+        return columns.iterator();
+    }
 
-  @Override
-  public String toString() {
-    return "ColumnGroup - table: " + table + ", columns: " + columns;
-  }
+    /**
+     * @param index index of the column to get
+     * @return the specified column
+     */
+    public CoveredColumn getColumnForTesting(int index) {
+        return this.columns.get(index);
+    }
 
-  public List<CoveredColumn> getColumns() {
-    return this.columns;
-  }
+    @Override
+    public String toString() {
+        return "ColumnGroup - table: " + table + ", columns: " + columns;
+    }
+
+    public List<CoveredColumn> getColumns() {
+        return this.columns;
+    }
 }

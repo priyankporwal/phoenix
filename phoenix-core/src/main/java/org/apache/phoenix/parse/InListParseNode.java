@@ -26,12 +26,9 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 
 
-
 /**
- * 
  * Node representing the IN literal list expression in SQL
  *
- * 
  * @since 0.1
  */
 public class InListParseNode extends CompoundParseNode {
@@ -44,12 +41,12 @@ public class InListParseNode extends CompoundParseNode {
             ParseNode child = children.get(i);
             if (!child.isStateless()) {
                 throw new ParseException(new SQLExceptionInfo.Builder(SQLExceptionCode.VALUE_IN_LIST_NOT_CONSTANT)
-                .build().buildException());
+                        .build().buildException());
             }
         }
         this.negate = negate;
     }
-    
+
     public boolean isNegate() {
         return negate;
     }
@@ -63,34 +60,40 @@ public class InListParseNode extends CompoundParseNode {
         return visitor.visitLeave(this, l);
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + (negate ? 1231 : 1237);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + (negate ? 1231 : 1237);
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		InListParseNode other = (InListParseNode) obj;
-		if (negate != other.negate)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        InListParseNode other = (InListParseNode) obj;
+        if (negate != other.negate) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         List<ParseNode> children = getChildren();
         children.get(0).toSQL(resolver, buf);
         buf.append(' ');
-        if (negate) buf.append("NOT ");
+        if (negate) {
+            buf.append("NOT ");
+        }
         buf.append("IN");
         buf.append('(');
         if (children.size() > 1) {
@@ -98,7 +101,7 @@ public class InListParseNode extends CompoundParseNode {
                 children.get(i).toSQL(resolver, buf);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         buf.append(')');
     }

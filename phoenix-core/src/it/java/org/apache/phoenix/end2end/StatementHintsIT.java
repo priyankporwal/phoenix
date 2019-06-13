@@ -45,42 +45,42 @@ public class StatementHintsIT extends ParallelStatsDisabledIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(false);
-        
+
         try {
-            String ddl = "CREATE TABLE " + TABLE_NAME  +
+            String ddl = "CREATE TABLE " + TABLE_NAME +
                     "   (a_integer integer not null, \n" +
                     "    a_string varchar not null, \n" +
                     "    a_id char(3) not null,\n" +
                     "    b_string varchar \n" +
                     "    CONSTRAINT pk PRIMARY KEY (a_integer, a_string, a_id))\n";
             createTestTable(getUrl(), ddl);
-            
+
             String query;
             PreparedStatement stmt;
-            
+
             query = "UPSERT INTO " + TABLE_NAME
                     + "(a_integer, a_string, a_id, b_string) "
                     + "VALUES(?,?,?,?)";
             stmt = conn.prepareStatement(query);
-            
+
             stmt.setInt(1, 1);
             stmt.setString(2, "ab");
             stmt.setString(3, "123");
             stmt.setString(4, "abc");
             stmt.execute();
-            
+
             stmt.setInt(1, 1);
             stmt.setString(2, "abc");
             stmt.setString(3, "456");
             stmt.setString(4, "abc");
             stmt.execute();
-            
+
             stmt.setInt(1, 1);
             stmt.setString(2, "de");
             stmt.setString(3, "123");
             stmt.setString(4, "abc");
             stmt.execute();
-            
+
             stmt.setInt(1, 2);
             stmt.setString(2, "abc");
             stmt.setString(3, "123");
@@ -113,22 +113,22 @@ public class StatementHintsIT extends ParallelStatsDisabledIT {
             String query = "SELECT /*+ RANGE_SCAN */ * FROM " + TABLE_NAME + " WHERE a_integer IN (1, 2, 3, 4)";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
-            
+
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));
             assertEquals("ab", rs.getString(2));
             assertEquals("123", rs.getString(3));
             assertEquals("abc", rs.getString(4));
-            
+
             assertTrue(rs.next());
             assertTrue(rs.next());
-            
+
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
             assertEquals("abc", rs.getString(2));
             assertEquals("123", rs.getString(3));
             assertEquals("def", rs.getString(4));
-            
+
             assertTrue(rs.next());
             assertTrue(rs.next());
             assertEquals(4, rs.getInt(1));
@@ -150,15 +150,15 @@ public class StatementHintsIT extends ParallelStatsDisabledIT {
             String query = "SELECT /*+ SKIP_SCAN */ * FROM " + TABLE_NAME + " WHERE a_string = 'abc'";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
-            
+
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));
             assertEquals("abc", rs.getString(2));
             assertEquals("456", rs.getString(3));
-            
+
             assertTrue(rs.next());
             assertTrue(rs.next());
-            
+
             assertTrue(rs.next());
             assertEquals(4, rs.getInt(1));
             assertEquals("abc", rs.getString(2));

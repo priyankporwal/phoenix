@@ -21,15 +21,12 @@ package org.apache.phoenix.iterate;
 /**
  * Thrown by {@link org.apache.phoenix.iterate.SpoolingResultIterator } when
  * result is too big to fit into memory and too big to spool to disk.
- * 
- * 
- * 
  */
 public class SpoolTooBigToDiskException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public SpoolTooBigToDiskException(String msg) {
-		super(msg);
-	}
+    public SpoolTooBigToDiskException(String msg) {
+        super(msg);
+    }
 }

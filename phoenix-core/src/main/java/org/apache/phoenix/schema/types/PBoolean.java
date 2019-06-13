@@ -60,12 +60,12 @@ public class PBoolean extends PDataType<Boolean> {
         }
         return ((Boolean) object).booleanValue() ^ sortOrder == SortOrder.ASC ?
                 FALSE_BYTES :
-                    TRUE_BYTES;
+                TRUE_BYTES;
     }
 
     @Override
     public Boolean toObject(byte[] bytes, int offset, int length, PDataType actualType,
-            SortOrder sortOrder, Integer maxLength, Integer scale) {
+                            SortOrder sortOrder, Integer maxLength, Integer scale) {
         Preconditions.checkNotNull(sortOrder);
         if (length == 0) {
             return null;
@@ -76,7 +76,7 @@ public class PBoolean extends PDataType<Boolean> {
             }
             return ((bytes[offset] == FALSE_BYTE ^ sortOrder == SortOrder.DESC) ?
                     Boolean.FALSE :
-                        Boolean.TRUE);
+                    Boolean.TRUE);
         } else if (actualType == PDecimal.INSTANCE) {
             // false translated to the ZERO_BYTE
             return sortOrder == SortOrder.DESC ? SortOrder.invert(bytes[offset]) != ZERO_BYTE : bytes[offset] != ZERO_BYTE;

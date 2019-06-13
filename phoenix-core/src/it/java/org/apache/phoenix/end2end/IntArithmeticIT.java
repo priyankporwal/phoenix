@@ -50,12 +50,13 @@ public class IntArithmeticIT extends BaseQueryIT {
     public IntArithmeticIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
-    @Parameters(name="IntArithmeticIT_{index}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "IntArithmeticIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
-    
+
     @Test
     public void testIntSubtractionExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER - 4  <= 0";
@@ -78,7 +79,7 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
             assertEquals(rs.getInt(2), 0);
             assertFalse(rs.next());
@@ -86,6 +87,7 @@ public class IntArithmeticIT extends BaseQueryIT {
             conn.close();
         }
     }
+
     @Test
     public void testConstantSubtractionExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER = 5 - 1 - 2";
@@ -94,14 +96,14 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIntDivideExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER / 3 > 2";
@@ -110,14 +112,14 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIntToDecimalDivideExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER / 3.0 > 2";
@@ -131,7 +133,7 @@ public class IntArithmeticIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testConstantDivideExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER = 9 / 3 / 3";
@@ -140,13 +142,14 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
+
     @Test
     public void testSelectWithDivideExpression() throws Exception {
         String query = "SELECT entity_id, a_integer/3 FROM " + tableName + " where  a_integer = 9";
@@ -155,7 +158,7 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertEquals(3, rs.getInt(2));
             assertFalse(rs.next());
@@ -163,7 +166,7 @@ public class IntArithmeticIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIntMultiplyExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER * 2 = 16";
@@ -172,14 +175,14 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW8, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIntToDecimalMultiplyExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER * 1.5 > 9";
@@ -193,8 +196,8 @@ public class IntArithmeticIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
-    
+
+
     @Test
     public void testIntAddExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER + 2 = 4";
@@ -203,12 +206,12 @@ public class IntArithmeticIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW2, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
 }

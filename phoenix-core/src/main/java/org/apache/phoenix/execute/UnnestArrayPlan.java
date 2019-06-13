@@ -61,7 +61,7 @@ public class UnnestArrayPlan extends DelegateQueryPlan {
         planSteps.add("UNNEST");
         return new ExplainPlan(planSteps);
     }
-    
+
     @Override
     public Integer getLimit() {
         return null;
@@ -95,9 +95,10 @@ public class UnnestArrayPlan extends DelegateQueryPlan {
 
         @Override
         public Tuple next() throws SQLException {
-            if (closed)
+            if (closed) {
                 return null;
-            
+            }
+
             while (index >= length) {
                 this.current = super.next();
                 if (current == null) {
@@ -124,26 +125,26 @@ public class UnnestArrayPlan extends DelegateQueryPlan {
             closed = true;
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
     private static class UnnestArrayElemRefExpression extends BaseSingleExpression {
         private final PDataType type;
         private int index = 0;
         private ImmutableBytesWritable arrayPtr = new ImmutableBytesWritable();
-        
+
         public UnnestArrayElemRefExpression(Expression arrayExpression) {
             super(arrayExpression);
             this.type = PDataType.fromTypeId(arrayExpression.getDataType().getSqlType() - PDataType.ARRAY_TYPE_BASE);
         }
-        
+
         public void setIndex(int index) {
             this.index = index;
         }
-        
+
         public void setArrayPtr(ImmutableBytesWritable arrayPtr) {
             this.arrayPtr.set(arrayPtr.get(), arrayPtr.getOffset(), arrayPtr.getLength());
         }
-        
+
         @Override
         public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
             ptr.set(arrayPtr.get(), arrayPtr.getOffset(), arrayPtr.getLength());
@@ -162,11 +163,11 @@ public class UnnestArrayPlan extends DelegateQueryPlan {
             return type;
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
     private static class UnnestArrayElemIndexExpression extends BaseTerminalExpression {
         private int index = 0;
-        
+
         public void setIndex(int index) {
             this.index = index;
         }
@@ -193,6 +194,6 @@ public class UnnestArrayPlan extends DelegateQueryPlan {
 
     @Override
     public List<OrderBy> getOutputOrderBys() {
-        return Collections.<OrderBy> emptyList();
+        return Collections.<OrderBy>emptyList();
     }
 }

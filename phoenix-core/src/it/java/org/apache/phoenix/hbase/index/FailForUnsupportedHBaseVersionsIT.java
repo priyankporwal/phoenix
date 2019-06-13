@@ -68,8 +68,8 @@ public class FailForUnsupportedHBaseVersionsIT {
         //we support all versions without WAL Compression
         String supported = Indexer.validateVersion(version, conf);
         assertNull(
-                "WAL Compression wasn't enabled, but version "+version+" of HBase wasn't supported! All versions should"
-                        + " support writing without a compressed WAL. Message: "+supported, supported);
+                "WAL Compression wasn't enabled, but version " + version + " of HBase wasn't supported! All versions should"
+                        + " support writing without a compressed WAL. Message: " + supported, supported);
 
         // enable WAL Compression
         conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
@@ -84,13 +84,13 @@ public class FailForUnsupportedHBaseVersionsIT {
         version = "0.94.9";
         supported = Indexer.validateVersion(version, conf);
         assertNull(
-                "WAL Compression wasn't enabled, but version "+version+" of HBase wasn't supported! Message: "+supported, supported);
+                "WAL Compression wasn't enabled, but version " + version + " of HBase wasn't supported! Message: " + supported, supported);
 
         //make sure we support snapshot builds too
         version = "0.94.9-SNAPSHOT";
         supported = Indexer.validateVersion(version, conf);
         assertNull(
-                "WAL Compression wasn't enabled, but version "+version+" of HBase wasn't supported! Message: "+supported, supported);
+                "WAL Compression wasn't enabled, but version " + version + " of HBase wasn't supported! Message: " + supported, supported);
     }
 
     /**
@@ -102,6 +102,7 @@ public class FailForUnsupportedHBaseVersionsIT {
      * this functionality, we need to run the test against both a supported and an unsupported version
      * of HBase (as long as we want to support an version of HBase that doesn't support custom WAL
      * Codecs).
+     *
      * @throws Exception on failure
      */
     @Test(timeout = 300000 /* 5 mins */)
@@ -128,9 +129,9 @@ public class FailForUnsupportedHBaseVersionsIT {
             TableDescriptorBuilder descBuilder = TableDescriptorBuilder.newBuilder(TableName.valueOf(
                     "testDoesNotStartRegionServerForUnsupportedCompressionAndVersion"));
             byte[] family = Bytes.toBytes("f");
-            
+
             descBuilder.addColumnFamily(ColumnFamilyDescriptorBuilder.of(family));
-            TableDescriptor desc=descBuilder.build();
+            TableDescriptor desc = descBuilder.build();
             // enable indexing to a non-existant index table
             String indexTableName = "INDEX_TABLE";
             ColumnGroup fam1 = new ColumnGroup(indexTableName);

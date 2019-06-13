@@ -78,11 +78,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 /**
- * 
  * Handler called in the event that index updates cannot be written to their
  * region server. First attempts to disable the index and failing that falls
  * back to the default behavior of killing the region server.
- *
  */
 public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixIndexFailurePolicy.class);
@@ -118,18 +116,18 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
         disableIndexOnFailure = getDisableIndexOnFailure(env);
         String value = htd.getValue(BLOCK_DATA_TABLE_WRITES_ON_WRITE_FAILURE);
         if (value == null) {
-            blockDataTableWritesOnFailure = env.getConfiguration().getBoolean(QueryServices.INDEX_FAILURE_BLOCK_WRITE, 
-                QueryServicesOptions.DEFAULT_INDEX_FAILURE_BLOCK_WRITE);
+            blockDataTableWritesOnFailure = env.getConfiguration().getBoolean(QueryServices.INDEX_FAILURE_BLOCK_WRITE,
+                    QueryServicesOptions.DEFAULT_INDEX_FAILURE_BLOCK_WRITE);
         } else {
             blockDataTableWritesOnFailure = Boolean.parseBoolean(value);
         }
-        
+
         value = htd.getValue(THROW_INDEX_WRITE_FAILURE);
         if (value == null) {
-	        throwIndexWriteFailure = env.getConfiguration().getBoolean(QueryServices.INDEX_FAILURE_THROW_EXCEPTION_ATTRIB,
-	                QueryServicesOptions.DEFAULT_INDEX_FAILURE_THROW_EXCEPTION);
+            throwIndexWriteFailure = env.getConfiguration().getBoolean(QueryServices.INDEX_FAILURE_THROW_EXCEPTION_ATTRIB,
+                    QueryServicesOptions.DEFAULT_INDEX_FAILURE_THROW_EXCEPTION);
         } else {
-        	throwIndexWriteFailure = Boolean.parseBoolean(value);
+            throwIndexWriteFailure = Boolean.parseBoolean(value);
         }
 
         boolean killServer = env.getConfiguration().getBoolean(QueryServices.INDEX_FAILURE_KILL_SERVER, true);
@@ -145,8 +143,9 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
      * In the case that we cannot reach the metadata information, we will fall back to the default policy and kill
      * this server, so we can attempt to replay the edits on restart.
      * </p>
+     *
      * @param attempted the mutations that were attempted to be written and the tables to which they were written
-     * @param cause root cause of the failure
+     * @param cause     root cause of the failure
      */
     @Override
     public void handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException {
@@ -166,8 +165,8 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                             .setRootCause(cause).setMessage(cause.getLocalizedMessage()).build()
                             .buildException();
             IOException ioException = ServerUtil.wrapInDoNotRetryIOException(
-                        "Retrying Index rebuild mutation, we will update Index state to DISABLE "
-                        + "if all retries are exhusated", sqlException, timestamp);
+                    "Retrying Index rebuild mutation, we will update Index state to DISABLE "
+                            + "if all retries are exhusated", sqlException, timestamp);
             throw ioException;
         }
         try {
@@ -186,26 +185,26 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                 IOException ioException = ServerUtil.wrapInDoNotRetryIOException(null, sqlException, timestamp);
                 // Here we throw index write failure to client so it can retry index mutation.
                 if (throwIndexWriteFailure) {
-            		throw ioException;
-            	} else {
+                    throw ioException;
+                } else {
                     LOGGER.warn("Swallowing index write failure", ioException);
-            	}
+                }
             }
         }
     }
 
     private long handleFailureWithExceptions(Multimap<HTableInterfaceReference, Mutation> attempted,
-            final Exception cause) throws Throwable {
+                                             final Exception cause) throws Throwable {
         Set<HTableInterfaceReference> refs = attempted.asMap().keySet();
         final Map<String, Long> indexTableNames = new HashMap<String, Long>(refs.size());
         // start by looking at all the tables to which we attempted to write
         long timestamp = 0;
         final boolean leaveIndexActive = blockDataTableWritesOnFailure || !disableIndexOnFailure;
         // if using TrackingParallelWriter, we know which indexes failed and only disable those
-        Set<HTableInterfaceReference> failedTables = cause instanceof MultiIndexWriteFailureException 
-                ? new HashSet<HTableInterfaceReference>(((MultiIndexWriteFailureException)cause).getFailedTables())
+        Set<HTableInterfaceReference> failedTables = cause instanceof MultiIndexWriteFailureException
+                ? new HashSet<HTableInterfaceReference>(((MultiIndexWriteFailureException) cause).getFailedTables())
                 : Collections.<HTableInterfaceReference>emptySet();
-        
+
         for (HTableInterfaceReference ref : refs) {
             if (failedTables.size() > 0 && !failedTables.contains(ref)) {
                 continue; // leave index active if its writes succeeded
@@ -238,13 +237,13 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                 if (cause instanceof MultiIndexWriteFailureException) {
                     List<HTableInterfaceReference> failedLocalIndexes =
                             Lists.newArrayList(Iterables.transform(indexTableNames.entrySet(),
-                                new Function<Map.Entry<String, Long>, HTableInterfaceReference>() {
-                                    @Override
-                                    public HTableInterfaceReference apply(Entry<String, Long> input) {
-                                        return new HTableInterfaceReference(new ImmutableBytesPtr(
-                                                Bytes.toBytes(input.getKey())));
-                                    }
-                                }));
+                                    new Function<Map.Entry<String, Long>, HTableInterfaceReference>() {
+                                        @Override
+                                        public HTableInterfaceReference apply(Entry<String, Long> input) {
+                                            return new HTableInterfaceReference(new ImmutableBytesPtr(
+                                                    Bytes.toBytes(input.getKey())));
+                                        }
+                                    }));
                     ((MultiIndexWriteFailureException) cause).setFailedTables(failedLocalIndexes);
                 }
             } else {
@@ -291,8 +290,10 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                                         + result.getMutationCode());
                                 // If we're not disabling the index, then we don't want to throw as throwing
                                 // will lead to the RS being shutdown.
-                                if (blockDataTableWritesOnFailure) { throw new DoNotRetryIOException(
-                                        "Attempt to update INDEX_DISABLE_TIMESTAMP failed."); }
+                                if (blockDataTableWritesOnFailure) {
+                                    throw new DoNotRetryIOException(
+                                            "Attempt to update INDEX_DISABLE_TIMESTAMP failed.");
+                                }
                             } else {
                                 LOGGER.warn("Attempt to disable index " + indexTableName + " failed with code = "
                                         + result.getMutationCode() + ". Will use default failure policy instead.");
@@ -300,11 +301,11 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                             }
                         }
                         LOGGER.info("Successfully update INDEX_DISABLE_TIMESTAMP for " + indexTableName
-                            + " due to an exception while writing updates. indexState=" + newState,
-                        cause);
+                                        + " due to an exception while writing updates. indexState=" + newState,
+                                cause);
                     } catch (Throwable t) {
                         if (t instanceof Exception) {
-                            throw (Exception)t;
+                            throw (Exception) t;
                         } else {
                             throw new Exception(t);
                         }
@@ -317,7 +318,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
     }
 
     private Collection<? extends String> getLocalIndexNames(HTableInterfaceReference ref,
-            Collection<Mutation> mutations) throws IOException {
+                                                            Collection<Mutation> mutations) throws IOException {
         Set<String> indexTableNames = new HashSet<String>(1);
         PhoenixConnection conn = null;
         try {
@@ -330,7 +331,9 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
             Map<ImmutableBytesWritable, String> localIndexNames =
                     new HashMap<ImmutableBytesWritable, String>();
             for (PTable index : indexes) {
-                if (localIndex == null) localIndex = index;
+                if (localIndex == null) {
+                    localIndex = index;
+                }
                 localIndexNames.put(new ImmutableBytesWritable(index.getviewIndexIdType().toBytes(
                         index.getViewIndexId())), index.getName().getString());
             }
@@ -374,6 +377,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
 
     /**
      * Check config for whether to disable index on index write failures
+     *
      * @param htd
      * @param config
      * @param connection
@@ -388,7 +392,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
         if (value == null) {
             disableIndexOnFailure =
                     config.getBoolean(QueryServices.INDEX_FAILURE_DISABLE_INDEX,
-                        QueryServicesOptions.DEFAULT_INDEX_FAILURE_DISABLE_INDEX);
+                            QueryServicesOptions.DEFAULT_INDEX_FAILURE_DISABLE_INDEX);
         } else {
             disableIndexOnFailure = Boolean.parseBoolean(value);
         }
@@ -402,17 +406,17 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
      * on the server side, so the rebuilder will be run.
      */
     private static void handleIndexWriteFailureFromClient(IndexWriteException indexWriteException,
-            PhoenixConnection conn) {
+                                                          PhoenixConnection conn) {
         handleExceptionFromClient(indexWriteException, conn, PIndexState.DISABLE);
     }
 
     private static void handleIndexWriteSuccessFromClient(IndexWriteException indexWriteException,
-            PhoenixConnection conn) {
+                                                          PhoenixConnection conn) {
         handleExceptionFromClient(indexWriteException, conn, PIndexState.ACTIVE);
     }
 
     private static void handleExceptionFromClient(IndexWriteException indexWriteException,
-            PhoenixConnection conn, PIndexState indexState) {
+                                                  PhoenixConnection conn, PIndexState indexState) {
         try {
             Set<String> indexesToUpdate = new HashSet<>();
             if (indexWriteException instanceof MultiIndexWriteFailureException) {
@@ -453,25 +457,26 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
      * Max retries and exponential backoff logic mimics that of HBase's client
      * If max retries are hit, the index is disabled.
      * If the write is successful on a subsequent retry, the index is set back to ACTIVE
+     *
      * @param mutateCommand mutation command to execute
-     * @param iwe original IndexWriteException
-     * @param connection connection to use
-     * @param config config used to get retry settings
+     * @param iwe           original IndexWriteException
+     * @param connection    connection to use
+     * @param config        config used to get retry settings
      * @throws Exception
      */
     public static void doBatchWithRetries(MutateCommand mutateCommand,
-            IndexWriteException iwe, PhoenixConnection connection, ReadOnlyProps config)
+                                          IndexWriteException iwe, PhoenixConnection connection, ReadOnlyProps config)
             throws IOException {
         incrementPendingDisableCounter(iwe, connection);
         int maxTries = config.getInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER,
-            HConstants.DEFAULT_HBASE_CLIENT_RETRIES_NUMBER);
+                HConstants.DEFAULT_HBASE_CLIENT_RETRIES_NUMBER);
         long pause = config.getLong(HConstants.HBASE_CLIENT_PAUSE,
-            HConstants.DEFAULT_HBASE_CLIENT_PAUSE);
+                HConstants.DEFAULT_HBASE_CLIENT_PAUSE);
         int numRetry = 1; // already tried once
         // calculate max time to retry for
         int timeout = 0;
         for (int i = 0; i < maxTries; ++i) {
-          timeout = (int) (timeout + ConnectionUtils.getPauseTime(pause, i));
+            timeout = (int) (timeout + ConnectionUtils.getPauseTime(pause, i));
         }
         long canRetryUntil = EnvironmentEdgeManager.currentTime() + timeout;
         while (canRetryMore(numRetry++, maxTries, canRetryUntil)) {
@@ -481,7 +486,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                 // success - change the index state from PENDING_DISABLE back to ACTIVE
                 // If it's not Index Rebuild
                 if (!PhoenixIndexMetaData.isIndexRebuild(
-                    mutateCommand.getMutationList().get(0).getAttributesMap())){
+                        mutateCommand.getMutationList().get(0).getAttributesMap())) {
                     handleIndexWriteSuccessFromClient(iwe, connection);
                 }
                 return;
@@ -507,7 +512,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
         throw new DoNotRetryIOException(iwe); // send failure back to client
     }
 
-    private static void incrementPendingDisableCounter(IndexWriteException indexWriteException,PhoenixConnection conn) {
+    private static void incrementPendingDisableCounter(IndexWriteException indexWriteException, PhoenixConnection conn) {
         try {
             Set<String> indexesToUpdate = new HashSet<>();
             if (indexWriteException instanceof MultiIndexWriteFailureException) {
@@ -518,7 +523,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                     for (HTableInterfaceReference failedIndex : failedIndexes) {
                         String failedIndexTable = failedIndex.getTableName();
                         if (!indexesToUpdate.contains(failedIndexTable)) {
-                            incrementCounterForIndex(conn,failedIndexTable);
+                            incrementCounterForIndex(conn, failedIndexTable);
                             indexesToUpdate.add(failedIndexTable);
                         }
                     }
@@ -528,7 +533,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
                         (SingleIndexWriteFailureException) indexWriteException;
                 String failedIndex = indexException.getTableName();
                 if (indexException.isDisableIndexOnFailure() && failedIndex != null) {
-                    incrementCounterForIndex(conn,failedIndex);
+                    incrementCounterForIndex(conn, failedIndex);
                 }
             }
         } catch (Exception handleE) {
@@ -552,6 +557,7 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
 
     /**
      * Converts from SQLException to IndexWriteException
+     *
      * @param sqlE the SQLException
      * @return the IndexWriteException
      */
@@ -566,9 +572,9 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
     }
 
     private static void updateIndex(String indexFullName, PhoenixConnection conn,
-            PIndexState indexState) throws SQLException, IOException {
+                                    PIndexState indexState) throws SQLException, IOException {
         //Decrement the counter because we will be here when client give retry after getting failed or succeed
-        decrementCounterForIndex(conn,indexFullName);
+        decrementCounterForIndex(conn, indexFullName);
         Long indexDisableTimestamp = null;
         if (PIndexState.DISABLE.equals(indexState)) {
             LOGGER.info("Disabling index after hitting max number of index write retries: "
@@ -583,7 +589,9 @@ public class PhoenixIndexFailurePolicy extends DelegateIndexFailurePolicy {
             } catch (SQLException e) {
                 // It's possible that some other client had made the Index DISABLED already , so we can ignore unallowed
                 // transition(DISABLED->ACTIVE)
-                if (e.getErrorCode() != SQLExceptionCode.INVALID_INDEX_STATE_TRANSITION.getErrorCode()) { throw e; }
+                if (e.getErrorCode() != SQLExceptionCode.INVALID_INDEX_STATE_TRANSITION.getErrorCode()) {
+                    throw e;
+                }
             }
         }
     }

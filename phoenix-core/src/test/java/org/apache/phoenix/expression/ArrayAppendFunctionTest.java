@@ -56,8 +56,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction1() throws Exception {
-        Object[] o = new Object[]{1, 2, -3, 4};
-        Object[] o2 = new Object[]{1, 2, -3, 4, 5};
+        Object[] o = new Object[] {1, 2, -3, 4};
+        Object[] o2 = new Object[] {1, 2, -3, 4, 5};
         Object element = 5;
         PDataType baseType = PInteger.INSTANCE;
 
@@ -68,8 +68,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction2() throws Exception {
-        Object[] o = new Object[]{"1", "2", "3", "4"};
-        Object[] o2 = new Object[]{"1", "2", "3", "4", "56"};
+        Object[] o = new Object[] {"1", "2", "3", "4"};
+        Object[] o2 = new Object[] {"1", "2", "3", "4", "56"};
         Object element = "56";
         PDataType baseType = PVarchar.INSTANCE;
 
@@ -120,21 +120,21 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunctionBoolean() throws Exception {
-        Boolean[] o = new Boolean[] { true, false, false, true };
-        Boolean[] o2 = new Boolean[] { true, false, false, true, false };
+        Boolean[] o = new Boolean[] {true, false, false, true};
+        Boolean[] o2 = new Boolean[] {true, false, false, true, false};
         Boolean element = false;
         PDataType baseType = PBoolean.INSTANCE;
 
         PhoenixArray arr = new PhoenixArray.PrimitiveBooleanPhoenixArray(baseType, o);
         PhoenixArray expected = new PhoenixArray.PrimitiveBooleanPhoenixArray(baseType, o2);
         test(arr, element, PDataType.fromTypeId(baseType.getSqlType() + PDataType.ARRAY_TYPE_BASE),
-            null, null, baseType, null, null, expected, SortOrder.ASC, SortOrder.ASC);
+                null, null, baseType, null, null, expected, SortOrder.ASC, SortOrder.ASC);
     }
 
     @Test
     public void testArrayAppendFunction6() throws Exception {
-        Object[] o = new Object[]{new Float(2.3), new Float(7.9), new Float(-9.6), new Float(2.3)};
-        Object[] o2 = new Object[]{new Float(2.3), new Float(7.9), new Float(-9.6), new Float(2.3), new Float(8.9)};
+        Object[] o = new Object[] {new Float(2.3), new Float(7.9), new Float(-9.6), new Float(2.3)};
+        Object[] o2 = new Object[] {new Float(2.3), new Float(7.9), new Float(-9.6), new Float(2.3), new Float(8.9)};
         Object element = 8.9;
         PDataType baseType = PFloat.INSTANCE;
 
@@ -145,8 +145,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction7() throws Exception {
-        Object[] o = new Object[]{4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE};
-        Object[] o2 = new Object[]{4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE, 12.67};
+        Object[] o = new Object[] {4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE};
+        Object[] o2 = new Object[] {4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE, 12.67};
         Object element = 12.67;
         PDataType baseType = PDouble.INSTANCE;
 
@@ -157,8 +157,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction8() throws Exception {
-        Object[] o = new Object[]{123l, 677l, 98789l, -78989l, 66787l};
-        Object[] o2 = new Object[]{123l, 677l, 98789l, -78989l, 66787l, 543l};
+        Object[] o = new Object[] {123l, 677l, 98789l, -78989l, 66787l};
+        Object[] o2 = new Object[] {123l, 677l, 98789l, -78989l, 66787l, 543l};
         Object element = 543l;
         PDataType baseType = PLong.INSTANCE;
 
@@ -169,8 +169,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction9() throws Exception {
-        Object[] o = new Object[]{(short) 34, (short) -23, (short) -89, (short) 999, (short) 34};
-        Object[] o2 = new Object[]{(short) 34, (short) -23, (short) -89, (short) 999, (short) 34, (short) 7};
+        Object[] o = new Object[] {(short) 34, (short) -23, (short) -89, (short) 999, (short) 34};
+        Object[] o2 = new Object[] {(short) 34, (short) -23, (short) -89, (short) 999, (short) 34, (short) 7};
         Object element = (short) 7;
         PDataType baseType = PSmallint.INSTANCE;
 
@@ -181,8 +181,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction10() throws Exception {
-        Object[] o = new Object[]{(byte) 4, (byte) 8, (byte) 9};
-        Object[] o2 = new Object[]{(byte) 4, (byte) 8, (byte) 9, (byte) 6};
+        Object[] o = new Object[] {(byte) 4, (byte) 8, (byte) 9};
+        Object[] o2 = new Object[] {(byte) 4, (byte) 8, (byte) 9, (byte) 6};
         Object element = (byte) 6;
         PDataType baseType = PTinyint.INSTANCE;
 
@@ -193,8 +193,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction11() throws Exception {
-        Object[] o = new Object[]{BigDecimal.valueOf(2345), BigDecimal.valueOf(-23.45), BigDecimal.valueOf(785)};
-        Object[] o2 = new Object[]{BigDecimal.valueOf(2345), BigDecimal.valueOf(-23.45), BigDecimal.valueOf(785), BigDecimal.valueOf(-19)};
+        Object[] o = new Object[] {BigDecimal.valueOf(2345), BigDecimal.valueOf(-23.45), BigDecimal.valueOf(785)};
+        Object[] o2 = new Object[] {BigDecimal.valueOf(2345), BigDecimal.valueOf(-23.45), BigDecimal.valueOf(785), BigDecimal.valueOf(-19)};
         Object element = BigDecimal.valueOf(-19);
         PDataType baseType = PDecimal.INSTANCE;
 
@@ -209,8 +209,8 @@ public class ArrayAppendFunctionTest {
         java.util.Date currentDate = calendar.getTime();
         java.sql.Date date = new java.sql.Date(currentDate.getTime());
 
-        Object[] o = new Object[]{date, date, date};
-        Object[] o2 = new Object[]{date, date, date, date};
+        Object[] o = new Object[] {date, date, date};
+        Object[] o2 = new Object[] {date, date, date, date};
         PDataType baseType = PDate.INSTANCE;
 
         PhoenixArray arr = new PhoenixArray(baseType, o);
@@ -224,8 +224,8 @@ public class ArrayAppendFunctionTest {
         java.util.Date currentDate = calendar.getTime();
         java.sql.Time time = new java.sql.Time(currentDate.getTime());
 
-        Object[] o = new Object[]{time, time, time};
-        Object[] o2 = new Object[]{time, time, time, time};
+        Object[] o = new Object[] {time, time, time};
+        Object[] o2 = new Object[] {time, time, time, time};
         PDataType baseType = PTime.INSTANCE;
 
         PhoenixArray arr = new PhoenixArray(baseType, o);
@@ -239,8 +239,8 @@ public class ArrayAppendFunctionTest {
         java.util.Date currentDate = calendar.getTime();
         java.sql.Timestamp timestamp = new java.sql.Timestamp(currentDate.getTime());
 
-        Object[] o = new Object[]{timestamp, timestamp, timestamp};
-        Object[] o2 = new Object[]{timestamp, timestamp, timestamp, timestamp};
+        Object[] o = new Object[] {timestamp, timestamp, timestamp};
+        Object[] o2 = new Object[] {timestamp, timestamp, timestamp, timestamp};
         PDataType baseType = PTimestamp.INSTANCE;
 
         PhoenixArray arr = new PhoenixArray(baseType, o);
@@ -250,8 +250,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction15() throws Exception {
-        Object[] o = new Object[]{1, 2, -3, 4};
-        Object[] o2 = new Object[]{1, 2, -3, 4, 5};
+        Object[] o = new Object[] {1, 2, -3, 4};
+        Object[] o2 = new Object[] {1, 2, -3, 4, 5};
         Object element = 5;
         PDataType baseType = PInteger.INSTANCE;
 
@@ -262,8 +262,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction16() throws Exception {
-        Object[] o = new Object[]{1, 2, -3, 4};
-        Object[] o2 = new Object[]{1, 2, -3, 4, 5};
+        Object[] o = new Object[] {1, 2, -3, 4};
+        Object[] o2 = new Object[] {1, 2, -3, 4, 5};
         Object element = 5;
         PDataType baseType = PInteger.INSTANCE;
 
@@ -274,8 +274,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction17() throws Exception {
-        Object[] o = new Object[]{1, 2, -3, 4};
-        Object[] o2 = new Object[]{1, 2, -3, 4, 5};
+        Object[] o = new Object[] {1, 2, -3, 4};
+        Object[] o2 = new Object[] {1, 2, -3, 4, 5};
         Object element = 5;
         PDataType baseType = PInteger.INSTANCE;
 
@@ -286,8 +286,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction18() throws Exception {
-        Object[] o = new Object[]{"1   ", "2   ", "3   ", "4   "};
-        Object[] o2 = new Object[]{"1", "2", "3", "4", "5"};
+        Object[] o = new Object[] {"1   ", "2   ", "3   ", "4   "};
+        Object[] o2 = new Object[] {"1", "2", "3", "4", "5"};
         Object element = "5";
         PDataType baseType = PChar.INSTANCE;
 
@@ -298,8 +298,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction19() throws Exception {
-        Object[] o = new Object[]{"1   ", "2   ", "3   ", "4   "};
-        Object[] o2 = new Object[]{"1", "2", "3", "4", "5"};
+        Object[] o = new Object[] {"1   ", "2   ", "3   ", "4   "};
+        Object[] o2 = new Object[] {"1", "2", "3", "4", "5"};
         Object element = "5";
         PDataType baseType = PChar.INSTANCE;
 
@@ -310,8 +310,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction20() throws Exception {
-        Object[] o = new Object[]{"1   ", "2   ", "3   ", "4   "};
-        Object[] o2 = new Object[]{"1", "2", "3", "4", "5"};
+        Object[] o = new Object[] {"1   ", "2   ", "3   ", "4   "};
+        Object[] o2 = new Object[] {"1", "2", "3", "4", "5"};
         Object element = "5";
         PDataType baseType = PChar.INSTANCE;
 
@@ -322,8 +322,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction21() throws Exception {
-        Object[] o = new Object[]{4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE};
-        Object[] o2 = new Object[]{4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE, 12.67};
+        Object[] o = new Object[] {4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE};
+        Object[] o2 = new Object[] {4.78, 9.54, 2.34, -9.675, Double.MAX_VALUE, 12.67};
         Object element = 12.67;
         PDataType baseType = PDouble.INSTANCE;
 
@@ -334,8 +334,8 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testArrayAppendFunction22() throws Exception {
-        Object[] o = new Object[]{"1   ", "2   ", "3   ", "4   "};
-        Object[] o2 = new Object[]{"1", "2", "3", "4"};
+        Object[] o = new Object[] {"1   ", "2   ", "3   ", "4   "};
+        Object[] o2 = new Object[] {"1", "2", "3", "4"};
         Object element = null;
         PDataType baseType = PChar.INSTANCE;
 
@@ -346,7 +346,7 @@ public class ArrayAppendFunctionTest {
 
     @Test
     public void testForCorrectSeparatorBytes1() throws Exception {
-        Object[] o = new Object[]{"a", "b", "c"};
+        Object[] o = new Object[] {"a", "b", "c"};
         Object element = "d";
         PDataType baseType = PVarchar.INSTANCE;
 
@@ -360,13 +360,13 @@ public class ArrayAppendFunctionTest {
         Expression arrayAppendFunction = new ArrayAppendFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayAppendFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{97, 0, 98, 0, 99, 0, 100, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 7, 0, 0, 0, 10, 0, 0, 0, 4, 1};
+        byte[] expected = new byte[] {97, 0, 98, 0, 99, 0, 100, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 7, 0, 0, 0, 10, 0, 0, 0, 4, 1};
         assertArrayEquals(expected, ptr.get());
     }
 
     @Test
     public void testForCorrectSeparatorBytes2() throws Exception {
-        Object[] o = new Object[]{"a", "b", "c"};
+        Object[] o = new Object[] {"a", "b", "c"};
         Object element = "d";
         PDataType baseType = PVarchar.INSTANCE;
 
@@ -380,13 +380,13 @@ public class ArrayAppendFunctionTest {
         Expression arrayAppendFunction = new ArrayAppendFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayAppendFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{-98, -1, -99, -1, -100, -1, -101, -1, -1, -1, -128, 1, -128, 3, -128, 5, -128, 7, 0, 0, 0, 10, 0, 0, 0, 4, 1};
+        byte[] expected = new byte[] {-98, -1, -99, -1, -100, -1, -101, -1, -1, -1, -128, 1, -128, 3, -128, 5, -128, 7, 0, 0, 0, 10, 0, 0, 0, 4, 1};
         assertArrayEquals(expected, ptr.get());
     }
 
     @Test
     public void testForCorrectSeparatorBytes3() throws Exception {
-        Object[] o = new Object[]{"a", null, null, "c"};
+        Object[] o = new Object[] {"a", null, null, "c"};
         Object element = "d";
         PDataType baseType = PVarchar.INSTANCE;
 
@@ -400,7 +400,7 @@ public class ArrayAppendFunctionTest {
         Expression arrayAppendFunction = new ArrayAppendFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayAppendFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{-98, -1, 0, -2, -100, -1, -101, -1, -1, -1, -128, 1, -128, 3, -128, 3, -128, 5, -128, 7, 0, 0, 0, 10, 0, 0, 0, 5, 1};
+        byte[] expected = new byte[] {-98, -1, 0, -2, -100, -1, -101, -1, -1, -1, -128, 1, -128, 3, -128, 3, -128, 5, -128, 7, 0, 0, 0, 10, 0, 0, 0, 5, 1};
         assertArrayEquals(expected, ptr.get());
     }
 }

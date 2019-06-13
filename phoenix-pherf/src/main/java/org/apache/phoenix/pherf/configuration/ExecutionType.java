@@ -18,6 +18,6 @@
 
 package org.apache.phoenix.pherf.configuration;
 
-public enum ExecutionType {
-	SERIAL, PARALLEL;
-}
+public enum ExecutionType{
+        SERIAL,PARALLEL;
+        }

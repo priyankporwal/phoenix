@@ -48,7 +48,7 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 public class DateArithmeticIT extends ParallelStatsDisabledIT {
-    
+
     @Test
     public void testValidArithmetic() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -56,21 +56,21 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName =
                 initATableValues(generateUniqueName(), getOrganizationId(), getDefaultSplits(getOrganizationId()),
-                    date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
+                        date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
 
-        String[] queries = new String[] { 
+        String[] queries = new String[] {
                 "SELECT entity_id,organization_id FROM " + tableName + " where (A_DATE - A_DATE) * 5 < 0",
                 "SELECT entity_id,organization_id FROM " + tableName + " where 1 + A_DATE  < A_DATE",
                 "SELECT entity_id,organization_id FROM " + tableName + " where A_DATE - 1 < A_DATE",
-                };
+        };
 
         for (String query : queries) {
-                PreparedStatement statement = conn.prepareStatement(query);
-                statement.executeQuery();
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.executeQuery();
         }
         conn.close();
     }
-    
+
     @Test
     public void testDateAdd() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -78,7 +78,7 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName =
                 initATableValues(generateUniqueName(), getOrganizationId(), getDefaultSplits(getOrganizationId()),
-                    date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
+                        date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
         String query = "SELECT entity_id, b_string FROM " + tableName + " WHERE a_date + CAST(0.5 AS DOUBLE) < ?";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
@@ -87,14 +87,14 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
             @SuppressWarnings("unchecked")
             List<List<Object>> expectedResults = Lists.newArrayList(
                     Arrays.<Object>asList(ROW1, B_VALUE),
-                    Arrays.<Object>asList( ROW4, B_VALUE), 
+                    Arrays.<Object>asList(ROW4, B_VALUE),
                     Arrays.<Object>asList(ROW7, B_VALUE));
             assertValuesEqualsResultSet(rs, expectedResults);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDateSubtract() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -102,7 +102,7 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName =
                 initATableValues(generateUniqueName(), getOrganizationId(), getDefaultSplits(getOrganizationId()),
-                    date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
+                        date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
         String query = "SELECT entity_id, b_string FROM " + tableName + " WHERE a_date - CAST(0.5 AS DOUBLE) > ?";
         try {
             PreparedStatement statement = conn.prepareStatement(query);
@@ -111,7 +111,7 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
             @SuppressWarnings("unchecked")
             List<List<Object>> expectedResults = Lists.newArrayList(
                     Arrays.<Object>asList(ROW3, E_VALUE),
-                    Arrays.<Object>asList( ROW6, E_VALUE), 
+                    Arrays.<Object>asList(ROW6, E_VALUE),
                     Arrays.<Object>asList(ROW9, E_VALUE));
             assertValuesEqualsResultSet(rs, expectedResults);
         } finally {
@@ -126,7 +126,7 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName =
                 initATableValues(generateUniqueName(), getOrganizationId(), getDefaultSplits(getOrganizationId()),
-                    date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
+                        date, null, getUrl(), "COLUMN_ENCODED_BYTES=0");
         PreparedStatement statement = conn.prepareStatement("UPSERT INTO  " + tableName + " (organization_id,entity_id,a_time) VALUES(?,?,?)");
         statement.setString(1, getOrganizationId());
         statement.setString(2, ROW2);
@@ -154,156 +154,156 @@ public class DateArithmeticIT extends ParallelStatsDisabledIT {
             @SuppressWarnings("unchecked")
             List<List<Object>> expectedResults = Lists.newArrayList(
                     Arrays.<Object>asList(ROW3, E_VALUE),
-                    Arrays.<Object>asList( ROW6, E_VALUE), 
+                    Arrays.<Object>asList(ROW6, E_VALUE),
                     Arrays.<Object>asList(ROW9, E_VALUE));
             assertValuesEqualsResultSet(rs, expectedResults);
         } finally {
             conn.close();
         }
     }
- 
+
     @Test
     public void testAddTimeStamp() throws Exception {
-      Connection conn;
-      PreparedStatement stmt;
-      ResultSet rs;
-      String tName = generateUniqueName();
+        Connection conn;
+        PreparedStatement stmt;
+        ResultSet rs;
+        String tName = generateUniqueName();
 
-      Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-      conn = DriverManager.getConnection(getUrl(), props);
-      conn.createStatement()
-              .execute(
-                      "create table " + tName + " (ts timestamp primary key)");
-      conn.close();
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        conn = DriverManager.getConnection(getUrl(), props);
+        conn.createStatement()
+                .execute(
+                        "create table " + tName + " (ts timestamp primary key)");
+        conn.close();
 
-      conn = DriverManager.getConnection(getUrl(), props);
-      stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
-      stmt.setTimestamp(1, new Timestamp(1995 - 1900, 4, 2, 1, 1, 1, 1));
-      stmt.execute();
-      conn.commit();
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName + "");
-      assertTrue(rs.next());
-      assertEquals("1995-05-02 01:01:01.000000001",rs.getTimestamp(1).toString());
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts + 1 FROM " + tName + "");
-      assertTrue(rs.next());
-      assertEquals("1995-05-03 01:01:01.000000001",rs.getTimestamp(1).toString());
+        conn = DriverManager.getConnection(getUrl(), props);
+        stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
+        stmt.setTimestamp(1, new Timestamp(1995 - 1900, 4, 2, 1, 1, 1, 1));
+        stmt.execute();
+        conn.commit();
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName + "");
+        assertTrue(rs.next());
+        assertEquals("1995-05-02 01:01:01.000000001", rs.getTimestamp(1).toString());
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts + 1 FROM " + tName + "");
+        assertTrue(rs.next());
+        assertEquals("1995-05-03 01:01:01.000000001", rs.getTimestamp(1).toString());
     }
- 
+
     @Test
     public void testSubtractTimeStamp() throws Exception {
-      Connection conn;
-      PreparedStatement stmt;
-      ResultSet rs;
-      String tName = generateUniqueName();
-      Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-      conn = DriverManager.getConnection(getUrl(), props);
-      conn.createStatement()
-              .execute(
-                      "create table " + tName + " (ts timestamp primary key)");
-      conn.close();
+        Connection conn;
+        PreparedStatement stmt;
+        ResultSet rs;
+        String tName = generateUniqueName();
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        conn = DriverManager.getConnection(getUrl(), props);
+        conn.createStatement()
+                .execute(
+                        "create table " + tName + " (ts timestamp primary key)");
+        conn.close();
 
-      conn = DriverManager.getConnection(getUrl(), props);
-      stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
-      stmt.setTimestamp(1, new Timestamp(1995 - 1900, 4, 2, 1, 1, 1, 1));
-      stmt.execute();
-      conn.commit();
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals("1995-05-02 01:01:01.000000001",rs.getTimestamp(1).toString());
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts - 1 FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals("1995-05-01 01:01:01.000000001",rs.getTimestamp(1).toString());
+        conn = DriverManager.getConnection(getUrl(), props);
+        stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
+        stmt.setTimestamp(1, new Timestamp(1995 - 1900, 4, 2, 1, 1, 1, 1));
+        stmt.execute();
+        conn.commit();
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals("1995-05-02 01:01:01.000000001", rs.getTimestamp(1).toString());
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts - 1 FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals("1995-05-01 01:01:01.000000001", rs.getTimestamp(1).toString());
     }
-    
+
     @Test
     public void testAddTime() throws Exception {
-      Connection conn;
-      PreparedStatement stmt;
-      ResultSet rs;
-      String tName = generateUniqueName();
+        Connection conn;
+        PreparedStatement stmt;
+        ResultSet rs;
+        String tName = generateUniqueName();
 
-      Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-      conn = DriverManager.getConnection(getUrl(), props);
-      conn.createStatement()
-              .execute(
-                      "create table " + tName + " (ts time primary key)");
-      conn.close();
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        conn = DriverManager.getConnection(getUrl(), props);
+        conn.createStatement()
+                .execute(
+                        "create table " + tName + " (ts time primary key)");
+        conn.close();
 
-      conn = DriverManager.getConnection(getUrl(), props);
-      stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
-      Time time = new Time(1995 - 1900, 4, 2);
-      stmt.setTime(1, time);
-      stmt.execute();
-      conn.commit();
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals(time.getTime(),rs.getTimestamp(1).getTime());
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts + 1 FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals(time.getTime() + MILLIS_IN_DAY,rs.getTimestamp(1).getTime());
+        conn = DriverManager.getConnection(getUrl(), props);
+        stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
+        Time time = new Time(1995 - 1900, 4, 2);
+        stmt.setTime(1, time);
+        stmt.execute();
+        conn.commit();
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals(time.getTime(), rs.getTimestamp(1).getTime());
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts + 1 FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals(time.getTime() + MILLIS_IN_DAY, rs.getTimestamp(1).getTime());
     }
 
     @Test
     public void testSubtractTime() throws Exception {
-      Connection conn;
-      PreparedStatement stmt;
-      ResultSet rs;
-      String tName = generateUniqueName();
-      Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-      conn = DriverManager.getConnection(getUrl(), props);
-      conn.createStatement()
-              .execute(
-                      "create table " + tName + " (ts time primary key)");
-      conn.close();
+        Connection conn;
+        PreparedStatement stmt;
+        ResultSet rs;
+        String tName = generateUniqueName();
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        conn = DriverManager.getConnection(getUrl(), props);
+        conn.createStatement()
+                .execute(
+                        "create table " + tName + " (ts time primary key)");
+        conn.close();
 
-      conn = DriverManager.getConnection(getUrl(), props);
-      stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
-      Time time = new Time(1995 - 1900, 4, 2);
-      stmt.setTime(1, time);
-      stmt.execute();
-      conn.commit();
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName + "");
-      assertTrue(rs.next());
-      assertEquals(time.getTime(),rs.getTimestamp(1).getTime());
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts - 1 FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals(time.getTime() - MILLIS_IN_DAY,rs.getTimestamp(1).getTime());
+        conn = DriverManager.getConnection(getUrl(), props);
+        stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
+        Time time = new Time(1995 - 1900, 4, 2);
+        stmt.setTime(1, time);
+        stmt.execute();
+        conn.commit();
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName + "");
+        assertTrue(rs.next());
+        assertEquals(time.getTime(), rs.getTimestamp(1).getTime());
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts - 1 FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals(time.getTime() - MILLIS_IN_DAY, rs.getTimestamp(1).getTime());
     }
- 
+
     @Test
     public void testSubtractDate() throws Exception {
-      Connection conn;
-      PreparedStatement stmt;
-      ResultSet rs;
-      String tName = generateUniqueName();
+        Connection conn;
+        PreparedStatement stmt;
+        ResultSet rs;
+        String tName = generateUniqueName();
 
-      Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-      conn = DriverManager.getConnection(getUrl(), props);
-      conn.createStatement()
-              .execute(
-                      "create table " + tName + " (ts date primary key)");
-      conn.close();
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        conn = DriverManager.getConnection(getUrl(), props);
+        conn.createStatement()
+                .execute(
+                        "create table " + tName + " (ts date primary key)");
+        conn.close();
 
-      conn = DriverManager.getConnection(getUrl(), props);
-      stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
-      stmt.setDate(1, new Date(1995 - 1900, 4, 2));
-      stmt.execute();
-      conn.commit();
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals("1995-05-02",rs.getDate(1).toString());
-      conn = DriverManager.getConnection(getUrl(), props);
-      rs = conn.createStatement().executeQuery("SELECT ts - 1 FROM " + tName);
-      assertTrue(rs.next());
-      assertEquals("1995-05-01",rs.getDate(1).toString());
+        conn = DriverManager.getConnection(getUrl(), props);
+        stmt = conn.prepareStatement("upsert into " + tName + " values (?)");
+        stmt.setDate(1, new Date(1995 - 1900, 4, 2));
+        stmt.execute();
+        conn.commit();
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals("1995-05-02", rs.getDate(1).toString());
+        conn = DriverManager.getConnection(getUrl(), props);
+        rs = conn.createStatement().executeQuery("SELECT ts - 1 FROM " + tName);
+        assertTrue(rs.next());
+        assertEquals("1995-05-01", rs.getDate(1).toString());
     }
 }

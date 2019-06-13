@@ -96,7 +96,7 @@ public class XMLConfigParser {
                     scenarios.add(scenario);
                 }
             } catch (JAXBException e) {
-                LOGGER.error("Unable to parse scenario file "+path, e);
+                LOGGER.error("Unable to parse scenario file " + path, e);
                 throw e;
             }
         }
@@ -124,7 +124,7 @@ public class XMLConfigParser {
         String fName = PherfConstants.RESOURCE_SCENARIO + "/" + file.getFileName().toString();
         LOGGER.info("Open config file: " + fName);
         XMLStreamReader xmlReader = xif.createXMLStreamReader(
-            new StreamSource(XMLConfigParser.class.getResourceAsStream(fName)));
+                new StreamSource(XMLConfigParser.class.getResourceAsStream(fName)));
         return (DataModel) jaxbUnmarshaller.unmarshal(xmlReader);
     }
 

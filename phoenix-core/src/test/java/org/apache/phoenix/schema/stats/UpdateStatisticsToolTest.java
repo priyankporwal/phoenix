@@ -29,13 +29,13 @@ import static org.junit.Assert.fail;
 
 public class UpdateStatisticsToolTest {
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testTableNameIsMandatory() {
         UpdateStatisticsTool tool = new UpdateStatisticsTool();
         tool.parseOptions(new String[] {});
     }
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testManageSnapshotAndRunFgOption1() {
         UpdateStatisticsTool tool = new UpdateStatisticsTool();
         tool.parseOptions(new String[] {"-t", "table1", "-ms"});

@@ -31,8 +31,6 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
- * 
- * 
  * @since 1.2.1
  */
 public abstract class BaseStddevAggregator extends DistinctValueWithCountClientAggregator {
@@ -58,9 +56,9 @@ public abstract class BaseStddevAggregator extends DistinctValueWithCountClientA
         ptr.set(buffer);
         return true;
     }
-    
+
     protected abstract long getDataPointsCount();
-    
+
     private double sumSquaredDeviation() {
         double m = mean();
         double result = 0.0;
@@ -80,7 +78,7 @@ public abstract class BaseStddevAggregator extends DistinctValueWithCountClientA
         }
         return sum / totalCount;
     }
-    
+
     @Override
     protected PDataType getResultDataType() {
         return PDecimal.INSTANCE;

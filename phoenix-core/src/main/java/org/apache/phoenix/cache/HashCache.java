@@ -30,11 +30,12 @@ import org.apache.phoenix.schema.tuple.Tuple;
 /**
  * Encapsulate deserialized hash cache from bytes into Map.
  * The Map uses the row key as the key and the row as the value.
- * 
+ *
  * @since 0.1
  */
 @Immutable
 public interface HashCache extends Closeable {
     public int getClientVersion();
+
     public List<Tuple> get(ImmutableBytesPtr hashKey) throws IOException;
 }

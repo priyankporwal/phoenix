@@ -40,7 +40,7 @@ public class CSVFileResultHandler extends CSVResultHandler {
     }
 
     @Override
-    public synchronized void write(Result result) throws IOException{
+    public synchronized void write(Result result) throws IOException {
         util.ensureBaseResultDirExists();
         open(result.getHeader());
         super.write(result);

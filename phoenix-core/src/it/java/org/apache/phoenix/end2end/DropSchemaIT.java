@@ -49,14 +49,14 @@ import com.google.common.collect.Maps;
 @RunWith(Parameterized.class)
 public class DropSchemaIT extends BaseUniqueNamesOwnClusterIT {
     private String schema;
-    
+
     public DropSchemaIT(String schema) {
         this.schema = schema;
     }
 
-    @BeforeClass 
+    @BeforeClass
     public static void doSetup() throws Exception {
-        Map<String,String> props = Maps.newHashMapWithExpectedSize(1);
+        Map<String, String> props = Maps.newHashMapWithExpectedSize(1);
         // Drop the HBase table metadata for this test
         props.put(QueryServices.DROP_METADATA_ATTRIB, Boolean.toString(true));
         // Must update config before starting server
@@ -64,7 +64,8 @@ public class DropSchemaIT extends BaseUniqueNamesOwnClusterIT {
     }
 
 
-    @Parameters(name = "DropSchemaIT_schema={0}") // name is used by failsafe as file name in reports
+    @Parameters(name = "DropSchemaIT_schema={0}")
+    // name is used by failsafe as file name in reports
     public static Collection<String> data() {
         return Arrays.asList(generateUniqueName().toUpperCase(), "\"" + generateUniqueName().toLowerCase() + "\"");
     }
@@ -102,9 +103,9 @@ public class DropSchemaIT extends BaseUniqueNamesOwnClusterIT {
             } catch (NamespaceNotFoundException ne) {
                 // expected
             }
-            
+
             conn.createStatement().execute("DROP SCHEMA IF EXISTS " + schema);
-            
+
             admin.createNamespace(NamespaceDescriptor.create(normalizeSchemaIdentifier).build());
             conn.createStatement().execute("DROP SCHEMA IF EXISTS " + schema);
             assertNotNull(admin.getNamespaceDescriptor(normalizeSchemaIdentifier));

@@ -92,7 +92,7 @@ public class PhoenixUtil {
     public Connection getConnection(String tenantId) throws Exception {
         return getConnection(tenantId, testEnabled, null);
     }
-    
+
     public Connection getConnection(String tenantId, Map<String, String> phoenixProperty) throws Exception {
         return getConnection(tenantId, testEnabled, phoenixProperty);
     }
@@ -101,7 +101,7 @@ public class PhoenixUtil {
         if (useThinDriver) {
             if (null == queryServerUrl) {
                 throw new IllegalArgumentException("QueryServer URL must be set before" +
-                      " initializing connection");
+                        " initializing connection");
             }
             Properties props = new Properties();
             if (null != tenantId) {
@@ -120,16 +120,16 @@ public class PhoenixUtil {
                 props.setProperty("TenantId", tenantId);
                 LOGGER.debug("\nSetting tenantId to " + tenantId);
             }
-            
+
             if (phoenixProperty != null) {
-            	for (Map.Entry<String, String> phxProperty: phoenixProperty.entrySet()) {
-            		props.setProperty(phxProperty.getKey(), phxProperty.getValue());
-					System.out.println("Setting connection property "
-							+ phxProperty.getKey() + " to "
-							+ phxProperty.getValue());
-            	}
+                for (Map.Entry<String, String> phxProperty : phoenixProperty.entrySet()) {
+                    props.setProperty(phxProperty.getKey(), phxProperty.getValue());
+                    System.out.println("Setting connection property "
+                            + phxProperty.getKey() + " to "
+                            + phxProperty.getValue());
+                }
             }
-            
+
             String url = "jdbc:phoenix:" + zookeeper + (testEnabled ? ";test=true" : "");
             return DriverManager.getConnection(url, props);
         }
@@ -166,14 +166,14 @@ public class PhoenixUtil {
             result = preparedStatement.execute();
             connection.commit();
         } finally {
-            if(preparedStatement != null) {
+            if (preparedStatement != null) {
                 preparedStatement.close();
             }
         }
         return result;
     }
 
-    public boolean executeStatement(String sql, Connection connection) throws SQLException{
+    public boolean executeStatement(String sql, Connection connection) throws SQLException {
         boolean result = false;
         PreparedStatement preparedStatement = null;
         try {
@@ -255,7 +255,7 @@ public class PhoenixUtil {
     }
 
     public synchronized List<Column> getColumnsFromPhoenix(String schemaName, String tableName,
-            Connection connection) throws SQLException {
+                                                           Connection connection) throws SQLException {
         List<Column> columnList = new ArrayList<>();
         ResultSet resultSet = null;
         try {
@@ -300,26 +300,26 @@ public class PhoenixUtil {
             }
         }
     }
-    
+
     /**
      * Executes any ddl defined at the scenario level. This is executed before we commence
      * the data load.
-     * 
+     *
      * @throws Exception
      */
     public void executeScenarioDdl(List<Ddl> ddls, String tenantId, DataLoadTimeSummary dataLoadTimeSummary) throws Exception {
         if (null != ddls) {
             Connection conn = null;
             try {
-            	for (Ddl ddl : ddls) {
-	                LOGGER.info("\nExecuting DDL:" + ddl + " on tenantId:" +tenantId);
-	                long startTime = System.currentTimeMillis();
-	                executeStatement(ddl.toString(), conn = getConnection(tenantId));
-	                if (ddl.getStatement().toUpperCase().contains(ASYNC_KEYWORD)) {
-	                	waitForAsyncIndexToFinish(ddl.getTableName());
-	                }
-	                dataLoadTimeSummary.add(ddl.getTableName(), 0, (int)(System.currentTimeMillis() - startTime));
-            	}
+                for (Ddl ddl : ddls) {
+                    LOGGER.info("\nExecuting DDL:" + ddl + " on tenantId:" + tenantId);
+                    long startTime = System.currentTimeMillis();
+                    executeStatement(ddl.toString(), conn = getConnection(tenantId));
+                    if (ddl.getStatement().toUpperCase().contains(ASYNC_KEYWORD)) {
+                        waitForAsyncIndexToFinish(ddl.getTableName());
+                    }
+                    dataLoadTimeSummary.add(ddl.getTableName(), 0, (int) (System.currentTimeMillis() - startTime));
+                }
             } finally {
                 if (null != conn) {
                     conn.close();
@@ -330,54 +330,57 @@ public class PhoenixUtil {
 
     /**
      * Waits for ASYNC index to build
+     *
      * @param tableName
      * @throws InterruptedException
      */
     private void waitForAsyncIndexToFinish(String tableName) throws InterruptedException {
-    	//Wait for up to 15 mins for ASYNC index build to start
-    	boolean jobStarted = false;
-    	for (int i=0; i<15; i++) {
-    		if (isYarnJobInProgress(tableName)) {
-    			jobStarted = true;
-    			break;
-    		}
-    		Thread.sleep(ONE_MIN_IN_MS);
-    	}
-    	if (jobStarted == false) {
-    		throw new IllegalStateException("ASYNC index build did not start within 15 mins");
-    	}
+        //Wait for up to 15 mins for ASYNC index build to start
+        boolean jobStarted = false;
+        for (int i = 0; i < 15; i++) {
+            if (isYarnJobInProgress(tableName)) {
+                jobStarted = true;
+                break;
+            }
+            Thread.sleep(ONE_MIN_IN_MS);
+        }
+        if (jobStarted == false) {
+            throw new IllegalStateException("ASYNC index build did not start within 15 mins");
+        }
 
-    	// Wait till ASYNC index job finishes to get approximate job E2E time
-    	for (;;) {
-    		if (!isYarnJobInProgress(tableName))
-    			break;
-    		Thread.sleep(ONE_MIN_IN_MS);
-    	}
+        // Wait till ASYNC index job finishes to get approximate job E2E time
+        for (; ; ) {
+            if (!isYarnJobInProgress(tableName)) {
+                break;
+            }
+            Thread.sleep(ONE_MIN_IN_MS);
+        }
     }
-    
+
     /**
      * Checks if a YARN job with the specific table name is in progress
+     *
      * @param tableName
      * @return
      */
     boolean isYarnJobInProgress(String tableName) {
-		try {
+        try {
             LOGGER.info("Fetching YARN apps...");
-			Set<String> response = new PhoenixMRJobSubmitter().getSubmittedYarnApps();
-			for (String str : response) {
+            Set<String> response = new PhoenixMRJobSubmitter().getSubmittedYarnApps();
+            for (String str : response) {
                 LOGGER.info("Runnng YARN app: " + str);
-				if (str.toUpperCase().contains(tableName.toUpperCase())) {
-					return true;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return false;
+                if (str.toUpperCase().contains(tableName.toUpperCase())) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
-	public static String getZookeeper() {
+    public static String getZookeeper() {
         return zookeeper;
     }
 
@@ -411,15 +414,15 @@ public class PhoenixUtil {
     }
 
     public String getExplainPlan(Query query) throws SQLException {
-    	return getExplainPlan(query, null, null);
+        return getExplainPlan(query, null, null);
     }
-    
+
     /**
      * Get explain plan for a query
      *
      * @param query
-     * @param ruleApplier 
-     * @param scenario 
+     * @param ruleApplier
+     * @param scenario
      * @return
      * @throws SQLException
      */
@@ -432,12 +435,11 @@ public class PhoenixUtil {
             conn = getConnection(query.getTenantId());
             String explainQuery;
             if (scenario != null && ruleApplier != null) {
-            	explainQuery = query.getDynamicStatement(ruleApplier, scenario);
+                explainQuery = query.getDynamicStatement(ruleApplier, scenario);
+            } else {
+                explainQuery = query.getStatement();
             }
-            else {
-            	explainQuery = query.getStatement();
-            }
-            
+
             statement = conn.prepareStatement("EXPLAIN " + explainQuery);
             rs = statement.executeQuery();
             while (rs.next()) {
@@ -447,9 +449,15 @@ public class PhoenixUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (rs != null) rs.close();
-            if (statement != null) statement.close();
-            if (conn != null) conn.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
         }
         return buf.toString();
     }

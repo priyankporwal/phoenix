@@ -42,11 +42,9 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
 /**
- * 
  * Cache per tenant on server side.  Tracks memory usage for each
  * tenat as well and rolling up usage to global memory manager.
- * 
- * 
+ *
  * @since 0.1
  */
 public class TenantCacheImpl implements TenantCache {
@@ -74,10 +72,10 @@ public class TenantCacheImpl implements TenantCache {
         private long size;
         private Closeable closeable;
 
-        public CacheEntry(ImmutableBytesPtr cacheId, ImmutableBytesWritable cachePtr, 
-                ServerCacheFactory cacheFactory, byte[] txState, MemoryChunk chunk,
-                boolean usePersistentCache, boolean useProtoForIndexMaintainer,
-                int clientVersion) throws SQLException {
+        public CacheEntry(ImmutableBytesPtr cacheId, ImmutableBytesWritable cachePtr,
+                          ServerCacheFactory cacheFactory, byte[] txState, MemoryChunk chunk,
+                          boolean usePersistentCache, boolean useProtoForIndexMaintainer,
+                          int clientVersion) throws SQLException {
             this.cacheId = cacheId;
             this.cachePtr = cachePtr;
             this.size = cachePtr.getLength();
@@ -113,7 +111,7 @@ public class TenantCacheImpl implements TenantCache {
         }
 
         private Float rank() {
-            return (float)hits;
+            return (float) hits;
         }
 
         @Override
@@ -125,21 +123,21 @@ public class TenantCacheImpl implements TenantCache {
     public TenantCacheImpl(MemoryManager memoryManager, int maxTimeToLiveMs, int maxPersistenceTimeToLiveMs) {
         this(memoryManager, maxTimeToLiveMs, maxPersistenceTimeToLiveMs, Ticker.systemTicker());
     }
-    
+
     public TenantCacheImpl(MemoryManager memoryManager, int maxTimeToLiveMs, int maxPersistenceTimeToLiveMs, Ticker ticker) {
         this.memoryManager = memoryManager;
         this.maxTimeToLiveMs = maxTimeToLiveMs;
         this.maxPersistenceTimeToLiveMs = maxPersistenceTimeToLiveMs;
         this.ticker = ticker;
     }
-    
+
     public Ticker getTicker() {
         return ticker;
     }
-    
+
     // For testing
     public void cleanUp() {
-        synchronized(this) {
+        synchronized (this) {
             if (serverCaches != null) {
                 serverCaches.cleanUp();
             }
@@ -148,16 +146,16 @@ public class TenantCacheImpl implements TenantCache {
             }
         }
     }
-    
+
     @Override
     public MemoryManager getMemoryManager() {
         return memoryManager;
     }
 
-    private Cache<ImmutableBytesPtr,CacheEntry> getServerCaches() {
+    private Cache<ImmutableBytesPtr, CacheEntry> getServerCaches() {
         /* Delay creation of this map until it's needed */
         if (serverCaches == null) {
-            synchronized(this) {
+            synchronized (this) {
                 if (serverCaches == null) {
                     serverCaches = buildCache(maxTimeToLiveMs, false);
                 }
@@ -166,10 +164,10 @@ public class TenantCacheImpl implements TenantCache {
         return serverCaches;
     }
 
-    private Cache<ImmutableBytesPtr,CacheEntry> getPersistentServerCaches() {
+    private Cache<ImmutableBytesPtr, CacheEntry> getPersistentServerCaches() {
         /* Delay creation of this map until it's needed */
         if (persistentServerCaches == null) {
-            synchronized(this) {
+            synchronized (this) {
                 if (persistentServerCaches == null) {
                     persistentServerCaches = buildCache(maxPersistenceTimeToLiveMs, true);
                 }
@@ -186,21 +184,21 @@ public class TenantCacheImpl implements TenantCache {
             builder.expireAfterAccess(ttl, TimeUnit.MILLISECONDS);
         }
         return builder
-            .ticker(getTicker())
-            .removalListener(new RemovalListener<ImmutableBytesPtr, CacheEntry>(){
-                @Override
-                public void onRemoval(RemovalNotification<ImmutableBytesPtr, CacheEntry> notification) {
-                    if (isPersistent || !notification.getValue().getUsePersistentCache()) {
-                        Closeables.closeAllQuietly(Collections.singletonList(notification.getValue()));
+                .ticker(getTicker())
+                .removalListener(new RemovalListener<ImmutableBytesPtr, CacheEntry>() {
+                    @Override
+                    public void onRemoval(RemovalNotification<ImmutableBytesPtr, CacheEntry> notification) {
+                        if (isPersistent || !notification.getValue().getUsePersistentCache()) {
+                            Closeables.closeAllQuietly(Collections.singletonList(notification.getValue()));
+                        }
                     }
-                }
-            })
-            .build();
+                })
+                .build();
     }
 
     synchronized private void evictInactiveEntries(long bytesNeeded) {
         LOGGER.debug("Trying to evict inactive cache entries to free up " + bytesNeeded + " bytes");
-        CacheEntry[] entries = getPersistentServerCaches().asMap().values().toArray(new CacheEntry[]{});
+        CacheEntry[] entries = getPersistentServerCaches().asMap().values().toArray(new CacheEntry[] {});
         Arrays.sort(entries);
         long available = this.getMemoryManager().getAvailableMemory();
         for (int i = 0; i < entries.length && available < bytesNeeded; i++) {
@@ -220,7 +218,7 @@ public class TenantCacheImpl implements TenantCache {
         return getServerCaches().getIfPresent(cacheId);
     }
 
-	@Override
+    @Override
     public Closeable getServerCache(ImmutableBytesPtr cacheId) {
         getServerCaches().cleanUp();
         CacheEntry entry = getIfPresent(cacheId);
@@ -242,7 +240,7 @@ public class TenantCacheImpl implements TenantCache {
         boolean success = false;
         try {
             CacheEntry entry;
-            synchronized(this) {
+            synchronized (this) {
                 entry = getIfPresent(cacheId);
                 if (entry == null) {
                     entry = new CacheEntry(

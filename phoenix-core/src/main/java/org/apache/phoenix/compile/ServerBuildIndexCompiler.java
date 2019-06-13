@@ -59,6 +59,7 @@ public class ServerBuildIndexCompiler {
         private RowCountMutationPlan(StatementContext context, PhoenixStatement.Operation operation) {
             super(context, operation);
         }
+
         @Override
         public MutationState execute() throws SQLException {
             connection.getMutationState().commitDDLFence(dataTable);
@@ -80,8 +81,10 @@ public class ServerBuildIndexCompiler {
         public QueryPlan getQueryPlan() {
             return plan;
         }
-    };
-    
+    }
+
+    ;
+
     public ServerBuildIndexCompiler(PhoenixConnection connection, String tableName) {
         this.connection = connection;
         this.tableName = tableName;
@@ -95,7 +98,7 @@ public class ServerBuildIndexCompiler {
             Scan scan = plan.getContext().getScan();
             ImmutableBytesWritable ptr = new ImmutableBytesWritable();
             dataTable = tableRef.getTable();
-            if (index.getIndexType() == PTable.IndexType.GLOBAL &&  dataTable.isTransactional()) {
+            if (index.getIndexType() == PTable.IndexType.GLOBAL && dataTable.isTransactional()) {
                 throw new IllegalArgumentException(
                         "ServerBuildIndexCompiler does not support global indexes on transactional tables");
             }

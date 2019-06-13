@@ -30,13 +30,13 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PVarbinary;
 
-@BuiltInFunction(name=DistinctValueAggregateFunction.NAME, args= {@Argument()} )
+@BuiltInFunction(name = DistinctValueAggregateFunction.NAME, args = {@Argument()})
 public class DistinctValueAggregateFunction extends DistinctValueWithCountAggregateFunction {
     public static final String NAME = "COLLECTDISTINCT";
-    
+
     public DistinctValueAggregateFunction() {
     }
-    
+
     public DistinctValueAggregateFunction(List<Expression> children) {
         super(children);
     }
@@ -49,11 +49,11 @@ public class DistinctValueAggregateFunction extends DistinctValueWithCountAggreg
     @Override
     public DistinctValueWithCountClientAggregator newClientAggregator() {
         PDataType baseType = getAggregatorExpression().getDataType().isArrayType() ?
-            PVarbinary.INSTANCE : getAggregatorExpression().getDataType();
+                PVarbinary.INSTANCE : getAggregatorExpression().getDataType();
         PDataType resultType = PDataType.fromTypeId(baseType.getSqlType() + PDataType.ARRAY_TYPE_BASE);
         return new DistinctValueClientAggregator(getAggregatorExpression().getSortOrder(), baseType, resultType);
     }
-    
+
     @Override
     public String getName() {
         return NAME;

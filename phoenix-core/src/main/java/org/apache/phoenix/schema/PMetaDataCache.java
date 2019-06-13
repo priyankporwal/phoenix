@@ -38,40 +38,40 @@ class PMetaDataCache implements Cloneable {
         }
     };
     private static final MinMaxPriorityQueue.Builder<PTableRef> BUILDER = MinMaxPriorityQueue.orderedBy(COMPARATOR);
-    
+
     private long currentByteSize;
     private final long maxByteSize;
     private final int expectedCapacity;
     private final TimeKeeper timeKeeper;
     private final PTableRefFactory tableRefFactory;
 
-    private final Map<PTableKey,PTableRef> tables;
-    final Map<PTableKey,PFunction> functions;
-    final Map<PTableKey,PSchema> schemas;
-    
-    private static Map<PTableKey,PTableRef> newMap(int expectedCapacity) {
+    private final Map<PTableKey, PTableRef> tables;
+    final Map<PTableKey, PFunction> functions;
+    final Map<PTableKey, PSchema> schemas;
+
+    private static Map<PTableKey, PTableRef> newMap(int expectedCapacity) {
         // Use regular HashMap, as we cannot use a LinkedHashMap that orders by access time
         // safely across multiple threads (as the underlying collection is not thread safe).
         // Instead, we track access time and prune it based on the copy we've made.
         return Maps.newHashMapWithExpectedSize(expectedCapacity);
     }
 
-    private static Map<PTableKey,PFunction> newFunctionMap(int expectedCapacity) {
+    private static Map<PTableKey, PFunction> newFunctionMap(int expectedCapacity) {
         // Use regular HashMap, as we cannot use a LinkedHashMap that orders by access time
         // safely across multiple threads (as the underlying collection is not thread safe).
         // Instead, we track access time and prune it based on the copy we've made.
         return Maps.newHashMapWithExpectedSize(expectedCapacity);
     }
 
-    private static Map<PTableKey,PSchema> newSchemaMap(int expectedCapacity) {
+    private static Map<PTableKey, PSchema> newSchemaMap(int expectedCapacity) {
         // Use regular HashMap, as we cannot use a LinkedHashMap that orders by access time
         // safely across multiple threads (as the underlying collection is not thread safe).
         // Instead, we track access time and prune it based on the copy we've made.
         return Maps.newHashMapWithExpectedSize(expectedCapacity);
     }
 
-    private Map<PTableKey,PTableRef> cloneMap(Map<PTableKey,PTableRef> tables, int expectedCapacity) {
-        Map<PTableKey,PTableRef> newTables = newMap(Math.max(tables.size(),expectedCapacity));
+    private Map<PTableKey, PTableRef> cloneMap(Map<PTableKey, PTableRef> tables, int expectedCapacity) {
+        Map<PTableKey, PTableRef> newTables = newMap(Math.max(tables.size(), expectedCapacity));
         // Copy value so that access time isn't changing anymore
         for (PTableRef tableAccess : tables.values()) {
             newTables.put(tableAccess.getTable().getKey(), tableRefFactory.makePTableRef(tableAccess));
@@ -88,8 +88,8 @@ class PMetaDataCache implements Cloneable {
         return newSchemas;
     }
 
-    private static Map<PTableKey,PFunction> cloneFunctionsMap(Map<PTableKey,PFunction> functions, int expectedCapacity) {
-        Map<PTableKey,PFunction> newFunctions = newFunctionMap(Math.max(functions.size(),expectedCapacity));
+    private static Map<PTableKey, PFunction> cloneFunctionsMap(Map<PTableKey, PFunction> functions, int expectedCapacity) {
+        Map<PTableKey, PFunction> newFunctions = newFunctionMap(Math.max(functions.size(), expectedCapacity));
         for (PFunction functionAccess : functions.values()) {
             newFunctions.put(functionAccess.getKey(), new PFunction(functionAccess));
         }
@@ -106,7 +106,7 @@ class PMetaDataCache implements Cloneable {
         this.functions = cloneFunctionsMap(toClone.functions, expectedCapacity);
         this.schemas = cloneSchemaMap(toClone.schemas, expectedCapacity);
     }
-    
+
     public PMetaDataCache(int initialCapacity, long maxByteSize, TimeKeeper timeKeeper, PTableRefFactory tableRefFactory) {
         this.currentByteSize = 0;
         this.maxByteSize = maxByteSize;
@@ -117,7 +117,7 @@ class PMetaDataCache implements Cloneable {
         this.schemas = newSchemaMap(this.expectedCapacity);
         this.tableRefFactory = tableRefFactory;
     }
-    
+
     public PTableRef get(PTableKey key) {
         PTableRef tableAccess = this.tables.get(key);
         if (tableAccess == null) {
@@ -126,12 +126,12 @@ class PMetaDataCache implements Cloneable {
         tableAccess.setLastAccessTime(timeKeeper.getCurrentTime());
         return tableAccess;
     }
-    
+
     @Override
     public PMetaDataCache clone() {
         return new PMetaDataCache(this);
     }
-    
+
     /**
      * Used when the cache is growing past its max size to clone in a single pass.
      * Removes least recently used tables to get size of cache below its max size by
@@ -139,10 +139,10 @@ class PMetaDataCache implements Cloneable {
      */
     public PMetaDataCache cloneMinusOverage(long overage) {
         assert(overage > 0);
-        int nToRemove = Math.max(MIN_REMOVAL_SIZE, (int)Math.ceil((currentByteSize-maxByteSize) / ((double)currentByteSize / size())) + 1);
+        int nToRemove = Math.max(MIN_REMOVAL_SIZE, (int) Math.ceil((currentByteSize - maxByteSize) / ((double) currentByteSize / size())) + 1);
         MinMaxPriorityQueue<PTableRef> toRemove = BUILDER.expectedSize(nToRemove).create();
         PMetaDataCache newCache = new PMetaDataCache(this.size(), this.maxByteSize, this.timeKeeper, this.tableRefFactory);
-        
+
         long toRemoveBytes = 0;
         // Add to new cache, but track references to remove when done
         // to bring cache at least overage amount below it's max size.
@@ -175,7 +175,7 @@ class PMetaDataCache implements Cloneable {
     public long getAge(PTableRef ref) {
         return timeKeeper.getCurrentTime() - ref.getCreateTime();
     }
-    
+
     public PTable remove(PTableKey key) {
         PTableRef value = this.tables.remove(key);
         if (value == null) {
@@ -184,7 +184,7 @@ class PMetaDataCache implements Cloneable {
         currentByteSize -= value.getEstimatedSize();
         return value.getTable();
     }
-    
+
     public Iterator<PTable> iterator() {
         final Iterator<PTableRef> iterator = this.tables.values().iterator();
         return new Iterator<PTable>() {
@@ -203,7 +203,7 @@ class PMetaDataCache implements Cloneable {
             public void remove() {
                 throw new UnsupportedOperationException();
             }
-            
+
         };
     }
 

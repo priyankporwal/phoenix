@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.apache.phoenix.util.PhoenixRuntime;
 
 public class LoggingPhoenixResultSet extends DelegateResultSet {
-    
+
     private PhoenixMetricsLog phoenixMetricsLog;
     private String sql;
     private boolean areMetricsLogged;
@@ -34,7 +34,7 @@ public class LoggingPhoenixResultSet extends DelegateResultSet {
         this.sql = sql;
         this.areMetricsLogged = false;
     }
-    
+
     @Override
     public void close() throws SQLException {
         if (!rs.isClosed()) {

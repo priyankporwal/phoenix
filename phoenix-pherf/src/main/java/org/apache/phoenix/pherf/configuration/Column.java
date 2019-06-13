@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import java.util.List;
 
 public class Column {
-	private String name;
+    private String name;
     private String prefix;
     private DataSequence dataSequence;
     private int length, precision;
@@ -33,7 +33,7 @@ public class Column {
     private int nullChance;
     private boolean userDefined;
     private List<DataValue> dataValues;
-	private DataTypeMapping type;
+    private DataTypeMapping type;
     private boolean useCurrentDate;
 
     public Column() {
@@ -57,50 +57,51 @@ public class Column {
 
     /**
      * Equal if column name and type match
+     *
      * @param column
      * @return
      */
     @Override
     public boolean equals(Object column) {
-        Column col = (Column)column;
+        Column col = (Column) column;
         return (getType() == col.getType());
     }
 
     public String getName() {
-		return name;
-	}
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public DataSequence getDataSequence() {
-		return dataSequence;
-	}
+    public DataSequence getDataSequence() {
+        return dataSequence;
+    }
 
-	public void setDataSequence(DataSequence dataSequence) {
-		this.dataSequence = dataSequence;
-	}
+    public void setDataSequence(DataSequence dataSequence) {
+        this.dataSequence = dataSequence;
+    }
 
-	public int getLength() {
-		return length;
-	}
-	
-	public int getLengthExcludingPrefix() {
-		return (this.getPrefix() == null) ? this.length : this.length - this.getPrefix().length();
-	}
+    public int getLength() {
+        return length;
+    }
 
-	public void setLength(int length) {
-		this.length = length;
-	}
+    public int getLengthExcludingPrefix() {
+        return (this.getPrefix() == null) ? this.length : this.length - this.getPrefix().length();
+    }
 
-	public DataTypeMapping getType() {
-		return type;
-	}
+    public void setLength(int length) {
+        this.length = length;
+    }
 
-	public void setType(DataTypeMapping type) {
-		this.type = type;
-	}
+    public DataTypeMapping getType() {
+        return type;
+    }
+
+    public void setType(DataTypeMapping type) {
+        this.type = type;
+    }
 
     public long getMinValue() {
         return minValue;
@@ -126,15 +127,20 @@ public class Column {
         this.precision = precision;
     }
 
-    public void setUseCurrentDate(boolean useCurrentDate) { this.useCurrentDate = useCurrentDate; }
+    public void setUseCurrentDate(boolean useCurrentDate) {
+        this.useCurrentDate = useCurrentDate;
+    }
 
-    public boolean getUseCurrentDate() { return useCurrentDate; }
+    public boolean getUseCurrentDate() {
+        return useCurrentDate;
+    }
 
     /**
      * Changes fields of this object to match existing fields from the passed Column
      * null object members are ignored.
-     *
+     * <p>
      * Field type cannot be mutated.
+     *
      * @param column {@link Column}
      *               obj contains only the fields you want to mutate this object into.
      */
@@ -176,10 +182,10 @@ public class Column {
         }
 
         if (column.dataValues != null) {
-           setDataValues(column.getDataValues());
+            setDataValues(column.getDataValues());
         }
 
-        if(column.getUseCurrentDate()) {
+        if (column.getUseCurrentDate()) {
             setUseCurrentDate(column.getUseCurrentDate());
         }
     }

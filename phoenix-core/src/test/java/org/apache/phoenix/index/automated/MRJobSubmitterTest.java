@@ -47,7 +47,7 @@ public class MRJobSubmitterTest {
         index1.setIndexType(IndexType.LOCAL);
 
         candidateJobs.put(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
-            index1.getTableSchem(), index1.getDataTableName(), index1.getTableName()), index1);
+                index1.getTableSchem(), index1.getDataTableName(), index1.getTableName()), index1);
 
         PhoenixAsyncIndex index2 = new PhoenixAsyncIndex();
         index2.setDataTableName("DT2");
@@ -56,7 +56,7 @@ public class MRJobSubmitterTest {
         index2.setIndexType(IndexType.LOCAL);
 
         candidateJobs.put(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
-            index2.getTableSchem(), index2.getDataTableName(), index2.getTableName()), index2);
+                index2.getTableSchem(), index2.getDataTableName(), index2.getTableName()), index2);
     }
 
     @Test
@@ -104,15 +104,15 @@ public class MRJobSubmitterTest {
     public void testSkipSubmittedJob() throws IOException {
         PhoenixAsyncIndex[] jobs = new PhoenixAsyncIndex[candidateJobs.size()];
         candidateJobs.values().toArray(jobs);
-        
+
         // Mark one job as running
         submittedJobs.add(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
-            jobs[0].getTableSchem(), jobs[0].getDataTableName(), jobs[0].getTableName()));
+                jobs[0].getTableSchem(), jobs[0].getDataTableName(), jobs[0].getTableName()));
 
         PhoenixMRJobSubmitter submitter = new PhoenixMRJobSubmitter();
         Set<PhoenixAsyncIndex> jobsToSubmit =
                 submitter.getJobsToSubmit(candidateJobs, submittedJobs);
-        
+
         // Should not contain the running job
         assertEquals(1, jobsToSubmit.size());
         assertEquals(false, jobsToSubmit.containsAll(candidateJobs.values()));
@@ -123,7 +123,7 @@ public class MRJobSubmitterTest {
     public void testSkipAllSubmittedJobs() throws IOException {
         PhoenixAsyncIndex[] jobs = new PhoenixAsyncIndex[candidateJobs.size()];
         candidateJobs.values().toArray(jobs);
-        
+
         // Mark all the candidate jobs as running/in-progress
         submittedJobs.add(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
                 jobs[0].getTableSchem(), jobs[0].getDataTableName(), jobs[0].getTableName()));
@@ -135,16 +135,16 @@ public class MRJobSubmitterTest {
                 submitter.getJobsToSubmit(candidateJobs, submittedJobs);
         assertEquals(0, jobsToSubmit.size());
     }
-    
+
     @Test
     public void testNoJobsToSubmit() throws IOException {
         // Clear candidate jobs
         candidateJobs.clear();
         // Add some dummy running jobs to the submitted list
         submittedJobs.add(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
-            "s1", "d1", "i1"));
+                "s1", "d1", "i1"));
         submittedJobs.add(String.format(IndexTool.INDEX_JOB_NAME_TEMPLATE,
-            "s2", "d2", "i2"));
+                "s2", "d2", "i2"));
         PhoenixMRJobSubmitter submitter = new PhoenixMRJobSubmitter();
         Set<PhoenixAsyncIndex> jobsToSubmit =
                 submitter.getJobsToSubmit(candidateJobs, submittedJobs);

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,12 +82,12 @@ public class IndexHalfStoreFileReader extends StoreFileReader {
      * @throws IOException
      */
     public IndexHalfStoreFileReader(final FileSystem fs, final Path p, final CacheConfig cacheConf,
-            final FSDataInputStreamWrapper in, long size, final Reference r,
-            final Configuration conf,
-            final Map<ImmutableBytesWritable, IndexMaintainer> indexMaintainers,
-            final byte[][] viewConstants, final RegionInfo regionInfo,
-            byte[] regionStartKeyInHFile, byte[] splitKey, boolean primaryReplicaStoreFile,
-            AtomicInteger refCount, RegionInfo currentRegion) throws IOException {
+                                    final FSDataInputStreamWrapper in, long size, final Reference r,
+                                    final Configuration conf,
+                                    final Map<ImmutableBytesWritable, IndexMaintainer> indexMaintainers,
+                                    final byte[][] viewConstants, final RegionInfo regionInfo,
+                                    byte[] regionStartKeyInHFile, byte[] splitKey, boolean primaryReplicaStoreFile,
+                                    AtomicInteger refCount, RegionInfo currentRegion) throws IOException {
         super(fs, p, in, size, cacheConf, primaryReplicaStoreFile, refCount, false,
                 conf);
         this.splitkey = splitKey == null ? r.getSplitKey() : splitKey;
@@ -134,11 +134,11 @@ public class IndexHalfStoreFileReader extends StoreFileReader {
     public boolean isTop() {
         return top;
     }
-    
+
     @Override
     public StoreFileScanner getStoreFileScanner(boolean cacheBlocks, boolean pread,
-            boolean isCompaction, long readPt, long scannerOrder,
-            boolean canOptimizeForNonNullColumn) {
+                                                boolean isCompaction, long readPt, long scannerOrder,
+                                                boolean canOptimizeForNonNullColumn) {
         refCount.incrementAndGet();
         return new LocalIndexStoreFileScanner(this, cacheBlocks, pread, isCompaction, readPt,
                 scannerOrder, canOptimizeForNonNullColumn);
@@ -157,8 +157,8 @@ public class IndexHalfStoreFileReader extends StoreFileReader {
         // results as we go through merged region.
         int prefixLength = scan.getStartRow().length - scan.getAttribute(SCAN_START_ROW_SUFFIX).length;
         if (Bytes.compareTo(scan.getStartRow(), 0, prefixLength,
-            (startKey.length == 0 ? new byte[endKey.length] : startKey), 0,
-            (startKey.length == 0 ? endKey.length : startKey.length)) != 0) {
+                (startKey.length == 0 ? new byte[endKey.length] : startKey), 0,
+                (startKey.length == 0 ? endKey.length : startKey.length)) != 0) {
             return false;
         }
         return true;

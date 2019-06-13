@@ -25,10 +25,10 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class EarlyExitFailure extends IOException {
 
-  /**
-   * @param msg reason for the early exit
-   */
-  public EarlyExitFailure(String msg) {
-    super(msg);
-  }
+    /**
+     * @param msg reason for the early exit
+     */
+    public EarlyExitFailure(String msg) {
+        super(msg);
+    }
 }

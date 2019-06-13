@@ -32,7 +32,6 @@ import java.util.List;
 
 
 /**
- * 
  * Function used to get the external SQL type id from the internal SQL type integer.
  * Typically the external and internal ids are the same, but for some types (e.g. arrays)
  * there is are multiple specific internal types to represent multiple external types.
@@ -40,12 +39,11 @@ import java.util.List;
  * Usage:
  * ExternalSqlTypeId(12)
  * will return 12 based on {@link java.sql.Types#VARCHAR} being 12
- * 
- * 
+ *
  * @since 3.0
  */
-@BuiltInFunction(name=ExternalSqlTypeIdFunction.NAME, args= {
-    @Argument(allowedTypes= PInteger.class )} )
+@BuiltInFunction(name = ExternalSqlTypeIdFunction.NAME, args = {
+        @Argument(allowedTypes = PInteger.class)})
 public class ExternalSqlTypeIdFunction extends ScalarFunction {
     public static final String NAME = "ExternalSqlTypeId";
 
@@ -55,7 +53,7 @@ public class ExternalSqlTypeIdFunction extends ScalarFunction {
     public ExternalSqlTypeIdFunction(List<Expression> children) throws SQLException {
         super(children);
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Expression child = children.get(0);
@@ -68,7 +66,7 @@ public class ExternalSqlTypeIdFunction extends ScalarFunction {
         int sqlType = child.getDataType().getCodec().decodeInt(ptr, child.getSortOrder());
         try {
             byte[] externalIdTypeBytes = PInteger.INSTANCE.toBytes(
-                PDataType.fromTypeId(sqlType).getResultSetSqlType());
+                    PDataType.fromTypeId(sqlType).getResultSetSqlType());
             ptr.set(externalIdTypeBytes);
         } catch (IllegalDataException e) {
             ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
@@ -80,7 +78,7 @@ public class ExternalSqlTypeIdFunction extends ScalarFunction {
     public PDataType getDataType() {
         return PInteger.INSTANCE;
     }
-    
+
     @Override
     public String getName() {
         return NAME;

@@ -34,8 +34,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
 
 public class IndexedKeyValue extends KeyValue {
-    public static final byte [] COLUMN_QUALIFIER = Bytes.toBytes("INDEXEDKEYVALUE_FAKED_COLUMN");
-  
+    public static final byte[] COLUMN_QUALIFIER = Bytes.toBytes("INDEXEDKEYVALUE_FAKED_COLUMN");
+
     private static int calcHashCode(ImmutableBytesPtr indexTableName, Mutation mutation) {
         final int prime = 31;
         int result = 1;
@@ -50,7 +50,8 @@ public class IndexedKeyValue extends KeyValue {
     private boolean batchFinished = false;
     private int hashCode;
 
-    public IndexedKeyValue() {}
+    public IndexedKeyValue() {
+    }
 
     public IndexedKeyValue(byte[] bs, Mutation mutation) {
         this.bytes = mutation.getRow();
@@ -123,7 +124,7 @@ public class IndexedKeyValue extends KeyValue {
     }
 
     @Override
-    public int getKeyLength(){
+    public int getKeyLength() {
         //normally the key is row key + other key fields such as timestamp,
         // but those aren't defined here because a Mutation can contain multiple,
         // so we just return the length of the row key
@@ -141,12 +142,22 @@ public class IndexedKeyValue extends KeyValue {
      */
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) return false;
-        if (this == obj) return true;
-        if (getClass() != obj.getClass()) return false;
-        IndexedKeyValue other = (IndexedKeyValue)obj;
-        if (hashCode() != other.hashCode()) return false;
-        if (!other.indexTableName.equals(this.indexTableName)) return false;
+        if (obj == null) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        IndexedKeyValue other = (IndexedKeyValue) obj;
+        if (hashCode() != other.hashCode()) {
+            return false;
+        }
+        if (!other.indexTableName.equals(this.indexTableName)) {
+            return false;
+        }
         byte[] current = this.getMutationBytes();
         byte[] otherMutation = other.getMutationBytes();
         return Bytes.equals(current, otherMutation);
@@ -170,11 +181,9 @@ public class IndexedKeyValue extends KeyValue {
      * Internal write the underlying data for the entry - this does not do any special prefixing. Writing should be done
      * via {@link KeyValueCodec#write(DataOutput, KeyValue)} to ensure consistent reading/writing of
      * {@link IndexedKeyValue}s.
-     * 
-     * @param out
-     *            to write data to. Does not close or flush the passed object.
-     * @throws IOException
-     *             if there is a problem writing the underlying data
+     *
+     * @param out to write data to. Does not close or flush the passed object.
+     * @throws IOException if there is a problem writing the underlying data
      */
     void writeData(DataOutput out) throws IOException {
         Bytes.writeByteArray(out, this.indexTableName.get());
@@ -193,7 +202,7 @@ public class IndexedKeyValue extends KeyValue {
         MutationProto mProto = MutationProto.parseFrom(mutationData);
         this.mutation = org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(mProto);
         this.hashCode = calcHashCode(indexTableName, mutation);
-        if (mutation != null){
+        if (mutation != null) {
             bytes = mutation.getRow();
             offset = 0;
             length = bytes.length;
@@ -208,15 +217,15 @@ public class IndexedKeyValue extends KeyValue {
     public void markBatchFinished() {
         this.batchFinished = true;
     }
-    
-    protected MutationProto toMutationProto(Mutation mutation)  throws IOException {
+
+    protected MutationProto toMutationProto(Mutation mutation) throws IOException {
         MutationProto m = null;
-        if(mutation instanceof Put){
-            m = org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(MutationType.PUT, 
-                mutation);
-        } else if(mutation instanceof Delete) {
-            m = org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(MutationType.DELETE, 
-                mutation);
+        if (mutation instanceof Put) {
+            m = org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(MutationType.PUT,
+                    mutation);
+        } else if (mutation instanceof Delete) {
+            m = org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(MutationType.DELETE,
+                    mutation);
         } else {
             throw new IOException("Put/Delete mutations only supported");
         }

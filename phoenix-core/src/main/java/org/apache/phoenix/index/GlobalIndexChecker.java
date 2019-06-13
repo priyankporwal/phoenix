@@ -60,12 +60,11 @@ import org.apache.phoenix.util.SchemaUtil;
 import org.apache.phoenix.util.ServerUtil;
 
 /**
- * 
  * Coprocessor that verifies the scanned rows of a non-transactional global index.
- *
  */
 public class GlobalIndexChecker implements RegionCoprocessor, RegionObserver {
     private static final Log LOG = LogFactory.getLog(GlobalIndexChecker.class);
+
     /**
      * Class that verifies a given row of a non-transactional global index.
      * An instance of this class is created for each scanner on an index
@@ -200,7 +199,7 @@ public class GlobalIndexChecker implements RegionCoprocessor, RegionObserver {
         private void deleteRowIfAgedEnough(byte[] indexRowKey, long ts) throws IOException {
             if ((EnvironmentEdgeManager.currentTimeMillis() - ts) > ageThreshold) {
                 Delete del = new Delete(indexRowKey, ts);
-                Mutation[] mutations = new Mutation[]{del};
+                Mutation[] mutations = new Mutation[] {del};
                 region.batchMutate(mutations);
             }
         }
@@ -240,7 +239,7 @@ public class GlobalIndexChecker implements RegionCoprocessor, RegionObserver {
             buildIndexScan.withStartRow(dataRowKey, true);
             buildIndexScan.setTimeRange(ts, maxTimestamp);
             buildIndexScan.setRaw(true);
-            try (ResultScanner resultScanner = dataHTable.getScanner(buildIndexScan)){
+            try (ResultScanner resultScanner = dataHTable.getScanner(buildIndexScan)) {
                 resultScanner.next();
             } catch (Throwable t) {
                 ServerUtil.throwIOException(dataHTable.getName().toString(), t);

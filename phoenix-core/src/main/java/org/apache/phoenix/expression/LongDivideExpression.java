@@ -36,21 +36,21 @@ public class LongDivideExpression extends DivideExpression {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        long finalResult=0;
-        
-        for(int i=0;i<children.size();i++) {
+        long finalResult = 0;
+
+        for (int i = 0; i < children.size(); i++) {
             Expression child = children.get(i);
             if (!child.evaluate(tuple, ptr) || ptr.getLength() == 0) {
                 return false;
             }
-            long childvalue = child.getDataType().getCodec().decodeLong(ptr, child.getSortOrder()); 
+            long childvalue = child.getDataType().getCodec().decodeLong(ptr, child.getSortOrder());
             if (i == 0) {
                 finalResult = childvalue;
             } else {
                 finalResult /= childvalue;
             }
         }
-        byte[] resultPtr=new byte[PLong.INSTANCE.getByteSize()];
+        byte[] resultPtr = new byte[PLong.INSTANCE.getByteSize()];
         getDataType().getCodec().encodeLong(finalResult, resultPtr, 0);
         ptr.set(resultPtr);
         return true;

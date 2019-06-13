@@ -28,40 +28,49 @@ import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixEmbeddedDriver.ConnectionInfo;
 
 public interface PhoenixTransactionProvider {
-    public enum Feature {
+    public enum Feature
+
+    {
         ALTER_NONTX_TO_TX(SQLExceptionCode.CANNOT_ALTER_TABLE_FROM_NON_TXN_TO_TXNL),
-        COLUMN_ENCODING(SQLExceptionCode.UNSUPPORTED_COLUMN_ENCODING_FOR_TXN_PROVIDER),
-        MAINTAIN_LOCAL_INDEX_ON_SERVER(null),
-        SET_TTL(SQLExceptionCode.TTL_UNSUPPORTED_FOR_TXN_TABLE),
-        ALLOW_LOCAL_INDEX(SQLExceptionCode.CANNOT_CREATE_LOCAL_INDEX_FOR_TXN_TABLE)
-        ;
-        
+                COLUMN_ENCODING(SQLExceptionCode.UNSUPPORTED_COLUMN_ENCODING_FOR_TXN_PROVIDER),
+                MAINTAIN_LOCAL_INDEX_ON_SERVER(null),
+                SET_TTL(SQLExceptionCode.TTL_UNSUPPORTED_FOR_TXN_TABLE),
+                ALLOW_LOCAL_INDEX(SQLExceptionCode.CANNOT_CREATE_LOCAL_INDEX_FOR_TXN_TABLE)
+                ;
+
         private final SQLExceptionCode code;
-        
+
         Feature(SQLExceptionCode code) {
-            this.code = code;
-        }
-        
-        public SQLExceptionCode getCode() {
-            return code;
-        }
+        this.code = code;
     }
+
+        public SQLExceptionCode getCode () {
+        return code;
+    }
+    }
+
     public PhoenixTransactionContext getTransactionContext(byte[] txnBytes) throws IOException;
+
     public PhoenixTransactionContext getTransactionContext(PhoenixConnection connection) throws SQLException;
 
     public PhoenixTransactionClient getTransactionClient(Configuration config, ConnectionInfo connectionInfo) throws SQLException;
-    public PhoenixTransactionService getTransactionService(Configuration config, ConnectionInfo connectionInfo, int port) throws  SQLException;
+
+    public PhoenixTransactionService getTransactionService(Configuration config, ConnectionInfo connectionInfo, int port) throws SQLException;
+
     public Class<? extends RegionObserver> getCoprocessor();
+
     public Class<? extends RegionObserver> getGCCoprocessor();
 
     public TransactionFactory.Provider getProvider();
+
     public boolean isUnsupported(Feature feature);
 
     /**
      * Converts put operation to autocommit operation
-     *  @param  put put operation
-     *  @param  timestamp - start timestamp
-     *  @param  commitTimestamp - commit timestamp
+     *
+     * @param put             put operation
+     * @param timestamp       - start timestamp
+     * @param commitTimestamp - commit timestamp
      * @return put operation with metadata
      * @throws IOException
      */

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.sql.SQLException;
 import java.util.Properties;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HConstants;
@@ -32,9 +33,9 @@ public class PropertiesUtilTest {
     private static final String SOME_TENANT_ID = "00Dxx0000001234";
     private static final String SOME_OTHER_PROPERTY_KEY = "some_other_property";
     private static final String SOME_OTHER_PROPERTY_VALUE = "some_other_value";
-    
+
     @Test
-    public void testCopy() throws Exception{
+    public void testCopy() throws Exception {
         final Properties propsWithTenant = new Properties();
         propsWithTenant.put(PhoenixRuntime.TENANT_ID_ATTRIB, SOME_TENANT_ID);
 
@@ -42,7 +43,7 @@ public class PropertiesUtilTest {
     }
 
     @Test
-    public void testCopyOnWrappedProperties() throws Exception{
+    public void testCopyOnWrappedProperties() throws Exception {
         final Properties propsWithTenant = new Properties();
         propsWithTenant.put(PhoenixRuntime.TENANT_ID_ATTRIB, SOME_TENANT_ID);
 
@@ -50,14 +51,14 @@ public class PropertiesUtilTest {
     }
 
     @Test
-    public void testCopyFromConfiguration() throws Exception{
+    public void testCopyFromConfiguration() throws Exception {
         //make sure that we don't only copy the ZK quorum, but all
         //properties
         final Configuration conf = HBaseConfiguration.create();
         final Properties props = new Properties();
-        
+
         conf.set(HConstants.ZOOKEEPER_QUORUM, HConstants.LOCALHOST);
-        conf.set(PropertiesUtilTest.SOME_OTHER_PROPERTY_KEY, 
+        conf.set(PropertiesUtilTest.SOME_OTHER_PROPERTY_KEY,
                 PropertiesUtilTest.SOME_OTHER_PROPERTY_VALUE);
         Properties combinedProps = PropertiesUtil.combineProperties(props, conf);
         assertEquals(combinedProps.getProperty(HConstants.ZOOKEEPER_QUORUM),
@@ -71,10 +72,10 @@ public class PropertiesUtilTest {
         final Configuration conf = HBaseConfiguration.create();
         final Properties props = new Properties();
         props.setProperty(HConstants.HBASE_RPC_TIMEOUT_KEY,
-            Long.toString(HConstants.DEFAULT_HBASE_RPC_TIMEOUT * 10));
+                Long.toString(HConstants.DEFAULT_HBASE_RPC_TIMEOUT * 10));
         Properties combinedProps = PropertiesUtil.combineProperties(props, conf);
         assertEquals(combinedProps.getProperty(HConstants.HBASE_RPC_TIMEOUT_KEY),
-            Long.toString(HConstants.DEFAULT_HBASE_RPC_TIMEOUT * 10));
+                Long.toString(HConstants.DEFAULT_HBASE_RPC_TIMEOUT * 10));
     }
 
     private void verifyValidCopy(Properties props) throws SQLException {

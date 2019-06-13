@@ -20,7 +20,7 @@ package org.apache.phoenix.parse;
 import java.util.List;
 
 public class AddJarsStatement extends MutableStatement {
-    
+
     List<LiteralParseNode> jarPaths;
 
     public AddJarsStatement(List<LiteralParseNode> jarPaths) {

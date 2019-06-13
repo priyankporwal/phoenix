@@ -33,12 +33,12 @@ import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
 
 public class NullValueTest extends BaseConnectionlessQueryTest {
-    
+
     @Test
     public void testComparisonExpressionWithNullOperands() throws Exception {
-        String[] query = {"SELECT 'a' >= ''", 
-                          "SELECT '' < 'a'", 
-                          "SELECT '' = ''"};
+        String[] query = {"SELECT 'a' >= ''",
+                "SELECT '' < 'a'",
+                "SELECT '' = ''"};
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -51,21 +51,21 @@ public class NullValueTest extends BaseConnectionlessQueryTest {
             }
         } finally {
             conn.close();
-        }       
+        }
     }
-    
+
     @Test
     public void testAndExpressionWithNullOperands() throws Exception {
-        String[] query = {"SELECT 'b' >= 'a' and '' < 'b'", 
-                          "SELECT 'b' >= '' and 'a' < 'b'",
-                          "SELECT 'a' >= 'b' and 'a' < ''",
-                          "SELECT '' >= 'a' and 'b' < 'a'",
-                          "SELECT 'a' >= '' and '' < 'a'"};
+        String[] query = {"SELECT 'b' >= 'a' and '' < 'b'",
+                "SELECT 'b' >= '' and 'a' < 'b'",
+                "SELECT 'a' >= 'b' and 'a' < ''",
+                "SELECT '' >= 'a' and 'b' < 'a'",
+                "SELECT 'a' >= '' and '' < 'a'"};
         Boolean[] result = {null,
-                            null,
-                            Boolean.FALSE,
-                            Boolean.FALSE,
-                            null};
+                null,
+                Boolean.FALSE,
+                Boolean.FALSE,
+                null};
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -78,21 +78,21 @@ public class NullValueTest extends BaseConnectionlessQueryTest {
             }
         } finally {
             conn.close();
-        }       
+        }
     }
-    
+
     @Test
     public void testOrExpressionWithNullOperands() throws Exception {
-        String[] query = {"SELECT 'b' >= 'a' or '' < 'b'", 
-                          "SELECT 'b' >= '' or 'a' < 'b'",
-                          "SELECT 'a' >= 'b' or 'a' < ''",
-                          "SELECT '' >= 'a' or 'b' < 'a'",
-                          "SELECT 'a' >= '' or '' < 'a'"};
+        String[] query = {"SELECT 'b' >= 'a' or '' < 'b'",
+                "SELECT 'b' >= '' or 'a' < 'b'",
+                "SELECT 'a' >= 'b' or 'a' < ''",
+                "SELECT '' >= 'a' or 'b' < 'a'",
+                "SELECT 'a' >= '' or '' < 'a'"};
         Boolean[] result = {Boolean.TRUE,
-                            Boolean.TRUE,
-                            null,
-                            null,
-                            null};
+                Boolean.TRUE,
+                null,
+                null,
+                null};
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -105,7 +105,7 @@ public class NullValueTest extends BaseConnectionlessQueryTest {
             }
         } finally {
             conn.close();
-        }       
+        }
     }
 
 }

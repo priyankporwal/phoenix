@@ -52,15 +52,13 @@ import static org.junit.Assert.*;
 
 
 /**
- * 
  * Test for compiling the various cursor related statements
  *
- * 
  * @since 0.1
  */
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-        value="RV_RETURN_VALUE_IGNORED",
-        justification="Test code.")
+        value = "RV_RETURN_VALUE_IGNORED",
+        justification = "Test code.")
 public class CursorCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test

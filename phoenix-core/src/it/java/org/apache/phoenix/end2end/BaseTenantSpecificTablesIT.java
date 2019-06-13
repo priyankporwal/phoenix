@@ -31,20 +31,20 @@ public abstract class BaseTenantSpecificTablesIT extends ParallelStatsEnabledIT 
     protected String PHOENIX_JDBC_TENANT_SPECIFIC_URL;
     protected String TENANT_ID2;
     protected String PHOENIX_JDBC_TENANT_SPECIFIC_URL2;
-    
+
     protected String PARENT_TABLE_NAME;
     protected String PARENT_TABLE_DDL;
-    
+
     protected String TENANT_TABLE_NAME;
     protected String TENANT_TABLE_DDL;
-    
+
     protected String PARENT_TABLE_NAME_NO_TENANT_TYPE_ID;
     protected String PARENT_TABLE_DDL_NO_TENANT_TYPE_ID;
-    
+
     protected String TENANT_TABLE_NAME_NO_TENANT_TYPE_ID;
     protected String TENANT_TABLE_DDL_NO_TENANT_TYPE_ID;
-    
-    
+
+
     @Before
     public void createTables() throws SQLException {
         TENANT_ID = "T_" + BaseTest.generateUniqueName();
@@ -55,22 +55,22 @@ public abstract class BaseTenantSpecificTablesIT extends ParallelStatsEnabledIT 
         TENANT_TABLE_NAME = "V_" + BaseTest.generateUniqueName();
         PARENT_TABLE_NAME_NO_TENANT_TYPE_ID = "P_" + BaseTest.generateUniqueName();
         TENANT_TABLE_NAME_NO_TENANT_TYPE_ID = "V_" + BaseTest.generateUniqueName();
-        PARENT_TABLE_DDL = "CREATE TABLE " + PARENT_TABLE_NAME + " ( \n" + 
-                "                \"user\" VARCHAR ,\n" + 
-                "                tenant_id VARCHAR NOT NULL,\n" + 
-                "                tenant_type_id VARCHAR(3) NOT NULL, \n" + 
-                "                id INTEGER NOT NULL\n" + 
+        PARENT_TABLE_DDL = "CREATE TABLE " + PARENT_TABLE_NAME + " ( \n" +
+                "                \"user\" VARCHAR ,\n" +
+                "                tenant_id VARCHAR NOT NULL,\n" +
+                "                tenant_type_id VARCHAR(3) NOT NULL, \n" +
+                "                id INTEGER NOT NULL\n" +
                 "                CONSTRAINT pk PRIMARY KEY (tenant_id, tenant_type_id, id)) MULTI_TENANT=true, IMMUTABLE_ROWS=true";
-        TENANT_TABLE_DDL = "CREATE VIEW " + TENANT_TABLE_NAME + " ( \n" + 
-                "                tenant_col VARCHAR) AS SELECT *\n" + 
+        TENANT_TABLE_DDL = "CREATE VIEW " + TENANT_TABLE_NAME + " ( \n" +
+                "                tenant_col VARCHAR) AS SELECT *\n" +
                 "                FROM " + PARENT_TABLE_NAME + " WHERE tenant_type_id= '" + TENANT_TYPE_ID + "'";
-        PARENT_TABLE_DDL_NO_TENANT_TYPE_ID = "CREATE TABLE " + PARENT_TABLE_NAME_NO_TENANT_TYPE_ID + " ( \n" + 
-                "                \"user\" VARCHAR ,\n" + 
-                "                tenant_id VARCHAR NOT NULL,\n" + 
-                "                id INTEGER NOT NULL,\n" + 
+        PARENT_TABLE_DDL_NO_TENANT_TYPE_ID = "CREATE TABLE " + PARENT_TABLE_NAME_NO_TENANT_TYPE_ID + " ( \n" +
+                "                \"user\" VARCHAR ,\n" +
+                "                tenant_id VARCHAR NOT NULL,\n" +
+                "                id INTEGER NOT NULL,\n" +
                 "                CONSTRAINT pk PRIMARY KEY (tenant_id, id)) MULTI_TENANT=true, IMMUTABLE_ROWS=true";
-        TENANT_TABLE_DDL_NO_TENANT_TYPE_ID = "CREATE VIEW " + TENANT_TABLE_NAME_NO_TENANT_TYPE_ID + " ( \n" + 
-                "                tenant_col VARCHAR) AS SELECT *\n" + 
+        TENANT_TABLE_DDL_NO_TENANT_TYPE_ID = "CREATE VIEW " + TENANT_TABLE_NAME_NO_TENANT_TYPE_ID + " ( \n" +
+                "                tenant_col VARCHAR) AS SELECT *\n" +
                 "                FROM " + PARENT_TABLE_NAME_NO_TENANT_TYPE_ID;
         createTestTable(getUrl(), PARENT_TABLE_DDL);
         createTestTable(getUrl(), PARENT_TABLE_DDL_NO_TENANT_TYPE_ID);

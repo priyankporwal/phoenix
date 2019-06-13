@@ -68,15 +68,15 @@ public class LoggingPhoenixStatement extends DelegateStatement {
         return (resultSet == null) ? null : new LoggingPhoenixResultSet(resultSet,
                 phoenixMetricsLog, sql);
     }
-    
+
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
         return new LoggingPhoenixResultSet(super.getGeneratedKeys(), phoenixMetricsLog, this.sql);
     }
 
     private void loggingAutoCommitHelper() throws SQLException {
-        if(conn.getAutoCommit() && (conn instanceof LoggingPhoenixConnection)) {
-            ((LoggingPhoenixConnection)conn).loggingMetricsHelper();
+        if (conn.getAutoCommit() && (conn instanceof LoggingPhoenixConnection)) {
+            ((LoggingPhoenixConnection) conn).loggingMetricsHelper();
         }
     }
 

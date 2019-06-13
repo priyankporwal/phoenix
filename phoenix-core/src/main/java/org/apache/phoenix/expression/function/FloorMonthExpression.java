@@ -23,8 +23,7 @@ import org.apache.phoenix.expression.Expression;
 import org.joda.time.DateTime;
 
 /**
- * 
- * Floor function that rounds up the {@link DateTime} to start of month. 
+ * Floor function that rounds up the {@link DateTime} to start of month.
  */
 public class FloorMonthExpression extends RoundJodaDateExpression {
 

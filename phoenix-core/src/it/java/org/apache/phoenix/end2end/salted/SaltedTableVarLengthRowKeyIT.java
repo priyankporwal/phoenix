@@ -46,7 +46,7 @@ public class SaltedTableVarLengthRowKeyIT extends ParallelStatsDisabledIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(false);
-        
+
         try {
             createTestTable(getUrl(), "create table " + TEST_TABLE + " " +
                     " (key_string varchar not null primary key, kv integer) SALT_BUCKETS=4\n");
@@ -55,11 +55,11 @@ public class SaltedTableVarLengthRowKeyIT extends ParallelStatsDisabledIT {
             stmt.setString(1, "a");
             stmt.setInt(2, 1);
             stmt.execute();
-            
+
             stmt.setString(1, "ab");
             stmt.setInt(2, 2);
             stmt.execute();
-            
+
             stmt.setString(1, "abc");
             stmt.setInt(2, 3);
             stmt.execute();
@@ -79,7 +79,7 @@ public class SaltedTableVarLengthRowKeyIT extends ParallelStatsDisabledIT {
             String query;
             PreparedStatement stmt;
             ResultSet rs;
-            
+
             query = "SELECT * FROM " + TEST_TABLE + " where key_string = 'abc'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
@@ -105,22 +105,22 @@ public class SaltedTableVarLengthRowKeyIT extends ParallelStatsDisabledIT {
             PreparedStatement stmt = conn.prepareStatement(dml);
             stmt.setInt(2, 1);
 
-            stmt.setBytes(1, new byte[] { 5 });
+            stmt.setBytes(1, new byte[] {5});
             stmt.executeUpdate();
-            stmt.setBytes(1, new byte[] { 5, 0 });
+            stmt.setBytes(1, new byte[] {5, 0});
             stmt.executeUpdate();
-            stmt.setBytes(1, new byte[] { 5, 1 });
+            stmt.setBytes(1, new byte[] {5, 1});
             stmt.executeUpdate();
             stmt.close();
             conn.commit();
 
             stmt = conn.prepareStatement(sql2);
-            stmt.setBytes(1, new byte[] { 5 });
+            stmt.setBytes(1, new byte[] {5});
             ResultSet rs = stmt.executeQuery();
 
             assertTrue(rs.next());
-            assertArrayEquals(new byte[] {5},rs.getBytes(1));
-            assertEquals(1,rs.getInt(2));
+            assertArrayEquals(new byte[] {5}, rs.getBytes(1));
+            assertEquals(1, rs.getInt(2));
             assertFalse(rs.next());
             stmt.close();
         }
@@ -148,11 +148,11 @@ public class SaltedTableVarLengthRowKeyIT extends ParallelStatsDisabledIT {
             Array array2 = conn.createArrayOf("TINYINT", byteArray2);
             Array array3 = conn.createArrayOf("TINYINT", byteArray3);
 
-            stmt.setArray(1,array1);
+            stmt.setArray(1, array1);
             stmt.executeUpdate();
-            stmt.setArray(1,array2);
+            stmt.setArray(1, array2);
             stmt.executeUpdate();
-            stmt.setArray(1,array3);
+            stmt.setArray(1, array3);
             stmt.executeUpdate();
             stmt.close();
             conn.commit();
@@ -162,9 +162,9 @@ public class SaltedTableVarLengthRowKeyIT extends ParallelStatsDisabledIT {
             ResultSet rs = stmt.executeQuery();
 
             assertTrue(rs.next());
-            byte[] resultByteArray = (byte[])(rs.getArray(1).getArray());
-            assertArrayEquals(new byte[]{5},resultByteArray);
-            assertEquals(1,rs.getInt(2));
+            byte[] resultByteArray = (byte[]) (rs.getArray(1).getArray());
+            assertArrayEquals(new byte[] {5}, resultByteArray);
+            assertEquals(1, rs.getInt(2));
             assertFalse(rs.next());
             stmt.close();
         }

@@ -25,7 +25,7 @@ public abstract class SingleTableStatement extends MutableStatement {
         this.table = table;
         this.bindCount = bindCount;
     }
-    
+
     public NamedTableNode getTable() {
         return table;
     }

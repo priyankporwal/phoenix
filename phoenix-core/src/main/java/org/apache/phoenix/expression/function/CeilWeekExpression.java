@@ -23,11 +23,10 @@ import org.apache.phoenix.expression.Expression;
 import org.joda.time.DateTime;
 
 /**
- * 
- * Ceil function that rounds up the {@link DateTime} to next week. 
+ * Ceil function that rounds up the {@link DateTime} to next week.
  */
 public class CeilWeekExpression extends RoundJodaDateExpression {
-    
+
     public CeilWeekExpression() {
         super();
     }

@@ -22,9 +22,9 @@ import org.apache.phoenix.util.SchemaUtil;
 
 public abstract class SplitOnLeadingVarCharColumnsPolicy extends ConstantSizeRegionSplitPolicy {
     abstract protected int getColumnToSplitAt();
-    
+
     protected final byte[] getSplitPoint(byte[] splitPoint) {
-        if (splitPoint==null) {
+        if (splitPoint == null) {
             return splitPoint;
         }
         int offset = SchemaUtil.getVarCharLength(splitPoint, 0, splitPoint.length, getColumnToSplitAt());
@@ -35,10 +35,10 @@ public abstract class SplitOnLeadingVarCharColumnsPolicy extends ConstantSizeReg
         // Otherwise, an attempt is being made to split in the middle of a table.
         // Just return a split point at the boundary of the first two columns instead
         byte[] newSplitPoint = new byte[offset + 1];
-        System.arraycopy(splitPoint, 0, newSplitPoint, 0, offset+1);
+        System.arraycopy(splitPoint, 0, newSplitPoint, 0, offset + 1);
         return newSplitPoint;
     }
-    
+
     @Override
     protected final byte[] getSplitPoint() {
         return getSplitPoint(super.getSplitPoint());

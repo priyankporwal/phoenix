@@ -32,14 +32,12 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 
-
 /**
  * Built-in function for finding MIN.
- * 
- * 
+ *
  * @since 0.1
  */
-@BuiltInFunction(name=MinAggregateFunction.NAME, nodeClass=MinAggregateParseNode.class, args= {@Argument()} )
+@BuiltInFunction(name = MinAggregateFunction.NAME, nodeClass = MinAggregateParseNode.class, args = {@Argument()})
 public class MinAggregateFunction extends DelegateConstantToCountAggregateFunction {
     public static final String NAME = "MIN";
 
@@ -49,7 +47,7 @@ public class MinAggregateFunction extends DelegateConstantToCountAggregateFuncti
     public MinAggregateFunction(List<Expression> childExpressions) {
         super(childExpressions, null);
     }
-    
+
     public MinAggregateFunction(List<Expression> childExpressions, CountAggregateFunction delegate) {
         super(childExpressions, delegate);
     }
@@ -66,7 +64,7 @@ public class MinAggregateFunction extends DelegateConstantToCountAggregateFuncti
         return true;
     }
 
-    @Override 
+    @Override
     public Aggregator newServerAggregator(Configuration conf) {
         Expression child = getAggregatorExpression();
         final PDataType type = child.getDataType();
@@ -76,18 +74,19 @@ public class MinAggregateFunction extends DelegateConstantToCountAggregateFuncti
             public PDataType getDataType() {
                 return type;
             }
+
             @Override
             public Integer getMaxLength() {
-            	return maxLength;
+                return maxLength;
             }
         };
     }
-    
+
     @Override
     public SortOrder getSortOrder() {
-       return getAggregatorExpression().getSortOrder(); 
+        return getAggregatorExpression().getSortOrder();
     }
-    
+
     @Override
     public String getName() {
         return NAME;

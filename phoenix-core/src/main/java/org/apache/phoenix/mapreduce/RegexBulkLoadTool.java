@@ -47,13 +47,13 @@ public class RegexBulkLoadTool extends AbstractBulkLoadTool {
 
     @Override
     protected void configureOptions(CommandLine cmdLine, List<ColumnInfo> importColumns,
-                                         Configuration conf) throws SQLException {
-    	if (cmdLine.hasOption(REGEX_OPT.getOpt())) {
+                                    Configuration conf) throws SQLException {
+        if (cmdLine.hasOption(REGEX_OPT.getOpt())) {
             String regexString = cmdLine.getOptionValue(REGEX_OPT.getOpt());
             conf.set(RegexToKeyValueMapper.REGEX_CONFKEY, regexString);
         }
-    	
-    	if (cmdLine.hasOption(ARRAY_DELIMITER_OPT.getOpt())) {
+
+        if (cmdLine.hasOption(ARRAY_DELIMITER_OPT.getOpt())) {
             String arraySeparator = cmdLine.getOptionValue(ARRAY_DELIMITER_OPT.getOpt());
             conf.set(RegexToKeyValueMapper.ARRAY_DELIMITER_CONFKEY, arraySeparator);
         }

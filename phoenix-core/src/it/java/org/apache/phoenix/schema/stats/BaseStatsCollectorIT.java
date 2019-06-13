@@ -124,18 +124,18 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         this.transactionProvider = transactionProvider;
         StringBuilder sb = new StringBuilder();
         if (columnEncoded) {
-            sb.append("COLUMN_ENCODED_BYTES=4");        
+            sb.append("COLUMN_ENCODED_BYTES=4");
         } else {
             sb.append("COLUMN_ENCODED_BYTES=0");
         }
-        
+
         if (transactionProvider != null) {
             sb.append(",TRANSACTIONAL=true, TRANSACTION_PROVIDER='" + transactionProvider + "'");
         }
         if (!mutable) {
             sb.append(",IMMUTABLE_ROWS=true");
             if (!columnEncoded) {
-                sb.append(",IMMUTABLE_STORAGE_SCHEME="+PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
+                sb.append(",IMMUTABLE_STORAGE_SCHEME=" + PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
             }
         }
         this.tableDDLOptions = sb.toString();
@@ -156,7 +156,7 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         clientProps.put(QueryServices.STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB, Long.toString(defaultGuidePostWidth));
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
-    
+
     @Before
     public void generateTableNames() throws SQLException {
         schemaName = generateUniqueName();
@@ -248,13 +248,13 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         Connection conn = getConnection();
         conn.setAutoCommit(true);
         conn.createStatement().execute(
-                "CREATE TABLE " + fullTableName +" ( k CHAR(1) PRIMARY KEY )"  + tableDDLOptions);
+                "CREATE TABLE " + fullTableName + " ( k CHAR(1) PRIMARY KEY )" + tableDDLOptions);
         collectStatistics(conn, fullTableName);
         ResultSet rs = conn.createStatement().executeQuery("EXPLAIN SELECT * FROM " + fullTableName);
         String explainPlan = QueryUtil.getExplainPlan(rs);
         assertEquals(
                 "CLIENT 1-CHUNK 0 ROWS 20 BYTES PARALLEL 1-WAY FULL SCAN OVER " + physicalTableName + "\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER FILTER BY FIRST KEY ONLY",
                 explainPlan);
         conn.close();
     }
@@ -264,10 +264,10 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         Connection conn = getConnection();
         conn.setAutoCommit(true);
         conn.createStatement().execute(
-                "CREATE TABLE " + fullTableName +" ( k VARCHAR PRIMARY KEY, a.v1 VARCHAR, b.v2 VARCHAR ) " + tableDDLOptions + (tableDDLOptions.isEmpty() ? "" : ",") + "SALT_BUCKETS = 3");
+                "CREATE TABLE " + fullTableName + " ( k VARCHAR PRIMARY KEY, a.v1 VARCHAR, b.v2 VARCHAR ) " + tableDDLOptions + (tableDDLOptions.isEmpty() ? "" : ",") + "SALT_BUCKETS = 3");
         conn.createStatement().execute("UPSERT INTO " + fullTableName + "(k,v1) VALUES('a','123456789')");
         collectStatistics(conn, fullTableName);
-                
+
         ResultSet rs;
         String explainPlan;
         rs = conn.createStatement().executeQuery("EXPLAIN SELECT v2 FROM " + fullTableName + " WHERE v2='foo'");
@@ -276,36 +276,36 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         String stats = columnEncoded && !mutable ? "4-CHUNK 1 ROWS 38 BYTES" : "3-CHUNK 0 ROWS 20 BYTES";
         assertEquals(
                 "CLIENT " + stats + " PARALLEL 3-WAY FULL SCAN OVER " + physicalTableName + "\n" +
-                "    SERVER FILTER BY B.V2 = 'foo'\n" + 
-                "CLIENT MERGE SORT",
+                        "    SERVER FILTER BY B.V2 = 'foo'\n" +
+                        "CLIENT MERGE SORT",
                 explainPlan);
         rs = conn.createStatement().executeQuery("EXPLAIN SELECT * FROM " + fullTableName);
         explainPlan = QueryUtil.getExplainPlan(rs);
         assertEquals(
                 "CLIENT 4-CHUNK 1 ROWS " + (columnEncoded ? "28" : TransactionFactory.Provider.OMID.name().equals(transactionProvider) ? "38" : "34") + " BYTES PARALLEL 3-WAY FULL SCAN OVER " + physicalTableName + "\n" +
-                "CLIENT MERGE SORT",
+                        "CLIENT MERGE SORT",
                 explainPlan);
         rs = conn.createStatement().executeQuery("EXPLAIN SELECT * FROM " + fullTableName + " WHERE k = 'a'");
         explainPlan = QueryUtil.getExplainPlan(rs);
         assertEquals(
                 "CLIENT 1-CHUNK 1 ROWS " + (columnEncoded ? "204" : "202") + " BYTES PARALLEL 1-WAY POINT LOOKUP ON 1 KEY OVER " + physicalTableName + "\n" +
-                "CLIENT MERGE SORT",
+                        "CLIENT MERGE SORT",
                 explainPlan);
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testUpdateStats() throws Exception {
-		Connection conn;
+        Connection conn;
         PreparedStatement stmt;
         ResultSet rs;
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         conn = getConnection();
         conn.createStatement().execute(
-                "CREATE TABLE " + fullTableName +" ( k VARCHAR, a_string_array VARCHAR(100) ARRAY[4], b_string_array VARCHAR(100) ARRAY[4] \n"
+                "CREATE TABLE " + fullTableName + " ( k VARCHAR, a_string_array VARCHAR(100) ARRAY[4], b_string_array VARCHAR(100) ARRAY[4] \n"
                         + " CONSTRAINT pk PRIMARY KEY (k, b_string_array DESC))"
-                		+ tableDDLOptions );
+                        + tableDDLOptions);
         String[] s;
         Array array;
         conn = upsertValues(props, fullTableName);
@@ -315,10 +315,10 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         long rows1 = (Long) rs.getObject(PhoenixRuntime.EXPLAIN_PLAN_ESTIMATED_ROWS_READ_COLUMN);
         stmt = upsertStmt(conn, fullTableName);
         stmt.setString(1, "z");
-        s = new String[] { "xyz", "def", "ghi", "jkll", null, null, "xxx" };
+        s = new String[] {"xyz", "def", "ghi", "jkll", null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "zya", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"zya", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -337,8 +337,8 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         ResultSet rs;
         conn.createStatement()
                 .execute("CREATE TABLE " + fullTableName
-                        + " ( k VARCHAR, c1.a bigint,c2.b bigint CONSTRAINT pk PRIMARY KEY (k))"+ tableDDLOptions
-                        + (splitKey != null ? " split on (" + splitKey + ")" : "") );
+                        + " ( k VARCHAR, c1.a bigint,c2.b bigint CONSTRAINT pk PRIMARY KEY (k))" + tableDDLOptions
+                        + (splitKey != null ? " split on (" + splitKey + ")" : ""));
         conn.createStatement().execute("upsert into " + fullTableName + " values ('abc',1,3)");
         conn.createStatement().execute("upsert into " + fullTableName + " values ('def',2,4)");
         conn.commit();
@@ -369,60 +369,60 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         conn = getConnection();
         stmt = upsertStmt(conn, tableName);
         stmt.setString(1, "a");
-        String[] s = new String[] { "abc", "def", "ghi", "jkll", null, null, "xxx" };
+        String[] s = new String[] {"abc", "def", "ghi", "jkll", null, null, "xxx"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "abc", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"abc", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
         conn.commit();
         stmt = upsertStmt(conn, tableName);
         stmt.setString(1, "b");
-        s = new String[] { "xyz", "def", "ghi", "jkll", null, null, "xxx" };
+        s = new String[] {"xyz", "def", "ghi", "jkll", null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "zya", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"zya", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
         conn.commit();
         stmt = upsertStmt(conn, tableName);
         stmt.setString(1, "c");
-        s = new String[] { "xyz", "def", "ghi", "jkll", null, null, "xxx" };
+        s = new String[] {"xyz", "def", "ghi", "jkll", null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "zya", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"zya", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
         conn.commit();
         stmt = upsertStmt(conn, tableName);
         stmt.setString(1, "d");
-        s = new String[] { "xyz", "def", "ghi", "jkll", null, null, "xxx" };
+        s = new String[] {"xyz", "def", "ghi", "jkll", null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "zya", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"zya", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
         conn.commit();
         stmt = upsertStmt(conn, tableName);
         stmt.setString(1, "b");
-        s = new String[] { "xyz", "def", "ghi", "jkll", null, null, "xxx" };
+        s = new String[] {"xyz", "def", "ghi", "jkll", null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "zya", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"zya", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
         conn.commit();
         stmt = upsertStmt(conn, tableName);
         stmt.setString(1, "e");
-        s = new String[] { "xyz", "def", "ghi", "jkll", null, null, "xxx" };
+        s = new String[] {"xyz", "def", "ghi", "jkll", null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "zya", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"zya", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -437,17 +437,19 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
     }
 
     @Test
-    @Ignore //TODO remove this once  https://issues.apache.org/jira/browse/TEPHRA-208 is fixed
+    @Ignore
+    //TODO remove this once  https://issues.apache.org/jira/browse/TEPHRA-208 is fixed
     public void testCompactUpdatesStats() throws Exception {
         testCompactUpdatesStats(0, fullTableName);
     }
-    
+
     @Test
-    @Ignore //TODO remove this once  https://issues.apache.org/jira/browse/TEPHRA-208 is fixed
+    @Ignore
+    //TODO remove this once  https://issues.apache.org/jira/browse/TEPHRA-208 is fixed
     public void testCompactUpdatesStatsWithMinStatsUpdateFreq() throws Exception {
         testCompactUpdatesStats(QueryServicesOptions.DEFAULT_STATS_UPDATE_FREQ_MS, fullTableName);
     }
-    
+
     private static void invalidateStats(Connection conn, String tableName) throws SQLException {
         PTable ptable = conn.unwrap(PhoenixConnection.class)
                 .getMetaDataCache().getTableRef(new PTableKey(null, tableName))
@@ -455,13 +457,13 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         byte[] name = ptable.getPhysicalName().getBytes();
         conn.unwrap(PhoenixConnection.class).getQueryServices().invalidateStats(new GuidePostsKey(name, SchemaUtil.getEmptyColumnFamily(ptable)));
     }
-    
+
     private void testCompactUpdatesStats(Integer statsUpdateFreq, String tableName) throws Exception {
         int nRows = 10;
         Connection conn = getConnection(statsUpdateFreq);
         PreparedStatement stmt;
         conn.createStatement().execute("CREATE TABLE " + tableName + "(k CHAR(1) PRIMARY KEY, v INTEGER, w INTEGER) "
-                + (!tableDDLOptions.isEmpty() ? tableDDLOptions + "," : "") 
+                + (!tableDDLOptions.isEmpty() ? tableDDLOptions + "," : "")
                 + ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=" + Boolean.FALSE);
         stmt = conn.prepareStatement("UPSERT INTO " + tableName + " VALUES(?,?,?)");
         for (int i = 0; i < nRows; i++) {
@@ -473,63 +475,63 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         conn.commit();
 
         TestUtil.doMajorCompaction(conn, physicalTableName);
-        
+
         if (statsUpdateFreq != 0) {
             invalidateStats(conn, tableName);
         } else {
             // Confirm that when we have a non zero STATS_UPDATE_FREQ_MS_ATTRIB, after we run
             // UPDATATE STATISTICS, the new statistics are faulted in as expected.
-            List<KeyRange>keyRanges = getAllSplits(conn, tableName);
-            assertNotEquals(nRows+1, keyRanges.size());
+            List<KeyRange> keyRanges = getAllSplits(conn, tableName);
+            assertNotEquals(nRows + 1, keyRanges.size());
             // If we've set MIN_STATS_UPDATE_FREQ_MS_ATTRIB, an UPDATE STATISTICS will invalidate the cache
             // and forcing the new stats to be pulled over.
             int rowCount = conn.createStatement().executeUpdate("UPDATE STATISTICS " + tableName);
             assertEquals(10, rowCount);
         }
-        List<KeyRange>keyRanges = getAllSplits(conn, tableName);
-        assertEquals(nRows+1, keyRanges.size());
-        
+        List<KeyRange> keyRanges = getAllSplits(conn, tableName);
+        assertEquals(nRows + 1, keyRanges.size());
+
         int nDeletedRows = conn.createStatement().executeUpdate("DELETE FROM " + tableName + " WHERE V < " + nRows / 2);
         conn.commit();
         assertEquals(5, nDeletedRows);
-        
+
         Scan scan = new Scan();
         scan.setRaw(true);
         PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
         try (Table htable = phxConn.getQueryServices().getTable(Bytes.toBytes(tableName))) {
             ResultScanner scanner = htable.getScanner(scan);
             Result result;
-            while ((result = scanner.next())!=null) {
+            while ((result = scanner.next()) != null) {
                 System.out.println(result);
             }
         }
 
         TestUtil.doMajorCompaction(conn, physicalTableName);
-        
+
         scan = new Scan();
         scan.setRaw(true);
         phxConn = conn.unwrap(PhoenixConnection.class);
         try (Table htable = phxConn.getQueryServices().getTable(Bytes.toBytes(tableName))) {
             ResultScanner scanner = htable.getScanner(scan);
             Result result;
-            while ((result = scanner.next())!=null) {
+            while ((result = scanner.next()) != null) {
                 System.out.println(result);
             }
         }
-        
+
         if (statsUpdateFreq != 0) {
             invalidateStats(conn, tableName);
         } else {
-            assertEquals(nRows+1, keyRanges.size());
+            assertEquals(nRows + 1, keyRanges.size());
             // If we've set STATS_UPDATE_FREQ_MS_ATTRIB, an UPDATE STATISTICS will invalidate the cache
             // and force us to pull over the new stats
             int rowCount = conn.createStatement().executeUpdate("UPDATE STATISTICS " + tableName);
             assertEquals(5, rowCount);
         }
         keyRanges = getAllSplits(conn, tableName);
-        assertEquals(nRows/2+1, keyRanges.size());
+        assertEquals(nRows / 2 + 1, keyRanges.size());
         ResultSet rs = conn.createStatement().executeQuery("SELECT SUM(GUIDE_POSTS_ROW_COUNT) FROM "
-                + "\""+ SYSTEM_CATALOG_SCHEMA + "\".\"" + SYSTEM_STATS_TABLE + "\"" + " WHERE PHYSICAL_NAME='" + physicalTableName + "'");
+                + "\"" + SYSTEM_CATALOG_SCHEMA + "\".\"" + SYSTEM_STATS_TABLE + "\"" + " WHERE PHYSICAL_NAME='" + physicalTableName + "'");
         rs.next();
         assertEquals(nRows - nDeletedRows, rs.getLong(1));
     }
@@ -542,11 +544,11 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         conn.createStatement().execute(
                 "CREATE TABLE " + fullTableName
                         + "(k VARCHAR PRIMARY KEY, a.v INTEGER, b.v INTEGER, c.v INTEGER NULL, d.v INTEGER NULL) "
-                        + tableDDLOptions );
+                        + tableDDLOptions);
         stmt = conn.prepareStatement("UPSERT INTO " + fullTableName + " VALUES(?,?, ?, ?, ?)");
         byte[] val = new byte[250];
         for (int i = 0; i < nRows; i++) {
-            stmt.setString(1, Character.toString((char)('a' + i)) + Bytes.toString(val));
+            stmt.setString(1, Character.toString((char) ('a' + i)) + Bytes.toString(val));
             stmt.setInt(2, i);
             stmt.setInt(3, i);
             stmt.setInt(4, i);
@@ -556,7 +558,7 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         conn.commit();
         stmt = conn.prepareStatement("UPSERT INTO " + fullTableName + "(k, c.v, d.v) VALUES(?,?,?)");
         for (int i = 0; i < 5; i++) {
-            stmt.setString(1, Character.toString((char)('a' + 'z' + i)) + Bytes.toString(val));
+            stmt.setString(1, Character.toString((char) ('a' + 'z' + i)) + Bytes.toString(val));
             stmt.setInt(2, i);
             stmt.setInt(3, i);
             stmt.executeUpdate();
@@ -568,7 +570,7 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         List<KeyRange> keyRanges = getAllSplits(conn, fullTableName);
         assertEquals(26, keyRanges.size());
         rs = conn.createStatement().executeQuery("EXPLAIN SELECT * FROM " + fullTableName);
-        assertEquals("CLIENT 26-CHUNK 25 ROWS " + (columnEncoded ? ( mutable ? "12530" : "13902" ) : (TransactionFactory.Provider.OMID.name().equals(transactionProvider)) ? "25044" : "12420") + " BYTES PARALLEL 1-WAY FULL SCAN OVER " + physicalTableName,
+        assertEquals("CLIENT 26-CHUNK 25 ROWS " + (columnEncoded ? (mutable ? "12530" : "13902") : (TransactionFactory.Provider.OMID.name().equals(transactionProvider)) ? "25044" : "12420") + " BYTES PARALLEL 1-WAY FULL SCAN OVER " + physicalTableName,
                 QueryUtil.getExplainPlan(rs));
 
         ConnectionQueryServices services = conn.unwrap(PhoenixConnection.class).getQueryServices();
@@ -590,35 +592,35 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
         assertTrue(rs.next());
         assertEquals("A", rs.getString(1));
         assertEquals(24, rs.getInt(2));
-        assertEquals(columnEncoded ? ( mutable ? 12252 : 13624 ) : hasShadowCells ? 24756 : 12144, rs.getInt(3));
+        assertEquals(columnEncoded ? (mutable ? 12252 : 13624) : hasShadowCells ? 24756 : 12144, rs.getInt(3));
         assertEquals(oneCellPerColFamliyStorageScheme ? 12 : hasShadowCells ? 22 : 11, rs.getInt(4));
 
         assertTrue(rs.next());
         assertEquals("B", rs.getString(1));
         assertEquals(oneCellPerColFamliyStorageScheme ? 24 : 20, rs.getInt(2));
-        assertEquals(columnEncoded ? ( mutable ? 5600 : 6972 ) : hasShadowCells ? 11260 : 5540, rs.getInt(3));
+        assertEquals(columnEncoded ? (mutable ? 5600 : 6972) : hasShadowCells ? 11260 : 5540, rs.getInt(3));
         assertEquals(oneCellPerColFamliyStorageScheme ? 6 : hasShadowCells ? 10 : 5, rs.getInt(4));
 
         assertTrue(rs.next());
         assertEquals("C", rs.getString(1));
         assertEquals(24, rs.getInt(2));
-        assertEquals(columnEncoded ? ( mutable ? 6724 : 6988 ) : hasShadowCells ? 13520 : 6652, rs.getInt(3));
+        assertEquals(columnEncoded ? (mutable ? 6724 : 6988) : hasShadowCells ? 13520 : 6652, rs.getInt(3));
         assertEquals(hasShadowCells ? 12 : 6, rs.getInt(4));
 
         assertTrue(rs.next());
         assertEquals("D", rs.getString(1));
         assertEquals(24, rs.getInt(2));
-        assertEquals(columnEncoded ? ( mutable ? 6724 : 6988 ) : hasShadowCells ? 13520 : 6652, rs.getInt(3));
+        assertEquals(columnEncoded ? (mutable ? 6724 : 6988) : hasShadowCells ? 13520 : 6652, rs.getInt(3));
         assertEquals(hasShadowCells ? 12 : 6, rs.getInt(4));
 
         assertFalse(rs.next());
-        
+
         // Disable stats
-        conn.createStatement().execute("ALTER TABLE " + fullTableName + 
+        conn.createStatement().execute("ALTER TABLE " + fullTableName +
                 " SET " + PhoenixDatabaseMetaData.GUIDE_POSTS_WIDTH + "=0");
         collectStatistics(conn, fullTableName);
         // Assert that there are no more guideposts
-        rs = conn.createStatement().executeQuery("SELECT count(1) FROM " + PhoenixDatabaseMetaData.SYSTEM_STATS_NAME + 
+        rs = conn.createStatement().executeQuery("SELECT count(1) FROM " + PhoenixDatabaseMetaData.SYSTEM_STATS_NAME +
                 " WHERE " + PhoenixDatabaseMetaData.PHYSICAL_NAME + "='" + physicalTableName + "' AND " + PhoenixDatabaseMetaData.COLUMN_FAMILY + " IS NOT NULL");
         assertTrue(rs.next());
         assertEquals(0, rs.getLong(1));
@@ -635,8 +637,8 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
                 + "k2 INTEGER NOT NULL,\n" + "C3.k3 INTEGER,\n" + "C2.v1 VARCHAR,\n"
                 + "CONSTRAINT pk PRIMARY KEY (t_id, k1, k2)) " + tableDDLOptions + " split on ('e','j','o')";
         conn.createStatement().execute(ddl);
-        String[] strings = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
-                "s", "t", "u", "v", "w", "x", "y", "z" };
+        String[] strings = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
+                "s", "t", "u", "v", "w", "x", "y", "z"};
         for (int i = 0; i < 26; i++) {
             conn.createStatement().execute(
                     "UPSERT INTO " + fullTableName + " values('" + strings[i] + "'," + i + "," + (i + 1) + ","
@@ -652,7 +654,7 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
             int startIndex = r.nextInt(strings.length);
             int endIndex = r.nextInt(strings.length - startIndex) + startIndex;
             long rows = endIndex - startIndex;
-            long c2Bytes = rows * (columnEncoded ? ( mutable ? 37 : 48 ) : 35);
+            long c2Bytes = rows * (columnEncoded ? (mutable ? 37 : 48) : 35);
             String physicalTableName = SchemaUtil.getPhysicalTableName(Bytes.toBytes(fullTableName), userTableNamespaceMapped).toString();
             rs = conn.createStatement().executeQuery(
                     "SELECT COLUMN_FAMILY,SUM(GUIDE_POSTS_ROW_COUNT),SUM(GUIDE_POSTS_WIDTH) from \"SYSTEM\".STATS where PHYSICAL_NAME = '"
@@ -682,7 +684,7 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
             int compactionScannerKVThreshold =
                     conn.unwrap(PhoenixConnection.class).getQueryServices().getConfiguration()
                             .getInt(HConstants.COMPACTION_KV_MAX,
-                                HConstants.COMPACTION_KV_MAX_DEFAULT);
+                                    HConstants.COMPACTION_KV_MAX_DEFAULT);
             int numKvColumns = compactionScannerKVThreshold * 2;
             for (int i = 1; i <= numKvColumns; i++) {
                 sb.append("KV" + i + " VARCHAR");
@@ -732,12 +734,12 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
     }
 
     private void verifyGuidePostGenerated(ConnectionQueryServices queryServices,
-            String tableName, String[] familyNames,
-            long guidePostWidth, boolean emptyGuidePostExpected) throws Exception {
+                                          String tableName, String[] familyNames,
+                                          long guidePostWidth, boolean emptyGuidePostExpected) throws Exception {
         try (Table statsHTable =
-                queryServices.getTable(
-                        SchemaUtil.getPhysicalName(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME_BYTES,
-                                queryServices.getProps()).getName())) {
+                     queryServices.getTable(
+                             SchemaUtil.getPhysicalName(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME_BYTES,
+                                     queryServices.getProps()).getName())) {
             for (String familyName : familyNames) {
                 GuidePostsInfo gps =
                         StatisticsUtil.readStatistics(statsHTable,
@@ -749,7 +751,7 @@ public abstract class BaseStatsCollectorIT extends BaseUniqueNamesOwnClusterIT {
             }
         }
     }
-    
+
     @Test
     public void testEmptyGuidePostGeneratedWhenDataSizeLessThanGPWidth() throws Exception {
         try (Connection conn = getConnection()) {

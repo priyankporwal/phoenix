@@ -33,14 +33,12 @@ import org.apache.phoenix.schema.types.PBoolean;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * PERCENT_RANK(<expression>[,<expression>]) WITHIN GROUP (ORDER BY <expression>[,<expression>] ASC/DESC) aggregate function
  *
- * 
  * @since 1.2.1
  */
-@BuiltInFunction(name = PercentRankAggregateFunction.NAME, args = { @Argument(),
-        @Argument(allowedTypes = { PBoolean.class }, isConstant = true), @Argument(isConstant = true) })
+@BuiltInFunction(name = PercentRankAggregateFunction.NAME, args = {@Argument(),
+        @Argument(allowedTypes = {PBoolean.class}, isConstant = true), @Argument(isConstant = true)})
 public class PercentRankAggregateFunction extends DistinctValueWithCountAggregateFunction {
     public static final String NAME = "PERCENT_RANK";
 

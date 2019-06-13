@@ -53,7 +53,6 @@ public class GuidePostsCacheWrapperTest {
         cfSet.add(columnFamily2);
 
 
-
         TableDescriptor tableDesc = Mockito.mock(TableDescriptor.class);
         TableName tableName = TableName.valueOf(table);
 
@@ -61,12 +60,12 @@ public class GuidePostsCacheWrapperTest {
         Mockito.when(tableDesc.getTableName()).thenReturn(tableName);
 
         wrapper.invalidateAll(tableDesc);
-        Mockito.verify(cache,Mockito.times(1)).invalidate(new GuidePostsKey(table,columnFamily1));
-        Mockito.verify(cache,Mockito.times(1)).invalidate(new GuidePostsKey(table,columnFamily2));
+        Mockito.verify(cache, Mockito.times(1)).invalidate(new GuidePostsKey(table, columnFamily1));
+        Mockito.verify(cache, Mockito.times(1)).invalidate(new GuidePostsKey(table, columnFamily2));
     }
 
     @Test
-    public void invalidateAllPTable(){
+    public void invalidateAllPTable() {
         PTable ptable = Mockito.mock(PTable.class);
         PName pname = Mockito.mock(PName.class);
         PName pnamecf1 = Mockito.mock(PName.class);
@@ -82,13 +81,13 @@ public class GuidePostsCacheWrapperTest {
         Mockito.when(pnamecf1.getBytes()).thenReturn(columnFamily1);
         Mockito.when(pnamecf2.getBytes()).thenReturn(columnFamily2);
 
-        List<PColumnFamily> cfList = Lists.newArrayList(cf1,cf2);
+        List<PColumnFamily> cfList = Lists.newArrayList(cf1, cf2);
         Mockito.when(ptable.getColumnFamilies()).thenReturn(cfList);
 
         wrapper.invalidateAll(ptable);
 
-        Mockito.verify(cache,Mockito.times(1)).invalidate(new GuidePostsKey(table,columnFamily1));
-        Mockito.verify(cache,Mockito.times(1)).invalidate(new GuidePostsKey(table,columnFamily2));
+        Mockito.verify(cache, Mockito.times(1)).invalidate(new GuidePostsKey(table, columnFamily1));
+        Mockito.verify(cache, Mockito.times(1)).invalidate(new GuidePostsKey(table, columnFamily2));
     }
 
     @Test(expected = NullPointerException.class)
@@ -98,7 +97,7 @@ public class GuidePostsCacheWrapperTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void invalidateAllPTableNull(){
+    public void invalidateAllPTableNull() {
         PTable ptable = null;
         wrapper.invalidateAll(ptable);
     }

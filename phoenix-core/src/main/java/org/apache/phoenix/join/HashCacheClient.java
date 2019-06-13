@@ -49,18 +49,17 @@ import org.iq80.snappy.Snappy;
 import com.google.common.collect.Lists;
 
 /**
- * 
  * Client for adding cache of one side of a join to region servers
- * 
- * 
+ *
  * @since 0.1
  */
-public class HashCacheClient  {
+public class HashCacheClient {
     private final ServerCacheClient serverCache;
 
     /**
      * Construct client used to create a serialized cached snapshot of a table and send it to each region server
      * for caching during hash join processing.
+     *
      * @param connection the client connection
      */
     public HashCacheClient(PhoenixConnection connection) {
@@ -70,11 +69,11 @@ public class HashCacheClient  {
     /**
      * Creates a ServerCache object for cacheId. This is used for persistent cache, and there may or may not
      * be corresponding data on each region server.
-     * @param cacheId ID for the cache entry
+     *
+     * @param cacheId  ID for the cache entry
      * @param delegate the query plan this will be used for
      * @return client-side {@link ServerCache} representing the hash cache that may or may not be present on region servers.
-     * @throws SQLException
-     * size
+     * @throws SQLException size
      */
     public ServerCache createServerCache(final byte[] cacheId, QueryPlan delegate)
             throws SQLException, IOException {
@@ -85,11 +84,12 @@ public class HashCacheClient  {
      * Send the results of scanning through the scanner to all
      * region servers for regions of the table that will use the cache
      * that intersect with the minMaxKeyRange.
+     *
      * @param scanner scanner for the table or intermediate results being cached
      * @return client-side {@link ServerCache} representing the added hash cache
-     * @throws SQLException 
+     * @throws SQLException
      * @throws MaxServerCacheSizeExceededException if size of hash cache exceeds max allowed
-     * size
+     *                                             size
      */
     public ServerCache addHashCache(
             ScanRanges keyRanges, byte[] cacheId, ResultIterator iterator, long estimatedSize, List<Expression> onExpressions,
@@ -103,21 +103,23 @@ public class HashCacheClient  {
         ServerCache cache = serverCache.addServerCache(keyRanges, cacheId, ptr, ByteUtil.EMPTY_BYTE_ARRAY, new HashCacheFactory(), cacheUsingTable, usePersistentCache, true);
         return cache;
     }
-    
+
     /**
      * Should only be used to resend the hash table cache to the regionserver.
-     *  
+     *
      * @param startkeyOfRegion start key of any region hosted on a regionserver which needs hash cache
-     * @param cache The cache which needs to be sent
+     * @param cache            The cache which needs to be sent
      * @param pTable
      * @return
      * @throws Exception
      */
-    public boolean addHashCacheToServer(byte[] startkeyOfRegion, ServerCache cache, PTable pTable) throws Exception{
-        if (cache == null) { return false; }
+    public boolean addHashCacheToServer(byte[] startkeyOfRegion, ServerCache cache, PTable pTable) throws Exception {
+        if (cache == null) {
+            return false;
+        }
         return serverCache.addServerCache(startkeyOfRegion, cache, new HashCacheFactory(), ByteUtil.EMPTY_BYTE_ARRAY, pTable);
     }
-    
+
     private void serialize(ImmutableBytesWritable ptr, ResultIterator iterator, long estimatedSize, List<Expression> onExpressions, boolean singleValueOnly, Expression keyRangeRhsExpression, List<Expression> keyRangeRhsValues) throws SQLException {
         long maxSize = serverCache.getConnection().getQueryServices().getProps().getLong(QueryServices.MAX_SERVER_CACHE_SIZE_ATTRIB, QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_SIZE);
         estimatedSize = Math.min(estimatedSize, maxSize);
@@ -125,13 +127,13 @@ public class HashCacheClient  {
             throw new IllegalStateException("Estimated size(" + estimatedSize + ") must not be greater than Integer.MAX_VALUE(" + Integer.MAX_VALUE + ")");
         }
         try {
-            TrustedByteArrayOutputStream baOut = new TrustedByteArrayOutputStream((int)estimatedSize);
+            TrustedByteArrayOutputStream baOut = new TrustedByteArrayOutputStream((int) estimatedSize);
             DataOutputStream out = new DataOutputStream(baOut);
             // Write onExpressions first, for hash key evaluation along with deserialization
             out.writeInt(onExpressions.size());
             for (Expression expression : onExpressions) {
                 WritableUtils.writeVInt(out, ExpressionType.valueOf(expression).ordinal());
-                expression.write(out);                
+                expression.write(out);
             }
             int exprSize = baOut.size() + Bytes.SIZEOF_INT;
             out.writeInt(exprSize * (singleValueOnly ? -1 : 1));
@@ -162,7 +164,7 @@ public class HashCacheClient  {
                 byte[] compressed = new byte[maxCompressedSize]; // size for worst case
                 int compressedSize = Snappy.compress(baOut.getBuffer(), 0, baOut.size(), compressed, 0);
                 // Last realloc to size of compressed buffer.
-                ptr.set(compressed,0,compressedSize);
+                ptr.set(compressed, 0, compressedSize);
             } finally {
                 dataOut.close();
             }
@@ -172,20 +174,20 @@ public class HashCacheClient  {
             iterator.close();
         }
     }
-    
+
     /**
      * Evaluate the RHS key expression and wrap the result as a new Expression.
-     * Unlike other types of Expression which will be evaluated and wrapped as a 
-     * single LiteralExpression, RowValueConstructorExpression should be handled 
+     * Unlike other types of Expression which will be evaluated and wrapped as a
+     * single LiteralExpression, RowValueConstructorExpression should be handled
      * differently. We should evaluate each child of RVC and wrap them into a new
-     * RVC Expression, in order to make sure that the later coercion between the 
+     * RVC Expression, in order to make sure that the later coercion between the
      * LHS key expression and this RHS key expression will be successful.
-     * 
+     *
      * @param keyExpression the RHS key expression
-     * @param tuple the input tuple
-     * @param ptr the temporary pointer
+     * @param tuple         the input tuple
+     * @param ptr           the temporary pointer
      * @return the Expression containing the evaluated result
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static Expression evaluateKeyExpression(Expression keyExpression, Tuple tuple, ImmutableBytesWritable ptr) throws SQLException {
         if (!(keyExpression instanceof RowValueConstructorExpression)) {
@@ -194,10 +196,10 @@ public class HashCacheClient  {
             if (keyExpression.evaluate(tuple, ptr)) {
                 return LiteralExpression.newConstant(type.toObject(ptr, keyExpression.getSortOrder()), type);
             }
-            
+
             return LiteralExpression.newConstant(null, type);
         }
-        
+
         List<Expression> children = keyExpression.getChildren();
         List<Expression> values = Lists.newArrayListWithExpectedSize(children.size());
         for (Expression child : children) {

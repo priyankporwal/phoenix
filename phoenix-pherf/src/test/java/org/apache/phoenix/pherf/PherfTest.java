@@ -34,7 +34,7 @@ public class PherfTest {
 
     @Test
     public void testUnknownOption() {
-        String[] args = {"-drop", "all", "-q", "-m","-bsOption"};
+        String[] args = {"-drop", "all", "-q", "-m", "-bsOption"};
 
         // Makes sure that System.exit(1) is called.
         exit.expectSystemExitWithStatus(1);

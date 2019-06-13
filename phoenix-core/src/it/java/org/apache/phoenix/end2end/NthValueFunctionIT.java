@@ -42,18 +42,18 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 3, 4)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 3, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 4, 2)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 4, 2)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(val, 2) WITHIN GROUP (ORDER BY dates DESC) FROM " + nthValue
-                + " GROUP BY page_id");
+                "SELECT NTH_VALUE(val, 2) WITHIN GROUP (ORDER BY dates DESC) FROM " + nthValue
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getInt(1), 4);
@@ -72,43 +72,43 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 2, 9)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 3, 4)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 3, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 4, 2)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, 4, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 5, 1)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 5, 1)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 6, 3)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 6, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 8, 5)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 8, 5)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 7, 8)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, 7, 8)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 5, 1)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 5, 1)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 6, 3)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 6, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 7, 5)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 7, 5)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 8, 8)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 10, 8, 8)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 5, 1)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 5, 1)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 6, 3)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 6, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 7, 5)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 7, 5)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 8, 8)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (3, 10, 8, 8)");
 
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(uid, 1) WITHIN GROUP (ORDER BY lrd DESC) as nth1_user_id, NTH_VALUE(uid, 2) WITHIN GROUP (ORDER BY lrd DESC) as nth2_user_id, NTH_VALUE(uid, 3) WITHIN GROUP (ORDER BY lrd DESC) as nth3_user_id  FROM " + nthValue
-                + " where id=2 and feid in (8, 9, 10) GROUP BY feid");
+                "SELECT NTH_VALUE(uid, 1) WITHIN GROUP (ORDER BY lrd DESC) as nth1_user_id, NTH_VALUE(uid, 2) WITHIN GROUP (ORDER BY lrd DESC) as nth2_user_id, NTH_VALUE(uid, 3) WITHIN GROUP (ORDER BY lrd DESC) as nth3_user_id  FROM " + nthValue
+                        + " where id=2 and feid in (8, 9, 10) GROUP BY feid");
 
         assertTrue(rs.next());
         assertEquals(rs.getInt(1), 2);
@@ -137,22 +137,22 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 0, 300)");
+                + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 0, 300)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 2, 9)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 3, 4)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 3, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, \"DATE\", \"value\") VALUES (6, 8, 5, 150)");
+                + " (id, page_id, \"DATE\", \"value\") VALUES (6, 8, 5, 150)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM "
-                + nth_test_table + " GROUP BY page_id");
+                "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM "
+                        + nth_test_table + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 7);
@@ -170,22 +170,22 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 0, 300)");
+                + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 0, 300)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 2, 9)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 3, 4)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 3, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, \"DATE\", \"value\") VALUES (6, 8, 5, 150)");
+                + " (id, page_id, \"DATE\", \"value\") VALUES (6, 8, 5, 150)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY \"DATE\" DESC) FROM "
-                + nth_test_table + " GROUP BY page_id");
+                "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY \"DATE\" DESC) FROM "
+                        + nth_test_table + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 2);
@@ -237,22 +237,22 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 5, 8)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 5, 8)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 1, 9)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 1, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 4, 4)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 4, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 3, 2)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 3, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (6, 8, 0, 1)");
+                "UPSERT INTO " + nth_test_table + " (id, page_id, \"DATE\", \"value\") VALUES (6, 8, 0, 1)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY \"DATE\" DESC) FROM "
-                + nth_test_table + " GROUP BY page_id");
+                "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY \"DATE\" DESC) FROM "
+                        + nth_test_table + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 4);
@@ -270,20 +270,20 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 3)");
+                + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 3)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, 7)");
+                + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, 9)");
+                + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, 9)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (5, 8, 5, 158)");
+                + " (id, page_id, dates, \"value\") VALUES (5, 8, 5, 158)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (4, 8, 4, 5)");
+                + " (id, page_id, dates, \"value\") VALUES (4, 8, 4, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY dates ASC) FROM "
-                + nth_test_table + " GROUP BY page_id");
+                "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY dates ASC) FROM "
+                        + nth_test_table + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 7);
@@ -301,23 +301,23 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(val, 3) WITHIN GROUP (ORDER BY dates ASC) FROM " + nthValue
-                + " GROUP BY page_id");
+                "SELECT NTH_VALUE(val, 3) WITHIN GROUP (ORDER BY dates ASC) FROM " + nthValue
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
-        assertInIntArray(new int[]{2, 4, 9}, rs.getInt(1));
+        assertInIntArray(new int[] {2, 4, 9}, rs.getInt(1));
         assertFalse(rs.next());
     }
 
@@ -332,20 +332,20 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(val, 5) WITHIN GROUP (ORDER BY dates ASC) FROM " + nthValue
-                + " GROUP BY page_id");
+                "SELECT NTH_VALUE(val, 5) WITHIN GROUP (ORDER BY dates ASC) FROM " + nthValue
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(3, rs.getInt(1));
@@ -363,23 +363,23 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 1, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 2, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(val, 3) WITHIN GROUP (ORDER BY dates DESC) FROM " + nthValue
-                + " GROUP BY page_id");
+                "SELECT NTH_VALUE(val, 3) WITHIN GROUP (ORDER BY dates DESC) FROM " + nthValue
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
-        assertInIntArray(new int[]{2, 4, 9}, rs.getInt(1));
+        assertInIntArray(new int[] {2, 4, 9}, rs.getInt(1));
         assertFalse(rs.next());
     }
 
@@ -394,25 +394,25 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 0, 7)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 0, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 1, 9)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 1, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (7, 8, 3, 5)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (7, 8, 3, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(val, 2) WITHIN GROUP (ORDER BY dates DESC) FROM " + nthValue
-                + " GROUP BY page_id");
+                "SELECT NTH_VALUE(val, 2) WITHIN GROUP (ORDER BY dates DESC) FROM " + nthValue
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
-        assertInIntArray(new int[]{3, 5}, rs.getInt(1));
+        assertInIntArray(new int[] {3, 5}, rs.getInt(1));
         assertFalse(rs.next());
     }
 
@@ -427,25 +427,25 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 0, 7)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (2, 8, 0, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 1, 9)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (3, 8, 1, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (4, 8, 2, 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (5, 8, 2, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (6, 8, 3, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (7, 8, 3, 5)");
+                "UPSERT INTO " + nthValue + " (id, page_id, dates, val) VALUES (7, 8, 3, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(val, 5) WITHIN GROUP (ORDER BY dates ASC) FROM " + nthValue
-                + " GROUP BY page_id");
+                "SELECT NTH_VALUE(val, 5) WITHIN GROUP (ORDER BY dates ASC) FROM " + nthValue
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
-        assertInIntArray(new int[]{3, 5}, rs.getInt(1));
+        assertInIntArray(new int[] {3, 5}, rs.getInt(1));
         assertFalse(rs.next());
     }
 
@@ -460,20 +460,20 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 1)");
+                + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 1)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, NULL)");
+                + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, NULL)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, NULL)");
+                + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, NULL)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (5, 8, 4, 4)");
+                + " (id, page_id, dates, \"value\") VALUES (5, 8, 4, 4)");
         conn.createStatement().execute("UPSERT INTO " + nth_test_table
-            + " (id, page_id, dates, \"value\") VALUES (4, 8, 5, 5)");
+                + " (id, page_id, dates, \"value\") VALUES (4, 8, 5, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY dates DESC) FROM "
-                + nth_test_table + " GROUP BY page_id");
+                "SELECT NTH_VALUE(\"value\", 2)  WITHIN GROUP (ORDER BY dates DESC) FROM "
+                        + nth_test_table + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 4);
@@ -482,12 +482,12 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
 
     private void assertInIntArray(int[] should, int actualValue) {
         ArrayList<Integer> shouldList = new ArrayList<Integer>();
-        for (int i: should) {
+        for (int i : should) {
             shouldList.add(i);
         }
         assertTrue(shouldList.contains(actualValue));
     }
-    
+
     @Test
     public void testUnionAll() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -500,30 +500,30 @@ public class NthValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '1', 7)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '1', 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '2', 9)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '2', 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '3', 4)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '3', 4)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '4', 2)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 8, '4', 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '5', 1)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '5', 1)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '6', 3)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '6', 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '8', 5)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '8', 5)");
         conn.createStatement().execute(
-            "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '7', 8)");
+                "UPSERT INTO " + nthValue + " (id, feid, uid, lrd) VALUES (2, 9, '7', 8)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT feid, NTH_VALUE(uid, 1) WITHIN GROUP (ORDER BY lrd DESC) as user_id, NTH_VALUE(lrd, 1) WITHIN GROUP (ORDER BY lrd DESC) as lrd FROM " + nthValue
-                + " where id=2 and feid in (8, 9) GROUP BY feid" 
-                + " UNION ALL" 
-                + " SELECT feid, NTH_VALUE(uid, 2) WITHIN GROUP (ORDER BY lrd DESC) as user_id, NTH_VALUE(lrd, 2) WITHIN GROUP (ORDER BY lrd DESC) as lrd  FROM " + nthValue
-                + " where id=2 and feid in (8, 9) GROUP BY feid");
-        
+                "SELECT feid, NTH_VALUE(uid, 1) WITHIN GROUP (ORDER BY lrd DESC) as user_id, NTH_VALUE(lrd, 1) WITHIN GROUP (ORDER BY lrd DESC) as lrd FROM " + nthValue
+                        + " where id=2 and feid in (8, 9) GROUP BY feid"
+                        + " UNION ALL"
+                        + " SELECT feid, NTH_VALUE(uid, 2) WITHIN GROUP (ORDER BY lrd DESC) as user_id, NTH_VALUE(lrd, 2) WITHIN GROUP (ORDER BY lrd DESC) as lrd  FROM " + nthValue
+                        + " where id=2 and feid in (8, 9) GROUP BY feid");
+
         assertTrue(rs.next());
         assertEquals(8, rs.getInt(1));
         assertEquals("2", rs.getString(2));

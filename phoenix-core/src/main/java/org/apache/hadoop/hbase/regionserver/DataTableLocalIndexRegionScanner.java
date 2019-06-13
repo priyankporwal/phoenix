@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,6 +43,7 @@ import org.apache.phoenix.index.IndexMaintainer;
 import org.apache.phoenix.query.QueryServicesOptions;
 import org.apache.phoenix.schema.tuple.MultiKeyValueTuple;
 import org.apache.phoenix.util.ServerUtil;
+
 /*
  * Scanner to read data store and regenerate the local index data
  */
@@ -58,28 +59,28 @@ public class DataTableLocalIndexRegionScanner extends DelegateRegionScanner {
     long maxBatchSizeBytes;
     int maxBatchSize;
     private MutationList mutationList;
-    
-    
+
+
     /**
      * @param scanner Scanner for data table stores 
-     * @param region 
+     * @param region
      * @param indexMaintainers Maintainer of local Indexes which needs to built
      * @param localIndexFamily LocalIndex family needs to be built.
      * @param conf
      * @throws IOException
      */
     public DataTableLocalIndexRegionScanner(RegionScanner scanner, Region region,
-            List<IndexMaintainer> indexMaintainers, byte[] localIndexFamily,Configuration conf) throws IOException {
+                                            List<IndexMaintainer> indexMaintainers, byte[] localIndexFamily, Configuration conf) throws IOException {
         super(scanner);
         this.indexMaintainers = indexMaintainers;
         this.startKey = region.getRegionInfo().getStartKey();
         this.endKey = region.getRegionInfo().getEndKey();
         this.localIndexFamily = localIndexFamily;
-        this.region=region;
+        this.region = region;
         maxBatchSize = conf.getInt(MUTATE_BATCH_SIZE_ATTRIB, QueryServicesOptions.DEFAULT_MUTATE_BATCH_SIZE);
         maxBatchSizeBytes = conf.getLong(MUTATE_BATCH_SIZE_BYTES_ATTRIB,
-            QueryServicesOptions.DEFAULT_MUTATE_BATCH_SIZE_BYTES);
-        mutationList=new UngroupedAggregateRegionObserver.MutationList(maxBatchSize);   
+                QueryServicesOptions.DEFAULT_MUTATE_BATCH_SIZE_BYTES);
+        mutationList = new UngroupedAggregateRegionObserver.MutationList(maxBatchSize);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class DataTableLocalIndexRegionScanner extends DelegateRegionScanner {
         List<Cell> dataTableResults = new ArrayList<Cell>();
         boolean next = super.next(dataTableResults);
         addMutations(dataTableResults);
-        if (ServerUtil.readyToCommit(mutationList.size(), mutationList.byteSize(), maxBatchSize, maxBatchSizeBytes)||!next) {
+        if (ServerUtil.readyToCommit(mutationList.size(), mutationList.byteSize(), maxBatchSize, maxBatchSizeBytes) || !next) {
             region.batchMutate(mutationList.toArray(new Mutation[mutationList.size()]));
             mutationList.clear();
         }
@@ -129,6 +130,6 @@ public class DataTableLocalIndexRegionScanner extends DelegateRegionScanner {
             }
         }
     }
-    
+
 
 }

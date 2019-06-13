@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
 /**
  * Equi-Depth histogram based on http://web.cs.ucla.edu/~zaniolo/papers/Histogram-EDBT2011-CamReady.pdf,
  * but without the sliding window - we assume a single window over the entire data set.
@@ -143,7 +144,9 @@ public class EquiDepthStreamHistogram {
         }
         if (bars.size() == maxBars) { // max bars hit, need to merge two existing bars first
             boolean mergeSuccessful = mergeBars();
-            if (!mergeSuccessful) return; // don't split if we couldn't merge
+            if (!mergeSuccessful) {
+                return; // don't split if we couldn't merge
+            }
         }
         byte[] mid = Bytes.split(origBar.getLeftBoundInclusive(), origBar.getRightBoundExclusive(), 1)[1];
         Bar newLeft = new Bar(origBar.getLeftBoundInclusive(), mid);
@@ -153,7 +156,7 @@ public class EquiDepthStreamHistogram {
         long bbAggCount = origBar.getBlockedBarsSize();
         for (Bar bb : origBar.getBlockedBars()) {
             long bbSize = bb.getSize();
-            if (leftSize + bbSize < bbAggCount/2) {
+            if (leftSize + bbSize < bbAggCount / 2) {
                 leftSize += bbSize;
                 newLeft.addBlockedBar(bb);
             } else {
@@ -206,7 +209,7 @@ public class EquiDepthStreamHistogram {
                 currMinIdx = currIdx;
             }
             currBar = nextBar;
-            nextBar = ++currIdx < bars.size() - 1 ? bars.get(currIdx+1) : null;
+            nextBar = ++currIdx < bars.size() - 1 ? bars.get(currIdx + 1) : null;
         }
         // don't want to merge bars into one that will just need an immediate split again
         if (currMinSum >= getMaxBarSize()) {
@@ -319,12 +322,22 @@ public class EquiDepthStreamHistogram {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (getClass() != obj.getClass()) return false;
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
             Bucket other = (Bucket) obj;
-            if (!Arrays.equals(leftBoundInclusive, other.leftBoundInclusive)) return false;
-            if (!Arrays.equals(rightBoundExclusive, other.rightBoundExclusive)) return false;
+            if (!Arrays.equals(leftBoundInclusive, other.leftBoundInclusive)) {
+                return false;
+            }
+            if (!Arrays.equals(rightBoundExclusive, other.rightBoundExclusive)) {
+                return false;
+            }
             return true;
         }
 
@@ -432,14 +445,26 @@ public class EquiDepthStreamHistogram {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (!super.equals(obj)) return false;
-            if (getClass() != obj.getClass()) return false;
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
             Bar other = (Bar) obj;
             if (blockedBars == null) {
-                if (other.blockedBars != null) return false;
-            } else if (!blockedBars.equals(other.blockedBars)) return false;
-            if (count != other.count) return false;
+                if (other.blockedBars != null) {
+                    return false;
+                }
+            } else if (!blockedBars.equals(other.blockedBars)) {
+                return false;
+            }
+            if (count != other.count) {
+                return false;
+            }
             return true;
         }
 

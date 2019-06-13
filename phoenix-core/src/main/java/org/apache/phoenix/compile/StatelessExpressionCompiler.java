@@ -23,17 +23,16 @@ import org.apache.phoenix.schema.PColumn;
 
 /**
  * A ExpressionCompiler which does not pollute {@link StatementContext}
- *
  */
-public class StatelessExpressionCompiler extends ExpressionCompiler{
+public class StatelessExpressionCompiler extends ExpressionCompiler {
 
     public StatelessExpressionCompiler(StatementContext context,
-            boolean resolveViewConstants) {
+                                       boolean resolveViewConstants) {
         super(context, resolveViewConstants);
     }
 
     public StatelessExpressionCompiler(StatementContext context,
-            GroupBy groupBy, boolean resolveViewConstants) {
+                                       GroupBy groupBy, boolean resolveViewConstants) {
         super(context, groupBy, resolveViewConstants);
     }
 

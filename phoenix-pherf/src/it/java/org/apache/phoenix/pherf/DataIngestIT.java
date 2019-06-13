@@ -78,7 +78,7 @@ public class DataIngestIT extends ResultBaseTestIT {
             executor.add(loader);
             executor.get();
             executor.shutdown();
-            
+
             RulesApplier rulesApplier = loader.getRulesApplier();
             List<Map> modelList = rulesApplier.getModelList();
             assertTrue("Could not generate the modelList", modelList.size() > 0);
@@ -103,7 +103,7 @@ public class DataIngestIT extends ResultBaseTestIT {
 
             // Verify number of rows written
             assertExpectedNumberOfRecordsWritten(scenario);
-            
+
             // Run some queries
             executor = new WorkloadExecutor();
             Workload query = new QueryExecutor(parser, util, executor);
@@ -121,7 +121,7 @@ public class DataIngestIT extends ResultBaseTestIT {
         Scenario scenario = parser.getScenarioByName("testPreAndPostDdls");
         WorkloadExecutor executor = new WorkloadExecutor();
         executor.add(new WriteWorkload(util, parser, scenario, GeneratePhoenixStats.NO));
-        
+
         try {
             executor.get();
             executor.shutdown();
@@ -131,7 +131,7 @@ public class DataIngestIT extends ResultBaseTestIT {
 
         assertExpectedNumberOfRecordsWritten(scenario);
     }
-    
+
     @Test
     public void testRWWorkload() throws Exception {
 
@@ -156,7 +156,8 @@ public class DataIngestIT extends ResultBaseTestIT {
 
             // Verify data has been loaded
             Integer count = new JdbcSession(connection).sql(sql).select(new Outcome<Integer>() {
-                @Override public Integer handle(ResultSet resultSet, Statement statement)
+                @Override
+                public Integer handle(ResultSet resultSet, Statement statement)
                         throws SQLException {
                     while (resultSet.next()) {
                         return resultSet.getInt(1);
@@ -184,7 +185,7 @@ public class DataIngestIT extends ResultBaseTestIT {
         Scenario scenario = parser.getScenarioByName("testMTWriteScenario");
         WorkloadExecutor executor = new WorkloadExecutor();
         executor.add(new WriteWorkload(util, parser, scenario, GeneratePhoenixStats.NO));
-        
+
         // Act
         try {
             // Wait for data to load up.
@@ -197,14 +198,14 @@ public class DataIngestIT extends ResultBaseTestIT {
         assertExpectedNumberOfRecordsWritten(scenario);
     }
 
-    
+
     @Test
     public void testMultiTenantScenarioRunBeforeWriteWorkload() throws Exception {
         // Arrange
         Scenario scenario = parser.getScenarioByName("testMTDdlWriteScenario");
         WorkloadExecutor executor = new WorkloadExecutor();
         executor.add(new WriteWorkload(util, parser, scenario, GeneratePhoenixStats.NO));
-        
+
         // Act
         try {
             // Wait for data to load up.
@@ -216,13 +217,14 @@ public class DataIngestIT extends ResultBaseTestIT {
 
         assertExpectedNumberOfRecordsWritten(scenario);
     }
-    
+
     private void assertExpectedNumberOfRecordsWritten(Scenario scenario) throws Exception,
             SQLException {
         Connection connection = util.getConnection(scenario.getTenantId());
         String sql = "select count(*) from " + scenario.getTableName();
         Integer count = new JdbcSession(connection).sql(sql).select(new Outcome<Integer>() {
-            @Override public Integer handle(ResultSet resultSet, Statement statement)
+            @Override
+            public Integer handle(ResultSet resultSet, Statement statement)
                     throws SQLException {
                 while (resultSet.next()) {
                     return resultSet.getInt(1);

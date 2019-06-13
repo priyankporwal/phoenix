@@ -31,54 +31,53 @@ import org.apache.phoenix.util.ByteUtil;
 
 
 /**
- * 
  * Class to access a value stored in the row key
  *
- * 
  * @since 0.1
  */
-public class RowKeyColumnExpression  extends ColumnExpression {
+public class RowKeyColumnExpression extends ColumnExpression {
     private PDataType fromType;
     private RowKeyValueAccessor accessor;
     protected final String name;
     private int offset;
-    
+
     public RowKeyColumnExpression() {
         name = null; // Only on client
     }
-    
+
     private RowKeyColumnExpression(PDatum datum, RowKeyValueAccessor accessor, PDataType fromType, String name) {
         super(datum);
         this.accessor = accessor;
         this.fromType = fromType;
         this.name = name;
     }
-    
+
     public RowKeyColumnExpression(PDatum datum, RowKeyValueAccessor accessor) {
         this(datum, accessor, datum.getDataType(), datum.toString());
     }
-    
+
     public RowKeyColumnExpression(PDatum datum, RowKeyValueAccessor accessor, String name) {
         this(datum, accessor, datum.getDataType(), name);
     }
-    
+
     public RowKeyColumnExpression(PDatum datum, RowKeyValueAccessor accessor, PDataType fromType) {
         this(datum, accessor, fromType, datum.toString());
     }
-    
+
     /**
      * Used to set an offset to be skipped from the start of a the row key. Used by
      * local indexing to skip the region start key bytes.
+     *
      * @param offset the number of bytes to offset accesses to row key columns
      */
     public void setOffset(int offset) {
         this.offset = offset;
     }
-    
+
     public int getPosition() {
         return accessor.getIndex();
     }
-    
+
     public String getName() {
         return name;
     }
@@ -98,10 +97,16 @@ public class RowKeyColumnExpression  extends ColumnExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (getClass() != obj.getClass()) return false;
-        RowKeyColumnExpression other = (RowKeyColumnExpression)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RowKeyColumnExpression other = (RowKeyColumnExpression) obj;
         return accessor.equals(other.accessor);
     }
 
@@ -121,10 +126,10 @@ public class RowKeyColumnExpression  extends ColumnExpression {
                 byteSize = fromType.getByteSize() == null ? maxLength : fromType.getByteSize();
                 byteSize = byteSize <= maxOffset ? byteSize : 0;
             }
-            int length = byteSize >= 0 ? byteSize  : accessor.getLength(buffer, offset, maxOffset);
+            int length = byteSize >= 0 ? byteSize : accessor.getLength(buffer, offset, maxOffset);
             // In the middle of the key, an empty variable length byte array represents null
             if (length > 0) {
-                ptr.set(buffer,offset,length);
+                ptr.set(buffer, offset, length);
                 type.coerceBytes(ptr, fromType, getSortOrder(), getSortOrder());
             } else {
                 ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
@@ -149,17 +154,17 @@ public class RowKeyColumnExpression  extends ColumnExpression {
         super.write(output);
         accessor.write(output);
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         return visitor.visit(this);
     }
-    
+
     /**
      * Since we may never have encountered a key value column of interest, but the
      * expression may evaluate to true just based on the row key columns, we need
      * to do a final evaluation. An example of when this would be required is:
-     *     SELECT a FROM t WHERE a = 5 OR b = 2
+     * SELECT a FROM t WHERE a = 5 OR b = 2
      * in the case where a is a PK column, b is a KV column and no b KV is found.
      */
     @Override

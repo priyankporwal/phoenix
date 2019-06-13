@@ -45,7 +45,7 @@ public class CreateSchemaIT extends ParallelStatsDisabledIT {
         String schemaName = generateUniqueName();
         String ddl = "CREATE SCHEMA " + schemaName;
         try (Connection conn = DriverManager.getConnection(getUrl(), props);
-                Admin admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();) {
+             Admin admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();) {
             conn.createStatement().execute(ddl);
             assertNotNull(admin.getNamespaceDescriptor(schemaName));
         }

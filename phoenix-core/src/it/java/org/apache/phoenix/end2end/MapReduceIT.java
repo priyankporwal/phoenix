@@ -48,15 +48,15 @@ public class MapReduceIT extends ParallelStatsDisabledIT {
     private static final String STOCK_NAME = "STOCK_NAME";
     private static final String RECORDING_YEAR = "RECORDING_YEAR";
     private static final String RECORDINGS_QUARTER = "RECORDINGS_QUARTER";
-    private  String CREATE_STOCK_TABLE = "CREATE TABLE IF NOT EXISTS %s ( " +
+    private String CREATE_STOCK_TABLE = "CREATE TABLE IF NOT EXISTS %s ( " +
             " STOCK_NAME VARCHAR NOT NULL , RECORDING_YEAR  INTEGER NOT  NULL,  RECORDINGS_QUARTER " +
             " DOUBLE array[] CONSTRAINT pk PRIMARY KEY ( STOCK_NAME, RECORDING_YEAR ))";
 
     private static final String CREATE_STOCK_VIEW = "CREATE VIEW IF NOT EXISTS %s (v1 VARCHAR) AS "
-        + " SELECT * FROM %s WHERE RECORDING_YEAR = 2008";
+            + " SELECT * FROM %s WHERE RECORDING_YEAR = 2008";
 
     private static final String MAX_RECORDING = "MAX_RECORDING";
-    private  String CREATE_STOCK_STATS_TABLE =
+    private String CREATE_STOCK_STATS_TABLE =
             "CREATE TABLE IF NOT EXISTS %s(STOCK_NAME VARCHAR NOT NULL , "
                     + " MAX_RECORDING DOUBLE CONSTRAINT pk PRIMARY KEY (STOCK_NAME ))";
 
@@ -86,7 +86,7 @@ public class MapReduceIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testWithTenantId() throws Exception {
-        try (Connection conn = DriverManager.getConnection(getUrl())){
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
             //tenant view will perform the same filter as the select conditions do in testConditionsOnSelect
             createAndTestJob(conn, null, 81.04, TENANT_ID);
         }
@@ -106,7 +106,7 @@ public class MapReduceIT extends ParallelStatsDisabledIT {
 
         } else {
             PhoenixMapReduceUtil.setInput(job, StockWritable.class, stockTableName, s,
-                STOCK_NAME, RECORDING_YEAR, "0." + RECORDINGS_QUARTER);
+                    STOCK_NAME, RECORDING_YEAR, "0." + RECORDINGS_QUARTER);
         }
         testJob(conn, job, stockTableName, stockStatsTableName, v);
 
@@ -115,13 +115,13 @@ public class MapReduceIT extends ParallelStatsDisabledIT {
     private void setInputForTenant(Job job, String tenantId, String stockTableName, String s) throws SQLException {
         Properties props = new Properties();
         props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, TENANT_ID);
-        try (Connection tenantConn = DriverManager.getConnection(getUrl(), props)){
+        try (Connection tenantConn = DriverManager.getConnection(getUrl(), props)) {
             PhoenixMapReduceUtil.setTenantId(job, tenantId);
             String stockViewName = generateUniqueName();
             tenantConn.createStatement().execute(String.format(CREATE_STOCK_VIEW, stockViewName, stockTableName));
             tenantConn.commit();
             PhoenixMapReduceUtil.setInput(job, StockWritable.class, stockViewName, s,
-                STOCK_NAME, RECORDING_YEAR, "0." + RECORDINGS_QUARTER);
+                    STOCK_NAME, RECORDING_YEAR, "0." + RECORDINGS_QUARTER);
         }
     }
 
@@ -171,8 +171,8 @@ public class MapReduceIT extends ParallelStatsDisabledIT {
 
     private void upsertData(Connection conn, String stockTableName) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(String.format(UPSERT, stockTableName));
-        upsertData(stmt, "AAPL", 2009, new Double[]{85.88, 91.04, 88.5, 90.3});
-        upsertData(stmt, "AAPL", 2008, new Double[]{75.88, 81.04, 78.5, 80.3});
+        upsertData(stmt, "AAPL", 2009, new Double[] {85.88, 91.04, 88.5, 90.3});
+        upsertData(stmt, "AAPL", 2008, new Double[] {75.88, 81.04, 78.5, 80.3});
         conn.commit();
     }
 

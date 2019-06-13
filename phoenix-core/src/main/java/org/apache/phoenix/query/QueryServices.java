@@ -28,13 +28,10 @@ import org.apache.phoenix.util.ReadOnlyProps;
 import org.apache.phoenix.util.SQLCloseable;
 
 
-
 /**
- *
  * Interface to group together services needed during querying.  The
  * parameters that may be set in {@link org.apache.hadoop.conf.Configuration}
  * are documented here: https://github.com/forcedotcom/phoenix/wiki/Tuning
- *
  *
  * @since 0.1
  */
@@ -61,22 +58,22 @@ public interface QueryServices extends SQLCloseable {
     // consistency configuration setting
     public static final String CONSISTENCY_ATTRIB = "phoenix.connection.consistency";
     public static final String SCHEMA_ATTRIB = "phoenix.connection.schema";
-    public static final String IS_NAMESPACE_MAPPING_ENABLED  = "phoenix.schema.isNamespaceMappingEnabled";
-    public static final String IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE  = "phoenix.schema.mapSystemTablesToNamespace";
+    public static final String IS_NAMESPACE_MAPPING_ENABLED = "phoenix.schema.isNamespaceMappingEnabled";
+    public static final String IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE = "phoenix.schema.mapSystemTablesToNamespace";
     // joni byte regex engine setting
     public static final String USE_BYTE_BASED_REGEX_ATTRIB = "phoenix.regex.byteBased";
     public static final String DRIVER_SHUTDOWN_TIMEOUT_MS = "phoenix.shutdown.timeoutMs";
 
     /**
-	 * max size to spool the the result into
-	 * ${java.io.tmpdir}/ResultSpoolerXXX.bin if
-	 * {@link QueryServices#SPOOL_THRESHOLD_BYTES_ATTRIB } is reached.
-	 * <p>
-	 * default is unlimited(-1)
-	 * <p>
-	 * if the threshold is reached, a {@link SpoolTooBigToDiskException } will be thrown
-	 */
-	public static final String MAX_SPOOL_TO_DISK_BYTES_ATTRIB = "phoenix.query.maxSpoolToDiskBytes";
+     * max size to spool the the result into
+     * ${java.io.tmpdir}/ResultSpoolerXXX.bin if
+     * {@link QueryServices#SPOOL_THRESHOLD_BYTES_ATTRIB } is reached.
+     * <p>
+     * default is unlimited(-1)
+     * <p>
+     * if the threshold is reached, a {@link SpoolTooBigToDiskException } will be thrown
+     */
+    public static final String MAX_SPOOL_TO_DISK_BYTES_ATTRIB = "phoenix.query.maxSpoolToDiskBytes";
 
     /**
      * Number of records to read per chunk when streaming records of a basic scan.
@@ -101,16 +98,16 @@ public interface QueryServices extends SQLCloseable {
     public static final String MUTATE_BATCH_SIZE_BYTES_ATTRIB = "phoenix.mutate.batchSizeBytes";
     public static final String MAX_SERVER_CACHE_TIME_TO_LIVE_MS_ATTRIB = "phoenix.coprocessor.maxServerCacheTimeToLiveMs";
     public static final String MAX_SERVER_CACHE_PERSISTENCE_TIME_TO_LIVE_MS_ATTRIB = "phoenix.coprocessor.maxServerCachePersistenceTimeToLiveMs";
-    
+
     @Deprecated // Use FORCE_ROW_KEY_ORDER instead.
-    public static final String ROW_KEY_ORDER_SALTED_TABLE_ATTRIB  = "phoenix.query.rowKeyOrderSaltedTable";
-    
-    public static final String USE_INDEXES_ATTRIB  = "phoenix.query.useIndexes";
+    public static final String ROW_KEY_ORDER_SALTED_TABLE_ATTRIB = "phoenix.query.rowKeyOrderSaltedTable";
+
+    public static final String USE_INDEXES_ATTRIB = "phoenix.query.useIndexes";
     @Deprecated // use the IMMUTABLE keyword while creating the table
-    public static final String IMMUTABLE_ROWS_ATTRIB  = "phoenix.mutate.immutableRows";
-    public static final String INDEX_MUTATE_BATCH_SIZE_THRESHOLD_ATTRIB  = "phoenix.index.mutableBatchSizeThreshold";
-    public static final String DROP_METADATA_ATTRIB  = "phoenix.schema.dropMetaData";
-    public static final String GROUPBY_SPILLABLE_ATTRIB  = "phoenix.groupby.spillable";
+    public static final String IMMUTABLE_ROWS_ATTRIB = "phoenix.mutate.immutableRows";
+    public static final String INDEX_MUTATE_BATCH_SIZE_THRESHOLD_ATTRIB = "phoenix.index.mutableBatchSizeThreshold";
+    public static final String DROP_METADATA_ATTRIB = "phoenix.schema.dropMetaData";
+    public static final String GROUPBY_SPILLABLE_ATTRIB = "phoenix.groupby.spillable";
     public static final String GROUPBY_SPILL_FILES_ATTRIB = "phoenix.groupby.spillFiles";
     public static final String GROUPBY_MAX_CACHE_SIZE_ATTRIB = "phoenix.groupby.maxCacheSize";
     public static final String GROUPBY_ESTIMATED_DISTINCT_VALUES_ATTRIB = "phoenix.groupby.estimatedDistinctValues";
@@ -150,9 +147,9 @@ public interface QueryServices extends SQLCloseable {
 
     // Time interval to check if there is an index needs to be rebuild
     public static final String INDEX_FAILURE_HANDLING_REBUILD_INTERVAL_ATTRIB =
-        "phoenix.index.failure.handling.rebuild.interval";
+            "phoenix.index.failure.handling.rebuild.interval";
     public static final String INDEX_REBUILD_TASK_INITIAL_DELAY = "phoenix.index.rebuild.task.initial.delay";
-    
+
     public static final String INDEX_FAILURE_HANDLING_REBUILD_NUMBER_OF_BATCHES_PER_TABLE = "phoenix.index.rebuild.batch.perTable";
     // If index disable timestamp is older than this threshold, then index rebuild task won't attempt to rebuild it
     public static final String INDEX_REBUILD_DISABLE_TIMESTAMP_THRESHOLD = "phoenix.index.rebuild.disabletimestamp.threshold";
@@ -168,7 +165,7 @@ public interface QueryServices extends SQLCloseable {
     // Index will be partially re-built from index disable time stamp - following overlap time
     @Deprecated
     public static final String INDEX_FAILURE_HANDLING_REBUILD_OVERLAP_TIME_ATTRIB =
-        "phoenix.index.failure.handling.rebuild.overlap.time";
+            "phoenix.index.failure.handling.rebuild.overlap.time";
     public static final String INDEX_FAILURE_HANDLING_REBUILD_OVERLAP_BACKWARD_TIME_ATTRIB =
             "phoenix.index.failure.handling.rebuild.overlap.backward.time";
     public static final String INDEX_FAILURE_HANDLING_REBUILD_OVERLAP_FORWARD_TIME_ATTRIB =
@@ -200,7 +197,7 @@ public interface QueryServices extends SQLCloseable {
     public static final String STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB = "phoenix.stats.guidepost.width";
     public static final String STATS_GUIDEPOST_PER_REGION_ATTRIB = "phoenix.stats.guidepost.per.region";
     public static final String STATS_USE_CURRENT_TIME_ATTRIB = "phoenix.stats.useCurrentTime";
-    
+
     public static final String RUN_UPDATE_STATS_ASYNC = "phoenix.update.stats.command.async";
     public static final String STATS_SERVER_POOL_SIZE = "phoenix.stats.pool.size";
     public static final String COMMIT_STATS_ASYNC = "phoenix.stats.commit.async";
@@ -224,7 +221,7 @@ public interface QueryServices extends SQLCloseable {
 
     // Tag Name to determine the Phoenix Client Type
     public static final String CLIENT_METRICS_TAG = "phoenix.client.metrics.tag";
-    
+
     // Transaction related configs
     public static final String TRANSACTIONS_ENABLED = "phoenix.transactions.enabled";
     // Controls whether or not uncommitted data is automatically sent to HBase
@@ -234,14 +231,14 @@ public interface QueryServices extends SQLCloseable {
     // rpc queue configs
     public static final String INDEX_HANDLER_COUNT_ATTRIB = "phoenix.rpc.index.handler.count";
     public static final String METADATA_HANDLER_COUNT_ATTRIB = "phoenix.rpc.metadata.handler.count";
-    
+
     public static final String FORCE_ROW_KEY_ORDER_ATTRIB = "phoenix.query.force.rowkeyorder";
     public static final String ALLOW_USER_DEFINED_FUNCTIONS_ATTRIB = "phoenix.functions.allowUserDefinedFunctions";
     public static final String COLLECT_REQUEST_LEVEL_METRICS = "phoenix.query.request.metrics.enabled";
     public static final String ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE = "phoenix.view.allowNewColumnFamily";
     public static final String RETURN_SEQUENCE_VALUES_ATTRIB = "phoenix.sequence.returnValues";
     public static final String EXTRA_JDBC_ARGUMENTS_ATTRIB = "phoenix.jdbc.extra.arguments";
-    
+
     public static final String MAX_VERSIONS_TRANSACTIONAL_ATTRIB = "phoenix.transactions.maxVersions";
 
     // queryserver configuration keys
@@ -284,7 +281,7 @@ public interface QueryServices extends SQLCloseable {
     public static final String INDEX_POPULATION_SLEEP_TIME = "phoenix.index.population.wait.time";
     public static final String LOCAL_INDEX_CLIENT_UPGRADE_ATTRIB = "phoenix.client.localIndexUpgrade";
     public static final String LIMITED_QUERY_SERIAL_THRESHOLD = "phoenix.limited.query.serial.threshold";
-    
+
     //currently BASE64 and ASCII is supported
     public static final String UPLOAD_BINARY_DATA_TYPE_ENCODING = "phoenix.upload.binaryDataType.encoding";
     // Toggle for server-written updates to SYSTEM.CATALOG
@@ -298,14 +295,14 @@ public interface QueryServices extends SQLCloseable {
     public static final String AUTO_UPGRADE_ENABLED = "phoenix.autoupgrade.enabled";
 
     public static final String CLIENT_CONNECTION_CACHE_MAX_DURATION_MILLISECONDS =
-        "phoenix.client.connection.max.duration";
+            "phoenix.client.connection.max.duration";
 
     //max number of connections from a single client to a single cluster. 0 is unlimited.
     public static final String CLIENT_CONNECTION_MAX_ALLOWED_CONNECTIONS =
-        "phoenix.client.connection.max.allowed.connections";
-    public static final String DEFAULT_COLUMN_ENCODED_BYTES_ATRRIB  = "phoenix.default.column.encoded.bytes.attrib";
-    public static final String DEFAULT_IMMUTABLE_STORAGE_SCHEME_ATTRIB  = "phoenix.default.immutable.storage.scheme";
-    public static final String DEFAULT_MULTITENANT_IMMUTABLE_STORAGE_SCHEME_ATTRIB  = "phoenix.default.multitenant.immutable.storage.scheme";
+            "phoenix.client.connection.max.allowed.connections";
+    public static final String DEFAULT_COLUMN_ENCODED_BYTES_ATRRIB = "phoenix.default.column.encoded.bytes.attrib";
+    public static final String DEFAULT_IMMUTABLE_STORAGE_SCHEME_ATTRIB = "phoenix.default.immutable.storage.scheme";
+    public static final String DEFAULT_MULTITENANT_IMMUTABLE_STORAGE_SCHEME_ATTRIB = "phoenix.default.multitenant.immutable.storage.scheme";
 
     public static final String PHOENIX_QUERY_SERVER_LOADBALANCER_ENABLED = "phoenix.queryserver.loadbalancer.enabled";
     public static final String PHOENIX_QUERY_SERVER_CLUSTER_BASE_PATH = "phoenix.queryserver.base.path";
@@ -316,16 +313,16 @@ public interface QueryServices extends SQLCloseable {
     public static final String USE_STATS_FOR_PARALLELIZATION = "phoenix.use.stats.parallelization";
 
     // whether to enable server side RS -> RS calls for upsert select statements
-    public static final String ENABLE_SERVER_UPSERT_SELECT ="phoenix.client.enable.server.upsert.select";
+    public static final String ENABLE_SERVER_UPSERT_SELECT = "phoenix.client.enable.server.upsert.select";
 
     public static final String PROPERTY_POLICY_PROVIDER_ENABLED = "phoenix.property.policy.provider.enabled";
 
     // whether to trigger mutations on the server at all (UPSERT/DELETE or DELETE FROM)
-    public static final String ENABLE_SERVER_SIDE_DELETE_MUTATIONS ="phoenix.client.enable.server.delete.mutations";
-    public static final String ENABLE_SERVER_SIDE_UPSERT_MUTATIONS ="phoenix.client.enable.server.upsert.mutations";
+    public static final String ENABLE_SERVER_SIDE_DELETE_MUTATIONS = "phoenix.client.enable.server.delete.mutations";
+    public static final String ENABLE_SERVER_SIDE_UPSERT_MUTATIONS = "phoenix.client.enable.server.upsert.mutations";
 
     //Update Cache Frequency default config attribute
-    public static final String DEFAULT_UPDATE_CACHE_FREQUENCY_ATRRIB  = "phoenix.default.update.cache.frequency";
+    public static final String DEFAULT_UPDATE_CACHE_FREQUENCY_ATRRIB = "phoenix.default.update.cache.frequency";
 
     // Whether to enable cost-based-decision in the query optimizer
     public static final String COST_BASED_OPTIMIZER_ENABLED = "phoenix.costbased.optimizer.enabled";
@@ -337,10 +334,10 @@ public interface QueryServices extends SQLCloseable {
     public static final String LOG_BUFFER_WAIT_STRATEGY = "phoenix.log.wait.strategy";
     public static final String LOG_SAMPLE_RATE = "phoenix.log.sample.rate";
 
-	public static final String SYSTEM_CATALOG_SPLITTABLE = "phoenix.system.catalog.splittable";
+    public static final String SYSTEM_CATALOG_SPLITTABLE = "phoenix.system.catalog.splittable";
 
     // The parameters defined for handling task stored in table SYSTEM.TASK
-	// The time interval between periodic scans of table SYSTEM.TASK
+    // The time interval between periodic scans of table SYSTEM.TASK
     public static final String TASK_HANDLING_INTERVAL_MS_ATTRIB = "phoenix.task.handling.interval.ms";
     // The maximum time for a task to stay in table SYSTEM.TASK
     public static final String TASK_HANDLING_MAX_INTERVAL_MS_ATTRIB = "phoenix.task.handling.maxInterval.ms";
@@ -383,6 +380,7 @@ public interface QueryServices extends SQLCloseable {
      * Get executor service used for parallel scans
      */
     public ThreadPoolExecutor getExecutor();
+
     /**
      * Get the memory manager used to track memory usage
      */

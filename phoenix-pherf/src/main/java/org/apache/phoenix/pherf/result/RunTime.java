@@ -29,10 +29,12 @@ public class RunTime implements Comparator<RunTime>, Comparable<RunTime> {
     private Long resultRowCount;
     private String explainPlan;
 
-    @SuppressWarnings("unused") public RunTime() {
+    @SuppressWarnings("unused")
+    public RunTime() {
     }
 
-    @SuppressWarnings("unused") public RunTime(Integer elapsedDurationInMs) {
+    @SuppressWarnings("unused")
+    public RunTime(Integer elapsedDurationInMs) {
         this(null, elapsedDurationInMs);
     }
 
@@ -45,12 +47,12 @@ public class RunTime implements Comparator<RunTime>, Comparable<RunTime> {
     }
 
     public RunTime(String message, Date startTime, Long resultRowCount,
-            Integer elapsedDurationInMs) {
+                   Integer elapsedDurationInMs) {
         this(message, null, startTime, resultRowCount, elapsedDurationInMs);
     }
 
     public RunTime(String message, String explainPlan, Date startTime, Long resultRowCount,
-            Integer elapsedDurationInMs) {
+                   Integer elapsedDurationInMs) {
         this.elapsedDurationInMs = elapsedDurationInMs;
         this.startTime = startTime;
         this.resultRowCount = resultRowCount;
@@ -58,51 +60,63 @@ public class RunTime implements Comparator<RunTime>, Comparable<RunTime> {
         this.explainPlan = explainPlan;
     }
 
-    @XmlAttribute() public Date getStartTime() {
+    @XmlAttribute()
+    public Date getStartTime() {
         return startTime;
     }
 
-    @SuppressWarnings("unused") public void setStartTime(Date startTime) {
+    @SuppressWarnings("unused")
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    @XmlAttribute() public Integer getElapsedDurationInMs() {
+    @XmlAttribute()
+    public Integer getElapsedDurationInMs() {
         return elapsedDurationInMs;
     }
 
-    @SuppressWarnings("unused") public void setElapsedDurationInMs(Integer elapsedDurationInMs) {
+    @SuppressWarnings("unused")
+    public void setElapsedDurationInMs(Integer elapsedDurationInMs) {
         this.elapsedDurationInMs = elapsedDurationInMs;
     }
 
-    @Override public int compare(RunTime r1, RunTime r2) {
+    @Override
+    public int compare(RunTime r1, RunTime r2) {
         return r1.getElapsedDurationInMs().compareTo(r2.getElapsedDurationInMs());
     }
 
-    @Override public int compareTo(RunTime o) {
+    @Override
+    public int compareTo(RunTime o) {
         return compare(this, o);
     }
 
-    @XmlAttribute() public String getMessage() {
+    @XmlAttribute()
+    public String getMessage() {
         return message;
     }
 
-    @SuppressWarnings("unused") public void setMessage(String message) {
+    @SuppressWarnings("unused")
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    @XmlAttribute() public String getExplainPlan() {
+    @XmlAttribute()
+    public String getExplainPlan() {
         return explainPlan;
     }
 
-    @SuppressWarnings("unused") public void setExplainPlan(String explainPlan) {
+    @SuppressWarnings("unused")
+    public void setExplainPlan(String explainPlan) {
         this.explainPlan = explainPlan;
     }
 
-    @XmlAttribute() public Long getResultRowCount() {
+    @XmlAttribute()
+    public Long getResultRowCount() {
         return resultRowCount;
     }
 
-    @SuppressWarnings("unused") public void setResultRowCount(Long resultRowCount) {
+    @SuppressWarnings("unused")
+    public void setResultRowCount(Long resultRowCount) {
         this.resultRowCount = resultRowCount;
     }
 }

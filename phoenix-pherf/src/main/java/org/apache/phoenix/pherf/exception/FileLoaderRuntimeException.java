@@ -23,6 +23,7 @@ public class FileLoaderRuntimeException extends PherfRuntimeException {
     public FileLoaderRuntimeException(String message) throws Exception {
         super(message);
     }
+
     public FileLoaderRuntimeException(String message, Exception e) {
         super(message, e);
     }

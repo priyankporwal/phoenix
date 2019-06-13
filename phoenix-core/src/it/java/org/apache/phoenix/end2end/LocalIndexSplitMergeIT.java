@@ -58,12 +58,12 @@ public class LocalIndexSplitMergeIT extends BaseTest {
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(2);
         serverProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         Map<String, String> clientProps = Maps.newHashMapWithExpectedSize(2);
         clientProps.put(QueryServices.TRANSACTIONS_ENABLED, Boolean.TRUE.toString());
         clientProps.put(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, Boolean.TRUE.toString());
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()),
-            new ReadOnlyProps(clientProps.entrySet().iterator()));
+                new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
 
     private Connection getConnectionForLocalIndexTest() throws SQLException {
@@ -96,8 +96,8 @@ public class LocalIndexSplitMergeIT extends BaseTest {
         Connection conn1 = getConnectionForLocalIndexTest();
         try {
             String[] strings =
-                    { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
-                            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+                    {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+                            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
             for (int i = 0; i < 26; i++) {
                 conn1.createStatement()
                         .execute("UPSERT INTO " + tableName + " values('" + strings[i] + "'," + i
@@ -117,13 +117,13 @@ public class LocalIndexSplitMergeIT extends BaseTest {
                 admin.split(physicalTableName, ByteUtil.concat(Bytes.toBytes(strings[3 * i])));
                 List<RegionInfo> regionsOfUserTable =
                         MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                            false);
+                                false);
 
                 while (regionsOfUserTable.size() != (4 + i)) {
                     Thread.sleep(100);
                     regionsOfUserTable =
                             MetaTableAccessor.getTableRegions(admin.getConnection(),
-                                physicalTableName, false);
+                                    physicalTableName, false);
                 }
                 assertEquals(4 + i, regionsOfUserTable.size());
                 String[] tIdColumnValues = new String[26];
@@ -149,18 +149,18 @@ public class LocalIndexSplitMergeIT extends BaseTest {
 
                 rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
                 assertEquals("CLIENT PARALLEL " + (4 + i) + "-WAY RANGE SCAN OVER "
-                        + indexPhysicalTableName + " [1]\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
-                    QueryUtil.getExplainPlan(rs));
+                                + indexPhysicalTableName + " [1]\n"
+                                + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
+                        QueryUtil.getExplainPlan(rs));
 
                 query = "SELECT t_id,k1,k3 FROM " + tableName;
                 rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
                 assertEquals(
-                    "CLIENT PARALLEL "
-                            + ((strings[3 * i].compareTo("j") < 0) ? (4 + i) : (4 + i - 1))
-                            + "-WAY RANGE SCAN OVER " + indexPhysicalTableName + " [2]\n"
-                            + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
-                    QueryUtil.getExplainPlan(rs));
+                        "CLIENT PARALLEL "
+                                + ((strings[3 * i].compareTo("j") < 0) ? (4 + i) : (4 + i - 1))
+                                + "-WAY RANGE SCAN OVER " + indexPhysicalTableName + " [2]\n"
+                                + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
+                        QueryUtil.getExplainPlan(rs));
                 rs = conn1.createStatement().executeQuery(query);
                 Thread.sleep(1000);
                 int[] k3ColumnValue = new int[26];
@@ -197,8 +197,8 @@ public class LocalIndexSplitMergeIT extends BaseTest {
         Connection conn1 = getConnectionForLocalIndexTest();
         try {
             String[] strings =
-                    { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
-                            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+                    {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+                            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
             for (int i = 0; i < 26; i++) {
                 conn1.createStatement()
                         .execute("UPSERT INTO " + tableName + " values('" + strings[i] + "'," + i
@@ -216,18 +216,18 @@ public class LocalIndexSplitMergeIT extends BaseTest {
             Admin admin = conn1.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();
             List<RegionInfo> regionsOfUserTable =
                     MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                        false);
+                            false);
             admin.mergeRegionsAsync(regionsOfUserTable.get(0).getEncodedNameAsBytes(),
-                regionsOfUserTable.get(1).getEncodedNameAsBytes(), false);
+                    regionsOfUserTable.get(1).getEncodedNameAsBytes(), false);
             regionsOfUserTable =
                     MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                        false);
+                            false);
 
             while (regionsOfUserTable.size() != 3) {
                 Thread.sleep(100);
                 regionsOfUserTable =
                         MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                            false);
+                                false);
             }
             String query = "SELECT t_id,k1,v1 FROM " + tableName;
             rs = conn1.createStatement().executeQuery(query);
@@ -240,16 +240,16 @@ public class LocalIndexSplitMergeIT extends BaseTest {
             }
             rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
             assertEquals(
-                "CLIENT PARALLEL " + 3 + "-WAY RANGE SCAN OVER " + indexPhysicalTableName + " [1]\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
-                QueryUtil.getExplainPlan(rs));
+                    "CLIENT PARALLEL " + 3 + "-WAY RANGE SCAN OVER " + indexPhysicalTableName + " [1]\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
 
             query = "SELECT t_id,k1,k3 FROM " + tableName;
             rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
             assertEquals(
-                "CLIENT PARALLEL " + 3 + "-WAY RANGE SCAN OVER " + indexPhysicalTableName + " [2]\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
-                QueryUtil.getExplainPlan(rs));
+                    "CLIENT PARALLEL " + 3 + "-WAY RANGE SCAN OVER " + indexPhysicalTableName + " [2]\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
 
             rs = conn1.createStatement().executeQuery(query);
             Thread.sleep(1000);
@@ -274,8 +274,8 @@ public class LocalIndexSplitMergeIT extends BaseTest {
         Connection conn1 = getConnectionForLocalIndexTest();
         try {
             String[] strings =
-                    { "aa", "aaa", "aaaa", "bb", "cc", "dd", "dff", "g", "h", "i", "j", "k", "l",
-                            "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+                    {"aa", "aaa", "aaaa", "bb", "cc", "dd", "dff", "g", "h", "i", "j", "k", "l",
+                            "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
             for (int i = 0; i < 26; i++) {
                 conn1.createStatement()
                         .execute("UPSERT INTO " + tableName + " values('" + strings[i] + "'," + i
@@ -285,30 +285,30 @@ public class LocalIndexSplitMergeIT extends BaseTest {
             conn1.createStatement()
                     .execute("CREATE LOCAL INDEX " + indexName + " ON " + tableName + "(v1)");
             conn1.createStatement()
-            .execute("CREATE LOCAL INDEX " + indexName + "_2 ON " + tableName + "(k3)");
+                    .execute("CREATE LOCAL INDEX " + indexName + "_2 ON " + tableName + "(k3)");
 
             Admin admin = conn1.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();
             List<RegionInfo> regionsOfUserTable =
                     MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                        false);
+                            false);
             admin.mergeRegionsAsync(regionsOfUserTable.get(0).getEncodedNameAsBytes(),
-                regionsOfUserTable.get(1).getEncodedNameAsBytes(), false);
+                    regionsOfUserTable.get(1).getEncodedNameAsBytes(), false);
             regionsOfUserTable =
                     MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                        false);
+                            false);
 
             while (regionsOfUserTable.size() != 3) {
                 Thread.sleep(100);
                 regionsOfUserTable =
                         MetaTableAccessor.getTableRegions(admin.getConnection(), physicalTableName,
-                            false);
+                                false);
             }
             String query = "SELECT t_id,k1,v1 FROM " + tableName;
             ResultSet rs = conn1.createStatement().executeQuery(query);
             for (int j = 0; j < 26; j++) {
                 assertTrue(rs.next());
-                assertEquals(strings[25-j], rs.getString("t_id"));
-                assertEquals(25-j, rs.getInt("k1"));
+                assertEquals(strings[25 - j], rs.getString("t_id"));
+                assertEquals(25 - j, rs.getInt("k1"));
                 assertEquals(strings[j], rs.getString("V1"));
             }
             query = "SELECT t_id,k1,k3 FROM " + tableName;

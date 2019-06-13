@@ -62,8 +62,8 @@ public class ColumnProjectionFilter extends FilterBase implements Writable {
     }
 
     public ColumnProjectionFilter(byte[] emptyCFName,
-            Map<ImmutableBytesPtr, NavigableSet<ImmutableBytesPtr>> columnsTracker,
-            Set<byte[]> conditionOnlyCfs, boolean usesEncodedColumnNames) {
+                                  Map<ImmutableBytesPtr, NavigableSet<ImmutableBytesPtr>> columnsTracker,
+                                  Set<byte[]> conditionOnlyCfs, boolean usesEncodedColumnNames) {
         this.emptyCFName = emptyCFName;
         this.columnsTracker = columnsTracker;
         this.conditionOnlyCfs = conditionOnlyCfs;
@@ -75,7 +75,7 @@ public class ColumnProjectionFilter extends FilterBase implements Writable {
     public void readFields(DataInput input) throws IOException {
         this.emptyCFName = WritableUtils.readCompressedByteArray(input);
         int familyMapSize = WritableUtils.readVInt(input);
-        assert familyMapSize > 0;
+        assert familyMapSize >0;
         columnsTracker = new TreeMap<ImmutableBytesPtr, NavigableSet<ImmutableBytesPtr>>();
         while (familyMapSize > 0) {
             byte[] cf = WritableUtils.readCompressedByteArray(input);
@@ -123,27 +123,30 @@ public class ColumnProjectionFilter extends FilterBase implements Writable {
         for (byte[] f : this.conditionOnlyCfs) {
             WritableUtils.writeCompressedByteArray(output, f);
         }
-    
-}
+
+    }
 
     @Override
     public byte[] toByteArray() throws IOException {
         return Writables.getBytes(this);
     }
-    
-    public static ColumnProjectionFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+
+    public static ColumnProjectionFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (ColumnProjectionFilter)Writables.getWritable(pbBytes, new ColumnProjectionFilter());
+            return (ColumnProjectionFilter) Writables.getWritable(pbBytes, new ColumnProjectionFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }
     }
-    
+
     // "ptr" to be used for one time comparisons in filterRowCells
     private ImmutableBytesPtr ptr = new ImmutableBytesPtr();
+
     @Override
     public void filterRowCells(List<Cell> kvs) throws IOException {
-        if (kvs.isEmpty()) return;
+        if (kvs.isEmpty()) {
+            return;
+        }
         Cell firstKV = kvs.get(0);
         Iterables.removeIf(kvs, new Predicate<Cell>() {
             @Override
@@ -184,10 +187,10 @@ public class ColumnProjectionFilter extends FilterBase implements Writable {
     public String toString() {
         return "";
     }
-    
+
     @Override
     public ReturnCode filterKeyValue(Cell ignored) throws IOException {
-      return ReturnCode.INCLUDE_AND_NEXT_COL;
+        return ReturnCode.INCLUDE_AND_NEXT_COL;
     }
 
     public void addTrackedColumn(ImmutableBytesPtr cf, ImmutableBytesPtr cq) {

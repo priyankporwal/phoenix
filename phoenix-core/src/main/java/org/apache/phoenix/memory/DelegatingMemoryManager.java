@@ -18,19 +18,17 @@
 package org.apache.phoenix.memory;
 
 /**
- * 
  * Memory manager that delegates through to another memory manager.
- * 
- * 
+ *
  * @since 0.1
  */
 public class DelegatingMemoryManager implements MemoryManager {
     private final MemoryManager parent;
-    
-    public DelegatingMemoryManager(MemoryManager globalMemoryManager){
+
+    public DelegatingMemoryManager(MemoryManager globalMemoryManager) {
         this.parent = globalMemoryManager;
     }
-    
+
     @Override
     public long getAvailableMemory() {
         return parent.getAvailableMemory();

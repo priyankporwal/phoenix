@@ -25,9 +25,9 @@ import org.apache.phoenix.hbase.index.scanner.ReseekableScanner;
  */
 public interface KeyValueStore {
 
-  public void add(Cell kv, boolean overwrite);
+    public void add(Cell kv, boolean overwrite);
 
-  public ReseekableScanner getScanner();
+    public ReseekableScanner getScanner();
 
-  public void rollback(Cell kv);
+    public void rollback(Cell kv);
 }

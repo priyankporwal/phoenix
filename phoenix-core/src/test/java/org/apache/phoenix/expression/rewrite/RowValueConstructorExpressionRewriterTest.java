@@ -51,9 +51,9 @@ public class RowValueConstructorExpressionRewriterTest {
         Mockito.when(descChild.getDeterminism()).thenReturn(Determinism.ALWAYS);
         Mockito.when(descChild.requiresFinalEvaluation()).thenReturn(true);
 
-        List<Expression> children = ImmutableList.of(ascChild,descChild);
+        List<Expression> children = ImmutableList.of(ascChild, descChild);
         RowValueConstructorExpression expression =
-                new RowValueConstructorExpression(children,false);
+                new RowValueConstructorExpression(children, false);
 
 
         RowValueConstructorExpressionRewriter
@@ -62,7 +62,7 @@ public class RowValueConstructorExpressionRewriterTest {
 
         RowValueConstructorExpression result = rewriter.rewriteAllChildrenAsc(expression);
 
-        assertEquals(2,result.getChildren().size());
+        assertEquals(2, result.getChildren().size());
 
         Expression child1 = result.getChildren().get(0);
         Expression child2 = result.getChildren().get(1);
@@ -72,7 +72,7 @@ public class RowValueConstructorExpressionRewriterTest {
 
         assertEquals(ascChild, child1);
         assertTrue(child2 instanceof CoerceExpression);
-        assertEquals(descChild, ((CoerceExpression)child2).getChild());
+        assertEquals(descChild, ((CoerceExpression) child2).getChild());
 
     }
 }

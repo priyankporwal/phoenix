@@ -54,47 +54,44 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 
-
 /**
- * 
  * Abstract base class for JDBC Driver implementation of Phoenix
- * 
- * 
+ *
  * @since 0.1
  */
 @Immutable
 public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
     /**
-     * The protocol for Phoenix Network Client 
-     */ 
+     * The protocol for Phoenix Network Client
+     */
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PhoenixEmbeddedDriver.class);
     private final static String DNC_JDBC_PROTOCOL_SUFFIX = "//";
     private final static String DRIVER_NAME = "PhoenixEmbeddedDriver";
     private static final String TERMINATOR = "" + PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR;
     private static final String DELIMITERS = TERMINATOR + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR;
-    private static final String TEST_URL_AT_END =  "" + PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR + PHOENIX_TEST_DRIVER_URL_PARAM;
+    private static final String TEST_URL_AT_END = "" + PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR + PHOENIX_TEST_DRIVER_URL_PARAM;
     private static final String TEST_URL_IN_MIDDLE = TEST_URL_AT_END + PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR;
 
     private final static DriverPropertyInfo[] EMPTY_INFO = new DriverPropertyInfo[0];
     public final static String MAJOR_VERSION_PROP = "DriverMajorVersion";
     public final static String MINOR_VERSION_PROP = "DriverMinorVersion";
     public final static String DRIVER_NAME_PROP = "DriverName";
-    
+
     public static final ReadOnlyProps DEFAULT_PROPS = new ReadOnlyProps(
             ImmutableMap.of(
                     MAJOR_VERSION_PROP, Integer.toString(MetaDataProtocol.PHOENIX_MAJOR_VERSION),
                     MINOR_VERSION_PROP, Integer.toString(MetaDataProtocol.PHOENIX_MINOR_VERSION),
                     DRIVER_NAME_PROP, DRIVER_NAME));
-    
+
     PhoenixEmbeddedDriver() {
     }
-    
+
     protected ReadOnlyProps getDefaultProps() {
         return DEFAULT_PROPS;
     }
-    
+
     abstract public QueryServices getQueryServices() throws SQLException;
-     
+
     @Override
     public boolean acceptsURL(String url) throws SQLException {
         if (url.startsWith(PhoenixRuntime.JDBC_PROTOCOL)) {
@@ -140,24 +137,25 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
     }
 
     protected final Connection createConnection(String url, Properties info) throws SQLException {
-      Properties augmentedInfo = PropertiesUtil.deepCopy(info);
-      augmentedInfo.putAll(getDefaultProps().asMap());
-      ConnectionQueryServices connectionServices = getConnectionQueryServices(url, augmentedInfo);
-      PhoenixConnection connection = connectionServices.connect(url, augmentedInfo);
-      return connection;
+        Properties augmentedInfo = PropertiesUtil.deepCopy(info);
+        augmentedInfo.putAll(getDefaultProps().asMap());
+        ConnectionQueryServices connectionServices = getConnectionQueryServices(url, augmentedInfo);
+        PhoenixConnection connection = connectionServices.connect(url, augmentedInfo);
+        return connection;
     }
 
     /**
      * Get or create if necessary a QueryServices that is associated with the HBase zookeeper quorum
      * name (part of the connection URL). This will cause the underlying Configuration held by the
      * QueryServices to be shared for all connections to the same HBase cluster.
-     * @param url connection URL
+     *
+     * @param url  connection URL
      * @param info connection properties
      * @return new or cached QuerySerices used to establish a new Connection.
      * @throws SQLException
      */
     protected abstract ConnectionQueryServices getConnectionQueryServices(String url, Properties info) throws SQLException;
-    
+
     @Override
     public int getMajorVersion() {
         return MetaDataProtocol.PHOENIX_MAJOR_VERSION;
@@ -186,11 +184,9 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
     @Override
     public void close() throws SQLException {
     }
-    
+
     /**
-     *
      * Class to encapsulate connection info for HBase
-     *
      *
      * @since 0.1.1
      */
@@ -200,18 +196,20 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
         private static final Object KERBEROS_LOGIN_LOCK = new Object();
         private static final char WINDOWS_SEPARATOR_CHAR = '\\';
         private static final String REALM_EQUIVALENCY_WARNING_MSG = "Provided principal does not contan a realm and the default realm cannot be determined. Ignoring realm equivalency check.";
+
         private static SQLException getMalFormedUrlException(String url) {
             return new SQLExceptionInfo.Builder(SQLExceptionCode.MALFORMED_CONNECTION_URL)
-            .setMessage(url).build().buildException();
+                    .setMessage(url).build().buildException();
         }
-        
-		public String getZookeeperConnectionString() {
-			return getZookeeperQuorum() + ":" + getPort();
-		}
-        
+
+        public String getZookeeperConnectionString() {
+            return getZookeeperQuorum() + ":" + getPort();
+        }
+
         /**
          * Detect url with quorum:1,quorum:2 as HBase does not handle different port numbers
          * for different quorum hostnames.
+         *
          * @param portStr
          * @return
          */
@@ -226,7 +224,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
             }
             return false;
         }
-        
+
         public static ConnectionInfo create(String url) throws SQLException {
             url = url == null ? "" : url;
             if (url.isEmpty() || url.equalsIgnoreCase("jdbc:phoenix:")
@@ -241,7 +239,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
             String[] tokens = new String[5];
             String token = null;
             while (tokenizer.hasMoreTokens() &&
-                    !(token=tokenizer.nextToken()).equals(TERMINATOR) &&
+                    !(token = tokenizer.nextToken()).equals(TERMINATOR) &&
                     tokenizer.hasMoreTokens() && nTokens < tokens.length) {
                 token = tokenizer.nextToken();
                 // This would mean we have an empty string for a token which is illegal
@@ -254,11 +252,11 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
             if (tokenizer.hasMoreTokens() && !TERMINATOR.equals(token)) {
                 String extraToken = tokenizer.nextToken();
                 if (WINDOWS_SEPARATOR_CHAR == extraToken.charAt(0)) {
-                  String prevToken = tokens[nTokens - 1];
-                  tokens[nTokens - 1] = prevToken + ":" + extraToken;
-                  if (tokenizer.hasMoreTokens() && !(token=tokenizer.nextToken()).equals(TERMINATOR)) {
-                      throw getMalFormedUrlException(url);
-                  }
+                    String prevToken = tokens[nTokens - 1];
+                    tokens[nTokens - 1] = prevToken + ":" + extraToken;
+                    if (tokenizer.hasMoreTokens() && !(token = tokenizer.nextToken()).equals(TERMINATOR)) {
+                        throw getMalFormedUrlException(url);
+                    }
                 } else {
                     throw getMalFormedUrlException(url);
                 }
@@ -305,9 +303,9 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                     }
                 }
             }
-            return new ConnectionInfo(quorum,port,rootNode, principal, keytabFile);
+            return new ConnectionInfo(quorum, port, rootNode, principal, keytabFile);
         }
-        
+
         public ConnectionInfo normalize(ReadOnlyProps props, Properties info) throws SQLException {
             String zookeeperQuorum = this.getZookeeperQuorum();
             Integer port = this.getPort();
@@ -320,7 +318,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                 zookeeperQuorum = props.get(QueryServices.ZOOKEEPER_QUORUM_ATTRIB);
                 if (zookeeperQuorum == null) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.MALFORMED_CONNECTION_URL)
-                    .setMessage(this.toString()).build().buildException();
+                            .setMessage(this.toString()).build().buildException();
                 }
             }
 
@@ -332,13 +330,13 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                             port = Integer.parseInt(portStr);
                         } catch (NumberFormatException e) {
                             throw new SQLExceptionInfo.Builder(SQLExceptionCode.MALFORMED_CONNECTION_URL)
-                            .setMessage(this.toString()).build().buildException();
+                                    .setMessage(this.toString()).build().buildException();
                         }
                     }
                 }
             } else if (isConnectionless) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.MALFORMED_CONNECTION_URL)
-                .setMessage("Port may not be specified when using the connectionless url \"" + this.toString() + "\"").build().buildException();
+                        .setMessage("Port may not be specified when using the connectionless url \"" + this.toString() + "\"").build().buildException();
             }
             if (rootNode == null) {
                 if (!isConnectionless) {
@@ -346,17 +344,17 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                 }
             } else if (isConnectionless) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.MALFORMED_CONNECTION_URL)
-                .setMessage("Root node may not be specified when using the connectionless url \"" + this.toString() + "\"").build().buildException();
+                        .setMessage("Root node may not be specified when using the connectionless url \"" + this.toString() + "\"").build().buildException();
             }
-            if(principal == null){
+            if (principal == null) {
                 if (!isConnectionless) {
-                   principal = props.get(QueryServices.HBASE_CLIENT_PRINCIPAL);
+                    principal = props.get(QueryServices.HBASE_CLIENT_PRINCIPAL);
                 }
             }
-            if(keytab == null){
-            	 if (!isConnectionless) {
-            		 keytab = props.get(QueryServices.HBASE_CLIENT_KEYTAB);
-            	 }
+            if (keytab == null) {
+                if (!isConnectionless) {
+                    keytab = props.get(QueryServices.HBASE_CLIENT_KEYTAB);
+                }
             }
             if (!isConnectionless()) {
                 boolean credsProvidedInUrl = null != principal && null != keytab;
@@ -392,7 +390,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                         }
                     } catch (IOException e) {
                         throw new SQLExceptionInfo.Builder(SQLExceptionCode.CANNOT_ESTABLISH_CONNECTION)
-                            .setRootCause(e).build().buildException();
+                                .setRootCause(e).build().buildException();
                     }
                 } else {
                     LOGGER.debug("Principal and keytab not provided, not attempting Kerberos login");
@@ -455,16 +453,17 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
 
         /**
          * Constructs a Configuration object to use when performing a Kerberos login.
-         * @param props QueryServices properties
-         * @param info User-provided properties
+         *
+         * @param props     QueryServices properties
+         * @param info      User-provided properties
          * @param principal Kerberos user principal
-         * @param keytab Path to Kerberos user keytab
+         * @param keytab    Path to Kerberos user keytab
          * @return Configuration object suitable for Kerberos login
          */
         private Configuration getConfiguration(ReadOnlyProps props, Properties info, String principal, String keytab) {
             final Configuration config = HBaseFactoryProvider.getConfigurationFactory().getConfiguration();
             // Add QueryServices properties
-            for (Entry<String,String> entry : props) {
+            for (Entry<String, String> entry : props) {
                 config.set(entry.getKey(), entry.getValue());
             }
             // Add any user-provided properties (via DriverManager)
@@ -482,7 +481,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
             }
             return config;
         }
-        
+
         private final Integer port;
         private final String rootNode;
         private final String zookeeperQuorum;
@@ -490,7 +489,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
         private final String principal;
         private final String keytab;
         private final User user;
-        
+
         public ConnectionInfo(String zookeeperQuorum, Integer port, String rootNode, String principal, String keytab) {
             this.zookeeperQuorum = zookeeperQuorum;
             this.port = port;
@@ -507,9 +506,9 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                 throw new RuntimeException("Acquired null user which should never happen");
             }
         }
-        
+
         public ConnectionInfo(String zookeeperQuorum, Integer port, String rootNode) {
-        	this(zookeeperQuorum, port, rootNode, null, null);
+            this(zookeeperQuorum, port, rootNode, null, null);
         }
 
         /**
@@ -539,11 +538,11 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
             return connectionProps.isEmpty() ? ReadOnlyProps.EMPTY_PROPS : new ReadOnlyProps(
                     connectionProps.entrySet().iterator());
         }
-        
+
         public boolean isConnectionless() {
             return isConnectionless;
         }
-        
+
         public String getZookeeperQuorum() {
             return zookeeperQuorum;
         }
@@ -555,7 +554,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
         public String getRootNode() {
             return rootNode;
         }
-        
+
         public String getKeytab() {
             return keytab;
         }
@@ -584,37 +583,65 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (getClass() != obj.getClass()) return false;
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
             ConnectionInfo other = (ConnectionInfo) obj;
             // `user` is guaranteed to be non-null
-            if (!other.user.equals(user)) return false;
+            if (!other.user.equals(user)) {
+                return false;
+            }
             if (zookeeperQuorum == null) {
-                if (other.zookeeperQuorum != null) return false;
-            } else if (!zookeeperQuorum.equals(other.zookeeperQuorum)) return false;
+                if (other.zookeeperQuorum != null) {
+                    return false;
+                }
+            } else if (!zookeeperQuorum.equals(other.zookeeperQuorum)) {
+                return false;
+            }
             if (port == null) {
-                if (other.port != null) return false;
-            } else if (!port.equals(other.port)) return false;
+                if (other.port != null) {
+                    return false;
+                }
+            } else if (!port.equals(other.port)) {
+                return false;
+            }
             if (rootNode == null) {
-                if (other.rootNode != null) return false;
-            } else if (!rootNode.equals(other.rootNode)) return false;
+                if (other.rootNode != null) {
+                    return false;
+                }
+            } else if (!rootNode.equals(other.rootNode)) {
+                return false;
+            }
             if (principal == null) {
-                if (other.principal != null) return false;
-            } else if (!principal.equals(other.principal)) return false;
+                if (other.principal != null) {
+                    return false;
+                }
+            } else if (!principal.equals(other.principal)) {
+                return false;
+            }
             if (keytab == null) {
-                if (other.keytab != null) return false;
-            } else if (!keytab.equals(other.keytab)) return false;
+                if (other.keytab != null) {
+                    return false;
+                }
+            } else if (!keytab.equals(other.keytab)) {
+                return false;
+            }
             return true;
         }
-        
+
         @Override
-		public String toString() {
-			return zookeeperQuorum + (port == null ? "" : ":" + port)
-					+ (rootNode == null ? "" : ":" + rootNode)
-					+ (principal == null ? "" : ":" + principal)
-					+ (keytab == null ? "" : ":" + keytab);
-		}
+        public String toString() {
+            return zookeeperQuorum + (port == null ? "" : ":" + port)
+                    + (rootNode == null ? "" : ":" + rootNode)
+                    + (principal == null ? "" : ":" + principal)
+                    + (keytab == null ? "" : ":" + keytab);
+        }
 
         public String toUrl() {
             return PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR
@@ -629,7 +656,7 @@ public abstract class PhoenixEmbeddedDriver implements Driver, SQLCloseable {
                 throw getMalFormedUrlException(url);
             }
             String clientPort = config.get(HConstants.ZOOKEEPER_CLIENT_PORT);
-            Integer port = clientPort==null ? null : Integer.parseInt(clientPort);
+            Integer port = clientPort == null ? null : Integer.parseInt(clientPort);
             if (port == null || port < 0) {
                 throw getMalFormedUrlException(url);
             }

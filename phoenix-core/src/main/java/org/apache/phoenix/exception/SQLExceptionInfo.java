@@ -24,8 +24,7 @@ import org.apache.phoenix.util.SchemaUtil;
 
 /**
  * Object serves as a closure of all coordinate information for SQLException messages.
- * 
- * 
+ *
  * @since 1.0
  */
 public class SQLExceptionInfo {
@@ -97,6 +96,7 @@ public class SQLExceptionInfo {
             this.functionName = functionName;
             return this;
         }
+
         public SQLExceptionInfo build() {
             return new SQLExceptionInfo(this);
         }
@@ -173,7 +173,7 @@ public class SQLExceptionInfo {
     public String getFunctionName() {
         return functionName;
     }
-    
+
     public SQLExceptionCode getCode() {
         return code;
     }

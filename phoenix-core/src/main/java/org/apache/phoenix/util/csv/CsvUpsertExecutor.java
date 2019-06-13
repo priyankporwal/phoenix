@@ -51,26 +51,30 @@ import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 
-/** {@link UpsertExecutor} over {@link CSVRecord}s. */
+/**
+ * {@link UpsertExecutor} over {@link CSVRecord}s.
+ */
 public class CsvUpsertExecutor extends UpsertExecutor<CSVRecord, String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvUpsertExecutor.class);
 
     protected final String arrayElementSeparator;
 
-    /** Testing constructor. Do not use in prod. */
+    /**
+     * Testing constructor. Do not use in prod.
+     */
     @VisibleForTesting
     protected CsvUpsertExecutor(Connection conn, List<ColumnInfo> columnInfoList,
-            PreparedStatement stmt, UpsertListener<CSVRecord> upsertListener,
-            String arrayElementSeparator) {
+                                PreparedStatement stmt, UpsertListener<CSVRecord> upsertListener,
+                                String arrayElementSeparator) {
         super(conn, columnInfoList, stmt, upsertListener);
         this.arrayElementSeparator = arrayElementSeparator;
         finishInit();
     }
 
     public CsvUpsertExecutor(Connection conn, String tableName,
-            List<ColumnInfo> columnInfoList, UpsertListener<CSVRecord> upsertListener,
-            String arrayElementSeparator) {
+                             List<ColumnInfo> columnInfoList, UpsertListener<CSVRecord> upsertListener,
+                             String arrayElementSeparator) {
         super(conn, tableName, columnInfoList, upsertListener);
         this.arrayElementSeparator = arrayElementSeparator;
         finishInit();
@@ -136,7 +140,7 @@ public class CsvUpsertExecutor extends UpsertExecutor<CSVRecord, String> {
             }
             this.dataType = dataType;
             PDataCodec codec = dataType.getCodec();
-            if(dataType.isCoercibleTo(PTimestamp.INSTANCE)) {
+            if (dataType.isCoercibleTo(PTimestamp.INSTANCE)) {
                 codec = DateUtil.getCodecFor(dataType);
                 // TODO: move to DateUtil
                 String dateFormat;
@@ -149,7 +153,7 @@ public class CsvUpsertExecutor extends UpsertExecutor<CSVRecord, String> {
                             DateUtil.DEFAULT_TIME_FORMAT);
                 } else {
                     dateFormat = props.get(QueryServices.TIMESTAMP_FORMAT_ATTRIB,
-                            DateUtil.DEFAULT_TIMESTAMP_FORMAT);                    
+                            DateUtil.DEFAULT_TIMESTAMP_FORMAT);
                 }
                 String timeZoneId = props.get(QueryServices.DATE_FORMAT_TIMEZONE_ATTRIB,
                         QueryServicesOptions.DEFAULT_DATE_FORMAT_TIMEZONE);
@@ -159,7 +163,7 @@ public class CsvUpsertExecutor extends UpsertExecutor<CSVRecord, String> {
             }
             this.codec = codec;
             this.binaryEncoding = props.get(QueryServices.UPLOAD_BINARY_DATA_TYPE_ENCODING,
-                            QueryServicesOptions.DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING);
+                    QueryServicesOptions.DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING);
         }
 
         @Nullable
@@ -190,14 +194,16 @@ public class CsvUpsertExecutor extends UpsertExecutor<CSVRecord, String> {
                         throw new RuntimeException("Invalid boolean value: '" + input
                                 + "', must be one of ['true','t','1','false','f','0']");
                 }
-            }else if (dataType == PVarbinary.INSTANCE || dataType == PBinary.INSTANCE){
+            } else if (dataType == PVarbinary.INSTANCE || dataType == PBinary.INSTANCE) {
                 EncodeFormat format = EncodeFormat.valueOf(binaryEncoding.toUpperCase());
                 Object object = null;
                 switch (format) {
                     case BASE64:
                         object = Base64.getDecoder().decode(input);
-                        if (object == null) { throw new IllegalDataException(
-                                "Input: [" + input + "]  is not base64 encoded"); }
+                        if (object == null) {
+                            throw new IllegalDataException(
+                                    "Input: [" + input + "]  is not base64 encoded");
+                        }
                         break;
                     case ASCII:
                         object = Bytes.toBytes(input);

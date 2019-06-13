@@ -19,6 +19,7 @@
 package org.apache.phoenix.execute;
 
 import java.sql.SQLException;
+
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.phoenix.compile.ExplainPlan;
 import org.apache.phoenix.compile.QueryPlan;
@@ -36,42 +37,42 @@ public class CursorFetchPlan extends DelegateQueryPlan {
     private boolean isAggregate;
     private String cursorName;
 
-	public CursorFetchPlan(QueryPlan cursorQueryPlan,String cursorName) {
-		super(cursorQueryPlan);
+    public CursorFetchPlan(QueryPlan cursorQueryPlan, String cursorName) {
+        super(cursorQueryPlan);
         this.isAggregate = delegate.getStatement().isAggregate() || delegate.getStatement().isDistinct();
         this.cursorName = cursorName;
-	}
+    }
 
-	@Override
-	public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
-		StatementContext context = delegate.getContext();
-		if (resultIterator == null) {
-			context.getOverallQueryMetrics().startQuery();
-			resultIterator = new CursorResultIterator(LookAheadResultIterator.wrap(delegate.iterator(scanGrouper, scan)),cursorName);
-		}
-	    return resultIterator;
-	}
+    @Override
+    public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
+        StatementContext context = delegate.getContext();
+        if (resultIterator == null) {
+            context.getOverallQueryMetrics().startQuery();
+            resultIterator = new CursorResultIterator(LookAheadResultIterator.wrap(delegate.iterator(scanGrouper, scan)), cursorName);
+        }
+        return resultIterator;
+    }
 
-	@Override
-	public <T> T accept(QueryPlanVisitor<T> visitor) {
-		return visitor.visit(this);
-	}
+    @Override
+    public <T> T accept(QueryPlanVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
 
 
-	@Override
-	public ExplainPlan getExplainPlan() throws SQLException {
-		return delegate.getExplainPlan();
-	}
-	
-	public void setFetchSize(int fetchSize){
-	    this.fetchSize = fetchSize;	
-	}
+    @Override
+    public ExplainPlan getExplainPlan() throws SQLException {
+        return delegate.getExplainPlan();
+    }
 
-	public int getFetchSize() {
-		return fetchSize;
-	}
+    public void setFetchSize(int fetchSize) {
+        this.fetchSize = fetchSize;
+    }
 
-	public boolean isAggregate(){
-	    return this.isAggregate;
-	}
+    public int getFetchSize() {
+        return fetchSize;
+    }
+
+    public boolean isAggregate() {
+        return this.isAggregate;
+    }
 }

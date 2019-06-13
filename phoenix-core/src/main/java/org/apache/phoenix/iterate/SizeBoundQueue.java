@@ -29,7 +29,7 @@ public abstract class SizeBoundQueue<T> extends AbstractQueue<T> implements Size
     private long currentSize;
 
     public SizeBoundQueue(long maxSizeBytes, Queue<T> delegate) {
-        assert maxSizeBytes > 0;
+        assert maxSizeBytes >0;
         this.maxSizeBytes = maxSizeBytes;
         this.delegate = delegate;
     }

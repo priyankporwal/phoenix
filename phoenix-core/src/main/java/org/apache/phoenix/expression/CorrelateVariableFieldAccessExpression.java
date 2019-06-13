@@ -31,7 +31,7 @@ public class CorrelateVariableFieldAccessExpression extends BaseTerminalExpressi
     private final RuntimeContext runtimeContext;
     private final String variableId;
     private final Expression fieldAccessExpression;
-    
+
     public CorrelateVariableFieldAccessExpression(RuntimeContext context, String variableId, Expression fieldAccessExpression) {
         super();
         this.runtimeContext = context;
@@ -42,9 +42,10 @@ public class CorrelateVariableFieldAccessExpression extends BaseTerminalExpressi
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Tuple variable = runtimeContext.getCorrelateVariableValue(variableId);
-        if (variable == null)
+        if (variable == null) {
             throw new RuntimeException("Variable '" + variableId + "' not set.");
-        
+        }
+
         return fieldAccessExpression.evaluate(variable, ptr);
     }
 
@@ -65,7 +66,7 @@ public class CorrelateVariableFieldAccessExpression extends BaseTerminalExpressi
             throw new IOException(e);
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
     @Override
     public PDataType getDataType() {

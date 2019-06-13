@@ -90,13 +90,10 @@ public class StatisticsWriter implements Closeable {
     }
 
     /**
-     * @param tableName
-     *            TODO
-     * @param clientTimeStamp
-     *            TODO
+     * @param tableName       TODO
+     * @param clientTimeStamp TODO
      * @return the {@link StatisticsWriter} for the given primary table.
-     * @throws IOException
-     *             if the table cannot be created due to an underlying HTable creation error
+     * @throws IOException if the table cannot be created due to an underlying HTable creation error
      */
     public static StatisticsWriter newWriter(RegionCoprocessorEnvironment env, String tableName, long clientTimeStamp)
             throws IOException {
@@ -155,25 +152,23 @@ public class StatisticsWriter implements Closeable {
      * Update a list of statistics for a given region. If the UPDATE STATISTICS <tablename> query is issued then we use
      * Upsert queries to update the table If the region gets splitted or the major compaction happens we update using
      * HTable.put()
-     * 
-     * @param tracker
-     *            - the statistics tracker
-     * @param cfKey
-     *            - the family for which the stats is getting collected.
-     * @param mutations
-     *            - list of mutations that collects all the mutations to commit in a batch
-     * @throws IOException
-     *             if we fail to do any of the puts. Any single failure will prevent any future attempts for the
-     *             remaining list of stats to update
+     *
+     * @param tracker   - the statistics tracker
+     * @param cfKey     - the family for which the stats is getting collected.
+     * @param mutations - list of mutations that collects all the mutations to commit in a batch
+     * @throws IOException if we fail to do any of the puts. Any single failure will prevent any future attempts for the
+     *                     remaining list of stats to update
      */
     @SuppressWarnings("deprecation")
     public void addStats(StatisticsCollector tracker, ImmutableBytesPtr cfKey,
                          List<Mutation> mutations, long guidePostDepth) throws IOException {
-        if (tracker == null) { return; }
+        if (tracker == null) {
+            return;
+        }
         boolean useMaxTimeStamp = clientTimeStamp == DefaultStatisticsCollector.NO_TIMESTAMP;
         long timeStamp = clientTimeStamp;
         if (useMaxTimeStamp) { // When using max timestamp, we write the update time later because we only know the ts
-                               // now
+            // now
             timeStamp = tracker.getMaxTimeStamp();
             mutations.add(getLastStatsUpdatedTimePut(timeStamp));
         }
@@ -213,11 +208,11 @@ public class StatisticsWriter implements Closeable {
                  * GuidePostsKey key, long clientTimeStamp).
                  */
                 addGuidepost(cfKey, mutations, ByteUtil.EMPTY_IMMUTABLE_BYTE_ARRAY, guidePostDepth,
-                    0, timeStamp);
+                        0, timeStamp);
             }
         }
     }
-    
+
     @SuppressWarnings("deprecation")
     private void addGuidepost(ImmutableBytesPtr cfKey, List<Mutation> mutations, ImmutableBytesWritable ptr, long byteCount, long rowCount, long timeStamp) {
         byte[] prefix = StatisticsUtil.getRowKey(tableName, cfKey, ptr);
@@ -286,7 +281,7 @@ public class StatisticsWriter implements Closeable {
     }
 
     public void deleteStatsForRegion(Region region, StatisticsCollector tracker, ImmutableBytesPtr fam,
-            List<Mutation> mutations) throws IOException {
+                                     List<Mutation> mutations) throws IOException {
         long timeStamp =
                 clientTimeStamp == DefaultStatisticsCollector.NO_TIMESTAMP
                         ? tracker.getMaxTimeStamp() : clientTimeStamp;
@@ -295,8 +290,8 @@ public class StatisticsWriter implements Closeable {
         List<Result> statsForRegion = new ArrayList<Result>();
         Scan s =
                 MetaDataUtil.newTableRowsScan(getAdjustedKey(startKey, tableName, fam, false),
-                    getAdjustedKey(stopKey, tableName, fam, true),
-                    MetaDataProtocol.MIN_TABLE_TIMESTAMP, clientTimeStamp);
+                        getAdjustedKey(stopKey, tableName, fam, true),
+                        MetaDataProtocol.MIN_TABLE_TIMESTAMP, clientTimeStamp);
         s.addColumn(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, QueryConstants.EMPTY_COLUMN_BYTES);
         try (ResultScanner scanner = statsWriterTable.getScanner(s)) {
             Result result = null;

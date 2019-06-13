@@ -55,7 +55,8 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         this.allowServerSideMutations = allowServerSideMutations;
     }
 
-    @Parameters(name="DeleteIT_allowServerSideMutations={0}") // name is used by failsafe as file name in reports
+    @Parameters(name = "DeleteIT_allowServerSideMutations={0}")
+    // name is used by failsafe as file name in reports
     public static Object[] data() {
         return new Object[] {"true", "false"};
     }
@@ -82,24 +83,24 @@ public class DeleteIT extends ParallelStatsDisabledIT {
     public void testDeleteFilterNoAutoCommit() throws Exception {
         testDeleteFilter(false);
     }
-    
+
     @Test
     public void testDeleteFilterAutoCommit() throws Exception {
         testDeleteFilter(true);
     }
-    
+
     private void testDeleteFilter(boolean autoCommit) throws Exception {
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName = initTableValues(conn);
 
         assertTableCount(conn, tableName, NUMBER_OF_ROWS);
-        
+
         conn.setAutoCommit(autoCommit);
         String deleteStmt = "DELETE FROM " + tableName + " WHERE 20 = j";
-        assertEquals(1,conn.createStatement().executeUpdate(deleteStmt));
+        assertEquals(1, conn.createStatement().executeUpdate(deleteStmt));
         if (!autoCommit) {
             conn.commit();
         }
@@ -121,7 +122,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
     private void testDeleteByFilterAndRow(boolean autoCommit) throws SQLException {
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName = initTableValues(conn);
 
@@ -160,27 +161,27 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         assertEquals(expectedNumberOfRows, rs.getInt(1));
         rs.close();
     }
-    
-    private static void assertIndexUsed (Connection conn, String query, String indexName, boolean expectedToBeUsed, boolean local) throws SQLException {
+
+    private static void assertIndexUsed(Connection conn, String query, String indexName, boolean expectedToBeUsed, boolean local) throws SQLException {
         assertIndexUsed(conn, query, Collections.emptyList(), indexName, expectedToBeUsed, local);
     }
 
-    private static void assertIndexUsed (Connection conn, String query, List<Object> binds, String indexName, boolean expectedToBeUsed, boolean local) throws SQLException {
-            PreparedStatement stmt = conn.prepareStatement("EXPLAIN " + query);
-            for (int i = 0; i < binds.size(); i++) {
-                stmt.setObject(i+1, binds.get(i));
-            }
-            ResultSet rs = stmt.executeQuery();
-            String explainPlan = QueryUtil.getExplainPlan(rs);
-            // It's very difficult currently to check if a local index is being used
-            // This check is brittle as it checks that the index ID appears in the range scan
-            // TODO: surface QueryPlan from MutationPlan
-            if (local) {
-                assertEquals(expectedToBeUsed, explainPlan.contains(indexName + " [1]") || explainPlan.contains(indexName + " [1,"));
-            } else {
-                assertEquals(expectedToBeUsed, explainPlan.contains(" SCAN OVER " + indexName));
-            }
-   }
+    private static void assertIndexUsed(Connection conn, String query, List<Object> binds, String indexName, boolean expectedToBeUsed, boolean local) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("EXPLAIN " + query);
+        for (int i = 0; i < binds.size(); i++) {
+            stmt.setObject(i + 1, binds.get(i));
+        }
+        ResultSet rs = stmt.executeQuery();
+        String explainPlan = QueryUtil.getExplainPlan(rs);
+        // It's very difficult currently to check if a local index is being used
+        // This check is brittle as it checks that the index ID appears in the range scan
+        // TODO: surface QueryPlan from MutationPlan
+        if (local) {
+            assertEquals(expectedToBeUsed, explainPlan.contains(indexName + " [1]") || explainPlan.contains(indexName + " [1,"));
+        } else {
+            assertEquals(expectedToBeUsed, explainPlan.contains(" SCAN OVER " + indexName));
+        }
+    }
 
     private void testDeleteRange(boolean autoCommit, boolean createIndex) throws Exception {
         testDeleteRange(autoCommit, createIndex, false);
@@ -189,7 +190,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
     private void testDeleteRange(boolean autoCommit, boolean createIndex, boolean local) throws Exception {
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName = initTableValues(conn);
         String indexName = generateUniqueName();
@@ -204,7 +205,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute("CREATE INDEX IF NOT EXISTS " + indexName + " ON " + tableName + "(j)");
             }
         }
-        
+
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + tableName);
         assertTrue(rs.next());
@@ -213,19 +214,19 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT i FROM " + tableName + " WHERE j IS NULL");
         int i = 0, isNullCount = 0;
         while (rs.next()) {
-            assertEquals(i,rs.getInt(1));
+            assertEquals(i, rs.getInt(1));
             i += NTH_ROW_NULL;
             isNullCount++;
         }
         rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + tableName + " WHERE j IS NOT NULL");
         assertTrue(rs.next());
-        assertEquals(NUMBER_OF_ROWS-isNullCount, rs.getInt(1));
+        assertEquals(NUMBER_OF_ROWS - isNullCount, rs.getInt(1));
 
-        String deleteStmt ;
+        String deleteStmt;
         PreparedStatement stmt;
         conn.setAutoCommit(autoCommit);
         deleteStmt = "DELETE FROM " + tableName + " WHERE i >= ? and i < ?";
-        assertIndexUsed(conn, deleteStmt, Arrays.<Object>asList(5,10), indexInUse, false, local);
+        assertIndexUsed(conn, deleteStmt, Arrays.<Object>asList(5, 10), indexInUse, false, local);
         stmt = conn.prepareStatement(deleteStmt);
         stmt.setInt(1, 5);
         stmt.setInt(2, 10);
@@ -233,14 +234,14 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         if (!autoCommit) {
             conn.commit();
         }
-        
+
         String query = "SELECT count(*) FROM " + tableName;
         assertIndexUsed(conn, query, indexInUse, createIndex, local);
         query = "SELECT count(*) FROM " + tableName;
         rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
-        assertEquals(NUMBER_OF_ROWS - (10-5), rs.getInt(1));
-        
+        assertEquals(NUMBER_OF_ROWS - (10 - 5), rs.getInt(1));
+
         deleteStmt = "DELETE FROM " + tableName + " WHERE j IS NULL";
         stmt = conn.prepareStatement(deleteStmt);
         assertIndexUsed(conn, deleteStmt, indexInUse, createIndex, local);
@@ -251,19 +252,19 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         }
         rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals(NUMBER_OF_ROWS - (10-5)-isNullCount+1, rs.getInt(1));
+        assertEquals(NUMBER_OF_ROWS - (10 - 5) - isNullCount + 1, rs.getInt(1));
     }
-    
+
     @Test
     public void testDeleteRangeNoAutoCommitNoIndex() throws Exception {
         testDeleteRange(false, false);
     }
-    
+
     @Test
     public void testDeleteRangeAutoCommitNoIndex() throws Exception {
         testDeleteRange(true, false);
     }
-    
+
     @Test
     public void testDeleteRangeNoAutoCommitWithIndex() throws Exception {
         testDeleteRange(false, true, false);
@@ -273,12 +274,12 @@ public class DeleteIT extends ParallelStatsDisabledIT {
     public void testDeleteRangeNoAutoCommitWithLocalIndexIndex() throws Exception {
         testDeleteRange(false, true, true);
     }
-    
+
     @Test
     public void testDeleteRangeAutoCommitWithIndex() throws Exception {
         testDeleteRange(true, true, false);
     }
-    
+
     @Test
     public void testDeleteRangeAutoCommitWithLocalIndex() throws Exception {
         testDeleteRange(true, true, true);
@@ -293,22 +294,22 @@ public class DeleteIT extends ParallelStatsDisabledIT {
     public void testDeleteAllFromTableWithLocalIndexAutoCommitSalting() throws Exception {
         testDeleteAllFromTableWithIndex(true, true, true);
     }
-    
+
     @Test
     public void testDeleteAllFromTableWithIndexAutoCommitNoSalting() throws Exception {
         testDeleteAllFromTableWithIndex(true, false);
     }
-    
+
     @Test
     public void testDeleteAllFromTableWithIndexNoAutoCommitNoSalting() throws Exception {
-        testDeleteAllFromTableWithIndex(false,false);
+        testDeleteAllFromTableWithIndex(false, false);
     }
-    
+
     @Test
     public void testDeleteAllFromTableWithIndexNoAutoCommitSalted() throws Exception {
         testDeleteAllFromTableWithIndex(false, true, false);
     }
-    
+
     @Test
     public void testDeleteAllFromTableWithLocalIndexNoAutoCommitSalted() throws Exception {
         testDeleteAllFromTableWithIndex(false, true, true);
@@ -323,7 +324,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         try {
             Properties props = new Properties();
             props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-                allowServerSideMutations);
+                    allowServerSideMutations);
             con = DriverManager.getConnection(getUrl(), props);
             con.setAutoCommit(autoCommit);
 
@@ -333,7 +334,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
                     "HOST CHAR(2) NOT NULL," +
                     "DOMAIN VARCHAR NOT NULL, " +
                     "FEATURE VARCHAR NOT NULL, " +
-                    "\"DATE\" DATE NOT NULL, \n" + 
+                    "\"DATE\" DATE NOT NULL, \n" +
                     "USAGE.CORE BIGINT," +
                     "USAGE.DB BIGINT," +
                     "STATS.ACTIVE_VISITOR INTEGER " +
@@ -362,16 +363,16 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             if (!autoCommit) {
                 con.commit();
             }
-            
-            con.createStatement().execute("DELETE FROM " + tableName );
+
+            con.createStatement().execute("DELETE FROM " + tableName);
             if (!autoCommit) {
                 con.commit();
             }
-            
+
             ResultSet rs = con.createStatement().executeQuery("SELECT /*+ NO_INDEX */ count(*) FROM " + tableName);
             assertTrue(rs.next());
             assertEquals(0, rs.getLong(1));
-            if(localIndex){
+            if (localIndex) {
                 rs = con.createStatement().executeQuery("SELECT count(*) FROM " + localIndexName);
             } else {
                 rs = con.createStatement().executeQuery("SELECT count(*) FROM " + indexName);
@@ -386,39 +387,39 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     @Test
     public void testDeleteRowFromTableWithImmutableIndex() throws Exception {
         testDeleteRowFromTableWithImmutableIndex(false, true);
     }
-    
+
     @Test
     public void testDeleteRowFromTableWithImmutableLocalIndex() throws Exception {
         testDeleteRowFromTableWithImmutableIndex(true, false);
     }
-    
+
     @Test
     public void testPointDeleteRowFromTableWithImmutableIndex() throws Exception {
         testPointDeleteRowFromTableWithImmutableIndex(false, false);
     }
-    
+
     @Test
     public void testPointDeleteRowFromTableWithLocalImmutableIndex() throws Exception {
         testPointDeleteRowFromTableWithImmutableIndex(true, false);
     }
-    
+
     @Test
     public void testPointDeleteRowFromTableWithImmutableIndex2() throws Exception {
         testPointDeleteRowFromTableWithImmutableIndex(false, true);
     }
-    
+
     public void testPointDeleteRowFromTableWithImmutableIndex(boolean localIndex, boolean addNonPKIndex) throws Exception {
         Connection con = null;
         try {
             boolean autoCommit = false;
             Properties props = new Properties();
             props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-                allowServerSideMutations);
+                    allowServerSideMutations);
             con = DriverManager.getConnection(getUrl(), props);
             con.setAutoCommit(autoCommit);
 
@@ -427,13 +428,13 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             String tableName = generateUniqueName();
             String indexName1 = generateUniqueName();
             String indexName2 = generateUniqueName();
-            String indexName3 = addNonPKIndex? generateUniqueName() : null;
+            String indexName3 = addNonPKIndex ? generateUniqueName() : null;
 
             stm.execute("CREATE TABLE IF NOT EXISTS " + tableName + " (" +
                     "HOST CHAR(2) NOT NULL," +
                     "DOMAIN VARCHAR NOT NULL, " +
                     "FEATURE VARCHAR NOT NULL, " +
-                    "\"DATE\" DATE NOT NULL, \n" + 
+                    "\"DATE\" DATE NOT NULL, \n" +
                     "USAGE.CORE BIGINT," +
                     "USAGE.DB BIGINT," +
                     "STATS.ACTIVE_VISITOR INTEGER " +
@@ -443,7 +444,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             if (addNonPKIndex) {
                 stm.execute("CREATE " + (localIndex ? "LOCAL" : "") + " INDEX " + indexName3 + " ON " + tableName + " (\"DATE\", FEATURE, USAGE.DB)");
             }
-            
+
             Date date = new Date(0);
             PreparedStatement psInsert = con
                     .prepareStatement("UPSERT INTO " + tableName + "(HOST, DOMAIN, FEATURE, \"DATE\", CORE, DB, ACTIVE_VISITOR) VALUES(?,?, ? , ?, ?, ?, ?)");
@@ -458,7 +459,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             if (!autoCommit) {
                 con.commit();
             }
-            
+
             String dml = "DELETE FROM " + tableName + " WHERE (HOST, DOMAIN, FEATURE, \"DATE\") = (?,?,?,?)";
             PreparedStatement psDelete = con.prepareStatement(dml);
             psDelete.setString(1, "AA");
@@ -480,7 +481,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             } else {
                 assertEquals("DELETE SINGLE ROW", explainPlan);
             }
-            
+
             assertDeleted(con, tableName, indexName1, indexName2, indexName3);
         } finally {
             try {
@@ -489,14 +490,14 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             }
         }
     }
-        
+
     public void testDeleteRowFromTableWithImmutableIndex(boolean localIndex, boolean useCoveredIndex) throws Exception {
         Connection con = null;
         try {
             boolean autoCommit = false;
             Properties props = new Properties();
             props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-                allowServerSideMutations);
+                    allowServerSideMutations);
             con = DriverManager.getConnection(getUrl(), props);
             con.setAutoCommit(autoCommit);
 
@@ -505,13 +506,13 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             String tableName = generateUniqueName();
             String indexName1 = generateUniqueName();
             String indexName2 = generateUniqueName();
-            String indexName3 = useCoveredIndex? generateUniqueName() : null;
+            String indexName3 = useCoveredIndex ? generateUniqueName() : null;
 
             stm.execute("CREATE TABLE IF NOT EXISTS " + tableName + " (" +
                     "HOST CHAR(2) NOT NULL," +
                     "DOMAIN VARCHAR NOT NULL, " +
                     "FEATURE VARCHAR NOT NULL, " +
-                    "\"DATE\" DATE NOT NULL, \n" + 
+                    "\"DATE\" DATE NOT NULL, \n" +
                     "USAGE.CORE BIGINT," +
                     "USAGE.DB BIGINT," +
                     "STATS.ACTIVE_VISITOR INTEGER " +
@@ -537,7 +538,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             if (!autoCommit) {
                 con.commit();
             }
-            
+
             PreparedStatement psDelete = con.prepareStatement("DELETE FROM " + tableName + " WHERE (HOST, DOMAIN, FEATURE, \"DATE\") = (?,?,?,?)");
             psDelete.setString(1, "AA");
             psDelete.setString(2, "BB");
@@ -547,7 +548,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             if (!autoCommit) {
                 con.commit();
             }
-            
+
             assertDeleted(con, tableName, indexName1, indexName2, indexName3);
 
             psInsert.execute();
@@ -605,8 +606,8 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             assertEquals(0, rs.getLong(1));
         }
     }
-    
-    
+
+
     @Test
     public void testDeleteAllFromTableNoAutoCommit() throws SQLException {
         testDeleteAllFromTable(false);
@@ -616,13 +617,13 @@ public class DeleteIT extends ParallelStatsDisabledIT {
     public void testDeleteAllFromTableAutoCommit() throws SQLException {
         testDeleteAllFromTable(true);
     }
-    
+
     private void testDeleteAllFromTable(boolean autoCommit) throws SQLException {
         Connection con = null;
         try {
             Properties props = new Properties();
             props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-                allowServerSideMutations);
+                    allowServerSideMutations);
             con = DriverManager.getConnection(getUrl(), props);
             con.setAutoCommit(autoCommit);
 
@@ -633,7 +634,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
                     " HOST CHAR(2) NOT NULL," +
                     "DOMAIN VARCHAR NOT NULL, " +
                     "FEATURE VARCHAR NOT NULL, " +
-                    "\"DATE\" DATE NOT NULL, \n" + 
+                    "\"DATE\" DATE NOT NULL, \n" +
                     "USAGE.CORE BIGINT," +
                     "USAGE.DB BIGINT," +
                     "STATS.ACTIVE_VISITOR INTEGER " +
@@ -654,12 +655,12 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             if (!autoCommit) {
                 con.commit();
             }
-            
+
             con.createStatement().execute("DELETE FROM " + tableName);
             if (!autoCommit) {
                 con.commit();
             }
-            
+
             ResultSet rs = con.createStatement().executeQuery("SELECT /*+ NO_INDEX */ count(*) FROM " + tableName);
             assertTrue(rs.next());
             assertEquals(0, rs.getLong(1));
@@ -670,29 +671,29 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     @Test
     public void testDeleteForTableWithRowTimestampColServer() throws Exception {
         String tableName = generateUniqueName();
         testDeleteForTableWithRowTimestampCol(true, tableName);
     }
-    
+
     @Test
     public void testDeleteForTableWithRowTimestampColClient() throws Exception {
         String tableName = generateUniqueName();
         testDeleteForTableWithRowTimestampCol(false, tableName);
     }
-    
+
     private void testDeleteForTableWithRowTimestampCol(boolean autoCommit, String tableName) throws Exception {
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(autoCommit);
             Statement stm = conn.createStatement();
             stm.execute("CREATE TABLE IF NOT EXISTS " + tableName +
                     " (HOST CHAR(2) NOT NULL," +
-                    "STAT_DATE DATE NOT NULL, \n" + 
+                    "STAT_DATE DATE NOT NULL, \n" +
                     "USAGE.CORE BIGINT," +
                     "USAGE.DB BIGINT," +
                     "CONSTRAINT PK PRIMARY KEY (HOST, STAT_DATE ROW_TIMESTAMP))");
@@ -716,7 +717,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + tableName);
             assertTrue(rs.next());
             assertEquals(0, rs.getLong(1));
-            
+
             // try with value for row_timestamp column generated by phoenix 
             psInsert = conn
                     .prepareStatement("UPSERT INTO " + tableName + " (HOST, CORE, DB) VALUES(?,?,?)");
@@ -737,17 +738,17 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             assertEquals(0, rs.getLong(1));
         }
     }
-    
+
     @Test
     public void testServerSideDeleteAutoCommitOn() throws Exception {
         testDeleteCount(true, null);
     }
-    
+
     @Test
     public void testClientSideDeleteCountAutoCommitOff() throws Exception {
         testDeleteCount(false, null);
     }
-    
+
     @Test
     public void testClientSideDeleteAutoCommitOn() throws Exception {
         testDeleteCount(true, 1000);
@@ -770,7 +771,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
                 + (alterTable ? ";ALTER TABLE " + tableName + " set " : "") + "IMMUTABLE_ROWS=true;"
                 + "CREATE INDEX IF NOT EXISTS index_column_varchar_id ON " + tableName + "(varchar_id);"
                 + "CREATE INDEX IF NOT EXISTS index_column_double_id ON " + tableName + "(double_id);" + "UPSERT INTO "
-                + tableName + " VALUES (9000000,0.5,'Sample text extra');" ;
+                + tableName + " VALUES (9000000,0.5,'Sample text extra');";
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS, allowServerSideMutations);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -783,13 +784,13 @@ public class DeleteIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             assertEquals(9000000, rs.getInt(1));
             assertEquals("Sample text extra", rs.getString(2));
-            assertEquals(0.5, rs.getDouble(3),0.01);
+            assertEquals(0.5, rs.getDouble(3), 0.01);
             stm.execute("DELETE FROM " + tableName + " WHERE ID=9000000");
             assertDeleted(conn, tableName, "index_column_varchar_id", "index_column_double_id", null);
             stm.close();
         }
     }
-    
+
     private void testDeleteCount(boolean autoCommit, Integer limit) throws Exception {
         String tableName = generateUniqueName();
 
@@ -797,11 +798,11 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         int numRecords = 1010;
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.createStatement().execute(ddl);
             Statement stmt = conn.createStatement();
-            for (int i = 0; i < numRecords ; i++) {
+            for (int i = 0; i < numRecords; i++) {
                 stmt.executeUpdate("UPSERT INTO " + tableName + " (pk1, v1) VALUES (" + i + ",'value')");
             }
             conn.commit();
@@ -817,7 +818,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         }
 
     }
-    
+
 
     @Test
     public void testClientSideDeleteShouldNotFailWhenSameColumnPresentInMultipleIndexes()
@@ -833,7 +834,7 @@ public class DeleteIT extends ParallelStatsDisabledIT {
         String idx2 = "CREATE INDEX " + indexName2 + " ON " + tableName + "(v1, v2)";
         Properties props = new Properties();
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_DELETE_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.createStatement().execute(ddl);
             conn.createStatement().execute(idx1);
@@ -861,13 +862,13 @@ public class DeleteIT extends ParallelStatsDisabledIT {
                         + " IMMUTABLE_ROWS=true";
         String idx1 = "CREATE INDEX " + indexName1 + " ON " + tableName + "(v1)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-        props.setProperty(QueryServices.MAX_MUTATION_SIZE_ATTRIB,Integer.toString(10));
+        props.setProperty(QueryServices.MAX_MUTATION_SIZE_ATTRIB, Integer.toString(10));
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.createStatement().execute(ddl);
             conn.createStatement().execute(idx1);
             Statement stmt = conn.createStatement();
-            for(int i = 0; i < 20; i++) {
-                stmt.executeUpdate("UPSERT INTO " + tableName + " VALUES ("+i+",'value"+i+"', 'value2')");
+            for (int i = 0; i < 20; i++) {
+                stmt.executeUpdate("UPSERT INTO " + tableName + " VALUES (" + i + ",'value" + i + "', 'value2')");
                 if (i % 10 == 0) {
                     conn.commit();
                 }

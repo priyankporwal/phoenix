@@ -28,7 +28,7 @@ public class EmptySequenceCacheException extends SQLException {
     private static SQLExceptionCode ERROR_CODE = SQLExceptionCode.EMPTY_SEQUENCE_CACHE;
 
     public EmptySequenceCacheException() {
-        this(null,null);
+        this(null, null);
     }
 
     public EmptySequenceCacheException(String schemaName, String tableName) {

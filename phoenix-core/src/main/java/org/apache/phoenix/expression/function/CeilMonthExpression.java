@@ -23,8 +23,7 @@ import org.apache.phoenix.expression.Expression;
 import org.joda.time.DateTime;
 
 /**
- * 
- * Ceil function that rounds up the {@link DateTime} to next month. 
+ * Ceil function that rounds up the {@link DateTime} to next month.
  */
 public class CeilMonthExpression extends RoundJodaDateExpression {
 

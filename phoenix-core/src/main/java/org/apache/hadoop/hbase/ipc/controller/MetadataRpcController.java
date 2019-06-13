@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,13 +36,13 @@ import com.google.protobuf.RpcController;
  */
 class MetadataRpcController extends DelegatingHBaseRpcController {
 
-	private int priority;
-	// list of system tables
-	private static final List<String> SYSTEM_TABLE_NAMES = new ImmutableList.Builder<String>()
-			.add(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME)
-			.add(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME)
-			.add(PhoenixDatabaseMetaData.SYSTEM_SEQUENCE_NAME)
-			.add(PhoenixDatabaseMetaData.SYSTEM_FUNCTION_NAME)
+    private int priority;
+    // list of system tables
+    private static final List<String> SYSTEM_TABLE_NAMES = new ImmutableList.Builder<String>()
+            .add(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME)
+            .add(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME)
+            .add(PhoenixDatabaseMetaData.SYSTEM_SEQUENCE_NAME)
+            .add(PhoenixDatabaseMetaData.SYSTEM_FUNCTION_NAME)
             .add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES, true)
                     .getNameAsString())
             .add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME_BYTES, true)
@@ -53,19 +53,19 @@ class MetadataRpcController extends DelegatingHBaseRpcController {
                     .getNameAsString())
             .build();
 
-	public MetadataRpcController(HBaseRpcController delegate,
-			Configuration conf) {
-		super(delegate);
-		this.priority = PhoenixRpcSchedulerFactory.getMetadataPriority(conf);
-	}
+    public MetadataRpcController(HBaseRpcController delegate,
+                                 Configuration conf) {
+        super(delegate);
+        this.priority = PhoenixRpcSchedulerFactory.getMetadataPriority(conf);
+    }
 
-	@Override
-	public void setPriority(final TableName tn) {
-		if (SYSTEM_TABLE_NAMES.contains(tn.getNameAsString())) {
-			setPriority(this.priority);
-		} else {
-			super.setPriority(tn);
-		}
-	}
+    @Override
+    public void setPriority(final TableName tn) {
+        if (SYSTEM_TABLE_NAMES.contains(tn.getNameAsString())) {
+            setPriority(this.priority);
+        } else {
+            super.setPriority(tn);
+        }
+    }
 
 }

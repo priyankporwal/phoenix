@@ -32,19 +32,17 @@ import org.apache.phoenix.util.ByteUtil;
 
 
 /**
- * 
  * Simple flat schema over a byte array where fields may be any of {@link org.apache.phoenix.schema.types.PDataType}.
  * Optimized for positional access by index.
  *
- * 
  * @since 0.1
  */
 @Immutable
 public class KeyValueSchema extends ValueSchema {
-	
-	public KeyValueSchema() {
-	}
-    
+
+    public KeyValueSchema() {
+    }
+
     protected KeyValueSchema(int minNullable, List<Field> fields) {
         super(minNullable, fields);
     }
@@ -54,7 +52,7 @@ public class KeyValueSchema extends ValueSchema {
         public KeyValueSchemaBuilder(int minNullable) {
             super(minNullable);
         }
-        
+
         @Override
         public KeyValueSchema build() {
             List<Field> condensedFields = buildFields();
@@ -66,18 +64,18 @@ public class KeyValueSchema extends ValueSchema {
             super.setMaxFields(nFields);
             return this;
         }
-        
+
         public KeyValueSchemaBuilder addField(PDatum datum) {
-            super.addField(datum, fields.size() >=  this.minNullable, SortOrder.getDefault());
+            super.addField(datum, fields.size() >= this.minNullable, SortOrder.getDefault());
             return this;
         }
     }
-    
+
     public boolean isNull(int position, ValueBitSet bitSet) {
         int nBit = position - getMinNullable();
         return (nBit >= 0 && !bitSet.get(nBit));
     }
-    
+
     private static byte[] ensureSize(byte[] b, int offset, int size) {
         if (size > b.length) {
             byte[] bBigger = new byte[Math.max(b.length * 2, size)];
@@ -91,9 +89,9 @@ public class KeyValueSchema extends ValueSchema {
      * @return byte representation of the KeyValueSchema
      */
     public byte[] toBytes(Expression[] expressions, ValueBitSet valueSet, ImmutableBytesWritable ptr) {
-    	return toBytes(null, expressions, valueSet, ptr);
+        return toBytes(null, expressions, valueSet, ptr);
     }
-    
+
     /**
      * @return byte representation of the KeyValueSchema
      */
@@ -146,18 +144,18 @@ public class KeyValueSchema extends ValueSchema {
     private int getVarLengthBytes(int length) {
         return length + WritableUtils.getVIntSize(length);
     }
-    
+
     private int writeVarLengthField(ImmutableBytesWritable ptr, byte[] b, int offset) {
         int length = ptr.getLength();
         offset += ByteUtil.vintToBytes(b, offset, length);
-        System.arraycopy(ptr.get(), ptr.getOffset(), b, offset, length);                        
+        System.arraycopy(ptr.get(), ptr.getOffset(), b, offset, length);
         offset += length;
         return offset;
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-            value="NP_BOOLEAN_RETURN_NULL", 
-            justification="Designed to return null.")
+            value = "NP_BOOLEAN_RETURN_NULL",
+            justification = "Designed to return null.")
     public Boolean iterator(byte[] src, int srcOffset, int srcLength, ImmutableBytesWritable ptr, int position, ValueBitSet valueBitSet) {
         ptr.set(src, srcOffset, 0);
         int maxOffset = srcOffset + srcLength;
@@ -167,31 +165,32 @@ public class KeyValueSchema extends ValueSchema {
         }
         return hasValue;
     }
-    
+
     public Boolean iterator(ImmutableBytesWritable srcPtr, ImmutableBytesWritable ptr, int position, ValueBitSet valueSet) {
-        return iterator(srcPtr.get(),srcPtr.getOffset(),srcPtr.getLength(), ptr, position, valueSet);
+        return iterator(srcPtr.get(), srcPtr.getOffset(), srcPtr.getLength(), ptr, position, valueSet);
     }
-    
+
     public Boolean iterator(ImmutableBytesWritable ptr, int position, ValueBitSet valueSet) {
         return iterator(ptr, ptr, position, valueSet);
     }
-    
+
     public Boolean iterator(ImmutableBytesWritable ptr) {
         return iterator(ptr, ptr, 0, ValueBitSet.EMPTY_VALUE_BITSET);
     }
-    
+
     /**
      * Move the bytes ptr to the next position relative to the current ptr
-     * @param ptr bytes pointer pointing to the value at the positional index
-     * provided.
-     * @param position zero-based index of the next field in the value schema
+     *
+     * @param ptr       bytes pointer pointing to the value at the positional index
+     *                  provided.
+     * @param position  zero-based index of the next field in the value schema
      * @param maxOffset max possible offset value when iterating
      * @return true if a value was found and ptr was set, false if the value is null and ptr was not
      * set, and null if the value is null and there are no more values
-      */
+     */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-            value="NP_BOOLEAN_RETURN_NULL", 
-            justification="Designed to return null.")
+            value = "NP_BOOLEAN_RETURN_NULL",
+            justification = "Designed to return null.")
     public Boolean next(ImmutableBytesWritable ptr, int position, int maxOffset, ValueBitSet valueSet) {
         if (ptr.getOffset() + ptr.getLength() >= maxOffset) {
             ptr.set(ptr.get(), maxOffset, 0);
@@ -206,14 +205,14 @@ public class KeyValueSchema extends ValueSchema {
         ptr.set(ptr.get(), ptr.getOffset() + ptr.getLength(), 0);
         if (!isNull(position, valueSet)) {
             Field field = this.getField(position);
-            int length = field.getDataType().isFixedWidth() ? 
+            int length = field.getDataType().isFixedWidth() ?
                     field.getByteSize() : ByteUtil.vintFromBytes(ptr);
             if (ptr.getOffset() + length > maxOffset) {
                 throw new RuntimeException(new SQLExceptionInfo.Builder(SQLExceptionCode.ILLEGAL_DATA)
-                    .setMessage("Expected length of at least " + length + " bytes, but had " + (maxOffset
-                                    - ptr.getOffset())).build().buildException());
+                        .setMessage("Expected length of at least " + length + " bytes, but had " + (maxOffset
+                                - ptr.getOffset())).build().buildException());
             }
-            ptr.set(ptr.get(),ptr.getOffset(),length);
+            ptr.set(ptr.get(), ptr.getOffset(), length);
             return ptr.getLength() > 0;
         }
         return false;

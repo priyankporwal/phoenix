@@ -35,39 +35,39 @@ import org.apache.phoenix.schema.TableRef;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 public class DelayedTableResultIteratorFactory implements TableResultIteratorFactory {
-    
+
     private final long delay;
-    
+
     public DelayedTableResultIteratorFactory(long delay) {
         this.delay = delay;
     }
-    
+
     @Override
     public TableResultIterator newIterator(MutationState mutationState, TableRef tableRef,
-            Scan scan, ScanMetricsHolder scanMetricsHolder, long renewLeaseThreshold,
-            QueryPlan plan, ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr,ServerCache> caches) throws SQLException {
+                                           Scan scan, ScanMetricsHolder scanMetricsHolder, long renewLeaseThreshold,
+                                           QueryPlan plan, ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr, ServerCache> caches) throws SQLException {
         return new DelayedTableResultIterator(mutationState, tableRef, scan, scanMetricsHolder,
                 renewLeaseThreshold, plan, scanGrouper, caches);
     }
 
     private class DelayedTableResultIterator extends TableResultIterator {
         public DelayedTableResultIterator(MutationState mutationState, TableRef tableRef, Scan scan,
-                ScanMetricsHolder scanMetricsHolder, long renewLeaseThreshold, QueryPlan plan,
-                ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr,ServerCache> caches) throws SQLException {
+                                          ScanMetricsHolder scanMetricsHolder, long renewLeaseThreshold, QueryPlan plan,
+                                          ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr, ServerCache> caches) throws SQLException {
             super(mutationState, scan, scanMetricsHolder, renewLeaseThreshold, plan, scanGrouper, caches);
         }
-        
+
         @Override
         public synchronized void initScanner() throws SQLException {
             super.initScanner();
         }
-        
+
         @Override
         public Tuple next() throws SQLException {
             delay();
             return super.next();
         }
-        
+
         private void delay() throws SQLException {
             try {
                 new CountDownLatch(1).await(delay, TimeUnit.MILLISECONDS);
@@ -76,8 +76,8 @@ public class DelayedTableResultIteratorFactory implements TableResultIteratorFac
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.INTERRUPTED_EXCEPTION).setRootCause(e).build().buildException();
             }
         }
-        
-        
+
+
     }
 
 }

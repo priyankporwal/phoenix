@@ -60,16 +60,16 @@ public class InListExpression extends BaseSingleExpression {
     private boolean rowKeyOrderOptimizable; // client side only
 
 
-    public static Expression create (List<Expression> children, boolean isNegate, ImmutableBytesWritable ptr, boolean rowKeyOrderOptimizable) throws SQLException {
+    public static Expression create(List<Expression> children, boolean isNegate, ImmutableBytesWritable ptr, boolean rowKeyOrderOptimizable) throws SQLException {
         Expression firstChild = children.get(0);
-        
+
         if (firstChild.isStateless() && (!firstChild.evaluate(null, ptr) || ptr.getLength() == 0)) {
             return LiteralExpression.newConstant(null, PBoolean.INSTANCE, firstChild.getDeterminism());
         }
         if (children.size() == 2) {
             return ComparisonExpression.create(isNegate ? CompareOp.NOT_EQUAL : CompareOp.EQUAL, children, ptr, rowKeyOrderOptimizable);
         }
-        
+
         boolean addedNull = false;
         SQLException sqlE = null;
         List<Expression> coercedKeyExpressions = Lists.newArrayListWithExpectedSize(children.size());
@@ -93,7 +93,7 @@ public class InListExpression extends BaseSingleExpression {
             return LiteralExpression.newConstant(null, PBoolean.INSTANCE, Determinism.ALWAYS);
         }
         Expression expression = new InListExpression(coercedKeyExpressions, rowKeyOrderOptimizable);
-        if (isNegate) { 
+        if (isNegate) {
             expression = NotExpression.create(expression, ptr);
         }
         if (ExpressionUtil.isConstant(expression)) {
@@ -101,7 +101,7 @@ public class InListExpression extends BaseSingleExpression {
         }
         return expression;
     }
-    
+
     public InListExpression() {
     }
 
@@ -110,7 +110,7 @@ public class InListExpression extends BaseSingleExpression {
         this.rowKeyOrderOptimizable = rowKeyOrderOptimizable;
         Expression firstChild = keyExpressions.get(0);
         this.keyExpressions = keyExpressions.subList(1, keyExpressions.size());
-        Set<ImmutableBytesPtr> values = Sets.newHashSetWithExpectedSize(keyExpressions.size()-1);
+        Set<ImmutableBytesPtr> values = Sets.newHashSetWithExpectedSize(keyExpressions.size() - 1);
         Integer maxLength = firstChild.getDataType().isFixedWidth() ? firstChild.getMaxLength() : null;
         int fixedWidth = -1;
         boolean isFixedLength = true;
@@ -132,7 +132,7 @@ public class InListExpression extends BaseSingleExpression {
                     } else {
                         isFixedLength &= fixedWidth == length;
                     }
-                    
+
                     valuesByteLength += ptr.getLength();
                 }
             }
@@ -147,7 +147,7 @@ public class InListExpression extends BaseSingleExpression {
             this.values = Collections.emptySet();
         } else {
             this.minValue = valuesArray[0];
-            this.maxValue = valuesArray[valuesArray.length-1];
+            this.maxValue = valuesArray[valuesArray.length - 1];
             // Use LinkedHashSet on client-side so that we don't need to serialize the
             // minValue and maxValue but can infer them based on the first and last position.
             this.values = new LinkedHashSet<ImmutableBytesPtr>(Arrays.asList(valuesArray));
@@ -181,11 +181,19 @@ public class InListExpression extends BaseSingleExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        InListExpression other = (InListExpression)obj;
-        if (!children.equals(other.children) || !values.equals(other.values)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        InListExpression other = (InListExpression) obj;
+        if (!children.equals(other.children) || !values.equals(other.values)) {
+            return false;
+        }
         return true;
     }
 
@@ -196,10 +204,10 @@ public class InListExpression extends BaseSingleExpression {
 
     private int readValue(DataInput input, byte[] valuesBytes, int offset, ImmutableBytesPtr ptr) throws IOException {
         int valueLen = fixedWidth == -1 ? WritableUtils.readVInt(input) : fixedWidth;
-        values.add(new ImmutableBytesPtr(valuesBytes,offset,valueLen));
+        values.add(new ImmutableBytesPtr(valuesBytes, offset, valueLen));
         return offset + valueLen;
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
@@ -211,10 +219,10 @@ public class InListExpression extends BaseSingleExpression {
         // TODO: consider using a regular HashSet as we never serialize from the server-side
         values = Sets.newLinkedHashSetWithExpectedSize(len);
         int offset = 0;
-        int i  = 0;
+        int i = 0;
         if (i < len) {
             offset = readValue(input, valuesBytes, offset, minValue = new ImmutableBytesPtr());
-            while (++i < len-1) {
+            while (++i < len - 1) {
                 offset = readValue(input, valuesBytes, offset, new ImmutableBytesPtr());
             }
             if (i < len) {
@@ -279,7 +287,7 @@ public class InListExpression extends BaseSingleExpression {
                 // original value is not changed
                 currValue = new ImmutableBytesWritable(value);
                 type.coerceBytes(currValue, type, firstChild.getSortOrder(),
-                    SortOrder.getDefault());
+                        SortOrder.getDefault());
             }
             buf.append(type.toStringLiteral(currValue, null));
             buf.append(',');
@@ -288,7 +296,7 @@ public class InListExpression extends BaseSingleExpression {
                 break;
             }
         }
-        buf.setCharAt(buf.length()-1,')');
+        buf.setCharAt(buf.length() - 1, ')');
         return buf.toString();
     }
 

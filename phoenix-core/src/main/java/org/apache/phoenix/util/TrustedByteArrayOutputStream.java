@@ -21,20 +21,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * 
  * Derived version of {@link java.io.ByteArrayOutputStream} that provides access
  * to underlying byte array buffer so that it doesn't have to be copied
  *
- * 
  * @since 0.1
  */
 public class TrustedByteArrayOutputStream extends ByteArrayOutputStream {
     public TrustedByteArrayOutputStream(int initialSize) {
         super(initialSize);
     }
+
     public byte[] getBuffer() {
         return buf;
     }
+
     @Override
     public byte[] toByteArray() {
         if (buf.length == size()) {
@@ -42,6 +42,7 @@ public class TrustedByteArrayOutputStream extends ByteArrayOutputStream {
         }
         return super.toByteArray();
     }
+
     @Override
     public void write(byte[] b) {
         try {

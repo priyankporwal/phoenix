@@ -31,10 +31,8 @@ import org.apache.phoenix.memory.MemoryManager.MemoryChunk;
 import org.junit.Test;
 
 /**
- *
  * Tests for GlobalMemoryManager and ChildMemoryManager
  * TODO: use our own time keeper so these tests don't flap
- *
  *
  * @since 0.1
  */
@@ -48,8 +46,8 @@ public class MemoryManagerTest {
         } catch (InsufficientMemoryException e) { // expected
         }
 
-        ChildMemoryManager rmm1 = new ChildMemoryManager(gmm,100);
-        ChildMemoryManager rmm2 = new ChildMemoryManager(gmm,100);
+        ChildMemoryManager rmm1 = new ChildMemoryManager(gmm, 100);
+        ChildMemoryManager rmm2 = new ChildMemoryManager(gmm, 100);
         MemoryChunk c1 = rmm1.allocate(100);
         MemoryChunk c2 = rmm2.allocate(100);
         try {
@@ -66,10 +64,10 @@ public class MemoryManagerTest {
     @Test
     public void testChildDecreaseAllocation() throws Exception {
         MemoryManager gmm = spy(new GlobalMemoryManager(100));
-        ChildMemoryManager rmm1 = new ChildMemoryManager(gmm,100);
-        ChildMemoryManager rmm2 = new ChildMemoryManager(gmm,10);
+        ChildMemoryManager rmm1 = new ChildMemoryManager(gmm, 100);
+        ChildMemoryManager rmm2 = new ChildMemoryManager(gmm, 10);
         MemoryChunk c1 = rmm1.allocate(50);
-        MemoryChunk c2 = rmm2.allocate(5,50);
+        MemoryChunk c2 = rmm2.allocate(5, 50);
         assertTrue(c2.getSize() == 10);
         c1.close();
         assertTrue(rmm1.getAvailableMemory() == rmm1.getMaxMemory());
@@ -81,10 +79,10 @@ public class MemoryManagerTest {
     @Test
     public void testOverChildMemoryLimit() throws Exception {
         MemoryManager gmm = new GlobalMemoryManager(100);
-        ChildMemoryManager rmm1 = new ChildMemoryManager(gmm,25);
-        ChildMemoryManager rmm2 = new ChildMemoryManager(gmm,25);
-        ChildMemoryManager rmm3 = new ChildMemoryManager(gmm,25);
-        ChildMemoryManager rmm4 = new ChildMemoryManager(gmm,35);
+        ChildMemoryManager rmm1 = new ChildMemoryManager(gmm, 25);
+        ChildMemoryManager rmm2 = new ChildMemoryManager(gmm, 25);
+        ChildMemoryManager rmm3 = new ChildMemoryManager(gmm, 25);
+        ChildMemoryManager rmm4 = new ChildMemoryManager(gmm, 35);
         MemoryChunk c1 = rmm1.allocate(20);
         MemoryChunk c2 = rmm2.allocate(20);
         try {
@@ -149,10 +147,11 @@ public class MemoryManagerTest {
         for (int i = 0; i < THREADS; i++) {
             new Thread(new Runnable() {
                 List<MemoryChunk> chunks = new ArrayList<>();
+
                 @Override
                 public void run() {
                     try {
-                        while(true) {
+                        while (true) {
                             Thread.sleep(1);
                             chunks.add(gmm.allocate(10));
                             count.incrementAndGet();
@@ -160,12 +159,16 @@ public class MemoryManagerTest {
                     } catch (InsufficientMemoryException e) {
                         barrier.countDown();
                         // wait for the signal to go ahead
-                        try {signal.await();} catch (InterruptedException ix) {}
+                        try {
+                            signal.await();
+                        } catch (InterruptedException ix) {
+                        }
                         for (MemoryChunk chunk : chunks) {
                             chunk.close();
                         }
                         barrier2.countDown();
-                    } catch (InterruptedException ix) {}
+                    } catch (InterruptedException ix) {
+                    }
                 }
             }).start();
         }
@@ -174,21 +177,23 @@ public class MemoryManagerTest {
         // make sure all memory was used
         assertTrue(gmm.getAvailableMemory() == 0);
         // let the threads end, and free their memory
-        signal.countDown(); barrier2.await();
+        signal.countDown();
+        barrier2.await();
         // make sure all memory is freed
         assertTrue(gmm.getAvailableMemory() == gmm.getMaxMemory());
     }
 
     /**
      * Test for SpillableGroupByCache which is using MemoryManager to allocate chunks for GroupBy execution
+     *
      * @throws Exception
      */
     @Test
     public void testCorrectnessOfChunkAllocation() throws Exception {
-        for(int i = 1000;i < Integer.MAX_VALUE;) {
-            i *=1.5f;
+        for (int i = 1000; i < Integer.MAX_VALUE; ) {
+            i *= 1.5f;
             long result = GroupedAggregateRegionObserver.sizeOfUnorderedGroupByMap(i, 100);
-            assertTrue("Size for GroupByMap is negative" , result > 0);
+            assertTrue("Size for GroupByMap is negative", result > 0);
         }
     }
 

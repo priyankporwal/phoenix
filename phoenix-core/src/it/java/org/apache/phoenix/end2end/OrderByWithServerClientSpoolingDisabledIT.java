@@ -38,9 +38,9 @@ public class OrderByWithServerClientSpoolingDisabledIT extends OrderByIT {
         // make sure disabling server side spooling has no affect on correctness(existing orderby
         // IT)
         props.put(QueryServices.SERVER_ORDERBY_SPOOLING_ENABLED_ATTRIB,
-            Boolean.toString(Boolean.FALSE));
+                Boolean.toString(Boolean.FALSE));
         props.put(QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
-            Boolean.toString(Boolean.FALSE));
+                Boolean.toString(Boolean.FALSE));
         setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
     }
 

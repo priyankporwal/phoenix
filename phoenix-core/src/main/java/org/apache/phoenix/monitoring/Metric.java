@@ -21,7 +21,7 @@ package org.apache.phoenix.monitoring;
  * Interface that represents phoenix-internal metric.
  */
 public interface Metric {
-    
+
     /**
      * @return type of the metric
      */
@@ -34,9 +34,8 @@ public interface Metric {
 
     /**
      * Change the metric by the specified amount
-     * 
-     * @param delta
-     *            amount by which the metric value should be changed
+     *
+     * @param delta amount by which the metric value should be changed
      */
     public void change(long delta);
 
@@ -44,17 +43,17 @@ public interface Metric {
      * Increase the value of metric by 1
      */
     public void increment();
-    
+
     /**
      * Decrease the value of metric by 1
      */
     public void decrement();
-    
+
     /**
      * @return String that represents the current state of the metric. Typically used for logging or reporting purposes.
      */
     public String getCurrentMetricState();
-    
+
     /**
      * Reset the metric
      */

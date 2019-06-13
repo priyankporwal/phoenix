@@ -19,9 +19,9 @@ package org.apache.phoenix.schema;
 
 
 public class PTableRefImpl extends PTableRef {
-    
+
     private final PTable table;
-    
+
     public PTableRefImpl(PTable table, long lastAccessTime, long resolvedTime, int estimatedSize) {
         super(lastAccessTime, resolvedTime, estimatedSize);
         this.table = table;

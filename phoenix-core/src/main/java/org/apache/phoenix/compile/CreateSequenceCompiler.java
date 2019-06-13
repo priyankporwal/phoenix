@@ -49,7 +49,7 @@ public class CreateSequenceCompiler {
         this.statement = statement;
         this.operation = operation;
     }
-    
+
     private static class LongDatum implements PDatum {
 
         @Override
@@ -76,8 +76,9 @@ public class CreateSequenceCompiler {
         public SortOrder getSortOrder() {
             return SortOrder.getDefault();
         }
-        
+
     }
+
     private static class IntegerDatum implements PDatum {
 
         @Override
@@ -104,13 +105,14 @@ public class CreateSequenceCompiler {
         public SortOrder getSortOrder() {
             return SortOrder.getDefault();
         }
-        
+
     }
+
     private static final PDatum LONG_DATUM = new LongDatum();
     private static final PDatum INTEGER_DATUM = new IntegerDatum();
 
     private void validateNodeIsStateless(CreateSequenceStatement sequence, ParseNode node,
-            SQLExceptionCode code) throws SQLException {
+                                         SQLExceptionCode code) throws SQLException {
         if (!node.isStateless()) {
             TableName sequenceName = sequence.getSequenceName();
             throw SequenceUtil.getException(sequenceName.getSchemaName(), sequenceName.getTableName(), code);
@@ -118,7 +120,7 @@ public class CreateSequenceCompiler {
     }
 
     private long evalExpression(CreateSequenceStatement sequence, StatementContext context,
-            Expression expression, SQLExceptionCode code) throws SQLException {
+                                Expression expression, SQLExceptionCode code) throws SQLException {
         ImmutableBytesWritable ptr = context.getTempPtr();
         expression.evaluate(null, ptr);
         if (ptr.getLength() == 0 || !expression.getDataType().isCoercibleTo(PLong.INSTANCE)) {
@@ -136,24 +138,24 @@ public class CreateSequenceCompiler {
         ParseNode cacheNode = sequence.getCacheSize();
 
         // validate parse nodes
-        if (startsWithNode!=null) {
+        if (startsWithNode != null) {
             validateNodeIsStateless(sequence, startsWithNode,
-                SQLExceptionCode.START_WITH_MUST_BE_CONSTANT);
+                    SQLExceptionCode.START_WITH_MUST_BE_CONSTANT);
         }
         validateNodeIsStateless(sequence, incrementByNode,
-            SQLExceptionCode.INCREMENT_BY_MUST_BE_CONSTANT);
-        validateNodeIsStateless(sequence, maxValueNode, 
-            SQLExceptionCode.MAXVALUE_MUST_BE_CONSTANT);
-        validateNodeIsStateless(sequence, minValueNode, 
-            SQLExceptionCode.MINVALUE_MUST_BE_CONSTANT);
+                SQLExceptionCode.INCREMENT_BY_MUST_BE_CONSTANT);
+        validateNodeIsStateless(sequence, maxValueNode,
+                SQLExceptionCode.MAXVALUE_MUST_BE_CONSTANT);
+        validateNodeIsStateless(sequence, minValueNode,
+                SQLExceptionCode.MINVALUE_MUST_BE_CONSTANT);
         if (cacheNode != null) {
             validateNodeIsStateless(sequence, cacheNode,
-                SQLExceptionCode.CACHE_MUST_BE_NON_NEGATIVE_CONSTANT);
+                    SQLExceptionCode.CACHE_MUST_BE_NON_NEGATIVE_CONSTANT);
         }
 
         final PhoenixConnection connection = statement.getConnection();
         final StatementContext context = new StatementContext(statement);
-        
+
         // add param meta data if required
         if (startsWithNode instanceof BindParseNode) {
             context.getBindManager().addParamMetaData((BindParseNode) startsWithNode, LONG_DATUM);
@@ -170,41 +172,41 @@ public class CreateSequenceCompiler {
         if (cacheNode instanceof BindParseNode) {
             context.getBindManager().addParamMetaData((BindParseNode) cacheNode, INTEGER_DATUM);
         }
-        
-        ExpressionCompiler expressionCompiler = new ExpressionCompiler(context);        
+
+        ExpressionCompiler expressionCompiler = new ExpressionCompiler(context);
         final long incrementBy =
                 evalExpression(sequence, context, incrementByNode.accept(expressionCompiler),
-                    SQLExceptionCode.INCREMENT_BY_MUST_BE_CONSTANT);
+                        SQLExceptionCode.INCREMENT_BY_MUST_BE_CONSTANT);
         if (incrementBy == 0) {
             throw SequenceUtil.getException(sequence.getSequenceName().getSchemaName(), sequence
-                    .getSequenceName().getTableName(),
-                SQLExceptionCode.INCREMENT_BY_MUST_NOT_BE_ZERO);
+                            .getSequenceName().getTableName(),
+                    SQLExceptionCode.INCREMENT_BY_MUST_NOT_BE_ZERO);
         }
         final long maxValue =
                 evalExpression(sequence, context, maxValueNode.accept(expressionCompiler),
-                    SQLExceptionCode.MAXVALUE_MUST_BE_CONSTANT);
+                        SQLExceptionCode.MAXVALUE_MUST_BE_CONSTANT);
         final long minValue =
                 evalExpression(sequence, context, minValueNode.accept(expressionCompiler),
-                    SQLExceptionCode.MINVALUE_MUST_BE_CONSTANT);
-        if (minValue>maxValue) {
+                        SQLExceptionCode.MINVALUE_MUST_BE_CONSTANT);
+        if (minValue > maxValue) {
             TableName sequenceName = sequence.getSequenceName();
             throw SequenceUtil.getException(sequenceName.getSchemaName(),
-                sequenceName.getTableName(),
-                SQLExceptionCode.MINVALUE_MUST_BE_LESS_THAN_OR_EQUAL_TO_MAXVALUE);
+                    sequenceName.getTableName(),
+                    SQLExceptionCode.MINVALUE_MUST_BE_LESS_THAN_OR_EQUAL_TO_MAXVALUE);
         }
-        
+
         long startsWithValue;
         if (startsWithNode == null) {
             startsWithValue = incrementBy > 0 ? minValue : maxValue;
         } else {
             startsWithValue =
                     evalExpression(sequence, context, startsWithNode.accept(expressionCompiler),
-                        SQLExceptionCode.START_WITH_MUST_BE_CONSTANT);
+                            SQLExceptionCode.START_WITH_MUST_BE_CONSTANT);
             if (startsWithValue < minValue || startsWithValue > maxValue) {
                 TableName sequenceName = sequence.getSequenceName();
                 throw SequenceUtil.getException(sequenceName.getSchemaName(),
-                    sequenceName.getTableName(),
-                    SQLExceptionCode.STARTS_WITH_MUST_BE_BETWEEN_MIN_MAX_VALUE);
+                        sequenceName.getTableName(),
+                        SQLExceptionCode.STARTS_WITH_MUST_BE_BETWEEN_MIN_MAX_VALUE);
             }
         }
         final long startsWith = startsWithValue;
@@ -216,17 +218,16 @@ public class CreateSequenceCompiler {
                             .getQueryServices()
                             .getProps()
                             .getLong(QueryServices.SEQUENCE_CACHE_SIZE_ATTRIB,
-                                QueryServicesOptions.DEFAULT_SEQUENCE_CACHE_SIZE);
-        }
-        else {
-            cacheSizeValue = 
+                                    QueryServicesOptions.DEFAULT_SEQUENCE_CACHE_SIZE);
+        } else {
+            cacheSizeValue =
                     evalExpression(sequence, context, cacheNode.accept(expressionCompiler),
-                        SQLExceptionCode.CACHE_MUST_BE_NON_NEGATIVE_CONSTANT);
+                            SQLExceptionCode.CACHE_MUST_BE_NON_NEGATIVE_CONSTANT);
             if (cacheSizeValue < 0) {
                 TableName sequenceName = sequence.getSequenceName();
                 throw SequenceUtil.getException(sequenceName.getSchemaName(),
-                    sequenceName.getTableName(),
-                    SQLExceptionCode.CACHE_MUST_BE_NON_NEGATIVE_CONSTANT);
+                        sequenceName.getTableName(),
+                        SQLExceptionCode.CACHE_MUST_BE_NON_NEGATIVE_CONSTANT);
             }
         }
         final long cacheSize = Math.max(1L, cacheSizeValue);

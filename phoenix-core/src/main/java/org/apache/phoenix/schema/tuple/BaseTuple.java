@@ -28,12 +28,12 @@ public abstract class BaseTuple implements Tuple {
     public int size() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public boolean isImmutable() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void getKey(ImmutableBytesWritable ptr) {
         throw new UnsupportedOperationException();
@@ -43,19 +43,19 @@ public abstract class BaseTuple implements Tuple {
     public Cell mergeWithDynColsListBytesAndGetValue(int index, byte[] dynColsList) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public Cell getValue(int index) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
-    public Cell getValue(byte [] family, byte [] qualifier) {
+    public Cell getValue(byte[] family, byte[] qualifier) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
-    public boolean getValue(byte [] family, byte [] qualifier, ImmutableBytesWritable ptr) {
+    public boolean getValue(byte[] family, byte[] qualifier, ImmutableBytesWritable ptr) {
         throw new UnsupportedOperationException();
     }
 
@@ -63,7 +63,7 @@ public abstract class BaseTuple implements Tuple {
     public long getSequenceValue(int index) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void setKeyValues(List<Cell> values) {
         throw new UnsupportedOperationException();

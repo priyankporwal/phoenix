@@ -22,26 +22,24 @@ import java.sql.SQLException;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
- * 
  * Iterates through tuples up to a limit
  *
- * 
  * @since 1.2
  */
 public class LimitingPeekingResultIterator extends LimitingResultIterator implements PeekingResultIterator {
-    
+
     public LimitingPeekingResultIterator(PeekingResultIterator delegate, int limit) {
         super(delegate, limit);
     }
 
-    
+
     @Override
     protected PeekingResultIterator getDelegate() {
-    	return (PeekingResultIterator) super.getDelegate();
+        return (PeekingResultIterator) super.getDelegate();
     }
-    
-	@Override
-	public Tuple peek() throws SQLException {
-		return getDelegate().peek();
-	}
+
+    @Override
+    public Tuple peek() throws SQLException {
+        return getDelegate().peek();
+    }
 }

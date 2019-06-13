@@ -54,6 +54,7 @@ public class PhoenixMetricsDisabledIT extends BaseUniqueNamesOwnClusterIT {
             public Configuration getConfiguration() {
                 return conf;
             }
+
             @Override
             public Configuration getConfiguration(Configuration confToClone) {
                 Configuration copy = new Configuration(conf);

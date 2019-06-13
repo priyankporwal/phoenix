@@ -184,7 +184,7 @@ public class PhoenixLoggingMetricsIT extends BasePhoenixMetricsIT {
         loggedConn.createStatement().executeUpdate(upsertSelect);
 
         assertTrue("Mutation write metrics are not logged for " + tableName2,
-                mutationWriteMetricsMap.get(tableName2).size()  > 0);
+                mutationWriteMetricsMap.get(tableName2).size() > 0);
         assertTrue("Mutation read metrics are not found for " + tableName1,
                 mutationReadMetricsMap.get(tableName1).size() > 0);
 
@@ -196,9 +196,9 @@ public class PhoenixLoggingMetricsIT extends BasePhoenixMetricsIT {
         loggedConn.createStatement().execute(upsertSelect);
 
         assertTrue("Mutation write metrics are not logged for " + tableName2
-                + " in createStatement",mutationWriteMetricsMap.get(tableName2).size()  > 0);
+                + " in createStatement", mutationWriteMetricsMap.get(tableName2).size() > 0);
         assertTrue("Mutation read metrics are not found for " + tableName1
-                + " in createStatement",mutationReadMetricsMap.get(tableName1).size() > 0);
+                + " in createStatement", mutationReadMetricsMap.get(tableName1).size() > 0);
 
         clearAllTestMetricMaps();
 
@@ -208,9 +208,9 @@ public class PhoenixLoggingMetricsIT extends BasePhoenixMetricsIT {
 
         loggedConn.prepareStatement(upsertSelect).executeUpdate();
         assertTrue("Mutation write metrics are not logged for " + tableName2
-                + " in prepareStatement",mutationWriteMetricsMap.get(tableName2).size()  > 0);
+                + " in prepareStatement", mutationWriteMetricsMap.get(tableName2).size() > 0);
         assertTrue("Mutation read metrics are not found for " + tableName1
-                + " in prepareStatement",mutationReadMetricsMap.get(tableName1).size() > 0);
+                + " in prepareStatement", mutationReadMetricsMap.get(tableName1).size() > 0);
 
 
     }
@@ -234,7 +234,7 @@ public class PhoenixLoggingMetricsIT extends BasePhoenixMetricsIT {
         return rs;
     }
 
-    private void verifyQueryLevelMetricsLogging(String query , ResultSet rs) throws SQLException {
+    private void verifyQueryLevelMetricsLogging(String query, ResultSet rs) throws SQLException {
         assertTrue("Read metrics for not found for " + tableName1,
                 requestReadMetricsMap.get(tableName1).size() > 0);
         assertTrue("Logged query doesn't match actual query", loggedSql.equals(query));

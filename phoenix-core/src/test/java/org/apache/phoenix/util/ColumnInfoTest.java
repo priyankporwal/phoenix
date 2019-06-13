@@ -35,7 +35,7 @@ public class ColumnInfoTest {
         assertEquals(columnInfo, ColumnInfo.fromString(columnInfo.toString()));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testFromString_InvalidString() {
         ColumnInfo.fromString("invalid");
     }
@@ -46,17 +46,17 @@ public class ColumnInfoTest {
             ColumnInfo.fromString("COLNAME:badType");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof SQLException);
-            SQLException sqlE = (SQLException)e.getCause();
+            SQLException sqlE = (SQLException) e.getCause();
             assertEquals(SQLExceptionCode.ILLEGAL_DATA.getErrorCode(), sqlE.getErrorCode());
         }
     }
-    
+
     @Test
     public void testToFromColonInColumnName() {
         ColumnInfo columnInfo = new ColumnInfo(":myColumn", Types.INTEGER);
         assertEquals(columnInfo, ColumnInfo.fromString(columnInfo.toString()));
     }
-    
+
     @Test
     public void testOptionalDescriptionType() {
         testType(new ColumnInfo("a.myColumn", Types.CHAR), "CHAR:\"a\".\"myColumn\"");

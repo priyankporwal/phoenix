@@ -66,7 +66,7 @@ public abstract class ArrayIT extends ParallelStatsDisabledIT {
         try {
             // Insert all rows at ts
             PreparedStatement stmt = conn.prepareStatement(
-                    "upsert into " + tableName + 
+                    "upsert into " + tableName +
                             "(" +
                             "    ORGANIZATION_ID, " +
                             "    ENTITY_ID, " +
@@ -83,11 +83,11 @@ public abstract class ArrayIT extends ParallelStatsDisabledIT {
                             "    a_double_array," +
                             "    A_UNSIGNED_FLOAT," +
                             "    A_UNSIGNED_DOUBLE)" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             stmt.setString(1, tenantId);
             stmt.setString(2, ROW1);
             // Need to support primitive
-            String[] strArr =  new String[4];
+            String[] strArr = new String[4];
             strArr[0] = "ABC";
             if (useNull) {
                 strArr[1] = null;
@@ -103,14 +103,14 @@ public abstract class ArrayIT extends ParallelStatsDisabledIT {
             stmt.setDate(6, date);
             stmt.setBigDecimal(7, null);
             // Need to support primitive
-            Long[] longArr =  new Long[2];
+            Long[] longArr = new Long[2];
             longArr[0] = 25l;
             longArr[1] = 36l;
             array = conn.createArrayOf("BIGINT", longArr);
             stmt.setArray(8, array);
             stmt.setNull(9, Types.INTEGER);
             // Need to support primitive
-            Byte[] byteArr =  new Byte[2];
+            Byte[] byteArr = new Byte[2];
             byteArr[0] = 25;
             byteArr[1] = 36;
             array = conn.createArrayOf("TINYINT", byteArr);
@@ -118,7 +118,7 @@ public abstract class ArrayIT extends ParallelStatsDisabledIT {
             stmt.setShort(11, (short) 128);
             stmt.setFloat(12, 0.01f);
             // Need to support primitive
-            Double[] doubleArr =  new Double[4];
+            Double[] doubleArr = new Double[4];
             doubleArr[0] = 25.343;
             doubleArr[1] = 36.763;
             doubleArr[2] = 37.56;

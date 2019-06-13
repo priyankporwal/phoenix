@@ -47,16 +47,16 @@ import org.apache.phoenix.util.SQLCloseables;
 public class LiteralResultIterationPlan extends BaseQueryPlan {
     protected final Iterable<Tuple> tuples;
 
-    public LiteralResultIterationPlan(StatementContext context, 
-            FilterableStatement statement, TableRef tableRef, RowProjector projection, 
-            Integer limit, Integer offset, OrderBy orderBy, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
-        this(Collections.<Tuple> singletonList(new SingleKeyValueTuple(KeyValue.LOWESTKEY)), 
+    public LiteralResultIterationPlan(StatementContext context,
+                                      FilterableStatement statement, TableRef tableRef, RowProjector projection,
+                                      Integer limit, Integer offset, OrderBy orderBy, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
+        this(Collections.<Tuple>singletonList(new SingleKeyValueTuple(KeyValue.LOWESTKEY)),
                 context, statement, tableRef, projection, limit, offset, orderBy, parallelIteratorFactory);
     }
 
-    public LiteralResultIterationPlan(Iterable<Tuple> tuples, StatementContext context, 
-            FilterableStatement statement, TableRef tableRef, RowProjector projection, 
-            Integer limit, Integer offset, OrderBy orderBy, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
+    public LiteralResultIterationPlan(Iterable<Tuple> tuples, StatementContext context,
+                                      FilterableStatement statement, TableRef tableRef, RowProjector projection,
+                                      Integer limit, Integer offset, OrderBy orderBy, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
         super(context, statement, tableRef, projection, context.getBindManager().getParameterMetaData(), limit, offset, orderBy, GroupBy.EMPTY_GROUP_BY, parallelIteratorFactory, null, null);
         this.tuples = tuples;
     }
@@ -87,7 +87,7 @@ public class LiteralResultIterationPlan extends BaseQueryPlan {
     }
 
     @Override
-    protected ResultIterator newIterator(ParallelScanGrouper scanGrouper, Scan scan, final Map<ImmutableBytesPtr,ServerCache> caches)
+    protected ResultIterator newIterator(ParallelScanGrouper scanGrouper, Scan scan, final Map<ImmutableBytesPtr, ServerCache> caches)
             throws SQLException {
         ResultIterator scanner = new ResultIterator() {
             private final Iterator<Tuple> tupleIterator = tuples.iterator();
@@ -107,7 +107,7 @@ public class LiteralResultIterationPlan extends BaseQueryPlan {
                     offsetCount++;
                     tupleIterator.next();
                 }
-                if (!this.closed 
+                if (!this.closed
                         && (limit == null || count++ < limit)
                         && tupleIterator.hasNext()) {
                     return tupleIterator.next();
@@ -118,25 +118,25 @@ public class LiteralResultIterationPlan extends BaseQueryPlan {
             @Override
             public void explain(List<String> planSteps) {
             }
-            
+
         };
-        
+
         if (context.getSequenceManager().getSequenceCount() > 0) {
             scanner = new SequenceResultIterator(scanner, context.getSequenceManager());
         }
-        
+
         return scanner;
     }
 
-	@Override
-	public Long getEstimatedRowsToScan() {
-		return 0l;
-	}
+    @Override
+    public Long getEstimatedRowsToScan() {
+        return 0l;
+    }
 
-	@Override
-	public Long getEstimatedBytesToScan() {
-		return 0l;
-	}
+    @Override
+    public Long getEstimatedBytesToScan() {
+        return 0l;
+    }
 
     @Override
     public Long getEstimateInfoTimestamp() throws SQLException {
@@ -145,6 +145,6 @@ public class LiteralResultIterationPlan extends BaseQueryPlan {
 
     @Override
     public List<OrderBy> getOutputOrderBys() {
-        return Collections.<OrderBy> emptyList();
+        return Collections.<OrderBy>emptyList();
     }
 }

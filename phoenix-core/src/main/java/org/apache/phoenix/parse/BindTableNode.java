@@ -22,12 +22,10 @@ import java.sql.SQLException;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Node representing a TABLE bound using an ARRAY variable
  * TODO: modify grammar to support this
- * 
+ *
  * @since 0.1
  */
 public class BindTableNode extends ConcreteTableNode {
@@ -44,7 +42,9 @@ public class BindTableNode extends ConcreteTableNode {
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append(this.getName().toString());
-        if (this.getAlias() != null) buf.append(" " + this.getAlias());
+        if (this.getAlias() != null) {
+            buf.append(" " + this.getAlias());
+        }
         buf.append(' ');
     }
 }

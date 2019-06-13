@@ -37,7 +37,7 @@ public class ResultManager {
     private final ResultUtil util;
     private static final List<ResultHandler> defaultHandlers;
     private static final List<ResultHandler> minimalHandlers;
-    
+
     static {
         defaultHandlers = new ArrayList<>();
         XMLResultHandler xmlResultHandler = new XMLResultHandler();
@@ -52,9 +52,9 @@ public class ResultManager {
         handlerDet.setResultFileDetails(ResultFileDetails.CSV_DETAILED_PERFORMANCE);
         defaultHandlers.add(handlerDet);
     }
-    
+
     static {
-    	minimalHandlers = new ArrayList<>();
+        minimalHandlers = new ArrayList<>();
         ResultHandler cvsHandler = new CSVFileResultHandler();
         cvsHandler.setResultFileDetails(ResultFileDetails.CSV_AGGREGATE_PERFORMANCE);
         minimalHandlers.add(cvsHandler);
@@ -63,12 +63,12 @@ public class ResultManager {
     public ResultManager(String fileNameSeed) {
         this(fileNameSeed, true);
     }
-    
+
     @SuppressWarnings("unchecked")
-	public ResultManager(String fileNameSeed, boolean writeRuntimeResults) {
+    public ResultManager(String fileNameSeed, boolean writeRuntimeResults) {
         this(fileNameSeed, writeRuntimeResults ?
-        		InstanceResolver.get(ResultHandler.class, defaultHandlers) :
-        		InstanceResolver.get(ResultHandler.class, minimalHandlers));
+                InstanceResolver.get(ResultHandler.class, defaultHandlers) :
+                InstanceResolver.get(ResultHandler.class, minimalHandlers));
     }
 
     public ResultManager(String fileNameSeed, List<ResultHandler> resultHandlers) {
@@ -82,11 +82,11 @@ public class ResultManager {
         }
     }
 
-    
+
     public synchronized void write(DataModelResult result) throws Exception {
-    	write(result, null);
+        write(result, null);
     }
-    
+
     /**
      * Write out the result to each writer in the pool
      *
@@ -115,9 +115,9 @@ public class ResultManager {
     }
 
     public synchronized void write(List<DataModelResult> dataModelResults) throws Exception {
-    	write(dataModelResults, null);
+        write(dataModelResults, null);
     }
-    
+
     /**
      * Write a combined set of results for each result in the list.
      *
@@ -145,9 +145,10 @@ public class ResultManager {
 
     /**
      * Allows for flushing all the {@link org.apache.phoenix.pherf.result.ResultHandler}
+     *
      * @throws Exception
      */
-    public synchronized void flush(){
+    public synchronized void flush() {
         for (ResultHandler handler : resultHandlers) {
             try {
                 handler.flush();

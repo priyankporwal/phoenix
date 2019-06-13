@@ -24,41 +24,45 @@ import org.apache.phoenix.compile.ColumnResolver;
 
 
 public class SequenceValueParseNode extends TerminalParseNode {
-    public enum Op {
-        NEXT_VALUE("NEXT"), 
-        CURRENT_VALUE("CURRENT");
-    
+    public enum Op
+
+    {
+        NEXT_VALUE("NEXT"),
+                CURRENT_VALUE("CURRENT");
+
         private final String name;
         Op(String name) {
-            this.name = name;
-        }
-        public String getName() {
-            return name;
-    };
-    
+        this.name = name;
     }
-	private final TableName tableName;
-	private final Op op;
-	private final ParseNode numToAllocate;
+        public String getName () {
+        return name;
+    }
+        ;
 
-	public SequenceValueParseNode(TableName tableName, Op op, ParseNode numToAllocate) {
-		this.tableName = tableName;
-		this.op = op;
-		this.numToAllocate = numToAllocate;
-	}
-	
-	public ParseNode getNumToAllocateNode() {
-	    return numToAllocate;
-	}
+    }
 
-	@Override
-	public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
-		return visitor.visit(this);
-	}
+    private final TableName tableName;
+    private final Op op;
+    private final ParseNode numToAllocate;
 
-	public TableName getTableName() {
-		return tableName;
-	}
+    public SequenceValueParseNode(TableName tableName, Op op, ParseNode numToAllocate) {
+        this.tableName = tableName;
+        this.op = op;
+        this.numToAllocate = numToAllocate;
+    }
+
+    public ParseNode getNumToAllocateNode() {
+        return numToAllocate;
+    }
+
+    @Override
+    public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
+        return visitor.visit(this);
+    }
+
+    public TableName getTableName() {
+        return tableName;
+    }
 
     @Override
     public boolean isStateless() {
@@ -69,34 +73,40 @@ public class SequenceValueParseNode extends TerminalParseNode {
         return op;
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((op == null) ? 0 : op.hashCode());
-		result = prime * result
-				+ ((tableName == null) ? 0 : tableName.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((op == null) ? 0 : op.hashCode());
+        result = prime * result
+                + ((tableName == null) ? 0 : tableName.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SequenceValueParseNode other = (SequenceValueParseNode) obj;
-		if (op != other.op)
-			return false;
-		if (tableName == null) {
-			if (other.tableName != null)
-				return false;
-		} else if (!tableName.equals(other.tableName))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SequenceValueParseNode other = (SequenceValueParseNode) obj;
+        if (op != other.op) {
+            return false;
+        }
+        if (tableName == null) {
+            if (other.tableName != null) {
+                return false;
+            }
+        } else if (!tableName.equals(other.tableName)) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {

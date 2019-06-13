@@ -65,19 +65,19 @@ public class PColumnImpl implements PColumn {
 
     public PColumnImpl(PColumn column, boolean derivedColumn, int position, byte[] viewConstant) {
         this(column.getName(), column.getFamilyName(), column.getDataType(), column.getMaxLength(),
-            column.getScale(), column.isNullable(), position, column.getSortOrder(), column.getArraySize(), viewConstant, column.isViewReferenced(), column.getExpressionStr(), column.isRowTimestamp(), column.isDynamic(), column.getColumnQualifierBytes(),
-            column.getTimestamp(), derivedColumn);
+                column.getScale(), column.isNullable(), position, column.getSortOrder(), column.getArraySize(), viewConstant, column.isViewReferenced(), column.getExpressionStr(), column.isRowTimestamp(), column.isDynamic(), column.getColumnQualifierBytes(),
+                column.getTimestamp(), derivedColumn);
     }
-    
+
     public PColumnImpl(PName name, PName familyName, PDataType dataType, Integer maxLength, Integer scale, boolean nullable,
-        int position, SortOrder sortOrder, Integer arrSize, byte[] viewConstant, boolean isViewReferenced, String expressionStr, boolean isRowTimestamp, boolean isDynamic,
-        byte[] columnQualifierBytes, long timestamp) {
+                       int position, SortOrder sortOrder, Integer arrSize, byte[] viewConstant, boolean isViewReferenced, String expressionStr, boolean isRowTimestamp, boolean isDynamic,
+                       byte[] columnQualifierBytes, long timestamp) {
         this(name, familyName, dataType, maxLength, scale, nullable, position, sortOrder, arrSize, viewConstant, isViewReferenced, expressionStr, isRowTimestamp, isDynamic, columnQualifierBytes, timestamp, false);
     }
 
     public PColumnImpl(PName name, PName familyName, PDataType dataType, Integer maxLength, Integer scale, boolean nullable,
-        int position, SortOrder sortOrder, Integer arrSize, byte[] viewConstant, boolean isViewReferenced, String expressionStr, boolean isRowTimestamp, boolean isDynamic,
-        byte[] columnQualifierBytes, long timestamp, boolean derived) {
+                       int position, SortOrder sortOrder, Integer arrSize, byte[] viewConstant, boolean isViewReferenced, String expressionStr, boolean isRowTimestamp, boolean isDynamic,
+                       byte[] columnQualifierBytes, long timestamp, boolean derived) {
         init(name, familyName, dataType, maxLength, scale, nullable, position, sortOrder, arrSize, viewConstant, isViewReferenced, expressionStr, isRowTimestamp, isDynamic, columnQualifierBytes, timestamp, derived);
     }
 
@@ -85,7 +85,7 @@ public class PColumnImpl implements PColumn {
         this.familyName = familyName;
         this.name = columnName;
         this.derived = true;
-        if (timestamp!=null) {
+        if (timestamp != null) {
             this.timestamp = timestamp;
         }
     }
@@ -95,13 +95,13 @@ public class PColumnImpl implements PColumn {
     public static PColumnImpl createExcludedColumn(PName familyName, PName columnName, Long timestamp) {
         return new PColumnImpl(familyName, columnName, timestamp);
     }
-    
+
     private void init(PName name, PName familyName, PDataType dataType, Integer maxLength,
-            Integer scale, boolean nullable, int position, SortOrder sortOrder, Integer arrSize,
-            byte[] viewConstant, boolean isViewReferenced, String expressionStr,
-            boolean isRowTimestamp, boolean isDynamic, byte[] columnQualifierBytes, long timestamp,
-            boolean derived) {
-    	Preconditions.checkNotNull(sortOrder);
+                      Integer scale, boolean nullable, int position, SortOrder sortOrder, Integer arrSize,
+                      byte[] viewConstant, boolean isViewReferenced, String expressionStr,
+                      boolean isRowTimestamp, boolean isDynamic, byte[] columnQualifierBytes, long timestamp,
+                      boolean derived) {
+        Preconditions.checkNotNull(sortOrder);
         this.dataType = dataType;
         if (familyName == null) {
             // Allow nullable columns in PK, but only if they're variable length.
@@ -109,7 +109,7 @@ public class PColumnImpl implements PColumn {
             // (which is a disallowed character in variable length types). However,
             // fixed width types do not have a way of representing null.
             // TODO: we may be able to allow this for columns at the end of the PK
-            Preconditions.checkArgument(!nullable || !dataType.isFixedWidth(), 
+            Preconditions.checkArgument(!nullable || !dataType.isFixedWidth(),
                     "PK columns may not be both fixed width and nullable: " + name.getString());
         }
         this.name = name;
@@ -132,7 +132,7 @@ public class PColumnImpl implements PColumn {
 
     @Override
     public int getEstimatedSize() {
-        return SizedUtil.OBJECT_SIZE + SizedUtil.POINTER_SIZE * 8 + SizedUtil.INT_OBJECT_SIZE * 3 + SizedUtil.INT_SIZE + 
+        return SizedUtil.OBJECT_SIZE + SizedUtil.POINTER_SIZE * 8 + SizedUtil.INT_OBJECT_SIZE * 3 + SizedUtil.INT_SIZE +
                 name.getEstimatedSize() + (familyName == null ? 0 : familyName.getEstimatedSize()) +
                 (viewConstant == null ? 0 : (SizedUtil.ARRAY_SIZE + viewConstant.length));
     }
@@ -161,7 +161,7 @@ public class PColumnImpl implements PColumn {
     public Integer getScale() {
         return scale;
     }
-    
+
     @Override
     public String getExpressionStr() {
         return expressionStr;
@@ -186,17 +186,17 @@ public class PColumnImpl implements PColumn {
     public int getPosition() {
         return position;
     }
-    
+
     @Override
     public SortOrder getSortOrder() {
-    	return sortOrder;
+        return sortOrder;
     }
 
     @Override
     public String toString() {
         return (familyName == null ? "" : familyName.toString() + QueryConstants.NAME_SEPARATOR) + name.toString();
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -208,16 +208,30 @@ public class PColumnImpl implements PColumn {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (! (obj instanceof PColumn) ) return false;
-        PColumn other = (PColumn)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof PColumn)) {
+            return false;
+        }
+        PColumn other = (PColumn) obj;
         if (familyName == null) {
-            if (other.getFamilyName() != null) return false;
-        } else if (!familyName.equals(other.getFamilyName())) return false;
+            if (other.getFamilyName() != null) {
+                return false;
+            }
+        } else if (!familyName.equals(other.getFamilyName())) {
+            return false;
+        }
         if (name == null) {
-            if (other.getName() != null) return false;
-        } else if (!name.equals(other.getName())) return false;
+            if (other.getName() != null) {
+                return false;
+            }
+        } else if (!name.equals(other.getName())) {
+            return false;
+        }
         return true;
     }
 
@@ -235,17 +249,17 @@ public class PColumnImpl implements PColumn {
     public boolean isViewReferenced() {
         return isViewReferenced;
     }
-    
+
     @Override
     public boolean isRowTimestamp() {
         return isRowTimestamp;
     }
-    
+
     @Override
     public boolean isDynamic() {
         return isDynamic;
     }
-    
+
     @Override
     public byte[] getColumnQualifierBytes() {
         // Needed for backward compatibility
@@ -257,7 +271,7 @@ public class PColumnImpl implements PColumn {
 
     /**
      * Create a PColumn instance from PBed PColumn instance
-     * 
+     *
      * @param column
      */
     public static PColumn createFromProto(PTableProtos.PColumn column) {
@@ -293,12 +307,12 @@ public class PColumnImpl implements PColumn {
         }
         String expressionStr = null;
         if (column.hasExpression()) {
-	        expressionStr = column.getExpression();
+            expressionStr = column.getExpression();
         }
         boolean isRowTimestamp = column.getIsRowTimestamp();
         boolean isDynamic = false;
         if (column.hasIsDynamic()) {
-        	isDynamic = column.getIsDynamic();
+            isDynamic = column.getIsDynamic();
         }
         byte[] columnQualifierBytes = null;
         if (column.hasColumnQualifierBytes()) {
@@ -314,7 +328,7 @@ public class PColumnImpl implements PColumn {
         }
         return new PColumnImpl(columnName, familyName, dataType, maxLength, scale, nullable, position, sortOrder,
                 arraySize, viewConstant, isViewReferenced, expressionStr, isRowTimestamp, isDynamic, columnQualifierBytes,
-            timestamp, derived);
+                timestamp, derived);
     }
 
     public static PTableProtos.PColumn toProto(PColumn column) {
@@ -323,7 +337,7 @@ public class PColumnImpl implements PColumn {
         if (column.getFamilyName() != null) {
             builder.setFamilyNameBytes(ByteStringer.wrap(column.getFamilyName().getBytes()));
         }
-        if (column.getDataType()!=null) {
+        if (column.getDataType() != null) {
             builder.setDataType(column.getDataType().getSqlTypeName());
         }
         if (column.getMaxLength() != null) {
@@ -334,7 +348,7 @@ public class PColumnImpl implements PColumn {
         }
         builder.setNullable(column.isNullable());
         builder.setPosition(column.getPosition());
-        if (column.getSortOrder()!=null) {
+        if (column.getSortOrder() != null) {
             builder.setSortOrder(column.getSortOrder().getSystemValue());
         }
         if (column.getArraySize() != null) {
@@ -344,7 +358,7 @@ public class PColumnImpl implements PColumn {
             builder.setViewConstant(ByteStringer.wrap(column.getViewConstant()));
         }
         builder.setViewReferenced(column.isViewReferenced());
-        
+
         if (column.getExpressionStr() != null) {
             builder.setExpression(column.getExpressionStr());
         }

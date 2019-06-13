@@ -23,8 +23,8 @@ public class RpcUtil {
     public static RpcCall getRpcContext() {
         return RpcServer.CurCall.get();
     }
-    
-    public static void setRpcContext(RpcCall c){
+
+    public static void setRpcContext(RpcCall c) {
         RpcServer.CurCall.set(c);
     }
 

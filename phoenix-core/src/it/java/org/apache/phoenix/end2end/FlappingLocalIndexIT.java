@@ -90,12 +90,12 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
         props.setProperty(QueryServices.SCAN_RESULT_CHUNK_SIZE, "2");
         props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.toString(isNamespaceMapped));
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
-        try{
-            String[] strings = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+        try {
+            String[] strings = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
             for (int i = 0; i < 26; i++) {
-               conn1.createStatement().execute(
-                    "UPSERT INTO " + tableName + " values('"+strings[i]+"'," + i + ","
-                            + (i + 1) + "," + (i + 2) + ",'" + strings[25 - i] + "')");
+                conn1.createStatement().execute(
+                        "UPSERT INTO " + tableName + " values('" + strings[i] + "'," + i + ","
+                                + (i + 1) + "," + (i + 2) + ",'" + strings[25 - i] + "')");
             }
             conn1.commit();
             conn1.createStatement().execute("CREATE LOCAL INDEX " + indexName + " ON " + tableName + "(v1)");
@@ -121,11 +121,11 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
                 assertEquals(j, rs.getInt("k1"));
                 assertEquals(j + 2, rs.getInt("k3"));
             }
-       } finally {
+        } finally {
             conn1.close();
         }
     }
-    
+
     @Test
     public void testLocalIndexScan() throws Exception {
         String tableName = schemaName + "." + generateUniqueName();
@@ -136,7 +136,7 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
 
         createBaseTable(tableName, null, "('e','i','o')");
         Connection conn1 = DriverManager.getConnection(getUrl());
-        try{
+        try {
             conn1.createStatement().execute("UPSERT INTO " + tableName + " values('a',1,2,5,'y')");
             conn1.createStatement().execute("UPSERT INTO " + tableName + " values('b',1,2,4,'z')");
             conn1.createStatement().execute("UPSERT INTO " + tableName + " values('f',1,2,3,'a')");
@@ -145,23 +145,23 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
             conn1.createStatement().execute("UPSERT INTO " + tableName + " values('q',3,1,1,'c')");
             conn1.commit();
             conn1.createStatement().execute("CREATE LOCAL INDEX " + indexName + " ON " + tableName + "(v1)");
-            
+
             ResultSet rs = conn1.createStatement().executeQuery("SELECT COUNT(*) FROM " + indexTableName);
             assertTrue(rs.next());
-            
+
             Admin admin = driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin();
             int numRegions = admin.getTableRegions(physicalTableName).size();
-            
-            String query = "SELECT * FROM " + tableName +" where v1 like 'a%'";
-            rs = conn1.createStatement().executeQuery("EXPLAIN "+ query);
-            
+
+            String query = "SELECT * FROM " + tableName + " where v1 like 'a%'";
+            rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
+
             assertEquals(
-                "CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER "
-                        + indexPhysicalTableName + " [1,'a'] - [1,'b']\n"
-                                + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                                + "CLIENT MERGE SORT",
-                        QueryUtil.getExplainPlan(rs));
-            
+                    "CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER "
+                            + indexPhysicalTableName + " [1,'a'] - [1,'b']\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n"
+                            + "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
+
             rs = conn1.createStatement().executeQuery(query);
             assertTrue(rs.next());
             assertEquals("f", rs.getString("t_id"));
@@ -176,16 +176,16 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
             assertEquals("a", rs.getString("v1"));
             assertEquals(2, rs.getInt("k3"));
             assertFalse(rs.next());
-            query = "SELECT t_id, k1, k2,V1 FROM " + tableName +" where v1='a'";
-            rs = conn1.createStatement().executeQuery("EXPLAIN "+ query);
-            
+            query = "SELECT t_id, k1, k2,V1 FROM " + tableName + " where v1='a'";
+            rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
+
             assertEquals(
-                "CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER "
-                        + indexPhysicalTableName + " [1,'a']\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                        + "CLIENT MERGE SORT",
-                        QueryUtil.getExplainPlan(rs));
-            
+                    "CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER "
+                            + indexPhysicalTableName + " [1,'a']\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n"
+                            + "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
+
             rs = conn1.createStatement().executeQuery(query);
             assertTrue(rs.next());
             assertEquals("f", rs.getString("t_id"));
@@ -196,13 +196,13 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
             assertEquals(2, rs.getInt("k1"));
             assertEquals(4, rs.getInt("k2"));
             assertFalse(rs.next());
-            query = "SELECT t_id, k1, k2,V1, k3 FROM " + tableName +" where v1<='z' order by k3";
-            rs = conn1.createStatement().executeQuery("EXPLAIN "+ query);
-            
+            query = "SELECT t_id, k1, k2,V1, k3 FROM " + tableName + " where v1<='z' order by k3";
+            rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
+
             assertEquals("CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER " + indexPhysicalTableName
                     + " [1,*] - [1,'z']\n" + "    SERVER FILTER BY FIRST KEY ONLY\n"
                     + "    SERVER SORTED BY [\"K3\"]\n" + "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
- 
+
             rs = conn1.createStatement().executeQuery(query);
             assertTrue(rs.next());
             assertEquals(1, rs.getInt("k3"));
@@ -217,17 +217,17 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
             assertTrue(rs.next());
             assertEquals(5, rs.getInt("k3"));
             assertFalse(rs.next());
-            
+
             query = "SELECT t_id, k1, k2,v1 from " + tableName + " order by V1,t_id";
             rs = conn1.createStatement().executeQuery("EXPLAIN " + query);
-            
+
             assertEquals(
-                "CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER "
-                        + indexPhysicalTableName +" [1]\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                        + "CLIENT MERGE SORT",
-                QueryUtil.getExplainPlan(rs));
-            
+                    "CLIENT PARALLEL " + numRegions + "-WAY RANGE SCAN OVER "
+                            + indexPhysicalTableName + " [1]\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n"
+                            + "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
+
             rs = conn1.createStatement().executeQuery(query);
             assertTrue(rs.next());
             assertEquals("f", rs.getString("t_id"));
@@ -274,10 +274,10 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
 
         createBaseTable(tableName, null, "('e','i','o')");
         Connection conn1 = DriverManager.getConnection(getUrl());
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('b',1,2,4,'z')");
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('f',1,2,3,'z')");
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('j',2,4,2,'a')");
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('q',3,1,1,'c')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('b',1,2,4,'z')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('f',1,2,3,'z')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('j',2,4,2,'a')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('q',3,1,1,'c')");
         conn1.commit();
         conn1.createStatement().execute("CREATE LOCAL INDEX " + indexName + " ON " + tableName + "(v1)");
         ResultSet rs = conn1.createStatement().executeQuery("SELECT COUNT(*) FROM " + indexTableName);
@@ -296,7 +296,7 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
             s.setStopRow(endKeys[i]);
             ResultScanner scanner = indexTable.getScanner(s);
             int count = 0;
-            for(Result r:scanner){
+            for (Result r : scanner) {
                 count++;
             }
             scanner.close();
@@ -323,22 +323,22 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
 
         createBaseTable(tableName, null, null, coveredIndex ? "cf" : null);
         Connection conn1 = DriverManager.getConnection(getUrl());
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('b',1,2,4,'z')");
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('f',1,2,3,'z')");
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('j',2,4,2,'a')");
-        conn1.createStatement().execute("UPSERT INTO "+tableName+" values('q',3,1,1,'c')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('b',1,2,4,'z')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('f',1,2,3,'z')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('j',2,4,2,'a')");
+        conn1.createStatement().execute("UPSERT INTO " + tableName + " values('q',3,1,1,'c')");
         conn1.commit();
         Admin admin = driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin();
         TableDescriptor tableDescriptor = admin.getDescriptor(physicalTableName);
-        tableDescriptor=TableDescriptorBuilder.newBuilder(tableDescriptor).addCoprocessor(DeleyOpenRegionObserver.class.getName(), null,
-            QueryServicesOptions.DEFAULT_COPROCESSOR_PRIORITY - 1, null).build();
+        tableDescriptor = TableDescriptorBuilder.newBuilder(tableDescriptor).addCoprocessor(DeleyOpenRegionObserver.class.getName(), null,
+                QueryServicesOptions.DEFAULT_COPROCESSOR_PRIORITY - 1, null).build();
         admin.disableTable(physicalTableName);
         admin.modifyTable(tableDescriptor);
         admin.enableTable(physicalTableName);
         DeleyOpenRegionObserver.DELAY_OPEN = true;
         conn1.createStatement().execute(
-            "CREATE LOCAL INDEX " + indexName + " ON " + tableName + "(k3)"
-                    + (coveredIndex ? " include(cf.v1)" : ""));
+                "CREATE LOCAL INDEX " + indexName + " ON " + tableName + "(k3)"
+                        + (coveredIndex ? " include(cf.v1)" : ""));
         DeleyOpenRegionObserver.DELAY_OPEN = false;
         ResultSet rs = conn1.createStatement().executeQuery("SELECT COUNT(*) FROM " + indexTableName);
         assertTrue(rs.next());
@@ -349,10 +349,11 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
         public static volatile boolean DELAY_OPEN = false;
         private int retryCount = 0;
         private CountDownLatch latch = new CountDownLatch(1);
+
         @Override
         public void preClose(org.apache.hadoop.hbase.coprocessor.ObserverContext<RegionCoprocessorEnvironment> c,
-                boolean abortRequested) throws IOException {
-            if(DELAY_OPEN) {
+                             boolean abortRequested) throws IOException {
+            if (DELAY_OPEN) {
                 try {
                     latch.await();
                 } catch (InterruptedException e1) {
@@ -363,7 +364,7 @@ public class FlappingLocalIndexIT extends BaseLocalIndexIT {
 
         @Override
         public void preScannerOpen(org.apache.hadoop.hbase.coprocessor.ObserverContext<RegionCoprocessorEnvironment> c,
-                Scan scan) throws IOException {
+                                   Scan scan) throws IOException {
             if (DELAY_OPEN && retryCount == 1) {
                 latch.countDown();
             }

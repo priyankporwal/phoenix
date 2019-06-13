@@ -23,10 +23,8 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 
 /**
- * 
  * Exception thrown when an attempt is made to modify or write to a read-only table.
  *
- * 
  * @since 0.1
  */
 public class ReadOnlyTableException extends SQLException {

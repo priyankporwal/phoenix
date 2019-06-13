@@ -50,8 +50,9 @@ public class EncodedQualifiersColumnProjectionFilter extends FilterBase implemen
     private BitSet trackedColumns;
     private QualifierEncodingScheme encodingScheme;
     private Set<byte[]> conditionOnlyCfs;
-    
-    public EncodedQualifiersColumnProjectionFilter() {}
+
+    public EncodedQualifiersColumnProjectionFilter() {
+    }
 
     public EncodedQualifiersColumnProjectionFilter(byte[] emptyCFName, BitSet trackedColumns, Set<byte[]> conditionCfs, QualifierEncodingScheme encodingScheme) {
         checkArgument(encodingScheme != NON_ENCODED_QUALIFIERS, "Filter can only be used for encoded qualifiers");
@@ -98,18 +99,20 @@ public class EncodedQualifiersColumnProjectionFilter extends FilterBase implemen
     public byte[] toByteArray() throws IOException {
         return Writables.getBytes(this);
     }
-    
-    public static EncodedQualifiersColumnProjectionFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+
+    public static EncodedQualifiersColumnProjectionFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (EncodedQualifiersColumnProjectionFilter)Writables.getWritable(pbBytes, new EncodedQualifiersColumnProjectionFilter());
+            return (EncodedQualifiersColumnProjectionFilter) Writables.getWritable(pbBytes, new EncodedQualifiersColumnProjectionFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }
     }
-    
+
     @Override
     public void filterRowCells(List<Cell> kvs) throws IOException {
-        if (kvs.isEmpty()) return;
+        if (kvs.isEmpty()) {
+            return;
+        }
         Cell firstKV = kvs.get(0);
         Iterables.removeIf(kvs, new Predicate<Cell>() {
             @Override
@@ -147,17 +150,17 @@ public class EncodedQualifiersColumnProjectionFilter extends FilterBase implemen
         }
         return sb.toString();
     }
-    
+
     @Override
     public ReturnCode filterKeyValue(Cell ignored) throws IOException {
-      return ReturnCode.INCLUDE_AND_NEXT_COL;
+        return ReturnCode.INCLUDE_AND_NEXT_COL;
     }
 
     public void addTrackedColumn(int qualifier) {
         trackedColumns.set(qualifier);
     }
-    
+
     interface ColumnTracker {
-        
+
     }
 }

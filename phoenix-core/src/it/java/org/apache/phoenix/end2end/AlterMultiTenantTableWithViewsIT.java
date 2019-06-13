@@ -62,18 +62,18 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         tenantProps.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         return DriverManager.getConnection(getUrl(), tenantProps);
     }
-    
+
     private static long getTableSequenceNumber(PhoenixConnection conn, String tableName) throws SQLException {
         PTable table = conn.getTable(new PTableKey(conn.getTenantId(), SchemaUtil.normalizeIdentifier(tableName)));
         return table.getSequenceNumber();
     }
-    
+
     private static short getMaxKeySequenceNumber(PhoenixConnection conn, String tableName) throws SQLException {
         PTable table = conn.getTable(new PTableKey(conn.getTenantId(), SchemaUtil.normalizeIdentifier(tableName)));
         return SchemaUtil.getMaxKeySeq(table);
     }
-    
-    private static void verifyNewColumns(ResultSet rs, String ... values) throws SQLException {
+
+    private static void verifyNewColumns(ResultSet rs, String... values) throws SQLException {
         assertTrue(rs.next());
         int i = 1;
         for (String value : values) {
@@ -82,7 +82,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         assertFalse(rs.next());
         assertEquals(values.length, i - 1);
     }
-    
+
     @Test
     public void testAddDropColumnToBaseTablePropagatesToEntireViewHierarchy() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
@@ -101,36 +101,36 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String baseTableDDL = "CREATE TABLE " + baseTable + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR, V2 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true ";
             conn.createStatement().execute(baseTableDDL);
-            
-            
+
+
             try (Connection tenant1Conn = getTenantConnection(tenant1)) {
                 String view1DDL = "CREATE VIEW " + view1 + " AS SELECT * FROM " + baseTable;
                 tenant1Conn.createStatement().execute(view1DDL);
-                
+
                 String view2DDL = "CREATE VIEW " + view2 + " AS SELECT * FROM " + view1;
                 tenant1Conn.createStatement().execute(view2DDL);
             }
-            
+
             try (Connection tenant2Conn = getTenantConnection(tenant2)) {
                 String view3DDL = "CREATE VIEW " + view3 + " AS SELECT * FROM " + baseTable;
                 tenant2Conn.createStatement().execute(view3DDL);
             }
-            
+
             String view4DDL = "CREATE VIEW " + view4 + " AS SELECT * FROM " + baseTable;
             conn.createStatement().execute(view4DDL);
-            
+
             String alterBaseTable = "ALTER TABLE " + baseTable + " ADD V3 VARCHAR";
             conn.createStatement().execute(alterBaseTable);
-            
+
             // verify that the column is visible to view4
             conn.createStatement().execute("SELECT V3 FROM " + view4);
-            
+
             // verify that the column is visible to view1 and view2
             try (Connection tenant1Conn = getTenantConnection(tenant1)) {
                 tenant1Conn.createStatement().execute("SELECT V3 from " + view1);
                 tenant1Conn.createStatement().execute("SELECT V3 from " + view2);
             }
-            
+
             // verify that the column is visible to view3
             try (Connection tenant2Conn = getTenantConnection(tenant2)) {
                 tenant2Conn.createStatement().execute("SELECT V3 from " + view3);
@@ -168,9 +168,9 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
                 }
             }
         }
-           
+
     }
-    
+
     @Test
     public void testChangingPKOfBaseTableChangesPKForAllViews() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
@@ -209,21 +209,21 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
 
             String alterBaseTable = "ALTER TABLE " + baseTable + " ADD NEW_PK varchar primary key ";
             globalConn.createStatement().execute(alterBaseTable);
-            
+
             // verify that the new column new_pk is now part of the primary key for the entire hierarchy
-            
+
             globalConn.createStatement().execute("SELECT * FROM " + baseTable);
             assertTrue(checkColumnPartOfPk(globalConn.unwrap(PhoenixConnection.class), "NEW_PK", baseTable));
-            
+
             tenant1Conn.createStatement().execute("SELECT * FROM " + view1);
             assertTrue(checkColumnPartOfPk(tenant1Conn.unwrap(PhoenixConnection.class), "NEW_PK", view1));
-            
+
             tenant1Conn.createStatement().execute("SELECT * FROM " + view2);
             assertTrue(checkColumnPartOfPk(tenant1Conn.unwrap(PhoenixConnection.class), "NEW_PK", view2));
-            
+
             tenant2Conn.createStatement().execute("SELECT * FROM " + view3);
             assertTrue(checkColumnPartOfPk(tenant2Conn.unwrap(PhoenixConnection.class), "NEW_PK", view3));
-            
+
             globalConn.createStatement().execute("SELECT * FROM " + view4);
             assertTrue(checkColumnPartOfPk(globalConn.unwrap(PhoenixConnection.class), "NEW_PK", view4));
 
@@ -231,17 +231,19 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             if (tenant1Conn != null) {
                 try {
                     tenant1Conn.close();
-                } catch (Throwable ignore) {}
+                } catch (Throwable ignore) {
+                }
             }
             if (tenant2Conn != null) {
                 try {
                     tenant2Conn.close();
-                } catch (Throwable ignore) {}
+                } catch (Throwable ignore) {
+                }
             }
         }
 
     }
-    
+
     private boolean checkColumnPartOfPk(PhoenixConnection conn, String columnName, String tableName) throws SQLException {
         String normalizedTableName = SchemaUtil.normalizeIdentifier(tableName);
         PTable table = conn.getTable(new PTableKey(conn.getTenantId(), normalizedTableName));
@@ -254,7 +256,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         }
         return false;
     }
-    
+
     private int getIndexOfPkColumn(PhoenixConnection conn, String columnName, String tableName) throws SQLException {
         String normalizedTableName = SchemaUtil.normalizeIdentifier(tableName);
         PTable table = conn.getTable(new PTableKey(conn.getTenantId(), normalizedTableName));
@@ -269,7 +271,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         }
         return -1;
     }
-    
+
     @Test
     public void testAddPKColumnToBaseTableWhoseViewsHaveIndices() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
@@ -291,11 +293,11 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         try (Connection globalConn = DriverManager.getConnection(getUrl())) {
             // make sure that the tables are empty, but reachable
             globalConn
-            .createStatement()
-            .execute(
-                    "CREATE TABLE "
-                            + baseTable
-                            + " (TENANT_ID VARCHAR NOT NULL, K1 varchar not null, V1 VARCHAR, V2 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, K1)) MULTI_TENANT = true ");
+                    .createStatement()
+                    .execute(
+                            "CREATE TABLE "
+                                    + baseTable
+                                    + " (TENANT_ID VARCHAR NOT NULL, K1 varchar not null, V1 VARCHAR, V2 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, K1)) MULTI_TENANT = true ");
 
         }
         String fullView2IndexName = SchemaUtil.getTableName(view2Schema, view2Index);
@@ -411,7 +413,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         }
 
     }
-    
+
     @Test
     public void testAddingPkAndKeyValueColumnsToBaseTableWithDivergedView() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
@@ -428,31 +430,31 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
                             
         */
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection tenant1Conn = getTenantConnection(tenant1);
-                Connection tenant2Conn = getTenantConnection(tenant2)) {
+             Connection tenant1Conn = getTenantConnection(tenant1);
+             Connection tenant2Conn = getTenantConnection(tenant2)) {
             String baseTableDDL = "CREATE TABLE " + baseTable + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR, V2 VARCHAR, V3 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true ";
             conn.createStatement().execute(baseTableDDL);
-            
+
             String view1DDL = "CREATE VIEW " + view1 + " ( VIEW_COL1 DECIMAL(10,2), VIEW_COL2 CHAR(256)) AS SELECT * FROM " + baseTable;
             tenant1Conn.createStatement().execute(view1DDL);
-            
+
             String divergedViewDDL = "CREATE VIEW " + divergedView + " ( VIEW_COL1 DECIMAL(10,2), VIEW_COL2 CHAR(256)) AS SELECT * FROM " + baseTable;
             tenant2Conn.createStatement().execute(divergedViewDDL);
             // Drop column V2 from the view to have it diverge from the base table
             tenant2Conn.createStatement().execute("ALTER VIEW " + divergedView + " DROP COLUMN V2");
-            
+
             // create an index on the diverged view
             String indexDDL = "CREATE INDEX " + divergedViewIndex + " ON " + divergedView + " (V1) include (V3)";
             tenant2Conn.createStatement().execute(indexDDL);
-            
+
             String alterBaseTable = "ALTER TABLE " + baseTable + " ADD KV VARCHAR, PK2 VARCHAR PRIMARY KEY";
             conn.createStatement().execute(alterBaseTable);
-            
-            
+
+
             // verify that the both columns were added to view1
             tenant1Conn.createStatement().execute("SELECT KV from " + view1);
             tenant1Conn.createStatement().execute("SELECT PK2 from " + view1);
-            
+
             // verify that only the primary key column PK2 was added to diverged view
             tenant2Conn.createStatement().execute("SELECT PK2 from " + divergedView);
             try {
@@ -460,7 +462,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.COLUMN_NOT_FOUND.getErrorCode(), e.getErrorCode());
             }
-            
+
             // Upsert records in diverged view. Verify that the PK column was added to the index on it.
             String upsert = "UPSERT INTO " + divergedView + " (PK1, PK2, V1, V3) VALUES ('PK1', 'PK2', 'V1', 'V3')";
             try (Connection viewConn = getTenantConnection(tenant2)) {
@@ -470,35 +472,34 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
                 String sql = "SELECT V3 FROM " + divergedView + " WHERE V1 = 'V1' AND PK2 = 'PK2'";
                 QueryPlan plan = stmt.unwrap(PhoenixStatement.class).optimizeQuery(sql);
                 assertEquals(SchemaUtil.getTableName(divergedViewSchemaName, divergedViewIndex),
-                    plan.getTableRef().getTable().getName().getString());
+                        plan.getTableRef().getTable().getName().getString());
                 ResultSet rs = viewConn.createStatement().executeQuery(sql);
                 verifyNewColumns(rs, "V3");
             }
-            
+
             // For non-diverged view, base table columns will be added at the same position as base table
-            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 7, 5,  "PK1", "V1", "V2", "V3", "KV", "PK2", "VIEW_COL1", "VIEW_COL2");
+            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 7, 5, "PK1", "V1", "V2", "V3", "KV", "PK2", "VIEW_COL1", "VIEW_COL2");
             // For a diverged view, only base table's pk column will be added and that too at the end.
             assertTableDefinition(tenant2Conn, divergedView, PTableType.VIEW, baseTable, 1, 6, DIVERGED_VIEW_BASE_COLUMN_COUNT, "PK1", "V1", "V3", "PK2", "VIEW_COL1", "VIEW_COL2");
-            
+
             // Adding existing column VIEW_COL2 to the base table isn't allowed.
             try {
                 alterBaseTable = "ALTER TABLE " + baseTable + " ADD VIEW_COL2 CHAR(256)";
                 conn.createStatement().execute(alterBaseTable);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals("Unexpected exception", SQLExceptionCode.CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
             }
         }
     }
-    
+
     @Test
     public void testAddColumnsToSaltedBaseTableWithViews() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         String view1 = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
         String tenant = TENANT1;
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection tenant1Conn = getTenantConnection(tenant)) {
+             Connection tenant1Conn = getTenantConnection(tenant)) {
             String baseTableDDL =
                     "CREATE TABLE " + baseTable
                             + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR, "
@@ -510,27 +511,27 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             tenant1Conn.createStatement().execute(view1DDL);
 
             assertTableDefinition(conn, baseTable, PTableType.TABLE, null, 1, 6, BASE_TABLE_BASE_COLUMN_COUNT, "TENANT_ID", "PK1", "V1", "V2", "V3");
-            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 8, 6,  "PK1", "V1", "V2", "V3", "VIEW_COL1", "VIEW_COL2");
+            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 8, 6, "PK1", "V1", "V2", "V3", "VIEW_COL1", "VIEW_COL2");
 
             String alterBaseTable = "ALTER TABLE " + baseTable + " ADD KV VARCHAR, PK2 VARCHAR PRIMARY KEY";
             conn.createStatement().execute(alterBaseTable);
 
             assertTableDefinition(conn, baseTable, PTableType.TABLE, null, 2, 7, BASE_TABLE_BASE_COLUMN_COUNT, "TENANT_ID", "PK1", "V1", "V2", "V3", "KV", "PK2");
-            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 8, 6,  "PK1", "V1", "V2", "V3", "KV", "PK2", "VIEW_COL1", "VIEW_COL2");
+            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 8, 6, "PK1", "V1", "V2", "V3", "KV", "PK2", "VIEW_COL1", "VIEW_COL2");
 
             // verify that the both columns were added to view1
             tenant1Conn.createStatement().execute("SELECT KV from " + view1);
             tenant1Conn.createStatement().execute("SELECT PK2 from " + view1);
         }
     }
-    
+
     @Test
     public void testDropColumnsFromSaltedBaseTableWithViews() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         String view1 = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
         String tenant = TENANT1;
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection tenant1Conn = getTenantConnection(tenant)) {
+             Connection tenant1Conn = getTenantConnection(tenant)) {
             String baseTableDDL =
                     "CREATE TABLE " + baseTable
                             + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR, V2 VARCHAR,"
@@ -548,7 +549,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             conn.createStatement().execute(alterBaseTable);
 
             assertTableDefinition(conn, baseTable, PTableType.TABLE, null, 2, 4, BASE_TABLE_BASE_COLUMN_COUNT, "TENANT_ID", "PK1", "V1", "V3");
-            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 8, 6, "PK1", "V1",  "V3", "VIEW_COL1", "VIEW_COL2");
+            assertTableDefinition(tenant1Conn, view1, PTableType.VIEW, baseTable, 0, 8, 6, "PK1", "V1", "V3", "VIEW_COL1", "VIEW_COL2");
 
             // verify that the dropped columns aren't visible
             try {
@@ -565,7 +566,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             }
         }
     }
-    
+
     @Test
     public void testAlteringViewConditionallyModifiesHTableMetadata() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
@@ -574,7 +575,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String baseTableDDL = "CREATE TABLE " + baseTable + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR, V2 VARCHAR, V3 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true ";
             conn.createStatement().execute(baseTableDDL);
-            TableDescriptor tableDesc1 = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin().getDescriptor(TableName.valueOf(baseTable)); 
+            TableDescriptor tableDesc1 = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin().getDescriptor(TableName.valueOf(baseTable));
             try (Connection tenant1Conn = getTenantConnection(tenant)) {
                 String view1DDL = "CREATE VIEW " + view1 + " ( VIEW_COL1 DECIMAL(10,2), VIEW_COL2 CHAR(256)) AS SELECT * FROM " + baseTable;
                 tenant1Conn.createStatement().execute(view1DDL);
@@ -583,16 +584,16 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
                 tenant1Conn.createStatement().execute(alterView);
                 TableDescriptor tableDesc2 = tenant1Conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin().getDescriptor(TableName.valueOf(baseTable));
                 assertEquals(tableDesc1, tableDesc2);
-                
+
                 // Add a new column family that doesn't already exist in the base table
                 alterView = "ALTER VIEW " + view1 + " ADD CF.NEWCOL2 VARCHAR";
                 tenant1Conn.createStatement().execute(alterView);
-                
+
                 // Verify that the column family now shows up in the base table descriptor
                 tableDesc2 = tenant1Conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin().getDescriptor(TableName.valueOf(baseTable));
                 assertFalse(tableDesc2.equals(tableDesc1));
                 assertNotNull(tableDesc2.getColumnFamily(Bytes.toBytes("CF")));
-                
+
                 // Add a column with an existing column family. This shouldn't modify the base table.
                 alterView = "ALTER VIEW " + view1 + " ADD CF.NEWCOL3 VARCHAR";
                 tenant1Conn.createStatement().execute(alterView);
@@ -602,22 +603,22 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             }
         }
     }
-    
+
     @Test
     public void testCacheInvalidatedAfterAddingColumnToBaseTableWithViews() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         String viewName = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
         String tenantId = TENANT1;
         try (Connection globalConn = DriverManager.getConnection(getUrl())) {
-            String tableDDL = "CREATE TABLE " + baseTable + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true" ;
+            String tableDDL = "CREATE TABLE " + baseTable + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true";
             globalConn.createStatement().execute(tableDDL);
             Properties tenantProps = new Properties();
             tenantProps.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
             // create a tenant specific view
-            try (Connection tenantConn =  DriverManager.getConnection(getUrl(), tenantProps)) {
+            try (Connection tenantConn = DriverManager.getConnection(getUrl(), tenantProps)) {
                 String viewDDL = "CREATE VIEW " + viewName + " AS SELECT * FROM " + baseTable;
                 tenantConn.createStatement().execute(viewDDL);
-                
+
                 // Add a column to the base table using global connection
                 globalConn.createStatement().execute("ALTER TABLE " + baseTable + " ADD NEW_COL VARCHAR");
 
@@ -627,7 +628,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             }
         }
     }
-    
+
     @Test
     public void testCacheInvalidatedAfterDroppingColumnFromBaseTableWithViews() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
@@ -637,19 +638,19 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
             String tableDDL =
                     "CREATE TABLE "
                             + baseTable
-                            + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true" ;
+                            + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR CONSTRAINT NAME_PK PRIMARY KEY(TENANT_ID, PK1)) MULTI_TENANT = true";
             globalConn.createStatement().execute(tableDDL);
             Properties tenantProps = new Properties();
             tenantProps.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
             // create a tenant specific view
-            try (Connection tenantConn =  DriverManager.getConnection(getUrl(), tenantProps)) {
+            try (Connection tenantConn = DriverManager.getConnection(getUrl(), tenantProps)) {
                 String viewDDL = "CREATE VIEW " + viewName + " AS SELECT * FROM " + baseTable;
                 tenantConn.createStatement().execute(viewDDL);
-    
+
                 // Add a column to the base table using global connection
                 globalConn.createStatement()
                         .execute("ALTER TABLE " + baseTable + " DROP COLUMN V1");
-    
+
                 // Check now whether the tenant connection can see the column that was dropped
                 try {
                     tenantConn.createStatement().execute("SELECT V1 FROM " + viewName);
@@ -678,20 +679,20 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
         assertEquals(AlterTableWithViewsIT.getSystemCatalogEntriesForTable(conn, fullTableName, "Mismatch in columnCount"), columnCount, rs.getInt("COLUMN_COUNT"));
         assertEquals(AlterTableWithViewsIT.getSystemCatalogEntriesForTable(conn, fullTableName, "Mismatch in sequenceNumber"), sequenceNumber, rs.getInt("TABLE_SEQ_NUM"));
         rs.close();
-    
-        ResultSet parentTableColumnsRs = null; 
+
+        ResultSet parentTableColumnsRs = null;
         if (parentTableName != null) {
             parentTableColumnsRs = conn.getMetaData().getColumns(null, null, parentTableName, null);
             parentTableColumnsRs.next();
         }
-        
+
         ResultSet viewColumnsRs = conn.getMetaData().getColumns(null, schemaName, tableName, null);
         for (int i = 0; i < columnName.length; i++) {
             if (columnName[i] != null) {
                 assertTrue(viewColumnsRs.next());
                 assertEquals(AlterTableWithViewsIT.getSystemCatalogEntriesForTable(conn, fullTableName, "Mismatch in columnName: i=" + i), columnName[i], viewColumnsRs.getString(PhoenixDatabaseMetaData.COLUMN_NAME));
                 int viewColOrdinalPos = viewColumnsRs.getInt(PhoenixDatabaseMetaData.ORDINAL_POSITION);
-                assertEquals(AlterTableWithViewsIT.getSystemCatalogEntriesForTable(conn, fullTableName, "Mismatch in ordinalPosition: i=" + i), i+1, viewColOrdinalPos);
+                assertEquals(AlterTableWithViewsIT.getSystemCatalogEntriesForTable(conn, fullTableName, "Mismatch in ordinalPosition: i=" + i), i + 1, viewColOrdinalPos);
                 // validate that all the columns in the base table are present in the view   
                 if (parentTableColumnsRs != null && !parentTableColumnsRs.isAfterLast()) {
                     ResultSetMetaData parentTableColumnsMetadata = parentTableColumnsRs.getMetaData();
@@ -705,7 +706,7 @@ public class AlterMultiTenantTableWithViewsIT extends SplitSystemCatalogIT {
                             if (parentTableColumnsMetadata.getColumnName(columnIndex).equals(PhoenixDatabaseMetaData.TABLE_NAME)) {
                                 assertEquals(parentTableName, parentTableColumnValue);
                                 assertEquals(fullTableName, viewColumnValue);
-                            } 
+                            }
                         }
                     }
                     parentTableColumnsRs.next();

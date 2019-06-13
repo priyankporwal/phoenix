@@ -29,18 +29,18 @@ import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
 
 public class CoveredColumnsTest {
 
-  private static final byte[] fam = Bytes.toBytes("fam");
-  private static final byte[] qual = Bytes.toBytes("qual");
+    private static final byte[] fam = Bytes.toBytes("fam");
+    private static final byte[] qual = Bytes.toBytes("qual");
 
-  @Test
-  public void testCovering() {
-    ColumnReference ref = new ColumnReference(fam, qual);
-    CoveredColumns columns = new CoveredColumns();
-    assertEquals("Should have only found a single column to cover", 1, columns
-        .findNonCoveredColumns(Arrays.asList(ref)).size());
+    @Test
+    public void testCovering() {
+        ColumnReference ref = new ColumnReference(fam, qual);
+        CoveredColumns columns = new CoveredColumns();
+        assertEquals("Should have only found a single column to cover", 1, columns
+                .findNonCoveredColumns(Arrays.asList(ref)).size());
 
-    columns.addColumn(ref);
-    assertEquals("Shouldn't have any columns to cover", 0,
-      columns.findNonCoveredColumns(Arrays.asList(ref)).size());
-  }
+        columns.addColumn(ref);
+        assertEquals("Shouldn't have any columns to cover", 0,
+                columns.findNonCoveredColumns(Arrays.asList(ref)).size());
+    }
 }

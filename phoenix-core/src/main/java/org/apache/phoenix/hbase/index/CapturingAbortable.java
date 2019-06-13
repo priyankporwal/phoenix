@@ -24,43 +24,44 @@ import org.apache.hadoop.hbase.Abortable;
  */
 public class CapturingAbortable implements Abortable {
 
-  private Abortable delegate;
-  private Throwable cause;
-  private String why;
+    private Abortable delegate;
+    private Throwable cause;
+    private String why;
 
-  public CapturingAbortable(Abortable delegate) {
-    this.delegate = delegate;
-  }
-
-  @Override
-  public void abort(String why, Throwable e) {
-    if (delegate.isAborted()) {
-      return;
+    public CapturingAbortable(Abortable delegate) {
+        this.delegate = delegate;
     }
-    this.why = why;
-    this.cause = e;
-    delegate.abort(why, e);
 
-  }
+    @Override
+    public void abort(String why, Throwable e) {
+        if (delegate.isAborted()) {
+            return;
+        }
+        this.why = why;
+        this.cause = e;
+        delegate.abort(why, e);
 
-  @Override
-  public boolean isAborted() {
-    return delegate.isAborted();
-  }
-
-  /**
-   * Throw the cause of the abort, if <tt>this</tt> was aborted. If there was an exception causing
-   * the abort, re-throws that. Otherwise, just throws a generic {@link Exception} with the reason
-   * why the abort was caused.
-   * @throws Throwable the cause of the abort.
-   */
-  public void throwCauseIfAborted() throws Throwable {
-    if (!this.isAborted()) {
-      return;
     }
-    if (cause == null) {
-      throw new Exception(why);
+
+    @Override
+    public boolean isAborted() {
+        return delegate.isAborted();
     }
-    throw cause;
-  }
+
+    /**
+     * Throw the cause of the abort, if <tt>this</tt> was aborted. If there was an exception causing
+     * the abort, re-throws that. Otherwise, just throws a generic {@link Exception} with the reason
+     * why the abort was caused.
+     *
+     * @throws Throwable the cause of the abort.
+     */
+    public void throwCauseIfAborted() throws Throwable {
+        if (!this.isAborted()) {
+            return;
+        }
+        if (cause == null) {
+            throw new Exception(why);
+        }
+        throw cause;
+    }
 }

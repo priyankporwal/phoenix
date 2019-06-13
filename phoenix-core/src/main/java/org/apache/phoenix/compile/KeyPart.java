@@ -26,13 +26,11 @@ import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PTable;
 
 /**
- * 
  * Interface that determines how a key part contributes to
  * the forming of the key (start/stop of scan and SkipScanFilter)
  * for each part of a multi-part primary key. It acts as the glue
  * between a built-in function and the setting of the scan key
  * during query compilation.
- * 
  */
 public interface KeyPart {
     /**
@@ -41,15 +39,15 @@ public interface KeyPart {
      * SUBSTR(foo,1,3) = 'bar', the key range would be ['bar','bas'),
      * and if foo was fixed length, the upper and lower key range
      * bytes would be filled out to the fixed length.
-     * @param op comparison operator (=, <=, <, >=, >, !=)
+     *
+     * @param op  comparison operator (=, <=, <, >=, >, !=)
      * @param rhs the constant on the RHS of an expression.
      * @return the key range that encompasses the range for the
-     *  expression for which this keyPart is associated
-     *  
+     * expression for which this keyPart is associated
      * @see org.apache.phoenix.expression.function.ScalarFunction#newKeyPart(KeyPart)
      */
     public KeyRange getKeyRange(CompareOp op, Expression rhs);
-    
+
     /**
      * Determines whether an expression gets extracted from the
      * WHERE clause if it contributes toward the building of the
@@ -60,21 +58,23 @@ public interface KeyPart {
      * part of the evaluation can be represented through a key
      * range (i.e. rows may pass through that will fail when
      * the REGEXP_SUBSTR is evaluated).
-     * 
+     *
      * @return an empty list if the expression should remain in
      * the WHEERE clause for post filtering or a singleton list
      * containing the expression if it should be removed.
      */
     public List<Expression> getExtractNodes();
-    
+
     /**
      * Gets the primary key column associated with the start of this key part.
+     *
      * @return the primary key column for this key part
      */
     public PColumn getColumn();
-    
+
     /**
      * Gets the table metadata object associated with this key part
+     *
      * @return the table for this key part
      */
     public PTable getTable();

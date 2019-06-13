@@ -50,10 +50,8 @@ import com.google.common.collect.Maps;
 
 
 /**
- *
  * Class that keeps common state used across processing the various clauses in a
  * top level JDBC statement such as SELECT, UPSERT, DELETE, etc.
- *
  *
  * @since 0.1
  */
@@ -87,13 +85,13 @@ public class StatementContext {
     private final OverAllQueryMetrics overAllQueryMetrics;
     private QueryLogger queryLogger;
     private boolean isClientSideUpsertSelect;
-    
+
     public StatementContext(PhoenixStatement statement) {
         this(statement, new Scan());
     }
-    
+
     /**
-     *  Constructor that lets you override whether or not to collect request level metrics.
+     * Constructor that lets you override whether or not to collect request level metrics.
      */
     public StatementContext(PhoenixStatement statement, boolean collectRequestLevelMetrics) {
         this(statement, FromCompiler.EMPTY_TABLE_RESOLVER, new Scan(), new SequenceManager(statement), collectRequestLevelMetrics);
@@ -104,13 +102,13 @@ public class StatementContext {
     }
 
     public StatementContext(PhoenixStatement statement, ColumnResolver resolver) {
-        this (statement, resolver, new Scan(), new SequenceManager(statement));
+        this(statement, resolver, new Scan(), new SequenceManager(statement));
     }
 
     public StatementContext(PhoenixStatement statement, ColumnResolver resolver, Scan scan, SequenceManager seqManager) {
         this(statement, resolver, scan, seqManager, statement.getConnection().isRequestLevelMetricsEnabled());
     }
-    
+
     public StatementContext(PhoenixStatement statement, ColumnResolver resolver, Scan scan, SequenceManager seqManager, boolean isRequestMetricsEnabled) {
         this.statement = statement;
         this.resolver = resolver;
@@ -134,17 +132,18 @@ public class StatementContext {
         this.tempPtr = new ImmutableBytesWritable();
         this.currentTable = resolver != null && !resolver.getTables().isEmpty() ? resolver.getTables().get(0) : null;
         this.whereConditionColumns = new ArrayList<Pair<byte[], byte[]>>();
-        this.dataColumns = this.currentTable == null ? Collections.<PColumn, Integer> emptyMap() : Maps
-                .<PColumn, Integer> newLinkedHashMap();
-        this.subqueryResults = Maps.<SelectStatement, Object> newHashMap();
-        this.readMetricsQueue = new ReadMetricQueue(isRequestMetricsEnabled,connection.getLogLevel());
-        this.overAllQueryMetrics = new OverAllQueryMetrics(isRequestMetricsEnabled,connection.getLogLevel());
-        this.retryingPersistentCache = Maps.<Long, Boolean> newHashMap();
+        this.dataColumns = this.currentTable == null ? Collections.<PColumn, Integer>emptyMap() : Maps
+                .<PColumn, Integer>newLinkedHashMap();
+        this.subqueryResults = Maps.<SelectStatement, Object>newHashMap();
+        this.readMetricsQueue = new ReadMetricQueue(isRequestMetricsEnabled, connection.getLogLevel());
+        this.overAllQueryMetrics = new OverAllQueryMetrics(isRequestMetricsEnabled, connection.getLogLevel());
+        this.retryingPersistentCache = Maps.<Long, Boolean>newHashMap();
     }
 
     /**
      * build map from dataColumn to what will be its position in single KeyValue value bytes
      * returned from the coprocessor that joins from the index row back to the data row.
+     *
      * @param column
      * @return
      */
@@ -281,7 +280,7 @@ public class StatementContext {
         return currentTime;
     }
 
-    public SequenceManager getSequenceManager(){
+    public SequenceManager getSequenceManager() {
         return sequences;
     }
 
@@ -304,17 +303,17 @@ public class StatementContext {
     public void setSubqueryResult(SelectStatement select, Object result) {
         subqueryResults.put(select, result);
     }
-    
+
     public ReadMetricQueue getReadMetricsQueue() {
         return readMetricsQueue;
     }
-    
+
     public OverAllQueryMetrics getOverallQueryMetrics() {
         return overAllQueryMetrics;
     }
 
     public void setQueryLogger(QueryLogger queryLogger) {
-       this.queryLogger=queryLogger;
+        this.queryLogger = queryLogger;
     }
 
     public QueryLogger getQueryLogger() {

@@ -49,7 +49,7 @@ public class PCharPadTest {
     public void testCharPaddingAsc1() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "hellow";
-        byte[] result = new byte[]{104, 101, 108, 108, 111, 119, 32, 32, 32, 32};
+        byte[] result = new byte[] {104, 101, 108, 108, 111, 119, 32, 32, 32, 32};
         test(str, dataType, 10, SortOrder.ASC, result);
     }
 
@@ -57,7 +57,7 @@ public class PCharPadTest {
     public void testCharPaddingAsc2() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "phoenix";
-        byte[] result = new byte[]{112, 104, 111, 101, 110, 105, 120, 32, 32, 32, 32, 32, 32, 32};
+        byte[] result = new byte[] {112, 104, 111, 101, 110, 105, 120, 32, 32, 32, 32, 32, 32, 32};
         test(str, dataType, 14, SortOrder.ASC, result);
     }
 
@@ -65,7 +65,7 @@ public class PCharPadTest {
     public void testCharPaddingAsc3() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "phoenix";
-        byte[] result = new byte[]{112, 104, 111, 101, 110, 105, 120};
+        byte[] result = new byte[] {112, 104, 111, 101, 110, 105, 120};
         test(str, dataType, 7, SortOrder.ASC, result);
     }
 
@@ -73,7 +73,7 @@ public class PCharPadTest {
     public void testCharPaddingAsc4() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "hello world";
-        byte[] result = new byte[]{104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 32, 32, 32, 32, 32};
+        byte[] result = new byte[] {104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 32, 32, 32, 32, 32};
         test(str, dataType, 16, SortOrder.ASC, result);
     }
 
@@ -81,7 +81,7 @@ public class PCharPadTest {
     public void testCharPaddingDesc1() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "hellow";
-        byte[] result = new byte[]{-105, -102, -109, -109, -112, -120, -33, -33, -33, -33};
+        byte[] result = new byte[] {-105, -102, -109, -109, -112, -120, -33, -33, -33, -33};
         test(str, dataType, 10, SortOrder.DESC, result);
     }
 
@@ -89,7 +89,7 @@ public class PCharPadTest {
     public void testCharPaddingDesc2() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "phoenix";
-        byte[] result = new byte[]{-113, -105, -112, -102, -111, -106, -121, -33, -33, -33, -33, -33, -33, -33, -33};
+        byte[] result = new byte[] {-113, -105, -112, -102, -111, -106, -121, -33, -33, -33, -33, -33, -33, -33, -33};
         test(str, dataType, 15, SortOrder.DESC, result);
     }
 
@@ -97,7 +97,7 @@ public class PCharPadTest {
     public void testCharPaddingDesc3() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "phoenix";
-        byte[] result = new byte[]{-113, -105, -112, -102, -111, -106, -121};
+        byte[] result = new byte[] {-113, -105, -112, -102, -111, -106, -121};
         test(str, dataType, 7, SortOrder.DESC, result);
     }
 
@@ -105,7 +105,7 @@ public class PCharPadTest {
     public void testCharPaddingDesc4() throws SQLException {
         PDataType dataType = PChar.INSTANCE;
         String str = "hello world";
-        byte[] result = new byte[]{-105, -102, -109, -109, -112, -33, -120, -112, -115, -109, -101, -33, -33, -33, -33, -33};
+        byte[] result = new byte[] {-105, -102, -109, -109, -112, -33, -120, -112, -115, -109, -101, -33, -33, -33, -33, -33};
         test(str, dataType, 16, SortOrder.DESC, result);
     }
 

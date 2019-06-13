@@ -31,23 +31,24 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PVarchar;
 
-@BuiltInFunction(name=InstrFunction.NAME, args={
-        @Argument(allowedTypes={ PVarchar.class }),
-        @Argument(allowedTypes={ PVarchar.class })})
-public class InstrFunction extends ScalarFunction{
-    
+@BuiltInFunction(name = InstrFunction.NAME, args = {
+        @Argument(allowedTypes = {PVarchar.class}),
+        @Argument(allowedTypes = {PVarchar.class})})
+public class InstrFunction extends ScalarFunction {
+
     public static final String NAME = "INSTR";
 
     private String literalSourceStr = null;
     private String literalSearchStr = null;
-    
-    public InstrFunction() { }
-    
+
+    public InstrFunction() {
+    }
+
     public InstrFunction(List<Expression> children) {
         super(children);
         init();
     }
-    
+
     private void init() {
         literalSourceStr = maybeExtractLiteralString(getChildren().get(0));
         literalSearchStr = maybeExtractLiteralString(getChildren().get(1));
@@ -67,8 +68,8 @@ public class InstrFunction extends ScalarFunction{
         }
         return null;
     }
-        
-    
+
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         String sourceStr = literalSourceStr;
@@ -81,7 +82,7 @@ public class InstrFunction extends ScalarFunction{
 
             // We need something non-empty to search against
             if (ptr.getLength() == 0) {
-              return true;
+                return true;
             }
 
             sourceStr = (String) PVarchar.INSTANCE.toObject(ptr, child.getSortOrder());
@@ -89,18 +90,18 @@ public class InstrFunction extends ScalarFunction{
 
         String searchStr = literalSearchStr;
         // A literal was not provided, try to evaluate the expression to a literal
-        if (searchStr == null){
+        if (searchStr == null) {
             Expression child = getChildren().get(1);
 
             if (!child.evaluate(tuple, ptr)) {
-              return false;
+                return false;
             }
 
             // A null (or zero-length) search string
             if (ptr.getLength() == 0) {
-              return true;
+                return true;
             }
-            
+
             searchStr = (String) PVarchar.INSTANCE.toObject(ptr, child.getSortOrder());
         }
 
@@ -118,7 +119,7 @@ public class InstrFunction extends ScalarFunction{
     public String getName() {
         return NAME;
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);

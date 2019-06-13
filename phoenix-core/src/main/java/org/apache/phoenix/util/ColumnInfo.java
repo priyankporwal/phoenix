@@ -26,17 +26,19 @@ import com.google.common.collect.Lists;
  */
 public class ColumnInfo {
 
-    /** Separator used for the toString representation */
+    /**
+     * Separator used for the toString representation
+     */
     private static final String STR_SEPARATOR = ":";
 
     private final String columnName;
     private final int sqlType;
-  
+
     private final Integer precision;
     private final Integer scale;
-    
+
     public static ColumnInfo create(String columnName, int sqlType, Integer maxLength, Integer scale) {
-        if(scale != null) {
+        if (scale != null) {
             assert(maxLength != null); // If we have a scale, we should always have a maxLength
             scale = Math.min(maxLength, scale);
             return new ColumnInfo(columnName, sqlType, maxLength, scale);
@@ -46,11 +48,11 @@ public class ColumnInfo {
         }
         return new ColumnInfo(columnName, sqlType);
     }
-    
+
     public ColumnInfo(String columnName, int sqlType) {
         this(columnName, sqlType, null);
     }
-    
+
     public ColumnInfo(String columnName, int sqlType, Integer maxLength) {
         this(columnName, sqlType, maxLength, null);
     }
@@ -58,7 +60,7 @@ public class ColumnInfo {
     public ColumnInfo(String columnName, int sqlType, Integer precision, Integer scale) {
         Preconditions.checkNotNull(columnName, "columnName cannot be null");
         Preconditions.checkArgument(!columnName.isEmpty(), "columnName cannot be empty");
-        if(!columnName.startsWith(SchemaUtil.ESCAPE_CHARACTER)) {
+        if (!columnName.startsWith(SchemaUtil.ESCAPE_CHARACTER)) {
             columnName = SchemaUtil.getEscapedFullColumnName(columnName);
         }
         this.columnName = columnName;
@@ -78,18 +80,19 @@ public class ColumnInfo {
     public PDataType getPDataType() {
         return PDataType.fromTypeId(sqlType);
     }
-    
+
     /**
-     * Returns the column name without the associated Column Family. 
+     * Returns the column name without the associated Column Family.
+     *
      * @return
      */
     public String getDisplayName() {
-    	final String unescapedColumnName = SchemaUtil.getUnEscapedFullColumnName(columnName);
+        final String unescapedColumnName = SchemaUtil.getUnEscapedFullColumnName(columnName);
         int index = unescapedColumnName.indexOf(QueryConstants.NAME_SEPARATOR);
         if (index < 0) {
-            return unescapedColumnName; 
+            return unescapedColumnName;
         }
-        return unescapedColumnName.substring(index+1).trim();
+        return unescapedColumnName.substring(index + 1).trim();
     }
 
     // Return the proper SQL type string, taking into account possible array, length and scale parameters
@@ -99,20 +102,32 @@ public class ColumnInfo {
 
     @Override
     public String toString() {
-        return toTypeString() + STR_SEPARATOR + columnName ;
+        return toTypeString() + STR_SEPARATOR + columnName;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ColumnInfo that = (ColumnInfo) o;
 
-        if (sqlType != that.sqlType) return false;
-        if (precision != that.precision) return false;
-        if (scale != that.scale) return false;
-        if (!columnName.equals(that.columnName)) return false;
+        if (sqlType != that.sqlType) {
+            return false;
+        }
+        if (precision != that.precision) {
+            return false;
+        }
+        if (scale != that.scale) {
+            return false;
+        }
+        if (!columnName.equals(that.columnName)) {
+            return false;
+        }
 
         return true;
     }
@@ -131,7 +146,7 @@ public class ColumnInfo {
      * @param stringRepresentation string representation of a ColumnInfo
      * @return the corresponding ColumnInfo
      * @throws java.lang.IllegalArgumentException if the given string representation cannot be
-     * parsed
+     *                                            parsed
      */
     public static ColumnInfo fromString(String stringRepresentation) {
         List<String> components =
@@ -161,16 +176,15 @@ public class ColumnInfo {
 
         // Create the PDataType from the sql type name, including the second 'ARRAY' part if present
         PDataType dataType;
-        if(typeParts.length < 2) {
+        if (typeParts.length < 2) {
             dataType = PDataType.fromSqlTypeName(typeParts[0]);
-        }
-        else {
+        } else {
             dataType = PDataType.fromSqlTypeName(typeParts[0] + " " + typeParts[1]);
         }
-                
+
         return ColumnInfo.create(columnName, dataType.getSqlType(), maxLength, scale);
     }
-    
+
     public Integer getMaxLength() {
         return precision;
     }
@@ -178,7 +192,7 @@ public class ColumnInfo {
     public Integer getPrecision() {
         return precision;
     }
-    
+
     public Integer getScale() {
         return scale;
     }

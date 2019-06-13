@@ -40,7 +40,7 @@ public class ConnectionUtilIT {
 
     private static HBaseTestingUtility hbaseTestUtil;
     private static Configuration conf;
-  
+
     @BeforeClass
     public static void setUp() throws Exception {
         hbaseTestUtil = new HBaseTestingUtility();
@@ -50,25 +50,25 @@ public class ConnectionUtilIT {
         hbaseTestUtil.startMiniCluster();
         Class.forName(PhoenixDriver.class.getName());
     }
-    
-	@Test
-	public void testInputAndOutputConnections() throws SQLException {
-		Connection inputConnection = ConnectionUtil.getInputConnection(conf);
-		Statement stmt = inputConnection.createStatement();
-		stmt.execute("create table t(a integer primary key,b varchar)");
-		stmt.execute("upsert into t values(1,'foo')");
-		inputConnection.commit();
-		ResultSet rs = stmt.executeQuery("select count(*) from t");
-		rs.next();
-		assertEquals(1, rs.getInt(1));
-		Connection outputConnection = ConnectionUtil.getOutputConnection(conf);
-		stmt = outputConnection.createStatement();
-		stmt.execute("create table t1(a integer primary key,b varchar)");
-		stmt.execute("upsert into t1 values(1,'foo')");
-		outputConnection.commit();
-		rs = stmt.executeQuery("select count(*) from t1");
-		rs.next();
-		assertEquals(1, rs.getInt(1));
-	}
+
+    @Test
+    public void testInputAndOutputConnections() throws SQLException {
+        Connection inputConnection = ConnectionUtil.getInputConnection(conf);
+        Statement stmt = inputConnection.createStatement();
+        stmt.execute("create table t(a integer primary key,b varchar)");
+        stmt.execute("upsert into t values(1,'foo')");
+        inputConnection.commit();
+        ResultSet rs = stmt.executeQuery("select count(*) from t");
+        rs.next();
+        assertEquals(1, rs.getInt(1));
+        Connection outputConnection = ConnectionUtil.getOutputConnection(conf);
+        stmt = outputConnection.createStatement();
+        stmt.execute("create table t1(a integer primary key,b varchar)");
+        stmt.execute("upsert into t1 values(1,'foo')");
+        outputConnection.commit();
+        rs = stmt.executeQuery("select count(*) from t1");
+        rs.next();
+        assertEquals(1, rs.getInt(1));
+    }
 
 }

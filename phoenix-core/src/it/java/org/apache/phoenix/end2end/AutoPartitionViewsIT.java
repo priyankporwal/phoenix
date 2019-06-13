@@ -56,29 +56,34 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
     private final String TENANT_SPECIFIC_URL2 = getUrl() + ';' + PhoenixRuntime.TENANT_ID_ATTRIB
             + "=tenant2";
 
-    @Parameters(name = "AutoPartitionViewsIT_salted={0},multi-tenant={1}") // name is used by failsafe as file name in reports
+    @Parameters(name = "AutoPartitionViewsIT_salted={0},multi-tenant={1}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean[]> data() {
-        return Arrays.asList(new Boolean[][] { { false, false }, { false, true }, { true, false },
-                { true, true } });
+        return Arrays.asList(new Boolean[][] {{false, false}, {false, true}, {true, false},
+                {true, true}});
     }
 
     public AutoPartitionViewsIT(boolean salted, boolean isMultiTenant) {
         this.isMultiTenant = isMultiTenant;
         StringBuilder optionBuilder = new StringBuilder(" AUTO_PARTITION_SEQ=\"%s\"");
-        if (salted) optionBuilder.append(", SALTED=4 ");
-        if (isMultiTenant) optionBuilder.append(", MULTI_TENANT=true ");
+        if (salted) {
+            optionBuilder.append(", SALTED=4 ");
+        }
+        if (isMultiTenant) {
+            optionBuilder.append(", MULTI_TENANT=true ");
+        }
         this.tableDDLOptions = optionBuilder.toString();
     }
 
     @Test
     public void testValidateAttributes() throws SQLException {
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection viewConn1 =
-                        isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
-                                : DriverManager.getConnection(getUrl());
-                Connection viewConn2 =
-                        isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
-                                : DriverManager.getConnection(getUrl())) {
+             Connection viewConn1 =
+                     isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
+                             : DriverManager.getConnection(getUrl());
+             Connection viewConn2 =
+                     isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
+                             : DriverManager.getConnection(getUrl())) {
             String tableName = generateUniqueName();
             String autoSeqName = generateUniqueName();
 
@@ -86,23 +91,23 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
 
                 String ddl =
                         String.format(
-                            "CREATE TABLE " + tableName + " (%s metricId VARCHAR, val1 DOUBLE, val2 DOUBLE CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
-                                isMultiTenant ? "tenantId VARCHAR, " : "", 
-                                isMultiTenant ? "tenantId, ": "", String.format(tableDDLOptions, autoSeqName)
-                                );
+                                "CREATE TABLE " + tableName + " (%s metricId VARCHAR, val1 DOUBLE, val2 DOUBLE CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
+                                isMultiTenant ? "tenantId VARCHAR, " : "",
+                                isMultiTenant ? "tenantId, " : "", String.format(tableDDLOptions, autoSeqName)
+                        );
                 conn.createStatement().execute(ddl);
                 fail("Sequence value must be castable to the auto partition id column data type");
             } catch (SQLException e) {
                 assertEquals(
-                    SQLExceptionCode.SEQUENCE_NOT_CASTABLE_TO_AUTO_PARTITION_ID_COLUMN
-                            .getErrorCode(),
-                    e.getErrorCode());
+                        SQLExceptionCode.SEQUENCE_NOT_CASTABLE_TO_AUTO_PARTITION_ID_COLUMN
+                                .getErrorCode(),
+                        e.getErrorCode());
             }
             String ddl =
                     String.format(
-                        "CREATE TABLE " + tableName + " (%s metricId INTEGER NOT NULL, val1 DOUBLE, val2 DOUBLE CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
-                            isMultiTenant ? "tenantId VARCHAR NOT NULL, " : "", 
-                            isMultiTenant ? "tenantId, ": "",
+                            "CREATE TABLE " + tableName + " (%s metricId INTEGER NOT NULL, val1 DOUBLE, val2 DOUBLE CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
+                            isMultiTenant ? "tenantId VARCHAR NOT NULL, " : "",
+                            isMultiTenant ? "tenantId, " : "",
                             String.format(tableDDLOptions, autoSeqName));
             conn.createStatement().execute(ddl);
 
@@ -114,29 +119,29 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             String metricView4 = baseViewName + "_VIEW4";
             try {
                 viewConn1.createStatement().execute(
-                    "CREATE VIEW " + metricView1 + "  AS SELECT * FROM " + tableName);
+                        "CREATE VIEW " + metricView1 + "  AS SELECT * FROM " + tableName);
                 fail("Auto-partition sequence must be created before view is created");
             } catch (SequenceNotFoundException e) {
             }
 
             conn.createStatement().execute(
-                "CREATE SEQUENCE " + autoSeqName + " start with " + (Integer.MAX_VALUE-2) + " cache 1");
+                    "CREATE SEQUENCE " + autoSeqName + " start with " + (Integer.MAX_VALUE - 2) + " cache 1");
             viewConn1.createStatement().execute(
-                "CREATE VIEW " + metricView1 + " AS SELECT * FROM " + tableName + " WHERE val2=1.2");
+                    "CREATE VIEW " + metricView1 + " AS SELECT * FROM " + tableName + " WHERE val2=1.2");
             // create a view without a where clause
             viewConn1.createStatement().execute(
                     "CREATE VIEW " + metricView2 + " AS SELECT * FROM " + tableName);
             // create a view with a complex where clause
             viewConn1.createStatement().execute(
-                "CREATE VIEW " + metricView3 + " AS SELECT * FROM " + tableName + " WHERE val1=1.0 OR val2=2.0");
+                    "CREATE VIEW " + metricView3 + " AS SELECT * FROM " + tableName + " WHERE val1=1.0 OR val2=2.0");
 
             try {
                 viewConn1.createStatement().execute(
-                    "CREATE VIEW " + metricView4 + " AS SELECT * FROM " + tableName);
+                        "CREATE VIEW " + metricView4 + " AS SELECT * FROM " + tableName);
                 fail("Creating a view with a partition id that is too large should fail");
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_COERCE_AUTO_PARTITION_ID.getErrorCode(),
-                    e.getErrorCode());
+                        e.getErrorCode());
             }
 
             if (isMultiTenant) {
@@ -149,7 +154,7 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             PTable view1 = pconn.getTable(new PTableKey(pconn.getTenantId(), metricView1));
             PTable view2 = pconn.getTable(new PTableKey(pconn.getTenantId(), metricView2));
             PTable view3 = pconn.getTable(new PTableKey(pconn.getTenantId(), metricView3));
-            
+
             // verify the view statement was set correctly 
             String expectedViewStatement1 =
                     "SELECT * FROM \"" + tableName + "\" WHERE VAL2 = 1.2 AND METRICID = "
@@ -159,22 +164,22 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             String expectedViewStatement3 =
                     "SELECT * FROM \"" + tableName + "\" WHERE (VAL1 = 1.0 OR VAL2 = 2.0) AND METRICID = " + Integer.MAX_VALUE;
             assertEquals("Unexpected view statement", expectedViewStatement1,
-                view1.getViewStatement());
+                    view1.getViewStatement());
             assertEquals("Unexpected view statement", expectedViewStatement2,
-                view2.getViewStatement());
+                    view2.getViewStatement());
             assertEquals("Unexpected view statement", expectedViewStatement3,
-                view3.getViewStatement());
+                    view3.getViewStatement());
             // verify isViewReferenced was set correctly
             int expectedParitionColIndex = isMultiTenant ? 1 : 0;
             PColumn partitionCol1 = view1.getColumns().get(expectedParitionColIndex);
             PColumn partitionCol2 = view2.getColumns().get(expectedParitionColIndex);
             PColumn partitionCol3 = view3.getColumns().get(expectedParitionColIndex);
             assertTrue("Partition column view referenced attribute should be true ",
-                partitionCol1.isViewReferenced());
+                    partitionCol1.isViewReferenced());
             assertTrue("Partition column view referenced attribute should be true ",
-                partitionCol2.isViewReferenced());
+                    partitionCol2.isViewReferenced());
             assertTrue("Partition column view referenced attribute should be true ",
-                partitionCol3.isViewReferenced());
+                    partitionCol3.isViewReferenced());
             // verify viewConstant was set correctly
             byte[] expectedPartition1 = new byte[Bytes.SIZEOF_INT + 1];
             PInteger.INSTANCE.toBytes(Integer.MAX_VALUE - 2, expectedPartition1, 0);
@@ -183,65 +188,65 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             byte[] expectedPartition3 = new byte[Bytes.SIZEOF_INT + 1];
             PInteger.INSTANCE.toBytes(Integer.MAX_VALUE, expectedPartition3, 0);
             assertArrayEquals("Unexpected Partition column view constant attribute",
-                expectedPartition1, partitionCol1.getViewConstant());
+                    expectedPartition1, partitionCol1.getViewConstant());
             assertArrayEquals("Unexpected Partition column view constant attribute",
-                expectedPartition2, partitionCol2.getViewConstant());
+                    expectedPartition2, partitionCol2.getViewConstant());
             assertArrayEquals("Unexpected Partition column view constant attribute",
-                expectedPartition3, partitionCol3.getViewConstant());
+                    expectedPartition3, partitionCol3.getViewConstant());
 
             // verify that the table was created correctly on the server
             viewConn2.createStatement().execute("SELECT * FROM " + metricView1);
-            viewConn2.createStatement().execute("SELECT * FROM " + metricView2 );
+            viewConn2.createStatement().execute("SELECT * FROM " + metricView2);
             viewConn2.createStatement().execute("SELECT * FROM " + metricView3);
             pconn = viewConn2.unwrap(PhoenixConnection.class);
             view1 = pconn.getTable(new PTableKey(pconn.getTenantId(), metricView1));
             view2 = pconn.getTable(new PTableKey(pconn.getTenantId(), metricView2));
             view3 = pconn.getTable(new PTableKey(pconn.getTenantId(), metricView3));
-            
+
             // verify the view statement was set correctly 
             assertEquals("Unexpected view statement", expectedViewStatement1,
-                view1.getViewStatement());
+                    view1.getViewStatement());
             assertEquals("Unexpected view statement", expectedViewStatement2,
-                view2.getViewStatement());
+                    view2.getViewStatement());
             assertEquals("Unexpected view statement", expectedViewStatement3,
-                view3.getViewStatement());
+                    view3.getViewStatement());
             // verify isViewReferenced was set correctly
             partitionCol1 = view1.getColumns().get(expectedParitionColIndex);
             partitionCol2 = view2.getColumns().get(expectedParitionColIndex);
             partitionCol3 = view3.getColumns().get(expectedParitionColIndex);
             assertTrue("Partition column view referenced attribute should be true ",
-                partitionCol1.isViewReferenced());
+                    partitionCol1.isViewReferenced());
             assertTrue("Partition column view referenced attribute should be true ",
-                partitionCol2.isViewReferenced());
+                    partitionCol2.isViewReferenced());
             assertTrue("Partition column view referenced attribute should be true ",
-                partitionCol3.isViewReferenced());
+                    partitionCol3.isViewReferenced());
             // verify viewConstant was set correctly
             assertArrayEquals("Unexpected Partition column view constant attribute",
-                expectedPartition1, partitionCol1.getViewConstant());
+                    expectedPartition1, partitionCol1.getViewConstant());
             assertArrayEquals("Unexpected Partition column view constant attribute",
-                expectedPartition2, partitionCol2.getViewConstant());
+                    expectedPartition2, partitionCol2.getViewConstant());
             assertArrayEquals("Unexpected Partition column view constant attribute",
-                expectedPartition3, partitionCol3.getViewConstant());
+                    expectedPartition3, partitionCol3.getViewConstant());
         }
     }
 
     @Test
     public void testViewCreationFailure() throws SQLException {
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection viewConn1 =
-                        isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
-                                : DriverManager.getConnection(getUrl());
-                Connection viewConn2 =
-                        isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL2)
-                                : DriverManager.getConnection(getUrl())) {
+             Connection viewConn1 =
+                     isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
+                             : DriverManager.getConnection(getUrl());
+             Connection viewConn2 =
+                     isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL2)
+                             : DriverManager.getConnection(getUrl())) {
             String tableName = generateUniqueName();
             String autoSeqName = generateUniqueName();
 
             String ddl =
                     String.format(
-                        "CREATE TABLE " + tableName + " (%s metricId INTEGER NOT NULL, val1 DOUBLE, val2 DOUBLE CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
-                            isMultiTenant ? "tenantId VARCHAR NOT NULL, " : "", 
-                            isMultiTenant ? "tenantId, ": "", 
+                            "CREATE TABLE " + tableName + " (%s metricId INTEGER NOT NULL, val1 DOUBLE, val2 DOUBLE CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
+                            isMultiTenant ? "tenantId VARCHAR NOT NULL, " : "",
+                            isMultiTenant ? "tenantId, " : "",
                             String.format(tableDDLOptions, autoSeqName));
             conn.createStatement().execute(ddl);
             conn.createStatement().execute("CREATE SEQUENCE " + autoSeqName + " CACHE 1");
@@ -251,7 +256,7 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             String metricView2 = baseViewName + "_VIEW2";
             // create a view
             viewConn1.createStatement().execute(
-                "CREATE VIEW " + metricView1 + " AS SELECT * FROM " + tableName + " WHERE val2=1.2");
+                    "CREATE VIEW " + metricView1 + " AS SELECT * FROM " + tableName + " WHERE val2=1.2");
             try {
                 // create the same view which should fail
                 viewConn1.createStatement()
@@ -262,7 +267,7 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
 
             // create a second view (without a where clause)
             viewConn2.createStatement().execute(
-                "CREATE VIEW " + metricView2 + " AS SELECT * FROM " +  tableName);
+                    "CREATE VIEW " + metricView2 + " AS SELECT * FROM " + tableName);
 
             // upsert a row into each view
             viewConn1.createStatement().execute("UPSERT INTO " + metricView1 + "(val1) VALUES(1.1)");
@@ -278,17 +283,17 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
                 assertEquals("tenant1", rs.getString(1));
                 offset = 1;
             }
-            assertEquals(1, rs.getInt(1+offset));
-            assertEquals(1.1, rs.getDouble(2+offset), 1e-6);
-            assertEquals(1.2, rs.getDouble(3+offset), 1e-6);
+            assertEquals(1, rs.getInt(1 + offset));
+            assertEquals(1.1, rs.getDouble(2 + offset), 1e-6);
+            assertEquals(1.2, rs.getDouble(3 + offset), 1e-6);
             assertTrue(rs.next());
             // validate that the auto partition sequence was not incremented even though view creation failed
             if (isMultiTenant) {
                 assertEquals("tenant2", rs.getString(1));
             }
-            assertEquals(2, rs.getInt(1+offset));
-            assertEquals(2.1, rs.getDouble(2+offset), 1e-6);
-            assertEquals(2.2, rs.getDouble(3+offset), 1e-6);
+            assertEquals(2, rs.getInt(1 + offset));
+            assertEquals(2.1, rs.getDouble(2 + offset), 1e-6);
+            assertEquals(2.2, rs.getDouble(3 + offset), 1e-6);
             assertFalse(rs.next());
 
             // query the first view
@@ -308,21 +313,21 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     @Test
     public void testAddDropColumns() throws SQLException {
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection viewConn1 =
-                        isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
-                                : DriverManager.getConnection(getUrl())) {
+             Connection viewConn1 =
+                     isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1)
+                             : DriverManager.getConnection(getUrl())) {
             String tableName = generateUniqueName();
             String autoSeqName = generateUniqueName();
 
             String ddl =
                     String.format(
-                        "CREATE TABLE " + tableName + " (%s metricId INTEGER NOT NULL, val1 DOUBLE, CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
-                            isMultiTenant ? "tenantId VARCHAR NOT NULL, " : "", 
-                            isMultiTenant ? "tenantId, ": "", 
+                            "CREATE TABLE " + tableName + " (%s metricId INTEGER NOT NULL, val1 DOUBLE, CONSTRAINT PK PRIMARY KEY( %s metricId)) %s",
+                            isMultiTenant ? "tenantId VARCHAR NOT NULL, " : "",
+                            isMultiTenant ? "tenantId, " : "",
                             String.format(tableDDLOptions, autoSeqName));
             conn.createStatement().execute(ddl);
             conn.createStatement().execute("CREATE SEQUENCE " + autoSeqName + " CACHE 1");
@@ -330,12 +335,12 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             String metricView = generateUniqueName() + "_VIEW";
             // create a view
             viewConn1.createStatement().execute(
-                "CREATE VIEW " + metricView + " AS SELECT * FROM " + tableName);
-            
+                    "CREATE VIEW " + metricView + " AS SELECT * FROM " + tableName);
+
             // add a column to the base table
             conn.createStatement().execute(
                     "ALTER TABLE " + tableName + " add val2 DOUBLE");
-            
+
             // add a column to the view
             viewConn1.createStatement().execute(
                     "ALTER VIEW " + metricView + " add val3 DOUBLE");
@@ -352,11 +357,11 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
                 assertEquals("tenant1", rs.getString(1));
                 offset = 1;
             }
-            assertEquals(1, rs.getInt(1+offset));
-            assertEquals(1.1, rs.getDouble(2+offset), 1e-6);
-            assertEquals(1.2, rs.getDouble(3+offset), 1e-6);
+            assertEquals(1, rs.getInt(1 + offset));
+            assertEquals(1.1, rs.getDouble(2 + offset), 1e-6);
+            assertEquals(1.2, rs.getDouble(3 + offset), 1e-6);
             assertFalse(rs.next());
-            
+
             // query the view
             rs = viewConn1.createStatement().executeQuery("SELECT * FROM " + metricView);
             assertTrue(rs.next());
@@ -369,23 +374,21 @@ public class AutoPartitionViewsIT extends ParallelStatsDisabledIT {
             // drop a column from the base table
             conn.createStatement().execute(
                     "ALTER TABLE " + tableName + " DROP COLUMN val2");
-            
+
             // add a column to the view
             viewConn1.createStatement().execute(
                     "ALTER VIEW " + metricView + " DROP COLUMN val3");
-            
+
             // verify columns don't exist
             try {
                 viewConn1.createStatement().executeQuery("SELECT val2 FROM " + metricView);
                 fail("column should have been dropped");
-            }
-            catch (ColumnNotFoundException e) {
+            } catch (ColumnNotFoundException e) {
             }
             try {
                 viewConn1.createStatement().executeQuery("SELECT val3 FROM " + metricView);
                 fail("column should have been dropped");
-            }
-            catch (ColumnNotFoundException e) {
+            } catch (ColumnNotFoundException e) {
             }
         }
     }

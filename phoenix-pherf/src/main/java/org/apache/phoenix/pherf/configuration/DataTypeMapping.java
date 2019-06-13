@@ -20,34 +20,34 @@ package org.apache.phoenix.pherf.configuration;
 
 import java.sql.Types;
 
-public enum DataTypeMapping {
-    VARCHAR("VARCHAR", Types.VARCHAR),
-    CHAR("CHAR", Types.CHAR),
-    DECIMAL("DECIMAL", Types.DECIMAL),
-    INTEGER("INTEGER", Types.INTEGER),
-    DATE("DATE", Types.DATE),
-    UNSIGNED_LONG("UNSIGNED_LONG", Types.LONGVARCHAR),
-    VARCHAR_ARRAY("VARCHAR ARRAY", Types.ARRAY),
-    VARBINARY("VARBINARY", Types.VARBINARY),
-    TIMESTAMP("TIMESTAMP", Types.TIMESTAMP),
-    BIGINT("BIGINT", Types.BIGINT),
-    TINYINT("TINYINT", Types.TINYINT);
+public enum DataTypeMapping{
+        VARCHAR("VARCHAR",Types.VARCHAR),
+        CHAR("CHAR",Types.CHAR),
+        DECIMAL("DECIMAL",Types.DECIMAL),
+        INTEGER("INTEGER",Types.INTEGER),
+        DATE("DATE",Types.DATE),
+        UNSIGNED_LONG("UNSIGNED_LONG",Types.LONGVARCHAR),
+        VARCHAR_ARRAY("VARCHAR ARRAY",Types.ARRAY),
+        VARBINARY("VARBINARY",Types.VARBINARY),
+        TIMESTAMP("TIMESTAMP",Types.TIMESTAMP),
+        BIGINT("BIGINT",Types.BIGINT),
+        TINYINT("TINYINT",Types.TINYINT);
 
-    private final String sType;
+private final String sType;
 
-    private final int dType;
+private final int dType;
 
-    private DataTypeMapping(String sType, int dType) {
-        this.dType = dType;
-        this.sType = sType;
-    }
+private DataTypeMapping(String sType,int dType){
+        this.dType=dType;
+        this.sType=sType;
+        }
 
-    @Override
-    public String toString() {
+@Override
+public String toString(){
         return this.sType;
-    }
+        }
 
-    public int getdType() {
+public int getdType(){
         return dType;
-    }
-}
+        }
+        }

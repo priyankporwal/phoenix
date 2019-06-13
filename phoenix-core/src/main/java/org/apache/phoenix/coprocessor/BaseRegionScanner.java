@@ -27,10 +27,10 @@ import org.apache.hadoop.hbase.regionserver.ScannerContext;
 
 public abstract class BaseRegionScanner extends DelegateRegionScanner {
 
-	public BaseRegionScanner(RegionScanner delegate) {
-		super(delegate);
-	}
-	
+    public BaseRegionScanner(RegionScanner delegate) {
+        super(delegate);
+    }
+
     @Override
     public boolean isFilterDone() {
         return false;

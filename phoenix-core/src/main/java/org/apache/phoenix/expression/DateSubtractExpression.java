@@ -32,7 +32,7 @@ import org.apache.phoenix.schema.types.PLong;
 
 
 public class DateSubtractExpression extends SubtractExpression {
-    
+
     public DateSubtractExpression() {
     }
 
@@ -42,9 +42,9 @@ public class DateSubtractExpression extends SubtractExpression {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        long finalResult=0;
-        
-        for(int i=0;i<children.size();i++) {
+        long finalResult = 0;
+
+        for (int i = 0; i < children.size(); i++) {
             if (!children.get(i).evaluate(tuple, ptr) || ptr.getLength() == 0) {
                 return false;
             }
@@ -57,7 +57,7 @@ public class DateSubtractExpression extends SubtractExpression {
             } else if (type.isCoercibleTo(PLong.INSTANCE)) {
                 value = type.getCodec().decodeLong(ptr, sortOrder) * QueryConstants.MILLIS_IN_DAY;
             } else if (type.isCoercibleTo(PDouble.INSTANCE)) {
-                value = (long)(type.getCodec().decodeDouble(ptr, sortOrder) * QueryConstants.MILLIS_IN_DAY);
+                value = (long) (type.getCodec().decodeDouble(ptr, sortOrder) * QueryConstants.MILLIS_IN_DAY);
             } else {
                 value = type.getCodec().decodeLong(ptr, sortOrder);
             }
@@ -67,7 +67,7 @@ public class DateSubtractExpression extends SubtractExpression {
                 finalResult -= value;
             }
         }
-        byte[] resultPtr=new byte[getDataType().getByteSize()];
+        byte[] resultPtr = new byte[getDataType().getByteSize()];
         getDataType().getCodec().encodeLong(finalResult, resultPtr, 0);
         ptr.set(resultPtr);
         return true;

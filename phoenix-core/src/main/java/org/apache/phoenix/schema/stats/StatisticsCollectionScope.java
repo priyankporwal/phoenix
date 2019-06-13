@@ -17,10 +17,10 @@
  */
 package org.apache.phoenix.schema.stats;
 
-public enum StatisticsCollectionScope {
-    COLUMNS, INDEX, ALL;
+public enum StatisticsCollectionScope{
+        COLUMNS,INDEX,ALL;
 
-    public static StatisticsCollectionScope getDefault() {
+public static StatisticsCollectionScope getDefault(){
         return ALL;
-    }
-}
+        }
+        }

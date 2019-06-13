@@ -27,17 +27,15 @@ import org.apache.phoenix.schema.TypeMismatchException;
 
 
 /**
- * 
  * AND expression implementation
  *
- * 
  * @since 0.1
  */
 public class AndExpression extends AndOrExpression {
     private static final String AND = "AND";
-    
+
     public static Expression create(List<Expression> children) throws SQLException {
-    	Determinism determinism = Determinism.ALWAYS;
+        Determinism determinism = Determinism.ALWAYS;
         Iterator<Expression> iterator = children.iterator();
         while (iterator.hasNext()) {
             Expression child = iterator.next();
@@ -50,7 +48,7 @@ public class AndExpression extends AndOrExpression {
             if (LiteralExpression.isTrue(child)) {
                 iterator.remove();
             }
-			determinism.combine(child.getDeterminism());
+            determinism.combine(child.getDeterminism());
         }
         if (children.size() == 0) {
             return LiteralExpression.newConstant(true, determinism);
@@ -60,7 +58,7 @@ public class AndExpression extends AndOrExpression {
         }
         return new AndExpression(children);
     }
-    
+
     public static String combine(String expression1, String expression2) {
         if (expression1 == null) {
             return expression2;
@@ -70,7 +68,7 @@ public class AndExpression extends AndOrExpression {
         }
         return "(" + expression1 + ") " + AND + " (" + expression2 + ")";
     }
-    
+
     public AndExpression() {
     }
 
@@ -89,11 +87,11 @@ public class AndExpression extends AndOrExpression {
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + " " + AND + " ");
         }
-        buf.append(children.get(children.size()-1));
+        buf.append(children.get(children.size() - 1));
         buf.append(')');
         return buf.toString();
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         List<T> l = acceptChildren(visitor, visitor.visitEnter(this));

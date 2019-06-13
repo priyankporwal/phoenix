@@ -32,11 +32,9 @@ import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 
 /**
- * 
- * Base class for result scanners that aggregate the row count value for rows with 
- * duplicate keys. This result scanner assumes that the results of the inner result 
+ * Base class for result scanners that aggregate the row count value for rows with
+ * duplicate keys. This result scanner assumes that the results of the inner result
  * scanner are returned in order of grouping keys.
- * 
  */
 public abstract class BaseGroupedAggregatingResultIterator implements
         AggregatingResultIterator {
@@ -44,19 +42,24 @@ public abstract class BaseGroupedAggregatingResultIterator implements
     protected final PeekingResultIterator resultIterator;
     protected final Aggregators aggregators;
     private ImmutableBytesWritable currentKey;
-    private ImmutableBytesWritable nextKey;    
+    private ImmutableBytesWritable nextKey;
 
     public BaseGroupedAggregatingResultIterator(
             PeekingResultIterator resultIterator, Aggregators aggregators) {
-        if (resultIterator == null) throw new NullPointerException();
-        if (aggregators == null) throw new NullPointerException();
+        if (resultIterator == null) {
+            throw new NullPointerException();
+        }
+        if (aggregators == null) {
+            throw new NullPointerException();
+        }
         this.resultIterator = resultIterator;
         this.aggregators = aggregators;
         this.currentKey = new ImmutableBytesWritable(UNITIALIZED_KEY_BUFFER);
-        this.nextKey = new ImmutableBytesWritable(UNITIALIZED_KEY_BUFFER);        
+        this.nextKey = new ImmutableBytesWritable(UNITIALIZED_KEY_BUFFER);
     }
-    
+
     protected abstract ImmutableBytesWritable getGroupingKey(Tuple tuple, ImmutableBytesWritable ptr) throws SQLException;
+
     protected abstract Tuple wrapKeyValueAsResult(Cell keyValue) throws SQLException;
 
     @Override
@@ -78,18 +81,18 @@ public abstract class BaseGroupedAggregatingResultIterator implements
             }
             result = resultIterator.next();
         }
-        
+
         byte[] value = aggregators.toBytes(rowAggregators);
         Tuple tuple = wrapKeyValueAsResult(PhoenixKeyValueUtil.newKeyValue(currentKey, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, AGG_TIMESTAMP, value, 0, value.length));
         currentKey.set(nextKey.get(), nextKey.getOffset(), nextKey.getLength());
         return tuple;
     }
-    
+
     @Override
     public void close() throws SQLException {
         resultIterator.close();
     }
-    
+
     @Override
     public Aggregator[] aggregate(Tuple result) {
         Aggregator[] rowAggregators = aggregators.getAggregators();

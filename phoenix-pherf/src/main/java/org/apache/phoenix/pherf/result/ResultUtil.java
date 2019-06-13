@@ -122,25 +122,25 @@ public class ResultUtil {
             throws Exception {
         ResultFileDetails resultFileDetails = resultHandler.getResultFileDetails();
         switch (resultFileDetails) {
-        case CSV_AGGREGATE_PERFORMANCE:
-        case CSV_DETAILED_PERFORMANCE:
-        case CSV_DETAILED_FUNCTIONAL:
-            List<List<ResultValue>>
-                    rowDetails =
-                    getCSVResults(dataModelResult, resultFileDetails, ruleApplier);
-            for (List<ResultValue> row : rowDetails) {
-                Result
-                        result =
-                        new Result(resultFileDetails, resultFileDetails.getHeader().toString(),
-                                row);
-                resultHandler.write(result);
-            }
-            break;
-        default:
-            List<ResultValue> resultValue = new ArrayList();
-            resultValue.add(new ResultValue<>(dataModelResult));
-            resultHandler.write(new Result(resultFileDetails, null, resultValue));
-            break;
+            case CSV_AGGREGATE_PERFORMANCE:
+            case CSV_DETAILED_PERFORMANCE:
+            case CSV_DETAILED_FUNCTIONAL:
+                List<List<ResultValue>>
+                        rowDetails =
+                        getCSVResults(dataModelResult, resultFileDetails, ruleApplier);
+                for (List<ResultValue> row : rowDetails) {
+                    Result
+                            result =
+                            new Result(resultFileDetails, resultFileDetails.getHeader().toString(),
+                                    row);
+                    resultHandler.write(result);
+                }
+                break;
+            default:
+                List<ResultValue> resultValue = new ArrayList();
+                resultValue.add(new ResultValue<>(dataModelResult));
+                resultHandler.write(new Result(resultFileDetails, null, resultValue));
+                break;
         }
     }
 
@@ -159,10 +159,11 @@ public class ResultUtil {
             baseDir.mkdir();
         }
     }
-    
+
     /**
      * Utility method to delete directory
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     public void deleteDir(String directory) throws IOException {
         File baseDir = new File(directory);
@@ -200,46 +201,46 @@ public class ResultUtil {
     }
 
     private List<List<ResultValue>> getCSVResults(DataModelResult dataModelResult,
-            ResultFileDetails resultFileDetails, RulesApplier ruleApplier) {
+                                                  ResultFileDetails resultFileDetails, RulesApplier ruleApplier) {
         List<List<ResultValue>> rowList = new ArrayList<>();
 
         for (ScenarioResult result : dataModelResult.getScenarioResult()) {
             for (QuerySetResult querySetResult : result.getQuerySetResult()) {
                 for (QueryResult queryResult : querySetResult.getQueryResults()) {
                     switch (resultFileDetails) {
-                    case CSV_AGGREGATE_PERFORMANCE:
-                        List<ResultValue> csvResult = queryResult.getCsvRepresentation(this, result, ruleApplier);
-                        rowList.add(csvResult);
-                        break;
-                    case CSV_DETAILED_PERFORMANCE:
-                    case CSV_DETAILED_FUNCTIONAL:
-                        List<List<ResultValue>>
-                                detailedRows =
-                                queryResult.getCsvDetailedRepresentation(this, resultFileDetails);
-                        for (List<ResultValue> detailedRowList : detailedRows) {
-                            List<ResultValue> valueList = new ArrayList<>();
-                            valueList.add(new ResultValue(convertNull(result.getTableName())));
-                            valueList.add(new ResultValue(convertNull(result.getName())));
-                            valueList.add(new ResultValue(
-                                    convertNull(dataModelResult.getZookeeper())));
-                            valueList.add(new ResultValue(
-                                    convertNull(String.valueOf(result.getRowCount()))));
-                            valueList.add(new ResultValue(convertNull(
-                                    String.valueOf(querySetResult.getNumberOfExecutions()))));
-                            valueList.add(new ResultValue(convertNull(
-                                    String.valueOf(querySetResult.getExecutionType()))));
-                            if (result.getPhoenixProperties() != null) {
-                                String props = buildProperty(result);
-                                valueList.add(new ResultValue(convertNull(props)));
-                            } else {
-                                valueList.add(new ResultValue("null"));
+                        case CSV_AGGREGATE_PERFORMANCE:
+                            List<ResultValue> csvResult = queryResult.getCsvRepresentation(this, result, ruleApplier);
+                            rowList.add(csvResult);
+                            break;
+                        case CSV_DETAILED_PERFORMANCE:
+                        case CSV_DETAILED_FUNCTIONAL:
+                            List<List<ResultValue>>
+                                    detailedRows =
+                                    queryResult.getCsvDetailedRepresentation(this, resultFileDetails);
+                            for (List<ResultValue> detailedRowList : detailedRows) {
+                                List<ResultValue> valueList = new ArrayList<>();
+                                valueList.add(new ResultValue(convertNull(result.getTableName())));
+                                valueList.add(new ResultValue(convertNull(result.getName())));
+                                valueList.add(new ResultValue(
+                                        convertNull(dataModelResult.getZookeeper())));
+                                valueList.add(new ResultValue(
+                                        convertNull(String.valueOf(result.getRowCount()))));
+                                valueList.add(new ResultValue(convertNull(
+                                        String.valueOf(querySetResult.getNumberOfExecutions()))));
+                                valueList.add(new ResultValue(convertNull(
+                                        String.valueOf(querySetResult.getExecutionType()))));
+                                if (result.getPhoenixProperties() != null) {
+                                    String props = buildProperty(result);
+                                    valueList.add(new ResultValue(convertNull(props)));
+                                } else {
+                                    valueList.add(new ResultValue("null"));
+                                }
+                                valueList.addAll(detailedRowList);
+                                rowList.add(valueList);
                             }
-                            valueList.addAll(detailedRowList);
-                            rowList.add(valueList);
-                        }
-                        break;
-                    default:
-                        break;
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -252,18 +253,21 @@ public class ResultUtil {
         boolean firstPartialSeparator = true;
 
         for (Map.Entry<String, String> entry : result.getPhoenixProperties().entrySet()) {
-            if (!firstPartialSeparator) sb.append("|");
+            if (!firstPartialSeparator) {
+                sb.append("|");
+            }
             firstPartialSeparator = false;
             sb.append(entry.getKey() + "=" + entry.getValue());
         }
         return sb.toString();
     }
-    
+
     /**
      * Set the file suffix
+     *
      * @param suffix
      */
     public static void setFileSuffix(String suffix) {
-    	FILE_SUFFIX = suffix;
+        FILE_SUFFIX = suffix;
     }
 }

@@ -43,8 +43,9 @@ public class ProtobufUtil {
     /**
      * Stores an exception encountered during RPC invocation so it can be passed back through to the
      * client.
+     *
      * @param controller the controller instance provided by the client when calling the service
-     * @param ioe the exception encountered
+     * @param ioe        the exception encountered
      */
     public static void setControllerException(RpcController controller, IOException ioe) {
         if (controller != null) {
@@ -109,6 +110,7 @@ public class ProtobufUtil {
 
     /**
      * Each ByteString entry is a byte array serialized from MutationProto instance
+     *
      * @param mutations
      * @throws IOException
      */
@@ -133,17 +135,17 @@ public class ProtobufUtil {
         }
         return org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(type, mutation);
     }
-    
+
     public static ServerCachingProtos.ImmutableBytesWritable toProto(ImmutableBytesWritable w) {
-        ServerCachingProtos.ImmutableBytesWritable.Builder builder = 
-        		ServerCachingProtos.ImmutableBytesWritable.newBuilder();
+        ServerCachingProtos.ImmutableBytesWritable.Builder builder =
+                ServerCachingProtos.ImmutableBytesWritable.newBuilder();
         builder.setByteArray(ByteStringer.wrap(w.get()));
         builder.setOffset(w.getOffset());
         builder.setLength(w.getLength());
         return builder.build();
     }
-    
+
     public static ImmutableBytesWritable toImmutableBytesWritable(ServerCachingProtos.ImmutableBytesWritable proto) {
-    	return new ImmutableBytesWritable(proto.getByteArray().toByteArray(), proto.getOffset(), proto.getLength());
+        return new ImmutableBytesWritable(proto.getByteArray().toByteArray(), proto.getOffset(), proto.getLength());
     }
 }

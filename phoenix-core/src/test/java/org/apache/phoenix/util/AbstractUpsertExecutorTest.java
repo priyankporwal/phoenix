@@ -56,9 +56,11 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
     protected UpsertExecutor.UpsertListener<R> upsertListener;
 
     protected abstract UpsertExecutor<R, F> getUpsertExecutor();
+
     protected abstract R createRecord(Object... columnValues) throws IOException;
+
     protected abstract UpsertExecutor<R, F> getUpsertExecutor(Connection conn);
-    
+
     private static String TIMESTAMP_WITH_NANOS = "2006-11-03 00:00:00.001003000";
 
     @Before
@@ -70,7 +72,7 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
                 new ColumnInfo("VALUES", PIntegerArray.INSTANCE.getSqlType()),
                 new ColumnInfo("BEARD", Types.BOOLEAN),
                 new ColumnInfo("PIC", Types.BINARY),
-                new ColumnInfo("T", Types.TIMESTAMP));        
+                new ColumnInfo("T", Types.TIMESTAMP));
 
         preparedStatement = mock(PreparedStatement.class);
         upsertListener = mock(UpsertExecutor.UpsertListener.class);
@@ -86,11 +88,11 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
 
     @Test
     public void testExecute() throws Exception {
-        byte[] binaryData=(byte[])PBinary.INSTANCE.getSampleValue();
+        byte[] binaryData = (byte[]) PBinary.INSTANCE.getSampleValue();
         String encodedBinaryData = Bytes.toString(Base64.getEncoder().encode(binaryData));
         getUpsertExecutor().execute(
-            createRecord(123L, "NameValue", 42, Arrays.asList(1, 2, 3), true, encodedBinaryData,
-                Timestamp.valueOf(TIMESTAMP_WITH_NANOS)));
+                createRecord(123L, "NameValue", 42, Arrays.asList(1, 2, 3), true, encodedBinaryData,
+                        Timestamp.valueOf(TIMESTAMP_WITH_NANOS)));
 
         verify(upsertListener).upsertDone(1L);
         verifyNoMoreInteractions(upsertListener);
@@ -98,7 +100,7 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
         verify(preparedStatement).setObject(1, Long.valueOf(123L));
         verify(preparedStatement).setObject(2, "NameValue");
         verify(preparedStatement).setObject(3, Integer.valueOf(42));
-        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[]{1,2,3}));
+        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[] {1, 2, 3}));
         verify(preparedStatement).setObject(5, Boolean.TRUE);
         verify(preparedStatement).setObject(6, binaryData);
         verify(preparedStatement).setObject(7, DateUtil.parseTimestamp(TIMESTAMP_WITH_NANOS));
@@ -117,7 +119,7 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
 
     @Test
     public void testExecute_TooManyFields() throws Exception {
-        byte[] binaryData=(byte[])PBinary.INSTANCE.getSampleValue();
+        byte[] binaryData = (byte[]) PBinary.INSTANCE.getSampleValue();
         String encodedBinaryData = Bytes.toString(Base64.getEncoder().encode(binaryData));
         R recordWithTooManyFields = createRecord(123L, "NameValue", 42, Arrays.asList(1, 2, 3),
                 true, encodedBinaryData, Timestamp.valueOf(TIMESTAMP_WITH_NANOS), "garbage");
@@ -129,7 +131,7 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
         verify(preparedStatement).setObject(1, Long.valueOf(123L));
         verify(preparedStatement).setObject(2, "NameValue");
         verify(preparedStatement).setObject(3, Integer.valueOf(42));
-        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[]{1,2,3}));
+        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[] {1, 2, 3}));
         verify(preparedStatement).setObject(5, Boolean.TRUE);
         verify(preparedStatement).setObject(6, binaryData);
         verify(preparedStatement).setObject(7, DateUtil.parseTimestamp(TIMESTAMP_WITH_NANOS));
@@ -139,11 +141,11 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
 
     @Test
     public void testExecute_NullField() throws Exception {
-        byte[] binaryData=(byte[])PBinary.INSTANCE.getSampleValue();
+        byte[] binaryData = (byte[]) PBinary.INSTANCE.getSampleValue();
         String encodedBinaryData = Bytes.toString(Base64.getEncoder().encode(binaryData));
         getUpsertExecutor().execute(
-            createRecord(123L, "NameValue", null, Arrays.asList(1, 2, 3), false, encodedBinaryData,
-                Timestamp.valueOf(TIMESTAMP_WITH_NANOS)));
+                createRecord(123L, "NameValue", null, Arrays.asList(1, 2, 3), false, encodedBinaryData,
+                        Timestamp.valueOf(TIMESTAMP_WITH_NANOS)));
 
         verify(upsertListener).upsertDone(1L);
         verifyNoMoreInteractions(upsertListener);
@@ -151,7 +153,7 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
         verify(preparedStatement).setObject(1, Long.valueOf(123L));
         verify(preparedStatement).setObject(2, "NameValue");
         verify(preparedStatement).setNull(3, columnInfoList.get(2).getSqlType());
-        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[]{1,2,3}));
+        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[] {1, 2, 3}));
         verify(preparedStatement).setObject(5, Boolean.FALSE);
         verify(preparedStatement).setObject(6, binaryData);
         verify(preparedStatement).setObject(7, DateUtil.parseTimestamp(TIMESTAMP_WITH_NANOS));
@@ -161,20 +163,20 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
 
     @Test
     public void testExecute_InvalidType() throws Exception {
-        byte[] binaryData=(byte[])PBinary.INSTANCE.getSampleValue();
+        byte[] binaryData = (byte[]) PBinary.INSTANCE.getSampleValue();
         String encodedBinaryData = Bytes.toString(Base64.getEncoder().encode(binaryData));
         R recordWithInvalidType =
                 createRecord(123L, "NameValue", "ThisIsNotANumber", Arrays.asList(1, 2, 3), true,
-                    encodedBinaryData, Timestamp.valueOf(TIMESTAMP_WITH_NANOS));
+                        encodedBinaryData, Timestamp.valueOf(TIMESTAMP_WITH_NANOS));
         getUpsertExecutor().execute(recordWithInvalidType);
 
         verify(upsertListener).errorOnRecord(eq(recordWithInvalidType), any(Throwable.class));
         verifyNoMoreInteractions(upsertListener);
     }
-    
+
     @Test
     public void testExecute_InvalidBoolean() throws Exception {
-        byte[] binaryData=(byte[])PBinary.INSTANCE.getSampleValue();
+        byte[] binaryData = (byte[]) PBinary.INSTANCE.getSampleValue();
         String encodedBinaryData = Bytes.toString(Base64.getEncoder().encode(binaryData));
         R csvRecordWithInvalidType =
                 createRecord("123,NameValue,42,1:2:3,NotABoolean," + encodedBinaryData + ","
@@ -183,10 +185,10 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
 
         verify(upsertListener).errorOnRecord(eq(csvRecordWithInvalidType), any(Throwable.class));
     }
-    
+
     @Test
     public void testExecute_InvalidBinary() throws Exception {
-        String notBase64Encoded="#@$df";
+        String notBase64Encoded = "#@$df";
         R csvRecordWithInvalidType =
                 createRecord("123,NameValue,42,1:2:3,true," + notBase64Encoded + ","
                         + TIMESTAMP_WITH_NANOS);
@@ -194,23 +196,23 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
 
         verify(upsertListener).errorOnRecord(eq(csvRecordWithInvalidType), any(Throwable.class));
     }
-    
+
     @Test
     public void testExecute_AsciiEncoded() throws Exception {
-        String asciiValue="#@$df";
-        Properties info=new Properties();
-        info.setProperty(QueryServices.UPLOAD_BINARY_DATA_TYPE_ENCODING,"ASCII");
+        String asciiValue = "#@$df";
+        Properties info = new Properties();
+        info.setProperty(QueryServices.UPLOAD_BINARY_DATA_TYPE_ENCODING, "ASCII");
         getUpsertExecutor(DriverManager.getConnection(getUrl(), info)).execute(
-            createRecord(123L, "NameValue", 42, Arrays.asList(1, 2, 3), true, asciiValue,
-                Timestamp.valueOf(TIMESTAMP_WITH_NANOS)));
+                createRecord(123L, "NameValue", 42, Arrays.asList(1, 2, 3), true, asciiValue,
+                        Timestamp.valueOf(TIMESTAMP_WITH_NANOS)));
 
         verify(upsertListener).upsertDone(1L);
         verifyNoMoreInteractions(upsertListener);
-        
+
         verify(preparedStatement).setObject(1, Long.valueOf(123L));
         verify(preparedStatement).setObject(2, "NameValue");
         verify(preparedStatement).setObject(3, Integer.valueOf(42));
-        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[]{1,2,3}));
+        verify(preparedStatement).setObject(4, PArrayDataType.instantiatePhoenixArray(PInteger.INSTANCE, new Object[] {1, 2, 3}));
         verify(preparedStatement).setObject(5, Boolean.TRUE);
         verify(preparedStatement).setObject(6, Bytes.toBytes(asciiValue));
         verify(preparedStatement).setObject(7, DateUtil.parseTimestamp(TIMESTAMP_WITH_NANOS));
@@ -218,5 +220,5 @@ public abstract class AbstractUpsertExecutorTest<R, F> extends BaseConnectionles
         verifyNoMoreInteractions(preparedStatement);
     }
 
-    
+
 }

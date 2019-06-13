@@ -23,8 +23,6 @@ import org.apache.phoenix.hbase.index.table.HTableFactory;
 
 /**
  * Like the {@link ParallelWriterIndexCommitter}, but does not block
- *
- *
  */
 public class LazyParallelWriterIndexCommitter extends AbstractParallelWriterIndexCommitter {
 

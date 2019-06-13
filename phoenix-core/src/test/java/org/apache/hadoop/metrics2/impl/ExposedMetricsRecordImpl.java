@@ -29,14 +29,14 @@ import org.apache.hadoop.metrics2.MetricsTag;
 @SuppressWarnings("javadoc")
 public class ExposedMetricsRecordImpl extends MetricsRecordImpl {
 
-  /**
-   * @param info
-   * @param timestamp
-   * @param tags
-   * @param metrics
-   */
-  public ExposedMetricsRecordImpl(MetricsInfo info, long timestamp, List<MetricsTag> tags,
-      Iterable<AbstractMetric> metrics) {
-    super(info, timestamp, tags, metrics);
-  }
+    /**
+     * @param info
+     * @param timestamp
+     * @param tags
+     * @param metrics
+     */
+    public ExposedMetricsRecordImpl(MetricsInfo info, long timestamp, List<MetricsTag> tags,
+                                    Iterable<AbstractMetric> metrics) {
+        super(info, timestamp, tags, metrics);
+    }
 }

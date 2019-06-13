@@ -25,8 +25,6 @@ import org.apache.phoenix.query.KeyRange;
 
 /**
  * Interface for strategies determining how to split regions in ParallelIterators.
- * 
- * 
  */
 public interface ParallelIteratorRegionSplitter {
 

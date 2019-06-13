@@ -122,9 +122,9 @@ public class PUnsignedDate extends PDataType<Date> {
     // TODO: derive PUnsignedDate from PDate to avoid copy/paste
     @Override
     public void coerceBytes(ImmutableBytesWritable ptr, Object object, PDataType actualType,
-            Integer maxLength, Integer scale, SortOrder actualModifier,
-            Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier) {
+                            Integer maxLength, Integer scale, SortOrder actualModifier,
+                            Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier) {
         if (ptr.getLength() > getByteSize()) {
             ptr.set(ptr.get(), ptr.getOffset(), getByteSize());
         }

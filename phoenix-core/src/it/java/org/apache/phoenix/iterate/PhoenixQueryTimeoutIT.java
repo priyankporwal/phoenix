@@ -46,7 +46,7 @@ public class PhoenixQueryTimeoutIT extends ParallelStatsDisabledIT {
         tableName = generateUniqueName();
         int numRows = 1000;
         String ddl =
-            "CREATE TABLE " + tableName + " (K VARCHAR NOT NULL PRIMARY KEY, V VARCHAR)";
+                "CREATE TABLE " + tableName + " (K VARCHAR NOT NULL PRIMARY KEY, V VARCHAR)";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute(ddl);
             String dml = "UPSERT INTO " + tableName + " VALUES (?, ?)";
@@ -69,23 +69,25 @@ public class PhoenixQueryTimeoutIT extends ParallelStatsDisabledIT {
     public void testCustomQueryTimeoutWithVeryLowTimeout() throws Exception {
         // Arrange
         PreparedStatement ps = loadDataAndPrepareQuery(1, 1);
-        
+
         // Act + Assert
         try {
             ResultSet rs = ps.executeQuery();
             // Trigger HBase scans by calling rs.next
-            while (rs.next()) {};
+            while (rs.next()) {
+            }
+            ;
             fail("Expected query to timeout with a 1 ms timeout");
         } catch (Exception e) {
             // Expected
         }
     }
-    
+
     @Test
     public void testCustomQueryTimeoutWithNormalTimeout() throws Exception {
         // Arrange
         PreparedStatement ps = loadDataAndPrepareQuery(30000, 30);
-        
+
         // Act + Assert
         try {
             ResultSet rs = ps.executeQuery();
@@ -100,11 +102,11 @@ public class PhoenixQueryTimeoutIT extends ParallelStatsDisabledIT {
         }
     }
 
-    
+
     //-----------------------------------------------------------------
     // Private Helper Methods
     //-----------------------------------------------------------------
-    
+
     private PreparedStatement loadDataAndPrepareQuery(int timeoutMs, int timeoutSecs) throws Exception, SQLException {
         Properties props = new Properties();
         props.setProperty(QueryServices.THREAD_TIMEOUT_MS_ATTRIB, String.valueOf(timeoutMs));

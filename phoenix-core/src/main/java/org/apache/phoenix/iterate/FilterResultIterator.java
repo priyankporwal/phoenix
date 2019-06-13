@@ -27,21 +27,19 @@ import org.apache.phoenix.schema.types.PBoolean;
 
 
 /**
- * 
  * Result scanner that filters out rows based on the results of a boolean
  * expression (i.e. filters out if {@link org.apache.phoenix.expression.Expression#evaluate(Tuple, ImmutableBytesWritable)}
  * returns false or the ptr contains a FALSE value}). May not be used where
  * the delegate provided is an {@link org.apache.phoenix.iterate.AggregatingResultIterator}.
  * For these, the {@link org.apache.phoenix.iterate.FilterAggregatingResultIterator} should be used.
  *
- * 
  * @since 0.1
  */
-public class FilterResultIterator  extends LookAheadResultIterator {
+public class FilterResultIterator extends LookAheadResultIterator {
     private final ResultIterator delegate;
     private final Expression expression;
     private final ImmutableBytesWritable ptr = new ImmutableBytesWritable();
-    
+
     public FilterResultIterator(ResultIterator delegate, Expression expression) {
         if (delegate instanceof AggregatingResultIterator) {
             throw new IllegalArgumentException("FilterResultScanner may not be used with an aggregate delegate. Use phoenix.iterate.FilterAggregateResultScanner instead");
@@ -59,10 +57,11 @@ public class FilterResultIterator  extends LookAheadResultIterator {
         do {
             next = delegate.next();
             expression.reset();
-        } while (next != null && (!expression.evaluate(next, ptr) || ptr.getLength() == 0 || !Boolean.TRUE.equals(expression.getDataType().toObject(ptr))));
+        }
+        while (next != null && (!expression.evaluate(next, ptr) || ptr.getLength() == 0 || !Boolean.TRUE.equals(expression.getDataType().toObject(ptr))));
         return next;
     }
-    
+
     @Override
     public void close() throws SQLException {
         delegate.close();
@@ -74,9 +73,9 @@ public class FilterResultIterator  extends LookAheadResultIterator {
         planSteps.add("CLIENT FILTER BY " + expression.toString());
     }
 
-	@Override
-	public String toString() {
-		return "FilterResultIterator [delegate=" + delegate + ", expression="
-				+ expression + ", ptr=" + ptr + "]";
-	}
+    @Override
+    public String toString() {
+        return "FilterResultIterator [delegate=" + delegate + ", expression="
+                + expression + ", ptr=" + ptr + "]";
+    }
 }

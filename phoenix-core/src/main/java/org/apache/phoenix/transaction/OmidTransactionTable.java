@@ -73,11 +73,11 @@ public class OmidTransactionTable implements Table {
         this(ctx, hTable, false);
     }
 
-    public OmidTransactionTable(PhoenixTransactionContext ctx, Table hTable, boolean isConflictFree) throws SQLException  {
+    public OmidTransactionTable(PhoenixTransactionContext ctx, Table hTable, boolean isConflictFree) throws SQLException {
         this(ctx, hTable, isConflictFree, false);
     }
 
-    public OmidTransactionTable(PhoenixTransactionContext ctx, Table hTable, boolean isConflictFree, boolean addShadowCells) throws SQLException  {
+    public OmidTransactionTable(PhoenixTransactionContext ctx, Table hTable, boolean isConflictFree, boolean addShadowCells) throws SQLException {
         assert(ctx instanceof OmidTransactionContext);
 
         OmidTransactionContext omidTransactionContext = (OmidTransactionContext) ctx;
@@ -87,8 +87,8 @@ public class OmidTransactionTable implements Table {
         } catch (IOException e) {
             throw new SQLExceptionInfo.Builder(
                     SQLExceptionCode.TRANSACTION_FAILED)
-            .setMessage(e.getMessage()).setRootCause(e).build()
-            .buildException();
+                    .setMessage(e.getMessage()).setRootCause(e).build()
+                    .buildException();
         }
 
         this.tx = omidTransactionContext.getTransaction();
@@ -127,7 +127,7 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public boolean exists(Get get) throws IOException {
-       return tTable.exists(tx, get);
+        return tTable.exists(tx, get);
     }
 
     @Override
@@ -183,32 +183,32 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public <R> void batchCallback(List<? extends Row> actions,
-            Object[] results, Callback<R> callback) throws IOException,
+                                  Object[] results, Callback<R> callback) throws IOException,
             InterruptedException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier,
-            byte[] value, Put put) throws IOException {
+                               byte[] value, Put put) throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier,
-            CompareOp compareOp, byte[] value, Put put) throws IOException {
+                               CompareOp compareOp, byte[] value, Put put) throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier,
-            byte[] value, Delete delete) throws IOException {
+                                  byte[] value, Delete delete) throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier,
-            CompareOp compareOp, byte[] value, Delete delete)
+                                  CompareOp compareOp, byte[] value, Delete delete)
             throws IOException {
         throw new UnsupportedOperationException();
     }
@@ -230,13 +230,13 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public long incrementColumnValue(byte[] row, byte[] family,
-            byte[] qualifier, long amount) throws IOException {
+                                     byte[] qualifier, long amount) throws IOException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public long incrementColumnValue(byte[] row, byte[] family,
-            byte[] qualifier, long amount, Durability durability)
+                                     byte[] qualifier, long amount, Durability durability)
             throws IOException {
         throw new UnsupportedOperationException();
     }
@@ -255,8 +255,8 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public <T extends Service, R> void coprocessorService(Class<T> service,
-            byte[] startKey, byte[] endKey, Call<T, R> callable,
-            Callback<R> callback) throws ServiceException, Throwable {
+                                                          byte[] startKey, byte[] endKey, Call<T, R> callable,
+                                                          Callback<R> callback) throws ServiceException, Throwable {
         throw new UnsupportedOperationException();
     }
 
@@ -278,7 +278,7 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier,
-            CompareOp compareOp, byte[] value, RowMutations mutation)
+                                  CompareOp compareOp, byte[] value, RowMutations mutation)
             throws IOException {
         throw new UnsupportedOperationException();
     }
@@ -341,7 +341,7 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, CompareOperator op, byte[] value,
-            Delete delete) throws IOException {
+                                  Delete delete) throws IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -352,7 +352,7 @@ public class OmidTransactionTable implements Table {
 
     @Override
     public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareOperator op, byte[] value,
-            RowMutations mutation) throws IOException {
+                                  RowMutations mutation) throws IOException {
         throw new UnsupportedOperationException();
     }
 

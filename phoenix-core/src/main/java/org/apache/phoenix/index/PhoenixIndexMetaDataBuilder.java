@@ -42,20 +42,24 @@ import org.apache.phoenix.util.ServerUtil;
 
 public class PhoenixIndexMetaDataBuilder {
     private final RegionCoprocessorEnvironment env;
-    
+
     PhoenixIndexMetaDataBuilder(RegionCoprocessorEnvironment env) {
         this.env = env;
     }
-    
+
     public PhoenixIndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
         IndexMetaDataCache indexMetaDataCache = getIndexMetaDataCache(env, miniBatchOp.getOperation(0).getAttributesMap());
         return new PhoenixIndexMetaData(indexMetaDataCache, miniBatchOp.getOperation(0).getAttributesMap());
     }
 
     private static IndexMetaDataCache getIndexMetaDataCache(RegionCoprocessorEnvironment env, Map<String, byte[]> attributes) throws IOException {
-        if (attributes == null) { return IndexMetaDataCache.EMPTY_INDEX_META_DATA_CACHE; }
+        if (attributes == null) {
+            return IndexMetaDataCache.EMPTY_INDEX_META_DATA_CACHE;
+        }
         byte[] uuid = attributes.get(PhoenixIndexCodec.INDEX_UUID);
-        if (uuid == null) { return IndexMetaDataCache.EMPTY_INDEX_META_DATA_CACHE; }
+        if (uuid == null) {
+            return IndexMetaDataCache.EMPTY_INDEX_META_DATA_CACHE;
+        }
         byte[] md = attributes.get(PhoenixIndexCodec.INDEX_PROTO_MD);
         if (md == null) {
             md = attributes.get(PhoenixIndexCodec.INDEX_MD);
@@ -70,7 +74,8 @@ public class PhoenixIndexMetaDataBuilder {
             return new IndexMetaDataCache() {
 
                 @Override
-                public void close() throws IOException {}
+                public void close() throws IOException {
+                }
 
                 @Override
                 public List<IndexMaintainer> getIndexMaintainers() {
@@ -92,7 +97,7 @@ public class PhoenixIndexMetaDataBuilder {
             byte[] tenantIdBytes = attributes.get(PhoenixRuntime.TENANT_ID_ATTRIB);
             ImmutableBytesPtr tenantId = tenantIdBytes == null ? null : new ImmutableBytesPtr(tenantIdBytes);
             TenantCache cache = GlobalCache.getTenantCache(env, tenantId);
-            IndexMetaDataCache indexCache = (IndexMetaDataCache)cache.getServerCache(new ImmutableBytesPtr(uuid));
+            IndexMetaDataCache indexCache = (IndexMetaDataCache) cache.getServerCache(new ImmutableBytesPtr(uuid));
             if (indexCache == null) {
                 String msg = "key=" + ServerCacheClient.idToString(uuid) + " region=" + env.getRegion() + "host="
                         + env.getServerName().getServerName();

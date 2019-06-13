@@ -80,7 +80,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
             throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute(
-                "CREATE INDEX " + indexName + " ON " + table + " (c1.a) INCLUDE (c2.b) ");
+                    "CREATE INDEX " + indexName + " ON " + table + " (c1.a) INCLUDE (c2.b) ");
             conn.createStatement().execute("UPDATE STATISTICS " + indexName);
         }
     }
@@ -128,7 +128,8 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
     public void testBytesRowsForPointSelectWithLimitGreaterThanPointLookupSize() throws Exception {
         String sql = "SELECT * FROM " + tableA + " where k in (? ,?) limit 4";
         List<Object> binds = Lists.newArrayList();
-        binds.add(103); binds.add(104);
+        binds.add(103);
+        binds.add(104);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             Estimate info = getByteRowEstimates(conn, sql, binds);
             assertEquals((Long) 200L, info.estimatedBytes);
@@ -142,7 +143,8 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
         String sql = "SELECT * FROM " + tableA + " where c1.a in (?,?) limit 3";
         String noIndexSQL = "SELECT /*+ NO_INDEX */ * FROM " + tableA + " where c1.a in (?,?) limit 3";
         List<Object> binds = Lists.newArrayList();
-        binds.add(1); binds.add(2);
+        binds.add(1);
+        binds.add(2);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             Estimate info = getByteRowEstimates(conn, sql, binds);
             assertEquals((Long) 264L, info.estimatedBytes);
@@ -449,11 +451,11 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
     }
 
     private static void assertUseStatsForQueryFlag(String tableName, PhoenixConnection conn,
-            Boolean expected) throws TableNotFoundException, SQLException {
+                                                   Boolean expected) throws TableNotFoundException, SQLException {
         assertEquals(expected,
-            conn.unwrap(PhoenixConnection.class).getMetaDataCache()
-                    .getTableRef(new PTableKey(null, tableName)).getTable()
-                    .useStatsForParallelization());
+                conn.unwrap(PhoenixConnection.class).getMetaDataCache()
+                        .getTableRef(new PTableKey(null, tableName)).getTable()
+                        .useStatsForParallelization());
         String query =
                 "SELECT USE_STATS_FOR_PARALLELIZATION FROM SYSTEM.CATALOG WHERE TABLE_NAME = ? AND COLUMN_NAME IS NULL AND COLUMN_FAMILY IS NULL AND TENANT_ID IS NULL";
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -480,9 +482,9 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
         String tenant3 = "tenant3";
         String tenant4 = "tenant4";
         MyClock clock = new MyClock(1000);
-        
+
         createMultitenantTableAndViews(tenant1View, tenant2View, tenant3View, tenant4View, tenant1, tenant2,
-            tenant3, tenant4, multiTenantBaseTable, clock);
+                tenant3, tenant4, multiTenantBaseTable, clock);
         // query the entire multitenant table
         String sql = "SELECT * FROM " + multiTenantBaseTable + " WHERE ORGID >= ?";
         List<Object> binds = Lists.newArrayList();
@@ -507,7 +509,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
         try (Connection conn = getTenantConnection(tenant2)) {
             sql = "SELECT * FROM " + tenant2View;
             Estimate info = getByteRowEstimates(conn, sql, binds);
-            assertEquals((Long) (prevTenantBytes=119L), info.estimatedBytes);
+            assertEquals((Long) (prevTenantBytes = 119L), info.estimatedBytes);
             assertEquals((Long) 2L, info.estimatedRows);
             assertEquals((Long) clock.currentTime(), info.estimateInfoTs);
         }
@@ -591,7 +593,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
         try (Connection conn = getTenantConnection(tenant4)) {
             sql = "SELECT * FROM " + tenant4View;
             Estimate info = getByteRowEstimates(conn, sql, binds);
-            assertEquals((Long) (prevTenantBytes=0L), info.estimatedBytes);
+            assertEquals((Long) (prevTenantBytes = 0L), info.estimatedBytes);
             assertEquals((Long) 0L, info.estimatedRows);
             assertNull(info.estimateInfoTs); // Unknown b/c second region of tenant4 has no gps
         }
@@ -602,9 +604,9 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
             try (Connection conn = getTenantConnection(tenant4)) {
                 // upsert a few rows for tenantView
                 conn.createStatement()
-                    .executeUpdate("UPSERT INTO " + tenant4View + " VALUES (6, 17,17)");
+                        .executeUpdate("UPSERT INTO " + tenant4View + " VALUES (6, 17,17)");
                 conn.createStatement()
-                    .executeUpdate("UPSERT INTO " + tenant4View + " VALUES (7, 17,17)");
+                        .executeUpdate("UPSERT INTO " + tenant4View + " VALUES (7, 17,17)");
                 conn.commit();
                 // run update stats on the tenantView
                 conn.createStatement().executeUpdate("UPDATE STATISTICS " + tenant4View);
@@ -666,7 +668,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
 
             // Now, let's disable USE_STATS_FOR_PARALLELIZATION on the table
             conn.createStatement().execute(
-                "ALTER TABLE " + tableName + " SET USE_STATS_FOR_PARALLELIZATION = " + false);
+                    "ALTER TABLE " + tableName + " SET USE_STATS_FOR_PARALLELIZATION = " + false);
             rs = conn.createStatement().executeQuery(sql);
             // stats are not being used for parallelization. So number of scans is lower.
             assertEquals(4, rs.unwrap(PhoenixResultSet.class).getStatement().getQueryPlan()
@@ -695,7 +697,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
             // Now let's make sure that when using stats for parallelization, our estimates
             // and query results stay the same for view and base table
             conn.createStatement().execute(
-                "ALTER TABLE " + tableName + " SET USE_STATS_FOR_PARALLELIZATION=true");
+                    "ALTER TABLE " + tableName + " SET USE_STATS_FOR_PARALLELIZATION=true");
             sql = "SELECT COUNT(*) FROM " + tableName;
             // query the table
             rs = conn.createStatement().executeQuery(sql);
@@ -878,15 +880,15 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
     }
 
     private static void createMultitenantTableAndViews(String tenant1View, String tenant2View,
-            String tenant3View, String tenant4View, String tenant1, String tenant2, String tenant3, String tenant4,
-            String multiTenantTable, MyClock clock) throws Exception {
+                                                       String tenant3View, String tenant4View, String tenant1, String tenant2, String tenant3, String tenant4,
+                                                       String multiTenantTable, MyClock clock) throws Exception {
         byte[][] splits =
                 new byte[][] {
-                    ByteUtil.concat(Bytes.toBytes(tenant1),PInteger.INSTANCE.toBytes(1)),
-                    ByteUtil.concat(Bytes.toBytes(tenant2),PInteger.INSTANCE.toBytes(1)),
-                    ByteUtil.concat(Bytes.toBytes(tenant3),PInteger.INSTANCE.toBytes(1)),
-                    ByteUtil.concat(Bytes.toBytes(tenant4),PInteger.INSTANCE.toBytes(6)),
-                    };
+                        ByteUtil.concat(Bytes.toBytes(tenant1), PInteger.INSTANCE.toBytes(1)),
+                        ByteUtil.concat(Bytes.toBytes(tenant2), PInteger.INSTANCE.toBytes(1)),
+                        ByteUtil.concat(Bytes.toBytes(tenant3), PInteger.INSTANCE.toBytes(1)),
+                        ByteUtil.concat(Bytes.toBytes(tenant4), PInteger.INSTANCE.toBytes(6)),
+                };
         String ddl =
                 "CREATE TABLE " + multiTenantTable
                         + " (orgId CHAR(7) NOT NULL, pk2 integer NOT NULL, c1.a bigint, c2.b bigint CONSTRAINT PK PRIMARY KEY "
@@ -897,7 +899,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
             try (Connection conn = DriverManager.getConnection(getUrl())) {
                 PreparedStatement stmt = conn.prepareStatement(ddl + " SPLIT ON (?,?,?,?)");
                 for (int i = 0; i < splits.length; i++) {
-                    stmt.setBytes(i+1, splits[i]);
+                    stmt.setBytes(i + 1, splits[i]);
                 }
                 stmt.executeUpdate();
                 clock.advanceTime(1000);
@@ -905,46 +907,46 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
                  * Insert 2 rows each for tenant1 and tenant2 and 6 rows for tenant3
                  */
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant1 + "',1,1,1)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant1 + "',1,1,1)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant1 + "',2,2,2)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant1 + "',2,2,2)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant2 + "',1,3,3)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant2 + "',1,3,3)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant2 + "',2,4,4)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant2 + "',2,4,4)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant3 + "',1,5,5)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant3 + "',1,5,5)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant3 + "',2,6,6)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant3 + "',2,6,6)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant3 + "',3,7,7)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant3 + "',3,7,7)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant3 + "',4,8,8)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant3 + "',4,8,8)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant3 + "',5,9,9)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant3 + "',5,9,9)");
                 conn.createStatement().execute(
-                    "upsert into " + multiTenantTable + " values ('" + tenant3 + "',6,10,10)");
+                        "upsert into " + multiTenantTable + " values ('" + tenant3 + "',6,10,10)");
                 conn.commit();
             }
             clock.setAdvance(false);
             try (Connection conn = getTenantConnection(tenant1)) {
                 conn.createStatement().execute(
-                    "CREATE VIEW " + tenant1View + " AS SELECT * FROM " + multiTenantTable);
+                        "CREATE VIEW " + tenant1View + " AS SELECT * FROM " + multiTenantTable);
                 conn.createStatement().execute("UPDATE STATISTICS " + tenant1View);
             }
             try (Connection conn = getTenantConnection(tenant2)) {
                 conn.createStatement().execute(
-                    "CREATE VIEW " + tenant2View + " AS SELECT * FROM " + multiTenantTable);
+                        "CREATE VIEW " + tenant2View + " AS SELECT * FROM " + multiTenantTable);
                 conn.createStatement().execute("UPDATE STATISTICS " + tenant2View);
             }
             try (Connection conn = getTenantConnection(tenant3)) {
                 conn.createStatement().execute(
-                    "CREATE VIEW " + tenant3View + " AS SELECT * FROM " + multiTenantTable);
+                        "CREATE VIEW " + tenant3View + " AS SELECT * FROM " + multiTenantTable);
                 conn.createStatement().execute("UPDATE STATISTICS " + tenant3View);
             }
             try (Connection conn = getTenantConnection(tenant4)) {
                 conn.createStatement().execute(
-                    "CREATE VIEW " + tenant4View + " AS SELECT * FROM " + multiTenantTable);
+                        "CREATE VIEW " + tenant4View + " AS SELECT * FROM " + multiTenantTable);
             }
         } finally {
             EnvironmentEdgeManager.reset();
@@ -961,15 +963,17 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
 
         @Override
         public long currentTime() {
-            if(shouldAdvance) {
+            if (shouldAdvance) {
                 return time++;
             } else {
                 return time;
             }
         }
+
         public void setAdvance(boolean val) {
             shouldAdvance = val;
         }
+
         public void advanceTime(long t) {
             this.time += t;
         }
@@ -991,7 +995,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             // split such that some data for view2 resides on region of view1
             try (Admin admin =
-                    conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin()) {
+                         conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin()) {
                 byte[] splitKey = Bytes.toBytes("00Dabcdetenant200B");
                 admin.split(TableName.valueOf(multiTenantTable), splitKey);
             }
@@ -1000,31 +1004,31 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
              * Insert 2 rows for tenant1 and 6 for tenant2
              */
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId1 + "','00A',1,1)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId1 + "','00A',1,1)");
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId1 + "','00B',2,2)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId1 + "','00B',2,2)");
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00A',3,3)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00A',3,3)");
             // We split at tenant2 + 00B. So the following rows will reside in a different region
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00B',4,4)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00B',4,4)");
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00C',5,5)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00C',5,5)");
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00D',6,6)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00D',6,6)");
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00E',7,7)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00E',7,7)");
             conn.createStatement().execute(
-                "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00F',8,8)");
+                    "upsert into " + multiTenantTable + " values ('" + tenantId2 + "','00F',8,8)");
             conn.commit();
         }
         try (Connection conn = getTenantConnection(tenantId1)) {
             conn.createStatement().execute(
-                "CREATE VIEW " + tenant1View + " AS SELECT * FROM " + multiTenantTable);
+                    "CREATE VIEW " + tenant1View + " AS SELECT * FROM " + multiTenantTable);
         }
         try (Connection conn = getTenantConnection(tenantId2)) {
             conn.createStatement().execute(
-                "CREATE VIEW " + tenant2View + " AS SELECT * FROM " + multiTenantTable);
+                    "CREATE VIEW " + tenant2View + " AS SELECT * FROM " + multiTenantTable);
         }
         String sql = "";
         List<Object> binds = Lists.newArrayList();
@@ -1128,7 +1132,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
                     conn.createStatement().executeQuery(query).unwrap(PhoenixResultSet.class);
             // assert query is against base table
             assertEquals(baseTable,
-                rs.getStatement().getQueryPlan().getTableRef().getTable().getName().getString());
+                    rs.getStatement().getQueryPlan().getTableRef().getTable().getName().getString());
             assertEquals(useStats ? 11 : 1, rs.unwrap(PhoenixResultSet.class).getStatement()
                     .getQueryPlan().getScans().get(0).size());
 
@@ -1170,7 +1174,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
 
             // flip the use stats property on the view and see if view index picks it up
             conn.createStatement().execute(
-                "ALTER VIEW " + view + " SET USE_STATS_FOR_PARALLELIZATION=" + !useStats);
+                    "ALTER VIEW " + view + " SET USE_STATS_FOR_PARALLELIZATION=" + !useStats);
 
             // query against the view
             query = "SELECT * FROM " + view;
@@ -1205,9 +1209,9 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
         String tableName = generateUniqueName();
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute(
-            "create table " + tableName + "(k varchar not null primary key, v varchar) "
-                    + (salted ? " SALT_BUCKETS=2," : "") + " USE_STATS_FOR_PARALLELIZATION="
-                    + useStatsFlag);
+                "create table " + tableName + "(k varchar not null primary key, v varchar) "
+                        + (salted ? " SALT_BUCKETS=2," : "") + " USE_STATS_FOR_PARALLELIZATION="
+                        + useStatsFlag);
         conn.createStatement().execute("upsert into " + tableName + " values ('1', 'B')");
         conn.createStatement().execute("upsert into " + tableName + " values ('2', 'A')");
         conn.commit();
@@ -1253,7 +1257,7 @@ public class ExplainPlanWithStatsEnabledIT extends ParallelStatsEnabledIT {
     }
 
     private void validatePropertyOnViewIndex(String viewName, String viewIndexName, boolean useStats, Connection conn,
-            Connection tenantConn) throws SQLException, TableNotFoundException {
+                                             Connection tenantConn) throws SQLException, TableNotFoundException {
         // fetch the latest view ptable
         PhoenixRuntime.getTableNoCache(tenantConn, viewName);
         PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);

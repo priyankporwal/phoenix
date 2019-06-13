@@ -100,9 +100,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- *
  * Collection of non JDBC compliant utility methods
- *
  *
  * @since 0.1
  */
@@ -135,7 +133,7 @@ public class PhoenixRuntime {
      * given time stamp.
      */
     public static final String BUILD_INDEX_AT_ATTRIB = "BuildIndexAt";
-    
+
     /**
      * Use this connection property to help with fairness of resource allocation
      * for the client and server. The value of the attribute determines the
@@ -216,7 +214,7 @@ public class PhoenixRuntime {
             AUTO_COMMIT_ATTRIB,
             CONSISTENCY_ATTRIB,
             REQUEST_METRIC_ATTRIB,
-            };
+    };
 
     /**
      * Use this as the zookeeper quorum name to have a connection-less connection. This enables
@@ -224,7 +222,7 @@ public class PhoenixRuntime {
      * upserting data into them, and getting the uncommitted state through {@link #getUncommittedData(Connection)}
      */
     public final static String CONNECTIONLESS = "none";
-    
+
     /**
      * Use this connection property prefix for annotations that you want to show up in traces and log lines emitted by Phoenix.
      * This is useful for annotating connections with information available on the client (e.g. user or session identifier) and
@@ -244,7 +242,7 @@ public class PhoenixRuntime {
      * between processing, with each file being processed by a new connection at the
      * increment timestamp value.
      */
-    public static void main(String [] args) {
+    public static void main(String[] args) {
 
         ExecutionCommand execCmd = ExecutionCommand.parseArgs(args);
         String jdbcUrl = JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + execCmd.getConnectionString();
@@ -267,10 +265,14 @@ public class PhoenixRuntime {
                 System.out.println("Starting upgrading table:" + srcTable + "... please don't kill it in between!!");
                 UpgradeUtil.upgradeTable(conn, srcTable);
             } else if (execCmd.isUpgrade()) {
-                if (conn.getClientInfo(PhoenixRuntime.CURRENT_SCN_ATTRIB) != null) { throw new SQLException(
-                        "May not specify the CURRENT_SCN property when upgrading"); }
-                if (conn.getClientInfo(PhoenixRuntime.TENANT_ID_ATTRIB) != null) { throw new SQLException(
-                        "May not specify the TENANT_ID_ATTRIB property when upgrading"); }
+                if (conn.getClientInfo(PhoenixRuntime.CURRENT_SCN_ATTRIB) != null) {
+                    throw new SQLException(
+                            "May not specify the CURRENT_SCN property when upgrading");
+                }
+                if (conn.getClientInfo(PhoenixRuntime.TENANT_ID_ATTRIB) != null) {
+                    throw new SQLException(
+                            "May not specify the TENANT_ID_ATTRIB property when upgrading");
+                }
                 if (execCmd.getInputFiles().isEmpty()) {
                     List<String> tablesNeedingUpgrade = UpgradeUtil.getPhysicalTablesWithDescRowKey(conn);
                     if (tablesNeedingUpgrade.isEmpty()) {
@@ -290,7 +292,7 @@ public class PhoenixRuntime {
                 } else {
                     UpgradeUtil.upgradeDescVarLengthRowKeys(conn, execCmd.getInputFiles(), execCmd.isBypassUpgrade());
                 }
-            } else if(execCmd.isLocalIndexUpgrade()) {
+            } else if (execCmd.isLocalIndexUpgrade()) {
                 UpgradeUtil.upgradeLocalIndexes(conn);
             } else {
                 for (String inputFile : execCmd.getInputFiles()) {
@@ -337,14 +339,15 @@ public class PhoenixRuntime {
      * the number of SQL statements executed. Note that if the connection has specified an SCN through
      * the {@link org.apache.phoenix.util.PhoenixRuntime#CURRENT_SCN_ATTRIB} connection property, then the timestamp
      * is bumped up by one after each statement execution.
-     * @param conn an open JDBC connection
+     *
+     * @param conn   an open JDBC connection
      * @param reader a reader for semicolumn separated SQL statements
-     * @param binds the binds for all statements
+     * @param binds  the binds for all statements
      * @return the number of SQL statements that were executed
      * @throws IOException
      * @throws SQLException
      */
-    public static int executeStatements(Connection conn, Reader reader, List<Object> binds) throws IOException,SQLException {
+    public static int executeStatements(Connection conn, Reader reader, List<Object> binds) throws IOException, SQLException {
         PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
         // Turn auto commit to true when running scripts in case there's DML
         pconn.setAutoCommit(true);
@@ -354,13 +357,14 @@ public class PhoenixRuntime {
     /**
      * Get the list of uncommitted KeyValues for the connection. Currently used to write an
      * Phoenix-compliant HFile from a map/reduce job.
+     *
      * @param conn an open JDBC connection
      * @return the list of HBase mutations for uncommitted data
      * @throws SQLException
      */
     @Deprecated
     public static List<Cell> getUncommittedData(Connection conn) throws SQLException {
-        Iterator<Pair<byte[],List<Cell>>> iterator = getUncommittedDataIterator(conn);
+        Iterator<Pair<byte[], List<Cell>>> iterator = getUncommittedDataIterator(conn);
         if (iterator.hasNext()) {
             return iterator.next().getSecond();
         }
@@ -370,25 +374,27 @@ public class PhoenixRuntime {
     /**
      * Get the list of uncommitted KeyValues for the connection. Currently used to write an
      * Phoenix-compliant HFile from a map/reduce job.
+     *
      * @param conn an open JDBC connection
      * @return the list of HBase mutations for uncommitted data
      * @throws SQLException
      */
-    public static Iterator<Pair<byte[],List<Cell>>> getUncommittedDataIterator(Connection conn) throws SQLException {
+    public static Iterator<Pair<byte[], List<Cell>>> getUncommittedDataIterator(Connection conn) throws SQLException {
         return getUncommittedDataIterator(conn, false);
     }
 
     /**
      * Get the list of uncommitted KeyValues for the connection. Currently used to write an
      * Phoenix-compliant HFile from a map/reduce job.
+     *
      * @param conn an open JDBC connection
      * @return the list of HBase mutations for uncommitted data
      * @throws SQLException
      */
-    public static Iterator<Pair<byte[],List<Cell>>> getUncommittedDataIterator(Connection conn, boolean includeMutableIndexes) throws SQLException {
+    public static Iterator<Pair<byte[], List<Cell>>> getUncommittedDataIterator(Connection conn, boolean includeMutableIndexes) throws SQLException {
         final PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
-        final Iterator<Pair<byte[],List<Mutation>>> iterator = pconn.getMutationState().toMutations(includeMutableIndexes);
-        return new Iterator<Pair<byte[],List<Cell>>>() {
+        final Iterator<Pair<byte[], List<Mutation>>> iterator = pconn.getMutationState().toMutations(includeMutableIndexes);
+        return new Iterator<Pair<byte[], List<Cell>>>() {
 
             @Override
             public boolean hasNext() {
@@ -397,7 +403,7 @@ public class PhoenixRuntime {
 
             @Override
             public Pair<byte[], List<Cell>> next() {
-                Pair<byte[],List<Mutation>> pair = iterator.next();
+                Pair<byte[], List<Mutation>> pair = iterator.next();
                 List<Cell> keyValues = Lists.newArrayListWithExpectedSize(pair.getSecond().size() * 5); // Guess-timate 5 key values per row
                 for (Mutation mutation : pair.getSecond()) {
                     for (List<Cell> keyValueList : mutation.getFamilyCellMap().values()) {
@@ -407,7 +413,7 @@ public class PhoenixRuntime {
                     }
                 }
                 Collections.sort(keyValues, pconn.getKeyValueBuilder().getKeyValueComparator());
-                return new Pair<byte[], List<Cell>>(pair.getFirst(),keyValues);
+                return new Pair<byte[], List<Cell>>(pair.getFirst(), keyValues);
             }
 
             @Override
@@ -424,14 +430,14 @@ public class PhoenixRuntime {
         PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
         MetaDataMutationResult result = new MetaDataClient(pconn).updateCache(pconn.getTenantId(),
                 schemaName, tableName, true);
-        if(result.getMutationCode() != MutationCode.TABLE_ALREADY_EXISTS) {
+        if (result.getMutationCode() != MutationCode.TABLE_ALREADY_EXISTS) {
             throw new TableNotFoundException(schemaName, tableName);
         }
 
         return result.getTable();
 
     }
-    
+
     /**
      * Returns the table if it is found in the connection metadata cache. If the metadata of this
      * table has changed since it was put in the cache these changes will not necessarily be
@@ -440,6 +446,7 @@ public class PhoenixRuntime {
      * it is referenced from a query (a call is made to the server to fetch the latest metadata of the table
      * depending on the UPDATE_CACHE_FREQUENCY property)
      * See https://issues.apache.org/jira/browse/PHOENIX-4475
+     *
      * @param conn
      * @param name requires a pre-normalized table name or a pre-normalized schema and table name
      * @return
@@ -477,17 +484,18 @@ public class PhoenixRuntime {
      * specific PTable through a global connection. A null timestamp would result in the client side
      * metadata cache being used (ie. in case table metadata is already present it'll be returned).
      * To get the latest metadata use {@link #getTable(Connection, String, String)}
+     *
      * @param conn
      * @param tenantId
      * @param fullTableName
      * @param timestamp
      * @return PTable
      * @throws SQLException
-     * @throws NullPointerException if conn or fullTableName is null
+     * @throws NullPointerException     if conn or fullTableName is null
      * @throws IllegalArgumentException if timestamp is negative
      */
     public static PTable getTable(Connection conn, @Nullable String tenantId, String fullTableName,
-            @Nullable Long timestamp) throws SQLException {
+                                  @Nullable Long timestamp) throws SQLException {
         checkNotNull(conn);
         checkNotNull(fullTableName);
         if (timestamp != null) {
@@ -509,7 +517,7 @@ public class PhoenixRuntime {
             String tableName = SchemaUtil.getTableNameFromFullName(fullTableName);
             MetaDataMutationResult result =
                     new MetaDataClient(pconn).updateCache(pTenantId, schemaName, tableName, false,
-                        timestamp);
+                            timestamp);
             if (result.getMutationCode() != MutationCode.TABLE_ALREADY_EXISTS) {
                 throw e;
             }
@@ -522,23 +530,24 @@ public class PhoenixRuntime {
      * Get list of ColumnInfos that contain Column Name and its associated PDataType for an import.
      * The supplied list of columns can be null -- if it is non-null, it represents a user-supplied
      * list of columns to be imported.
-     * @param conn Phoenix connection from which metadata will be read
+     *
+     * @param conn      Phoenix connection from which metadata will be read
      * @param tableName Phoenix table name whose columns are to be checked. Can include a schema
-     *            name
-     * @param columns user-supplied list of import columns, can be null
+     *                  name
+     * @param columns   user-supplied list of import columns, can be null
      */
     public static List<ColumnInfo> generateColumnInfo(Connection conn,
-            String tableName, List<String> columns)
+                                                      String tableName, List<String> columns)
             throws SQLException {
         PTable table = PhoenixRuntime.getTable(conn, SchemaUtil.normalizeFullTableName(tableName));
         List<ColumnInfo> columnInfoList = Lists.newArrayList();
         Set<String> unresolvedColumnNames = new TreeSet<String>();
         if (columns == null || columns.isEmpty()) {
             // use all columns in the table
-        	int offset = (table.getBucketNum() == null ? 0 : 1);
-        	for (int i = offset; i < table.getColumns().size(); i++) {
-        	   PColumn pColumn = table.getColumns().get(i);
-               columnInfoList.add(PhoenixRuntime.getColumnInfo(pColumn)); 
+            int offset = (table.getBucketNum() == null ? 0 : 1);
+            for (int i = offset; i < table.getColumns().size(); i++) {
+                PColumn pColumn = table.getColumns().get(i);
+                columnInfoList.add(PhoenixRuntime.getColumnInfo(pColumn));
             }
         } else {
             // Leave "null" as indication to skip b/c it doesn't exist
@@ -555,25 +564,31 @@ public class PhoenixRuntime {
             }
         }
         // if there exists columns that cannot be resolved, error out.
-        if (unresolvedColumnNames.size()>0) {
-                StringBuilder exceptionMessage = new StringBuilder();
-                boolean first = true;
-                exceptionMessage.append("Unable to resolve these column names:\n");
-                for (String col : unresolvedColumnNames) {
-                    if (first) first = false;
-                    else exceptionMessage.append(",");
-                    exceptionMessage.append(col);
+        if (unresolvedColumnNames.size() > 0) {
+            StringBuilder exceptionMessage = new StringBuilder();
+            boolean first = true;
+            exceptionMessage.append("Unable to resolve these column names:\n");
+            for (String col : unresolvedColumnNames) {
+                if (first) {
+                    first = false;
+                } else {
+                    exceptionMessage.append(",");
                 }
-                exceptionMessage.append("\nAvailable columns with column families:\n");
-                first = true;
-                for (PColumn pColumn : table.getColumns()) {
-                    if (first) first = false;
-                    else exceptionMessage.append(",");
-                    exceptionMessage.append(pColumn.toString());
+                exceptionMessage.append(col);
+            }
+            exceptionMessage.append("\nAvailable columns with column families:\n");
+            first = true;
+            for (PColumn pColumn : table.getColumns()) {
+                if (first) {
+                    first = false;
+                } else {
+                    exceptionMessage.append(",");
                 }
-                throw new SQLException(exceptionMessage.toString());
-      }
-       return columnInfoList;
+                exceptionMessage.append(pColumn.toString());
+            }
+            throw new SQLException(exceptionMessage.toString());
+        }
+        return columnInfoList;
     }
 
     /**
@@ -585,17 +600,17 @@ public class PhoenixRuntime {
      * @throws SQLException if parameters are null or if column is not found or if column is ambiguous.
      */
     public static ColumnInfo getColumnInfo(PTable table, String columnName) throws SQLException {
-        if (table==null) {
+        if (table == null) {
             throw new SQLException("Table must not be null.");
         }
-        if (columnName==null) {
+        if (columnName == null) {
             throw new SQLException("columnName must not be null.");
         }
         PColumn pColumn = null;
         if (columnName.contains(QueryConstants.NAME_SEPARATOR)) {
             String[] tokens = columnName.split(QueryConstants.NAME_SEPARATOR_REGEX);
-            if (tokens.length!=2) {
-                throw new SQLException(String.format("Unable to process column %s, expected family-qualified name.",columnName));
+            if (tokens.length != 2) {
+                throw new SQLException(String.format("Unable to process column %s, expected family-qualified name.", columnName));
             }
             String familyName = tokens[0];
             String familyColumn = tokens[1];
@@ -609,6 +624,7 @@ public class PhoenixRuntime {
 
     /**
      * Constructs a column info for the supplied pColumn
+     *
      * @param pColumn
      * @return columnInfo
      * @throws SQLException if the parameter is null.
@@ -621,7 +637,7 @@ public class PhoenixRuntime {
                 pColumn.getMaxLength(), pColumn.getScale());
     }
 
-   /**
+    /**
      * Represents the parsed commandline parameters definining the command or commands to be
      * executed.
      */
@@ -658,7 +674,7 @@ public class PhoenixRuntime {
                     "an exception if a column name doesn't match during CSV loading");
             Option delimiterOption = new Option("d", "delimiter", true,
                     "Field delimiter for CSV loader. A digit is interpreted as " +
-                    "1 -> ctrl A, 2 -> ctrl B ... 9 -> ctrl I.");
+                            "1 -> ctrl A, 2 -> ctrl B ... 9 -> ctrl I.");
             Option quoteCharacterOption = new Option("q", "quote-character", true,
                     "Quote character for CSV loader. A digit is interpreted as a control " +
                             "character");
@@ -678,15 +694,15 @@ public class PhoenixRuntime {
                     "parameters must be set very high to prevent timeouts when upgrading.");
             Option bypassUpgradeOption = new Option("b", "bypass-upgrade", false,
                     "Used in conjunction with the -u option to bypass the rewrite during upgrade if you know that your data does not need to be upgrade. " +
-                    "This would only be the case if you have not relied on auto padding for BINARY and CHAR data, " +
-                    "but instead have always provided data up to the full max length of the column. See PHOENIX-2067 " +
-                    "and PHOENIX-2120 for more information. ");
+                            "This would only be the case if you have not relied on auto padding for BINARY and CHAR data, " +
+                            "but instead have always provided data up to the full max length of the column. See PHOENIX-2067 " +
+                            "and PHOENIX-2120 for more information. ");
             Option mapNamespaceOption = new Option("m", "map-namespace", true,
-                    "Used to map table to a namespace matching with schema, require "+ QueryServices.IS_NAMESPACE_MAPPING_ENABLED +
-                    " to be enabled");
+                    "Used to map table to a namespace matching with schema, require " + QueryServices.IS_NAMESPACE_MAPPING_ENABLED +
+                            " to be enabled");
             Option localIndexUpgradeOption = new Option("l", "local-index-upgrade", false,
-                "Used to upgrade local index data by moving index data from separate table to "
-                + "separate column families in the same table.");
+                    "Used to upgrade local index data by moving index data from separate table to "
+                            + "separate column families in the same table.");
             Options options = new Options();
             options.addOption(tableOption);
             options.addOption(headerOption);
@@ -711,14 +727,14 @@ public class PhoenixRuntime {
 
             ExecutionCommand execCmd = new ExecutionCommand();
             execCmd.connectionString = "";
-            if(cmdLine.hasOption(mapNamespaceOption.getOpt())){
+            if (cmdLine.hasOption(mapNamespaceOption.getOpt())) {
                 execCmd.mapNamespace = true;
                 execCmd.srcTable = validateTableName(cmdLine.getOptionValue(mapNamespaceOption.getOpt()));
             }
             if (cmdLine.hasOption(tableOption.getOpt())) {
                 execCmd.tableName = cmdLine.getOptionValue(tableOption.getOpt());
             }
-            
+
             if (cmdLine.hasOption(binaryEncodingOption.getOpt())) {
                 execCmd.binaryEncoding = cmdLine.getOptionValue(binaryEncodingOption.getOpt());
             }
@@ -747,7 +763,7 @@ public class PhoenixRuntime {
             execCmd.arrayElementSeparator = cmdLine.getOptionValue(
                     arrayValueSeparatorOption.getOpt(),
                     CSVCommonsLoader.DEFAULT_ARRAY_ELEMENT_SEPARATOR);
-            
+
             if (cmdLine.hasOption(upgradeOption.getOpt())) {
                 execCmd.isUpgrade = true;
             }
@@ -758,7 +774,7 @@ public class PhoenixRuntime {
                 }
                 execCmd.isBypassUpgrade = true;
             }
-            if(cmdLine.hasOption(localIndexUpgradeOption.getOpt())) {
+            if (cmdLine.hasOption(localIndexUpgradeOption.getOpt())) {
                 execCmd.localIndexUpgrade = true;
             }
 
@@ -886,9 +902,10 @@ public class PhoenixRuntime {
             return localIndexUpgrade;
         }
     }
-    
+
     /**
      * Returns the opitmized query plan used by phoenix for executing the sql.
+     *
      * @param stmt to return the plan for
      * @throws SQLException
      */
@@ -897,38 +914,40 @@ public class PhoenixRuntime {
         QueryPlan plan = stmt.unwrap(PhoenixPreparedStatement.class).optimizeQuery();
         return plan;
     }
-    
+
     /**
      * Whether or not the query plan has any order by expressions.
+     *
      * @param plan
      * @return
      */
     public static boolean hasOrderBy(QueryPlan plan) {
         checkNotNull(plan);
         List<OrderByExpression> orderBys = plan.getOrderBy().getOrderByExpressions();
-        return orderBys != null && !orderBys.isEmpty(); 
+        return orderBys != null && !orderBys.isEmpty();
     }
-    
+
     public static int getLimit(QueryPlan plan) {
         checkNotNull(plan);
         return plan.getLimit() == null ? 0 : plan.getLimit();
     }
-    
+
     private static String addQuotes(String str) {
         return str == null ? str : "\"" + str + "\"";
     }
-    
+
     /**
-    * Get the column family, column name pairs that make up the row key of the table that will be queried.
-    * @param conn - connection used to generate the query plan. Caller should take care of closing the connection appropriately.
-    * @param plan - query plan to get info for.
-    * @return the pairs of column family name and column name columns in the data table that make up the row key for
-    * the table used in the query plan. Column family names are optional and hence the first part of the pair is nullable.
-    * Column names and family names are enclosed in double quotes to allow for case sensitivity and for presence of 
-    * special characters. Salting column and view index id column are not included. If the connection is tenant specific 
-    * and the table used by the query plan is multi-tenant, then the tenant id column is not included as well.
-    * @throws SQLException
-    */
+     * Get the column family, column name pairs that make up the row key of the table that will be queried.
+     *
+     * @param conn - connection used to generate the query plan. Caller should take care of closing the connection appropriately.
+     * @param plan - query plan to get info for.
+     * @return the pairs of column family name and column name columns in the data table that make up the row key for
+     * the table used in the query plan. Column family names are optional and hence the first part of the pair is nullable.
+     * Column names and family names are enclosed in double quotes to allow for case sensitivity and for presence of
+     * special characters. Salting column and view index id column are not included. If the connection is tenant specific
+     * and the table used by the query plan is multi-tenant, then the tenant id column is not included as well.
+     * @throws SQLException
+     */
     public static List<Pair<String, String>> getPkColsForSql(Connection conn, QueryPlan plan) throws SQLException {
         checkNotNull(plan);
         checkNotNull(conn);
@@ -936,7 +955,7 @@ public class PhoenixRuntime {
         List<Pair<String, String>> columns = Lists.newArrayListWithExpectedSize(pkColumns.size());
         String columnName;
         String familyName;
-        for (PColumn pCol : pkColumns ) {
+        for (PColumn pCol : pkColumns) {
             columnName = addQuotes(pCol.getName().getString());
             familyName = pCol.getFamilyName() != null ? addQuotes(pCol.getFamilyName().getString()) : null;
             columns.add(new Pair<String, String>(familyName, columnName));
@@ -945,17 +964,16 @@ public class PhoenixRuntime {
     }
 
     /**
-     *
-     * @param columns - Initialized empty list to be filled with the pairs of column family name and column name for columns that are used 
-     * as row key for the query plan. Column family names are optional and hence the first part of the pair is nullable.
-     * Column names and family names are enclosed in double quotes to allow for case sensitivity and for presence of 
-     * special characters. Salting column and view index id column are not included. If the connection is tenant specific 
-     * and the table used by the query plan is multi-tenant, then the tenant id column is not included as well.
-     * @param plan - query plan to get info for.
-     * @param conn - connection used to generate the query plan. Caller should take care of closing the connection appropriately.
+     * @param columns      - Initialized empty list to be filled with the pairs of column family name and column name for columns that are used
+     *                     as row key for the query plan. Column family names are optional and hence the first part of the pair is nullable.
+     *                     Column names and family names are enclosed in double quotes to allow for case sensitivity and for presence of
+     *                     special characters. Salting column and view index id column are not included. If the connection is tenant specific
+     *                     and the table used by the query plan is multi-tenant, then the tenant id column is not included as well.
+     * @param plan         - query plan to get info for.
+     * @param conn         - connection used to generate the query plan. Caller should take care of closing the connection appropriately.
      * @param forDataTable - if true, then family names and column names correspond to the data table even if the query plan uses
-     * the secondary index table. If false, and if the query plan uses the secondary index table, then the family names and column 
-     * names correspond to the index table.
+     *                     the secondary index table. If false, and if the query plan uses the secondary index table, then the family names and column
+     *                     names correspond to the index table.
      * @throws SQLException
      */
     @Deprecated
@@ -966,7 +984,7 @@ public class PhoenixRuntime {
         List<PColumn> pkColumns = getPkColumns(plan.getTableRef().getTable(), conn, forDataTable);
         String columnName;
         String familyName;
-        for (PColumn pCol : pkColumns ) {
+        for (PColumn pCol : pkColumns) {
             columnName = addQuotes(pCol.getName().getString());
             familyName = pCol.getFamilyName() != null ? addQuotes(pCol.getFamilyName().getString()) : null;
             columns.add(new Pair<String, String>(familyName, columnName));
@@ -974,17 +992,17 @@ public class PhoenixRuntime {
     }
 
     /**
-     * @param columns - Initialized empty list to be filled with the pairs of column family name and column name for columns that are used 
-     * as row key for the query plan. Column family names are optional and hence the first part of the pair is nullable.
-     * Column names and family names are enclosed in double quotes to allow for case sensitivity and for presence of 
-     * special characters. Salting column and view index id column are not included. If the connection is tenant specific 
-     * and the table used by the query plan is multi-tenant, then the tenant id column is not included as well.
-     * @param dataTypes - Initialized empty list to be filled with the corresponding data type for the columns in @param columns.
-     * @param plan - query plan to get info for
-     * @param conn - phoenix connection used to generate the query plan. Caller should take care of closing the connection appropriately.
+     * @param columns      - Initialized empty list to be filled with the pairs of column family name and column name for columns that are used
+     *                     as row key for the query plan. Column family names are optional and hence the first part of the pair is nullable.
+     *                     Column names and family names are enclosed in double quotes to allow for case sensitivity and for presence of
+     *                     special characters. Salting column and view index id column are not included. If the connection is tenant specific
+     *                     and the table used by the query plan is multi-tenant, then the tenant id column is not included as well.
+     * @param dataTypes    - Initialized empty list to be filled with the corresponding data type for the columns in @param columns.
+     * @param plan         - query plan to get info for
+     * @param conn         - phoenix connection used to generate the query plan. Caller should take care of closing the connection appropriately.
      * @param forDataTable - if true, then column names and data types correspond to the data table even if the query plan uses
-     * the secondary index table. If false, and if the query plan uses the secondary index table, then the column names and data 
-     * types correspond to the index table.
+     *                     the secondary index table. If false, and if the query plan uses the secondary index table, then the column names and data
+     *                     types correspond to the index table.
      * @throws SQLException
      */
     @Deprecated
@@ -1004,11 +1022,10 @@ public class PhoenixRuntime {
             columns.add(new Pair<String, String>(familyName, columnName));
         }
     }
-    
+
     /**
-     * 
      * @param pCol
-     * @return sql type name that could be used in DDL statements, dynamic column types etc. 
+     * @return sql type name that could be used in DDL statements, dynamic column types etc.
      */
     public static String getSqlTypeName(PColumn pCol) {
         PDataType dataType = pCol.getDataType();
@@ -1020,7 +1037,7 @@ public class PhoenixRuntime {
     public static String getSqlTypeName(PDataType dataType, Integer maxLength, Integer scale) {
         return dataType.isArrayType() ? getArraySqlTypeName(maxLength, scale, dataType) : appendMaxLengthAndScale(maxLength, scale, dataType.getSqlTypeName());
     }
-    
+
     public static String getArraySqlTypeName(@Nullable Integer maxLength, @Nullable Integer scale, PDataType arrayType) {
         String baseTypeSqlName = PDataType.arrayBaseType(arrayType).getSqlTypeName();
         return appendMaxLengthAndScale(maxLength, scale, baseTypeSqlName) + " " + ARRAY_TYPE_SUFFIX; // for ex - decimal(10,2) ARRAY
@@ -1028,53 +1045,53 @@ public class PhoenixRuntime {
 
     private static String appendMaxLengthAndScale(@Nullable Integer maxLength, @Nullable Integer scale, String sqlTypeName) {
         if (maxLength != null) {
-             sqlTypeName = sqlTypeName + "(" + maxLength;
-             if (scale != null) {
-               sqlTypeName = sqlTypeName + "," + scale; // has both max length and scale. For ex- decimal(10,2)
-             }       
-             sqlTypeName = sqlTypeName + ")";
+            sqlTypeName = sqlTypeName + "(" + maxLength;
+            if (scale != null) {
+                sqlTypeName = sqlTypeName + "," + scale; // has both max length and scale. For ex- decimal(10,2)
+            }
+            sqlTypeName = sqlTypeName + ")";
         }
         return sqlTypeName;
     }
-    
+
     @Deprecated
     private static List<PColumn> getPkColumns(PTable ptable, Connection conn, boolean forDataTable) throws SQLException {
         PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
         List<PColumn> pkColumns = ptable.getPKColumns();
-        
+
         // Skip the salting column and the view index id column if present.
         // Skip the tenant id column too if the connection is tenant specific and the table used by the query plan is multi-tenant
         int offset = (ptable.getBucketNum() == null ? 0 : 1) + (ptable.isMultiTenant() && pConn.getTenantId() != null ? 1 : 0) + (ptable.getViewIndexId() == null ? 0 : 1);
-        
+
         // get a sublist of pkColumns by skipping the offset columns.
         pkColumns = pkColumns.subList(offset, pkColumns.size());
-        
+
         if (ptable.getType() == PTableType.INDEX && forDataTable) {
             // index tables have the same schema name as their parent/data tables.
             String fullDataTableName = ptable.getParentName().getString();
-            
+
             // Get the corresponding columns of the data table.
             List<PColumn> dataColumns = IndexUtil.getDataColumns(fullDataTableName, pkColumns, pConn);
             pkColumns = dataColumns;
         }
         return pkColumns;
     }
-    
+
     private static List<PColumn> getPkColumns(PTable ptable, Connection conn) throws SQLException {
         PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
         List<PColumn> pkColumns = ptable.getPKColumns();
-        
+
         // Skip the salting column and the view index id column if present.
         // Skip the tenant id column too if the connection is tenant specific and the table used by the query plan is multi-tenant
         int offset = (ptable.getBucketNum() == null ? 0 : 1) + (ptable.isMultiTenant() && pConn.getTenantId() != null ? 1 : 0) + (ptable.getViewIndexId() == null ? 0 : 1);
-        
+
         // get a sublist of pkColumns by skipping the offset columns.
         pkColumns = pkColumns.subList(offset, pkColumns.size());
-        
+
         if (ptable.getType() == PTableType.INDEX) {
             // index tables have the same schema name as their parent/data tables.
             String fullDataTableName = ptable.getParentName().getString();
-            
+
             // Get the corresponding columns of the data table.
             List<PColumn> dataColumns = IndexUtil.getDataColumns(fullDataTableName, pkColumns, pConn);
             pkColumns = dataColumns;
@@ -1083,14 +1100,13 @@ public class PhoenixRuntime {
     }
 
     /**
-     * 
-     * @param conn connection that was used for reading/generating value.
+     * @param conn          connection that was used for reading/generating value.
      * @param fullTableName fully qualified table name
-     * @param values values of the columns
-     * @param columns list of pair of column that includes column family as first part and column name as the second part.
-     * Column family is optional and hence nullable. Columns in the list have to be in the same order as the order of occurence
-     * of their values in the object array.
-     * @return values encoded in a byte array 
+     * @param values        values of the columns
+     * @param columns       list of pair of column that includes column family as first part and column name as the second part.
+     *                      Column family is optional and hence nullable. Columns in the list have to be in the same order as the order of occurence
+     *                      of their values in the object array.
+     * @return values encoded in a byte array
      * @throws SQLException
      * @see {@link #decodeValues(Connection, String, byte[], List)}
      */
@@ -1112,19 +1128,17 @@ public class PhoenixRuntime {
         ValueBitSet valueSet = ValueBitSet.newInstance(kvSchema);
         return kvSchema.toBytes(expressions.toArray(new Expression[0]), valueSet, ptr);
     }
-    
-    
+
+
     /**
-     * 
-     * @param conn connection that was used for reading/generating value.
+     * @param conn          connection that was used for reading/generating value.
      * @param fullTableName fully qualified table name
-     * @param value byte value of the columns concatenated as a single byte array. @see {@link #encodeColumnValues(Connection, String, Object[], List)}
-     * @param columns list of column names for the columns that have their respective values
-     * present in the byte array. The column names should be in the same order as their values are in the byte array.
-     * The column name includes both family name, if present, and column name.
+     * @param value         byte value of the columns concatenated as a single byte array. @see {@link #encodeColumnValues(Connection, String, Object[], List)}
+     * @param columns       list of column names for the columns that have their respective values
+     *                      present in the byte array. The column names should be in the same order as their values are in the byte array.
+     *                      The column name includes both family name, if present, and column name.
      * @return decoded values for each column
      * @throws SQLException
-     * 
      */
     @Deprecated
     public static Object[] decodeValues(Connection conn, String fullTableName, byte[] value, List<Pair<String, String>> columns) throws SQLException {
@@ -1139,24 +1153,23 @@ public class PhoenixRuntime {
         kvSchema.iterator(ptr);
         int i = 0;
         List<Object> values = new ArrayList<Object>();
-        while(hasValue = kvSchema.next(ptr, i, maxOffset, valueSet) != null) {
-            if(hasValue) {
+        while (hasValue = kvSchema.next(ptr, i, maxOffset, valueSet) != null) {
+            if (hasValue) {
                 values.add(kvSchema.getField(i).getDataType().toObject(ptr));
             }
             i++;
         }
         return values.toArray();
     }
-    
+
     /**
-     * 
-     * @param conn connection that was used for reading/generating value.
+     * @param conn          connection that was used for reading/generating value.
      * @param fullTableName fully qualified table name
-     * @param values values of the columns
-     * @param columns list of pair of column that includes column family as first part and column name as the second part.
-     * Column family is optional and hence nullable. Columns in the list have to be in the same order as the order of occurence
-     * of their values in the object array.
-     * @return values encoded in a byte array 
+     * @param values        values of the columns
+     * @param columns       list of pair of column that includes column family as first part and column name as the second part.
+     *                      Column family is optional and hence nullable. Columns in the list have to be in the same order as the order of occurence
+     *                      of their values in the object array.
+     * @return values encoded in a byte array
      * @throws SQLException
      * @see {@link #decodeValues(Connection, String, byte[], List)}
      */
@@ -1177,19 +1190,17 @@ public class PhoenixRuntime {
         ValueBitSet valueSet = ValueBitSet.newInstance(kvSchema);
         return kvSchema.toBytes(expressions.toArray(new Expression[0]), valueSet, ptr);
     }
-    
-    
+
+
     /**
-     * 
-     * @param conn connection that was used for reading/generating value.
+     * @param conn          connection that was used for reading/generating value.
      * @param fullTableName fully qualified table name
-     * @param value byte value of the columns concatenated as a single byte array. @see {@link #encodeColumnValues(Connection, String, Object[], List)}
-     * @param columns list of column names for the columns that have their respective values
-     * present in the byte array. The column names should be in the same order as their values are in the byte array.
-     * The column name includes both family name, if present, and column name.
+     * @param value         byte value of the columns concatenated as a single byte array. @see {@link #encodeColumnValues(Connection, String, Object[], List)}
+     * @param columns       list of column names for the columns that have their respective values
+     *                      present in the byte array. The column names should be in the same order as their values are in the byte array.
+     *                      The column name includes both family name, if present, and column name.
      * @return decoded values for each column
      * @throws SQLException
-     * 
      */
     public static Object[] decodeColumnValues(Connection conn, String fullTableName, byte[] value, List<Pair<String, String>> columns) throws SQLException {
         PTable table = getTable(conn, fullTableName);
@@ -1203,15 +1214,15 @@ public class PhoenixRuntime {
         kvSchema.iterator(ptr);
         int i = 0;
         List<Object> values = new ArrayList<Object>();
-        while(hasValue = kvSchema.next(ptr, i, maxOffset, valueSet) != null) {
-            if(hasValue) {
+        while (hasValue = kvSchema.next(ptr, i, maxOffset, valueSet) != null) {
+            if (hasValue) {
                 values.add(kvSchema.getField(i).getDataType().toObject(ptr));
             }
             i++;
         }
         return values.toArray();
     }
-    
+
     public static KeyValueSchema buildKeyValueSchema(List<PColumn> columns) {
         KeyValueSchemaBuilder builder = new KeyValueSchemaBuilder(getMinNullableIndex(columns));
         for (PColumn col : columns) {
@@ -1219,7 +1230,7 @@ public class PhoenixRuntime {
         }
         return builder.build();
     }
-    
+
     private static int getMinNullableIndex(List<PColumn> columns) {
         int minNullableIndex = columns.size();
         for (int i = 0; i < columns.size(); i++) {
@@ -1227,16 +1238,16 @@ public class PhoenixRuntime {
                 minNullableIndex = i;
                 break;
             }
-         }
+        }
         return minNullableIndex;
     }
-    
+
     /**
-     * @param table table to get the {@code PColumn} for
+     * @param table   table to get the {@code PColumn} for
      * @param columns list of pair of column that includes column family as first part and column name as the second part.
-     * Column family is optional and hence nullable. 
+     *                Column family is optional and hence nullable.
      * @return list of {@code PColumn} for fullyQualifiedColumnNames
-     * @throws SQLException 
+     * @throws SQLException
      */
     @Deprecated
     private static List<PColumn> getPColumns(PTable table, List<Pair<String, String>> columns) throws SQLException {
@@ -1246,13 +1257,13 @@ public class PhoenixRuntime {
         }
         return pColumns;
     }
-    
+
     @Deprecated
     private static PColumn getPColumn(PTable table, @Nullable String familyName, String columnName) throws SQLException {
-        if (table==null) {
+        if (table == null) {
             throw new SQLException("Table must not be null.");
         }
-        if (columnName==null) {
+        if (columnName == null) {
             throw new SQLException("columnName must not be null.");
         }
         // normalize and remove quotes from family and column names before looking up.
@@ -1267,13 +1278,13 @@ public class PhoenixRuntime {
         }
         return pColumn;
     }
-    
+
     /**
-     * @param table table to get the {@code PColumn} for
+     * @param table   table to get the {@code PColumn} for
      * @param columns list of pair of column that includes column family as first part and column name as the second part.
-     * Column family is optional and hence nullable. 
+     *                Column family is optional and hence nullable.
      * @return list of {@code PColumn} for fullyQualifiedColumnNames
-     * @throws SQLException 
+     * @throws SQLException
      */
     private static List<PColumn> getColumns(PTable table, List<Pair<String, String>> columns) throws SQLException {
         List<PColumn> pColumns = new ArrayList<PColumn>(columns.size());
@@ -1284,10 +1295,10 @@ public class PhoenixRuntime {
     }
 
     private static PColumn getColumn(PTable table, @Nullable String familyName, String columnName) throws SQLException {
-        if (table==null) {
+        if (table == null) {
             throw new SQLException("Table must not be null.");
         }
-        if (columnName==null) {
+        if (columnName == null) {
             throw new SQLException("columnName must not be null.");
         }
         // normalize and remove quotes from family and column names before looking up.
@@ -1307,18 +1318,19 @@ public class PhoenixRuntime {
         }
         return pColumn;
     }
-    
+
     /**
      * Get expression that may be used to evaluate the tenant ID of a given row in a
      * multi-tenant table. Both the SYSTEM.CATALOG table and the SYSTEM.SEQUENCE
      * table are considered multi-tenant.
-     * @param conn open Phoenix connection
+     *
+     * @param conn          open Phoenix connection
      * @param fullTableName full table name
      * @return An expression that may be evaluated for a row in the provided table or
-     * null if the table is not a multi-tenant table. 
+     * null if the table is not a multi-tenant table.
      * @throws SQLException if the table name is not found, a TableNotFoundException
-     * is thrown. If a multi-tenant local index is supplied a SQLFeatureNotSupportedException
-     * is thrown.
+     *                      is thrown. If a multi-tenant local index is supplied a SQLFeatureNotSupportedException
+     *                      is thrown.
      */
     public static Expression getTenantIdExpression(Connection conn, String fullTableName) throws SQLException {
         PTable table = getTable(conn, fullTableName);
@@ -1328,16 +1340,17 @@ public class PhoenixRuntime {
         }
         return getFirstPKColumnExpression(table);
     }
-    
+
     /**
      * Get expression that may be used to evaluate to the value of the first
      * column of a given row in a Phoenix table.
-     * @param conn open Phoenix connection
+     *
+     * @param conn          open Phoenix connection
      * @param fullTableName full table name
-     * @return An expression that may be evaluated for a row in the provided table. 
+     * @return An expression that may be evaluated for a row in the provided table.
      * @throws SQLException if the table name is not found, a TableNotFoundException
-     * is thrown. If a local index is supplied a SQLFeatureNotSupportedException
-     * is thrown.
+     *                      is thrown. If a local index is supplied a SQLFeatureNotSupportedException
+     *                      is thrown.
      */
     public static Expression getFirstPKColumnExpression(Connection conn, String fullTableName) throws SQLException {
         PTable table = getTable(conn, fullTableName);
@@ -1354,49 +1367,48 @@ public class PhoenixRuntime {
              */
             throw new SQLFeatureNotSupportedException();
         }
-        
+
         // skip salt and viewIndexId columns.
         int pkPosition = (table.getBucketNum() == null ? 0 : 1) + (table.getViewIndexId() == null ? 0 : 1);
         List<PColumn> pkColumns = table.getPKColumns();
         return new RowKeyColumnExpression(pkColumns.get(pkPosition), new RowKeyValueAccessor(pkColumns, pkPosition));
     }
-    
+
     /**
-     * Exposes the various internal phoenix metrics collected at the client JVM level. 
+     * Exposes the various internal phoenix metrics collected at the client JVM level.
      */
     public static Collection<GlobalMetric> getGlobalPhoenixClientMetrics() {
         return GlobalClientMetrics.getMetrics();
     }
-    
+
     /**
-     * 
      * @return whether or not the global client metrics are being collected
      */
     public static boolean areGlobalClientMetricsBeingCollected() {
         return GlobalClientMetrics.isMetricsEnabled();
     }
-    
+
     private static Map<String, Long> createMetricMap(Map<MetricType, Long> metricInfoMap) {
-    	Map<String, Long> metricMap = Maps.newHashMapWithExpectedSize(metricInfoMap.size());
-    	for (Entry<MetricType, Long> entry : metricInfoMap.entrySet()) {
-    		metricMap.put(entry.getKey().shortName(), entry.getValue());
-    	}
-    	return metricMap;
-	}
-    
-	private static Map<String, Map<String, Long>> transformMetrics(Map<String, Map<MetricType, Long>> metricMap) {
-		Function<Map<MetricType, Long>, Map<String, Long>> func = new Function<Map<MetricType, Long>, Map<String, Long>>() {
-			@Override
-			public Map<String, Long> apply(Map<MetricType, Long> map) {
-				return createMetricMap(map);
-			}
-		};
-		return Maps.transformValues(metricMap, func);
-	}
-    
+        Map<String, Long> metricMap = Maps.newHashMapWithExpectedSize(metricInfoMap.size());
+        for (Entry<MetricType, Long> entry : metricInfoMap.entrySet()) {
+            metricMap.put(entry.getKey().shortName(), entry.getValue());
+        }
+        return metricMap;
+    }
+
+    private static Map<String, Map<String, Long>> transformMetrics(Map<String, Map<MetricType, Long>> metricMap) {
+        Function<Map<MetricType, Long>, Map<String, Long>> func = new Function<Map<MetricType, Long>, Map<String, Long>>() {
+            @Override
+            public Map<String, Long> apply(Map<MetricType, Long> map) {
+                return createMetricMap(map);
+            }
+        };
+        return Maps.transformValues(metricMap, func);
+    }
+
     /**
      * Method to expose the metrics associated with performing reads using the passed result set. A typical pattern is:
-     * 
+     * <p>
      * <pre>
      * {@code
      * Map<String, Map<MetricType, Long>> overAllQueryMetrics = null;
@@ -1410,9 +1422,8 @@ public class PhoenixRuntime {
      *    PhoenixRuntime.resetMetrics(rs);
      * }
      * </pre>
-     * 
-     * @param rs
-     *            result set to get the metrics for
+     *
+     * @param rs result set to get the metrics for
      * @return a map of (table name) -> (map of (metric name) -> (metric value))
      * @throws SQLException
      */
@@ -1420,8 +1431,8 @@ public class PhoenixRuntime {
         PhoenixResultSet resultSet = rs.unwrap(PhoenixResultSet.class);
         return resultSet.getReadMetrics();
     }
-    
-    @Deprecated 
+
+    @Deprecated
     // use getRequestReadMetricInfo
     public static Map<String, Map<String, Long>> getRequestReadMetrics(ResultSet rs) throws SQLException {
         return transformMetrics(getRequestReadMetricInfo(rs));
@@ -1430,7 +1441,7 @@ public class PhoenixRuntime {
     /**
      * Method to expose the overall metrics associated with executing a query via phoenix. A typical pattern of
      * accessing request level read metrics and overall read query metrics is:
-     * 
+     * <p>
      * <pre>
      * {@code
      * Map<String, Map<MetricType, Long>> overAllQueryMetrics = null;
@@ -1444,9 +1455,8 @@ public class PhoenixRuntime {
      *    PhoenixRuntime.resetMetrics(rs);
      * }
      * </pre>
-     * 
-     * @param rs
-     *            result set to get the metrics for
+     *
+     * @param rs result set to get the metrics for
      * @return a map of metric name -> metric value
      * @throws SQLException
      */
@@ -1454,7 +1464,7 @@ public class PhoenixRuntime {
         PhoenixResultSet resultSet = rs.unwrap(PhoenixResultSet.class);
         return resultSet.getOverAllRequestReadMetrics();
     }
-    
+
     @Deprecated
     // use getOverAllReadRequestMetricInfo
     public static Map<String, Long> getOverAllReadRequestMetrics(ResultSet rs) throws SQLException {
@@ -1465,7 +1475,7 @@ public class PhoenixRuntime {
      * Method to expose the metrics associated with sending over mutations to HBase. These metrics are updated when
      * commit is called on the passed connection. Mutation metrics are accumulated for the connection till
      * {@link #resetMetrics(Connection)} is called or the connection is closed. Example usage:
-     * 
+     * <p>
      * <pre>
      * {@code
      * Map<String, Map<MetricType, Long>> mutationWriteMetrics = null;
@@ -1483,9 +1493,8 @@ public class PhoenixRuntime {
      *    PhoenixRuntime.resetMetrics(rs);
      * }
      * </pre>
-     *  
-     * @param conn
-     *            connection to get the metrics for
+     *
+     * @param conn connection to get the metrics for
      * @return a map of (table name) -> (map of (metric name) -> (metric value))
      * @throws SQLException
      */
@@ -1493,7 +1502,7 @@ public class PhoenixRuntime {
         PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
         return pConn.getMutationMetrics();
     }
-    
+
     @Deprecated
     // use getWriteMetricInfoForMutationsSinceLastReset
     public static Map<String, Map<String, Long>> getWriteMetricsForMutationsSinceLastReset(Connection conn) throws SQLException {
@@ -1504,7 +1513,7 @@ public class PhoenixRuntime {
      * Method to expose the read metrics associated with executing a dml statement. These metrics are updated when
      * commit is called on the passed connection. Read metrics are accumulated till {@link #resetMetrics(Connection)} is
      * called or the connection is closed. Example usage:
-     * 
+     * <p>
      * <pre>
      * {@code
      * Map<String, Map<MetricType, Long>> mutationWriteMetrics = null;
@@ -1521,17 +1530,17 @@ public class PhoenixRuntime {
      *    mutationReadMetrics = PhoenixRuntime.getReadMetricsForMutationsSinceLastReset(conn);
      *    PhoenixRuntime.resetMetrics(rs);
      * }
-     * </pre> 
-     * @param conn
-     *            connection to get the metrics for
-     * @return  a map of (table name) -> (map of (metric name) -> (metric value))
+     * </pre>
+     *
+     * @param conn connection to get the metrics for
+     * @return a map of (table name) -> (map of (metric name) -> (metric value))
      * @throws SQLException
      */
     public static Map<String, Map<MetricType, Long>> getReadMetricInfoForMutationsSinceLastReset(Connection conn) throws SQLException {
         PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
         return pConn.getReadMetrics();
     }
-    
+
     @Deprecated
     // use getReadMetricInfoForMutationsSinceLastReset 
     public static Map<String, Map<String, Long>> getReadMetricsForMutationsSinceLastReset(Connection conn) throws SQLException {
@@ -1540,32 +1549,33 @@ public class PhoenixRuntime {
 
     /**
      * Reset the read metrics collected in the result set.
-     * 
-     * @see {@link #getRequestReadMetrics(ResultSet)} {@link #getOverAllReadRequestMetrics(ResultSet)}
+     *
      * @param rs
      * @throws SQLException
+     * @see {@link #getRequestReadMetrics(ResultSet)} {@link #getOverAllReadRequestMetrics(ResultSet)}
      */
     public static void resetMetrics(ResultSet rs) throws SQLException {
         PhoenixResultSet prs = rs.unwrap(PhoenixResultSet.class);
         prs.resetMetrics();
     }
-    
+
     /**
      * Reset the mutation and reads-for-mutations metrics collected in the connection.
-     * 
-     * @see {@link #getReadMetricsForMutationsSinceLastReset(Connection)} {@link #getWriteMetricsForMutationsSinceLastReset(Connection)}
+     *
      * @param conn
      * @throws SQLException
+     * @see {@link #getReadMetricsForMutationsSinceLastReset(Connection)} {@link #getWriteMetricsForMutationsSinceLastReset(Connection)}
      */
     public static void resetMetrics(Connection conn) throws SQLException {
         PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
         pConn.clearMetrics();
     }
-    
+
     /**
      * Use this utility function to ensure that a timestamp is in milliseconds across transactional and
      * non transactional tables. This expects that the Cell timestamp is based either on wall clock
      * time or transaction manager nanos wall clock time.
+     *
      * @param tsOfCell Cell time stamp to be converted.
      * @return wall clock time in milliseconds (i.e. Epoch time) of a given Cell time stamp.
      */
@@ -1577,4 +1587,4 @@ public class PhoenixRuntime {
         String scn = props.get(CURRENT_SCN_ATTRIB);
         return scn != null ? Long.parseLong(scn) : HConstants.LATEST_TIMESTAMP;
     }
- }
+}

@@ -23,9 +23,8 @@ import java.util.Map;
 
 /**
  * Task runs periodically to rebuild indexes for System.Task entries.
- *
  */
-public class IndexRebuildTask extends BaseTask  {
+public class IndexRebuildTask extends BaseTask {
     public static final String INDEX_NAME = "IndexName";
     public static final String JOB_ID = "JobID";
     public static final String DISABLE_BEFORE = "DisableBefore";
@@ -87,13 +86,12 @@ public class IndexRebuildTask extends BaseTask  {
             Job job = indexToolRes.getValue();
 
             jsonObject.addProperty(JOB_ID, job.getJobID().toString());
-            Task.addTask(conn.unwrap(PhoenixConnection.class ), taskRecord.getTaskType(), taskRecord.getTenantId(), taskRecord.getSchemaName(),
+            Task.addTask(conn.unwrap(PhoenixConnection.class), taskRecord.getTaskType(), taskRecord.getTenantId(), taskRecord.getSchemaName(),
                     taskRecord.getTableName(), PTable.TaskStatus.STARTED.toString(), jsonObject.toString(), taskRecord.getPriority(),
                     taskRecord.getTimeStamp(), null, true);
             // It will take some time to finish, so we will check the status in a separate task.
             return null;
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             LOGGER.warn("Exception while running index rebuild task. " +
                     "It will be retried in the next system task table scan : " +
                     taskRecord.getSchemaName() + "." + taskRecord.getTableName() +

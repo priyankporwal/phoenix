@@ -38,9 +38,9 @@ public class Query {
     private Pattern pattern;
 
     public Query() {
-    	pattern = Pattern.compile("\\[.*?\\]");
+        pattern = Pattern.compile("\\[.*?\\]");
     }
-    
+
     /**
      * SQL statement
      *
@@ -50,20 +50,20 @@ public class Query {
     public String getStatement() {
         return statement;
     }
-    
+
     public String getDynamicStatement(RulesApplier ruleApplier, Scenario scenario) throws Exception {
-    	String ret = this.statement;
-    	String needQuotes = "";
-    	Matcher m = pattern.matcher(ret);
-        while(m.find()) {
-        	String dynamicField = m.group(0).replace("[", "").replace("]", "");
-        	Column dynamicColumn = ruleApplier.getRule(dynamicField, scenario);
-			needQuotes = (dynamicColumn.getType() == DataTypeMapping.CHAR || dynamicColumn
-					.getType() == DataTypeMapping.VARCHAR) ? "'" : "";
-			ret = ret.replace("[" + dynamicField + "]",
-					needQuotes + ruleApplier.getDataValue(dynamicColumn).getValue() + needQuotes);
-     }
-      	return ret;    	
+        String ret = this.statement;
+        String needQuotes = "";
+        Matcher m = pattern.matcher(ret);
+        while (m.find()) {
+            String dynamicField = m.group(0).replace("[", "").replace("]", "");
+            Column dynamicColumn = ruleApplier.getRule(dynamicField, scenario);
+            needQuotes = (dynamicColumn.getType() == DataTypeMapping.CHAR || dynamicColumn
+                    .getType() == DataTypeMapping.VARCHAR) ? "'" : "";
+            ret = ret.replace("[" + dynamicField + "]",
+                    needQuotes + ruleApplier.getDataValue(dynamicColumn).getValue() + needQuotes);
+        }
+        return ret;
     }
 
     public void setStatement(String statement) {

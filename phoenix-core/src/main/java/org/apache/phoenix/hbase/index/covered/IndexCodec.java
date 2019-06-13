@@ -27,20 +27,19 @@ public interface IndexCodec {
      * Get the index cleanup entries. Currently, this must return just single row deletes (where just the row-key is
      * specified and no columns are returned) mapped to the table name. For instance, to you have an index 'myIndex'
      * with row :
-     * 
+     * <p>
      * <pre>
      * v1,v2,v3 | CF:CQ0  | rowkey
      *          | CF:CQ1  | rowkey
      * </pre>
-     * 
+     * <p>
      * To then cleanup this entry, you would just return 'v1,v2,v3', 'myIndex'.
-     * 
-     * @param state
-     *            the current state of the table that needs to be cleaned up. Generally, you only care about the latest
-     *            column values, for each column you are indexing for each index table.
-     * @param context TODO
+     *
+     * @param state          the current state of the table that needs to be cleaned up. Generally, you only care about the latest
+     *                       column values, for each column you are indexing for each index table.
+     * @param context        TODO
      * @param regionStartKey TODO
-     * @param regionEndKey TODO
+     * @param regionEndKey   TODO
      * @return the pairs of (deletes, index table name) that should be applied.
      * @throws IOException
      */
@@ -48,6 +47,7 @@ public interface IndexCodec {
 
     // table state has the pending update already applied, before calling
     // get the new index entries
+
     /**
      * Get the index updates for the primary table state, for each index table. The returned {@link Put}s need to be
      * fully specified (including timestamp) to minimize passes over the same key-values multiple times.
@@ -56,13 +56,12 @@ public interface IndexCodec {
      * match the primary table row. This could be managed at a higher level, but would require iterating all the kvs in
      * the Put again - very inefficient when compared to the current interface where you must provide a timestamp
      * anyways (so you might as well provide the right one).
-     * 
-     * @param state
-     *            the current state of the table that needs to an index update Generally, you only care about the latest
-     *            column values, for each column you are indexing for each index table.
-     * @param context TODO
+     *
+     * @param state          the current state of the table that needs to an index update Generally, you only care about the latest
+     *                       column values, for each column you are indexing for each index table.
+     * @param context        TODO
      * @param regionStartKey TODO
-     * @param regionEndKey TODO
+     * @param regionEndKey   TODO
      * @return the pairs of (updates,index table name) that should be applied.
      * @throws IOException
      */
@@ -75,11 +74,10 @@ public interface IndexCodec {
      * <p>
      * We can also be smart about even indexing a given update here too - if the update doesn't contain any columns that
      * we care about indexing, we can save the effort of analyzing the put and further.
-     * 
-     * @param m
-     *            mutation that should be indexed.
+     *
+     * @param m mutation that should be indexed.
      * @return <tt>true</tt> if indexing is enabled for the given table. This should be on a per-table basis, as each
-     *         codec is instantiated per-region.
+     * codec is instantiated per-region.
      * @throws IOException
      */
     public boolean isEnabled(Mutation m);

@@ -38,7 +38,6 @@ import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
 
 
-
 public class SelectStatementRewriterTest extends BaseConnectionlessQueryTest {
     private static Filter compileStatement(String query) throws SQLException {
         PhoenixConnection pconn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES)).unwrap(PhoenixConnection.class);
@@ -47,7 +46,7 @@ public class SelectStatementRewriterTest extends BaseConnectionlessQueryTest {
         return plan.getContext().getScan().getFilter();
     }
 
-    
+
     @Test
     public void testCollapseAnd() throws SQLException {
         String tenantId = "000000000000001";
@@ -55,12 +54,12 @@ public class SelectStatementRewriterTest extends BaseConnectionlessQueryTest {
         Filter filter = compileStatement(query);
         assertEquals(
                 singleKVFilter(constantComparison(
-                    CompareOp.EQUAL,
-                    A_INTEGER,
-                    0)),
+                        CompareOp.EQUAL,
+                        A_INTEGER,
+                        0)),
                 filter);
     }
-    
+
     @Test
     public void testLHSLiteralCollapseAnd() throws SQLException {
         String tenantId = "000000000000001";
@@ -68,12 +67,12 @@ public class SelectStatementRewriterTest extends BaseConnectionlessQueryTest {
         Filter filter = compileStatement(query);
         assertEquals(
                 singleKVFilter(constantComparison(
-                    CompareOp.EQUAL,
-                    A_INTEGER,
-                    0)),
+                        CompareOp.EQUAL,
+                        A_INTEGER,
+                        0)),
                 filter);
     }
-    
+
     @Test
     public void testRewriteAnd() throws SQLException {
         String tenantId = "000000000000001";
@@ -82,12 +81,12 @@ public class SelectStatementRewriterTest extends BaseConnectionlessQueryTest {
         assertEquals(
                 multiEncodedKVFilter(and(
                         constantComparison(
-                            CompareOp.EQUAL,
-                            A_INTEGER, 0),
+                                CompareOp.EQUAL,
+                                A_INTEGER, 0),
                         constantComparison(
-                            CompareOp.EQUAL,
-                            A_STRING, "foo")
-                    ), TWO_BYTE_QUALIFIERS),
+                                CompareOp.EQUAL,
+                                A_STRING, "foo")
+                ), TWO_BYTE_QUALIFIERS),
                 filter);
     }
 
@@ -106,12 +105,12 @@ public class SelectStatementRewriterTest extends BaseConnectionlessQueryTest {
         assertEquals(
                 multiEncodedKVFilter(and(
                         constantComparison(
-                            CompareOp.EQUAL,
-                            A_INTEGER, 0),
+                                CompareOp.EQUAL,
+                                A_INTEGER, 0),
                         constantComparison(
-                            CompareOp.EQUAL,
-                            A_STRING, "foo")
-                    ), TWO_BYTE_QUALIFIERS),
+                                CompareOp.EQUAL,
+                                A_STRING, "foo")
+                ), TWO_BYTE_QUALIFIERS),
                 filter);
     }
 }

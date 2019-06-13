@@ -33,13 +33,12 @@ import org.apache.phoenix.schema.types.PInteger;
 /**
  * Built-in function for NTH_VALUE(<expression>, <expression>) WITHIN GROUP (ORDER BY <expression> ASC/DESC)
  * aggregate function
- *
  */
 @FunctionParseNode.BuiltInFunction(name = NthValueFunction.NAME, nodeClass = NthValueAggregateParseNode.class, args = {
-    @FunctionParseNode.Argument(),
-    @FunctionParseNode.Argument(allowedTypes = { PBoolean.class }, isConstant = true),
-    @FunctionParseNode.Argument(),
-    @FunctionParseNode.Argument(allowedTypes = { PInteger.class }, isConstant = true)})
+        @FunctionParseNode.Argument(),
+        @FunctionParseNode.Argument(allowedTypes = {PBoolean.class}, isConstant = true),
+        @FunctionParseNode.Argument(),
+        @FunctionParseNode.Argument(allowedTypes = {PInteger.class}, isConstant = true)})
 public class NthValueFunction extends FirstLastValueBaseFunction {
 
     public static final String NAME = "NTH_VALUE";

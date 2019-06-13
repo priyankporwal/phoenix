@@ -25,17 +25,14 @@ import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.util.TupleUtil;
 
 
-
 /**
- * 
  * Aggregators that execute on the client-side
  *
- * 
  * @since 0.1
  */
 public class ClientAggregators extends Aggregators {
-    private final ValueBitSet tempValueSet; 
-  
+    private final ValueBitSet tempValueSet;
+
     private static Aggregator[] getAggregators(List<SingleAggregateFunction> aggFuncs) {
         Aggregator[] aggregators = new Aggregator[aggFuncs.size()];
         for (int i = 0; i < aggregators.length; i++) {
@@ -43,12 +40,12 @@ public class ClientAggregators extends Aggregators {
         }
         return aggregators;
     }
-    
+
     public ClientAggregators(List<SingleAggregateFunction> functions, int minNullableIndex) {
         super(functions.toArray(new SingleAggregateFunction[functions.size()]), getAggregators(functions), minNullableIndex);
         this.tempValueSet = ValueBitSet.newInstance(schema);
     }
-    
+
     @Override
     public void aggregate(Aggregator[] aggregators, Tuple result) {
         TupleUtil.getAggregateValue(result, ptr);
@@ -58,14 +55,14 @@ public class ClientAggregators extends Aggregators {
         int i = 0, maxOffset = ptr.getOffset() + ptr.getLength();
         Boolean hasValue;
         schema.iterator(ptr);
-        while ((hasValue=schema.next(ptr, i, maxOffset, tempValueSet)) != null) {
+        while ((hasValue = schema.next(ptr, i, maxOffset, tempValueSet)) != null) {
             if (hasValue) {
                 aggregators[i].aggregate(result, ptr);
             }
             i++;
         }
     }
-    
+
     @Override
     public Aggregator[] newAggregators() {
         Aggregator[] aggregators = new Aggregator[functions.length];
@@ -74,5 +71,5 @@ public class ClientAggregators extends Aggregators {
         }
         return aggregators;
     }
-    
+
 }

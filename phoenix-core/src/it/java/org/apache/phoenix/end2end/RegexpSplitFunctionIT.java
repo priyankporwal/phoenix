@@ -49,7 +49,7 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
                 "VAL VARCHAR," +
                 "SEP VARCHAR," +
                 "ARR VARCHAR ARRAY)";
-            conn.createStatement().execute(ddl);
+        conn.createStatement().execute(ddl);
         String dml = "UPSERT INTO " + tableName + " (ID, SEP, VAL) VALUES (?, ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(dml);
         stmt.setInt(1, 1);
@@ -73,7 +73,7 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE,TWO,THREE");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, ',')[1] FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, ',')[1] FROM " + tableName);
         assertTrue(rs.next());
         assertEquals("ONE", rs.getString(1));
         assertFalse(rs.next());
@@ -81,16 +81,16 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testArrayLenWithRegExpSplit() throws SQLException {
-    	Connection conn = DriverManager.getConnection(getUrl());
-    	String val = "T";
-    	for(int i = 1; i < Short.MAX_VALUE + 500; i++) {
-    		val += ",T";
-    	}
-    	
+        Connection conn = DriverManager.getConnection(getUrl());
+        String val = "T";
+        for (int i = 1; i < Short.MAX_VALUE + 500; i++) {
+            val += ",T";
+        }
+
         initTable(conn, val);
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT array_length(REGEXP_SPLIT(VAL, ',')) FROM " + tableName);
+                "SELECT array_length(REGEXP_SPLIT(VAL, ',')) FROM " + tableName);
         assertTrue(rs.next());
         assertEquals(33267, rs.getInt(1));
         assertFalse(rs.next());
@@ -102,7 +102,7 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE,TWO,THREE");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT ID FROM " + tableName + " WHERE (REGEXP_SPLIT(VAL, ','))[1] = 'ONE'");
+                "SELECT ID FROM " + tableName + " WHERE (REGEXP_SPLIT(VAL, ','))[1] = 'ONE'");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
         assertFalse(rs.next());
@@ -114,15 +114,15 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE,TWO,THREE");
 
         conn.createStatement().executeUpdate(
-            "UPSERT INTO " + tableName + " (ID, ARR) SELECT ID, " + "REGEXP_SPLIT(VAL, ',') FROM "
-                + tableName);
+                "UPSERT INTO " + tableName + " (ID, ARR) SELECT ID, " + "REGEXP_SPLIT(VAL, ',') FROM "
+                        + tableName);
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT ARR FROM " + tableName);
         assertTrue(rs.next());
         Array array = rs.getArray(1);
         String[] values = (String[]) array.getArray();
-        assertArrayEquals(new String[]{ "ONE", "TWO", "THREE" }, values);
+        assertArrayEquals(new String[] {"ONE", "TWO", "THREE"}, values);
     }
 
     @Test
@@ -131,11 +131,11 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE:TWO:THREE");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, ':') FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, ':') FROM " + tableName);
         assertTrue(rs.next());
         Array array = rs.getArray(1);
         String[] values = (String[]) array.getArray();
-        assertArrayEquals(new String[] { "ONE", "TWO", "THREE" }, values);
+        assertArrayEquals(new String[] {"ONE", "TWO", "THREE"}, values);
     }
 
     @Test
@@ -144,11 +144,11 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE,TWO,THREE");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, SEP) FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, SEP) FROM " + tableName);
         assertTrue(rs.next());
         Array array = rs.getArray(1);
         String[] values = (String[]) array.getArray();
-        assertArrayEquals(new String[] { "ONE", "TWO", "THREE" }, values);
+        assertArrayEquals(new String[] {"ONE", "TWO", "THREE"}, values);
     }
 
     @Test
@@ -157,11 +157,11 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "CANNOT BE SPLIT");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, ',') FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, ',') FROM " + tableName);
         assertTrue(rs.next());
         Array array = rs.getArray(1);
         String[] values = (String[]) array.getArray();
-        assertArrayEquals(new String[] { "CANNOT BE SPLIT" }, values);
+        assertArrayEquals(new String[] {"CANNOT BE SPLIT"}, values);
     }
 
     @Test
@@ -170,11 +170,11 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE!:TWO:::!THREE::!:FOUR");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, '[:!]+') FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, '[:!]+') FROM " + tableName);
         assertTrue(rs.next());
         Array array = rs.getArray(1);
         String[] values = (String[]) array.getArray();
-        assertArrayEquals(new String[] { "ONE", "TWO", "THREE", "FOUR" }, values);
+        assertArrayEquals(new String[] {"ONE", "TWO", "THREE", "FOUR"}, values);
     }
 
     @Test
@@ -183,11 +183,11 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE|TWO|THREE");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, '\\\\|') FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, '\\\\|') FROM " + tableName);
         assertTrue(rs.next());
         Array array = rs.getArray(1);
         String[] values = (String[]) array.getArray();
-        assertArrayEquals(new String[] { "ONE", "TWO", "THREE" }, values);
+        assertArrayEquals(new String[] {"ONE", "TWO", "THREE"}, values);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, null);
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, ',') FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, ',') FROM " + tableName);
         assertTrue(rs.next());
         assertNull(rs.getString(1));
         assertFalse(rs.next());
@@ -208,7 +208,7 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE,TWO,THREE");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, NULL) FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, NULL) FROM " + tableName);
         assertTrue(rs.next());
         assertNull(rs.getString(1));
         assertFalse(rs.next());
@@ -220,7 +220,7 @@ public class RegexpSplitFunctionIT extends ParallelStatsDisabledIT {
         initTable(conn, "ONE,TWO,THREE", null);
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT REGEXP_SPLIT(VAL, SEP) FROM " + tableName);
+                "SELECT REGEXP_SPLIT(VAL, SEP) FROM " + tableName);
         assertTrue(rs.next());
         assertNull(rs.getString(1));
         assertFalse(rs.next());

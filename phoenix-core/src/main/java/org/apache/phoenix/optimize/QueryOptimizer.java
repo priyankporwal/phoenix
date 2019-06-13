@@ -89,7 +89,7 @@ public class QueryOptimizer {
         this.useIndexes = this.services.getProps().getBoolean(QueryServices.USE_INDEXES_ATTRIB, QueryServicesOptions.DEFAULT_USE_INDEXES);
         this.costBased = this.services.getProps().getBoolean(QueryServices.COST_BASED_OPTIMIZER_ENABLED, QueryServicesOptions.DEFAULT_COST_BASED_OPTIMIZER_ENABLED);
         this.indexPendingDisabledThreshold = this.services.getProps().getLong(QueryServices.INDEX_PENDING_DISABLE_THRESHOLD,
-            QueryServicesOptions.DEFAULT_INDEX_PENDING_DISABLE_THRESHOLD);
+                QueryServicesOptions.DEFAULT_INDEX_PENDING_DISABLE_THRESHOLD);
     }
 
     public QueryPlan optimize(PhoenixStatement statement, QueryPlan dataPlan) throws SQLException {
@@ -108,20 +108,20 @@ public class QueryOptimizer {
         QueryPlan dataPlan = compiler.compile();
         return optimize(dataPlan, statement, targetColumns, parallelIteratorFactory);
     }
-    
+
     public QueryPlan optimize(QueryPlan dataPlan, PhoenixStatement statement, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
         List<QueryPlan> plans = getApplicablePlans(dataPlan, statement, targetColumns, parallelIteratorFactory, true);
         return plans.get(0);
     }
-    
+
     public List<QueryPlan> getBestPlan(QueryPlan dataPlan, PhoenixStatement statement, SelectStatement select, ColumnResolver resolver, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
         return getApplicablePlans(dataPlan, statement, targetColumns, parallelIteratorFactory, true);
     }
-    
+
     public List<QueryPlan> getApplicablePlans(QueryPlan dataPlan, PhoenixStatement statement, SelectStatement select, ColumnResolver resolver, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory) throws SQLException {
         return getApplicablePlans(dataPlan, statement, targetColumns, parallelIteratorFactory, false);
     }
-    
+
     private List<QueryPlan> getApplicablePlans(QueryPlan dataPlan, PhoenixStatement statement, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory, boolean stopAtBestPlan) throws SQLException {
         if (!useIndexes) {
             return Collections.singletonList(dataPlan);
@@ -145,15 +145,17 @@ public class QueryOptimizer {
             JoinCompiler.JoinTable join = JoinCompiler.compile(statement, select, resolver);
             Map<TableRef, TableRef> replacement = null;
             for (JoinCompiler.Table table : join.getTables()) {
-                if (table.isSubselect())
+                if (table.isSubselect()) {
                     continue;
+                }
                 TableRef tableRef = table.getTableRef();
                 SelectStatement stmt = table.getAsSubqueryForOptimization(tableRef.equals(dataPlan.getTableRef()));
                 // Replace non-correlated sub-queries in WHERE clause with dummy values
                 // so the filter conditions can be taken into account in optimization.
                 if (stmt.getWhere() != null && stmt.getWhere().hasSubquery()) {
                     StatementContext context =
-                            new StatementContext(statement, resolver, new Scan(), new SequenceManager(statement));;
+                            new StatementContext(statement, resolver, new Scan(), new SequenceManager(statement));
+                    ;
                     ParseNode dummyWhere = GenSubqueryParamValuesRewriter.replaceWithDummyValues(stmt.getWhere(), context);
                     stmt = FACTORY.select(stmt, dummyWhere);
                 }
@@ -192,17 +194,17 @@ public class QueryOptimizer {
     }
 
     private List<QueryPlan> getApplicablePlansForSingleFlatQuery(QueryPlan dataPlan, PhoenixStatement statement, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory, boolean stopAtBestPlan) throws SQLException {
-        SelectStatement select = (SelectStatement)dataPlan.getStatement();
+        SelectStatement select = (SelectStatement) dataPlan.getStatement();
         // Exit early if we have a point lookup as we can't get better than that
         if (dataPlan.getContext().getScanRanges().isPointLookup() && stopAtBestPlan) {
-            return Collections.<QueryPlan> singletonList(dataPlan);
+            return Collections.<QueryPlan>singletonList(dataPlan);
         }
 
-        List<PTable>indexes = Lists.newArrayList(dataPlan.getTableRef().getTable().getIndexes());
+        List<PTable> indexes = Lists.newArrayList(dataPlan.getTableRef().getTable().getIndexes());
         if (indexes.isEmpty() || dataPlan.isDegenerate() || dataPlan.getTableRef().hasDynamicCols() || select.getHint().hasHint(Hint.NO_INDEX)) {
-            return Collections.<QueryPlan> singletonList(dataPlan);
+            return Collections.<QueryPlan>singletonList(dataPlan);
         }
-        
+
         // The targetColumns is set for UPSERT SELECT to ensure that the proper type conversion takes place.
         // For a SELECT, it is empty. In this case, we want to set the targetColumns to match the projection
         // from the dataPlan to ensure that the metadata for when an index is used matches the metadata for
@@ -215,7 +217,7 @@ public class QueryOptimizer {
             }
             targetColumns = targetDatums;
         }
-        
+
         SelectStatement translatedIndexSelect = IndexStatementRewriter.translate(select, FromCompiler.getResolver(dataPlan.getTableRef()));
         List<QueryPlan> plans = Lists.newArrayListWithExpectedSize(1 + indexes.size());
         plans.add(dataPlan);
@@ -226,7 +228,7 @@ public class QueryOptimizer {
             }
             plans.add(0, hintedPlan);
         }
-        
+
         for (PTable index : indexes) {
             QueryPlan plan = addPlan(statement, translatedIndexSelect, index, targetColumns, parallelIteratorFactory, dataPlan, false);
             if (plan != null) {
@@ -237,10 +239,10 @@ public class QueryOptimizer {
                 plans.add(plan);
             }
         }
-        
+
         return hintedPlan == null ? orderPlansBestToWorst(select, plans, stopAtBestPlan) : plans;
     }
-    
+
     private QueryPlan getHintedQueryPlan(PhoenixStatement statement, SelectStatement select, List<PTable> indexes, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory, List<QueryPlan> plans) throws SQLException {
         QueryPlan dataPlan = plans.get(0);
         String indexHint = select.getHint().getHint(Hint.INDEX);
@@ -288,7 +290,7 @@ public class QueryOptimizer {
         }
         return null;
     }
-    
+
     private static int getIndexPosition(List<PTable> indexes, String indexName) {
         for (int i = 0; i < indexes.size(); i++) {
             if (indexName.equals(indexes.get(i).getTableName().getString())) {
@@ -297,16 +299,16 @@ public class QueryOptimizer {
         }
         return -1;
     }
-    
+
     private QueryPlan addPlan(PhoenixStatement statement, SelectStatement select, PTable index, List<? extends PDatum> targetColumns, ParallelIteratorFactory parallelIteratorFactory, QueryPlan dataPlan, boolean isHinted) throws SQLException {
         int nColumns = dataPlan.getProjector().getColumnCount();
         String tableAlias = dataPlan.getTableRef().getTableAlias();
-		String alias = tableAlias==null ? null : '"' + tableAlias + '"'; // double quote in case it's case sensitive
+        String alias = tableAlias == null ? null : '"' + tableAlias + '"'; // double quote in case it's case sensitive
         String schemaName = index.getParentSchemaName().getString();
-        schemaName = schemaName.length() == 0 ? null :  '"' + schemaName + '"';
+        schemaName = schemaName.length() == 0 ? null : '"' + schemaName + '"';
 
         String tableName = '"' + index.getTableName().getString() + '"';
-        TableNode table = FACTORY.namedTable(alias, FACTORY.table(schemaName, tableName),select.getTableSamplingRate());
+        TableNode table = FACTORY.namedTable(alias, FACTORY.table(schemaName, tableName), select.getTableSamplingRate());
         SelectStatement indexSelect = FACTORY.select(select, table);
         ColumnResolver resolver = FromCompiler.getResolverForQuery(indexSelect, statement.getConnection());
         // We will or will not do tuple projection according to the data plan.
@@ -319,8 +321,8 @@ public class QueryOptimizer {
         if (indexState == PIndexState.ACTIVE || indexState == PIndexState.PENDING_ACTIVE
                 || (indexState == PIndexState.PENDING_DISABLE && isUnderPendingDisableThreshold(indexTableRef.getCurrentTime(), indexTable.getIndexDisableTimestamp()))) {
             try {
-            	// translate nodes that match expressions that are indexed to the associated column parse node
-                indexSelect = ParseNodeRewriter.rewrite(indexSelect, new  IndexExpressionParseNodeRewriter(index, null, statement.getConnection(), indexSelect.getUdfParseNodes()));
+                // translate nodes that match expressions that are indexed to the associated column parse node
+                indexSelect = ParseNodeRewriter.rewrite(indexSelect, new IndexExpressionParseNodeRewriter(index, null, statement.getConnection(), indexSelect.getUdfParseNodes()));
                 QueryCompiler compiler = new QueryCompiler(statement, indexSelect, resolver, targetColumns, parallelIteratorFactory, dataPlan.getContext().getSequenceManager(), isProjected, true, dataPlans);
 
                 QueryPlan plan = compiler.compile();
@@ -335,8 +337,8 @@ public class QueryOptimizer {
                     if (plan.getProjector().getColumnCount() == nColumns) {
                         return plan;
                     } else if (index.getIndexType() == IndexType.GLOBAL) {
-                        String schemaNameStr = index.getSchemaName()==null?null:index.getSchemaName().getString();
-                        String tableNameStr = index.getTableName()==null?null:index.getTableName().getString();
+                        String schemaNameStr = index.getSchemaName() == null ? null : index.getSchemaName().getString();
+                        String tableNameStr = index.getTableName() == null ? null : index.getTableName().getString();
                         throw new ColumnNotFoundException(schemaNameStr, tableNameStr, null, "*");
                     }
                 }
@@ -347,7 +349,7 @@ public class QueryOptimizer {
                  * otherwise we just don't use this index (as opposed to trying to join back from
                  * the index table to the data table.
                  */
-                SelectStatement dataSelect = (SelectStatement)dataPlan.getStatement();
+                SelectStatement dataSelect = (SelectStatement) dataPlan.getStatement();
                 ParseNode where = dataSelect.getWhere();
                 if (isHinted && where != null) {
                     StatementContext context = new StatementContext(statement, resolver);
@@ -408,9 +410,10 @@ public class QueryOptimizer {
      * 2) If the query has an ORDER BY and a LIMIT, choose the plan that has all the ORDER BY expression
      * in the same order as the row key columns.
      * 3) If there are more than one plan that meets (1&2), choose the plan with:
-     *    a) the most row key columns that may be used to form the start/stop scan key (i.e. bound slots).
-     *    b) the plan that preserves ordering for a group by.
-     *    c) the non local index table plan
+     * a) the most row key columns that may be used to form the start/stop scan key (i.e. bound slots).
+     * b) the plan that preserves ordering for a group by.
+     * c) the non local index table plan
+     *
      * @param plans the list of candidate plans
      * @return list of plans ordered from best to worst.
      */
@@ -471,7 +474,7 @@ public class QueryOptimizer {
         if (bestCandidates.isEmpty()) {
             bestCandidates.addAll(stillCandidates);
         }
-        
+
         int nViewConstants = 0;
         PTable dataTable = dataPlan.getTableRef().getTable();
         if (dataTable.getType() == PTableType.VIEW) {
@@ -502,7 +505,9 @@ public class QueryOptimizer {
                 boundCount1 -= plan1.getContext().getScanRanges().isSalted() ? 1 : 0;
                 boundCount2 -= plan2.getContext().getScanRanges().isSalted() ? 1 : 0;
                 int c = boundCount2 - boundCount1;
-                if (c != 0) return c;
+                if (c != 0) {
+                    return c;
+                }
                 if (plan1.getGroupBy() != null && plan2.getGroupBy() != null) {
                     if (plan1.getGroupBy().isOrderPreserving() != plan2.getGroupBy().isOrderPreserving()) {
                         return plan1.getGroupBy().isOrderPreserving() ? -1 : 1;
@@ -511,12 +516,16 @@ public class QueryOptimizer {
 
                 // Use the plan that has fewer "dataColumns" (columns that need to be merged in)
                 c = plan1.getContext().getDataColumns().size() - plan2.getContext().getDataColumns().size();
-                if (c != 0) return c;
+                if (c != 0) {
+                    return c;
+                }
 
                 // Use smaller table (table with fewest kv columns)
                 if (!useDataOverIndexHint || (table1.getType() == PTableType.INDEX && table2.getType() == PTableType.INDEX)) {
                     c = (table1.getColumns().size() - table1.getPKColumns().size()) - (table2.getColumns().size() - table2.getPKColumns().size());
-                    if (c != 0) return c;
+                    if (c != 0) {
+                        return c;
+                    }
                 }
 
                 // If all things are equal, don't choose local index as it forces scan
@@ -541,37 +550,39 @@ public class QueryOptimizer {
                 }
                 return 0;
             }
-            
+
         });
 
         return stopAtBestPlan ? bestCandidates.subList(0, 1) : bestCandidates;
     }
 
-    
+
     private static class WhereConditionRewriter extends BooleanParseNodeVisitor<ParseNode> {
         private final ColumnResolver dataResolver;
         private final ExpressionCompiler expressionCompiler;
         private List<ParseNode> extractedConditions;
-        
+
         public WhereConditionRewriter(ColumnResolver dataResolver, StatementContext context) throws SQLException {
             this.dataResolver = dataResolver;
             this.expressionCompiler = new ExpressionCompiler(context);
-            this.extractedConditions = Lists.<ParseNode> newArrayList();
+            this.extractedConditions = Lists.<ParseNode>newArrayList();
         }
-        
+
         public ParseNode getExtractedCondition() {
-            if (this.extractedConditions.isEmpty())
+            if (this.extractedConditions.isEmpty()) {
                 return null;
-            
-            if (this.extractedConditions.size() == 1)
+            }
+
+            if (this.extractedConditions.size() == 1) {
                 return this.extractedConditions.get(0);
-            
-            return FACTORY.and(this.extractedConditions);            
+            }
+
+            return FACTORY.and(this.extractedConditions);
         }
-        
+
         @Override
         public List<ParseNode> newElementList(int size) {
-            return Lists.<ParseNode> newArrayListWithExpectedSize(size);
+            return Lists.<ParseNode>newArrayListWithExpectedSize(size);
         }
 
         @Override
@@ -589,15 +600,18 @@ public class QueryOptimizer {
         @Override
         public ParseNode visitLeave(AndParseNode node, List<ParseNode> l)
                 throws SQLException {
-            if (l.equals(node.getChildren()))
+            if (l.equals(node.getChildren())) {
                 return node;
+            }
 
-            if (l.isEmpty())
+            if (l.isEmpty()) {
                 return null;
-            
-            if (l.size() == 1)
+            }
+
+            if (l.size() == 1) {
                 return l.get(0);
-            
+            }
+
             return FACTORY.and(l);
         }
 
@@ -617,7 +631,7 @@ public class QueryOptimizer {
                 extractedConditions.add(node);
                 return null;
             }
-            
+
             return translatedNode;
         }
 
@@ -629,7 +643,7 @@ public class QueryOptimizer {
 
         @Override
         protected ParseNode leaveNonBooleanNode(ParseNode node,
-                List<ParseNode> l) throws SQLException {
+                                                List<ParseNode> l) throws SQLException {
             return node;
         }
     }
@@ -640,8 +654,9 @@ public class QueryOptimizer {
         TableNode from = select.getFrom();
         TableNode newFrom = from.accept(new TableNodeVisitor<TableNode>() {
             private TableRef resolveTable(String alias, TableName name) throws SQLException {
-                if (alias != null)
+                if (alias != null) {
                     return resolver.resolveTable(null, alias);
+                }
 
                 return resolver.resolveTable(name.getSchemaName(), name.getTableName());
             }
@@ -655,8 +670,9 @@ public class QueryOptimizer {
             public TableNode visit(BindTableNode boundTableNode) throws SQLException {
                 TableRef tableRef = resolveTable(boundTableNode.getAlias(), boundTableNode.getName());
                 TableRef replaceRef = replacement.get(tableRef);
-                if (replaceRef == null)
+                if (replaceRef == null) {
                     return boundTableNode;
+                }
 
                 String alias = boundTableNode.getAlias();
                 return FACTORY.bindTable(alias == null ? null : '"' + alias + '"', getReplacedTableName(replaceRef));
@@ -668,8 +684,9 @@ public class QueryOptimizer {
                 TableNode rhs = joinNode.getRHS();
                 TableNode lhsReplace = lhs.accept(this);
                 TableNode rhsReplace = rhs.accept(this);
-                if (lhs == lhsReplace && rhs == rhsReplace)
+                if (lhs == lhsReplace && rhs == rhsReplace) {
                     return joinNode;
+                }
 
                 return FACTORY.join(joinNode.getType(), lhsReplace, rhsReplace, joinNode.getOnNode(), joinNode.isSingleValueOnly());
             }
@@ -679,8 +696,9 @@ public class QueryOptimizer {
                     throws SQLException {
                 TableRef tableRef = resolveTable(namedTableNode.getAlias(), namedTableNode.getName());
                 TableRef replaceRef = replacement.get(tableRef);
-                if (replaceRef == null)
+                if (replaceRef == null) {
                     return namedTableNode;
+                }
 
                 String alias = namedTableNode.getAlias();
                 return FACTORY.namedTable(alias == null ? null : '"' + alias + '"', getReplacedTableName(replaceRef), namedTableNode.getDynamicColumns(), namedTableNode.getTableSamplingRate());

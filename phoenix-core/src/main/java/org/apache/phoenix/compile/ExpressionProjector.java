@@ -26,12 +26,9 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 
-
 /**
- * 
  * Projector for getting value from a select statement for an expression
  *
- * 
  * @since 0.1
  */
 public class ExpressionProjector implements ColumnProjector {
@@ -39,14 +36,14 @@ public class ExpressionProjector implements ColumnProjector {
     private final Expression expression;
     private final String tableName;
     private final boolean isCaseSensitive;
-    
+
     public ExpressionProjector(String name, String tableName, Expression expression, boolean isCaseSensitive) {
         this.name = name;
         this.expression = expression;
         this.tableName = tableName;
         this.isCaseSensitive = isCaseSensitive;
     }
-    
+
     @Override
     public String getTableName() {
         return tableName;
@@ -71,7 +68,7 @@ public class ExpressionProjector implements ColumnProjector {
             }
             if (ptr.getLength() == 0) {
                 return null;
-            }        
+            }
             return type.toObject(ptr, expression.getDataType(), expression.getSortOrder(), expression.getMaxLength(), expression.getScale());
         } catch (RuntimeException e) {
             // FIXME: Expression.evaluate does not throw SQLException

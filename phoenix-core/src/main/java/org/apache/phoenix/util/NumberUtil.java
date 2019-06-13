@@ -24,16 +24,16 @@ import org.apache.phoenix.schema.types.PDataType;
 /**
  * Utility methods for numbers like decimal, long, etc.
  *
- * 
  * @since 0.1
  */
 public class NumberUtil {
-    
+
     public static final String DEFAULT_NUMBER_FORMAT = "#,##0.###";
 
     /**
      * Strip all trailing zeros to ensure that no digit will be zero and
      * round using our default context to ensure precision doesn't exceed max allowed.
+     *
      * @return new {@link BigDecimal} instance
      */
     public static BigDecimal normalize(BigDecimal bigDecimal) {
@@ -45,7 +45,7 @@ public class NumberUtil {
         int scale = scaleOrNull == null ? 0 : scaleOrNull;
         // If we could not fit all the digits before decimal point into the new desired precision and
         // scale, return null and the caller method should handle the error.
-        if (((precision - scale) < (decimal.precision() - decimal.scale()))){
+        if (((precision - scale) < (decimal.precision() - decimal.scale()))) {
             return null;
         }
         if (scaleOrNull != null) {
@@ -70,7 +70,7 @@ public class NumberUtil {
 
     /**
      * @return If both are null, then return null. If one is null, return the other. Else, return
-     *         minimum of the two.
+     * minimum of the two.
      */
     public static Long getMin(Long num1, Long num2) {
         if (num1 == null) {

@@ -41,7 +41,7 @@ public class DecimalMultiplyExpression extends MultiplyExpression {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         BigDecimal result = null;
-        for (int i=0; i<children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             Expression childExpr = children.get(i);
             if (!childExpr.evaluate(tuple, ptr)) {
                 return false;
@@ -49,11 +49,11 @@ public class DecimalMultiplyExpression extends MultiplyExpression {
             if (ptr.getLength() == 0) {
                 return true;
             }
-            
+
             PDataType childType = children.get(i).getDataType();
             SortOrder childSortOrder = children.get(i).getSortOrder();
             BigDecimal bd = (BigDecimal) PDecimal.INSTANCE.toObject(ptr, childType, childSortOrder);
-            
+
             if (result == null) {
                 result = bd;
             } else {

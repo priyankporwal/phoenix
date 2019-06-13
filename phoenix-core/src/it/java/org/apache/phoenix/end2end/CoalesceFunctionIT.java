@@ -85,9 +85,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + "COALESCE(SUM(\"COUNT\"), CAST(0 AS BIGINT)) " //explicitly def long
-                + "FROM  " + tableName
-                + " GROUP BY ID");
+                        + "COALESCE(SUM(\"COUNT\"), CAST(0 AS BIGINT)) " //explicitly def long
+                        + "FROM  " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(0, rs.getLong(1));
@@ -109,9 +109,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + "COALESCE(SUM(\"COUNT\"), 0) " // no long def
-                + "FROM " + tableName
-                + " GROUP BY ID");
+                        + "COALESCE(SUM(\"COUNT\"), 0) " // no long def
+                        + "FROM " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(0, rs.getLong(1));
@@ -133,9 +133,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + "COALESCE(SUM(\"COUNT\"), SUM(ID)) " // second param as expression
-                + "FROM " + tableName
-                + " GROUP BY ID");
+                        + "COALESCE(SUM(\"COUNT\"), SUM(ID)) " // second param as expression
+                        + "FROM " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(2, rs.getLong(1));
@@ -153,14 +153,14 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
                 + "    CONSTRAINT pk PRIMARY KEY(ID))";
         conn.createStatement().execute(ddl);
 
-        conn.createStatement().execute("UPSERT INTO "  + tableName + "(ID, \"COUNT\") VALUES(2, null)");
+        conn.createStatement().execute("UPSERT INTO " + tableName + "(ID, \"COUNT\") VALUES(2, null)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + "COALESCE(NTH_VALUE(\"COUNT\", 100) WITHIN GROUP (ORDER BY \"COUNT\" DESC), 0) " //second param is int
-                + "FROM " + tableName
-                + " GROUP BY ID");
+                        + "COALESCE(NTH_VALUE(\"COUNT\", 100) WITHIN GROUP (ORDER BY \"COUNT\" DESC), 0) " //second param is int
+                        + "FROM " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(0, rs.getLong(1));
@@ -183,9 +183,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         //second param to coalesce is signed int
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + " COALESCE(NTH_VALUE(\"COUNT\", 100) WITHIN GROUP (ORDER BY \"COUNT\" DESC), 1) "
-                + " FROM " + tableName
-                + " GROUP BY ID");
+                        + " COALESCE(NTH_VALUE(\"COUNT\", 100) WITHIN GROUP (ORDER BY \"COUNT\" DESC), 1) "
+                        + " FROM " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
@@ -212,12 +212,12 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         //second param to coalesce is signed int
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + " COALESCE("
-                + "            NTH_VALUE(\"COUNT\", 2000)" // should evaluate null
-                + "            WITHIN GROUP (ORDER BY \"COUNT\" DESC),"
-                + "       0)"
-                + "FROM  " + tableName
-                + " GROUP BY ID");
+                        + " COALESCE("
+                        + "            NTH_VALUE(\"COUNT\", 2000)" // should evaluate null
+                        + "            WITHIN GROUP (ORDER BY \"COUNT\" DESC),"
+                        + "       0)"
+                        + "FROM  " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(0, rs.getLong(1));
@@ -241,9 +241,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         try {
             conn.createStatement().executeQuery(
                     "SELECT "
-                    + "COALESCE(MIN(\"COUNT\"), -1) " // invalid value for UNSIGNED_INT
-                    + "FROM " + tableName
-                    + " GROUP BY ID");
+                            + "COALESCE(MIN(\"COUNT\"), -1) " // invalid value for UNSIGNED_INT
+                            + "FROM " + tableName
+                            + " GROUP BY ID");
 
             Assert.fail("CANNOT CONVERT TYPE exception expected");
         } catch (SQLException e) {
@@ -268,9 +268,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         try {
             ResultSet rs = conn.createStatement().executeQuery(
                     "SELECT "
-                    + "COALESCE(MIN(\"COUNT\"), ID) "
-                    + "FROM " + tableName
-                    + " GROUP BY ID");
+                            + "COALESCE(MIN(\"COUNT\"), ID) "
+                            + "FROM " + tableName
+                            + " GROUP BY ID");
 
             assertTrue(rs.next());
             assertEquals(0, rs.getLong(1));
@@ -296,9 +296,9 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT "
-                + "COALESCE(MIN(\"COUNT\"), ID) "
-                + "FROM " + tableName
-                + " GROUP BY ID");
+                        + "COALESCE(MIN(\"COUNT\"), ID) "
+                        + "FROM " + tableName
+                        + " GROUP BY ID");
 
         assertTrue(rs.next());
         assertEquals(2, rs.getLong(1));
@@ -315,7 +315,7 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (2,2)");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (3,3)");
         conn.commit();
-        
+
         ResultSet rs = conn.createStatement().executeQuery("SELECT coalesce(k1, 1) ,k2 FROM " + tableName);
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
@@ -337,7 +337,7 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("CREATE TABLE " + tableName + "(k1 decimal, k2 decimal, constraint pk primary key (k1))");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (1,1)");
         conn.commit();
-        
+
         ResultSet rs = conn.createStatement().executeQuery("SELECT coalesce(null, null) FROM " + tableName);
         assertTrue(rs.next());
         rs.getInt(1);
@@ -348,10 +348,10 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testCoalesceFunction() throws Exception {
         String tenantId = getOrganizationId();
-       String tableName =
+        String tableName =
                 initATableValues(generateUniqueName(), tenantId, getDefaultSplits(tenantId),
-                    new Date(System.currentTimeMillis()), null, getUrl(), null);
-       String query = "SELECT entity_id FROM " + tableName + " WHERE coalesce(X_DECIMAL,0.0) = 0.0";
+                        new Date(System.currentTimeMillis()), null, getUrl(), null);
+        String query = "SELECT entity_id FROM " + tableName + " WHERE coalesce(X_DECIMAL,0.0) = 0.0";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " (organization_id,entity_id,x_decimal) values(?,?,?)");
@@ -377,14 +377,14 @@ public class CoalesceFunctionIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
 }

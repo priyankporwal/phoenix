@@ -35,7 +35,7 @@ public abstract class ArrayAllAnyComparisonNode extends CompoundParseNode {
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         List<ParseNode> children = getChildren();
         ParseNode rhs = children.get(0);
-        ComparisonParseNode comp = (ComparisonParseNode)children.get(1);
+        ComparisonParseNode comp = (ComparisonParseNode) children.get(1);
         ParseNode lhs = comp.getLHS();
         CompareOp op = comp.getFilterOp();
         buf.append(' ');

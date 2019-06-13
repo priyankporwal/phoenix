@@ -58,15 +58,14 @@ import com.google.common.collect.Lists;
 
 
 /**
- * 
  * Class that compiles plan to update data values after a DDL command
  * executes.
- *
+ * <p>
  * TODO: get rid of this ugly code and just go through the standard APIs.
  * The only time we may still need this is to manage updating the empty
  * key value, as we sometimes need to "go back through time" to adjust
  * this.
- * 
+ *
  * @since 0.1
  */
 public class PostDDLCompiler {
@@ -84,11 +83,11 @@ public class PostDDLCompiler {
     }
 
     public MutationPlan compile(final List<TableRef> tableRefs, final byte[] emptyCF, final List<byte[]> projectCFs, final List<PColumn> deleteList,
-            final long timestamp) throws SQLException {
+                                final long timestamp) throws SQLException {
         PhoenixStatement statement = new PhoenixStatement(connection);
         final StatementContext context = new StatementContext(
                 statement,
-            new MultipleTableRefColumnResolver(tableRefs),
+                new MultipleTableRefColumnResolver(tableRefs),
                 scan,
                 new SequenceManager(statement));
         return new PostDDLMutationPlan(context, tableRefs, timestamp, emptyCF, deleteList, projectCFs);
@@ -125,7 +124,7 @@ public class PostDDLCompiler {
 
         @Override
         public PFunction resolveFunction(String functionName)
-            throws SQLException {
+                throws SQLException {
             throw new FunctionNotFoundException(functionName);
         }
 
@@ -193,7 +192,7 @@ public class PostDDLCompiler {
                     // FIXME: DDL operations aren't transactional, so we're basing the timestamp on a server timestamp.
                     // Not sure what the fix should be. We don't need conflict detection nor filtering of invalid transactions
                     // in this case, so maybe this is ok.
-                    if (ts!= HConstants.LATEST_TIMESTAMP && tableRef.getTable().isTransactional()) {
+                    if (ts != HConstants.LATEST_TIMESTAMP && tableRef.getTable().isTransactional()) {
                         ts = TransactionUtil.convertToNanoseconds(ts);
                     }
                     ScanUtil.setTimeRange(scan, scan.getTimeRange().getMin(), ts);
@@ -251,7 +250,7 @@ public class PostDDLCompiler {
                             for (byte[] family : columnFamilies) {
                                 scan.addFamily(family);
                             }
-                            projector = new RowProjector(projector,false);
+                            projector = new RowProjector(projector, false);
                         }
                         // Ignore exceptions due to not being able to resolve any view columns,
                         // as this just means the view is invalid. Continue on and try to perform
@@ -274,7 +273,7 @@ public class PostDDLCompiler {
                             try {
                                 Tuple row = iterator.next();
                                 ImmutableBytesWritable ptr = context.getTempPtr();
-                                totalMutationCount += (Long)projector.getColumnProjector(0).getValue(row, PLong.INSTANCE, ptr);
+                                totalMutationCount += (Long) projector.getColumnProjector(0).getValue(row, PLong.INSTANCE, ptr);
                             } catch (SQLException e) {
                                 sqlE = e;
                             } finally {
@@ -311,7 +310,9 @@ public class PostDDLCompiler {
                     }
                 };
             } finally {
-                if (!wasAutoCommit) connection.setAutoCommit(wasAutoCommit);
+                if (!wasAutoCommit) {
+                    connection.setAutoCommit(wasAutoCommit);
+                }
             }
         }
 

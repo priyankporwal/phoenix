@@ -39,17 +39,17 @@ import org.mockito.Mockito;
  */
 public class OrderedResultIteratorTest {
 
-  @Test
-  public void testNullIteratorOnClose() throws SQLException {
-      ResultIterator delegate =  ResultIterator.EMPTY_ITERATOR;
-      List<OrderByExpression> orderByExpressions = Collections.singletonList(null);
-      int thresholdBytes = Integer.MAX_VALUE;
-      boolean spoolingEnabled = true;
-      OrderedResultIterator iterator =
-              new OrderedResultIterator(delegate, orderByExpressions, spoolingEnabled,
-                      thresholdBytes);
+    @Test
+    public void testNullIteratorOnClose() throws SQLException {
+        ResultIterator delegate = ResultIterator.EMPTY_ITERATOR;
+        List<OrderByExpression> orderByExpressions = Collections.singletonList(null);
+        int thresholdBytes = Integer.MAX_VALUE;
+        boolean spoolingEnabled = true;
+        OrderedResultIterator iterator =
+                new OrderedResultIterator(delegate, orderByExpressions, spoolingEnabled,
+                        thresholdBytes);
         // Should not throw an exception
-      iterator.close();
+        iterator.close();
     }
 
     @Test

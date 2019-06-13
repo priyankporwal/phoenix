@@ -66,7 +66,8 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
     protected boolean disableIndexOnFailure = false;
 
 
-    public AbstractParallelWriterIndexCommitter() {}
+    public AbstractParallelWriterIndexCommitter() {
+    }
 
     // For testing
     public AbstractParallelWriterIndexCommitter(String hbaseVersion) {
@@ -91,7 +92,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
      * <p>
      * Exposed for TESTING
      */
-    public void setup(HTableFactory factory, ExecutorService pool,Stoppable stop, RegionCoprocessorEnvironment env) {
+    public void setup(HTableFactory factory, ExecutorService pool, Stoppable stop, RegionCoprocessorEnvironment env) {
         this.retryingFactory = factory;
         this.noRetriesFactory = IndexWriterUtils.getNoRetriesHTableFactory(env);
         this.pool = new QuickFailingTaskRunner(pool);
@@ -116,14 +117,14 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
         for (Entry<HTableInterfaceReference, Collection<Mutation>> entry : entries) {
             // get the mutations for each table. We leak the implementation here a little bit to save
             // doing a complete copy over of all the index update for each table.
-            final List<Mutation> mutations = kvBuilder.cloneIfNecessary((List<Mutation>)entry.getValue());
+            final List<Mutation> mutations = kvBuilder.cloneIfNecessary((List<Mutation>) entry.getValue());
             final HTableInterfaceReference tableReference = entry.getKey();
-			if (env != null
-					&& !allowLocalUpdates
-					&& tableReference.getTableName().equals(
-							env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
-				continue;
-			}
+            if (env != null
+                    && !allowLocalUpdates
+                    && tableReference.getTableName().equals(
+                    env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
+                continue;
+            }
             /*
              * Write a batch of index updates to an index table. This operation stops (is cancelable) via two
              * mechanisms: (1) setting aborted or stopped on the IndexWriter or, (2) interrupting the running thread.
@@ -137,7 +138,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
 
                 /**
                  * Do the actual write to the primary table.
-                 * 
+                 *
                  * @return
                  */
                 @SuppressWarnings("deprecation")
@@ -155,7 +156,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
                         if (allowLocalUpdates
                                 && env != null
                                 && tableReference.getTableName().equals(
-                                    env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
+                                env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
                             try {
                                 throwFailureIfDone();
                                 IndexUtil.writeLocalUpdates(env.getRegion(), mutations, true);
@@ -172,8 +173,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
                         HTableFactory factory;
                         if (disableIndexOnFailure) {
                             factory = clientVersion < MetaDataProtocol.MIN_CLIENT_RETRY_INDEX_WRITES ? retryingFactory : noRetriesFactory;
-                        }
-                        else {
+                        } else {
                             factory = retryingFactory;
                         }
                         table = factory.getTable(tableReference.get());
@@ -187,8 +187,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
                         // reset the interrupt status on the thread
                         Thread.currentThread().interrupt();
                         throw new SingleIndexWriteFailureException(tableReference.toString(), mutations, e, PhoenixIndexFailurePolicy.getDisableIndexOnFailure(env));
-                    }
-                    finally{
+                    } finally {
                         if (table != null) {
                             table.close();
                         }
@@ -197,8 +196,10 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
                 }
 
                 private void throwFailureIfDone() throws SingleIndexWriteFailureException {
-                    if (this.isBatchFailed() || Thread.currentThread().isInterrupted()) { throw new SingleIndexWriteFailureException(
-                            "Pool closed, not attempting to write to the index!", null); }
+                    if (this.isBatchFailed() || Thread.currentThread().isInterrupted()) {
+                        throw new SingleIndexWriteFailureException(
+                                "Pool closed, not attempting to write to the index!", null);
+                    }
 
                 }
             });
@@ -221,9 +222,8 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
      * <p>
      * This method should only be called <b>once</b>. Stopped state ({@link #isStopped()}) is managed by the external
      * {@link Stoppable}. This call does not delegate the stop down to the {@link Stoppable} passed in the constructor.
-     * 
-     * @param why
-     *            the reason for stopping
+     *
+     * @param why the reason for stopping
      */
     @Override
     public void stop(String why) {

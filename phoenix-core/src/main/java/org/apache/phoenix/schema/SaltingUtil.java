@@ -40,14 +40,14 @@ public class SaltingUtil {
     public static final String SALTED_ROW_KEY_NAME = "_SALTED_KEY";
     public static final PColumnImpl SALTING_COLUMN = new PColumnImpl(
             PNameFactory.newName(SALTING_COLUMN_NAME), null, PBinary.INSTANCE, 1, 0, false, 0, SortOrder.getDefault(), 0, null, false, null, false, false, null,
-        HConstants.LATEST_TIMESTAMP);
+            HConstants.LATEST_TIMESTAMP);
     public static final RowKeySchema VAR_BINARY_SALTED_SCHEMA = new RowKeySchemaBuilder(2)
-        .addField(SALTING_COLUMN, false, SortOrder.getDefault())
-        .addField(SchemaUtil.VAR_BINARY_DATUM, false, SortOrder.getDefault()).build();
+            .addField(SALTING_COLUMN, false, SortOrder.getDefault())
+            .addField(SchemaUtil.VAR_BINARY_DATUM, false, SortOrder.getDefault()).build();
 
     public static List<KeyRange> generateAllSaltingRanges(int bucketNum) {
         List<KeyRange> allRanges = Lists.newArrayListWithExpectedSize(bucketNum);
-        for (int i=0; i<bucketNum; i++) {
+        for (int i = 0; i < bucketNum; i++) {
             byte[] saltByte = new byte[] {(byte) i};
             allRanges.add(SALTING_COLUMN.getDataType().getKeyRange(
                     saltByte, true, saltByte, true));
@@ -56,9 +56,9 @@ public class SaltingUtil {
     }
 
     public static byte[][] getSalteByteSplitPoints(int saltBucketNum) {
-        byte[][] splits = new byte[saltBucketNum-1][];
+        byte[][] splits = new byte[saltBucketNum - 1][];
         for (int i = 1; i < saltBucketNum; i++) {
-            splits[i-1] = new byte[] {(byte) i};
+            splits[i - 1] = new byte[] {(byte) i};
         }
         return splits;
     }
@@ -80,8 +80,9 @@ public class SaltingUtil {
     }
 
     private static int calculateHashCode(byte a[], int offset, int length) {
-        if (a == null)
+        if (a == null) {
             return 0;
+        }
         int result = 1;
         for (int i = offset; i < offset + length; i++) {
             result = 31 * result + a[i];
@@ -92,7 +93,7 @@ public class SaltingUtil {
     public static KeyRange addSaltByte(byte[] startKey, KeyRange minMaxRange) {
         byte saltByte = startKey.length == 0 ? 0 : startKey[0];
         byte[] lowerRange = minMaxRange.getLowerRange();
-        if(!minMaxRange.lowerUnbound()) {
+        if (!minMaxRange.lowerUnbound()) {
             byte[] newLowerRange = new byte[lowerRange.length + 1];
             newLowerRange[0] = saltByte;
             System.arraycopy(lowerRange, 0, newLowerRange, 1, lowerRange.length);
@@ -100,7 +101,7 @@ public class SaltingUtil {
         }
         byte[] upperRange = minMaxRange.getUpperRange();
 
-        if(!minMaxRange.upperUnbound()) {
+        if (!minMaxRange.upperUnbound()) {
             byte[] newUpperRange = new byte[upperRange.length + 1];
             newUpperRange[0] = saltByte;
             System.arraycopy(upperRange, 0, newUpperRange, 1, upperRange.length);
@@ -110,7 +111,9 @@ public class SaltingUtil {
     }
 
     public static void addRegionStartKeyToScanStartAndStopRows(byte[] startKey, byte[] endKey, Scan scan) {
-        if (startKey.length == 0 && endKey.length == 0) return;
+        if (startKey.length == 0 && endKey.length == 0) {
+            return;
+        }
         byte[] prefixBytes = startKey.length != 0 ? startKey : new byte[endKey.length];
         byte[] newStartRow = new byte[scan.getStartRow().length + prefixBytes.length];
         System.arraycopy(prefixBytes, 0, newStartRow, 0, prefixBytes.length);

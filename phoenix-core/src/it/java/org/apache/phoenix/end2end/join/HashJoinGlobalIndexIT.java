@@ -30,52 +30,53 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
         super(indexDDL, plans);
     }
 
-    @Parameters(name="HashJoinGlobalIndexIT_{index}") // name is used by failsafe as file name in reports
+    @Parameters(name = "HashJoinGlobalIndexIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
         testCases.add(new String[][] {
                 {
-                "CREATE INDEX \"idx_customer\" ON " + JOIN_CUSTOMER_TABLE_FULL_NAME + " (name)",
-                "CREATE INDEX \"idx_item\" ON " + JOIN_ITEM_TABLE_FULL_NAME + " (name) INCLUDE (price, discount1, discount2, \"supplier_id\", description)",
-                "CREATE INDEX \"idx_supplier\" ON " + JOIN_SUPPLIER_TABLE_FULL_NAME + " (name)"
+                        "CREATE INDEX \"idx_customer\" ON " + JOIN_CUSTOMER_TABLE_FULL_NAME + " (name)",
+                        "CREATE INDEX \"idx_item\" ON " + JOIN_ITEM_TABLE_FULL_NAME + " (name) INCLUDE (price, discount1, discount2, \"supplier_id\", description)",
+                        "CREATE INDEX \"idx_supplier\" ON " + JOIN_SUPPLIER_TABLE_FULL_NAME + " (name)"
                 }, {
                 /* 
                  * testLeftJoinWithAggregation()
                  *     SELECT i.name, sum(quantity) FROM joinOrderTable o 
                  *     LEFT JOIN joinItemTable i ON o.item_id = i.item_id 
                  *     GROUP BY i.name ORDER BY i.name
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    SERVER AGGREGATE INTO DISTINCT ROWS BY [\"I.0:NAME\"]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER AGGREGATE INTO DISTINCT ROWS BY [\"I.0:NAME\"]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /* 
                  * testLeftJoinWithAggregation()
                  *     SELECT i.item_id iid, sum(quantity) q FROM joinOrderTable o 
                  *     LEFT JOIN joinItemTable i ON o.item_id = i.item_id 
                  *     GROUP BY i.item_id ORDER BY q DESC"
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    SERVER AGGREGATE INTO DISTINCT ROWS BY [\"I.:item_id\"]\n" +
-                "CLIENT MERGE SORT\n" +
-                "CLIENT SORTED BY [SUM(O.QUANTITY) DESC]\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER AGGREGATE INTO DISTINCT ROWS BY [\"I.:item_id\"]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "CLIENT SORTED BY [SUM(O.QUANTITY) DESC]\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /* 
                  * testLeftJoinWithAggregation()
                  *     SELECT i.item_id iid, sum(quantity) q FROM joinItemTable i 
                  *     LEFT JOIN joinOrderTable o ON o.item_id = i.item_id 
                  *     GROUP BY i.item_id ORDER BY q DESC NULLS LAST, iid
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + "\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY [\"I.item_id\"]\n" +
-                "CLIENT SORTED BY [SUM(O.QUANTITY) DESC NULLS LAST, \"I.item_id\"]\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME,
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY [\"I.item_id\"]\n" +
+                        "CLIENT SORTED BY [SUM(O.QUANTITY) DESC NULLS LAST, \"I.item_id\"]\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME,
                 /* 
                  * testRightJoinWithAggregation()
                  *     SELECT i.name, sum(quantity) FROM joinOrderTable o 
@@ -83,10 +84,10 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     GROUP BY i.name ORDER BY i.name
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY [\"I.0:NAME\"]\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME,
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY [\"I.0:NAME\"]\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME,
                 /*
                  * testRightJoinWithAggregation()
                  *     SELECT i.item_id iid, sum(quantity) q FROM joinOrderTable o 
@@ -94,11 +95,11 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     GROUP BY i.item_id ORDER BY q DESC NULLS LAST, iid
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + "\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY [\"I.item_id\"]\n" +
-                "CLIENT SORTED BY [SUM(O.QUANTITY) DESC NULLS LAST, \"I.item_id\"]\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME,
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY [\"I.item_id\"]\n" +
+                        "CLIENT SORTED BY [SUM(O.QUANTITY) DESC NULLS LAST, \"I.item_id\"]\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME,
                 /*
                  * testJoinWithWildcard()
                  *     SELECT * FROM joinItemTable LEFT JOIN joinSupplierTable supp 
@@ -106,8 +107,8 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY item_id
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + "\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME,
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME,
                 /*
                  * testJoinPlanWithIndex()
                  *     SELECT item.item_id, item.name, supp.supplier_id, supp.name 
@@ -117,10 +118,10 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     WHERE item.name BETWEEN 'T1' AND 'T5'
                  */
                 "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_SCHEMA + ".idx_item ['T1'] - ['T5']\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_SCHEMA + ".idx_supplier ['S1'] - ['S5']\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_SCHEMA + ".idx_supplier ['S1'] - ['S5']\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /*
                  * testJoinPlanWithIndex()
                  *     SELECT item.item_id, item.name, supp.supplier_id, supp.name 
@@ -130,9 +131,9 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *         AND (supp.name = 'S1' OR supp.name = 'S5')
                  */
                 "CLIENT PARALLEL 1-WAY SKIP SCAN ON 2 KEYS OVER " + JOIN_SCHEMA + ".idx_item ['T1'] - ['T5']\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY SKIP SCAN ON 2 KEYS OVER " + JOIN_SCHEMA + ".idx_supplier ['S1'] - ['S5']\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY SKIP SCAN ON 2 KEYS OVER " + JOIN_SCHEMA + ".idx_supplier ['S1'] - ['S5']\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /*
                  * testJoinWithSkipMergeOptimization()
                  *     SELECT s.name FROM joinItemTable i 
@@ -140,12 +141,12 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     JOIN joinSupplierTable s ON i.supplier_id = s.supplier_id
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "    PARALLEL INNER-JOIN TABLE 0 (SKIP MERGE)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            SERVER FILTER BY QUANTITY < 5000\n" +
-                "    PARALLEL INNER-JOIN TABLE 1\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_supplier\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    PARALLEL INNER-JOIN TABLE 0 (SKIP MERGE)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            SERVER FILTER BY QUANTITY < 5000\n" +
+                        "    PARALLEL INNER-JOIN TABLE 1\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_supplier\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /*
                  * testSelfJoin()
                  *     SELECT i2.item_id, i1.name FROM joinItemTable i1 
@@ -153,10 +154,10 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY i1.item_id
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + "\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    DYNAMIC SERVER FILTER BY \"I1.item_id\" IN (\"I2.:item_id\")",
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    DYNAMIC SERVER FILTER BY \"I1.item_id\" IN (\"I2.:item_id\")",
                 /*
                  * testSelfJoin()
                  *     SELECT i1.name, i2.name FROM joinItemTable i1 
@@ -164,11 +165,11 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY i1.name, i2.name
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER SORTED BY [\"I1.0:NAME\", \"I2.0:NAME\"]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item",
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER SORTED BY [\"I1.0:NAME\", \"I2.0:NAME\"]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item",
                 /*
                  * testStarJoin()
                  *     SELECT order_id, c.name, i.name iname, quantity, o.date 
@@ -178,12 +179,12 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY order_id
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_customer\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY\n" + 
-                "    PARALLEL INNER-JOIN TABLE 1\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_customer\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    PARALLEL INNER-JOIN TABLE 1\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /*
                  * testStarJoin()
                  *     SELECT (*NO_STAR_JOIN*) order_id, c.name, i.name iname, quantity, o.date 
@@ -193,14 +194,14 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY order_id
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER SORTED BY [\"O.order_id\"]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            PARALLEL INNER-JOIN TABLE 0\n" +
-                "                CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_customer\n" +
-                "                    SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER SORTED BY [\"O.order_id\"]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            PARALLEL INNER-JOIN TABLE 0\n" +
+                        "                CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_customer\n" +
+                        "                    SERVER FILTER BY FIRST KEY ONLY",
                 /*
                  * testSubJoin()
                  *     SELECT * FROM joinCustomerTable c 
@@ -215,30 +216,30 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY c.customer_id, i.name
                  */
                 "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_CUSTOMER_TABLE_FULL_NAME + " [*] - ['0000000005']\n" +
-                "    SERVER SORTED BY [\"C.customer_id\", \"I.0:NAME\"]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            SERVER FILTER BY \"order_id\" != '000000000000003'\n" +
-                "            PARALLEL INNER-JOIN TABLE 0\n" +
-                "                CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "                    SERVER FILTER BY \"NAME\" != 'T3'\n" +
-                "                    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "                        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + "\n" +
-                "    DYNAMIC SERVER FILTER BY \"C.customer_id\" IN (\"O.customer_id\")",
+                        "    SERVER SORTED BY [\"C.customer_id\", \"I.0:NAME\"]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            SERVER FILTER BY \"order_id\" != '000000000000003'\n" +
+                        "            PARALLEL INNER-JOIN TABLE 0\n" +
+                        "                CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "                    SERVER FILTER BY \"NAME\" != 'T3'\n" +
+                        "                    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "                        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + "\n" +
+                        "    DYNAMIC SERVER FILTER BY \"C.customer_id\" IN (\"O.customer_id\")",
                 /* 
                  * testJoinWithSubqueryAndAggregation()
                  *     SELECT i.name, sum(quantity) FROM joinOrderTable o 
                  *     LEFT JOIN (SELECT name, item_id iid FROM joinItemTable) AS i 
                  *     ON o.item_id = i.iid 
                  *     GROUP BY i.name ORDER BY i.name
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    SERVER AGGREGATE INTO DISTINCT ROWS BY [I.NAME]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER AGGREGATE INTO DISTINCT ROWS BY [I.NAME]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /* 
                  * testJoinWithSubqueryAndAggregation()
                  *     SELECT o.iid, sum(o.quantity) q 
@@ -246,14 +247,14 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     LEFT JOIN (SELECT item_id FROM joinItemTable) AS i 
                  *     ON o.iid = i.item_id 
                  *     GROUP BY o.iid ORDER BY q DESC                 
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    SERVER AGGREGATE INTO DISTINCT ROWS BY [O.IID]\n" +
-                "CLIENT MERGE SORT\n" +
-                "CLIENT SORTED BY [SUM(O.QUANTITY) DESC]\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0 (SKIP MERGE)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "            SERVER FILTER BY FIRST KEY ONLY",
+                        "    SERVER AGGREGATE INTO DISTINCT ROWS BY [O.IID]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "CLIENT SORTED BY [SUM(O.QUANTITY) DESC]\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0 (SKIP MERGE)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "            SERVER FILTER BY FIRST KEY ONLY",
                 /* 
                  * testJoinWithSubqueryAndAggregation()
                  *     SELECT i.iid, o.q 
@@ -261,15 +262,15 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     LEFT JOIN (SELECT item_id iid, sum(quantity) q FROM joinOrderTable GROUP BY item_id) AS o 
                  *     ON o.iid = i.iid 
                  *     ORDER BY o.q DESC NULLS LAST, i.iid
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER SORTED BY [O.Q DESC NULLS LAST, I.IID]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            SERVER AGGREGATE INTO DISTINCT ROWS BY [\"item_id\"]\n" +
-                "        CLIENT MERGE SORT",
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER SORTED BY [O.Q DESC NULLS LAST, I.IID]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            SERVER AGGREGATE INTO DISTINCT ROWS BY [\"item_id\"]\n" +
+                        "        CLIENT MERGE SORT",
                 /* 
                  * testJoinWithSubqueryAndAggregation()
                  *     SELECT i.iid, o.q 
@@ -277,15 +278,15 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     JOIN (SELECT item_id iid FROM joinItemTable) AS i 
                  *     ON o.iid = i.iid 
                  *     ORDER BY o.q DESC, i.iid
-                 */     
+                 */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "    SERVER SORTED BY [O.Q DESC, I.IID]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            SERVER AGGREGATE INTO DISTINCT ROWS BY [\"item_id\"]\n" +
-                "        CLIENT MERGE SORT",
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER SORTED BY [O.Q DESC, I.IID]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            SERVER AGGREGATE INTO DISTINCT ROWS BY [\"item_id\"]\n" +
+                        "        CLIENT MERGE SORT",
                 /*
                  * testNestedSubqueries()
                  *     SELECT * FROM (SELECT customer_id cid, name, phone, address, loc_id, date FROM joinCustomerTable) AS c 
@@ -306,16 +307,16 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     ORDER BY c.cid, qo.iname
                  */
                 "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_CUSTOMER_TABLE_FULL_NAME + " [*] - ['0000000005']\n" +
-                "    SERVER SORTED BY [C.CID, QO.INAME]\n" +
-                "CLIENT MERGE SORT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            SERVER FILTER BY \"order_id\" != '000000000000003'\n" +
-                "            PARALLEL INNER-JOIN TABLE 0\n" +
-                "                CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
-                "                    SERVER FILTER BY \"NAME\" != 'T3'\n" +
-                "                    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "                        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME,
+                        "    SERVER SORTED BY [C.CID, QO.INAME]\n" +
+                        "CLIENT MERGE SORT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            SERVER FILTER BY \"order_id\" != '000000000000003'\n" +
+                        "            PARALLEL INNER-JOIN TABLE 0\n" +
+                        "                CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "                    SERVER FILTER BY \"NAME\" != 'T3'\n" +
+                        "                    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "                        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME,
                 /*
                  * testJoinWithLimit()
                  *     SELECT order_id, i.name, s.name, s.address, quantity 
@@ -324,13 +325,13 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     LEFT JOIN joinOrderTable o ON o.item_id = i.item_id LIMIT 4
                  */
                 "CLIENT SERIAL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + "\n" +
-                "    SERVER 4 ROW LIMIT\n" +
-                "CLIENT 4 ROW LIMIT\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_SCHEMA + ".idx_item\n" +
-                "    PARALLEL LEFT-JOIN TABLE 1(DELAYED EVALUATION)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    JOIN-SCANNER 4 ROW LIMIT",
+                        "    SERVER 4 ROW LIMIT\n" +
+                        "CLIENT 4 ROW LIMIT\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 1(DELAYED EVALUATION)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "    JOIN-SCANNER 4 ROW LIMIT",
                 /*
                  * testJoinWithLimit()
                  *     SELECT order_id, i.name, s.name, s.address, quantity 
@@ -339,13 +340,13 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     JOIN joinOrderTable o ON o.item_id = i.item_id LIMIT 4
                  */
                 "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + "\n" +
-                "CLIENT 4 ROW LIMIT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_SCHEMA + ".idx_item\n" +
-                "    PARALLEL INNER-JOIN TABLE 1(DELAYED EVALUATION)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    DYNAMIC SERVER FILTER BY \"S.supplier_id\" IN (\"I.0:supplier_id\")\n" +
-                "    JOIN-SCANNER 4 ROW LIMIT",
+                        "CLIENT 4 ROW LIMIT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "    PARALLEL INNER-JOIN TABLE 1(DELAYED EVALUATION)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "    DYNAMIC SERVER FILTER BY \"S.supplier_id\" IN (\"I.0:supplier_id\")\n" +
+                        "    JOIN-SCANNER 4 ROW LIMIT",
                 /*
                  * testJoinWithSetMaxRows()
                  *     statement.setMaxRows(4);
@@ -355,12 +356,12 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     JOIN (SELECT order_id, item_id, quantity FROM joinOrderTable) o
                  *     ON o.item_id = i.item_id;
                  */
-                "CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_SCHEMA + ".idx_item\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "CLIENT 4 ROW LIMIT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    JOIN-SCANNER 4 ROW LIMIT",
+                "CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "CLIENT 4 ROW LIMIT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "    JOIN-SCANNER 4 ROW LIMIT",
                 /*
                  * testJoinWithLimit()
                  *     SELECT order_id, i.name, s.name, s.address, quantity 
@@ -369,14 +370,14 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     LEFT JOIN joinOrderTable o ON o.item_id = i.item_id LIMIT 1 OFFSET 2
                  */
                 "CLIENT SERIAL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + "\n" +
-                "    SERVER OFFSET 2\n" +
-                "    SERVER 3 ROW LIMIT\n" +
-                "CLIENT 1 ROW LIMIT\n" +
-                "    PARALLEL LEFT-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_SCHEMA + ".idx_item\n" +
-                "    PARALLEL LEFT-JOIN TABLE 1(DELAYED EVALUATION)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    JOIN-SCANNER 3 ROW LIMIT",
+                        "    SERVER OFFSET 2\n" +
+                        "    SERVER 3 ROW LIMIT\n" +
+                        "CLIENT 1 ROW LIMIT\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "    PARALLEL LEFT-JOIN TABLE 1(DELAYED EVALUATION)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "    JOIN-SCANNER 3 ROW LIMIT",
                 /*
                  * testJoinWithLimit()
                  *     SELECT order_id, i.name, s.name, s.address, quantity 
@@ -385,15 +386,15 @@ public class HashJoinGlobalIndexIT extends HashJoinIT {
                  *     JOIN joinOrderTable o ON o.item_id = i.item_id LIMIT 1 OFFSET 2
                  */
                 "CLIENT SERIAL 1-WAY FULL SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + "\n" +
-                "    SERVER OFFSET 2\n" +
-                "CLIENT 1 ROW LIMIT\n" +
-                "    PARALLEL INNER-JOIN TABLE 0\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_SCHEMA + ".idx_item\n" +
-                "    PARALLEL INNER-JOIN TABLE 1(DELAYED EVALUATION)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER "+ JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "    DYNAMIC SERVER FILTER BY \"S.supplier_id\" IN (\"I.0:supplier_id\")\n" +
-                "    JOIN-SCANNER 3 ROW LIMIT",
-                }});
+                        "    SERVER OFFSET 2\n" +
+                        "CLIENT 1 ROW LIMIT\n" +
+                        "    PARALLEL INNER-JOIN TABLE 0\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_SCHEMA + ".idx_item\n" +
+                        "    PARALLEL INNER-JOIN TABLE 1(DELAYED EVALUATION)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "    DYNAMIC SERVER FILTER BY \"S.supplier_id\" IN (\"I.0:supplier_id\")\n" +
+                        "    JOIN-SCANNER 3 ROW LIMIT",
+        }});
         return testCases;
     }
 }

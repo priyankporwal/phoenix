@@ -34,7 +34,7 @@ import org.apache.phoenix.schema.tuple.ResultTuple;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
- * Mock result iterator that returns its id as a string in a {@code Tuple} when {@link #next()} and {@link #peek()} are called. 
+ * Mock result iterator that returns its id as a string in a {@code Tuple} when {@link #next()} and {@link #peek()} are called.
  */
 public class MockResultIterator implements PeekingResultIterator {
 
@@ -53,10 +53,12 @@ public class MockResultIterator implements PeekingResultIterator {
     }
 
     @Override
-    public void explain(List<String> planSteps) {}
+    public void explain(List<String> planSteps) {
+    }
 
     @Override
-    public void close() throws SQLException {}
+    public void close() throws SQLException {
+    }
 
     @Override
     public Tuple peek() throws SQLException {

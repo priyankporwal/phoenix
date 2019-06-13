@@ -32,19 +32,17 @@ import com.google.common.collect.ListMultimap;
 
 
 /**
- * 
  * Class that manages a set of projected columns accessed through the zero-based
  * column index for a SELECT clause projection. The column index may be looked up
  * via the name using {@link #getColumnIndex(String)}.
  *
- * 
  * @since 0.1
  */
 public class RowProjector {
-    public static final RowProjector EMPTY_PROJECTOR = new RowProjector(Collections.<ColumnProjector>emptyList(),0, true);
+    public static final RowProjector EMPTY_PROJECTOR = new RowProjector(Collections.<ColumnProjector>emptyList(), 0, true);
 
     private final List<? extends ColumnProjector> columnProjectors;
-    private final ListMultimap<String,Integer> reverseIndex;
+    private final ListMultimap<String, Integer> reverseIndex;
     private final boolean allCaseSensitive;
     private final boolean someCaseSensitive;
     private final int estimatedSize;
@@ -59,22 +57,26 @@ public class RowProjector {
                 isProjectEmptyKeyValue, projector.hasUDFs, projector.isProjectAll,
                 projector.isProjectDynColsInWildcardQueries);
     }
+
     /**
      * Construct RowProjector based on a list of ColumnProjectors.
-     * @param columnProjectors ordered list of ColumnProjectors corresponding to projected columns in SELECT clause
-     * aggregating coprocessor. Only required in the case of an aggregate query with a limit clause and otherwise may
-     * be null.
-     * @param estimatedRowSize 
+     *
+     * @param columnProjectors       ordered list of ColumnProjectors corresponding to projected columns in SELECT clause
+     *                               aggregating coprocessor. Only required in the case of an aggregate query with a limit clause and otherwise may
+     *                               be null.
+     * @param estimatedRowSize
      * @param isProjectEmptyKeyValue
      */
     public RowProjector(List<? extends ColumnProjector> columnProjectors, int estimatedRowSize, boolean isProjectEmptyKeyValue) {
         this(columnProjectors, estimatedRowSize, isProjectEmptyKeyValue, false, false, false);
     }
+
     /**
      * Construct RowProjector based on a list of ColumnProjectors.
-     * @param columnProjectors ordered list of ColumnProjectors corresponding to projected columns in SELECT clause
-     * aggregating coprocessor. Only required in the case of an aggregate query with a limit clause and otherwise may
-     * be null.
+     *
+     * @param columnProjectors                  ordered list of ColumnProjectors corresponding to projected columns in SELECT clause
+     *                                          aggregating coprocessor. Only required in the case of an aggregate query with a limit clause and otherwise may
+     *                                          be null.
      * @param estimatedRowSize
      * @param isProjectEmptyKeyValue
      * @param hasUDFs
@@ -82,8 +84,8 @@ public class RowProjector {
      * @param isProjectDynColsInWildcardQueries
      */
     public RowProjector(List<? extends ColumnProjector> columnProjectors, int estimatedRowSize,
-            boolean isProjectEmptyKeyValue, boolean hasUDFs, boolean isProjectAll,
-            boolean isProjectDynColsInWildcardQueries) {
+                        boolean isProjectEmptyKeyValue, boolean hasUDFs, boolean isProjectAll,
+                        boolean isProjectDynColsInWildcardQueries) {
         this.columnProjectors = Collections.unmodifiableList(columnProjectors);
         int position = columnProjectors.size();
         reverseIndex = ArrayListMultimap.<String, Integer>create();
@@ -130,14 +132,14 @@ public class RowProjector {
                 CloneExpressionVisitor visitor = new CloneExpressionVisitor();
                 Expression clonedExpression = expression.accept(visitor);
                 clonedColProjectors.add(new ExpressionProjector(colProjector.getName(),
-                        colProjector.getTableName(), 
+                        colProjector.getTableName(),
                         clonedExpression,
                         colProjector.isCaseSensitive()));
             } else {
                 clonedColProjectors.add(colProjector);
             }
         }
-        return new RowProjector(clonedColProjectors, 
+        return new RowProjector(clonedColProjectors,
                 this.estimatedSize, this.isProjectEmptyKeyValue, this.hasUDFs, this.isProjectAll,
                 this.isProjectDynColsInWildcardQueries);
     }
@@ -145,7 +147,7 @@ public class RowProjector {
     public boolean projectEveryRow() {
         return isProjectEmptyKeyValue;
     }
-    
+
     public boolean projectEverything() {
         return isProjectAll;
     }
@@ -157,11 +159,11 @@ public class RowProjector {
     public boolean projectDynColsInWildcardQueries() {
         return isProjectDynColsInWildcardQueries;
     }
-    
+
     public List<? extends ColumnProjector> getColumnProjectors() {
         return columnProjectors;
     }
-    
+
     public int getColumnIndex(String name) throws SQLException {
         if (!someCaseSensitive) {
             name = SchemaUtil.normalizeIdentifier(name);
@@ -176,18 +178,18 @@ public class RowProjector {
                 throw new ColumnNotFoundException(name);
             }
         }
-        
+
         return index.get(0);
     }
-    
+
     public ColumnProjector getColumnProjector(int index) {
         return columnProjectors.get(index);
     }
- 
+
     public int getColumnCount() {
         return columnProjectors.size();
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder("[");
@@ -196,7 +198,7 @@ public class RowProjector {
             buf.append(',');
         }
         if (buf.length() > 1) {
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         buf.append(']');
         return buf.toString();

@@ -40,10 +40,10 @@ public class AggregateFunctionWithinGroupParseNode extends AggregateFunctionPars
                 child.toSQL(resolver, buf);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         buf.append(')');
-        
+
         buf.append(" WITHIN GROUP (ORDER BY ");
         children.get(0).toSQL(resolver, buf);
         buf.append(" " + (LiteralParseNode.TRUE.equals(children.get(1)) ? "ASC" : "DESC"));

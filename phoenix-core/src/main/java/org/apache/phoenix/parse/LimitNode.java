@@ -21,21 +21,21 @@ package org.apache.phoenix.parse;
 public class LimitNode {
     private final BindParseNode bindNode;
     private final LiteralParseNode limitNode;
-    
+
     LimitNode(BindParseNode bindNode) {
         this.bindNode = bindNode;
         limitNode = null;
     }
-    
+
     LimitNode(LiteralParseNode limitNode) {
         this.limitNode = limitNode;
         this.bindNode = null;
     }
-    
+
     public ParseNode getLimitParseNode() {
         return bindNode == null ? limitNode : bindNode;
     }
-    
+
     @Override
     public String toString() {
         return bindNode == null ? limitNode.toString() : bindNode.toString();
@@ -52,16 +52,30 @@ public class LimitNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        LimitNode other = (LimitNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        LimitNode other = (LimitNode) obj;
         if (bindNode == null) {
-            if (other.bindNode != null) return false;
-        } else if (!bindNode.equals(other.bindNode)) return false;
+            if (other.bindNode != null) {
+                return false;
+            }
+        } else if (!bindNode.equals(other.bindNode)) {
+            return false;
+        }
         if (limitNode == null) {
-            if (other.limitNode != null) return false;
-        } else if (!limitNode.equals(other.limitNode)) return false;
+            if (other.limitNode != null) {
+                return false;
+            }
+        } else if (!limitNode.equals(other.limitNode)) {
+            return false;
+        }
         return true;
     }
 }

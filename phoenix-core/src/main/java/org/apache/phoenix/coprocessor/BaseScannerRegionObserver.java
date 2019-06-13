@@ -67,11 +67,11 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
     public static final String GROUP_BY_LIMIT = "_GroupByLimit";
     public static final String LOCAL_INDEX = "_LocalIndex";
     public static final String LOCAL_INDEX_BUILD = "_LocalIndexBuild";
-    /* 
-    * Attribute to denote that the index maintainer has been serialized using its proto-buf presentation.
-    * Needed for backward compatibility purposes. TODO: get rid of this in next major release.
-    */
-    public static final String LOCAL_INDEX_BUILD_PROTO = "_LocalIndexBuild"; 
+    /*
+     * Attribute to denote that the index maintainer has been serialized using its proto-buf presentation.
+     * Needed for backward compatibility purposes. TODO: get rid of this in next major release.
+     */
+    public static final String LOCAL_INDEX_BUILD_PROTO = "_LocalIndexBuild";
     public static final String LOCAL_INDEX_JOIN_SCHEMA = "_LocalIndexJoinSchema";
     public static final String DATA_TABLE_COLUMNS_TO_JOIN = "_DataTableColumnsToJoin";
     public static final String COLUMNS_STORED_IN_SINGLE_CELL = "_ColumnsStoredInSingleCell";
@@ -105,42 +105,48 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
     public static final String EMPTY_COLUMN_FAMILY_NAME = "_EmptyCFName";
     public static final String EMPTY_COLUMN_QUALIFIER_NAME = "_EmptyCQName";
     public static final String SCAN_LIMIT = "_ScanLimit";
-    
+
     public final static byte[] REPLAY_TABLE_AND_INDEX_WRITES = PUnsignedTinyint.INSTANCE.toBytes(1);
     public final static byte[] REPLAY_ONLY_INDEX_WRITES = PUnsignedTinyint.INSTANCE.toBytes(2);
     // In case of Index Write failure, we need to determine that Index mutation
     // is part of normal client write or Index Rebuilder. # PHOENIX-5080
     public final static byte[] REPLAY_INDEX_REBUILD_WRITES = PUnsignedTinyint.INSTANCE.toBytes(3);
-    
-    public enum ReplayWrite {
+
+    public enum ReplayWrite
+
+    {
         TABLE_AND_INDEX,
-        INDEX_ONLY,
-        REBUILD_INDEX_ONLY;
-        
-        public static ReplayWrite fromBytes(byte[] replayWriteBytes) {
-            if (replayWriteBytes == null) {
-                return null;
-            }
-            if (Bytes.compareTo(REPLAY_TABLE_AND_INDEX_WRITES, replayWriteBytes) == 0) {
-                return TABLE_AND_INDEX;
-            }
-            if (Bytes.compareTo(REPLAY_ONLY_INDEX_WRITES, replayWriteBytes) == 0) {
-                return INDEX_ONLY;
-            }
-            if (Bytes.compareTo(REPLAY_INDEX_REBUILD_WRITES, replayWriteBytes) == 0) {
-                return REBUILD_INDEX_ONLY;
-            }
-            throw new IllegalArgumentException("Unknown ReplayWrite code of " + Bytes.toStringBinary(replayWriteBytes));
+                INDEX_ONLY,
+                REBUILD_INDEX_ONLY;
+
+        public static ReplayWrite fromBytes ( byte[] replayWriteBytes){
+        if (replayWriteBytes == null) {
+            return null;
         }
-    };
-    
+        if (Bytes.compareTo(REPLAY_TABLE_AND_INDEX_WRITES, replayWriteBytes) == 0) {
+            return TABLE_AND_INDEX;
+        }
+        if (Bytes.compareTo(REPLAY_ONLY_INDEX_WRITES, replayWriteBytes) == 0) {
+            return INDEX_ONLY;
+        }
+        if (Bytes.compareTo(REPLAY_INDEX_REBUILD_WRITES, replayWriteBytes) == 0) {
+            return REBUILD_INDEX_ONLY;
+        }
+        throw new IllegalArgumentException("Unknown ReplayWrite code of " + Bytes.toStringBinary(replayWriteBytes));
+    }
+    }
+
+    ;
+
     /**
      * Attribute name used to pass custom annotations in Scans and Mutations (later). Custom annotations
      * are used to augment log lines emitted by Phoenix. See https://issues.apache.org/jira/browse/PHOENIX-1198.
      */
     public static final String CUSTOM_ANNOTATIONS = "_Annot";
 
-    /** Exposed for testing */
+    /**
+     * Exposed for testing
+     */
     public static final String SCANNER_OPENED_TRACE_INFO = "Scanner opened on server";
 
     /**
@@ -167,19 +173,20 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
                     Bytes.compareTo(upperExclusiveRegionKey, expectedUpperRegionKey) != 0;
         } else {
             isStaleRegionBoundaries = Bytes.compareTo(lowerInclusiveScanKey, lowerInclusiveRegionKey) < 0 ||
-                    ( Bytes.compareTo(upperExclusiveScanKey, upperExclusiveRegionKey) > 0 && upperExclusiveRegionKey.length != 0) ||
+                    (Bytes.compareTo(upperExclusiveScanKey, upperExclusiveRegionKey) > 0 && upperExclusiveRegionKey.length != 0) ||
                     (upperExclusiveRegionKey.length != 0 && upperExclusiveScanKey.length == 0);
         }
         if (isStaleRegionBoundaries) {
             Exception cause = new StaleRegionBoundaryCacheException(region.getRegionInfo().getTable().getNameAsString());
             throw new DoNotRetryIOException(cause.getMessage(), cause);
         }
-        if(isLocalIndex) {
+        if (isLocalIndex) {
             ScanUtil.setupLocalIndexScan(scan);
         }
     }
 
     abstract protected boolean isRegionObserverFor(Scan scan);
+
     abstract protected RegionScanner doPostScannerOpen(ObserverContext<RegionCoprocessorEnvironment> c, final Scan scan, final RegionScanner s) throws Throwable;
 
     protected boolean skipRegionBoundaryCheck(Scan scan) {
@@ -189,9 +196,9 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
 
     @Override
     public void preScannerOpen(org.apache.hadoop.hbase.coprocessor.ObserverContext<RegionCoprocessorEnvironment> c,
-            Scan scan) throws IOException {
+                               Scan scan) throws IOException {
         byte[] txnScn = scan.getAttribute(TX_SCN);
-        if (txnScn!=null) {
+        if (txnScn != null) {
             TimeRange timeRange = scan.getTimeRange();
             scan.setTimeRange(timeRange.getMin(), Bytes.toLong(txnScn));
         }
@@ -210,103 +217,102 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
     }
 
     private class RegionScannerHolder extends DelegateRegionScanner {
-            private final Scan scan;
-            private final ObserverContext<RegionCoprocessorEnvironment> c;
-            private boolean wasOverriden;
-            
-            public RegionScannerHolder(ObserverContext<RegionCoprocessorEnvironment> c, Scan scan, final RegionScanner scanner) {
-                super(scanner);
-                this.c = c;
-                this.scan = scan;
+        private final Scan scan;
+        private final ObserverContext<RegionCoprocessorEnvironment> c;
+        private boolean wasOverriden;
+
+        public RegionScannerHolder(ObserverContext<RegionCoprocessorEnvironment> c, Scan scan, final RegionScanner scanner) {
+            super(scanner);
+            this.c = c;
+            this.scan = scan;
+        }
+
+        private void overrideDelegate() throws IOException {
+            if (wasOverriden) {
+                return;
             }
-    
-            private void overrideDelegate() throws IOException {
-                if (wasOverriden) {
-                    return;
-                }
-                boolean success = false;
-                // Save the current span. When done with the child span, reset the span back to
-                // what it was. Otherwise, this causes the thread local storing the current span
-                // to not be reset back to null causing catastrophic infinite loops
-                // and region servers to crash. See https://issues.apache.org/jira/browse/PHOENIX-1596
-                // TraceScope can't be used here because closing the scope will end up calling
-                // currentSpan.stop() and that should happen only when we are closing the scanner.
-                final Span savedSpan = Trace.currentSpan();
-                final Span child = Trace.startSpan(SCANNER_OPENED_TRACE_INFO, savedSpan).getSpan();
-                try {
-                    RegionScanner scanner = doPostScannerOpen(c, scan, delegate);
-                    scanner = new DelegateRegionScanner(scanner) {
-                        // This isn't very obvious but close() could be called in a thread
-                        // that is different from the thread that created the scanner.
-                        @Override
-                        public void close() throws IOException {
-                            try {
-                                delegate.close();
-                            } finally {
-                                if (child != null) {
-                                    child.stop();
-                                }
+            boolean success = false;
+            // Save the current span. When done with the child span, reset the span back to
+            // what it was. Otherwise, this causes the thread local storing the current span
+            // to not be reset back to null causing catastrophic infinite loops
+            // and region servers to crash. See https://issues.apache.org/jira/browse/PHOENIX-1596
+            // TraceScope can't be used here because closing the scope will end up calling
+            // currentSpan.stop() and that should happen only when we are closing the scanner.
+            final Span savedSpan = Trace.currentSpan();
+            final Span child = Trace.startSpan(SCANNER_OPENED_TRACE_INFO, savedSpan).getSpan();
+            try {
+                RegionScanner scanner = doPostScannerOpen(c, scan, delegate);
+                scanner = new DelegateRegionScanner(scanner) {
+                    // This isn't very obvious but close() could be called in a thread
+                    // that is different from the thread that created the scanner.
+                    @Override
+                    public void close() throws IOException {
+                        try {
+                            delegate.close();
+                        } finally {
+                            if (child != null) {
+                                child.stop();
                             }
                         }
-                    };
-                    this.delegate = scanner;
-                    wasOverriden = true;
-                    success = true;
-                } catch (Throwable t) {
-                    ServerUtil.throwIOException(c.getEnvironment().getRegionInfo().getRegionNameAsString(), t);
-                } finally {
-                    try {
-                        if (!success && child != null) {
-                            child.stop();
-                        }
-                    } finally {
-                        Trace.continueSpan(savedSpan);
                     }
+                };
+                this.delegate = scanner;
+                wasOverriden = true;
+                success = true;
+            } catch (Throwable t) {
+                ServerUtil.throwIOException(c.getEnvironment().getRegionInfo().getRegionNameAsString(), t);
+            } finally {
+                try {
+                    if (!success && child != null) {
+                        child.stop();
+                    }
+                } finally {
+                    Trace.continueSpan(savedSpan);
                 }
             }
-            
-            @Override
-            public boolean next(List<Cell> result, ScannerContext scannerContext) throws IOException {
-                overrideDelegate();
-                boolean res = super.next(result);
-                ScannerContextUtil.incrementSizeProgress(scannerContext, result);
-                ScannerContextUtil.updateTimeProgress(scannerContext);
-                return res;
-            }
-
-            @Override
-            public boolean next(List<Cell> result) throws IOException {
-                overrideDelegate();
-                return super.next(result);
-            }
-
-            @Override
-            public boolean nextRaw(List<Cell> result, ScannerContext scannerContext) throws IOException {
-                overrideDelegate();
-                boolean res = super.nextRaw(result);
-                ScannerContextUtil.incrementSizeProgress(scannerContext, result);
-                ScannerContextUtil.updateTimeProgress(scannerContext);
-                return res;
-            }
-            
-            @Override
-            public boolean nextRaw(List<Cell> result) throws IOException {
-                overrideDelegate();
-                return super.nextRaw(result);
-            }
         }
-        
 
-        /**
+        @Override
+        public boolean next(List<Cell> result, ScannerContext scannerContext) throws IOException {
+            overrideDelegate();
+            boolean res = super.next(result);
+            ScannerContextUtil.incrementSizeProgress(scannerContext, result);
+            ScannerContextUtil.updateTimeProgress(scannerContext);
+            return res;
+        }
+
+        @Override
+        public boolean next(List<Cell> result) throws IOException {
+            overrideDelegate();
+            return super.next(result);
+        }
+
+        @Override
+        public boolean nextRaw(List<Cell> result, ScannerContext scannerContext) throws IOException {
+            overrideDelegate();
+            boolean res = super.nextRaw(result);
+            ScannerContextUtil.incrementSizeProgress(scannerContext, result);
+            ScannerContextUtil.updateTimeProgress(scannerContext);
+            return res;
+        }
+
+        @Override
+        public boolean nextRaw(List<Cell> result) throws IOException {
+            overrideDelegate();
+            return super.nextRaw(result);
+        }
+    }
+
+
+    /**
      * Wrapper for {@link #postScannerOpen(ObserverContext, Scan, RegionScanner)} that ensures no non IOException is thrown,
      * to prevent the coprocessor from becoming blacklisted.
-     *
      */
     @Override
     public final RegionScanner postScannerOpen(
             final ObserverContext<RegionCoprocessorEnvironment> c, final Scan scan,
             final RegionScanner s) throws IOException {
-       try {
+        try {
             if (!isRegionObserverFor(scan)) {
                 return s;
             }
@@ -315,7 +321,7 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
             // If the exception is NotServingRegionException then throw it as
             // StaleRegionBoundaryCacheException to handle it by phoenix client other wise hbase
             // client may recreate scans with wrong region boundaries.
-            if(t instanceof NotServingRegionException) {
+            if (t instanceof NotServingRegionException) {
                 Exception cause = new StaleRegionBoundaryCacheException(c.getEnvironment().getRegion().getRegionInfo().getTable().getNameAsString());
                 throw new DoNotRetryIOException(cause.getMessage(), cause);
             }
@@ -329,7 +335,8 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
      * re-throws as DoNotRetryIOException to prevent needless retrying hanging the query
      * for 30 seconds. Unfortunately, until HBASE-7481 gets fixed, there's no way to do
      * the same from a custom filter.
-     * @param offset starting position in the rowkey.
+     *
+     * @param offset          starting position in the rowkey.
      * @param scan
      * @param tupleProjector
      * @param dataRegion
@@ -337,11 +344,11 @@ abstract public class BaseScannerRegionObserver implements RegionObserver {
      * @param viewConstants
      */
     RegionScanner getWrappedScanner(final ObserverContext<RegionCoprocessorEnvironment> c,
-            final RegionScanner s, final int offset, final Scan scan,
-            final ColumnReference[] dataColumns, final TupleProjector tupleProjector,
-            final Region dataRegion, final IndexMaintainer indexMaintainer,
-            final byte[][] viewConstants, final TupleProjector projector,
-            final ImmutableBytesWritable ptr, final boolean useQualiferAsListIndex) {
+                                    final RegionScanner s, final int offset, final Scan scan,
+                                    final ColumnReference[] dataColumns, final TupleProjector tupleProjector,
+                                    final Region dataRegion, final IndexMaintainer indexMaintainer,
+                                    final byte[][] viewConstants, final TupleProjector projector,
+                                    final ImmutableBytesWritable ptr, final boolean useQualiferAsListIndex) {
 
         RegionScannerFactory regionScannerFactory = new NonAggregateRegionScannerFactory(c.getEnvironment());
 

@@ -25,26 +25,25 @@ import com.google.common.collect.Maps;
 import org.apache.phoenix.expression.Expression;
 
 /**
- * 
  * Class to manage list of expressions inside of a select statement by
  * deduping them.
  *
- * 
  * @since 0.1
  */
 public class ExpressionManager {
     // Use a Map instead of a Set because we need to get and return
     // the existing Expression
     private final Map<Expression, Expression> expressionMap;
-    
+
     public ExpressionManager() {
         expressionMap = Maps.newHashMap();
     }
-    
+
     /**
      * Add the expression to the set of known expressions for the select
      * clause. If the expression is already in the set, then the new one
      * passed in is ignored.
+     *
      * @param expression the new expression to add
      * @return the new expression if not already present in the set and
      * the existing one otherwise.
@@ -57,11 +56,11 @@ public class ExpressionManager {
         }
         return existingExpression;
     }
-    
+
     public int getExpressionCount() {
         return expressionMap.size();
     }
-    
+
     public Iterator<Expression> getExpressions() {
         return expressionMap.keySet().iterator();
     }

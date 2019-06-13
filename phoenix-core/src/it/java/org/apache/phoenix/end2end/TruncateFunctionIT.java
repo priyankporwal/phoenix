@@ -42,15 +42,15 @@ public class TruncateFunctionIT extends ParallelStatsDisabledIT {
     private static final String DS1 = "1970-01-10 00:58:01.587";
     private static final String DS2 = "1970-01-20 01:02:45.906";
     private static final String DS3 = "1970-01-30 01:30:24.353";
-    
+
     private static Date toDate(String s) throws ParseException {
         return DateUtil.parseDate(s);
     }
-    
+
     private static Timestamp toTimestamp(String s) throws ParseException {
         return DateUtil.parseTimestamp(s);
     }
-    
+
     @Test
     public void testTruncate() throws Exception {
         String tenantId = getOrganizationId();
@@ -58,13 +58,13 @@ public class TruncateFunctionIT extends ParallelStatsDisabledIT {
         ensureTableCreated(url, tableName, TestUtil.ATABLE_NAME, null, null, null);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             PreparedStatement stmt = conn.prepareStatement(
-                    "upsert into " + tableName + 
-                    "(" +
-                    "    ORGANIZATION_ID, " +
-                    "    ENTITY_ID, " +
-                    "    A_DATE, " +
-                    "    A_TIMESTAMP)" +
-                    "VALUES (?, ?, ?, ?)");
+                    "upsert into " + tableName +
+                            "(" +
+                            "    ORGANIZATION_ID, " +
+                            "    ENTITY_ID, " +
+                            "    A_DATE, " +
+                            "    A_TIMESTAMP)" +
+                            "VALUES (?, ?, ?, ?)");
             stmt.setString(1, tenantId);
             stmt.setString(2, ROW1);
             stmt.setDate(3, toDate(DS1));
@@ -81,27 +81,27 @@ public class TruncateFunctionIT extends ParallelStatsDisabledIT {
             stmt.setTimestamp(4, toTimestamp(DS3));
             stmt.execute();
             conn.commit();
-            
+
             String query = "SELECT entity_id, trunc(a_date, 'day', 7), trunc(a_timestamp, 'second', 10) FROM " + tableName + " WHERE organization_id = ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            
-            assertTrue (rs.next());
+
+            assertTrue(rs.next());
             assertEquals(ROW1, rs.getString(1));
             assertEquals(new Date((long) 7 * QueryConstants.MILLIS_IN_DAY), rs.getDate(2));
             assertEquals(toTimestamp("1970-01-10 00:58:00.000"), rs.getTimestamp(3));
-            
-            assertTrue (rs.next());
+
+            assertTrue(rs.next());
             assertEquals(ROW2, rs.getString(1));
             assertEquals(new Date((long) 14 * QueryConstants.MILLIS_IN_DAY), rs.getDate(2));
             assertEquals(toTimestamp("1970-01-20 01:02:40.000"), rs.getTimestamp(3));
-            
-            assertTrue (rs.next());
+
+            assertTrue(rs.next());
             assertEquals(ROW3, rs.getString(1));
             assertEquals(new Date((long) 28 * QueryConstants.MILLIS_IN_DAY), rs.getDate(2));
             assertEquals(toTimestamp("1970-01-30 01:30:20.000"), rs.getTimestamp(3));
-            
+
             assertFalse(rs.next());
         }
     }

@@ -29,7 +29,7 @@ public class LoggingPhoenixConnection extends DelegateConnection {
     private PhoenixMetricsLog phoenixMetricsLog;
 
     public LoggingPhoenixConnection(Connection conn,
-            PhoenixMetricsLog phoenixMetricsLog) {
+                                    PhoenixMetricsLog phoenixMetricsLog) {
         super(conn);
         this.phoenixMetricsLog = phoenixMetricsLog;
     }
@@ -54,7 +54,7 @@ public class LoggingPhoenixConnection extends DelegateConnection {
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability) throws SQLException {
+                                     int resultSetHoldability) throws SQLException {
         return new LoggingPhoenixStatement(
                 super.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability),
                 phoenixMetricsLog, this);
@@ -68,7 +68,7 @@ public class LoggingPhoenixConnection extends DelegateConnection {
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-            int resultSetConcurrency) throws SQLException {
+                                              int resultSetConcurrency) throws SQLException {
         return new LoggingPhoenixPreparedStatement(
                 super.prepareStatement(sql, resultSetType, resultSetConcurrency),
                 phoenixMetricsLog, sql, this);
@@ -76,9 +76,9 @@ public class LoggingPhoenixConnection extends DelegateConnection {
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-            int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+                                              int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         return new LoggingPhoenixPreparedStatement(super.prepareStatement(sql, resultSetType,
-            resultSetConcurrency, resultSetHoldability), phoenixMetricsLog, sql, this);
+                resultSetConcurrency, resultSetHoldability), phoenixMetricsLog, sql, this);
     }
 
     @Override

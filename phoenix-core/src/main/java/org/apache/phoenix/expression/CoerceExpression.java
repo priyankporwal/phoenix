@@ -39,7 +39,7 @@ public class CoerceExpression extends BaseSingleExpression {
     private SortOrder toSortOrder;
     private Integer maxLength;
     private boolean rowKeyOrderOptimizable;
-    
+
     public CoerceExpression() {
     }
 
@@ -49,25 +49,25 @@ public class CoerceExpression extends BaseSingleExpression {
         }
         return new CoerceExpression(expression, toType);
     }
-    
+
     public static Expression create(Expression expression, PDataType toType, SortOrder toSortOrder, Integer maxLength) throws SQLException {
         return create(expression, toType, toSortOrder, maxLength, true);
     }
-    
+
     public static Expression create(Expression expression, PDataType toType, SortOrder toSortOrder, Integer maxLength, boolean rowKeyOrderOptimizable) throws SQLException {
-        if (    toType == expression.getDataType() && 
-                toSortOrder == expression.getSortOrder() && 
-                (maxLength == null || maxLength.equals(expression.getMaxLength()))   ) {
+        if (toType == expression.getDataType() &&
+                toSortOrder == expression.getSortOrder() &&
+                (maxLength == null || maxLength.equals(expression.getMaxLength()))) {
             return expression;
         }
         return new CoerceExpression(expression, toType, toSortOrder, maxLength, rowKeyOrderOptimizable);
     }
-    
+
     //Package protected for tests
     CoerceExpression(Expression expression, PDataType toType) {
         this(expression, toType, expression.getSortOrder(), null, true);
     }
-    
+
     CoerceExpression(Expression expression, PDataType toType, SortOrder toSortOrder, Integer maxLength, boolean rowKeyOrderOptimizable) {
         this(ImmutableList.of(expression), toType, toSortOrder, maxLength, rowKeyOrderOptimizable);
     }
@@ -80,16 +80,16 @@ public class CoerceExpression extends BaseSingleExpression {
         this.maxLength = maxLength;
         this.rowKeyOrderOptimizable = rowKeyOrderOptimizable;
     }
-    
+
     public CoerceExpression clone(List<Expression> children) {
         return new CoerceExpression(children, this.getDataType(), this.getSortOrder(), this.getMaxLength(), this.rowKeyOrderOptimizable);
     }
-    
+
     @Override
     public Integer getMaxLength() {
         return maxLength;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -102,17 +102,33 @@ public class CoerceExpression extends BaseSingleExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (getClass() != obj.getClass()) return false;
-        CoerceExpression other = (CoerceExpression)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CoerceExpression other = (CoerceExpression) obj;
         if (maxLength == null) {
-            if (other.maxLength != null) return false;
-        } else if (!maxLength.equals(other.maxLength)) return false;
-        if (toSortOrder != other.toSortOrder) return false;
+            if (other.maxLength != null) {
+                return false;
+            }
+        } else if (!maxLength.equals(other.maxLength)) {
+            return false;
+        }
+        if (toSortOrder != other.toSortOrder) {
+            return false;
+        }
         if (toType == null) {
-            if (other.toType != null) return false;
-        } else if (!toType.equals(other.toType)) return false;
+            if (other.toType != null) {
+                return false;
+            }
+        } else if (!toType.equals(other.toType)) {
+            return false;
+        }
         return rowKeyOrderOptimizable == other.rowKeyOrderOptimizable;
     }
 
@@ -123,7 +139,7 @@ public class CoerceExpression extends BaseSingleExpression {
         rowKeyOrderOptimizable = false;
         if (ordinal < 0) {
             rowKeyOrderOptimizable = true;
-            ordinal = -(ordinal+1);
+            ordinal = -(ordinal + 1);
         }
         toType = PDataType.values()[ordinal];
         toSortOrder = SortOrder.fromSystemValue(WritableUtils.readVInt(input));
@@ -135,7 +151,7 @@ public class CoerceExpression extends BaseSingleExpression {
     public void write(DataOutput output) throws IOException {
         super.write(output);
         if (rowKeyOrderOptimizable) {
-            WritableUtils.writeVInt(output, -(toType.ordinal()+1));
+            WritableUtils.writeVInt(output, -(toType.ordinal() + 1));
         } else {
             WritableUtils.writeVInt(output, toType.ordinal());
         }
@@ -147,7 +163,7 @@ public class CoerceExpression extends BaseSingleExpression {
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (getChild().evaluate(tuple, ptr)) {
             getDataType().coerceBytes(ptr, null, getChild().getDataType(),
-                    getChild().getMaxLength(), null, getChild().getSortOrder(), 
+                    getChild().getMaxLength(), null, getChild().getSortOrder(),
                     maxLength, null, getSortOrder(), rowKeyOrderOptimizable);
             return true;
         }
@@ -158,11 +174,11 @@ public class CoerceExpression extends BaseSingleExpression {
     public PDataType getDataType() {
         return toType;
     }
-    
+
     @Override
     public SortOrder getSortOrder() {
         return toSortOrder;
-    }    
+    }
 
     @Override
     public <T> T accept(ExpressionVisitor<T> visitor) {
@@ -173,14 +189,14 @@ public class CoerceExpression extends BaseSingleExpression {
         }
         return t;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder("TO_" + toType.toString() + "(");
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + ", ");
         }
-        buf.append(children.get(children.size()-1) + ")");
+        buf.append(children.get(children.size() - 1) + ")");
         return buf.toString();
     }
 }

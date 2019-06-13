@@ -73,7 +73,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
 
         CsvBulkLoadTool csvBulkLoadTool = new CsvBulkLoadTool();
         csvBulkLoadTool.setConf(new Configuration(getUtility().getConfiguration()));
-        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB,"yyyy/MM/dd");
+        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB, "yyyy/MM/dd");
         int exitCode = csvBulkLoadTool.run(new String[] {
                 "--input", "/tmp/input1.csv",
                 "--table", "table1",
@@ -95,6 +95,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
         rs.close();
         stmt.close();
     }
+
     @Test
     public void testImportWithRowTimestamp() throws Exception {
 
@@ -113,7 +114,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
 
         CsvBulkLoadTool csvBulkLoadTool = new CsvBulkLoadTool();
         csvBulkLoadTool.setConf(new Configuration(getUtility().getConfiguration()));
-        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB,"yyyy/MM/dd");
+        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB, "yyyy/MM/dd");
         int exitCode = csvBulkLoadTool.run(new String[] {
                 "--input", "/tmp/input1.csv",
                 "--table", "table9",
@@ -194,10 +195,10 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
         ResultSet rs = stmt.executeQuery("SELECT id, names FROM table2 ORDER BY id");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
-        assertArrayEquals(new Object[] { "Name 1a", "Name 1b" }, (Object[]) rs.getArray(2).getArray());
+        assertArrayEquals(new Object[] {"Name 1a", "Name 1b"}, (Object[]) rs.getArray(2).getArray());
         assertTrue(rs.next());
         assertEquals(2, rs.getInt(1));
-        assertArrayEquals(new Object[] { "Name 2a", "Name 2b" }, (Object[]) rs.getArray(2).getArray());
+        assertArrayEquals(new Object[] {"Name 2a", "Name 2b"}, (Object[]) rs.getArray(2).getArray());
         assertFalse(rs.next());
 
         rs.close();
@@ -222,11 +223,11 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
 
         CsvBulkLoadTool csvBulkLoadTool = new CsvBulkLoadTool();
         csvBulkLoadTool.setConf(new Configuration(getUtility().getConfiguration()));
-        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB,"yyyy/MM/dd");
+        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB, "yyyy/MM/dd");
         int exitCode = csvBulkLoadTool.run(new String[] {
-            "--input", "/tmp/input1.csv,/tmp/input2.csv",
-            "--table", "table7",
-            "--zookeeper", zkQuorum});
+                "--input", "/tmp/input1.csv,/tmp/input2.csv",
+                "--table", "table7",
+                "--zookeeper", zkQuorum});
         assertEquals(0, exitCode);
 
         ResultSet rs = stmt.executeQuery("SELECT id, name, t FROM table7 ORDER BY id");
@@ -249,12 +250,12 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
 
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE TABLE3 (ID INTEGER NOT NULL PRIMARY KEY, " +
-            "FIRST_NAME VARCHAR, LAST_NAME VARCHAR)");
+                "FIRST_NAME VARCHAR, LAST_NAME VARCHAR)");
         String ddl = "CREATE INDEX TABLE3_IDX ON TABLE3 "
                 + " (FIRST_NAME ASC)"
                 + " INCLUDE (LAST_NAME)";
         stmt.execute(ddl);
-        
+
         FileSystem fs = FileSystem.get(getUtility().getConfiguration());
         FSDataOutputStream outputStream = fs.create(new Path("/tmp/input3.csv"));
         PrintWriter printWriter = new PrintWriter(outputStream);
@@ -353,7 +354,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
                 "--input", "/tmp/input4.csv",
                 "--table", tableName,
                 "--index-table", indexTableName,
-                "--zookeeper", zkQuorum });
+                "--zookeeper", zkQuorum});
         assertEquals(0, exitCode);
 
         ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
@@ -365,7 +366,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
         rs.close();
         stmt.close();
     }
-    
+
     @Test
     public void testInvalidArguments() {
         String tableName = "TABLE8";
@@ -373,16 +374,16 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
         csvBulkLoadTool.setConf(getUtility().getConfiguration());
         try {
             csvBulkLoadTool.run(new String[] {
-                "--input", "/tmp/input4.csv",
-                "--table", tableName,
-                "--zookeeper", zkQuorum });
-            fail(String.format("Table %s not created, hence should fail",tableName));
+                    "--input", "/tmp/input4.csv",
+                    "--table", tableName,
+                    "--zookeeper", zkQuorum});
+            fail(String.format("Table %s not created, hence should fail", tableName));
         } catch (Exception ex) {
-            assertTrue(ex instanceof IllegalArgumentException); 
+            assertTrue(ex instanceof IllegalArgumentException);
             assertTrue(ex.getMessage().contains(String.format("Table %s not found", tableName)));
         }
     }
-    
+
     @Test
     public void testAlreadyExistsOutputPath() {
         String tableName = "TABLE9";
@@ -391,7 +392,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
             Statement stmt = conn.createStatement();
             stmt.execute("CREATE TABLE " + tableName + "(ID INTEGER NOT NULL PRIMARY KEY, "
                     + "FIRST_NAME VARCHAR, LAST_NAME VARCHAR)");
-            
+
             FileSystem fs = FileSystem.get(getUtility().getConfiguration());
             fs.create(new Path(outputPath));
             FSDataOutputStream outputStream = fs.create(new Path("/tmp/input9.csv"));
@@ -399,18 +400,18 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
             printWriter.println("1,FirstName 1,LastName 1");
             printWriter.println("2,FirstName 2,LastName 2");
             printWriter.close();
-            
+
             CsvBulkLoadTool csvBulkLoadTool = new CsvBulkLoadTool();
             csvBulkLoadTool.setConf(getUtility().getConfiguration());
             csvBulkLoadTool.run(new String[] {
-                "--input", "/tmp/input9.csv",
-                "--output", outputPath,
-                "--table", tableName,
-                "--zookeeper", zkQuorum });
-            
-            fail(String.format("Output path %s already exists. hence, should fail",outputPath));
+                    "--input", "/tmp/input9.csv",
+                    "--output", outputPath,
+                    "--table", tableName,
+                    "--zookeeper", zkQuorum});
+
+            fail(String.format("Output path %s already exists. hence, should fail", outputPath));
         } catch (Exception ex) {
-            assertTrue(ex instanceof FileAlreadyExistsException); 
+            assertTrue(ex instanceof FileAlreadyExistsException);
         }
     }
 
@@ -428,8 +429,8 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
         CsvBulkLoadTool csvBulkLoadTool = new CsvBulkLoadTool();
         csvBulkLoadTool.setConf(new Configuration(getUtility().getConfiguration()));
         csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB, "yyyy/MM/dd");
-        int exitCode = csvBulkLoadTool.run(new String[] { "--input", "/tmp/input10.csv", "--table", "table10",
-                "--schema", "s", "--zookeeper", zkQuorum });
+        int exitCode = csvBulkLoadTool.run(new String[] {"--input", "/tmp/input10.csv", "--table", "table10",
+                "--schema", "s", "--zookeeper", zkQuorum});
         assertEquals(0, exitCode);
         ResultSet rs = stmt.executeQuery("SELECT id, name, t, CF1.T2, CF2.T3 FROM s.table10 ORDER BY id");
         assertTrue(rs.next());
@@ -481,7 +482,7 @@ public class CsvBulkLoadToolIT extends BaseOwnClusterIT {
 
         CsvBulkLoadTool csvBulkLoadTool = new CsvBulkLoadTool();
         csvBulkLoadTool.setConf(new Configuration(getUtility().getConfiguration()));
-        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB,"yyyy/MM/dd");
+        csvBulkLoadTool.getConf().set(DATE_FORMAT_ATTRIB, "yyyy/MM/dd");
         int exitCode = csvBulkLoadTool.run(new String[] {
                 "--input", "/tmp/inputSCAWO.csv",
                 "--table", "table12",

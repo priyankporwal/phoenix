@@ -30,17 +30,18 @@ public class DataExceedsCapacityException extends IllegalDataException {
         super(new SQLExceptionInfo.Builder(
                 SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY).setMessage(message).build().buildException());
     }
-    
+
     public DataExceedsCapacityException(PDataType type, Integer precision, Integer scale, String columnName, ImmutableBytesWritable value) {
         super(new SQLExceptionInfo.Builder(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY)
-            .setMessage((columnName == null ? "" : columnName + " ") + getTypeDisplayString(type, precision, scale, value))
-            .build().buildException());
+                .setMessage((columnName == null ? "" : columnName + " ") + getTypeDisplayString(type, precision, scale, value))
+                .build().buildException());
     }
+
     public DataExceedsCapacityException(PDataType type, Integer precision, Integer scale) {
         this(type, precision, scale, null, null);
     }
 
     private static String getTypeDisplayString(PDataType type, Integer precision, Integer scale, ImmutableBytesWritable value) {
-        return type.toString() + "(" + precision + (scale == null ? "" : ("," + scale)) + ")" + (value == null || value.getLength() == 0 ? "" : (" value="+SchemaUtil.toString(type, value)));
+        return type.toString() + "(" + precision + (scale == null ? "" : ("," + scale)) + ")" + (value == null || value.getLength() == 0 ? "" : (" value=" + SchemaUtil.toString(type, value)));
     }
 }

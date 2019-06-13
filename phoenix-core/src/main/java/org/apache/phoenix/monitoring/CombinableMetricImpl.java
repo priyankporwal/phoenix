@@ -24,15 +24,15 @@ public class CombinableMetricImpl implements CombinableMetric {
     public CombinableMetricImpl(MetricType type) {
         metric = new NonAtomicMetric(type);
     }
-    
+
     private CombinableMetricImpl(Metric metric) {
         this.metric = metric;
     }
 
     @Override
-	public MetricType getMetricType() {
-		return metric.getMetricType();
-	}
+    public MetricType getMetricType() {
+        return metric.getMetricType();
+    }
 
     @Override
     public long getValue() {
@@ -74,9 +74,9 @@ public class CombinableMetricImpl implements CombinableMetric {
     public void decrement() {
         metric.decrement();
     }
-    
+
     @Override
-    public CombinableMetric clone(){
+    public CombinableMetric clone() {
         NonAtomicMetric metric = new NonAtomicMetric(this.metric.getMetricType());
         metric.change(this.metric.getValue());
         return new CombinableMetricImpl(metric);

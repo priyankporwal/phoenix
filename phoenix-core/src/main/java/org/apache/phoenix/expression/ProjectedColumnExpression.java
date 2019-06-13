@@ -36,20 +36,20 @@ import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.SchemaUtil;
 
 public class ProjectedColumnExpression extends ColumnExpression {
-	private KeyValueSchema schema;
-	private ValueBitSet bitSet;
-	private int position;
-	private String displayName;
-	private final Collection<PColumn> columns;
+    private KeyValueSchema schema;
+    private ValueBitSet bitSet;
+    private int position;
+    private String displayName;
+    private final Collection<PColumn> columns;
     private PColumn column;
-	
-	public ProjectedColumnExpression() {
-        this.columns = Collections.emptyList();
-	}
 
-	public ProjectedColumnExpression(PColumn column, PTable table, String displayName) {
-		this(column, table.getColumns(), column.getPosition() - table.getPKColumns().size(), displayName);
-	}
+    public ProjectedColumnExpression() {
+        this.columns = Collections.emptyList();
+    }
+
+    public ProjectedColumnExpression(PColumn column, PTable table, String displayName) {
+        this(column, table.getColumns(), column.getPosition() - table.getPKColumns().size(), displayName);
+    }
 
     public ProjectedColumnExpression(PColumn column, Collection<PColumn> columns, int position, String displayName) {
         super(column);
@@ -58,7 +58,7 @@ public class ProjectedColumnExpression extends ColumnExpression {
         this.position = position;
         this.displayName = displayName;
     }
-    
+
     public static KeyValueSchema buildSchema(Collection<PColumn> columns) {
         KeyValueSchemaBuilder builder = new KeyValueSchemaBuilder(0);
         for (PColumn column : columns) {
@@ -68,29 +68,29 @@ public class ProjectedColumnExpression extends ColumnExpression {
         }
         return builder.build();
     }
-    
+
     public KeyValueSchema getSchema() {
         if (this.schema == null) {
             this.schema = buildSchema(columns);
-            this.bitSet = ValueBitSet.newInstance(schema);            
+            this.bitSet = ValueBitSet.newInstance(schema);
         }
-    	return schema;
+        return schema;
     }
-    
+
     public int getPosition() {
-    	return position;
+        return position;
     }
 
     public Collection<PColumn> getColumns() {
-	    return columns;
+        return columns;
     }
-    
+
     @Override
     public String toString() {
         return displayName;
     }
-	
-	@Override
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
@@ -100,16 +100,24 @@ public class ProjectedColumnExpression extends ColumnExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (getClass() != obj.getClass()) return false;
-        ProjectedColumnExpression other = (ProjectedColumnExpression)obj;
-        if (position != other.position) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ProjectedColumnExpression other = (ProjectedColumnExpression) obj;
+        if (position != other.position) {
+            return false;
+        }
         return true;
     }
 
     @Override
-	public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
+    public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         try {
             KeyValueSchema schema = getSchema();
             TupleProjector.decodeProjectedValue(tuple, ptr);
@@ -125,9 +133,9 @@ public class ProjectedColumnExpression extends ColumnExpression {
         } catch (IOException e) {
             return false;
         }
-		
-		return true;
-	}
+
+        return true;
+    }
 
     @Override
     public void readFields(DataInput input) throws IOException {

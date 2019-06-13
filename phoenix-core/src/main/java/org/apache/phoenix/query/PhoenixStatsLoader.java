@@ -38,20 +38,18 @@ public interface PhoenixStatsLoader {
      * Called by client stats cache to load stats from underneath layers
      *
      * @param statsKey the stats key used to search the stats on server side (in stats table)
-     * @throws Exception
-     *
      * @return GuidePostsInfo retrieved from sever side
+     * @throws Exception
      */
     GuidePostsInfo loadStats(GuidePostsKey statsKey) throws Exception;
 
     /**
      * Called by client stats cache to load stats from underneath layers
      *
-     * @param statsKey the stats key used to search the stats on server side (in stats table)
+     * @param statsKey          the stats key used to search the stats on server side (in stats table)
      * @param prevGuidepostInfo the existing stats cached on the client side or GuidePostsInfo.NO_GUIDEPOST
-     * @throws Exception
-     *
      * @return GuidePostsInfo retrieved from sever side
+     * @throws Exception
      */
     GuidePostsInfo loadStats(GuidePostsKey statsKey, GuidePostsInfo prevGuidepostInfo) throws Exception;
 }

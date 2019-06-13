@@ -37,59 +37,59 @@ public class InstrFunctionIT extends ParallelStatsDisabledIT {
         stmt.setString(1, s);
         stmt.setString(2, subStr);
         stmt.execute();
-        conn.commit();        
+        conn.commit();
     }
-    
-     private void testInstr(Connection conn, String queryToExecute, Integer expValue) throws Exception {        
+
+    private void testInstr(Connection conn, String queryToExecute, Integer expValue) throws Exception {
         ResultSet rs;
         rs = conn.createStatement().executeQuery(queryToExecute);
         assertTrue(rs.next());
         assertEquals(expValue.intValue(), rs.getInt(1));
         assertFalse(rs.next());
-        
+
     }
-    
-      private void testInstrFilter(Connection conn, String queryToExecute, String expected) throws Exception {        
+
+    private void testInstrFilter(Connection conn, String queryToExecute, String expected) throws Exception {
         ResultSet rs;
         PreparedStatement stmt = conn.prepareStatement(queryToExecute);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals(expected, rs.getString(1));
-        
+
     }
 
     @Test
     public void testSingleByteInstrAscending() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "ASC", "abcdefghijkl","fgh");
+        initTable(conn, tableName, "ASC", "abcdefghijkl", "fgh");
         String queryToExecute = "SELECT INSTR(name, 'fgh') FROM " + tableName;
         testInstr(conn, queryToExecute, 6);
     }
-    
+
     @Test
     public void testSingleByteInstrDescending() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "DESC", "abcdefghijkl","fgh");
+        initTable(conn, tableName, "DESC", "abcdefghijkl", "fgh");
         String queryToExecute = "SELECT INSTR(name, 'fgh') FROM " + tableName;
         testInstr(conn, queryToExecute, 6);
     }
-    
+
     @Test
     public void testSingleByteInstrAscendingNoString() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "ASC", "abcde fghijkl","lmn");
+        initTable(conn, tableName, "ASC", "abcde fghijkl", "lmn");
         String queryToExecute = "SELECT INSTR(name, 'lmn') FROM " + tableName;
         testInstr(conn, queryToExecute, 0);
     }
-    
+
     @Test
     public void testSingleByteInstrDescendingNoString() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "DESC", "abcde fghijkl","lmn");
+        initTable(conn, tableName, "DESC", "abcde fghijkl", "lmn");
         String queryToExecute = "SELECT INSTR(name, 'lmn') FROM " + tableName;
         testInstr(conn, queryToExecute, 0);
     }
@@ -98,37 +98,37 @@ public class InstrFunctionIT extends ParallelStatsDisabledIT {
     public void testMultiByteInstrAscending() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "ASC", "AɚɦFGH","ɚɦ");
+        initTable(conn, tableName, "ASC", "AɚɦFGH", "ɚɦ");
         String queryToExecute = "SELECT INSTR(name, 'ɚɦ') FROM " + tableName;
         testInstr(conn, queryToExecute, 2);
     }
-    
+
     @Test
     public void testMultiByteInstrDecending() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "DESC", "AɚɦFGH","ɚɦ");
+        initTable(conn, tableName, "DESC", "AɚɦFGH", "ɚɦ");
         String queryToExecute = "SELECT INSTR(name, 'ɚɦ') FROM " + tableName;
         testInstr(conn, queryToExecute, 2);
-    } 
+    }
 
     @Test
     public void testByteInstrAscendingFilter() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "ASC", "abcdefghijkl","fgh");
+        initTable(conn, tableName, "ASC", "abcdefghijkl", "fgh");
         String queryToExecute = "select NAME from " + tableName + " where instr(name, 'fgh') > 0";
-        testInstrFilter(conn, queryToExecute,"abcdefghijkl");
+        testInstrFilter(conn, queryToExecute, "abcdefghijkl");
     }
-    
-    
+
+
     @Test
     public void testByteInstrDecendingFilter() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        initTable(conn, tableName, "DESC", "abcdefghijkl","fgh");
+        initTable(conn, tableName, "DESC", "abcdefghijkl", "fgh");
         String queryToExecute = "select NAME from " + tableName + " where instr(name, 'fgh') > 0";
-        testInstrFilter(conn, queryToExecute,"abcdefghijkl");
+        testInstrFilter(conn, queryToExecute, "abcdefghijkl");
     }
 
     @Test

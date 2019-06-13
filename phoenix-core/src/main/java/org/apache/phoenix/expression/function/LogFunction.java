@@ -26,8 +26,8 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PDouble;
 
-@BuiltInFunction(name = LogFunction.NAME, args = { @Argument(allowedTypes = { PDouble.class, PDecimal.class }),
-        @Argument(allowedTypes = { PDouble.class, PDecimal.class }, defaultValue = "1e1") })
+@BuiltInFunction(name = LogFunction.NAME, args = {@Argument(allowedTypes = {PDouble.class, PDecimal.class}),
+        @Argument(allowedTypes = {PDouble.class, PDecimal.class}, defaultValue = "1e1")})
 public class LogFunction extends JavaMathTwoArgumentFunction {
 
     public static final String NAME = "LOG";

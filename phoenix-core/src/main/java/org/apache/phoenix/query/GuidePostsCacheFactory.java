@@ -29,17 +29,18 @@ public interface GuidePostsCacheFactory {
 
     /**
      * Interface for a PhoenixStatsLoader
+     *
      * @param clientConnectionQueryServices current client connectionQueryServices note not
      *                                      necessary to use this connection
-     * @param readOnlyProps properties from HBase configuration
-     * @param config a Configuration for the current Phoenix/Hbase
+     * @param readOnlyProps                 properties from HBase configuration
+     * @param config                        a Configuration for the current Phoenix/Hbase
      * @return PhoenixStatsLoader interface
      */
     PhoenixStatsLoader getPhoenixStatsLoader(ConnectionQueryServices clientConnectionQueryServices, ReadOnlyProps readOnlyProps, Configuration config);
 
     /**
      * @param phoenixStatsLoader The passed in stats loader will come from getPhoenixStatsLoader
-     * @param config a Configuration for the current Phoenix/Hbase
+     * @param config             a Configuration for the current Phoenix/Hbase
      * @return GuidePostsCache interface
      */
     GuidePostsCache getGuidePostsCache(PhoenixStatsLoader phoenixStatsLoader, Configuration config);

@@ -25,14 +25,18 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class PherfConstants {
-    public static enum GeneratePhoenixStats {
+    public static enum GeneratePhoenixStats
+
+    {
         YES,
-        NO
+                NO
     }
-    
-    public static enum CompareType {
+
+    public static enum CompareType
+
+    {
         MINIMUM,
-        AVERAGE
+                AVERAGE
     }
 
     private static PherfConstants instance = null;
@@ -45,7 +49,7 @@ public class PherfConstants {
     public static final String RESOURCE_SCENARIO = "/scenario";
     public static final String
             SCENARIO_ROOT_PATTERN =
-            		".*" + PherfConstants.RESOURCE_SCENARIO.substring(1) + ".*" + PherfConstants.RESOURCE_SCENARIO.substring(1) + ".*";
+            ".*" + PherfConstants.RESOURCE_SCENARIO.substring(1) + ".*" + PherfConstants.RESOURCE_SCENARIO.substring(1) + ".*";
     public static final String SCHEMA_ROOT_PATTERN = ".*";
     public static final String TEST_SCENARIO_ROOT_PATTERN = ".*" + "test" + "_" + PherfConstants.RESOURCE_SCENARIO.substring(1);
     public static final String PHERF_PROPERTIES = "pherf.properties";
@@ -89,9 +93,10 @@ public class PherfConstants {
 
     /**
      * Get a {@link Properties} object based on the file name
-     * @param fileName      Name of the file
-     * @param getDefault    True if you want to use the properties that may have been loaded into
-     *                      the instance. use false if you want to reload the passed file.
+     *
+     * @param fileName   Name of the file
+     * @param getDefault True if you want to use the properties that may have been loaded into
+     *                   the instance. use false if you want to reload the passed file.
      * @return {@link Properties}
      * @throws Exception
      */
@@ -106,7 +111,7 @@ public class PherfConstants {
         return instanceProperties;
     }
 
-    private Properties loadProperties(String fileName) throws IOException{
+    private Properties loadProperties(String fileName) throws IOException {
         Properties properties = new Properties();
         InputStream is = null;
         try {

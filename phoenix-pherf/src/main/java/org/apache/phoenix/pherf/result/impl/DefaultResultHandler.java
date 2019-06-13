@@ -22,7 +22,7 @@ import org.apache.phoenix.pherf.result.ResultHandler;
 import org.apache.phoenix.pherf.result.ResultUtil;
 import org.apache.phoenix.pherf.result.file.ResultFileDetails;
 
-public abstract class DefaultResultHandler implements ResultHandler{
+public abstract class DefaultResultHandler implements ResultHandler {
     protected String resultFileName;
     protected ResultFileDetails resultFileDetails;
     protected final String resultDir;
@@ -37,7 +37,7 @@ public abstract class DefaultResultHandler implements ResultHandler{
     /**
      * {@link DefaultResultHandler#setResultFileDetails(ResultFileDetails)} Must be called prior to
      * setting the file name. Otherwise you will get a NPE.
-     *
+     * <p>
      * TODO Change this so NPE is not possible. Needs a bit of refactoring here
      *
      * @param resultFileName Base name of file

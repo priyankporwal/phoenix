@@ -31,17 +31,21 @@ import org.apache.hadoop.conf.Configuration;
  * configuration settings.
  */
 public class TestPropertyPolicy implements PropertyPolicy {
-  final static Set<String> propertiesKeyDisAllowed =
-      Collections.unmodifiableSet(new HashSet<>(asList("DisallowedProperty")));
+    final static Set<String> propertiesKeyDisAllowed =
+            Collections.unmodifiableSet(new HashSet<>(asList("DisallowedProperty")));
 
-  @Override public void evaluate(Properties properties) throws PropertyNotAllowedException {
-    final Properties offendingProperties = new Properties();
+    @Override
+    public void evaluate(Properties properties) throws PropertyNotAllowedException {
+        final Properties offendingProperties = new Properties();
 
-    for (Object k : properties.keySet()) {
-      if (propertiesKeyDisAllowed.contains(k))
-        offendingProperties.put(k, properties.getProperty((String) k));
+        for (Object k : properties.keySet()) {
+            if (propertiesKeyDisAllowed.contains(k)) {
+                offendingProperties.put(k, properties.getProperty((String) k));
+            }
+        }
+
+        if (offendingProperties.size() > 0) {
+            throw new PropertyNotAllowedException(offendingProperties);
+        }
     }
-
-    if (offendingProperties.size() > 0) throw new PropertyNotAllowedException(offendingProperties);
-  }
 }

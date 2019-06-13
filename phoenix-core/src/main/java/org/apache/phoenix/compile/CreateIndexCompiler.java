@@ -55,14 +55,14 @@ public class CreateIndexCompiler {
         if (create.getIndexType() == IndexType.LOCAL) {
             if (!splitNodes.isEmpty()) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.CANNOT_SPLIT_LOCAL_INDEX)
-                .build().buildException();
-            } 
+                        .build().buildException();
+            }
             List<Pair<String, Object>> list = create.getProps() != null ? create.getProps().get("") : null;
             if (list != null) {
                 for (Pair<String, Object> pair : list) {
                     if (pair.getFirst().equals(PhoenixDatabaseMetaData.SALT_BUCKETS)) {
                         throw new SQLExceptionInfo.Builder(SQLExceptionCode.CANNOT_SALT_LOCAL_INDEX)
-                        .build().buildException();
+                                .build().buildException();
                     }
                 }
             }
@@ -72,13 +72,13 @@ public class CreateIndexCompiler {
             ParseNode node = splitNodes.get(i);
             if (!node.isStateless()) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.SPLIT_POINT_NOT_CONSTANT)
-                    .setMessage("Node: " + node).build().buildException();
+                        .setMessage("Node: " + node).build().buildException();
             }
-            LiteralExpression expression = (LiteralExpression)node.accept(expressionCompiler);
+            LiteralExpression expression = (LiteralExpression) node.accept(expressionCompiler);
             splits[i] = expression.getBytes();
         }
         final MetaDataClient client = new MetaDataClient(connection);
-        
+
         return new BaseMutationPlan(context, operation) {
             @Override
             public MutationState execute() throws SQLException {
@@ -89,7 +89,7 @@ public class CreateIndexCompiler {
             public ExplainPlan getExplainPlan() throws SQLException {
                 return new ExplainPlan(Collections.singletonList("CREATE INDEX"));
             }
-        	
+
         };
     }
 }

@@ -31,16 +31,14 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunctionInfo;
 
 /**
- * 
  * Top level node representing a SQL statement
  *
- * 
  * @since 0.1
  */
 public class SelectStatement implements FilterableStatement {
     public static final SelectStatement SELECT_ONE =
             new SelectStatement(
-                    null, null, false, 
+                    null, null, false,
                     Collections.<AliasedNode>singletonList(new AliasedNode(null, LiteralParseNode.ONE)),
                     null, Collections.<ParseNode>emptyList(),
                     null, Collections.<OrderByNode>emptyList(),
@@ -49,23 +47,24 @@ public class SelectStatement implements FilterableStatement {
             new SelectStatement(
                     null, null, false,
                     Collections.<AliasedNode>singletonList(
-                    new AliasedNode(null, 
-                        new AggregateFunctionParseNode(
-                                CountAggregateFunction.NORMALIZED_NAME, 
-                                LiteralParseNode.STAR, 
-                                new BuiltInFunctionInfo(CountAggregateFunction.class, CountAggregateFunction.class.getAnnotation(BuiltInFunction.class))))),
-                    null, Collections.<ParseNode>emptyList(), 
-                    null, Collections.<OrderByNode>emptyList(), 
-                    null,null, 0, true, false, Collections.<SelectStatement>emptyList(), new HashMap<String, UDFParseNode>(1));
+                            new AliasedNode(null,
+                                    new AggregateFunctionParseNode(
+                                            CountAggregateFunction.NORMALIZED_NAME,
+                                            LiteralParseNode.STAR,
+                                            new BuiltInFunctionInfo(CountAggregateFunction.class, CountAggregateFunction.class.getAnnotation(BuiltInFunction.class))))),
+                    null, Collections.<ParseNode>emptyList(),
+                    null, Collections.<OrderByNode>emptyList(),
+                    null, null, 0, true, false, Collections.<SelectStatement>emptyList(), new HashMap<String, UDFParseNode>(1));
+
     public static SelectStatement create(SelectStatement select, HintNode hint) {
         if (select.getHint() == hint || hint.isEmpty()) {
             return select;
         }
-        return new SelectStatement(select.getFrom(), hint, select.isDistinct(), 
-                select.getSelect(), select.getWhere(), select.getGroupBy(), select.getHaving(), 
+        return new SelectStatement(select.getFrom(), hint, select.isDistinct(),
+                select.getSelect(), select.getWhere(), select.getGroupBy(), select.getHaving(),
                 select.getOrderBy(), select.getLimit(), select.getOffset(), select.getBindCount(), select.isAggregate(), select.hasSequence(), select.getSelects(), select.getUdfParseNodes());
     }
-    
+
     public SelectStatement combine(ParseNode where) {
         if (where == null) {
             return this;
@@ -73,20 +72,20 @@ public class SelectStatement implements FilterableStatement {
         if (this.getWhere() != null) {
             where = new AndParseNode(Arrays.asList(this.getWhere(), where));
         }
-        return new SelectStatement(this.getFrom(), this.getHint(), this.isDistinct(), 
-                this.getSelect(), where, this.getGroupBy(), this.getHaving(), 
+        return new SelectStatement(this.getFrom(), this.getHint(), this.isDistinct(),
+                this.getSelect(), where, this.getGroupBy(), this.getHaving(),
                 this.getOrderBy(), this.getLimit(), this.getOffset(), this.getBindCount(), this.isAggregate(), this.hasSequence(), this.selects, this.udfParseNodes);
     }
-    
+
     public static SelectStatement create(SelectStatement select, List<AliasedNode> selects) {
-        return new SelectStatement(select.getFrom(), select.getHint(), select.isDistinct(), 
-                selects, select.getWhere(), select.getGroupBy(), select.getHaving(), 
+        return new SelectStatement(select.getFrom(), select.getHint(), select.isDistinct(),
+                selects, select.getWhere(), select.getGroupBy(), select.getHaving(),
                 select.getOrderBy(), select.getLimit(), select.getOffset(), select.getBindCount(), select.isAggregate(), select.hasSequence(), select.getSelects(), select.getUdfParseNodes());
     }
-    
+
     // Copy constructor for sub select statements in a union
     public static SelectStatement create(SelectStatement select, List<OrderByNode> orderBy, LimitNode limit,
-            OffsetNode offset, boolean isAggregate) {
+                                         OffsetNode offset, boolean isAggregate) {
         return new SelectStatement(select.getFrom(), select.getHint(), select.isDistinct(), select.getSelect(),
                 select.getWhere(), select.getGroupBy(), select.getHaving(), orderBy, limit, offset,
                 select.getBindCount(), isAggregate, select.hasSequence(), select.getSelects(),
@@ -109,23 +108,27 @@ public class SelectStatement implements FilterableStatement {
     private final List<SelectStatement> selects = new ArrayList<SelectStatement>();
     private final Map<String, UDFParseNode> udfParseNodes;
     private final OffsetNode offset;
-    
+
     @Override
     public final String toString() {
         StringBuilder buf = new StringBuilder();
-        toSQL(null,buf);
+        toSQL(null, buf);
         return buf.toString();
     }
 
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append("SELECT ");
-        if (hint != null) buf.append(hint);
-        if (isDistinct) buf.append("DISTINCT ");
+        if (hint != null) {
+            buf.append(hint);
+        }
+        if (isDistinct) {
+            buf.append("DISTINCT ");
+        }
         for (AliasedNode selectNode : select) {
             selectNode.toSQL(resolver, buf);
             buf.append(',');
         }
-        buf.setLength(buf.length()-1);
+        buf.setLength(buf.length() - 1);
         if (fromTable != null) {
             buf.append(" FROM ");
             fromTable.toSQL(resolver, buf);
@@ -140,11 +143,11 @@ public class SelectStatement implements FilterableStatement {
                 node.toSQL(resolver, buf);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         if (having != null) {
             buf.append(" HAVING ");
-            having.toSQL(resolver, buf);            
+            having.toSQL(resolver, buf);
         }
         if (!orderBy.isEmpty()) {
             buf.append(" ORDER BY ");
@@ -152,7 +155,7 @@ public class SelectStatement implements FilterableStatement {
                 node.toSQL(resolver, buf);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         if (limit != null) {
             buf.append(" LIMIT " + limit.toString());
@@ -160,9 +163,9 @@ public class SelectStatement implements FilterableStatement {
         if (offset != null) {
             buf.append(" OFFSET " + offset.toString());
         }
-    }    
+    }
 
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -181,35 +184,75 @@ public class SelectStatement implements FilterableStatement {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        SelectStatement other = (SelectStatement)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SelectStatement other = (SelectStatement) obj;
         if (fromTable == null) {
-            if (other.fromTable != null) return false;
-        } else if (!fromTable.equals(other.fromTable)) return false;
+            if (other.fromTable != null) {
+                return false;
+            }
+        } else if (!fromTable.equals(other.fromTable)) {
+            return false;
+        }
         if (groupBy == null) {
-            if (other.groupBy != null) return false;
-        } else if (!groupBy.equals(other.groupBy)) return false;
+            if (other.groupBy != null) {
+                return false;
+            }
+        } else if (!groupBy.equals(other.groupBy)) {
+            return false;
+        }
         if (having == null) {
-            if (other.having != null) return false;
-        } else if (!having.equals(other.having)) return false;
+            if (other.having != null) {
+                return false;
+            }
+        } else if (!having.equals(other.having)) {
+            return false;
+        }
         if (hint == null) {
-            if (other.hint != null) return false;
-        } else if (!hint.equals(other.hint)) return false;
-        if (isDistinct != other.isDistinct) return false;
+            if (other.hint != null) {
+                return false;
+            }
+        } else if (!hint.equals(other.hint)) {
+            return false;
+        }
+        if (isDistinct != other.isDistinct) {
+            return false;
+        }
         if (limit == null) {
-            if (other.limit != null) return false;
-        } else if (!limit.equals(other.limit)) return false;
+            if (other.limit != null) {
+                return false;
+            }
+        } else if (!limit.equals(other.limit)) {
+            return false;
+        }
         if (orderBy == null) {
-            if (other.orderBy != null) return false;
-        } else if (!orderBy.equals(other.orderBy)) return false;
+            if (other.orderBy != null) {
+                return false;
+            }
+        } else if (!orderBy.equals(other.orderBy)) {
+            return false;
+        }
         if (select == null) {
-            if (other.select != null) return false;
-        } else if (!select.equals(other.select)) return false;
+            if (other.select != null) {
+                return false;
+            }
+        } else if (!select.equals(other.select)) {
+            return false;
+        }
         if (where == null) {
-            if (other.where != null) return false;
-        } else if (!where.equals(other.where)) return false;
+            if (other.where != null) {
+                return false;
+            }
+        } else if (!where.equals(other.where)) {
+            return false;
+        }
         return true;
     }
 
@@ -223,11 +266,11 @@ public class SelectStatement implements FilterableStatement {
         }
         return count;
     }
-    
+
     protected SelectStatement(TableNode from, HintNode hint, boolean isDistinct, List<AliasedNode> select,
-            ParseNode where, List<ParseNode> groupBy, ParseNode having, List<OrderByNode> orderBy, LimitNode limit,
-            OffsetNode offset, int bindCount, boolean isAggregate, boolean hasSequence, List<SelectStatement> selects,
-            Map<String, UDFParseNode> udfParseNodes) {
+                              ParseNode where, List<ParseNode> groupBy, ParseNode having, List<OrderByNode> orderBy, LimitNode limit,
+                              OffsetNode offset, int bindCount, boolean isAggregate, boolean hasSequence, List<SelectStatement> selects,
+                              Map<String, UDFParseNode> udfParseNodes) {
         this.fromTable = from;
         this.hint = hint == null ? HintNode.EMPTY_HINT_NODE : hint;
         this.isDistinct = isDistinct;
@@ -255,49 +298,52 @@ public class SelectStatement implements FilterableStatement {
         }
         this.udfParseNodes = udfParseNodes;
     }
-    
+
     @Override
     public boolean isDistinct() {
         return isDistinct;
     }
-    
+
     @Override
     public LimitNode getLimit() {
         return limit;
     }
-    
+
     /**
-     *  This method should not be called during the early stage 
-     *  of the plan preparation phase since fromTable might not 
-     *  be ConcreteTableNode at that time(e.g., JoinTableNode).
-     *  
-     *  By the time getTableSamplingRate method is called, 
-     *  each select statements should have exactly one ConcreteTableNode,
-     *  with its corresponding sampling rate associate with it.
+     * This method should not be called during the early stage
+     * of the plan preparation phase since fromTable might not
+     * be ConcreteTableNode at that time(e.g., JoinTableNode).
+     * <p>
+     * By the time getTableSamplingRate method is called,
+     * each select statements should have exactly one ConcreteTableNode,
+     * with its corresponding sampling rate associate with it.
      */
     @Override
-    public Double getTableSamplingRate(){
-    	if(fromTable==null || !(fromTable instanceof ConcreteTableNode)) return null;
-    	return ((ConcreteTableNode)fromTable).getTableSamplingRate();
+    public Double getTableSamplingRate() {
+        if (fromTable == null || !(fromTable instanceof ConcreteTableNode)) {
+            return null;
+        }
+        return ((ConcreteTableNode) fromTable).getTableSamplingRate();
     }
-    
+
     @Override
     public int getBindCount() {
         return bindCount;
     }
-    
+
     public TableNode getFrom() {
         return fromTable;
     }
-    
+
     @Override
     public HintNode getHint() {
         return hint;
     }
-    
+
     public List<AliasedNode> getSelect() {
         return select;
     }
+
     /**
      * Gets the where condition, or null if none.
      */
@@ -305,18 +351,18 @@ public class SelectStatement implements FilterableStatement {
     public ParseNode getWhere() {
         return where;
     }
-    
+
     /**
      * Gets the group-by, containing at least 1 element, or null, if none.
      */
     public List<ParseNode> getGroupBy() {
         return groupBy;
     }
-    
+
     public ParseNode getHaving() {
         return having;
     }
-    
+
     /**
      * Gets the order-by, containing at least 1 element, or null, if none.
      */
@@ -342,11 +388,12 @@ public class SelectStatement implements FilterableStatement {
     public boolean isJoin() {
         return fromTable != null && fromTable instanceof JoinTableNode;
     }
-    
+
     public SelectStatement getInnerSelectStatement() {
-        if (fromTable == null || !(fromTable instanceof DerivedTableNode))
+        if (fromTable == null || !(fromTable instanceof DerivedTableNode)) {
             return null;
-        
+        }
+
         return ((DerivedTableNode) fromTable).getSelect();
     }
 
@@ -357,7 +404,7 @@ public class SelectStatement implements FilterableStatement {
     public List<SelectStatement> getSelects() {
         return selects;
     }
-    
+
     public boolean hasWildcard() {
         return hasWildcard;
     }

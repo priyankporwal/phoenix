@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public class XMLConfigParserTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLConfigParserTest.class);
-  
+
     @Test
     public void testDTDInScenario() throws Exception {
         URL scenarioUrl = XMLConfigParserTest.class.getResource("/scenario/malicious_scenario_with_dtd.xml");

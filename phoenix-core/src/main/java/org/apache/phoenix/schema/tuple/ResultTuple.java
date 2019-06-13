@@ -28,18 +28,16 @@ import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 
 /**
- * 
  * Wrapper around {@link Result} that implements Phoenix's {@link Tuple} interface.
- *
  */
 public class ResultTuple extends BaseTuple {
     private final Result result;
     public static final ResultTuple EMPTY_TUPLE = new ResultTuple(Result.create(Collections.<Cell>emptyList()));
-    
+
     public ResultTuple(Result result) {
         this.result = result;
     }
-    
+
     public Result getResult() {
         return this.result;
     }
@@ -56,31 +54,31 @@ public class ResultTuple extends BaseTuple {
 
     @Override
     public Cell getValue(byte[] family, byte[] qualifier) {
-        return PhoenixKeyValueUtil.getColumnLatest(GenericKeyValueBuilder.INSTANCE, 
-          result.rawCells(), family, qualifier);
+        return PhoenixKeyValueUtil.getColumnLatest(GenericKeyValueBuilder.INSTANCE,
+                result.rawCells(), family, qualifier);
     }
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("keyvalues=");
-      if(this.result == null || this.result.isEmpty()) {
-        sb.append("NONE");
-        return sb.toString();
-      }
-      sb.append("{");
-      boolean moreThanOne = false;
-      for(Cell kv : this.result.listCells()) {
-        if(moreThanOne) {
-          sb.append(", \n");
-        } else {
-          moreThanOne = true;
+        StringBuilder sb = new StringBuilder();
+        sb.append("keyvalues=");
+        if (this.result == null || this.result.isEmpty()) {
+            sb.append("NONE");
+            return sb.toString();
         }
-        sb.append(kv.toString()+"/value="+Bytes.toString(kv.getValueArray(), 
-          kv.getValueOffset(), kv.getValueLength()));
-      }
-      sb.append("}\n");
-      return sb.toString();
+        sb.append("{");
+        boolean moreThanOne = false;
+        for (Cell kv : this.result.listCells()) {
+            if (moreThanOne) {
+                sb.append(", \n");
+            } else {
+                moreThanOne = true;
+            }
+            sb.append(kv.toString() + "/value=" + Bytes.toString(kv.getValueArray(),
+                    kv.getValueOffset(), kv.getValueLength()));
+        }
+        sb.append("}\n");
+        return sb.toString();
     }
 
     @Override
@@ -90,15 +88,16 @@ public class ResultTuple extends BaseTuple {
 
     @Override
     public KeyValue getValue(int index) {
-        return  PhoenixKeyValueUtil.maybeCopyCell(result.rawCells()[index]);
+        return PhoenixKeyValueUtil.maybeCopyCell(result.rawCells()[index]);
     }
 
     @Override
     public boolean getValue(byte[] family, byte[] qualifier,
-            ImmutableBytesWritable ptr) {
+                            ImmutableBytesWritable ptr) {
         Cell kv = getValue(family, qualifier);
-        if (kv == null)
+        if (kv == null) {
             return false;
+        }
         ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
         return true;
     }

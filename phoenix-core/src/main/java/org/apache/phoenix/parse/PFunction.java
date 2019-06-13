@@ -55,20 +55,20 @@ public class PFunction implements PMetaDataEntity {
     }
 
     public PFunction(String functionName, List<FunctionArgument> args, String returnType,
-            String className, String jarPath) {
-        this(functionName,args,returnType,className, jarPath, HConstants.LATEST_TIMESTAMP);
+                     String className, String jarPath) {
+        this(functionName, args, returnType, className, jarPath, HConstants.LATEST_TIMESTAMP);
     }
 
     public PFunction(String functionName, List<FunctionArgument> args, String returnType,
-            String className, String jarPath, long timeStamp) {
+                     String className, String jarPath, long timeStamp) {
         this(null, functionName, args, returnType, className, jarPath, timeStamp);
-    }    
+    }
 
     public PFunction(PName tenantId, String functionName, List<FunctionArgument> args, String returnType,
-            String className, String jarPath, long timeStamp) {
+                     String className, String jarPath, long timeStamp) {
         this(tenantId, functionName, args, returnType, className, jarPath, timeStamp, false);
     }
-    
+
     public PFunction(PFunction function, boolean temporary) {
         this(function.getTenantId(), function.getFunctionName(), function.getFunctionArguments(),
                 function.getReturnType(), function.getClassName(), function.getJarPath(), function
@@ -82,16 +82,16 @@ public class PFunction implements PMetaDataEntity {
     }
 
     public PFunction(PName tenantId, String functionName, List<FunctionArgument> args,
-            String returnType, String className, String jarPath, long timeStamp, boolean temporary) {
+                     String returnType, String className, String jarPath, long timeStamp, boolean temporary) {
         this(tenantId, functionName, args, returnType, className, jarPath, timeStamp, temporary,
                 false);
     }
 
     public PFunction(PName tenantId, String functionName, List<FunctionArgument> args, String returnType,
-            String className, String jarPath, long timeStamp, boolean temporary, boolean replace) {
+                     String className, String jarPath, long timeStamp, boolean temporary, boolean replace) {
         this.tenantId = tenantId;
         this.functionName = PNameFactory.newName(functionName);
-        if (args == null){ 
+        if (args == null) {
             this.args = new ArrayList<FunctionArgument>();
         } else {
             this.args = args;
@@ -105,7 +105,7 @@ public class PFunction implements PMetaDataEntity {
                 PNameFactory.getEstimatedSize(tenantId) +
                 PNameFactory.getEstimatedSize(this.functionName) +
                 PNameFactory.getEstimatedSize(this.className) +
-                 (jarPath==null?0:PNameFactory.getEstimatedSize(this.jarPath));
+                (jarPath == null ? 0 : PNameFactory.getEstimatedSize(this.jarPath));
         this.temporary = temporary;
         this.replace = replace;
     }
@@ -133,23 +133,23 @@ public class PFunction implements PMetaDataEntity {
     public String getReturnType() {
         return returnType.getString();
     }
-    
+
     public PTableKey getKey() {
         return this.functionKey;
     }
-    
+
     public long getTimeStamp() {
         return this.timeStamp;
     }
-    
+
     public PName getTenantId() {
         return this.tenantId;
     }
-    
+
     public boolean isTemporaryFunction() {
         return temporary;
     }
-    
+
     public static class FunctionArgument {
         private final PName argumentType;
         private final boolean isArrayType;
@@ -158,9 +158,9 @@ public class PFunction implements PMetaDataEntity {
         private final LiteralExpression minValue;
         private final LiteralExpression maxValue;
         private short argPosition;
-        
+
         public FunctionArgument(String argumentType, boolean isArrayType, boolean isConstant, LiteralExpression defaultValue,
-                LiteralExpression minValue, LiteralExpression maxValue) {
+                                LiteralExpression minValue, LiteralExpression maxValue) {
             this.argumentType = PNameFactory.newName(argumentType);
             this.isArrayType = isArrayType;
             this.isConstant = isConstant;
@@ -168,8 +168,9 @@ public class PFunction implements PMetaDataEntity {
             this.minValue = minValue;
             this.maxValue = maxValue;
         }
+
         public FunctionArgument(String argumentType, boolean isArrayType, boolean isConstant, LiteralExpression defaultValue,
-                LiteralExpression minValue, LiteralExpression maxValue, short argPosition) {
+                                LiteralExpression minValue, LiteralExpression maxValue, short argPosition) {
             this(argumentType, isArrayType, isConstant, defaultValue, minValue, maxValue);
             this.argPosition = argPosition;
         }
@@ -197,16 +198,16 @@ public class PFunction implements PMetaDataEntity {
         public LiteralExpression getMaxValue() {
             return maxValue;
         }
-        
+
         public short getArgPosition() {
             return argPosition;
         }
     }
-    
+
     public static PFunctionProtos.PFunction toProto(PFunction function) {
         PFunctionProtos.PFunction.Builder builder = PFunctionProtos.PFunction.newBuilder();
-        if(function.getTenantId() != null){
-          builder.setTenantId(ByteStringer.wrap(function.getTenantId().getBytes()));
+        if (function.getTenantId() != null) {
+            builder.setTenantId(ByteStringer.wrap(function.getTenantId().getBytes()));
         }
         builder.setFunctionName(function.getFunctionName());
         builder.setClassname(function.getClassName());
@@ -215,33 +216,33 @@ public class PFunction implements PMetaDataEntity {
         }
         builder.setReturnType(function.getReturnType());
         builder.setTimeStamp(function.getTimeStamp());
-        for(FunctionArgument arg: function.getFunctionArguments()) {
+        for (FunctionArgument arg : function.getFunctionArguments()) {
             PFunctionProtos.PFunctionArg.Builder argBuilder = PFunctionProtos.PFunctionArg.newBuilder();
             argBuilder.setArgumentType(arg.getArgumentType());
             argBuilder.setIsArrayType(arg.isArrayType);
             argBuilder.setIsConstant(arg.isConstant);
-            if(arg.getDefaultValue() != null) {
-                argBuilder.setDefaultValue((String)arg.getDefaultValue().getValue());
+            if (arg.getDefaultValue() != null) {
+                argBuilder.setDefaultValue((String) arg.getDefaultValue().getValue());
             }
-            if(arg.getMinValue() != null) {
-                argBuilder.setMinValue((String)arg.getMinValue().getValue());
+            if (arg.getMinValue() != null) {
+                argBuilder.setMinValue((String) arg.getMinValue().getValue());
             }
-            if(arg.getMaxValue() != null) {
-                argBuilder.setMaxValue((String)arg.getMaxValue().getValue());
+            if (arg.getMaxValue() != null) {
+                argBuilder.setMaxValue((String) arg.getMaxValue().getValue());
             }
             builder.addArguments(argBuilder.build());
         }
-        if(builder.hasIsReplace()) {
+        if (builder.hasIsReplace()) {
             builder.setIsReplace(function.isReplace());
         }
         return builder.build();
-      }
+    }
 
     public static PFunction createFromProto(
             org.apache.phoenix.coprocessor.generated.PFunctionProtos.PFunction function) {
         PName tenantId = null;
-        if(function.hasTenantId()){
-          tenantId = PNameFactory.newName(function.getTenantId().toByteArray());
+        if (function.hasTenantId()) {
+            tenantId = PNameFactory.newName(function.getTenantId().toByteArray());
         }
         String functionName = function.getFunctionName();
         long timeStamp = function.getTimeStamp();
@@ -249,17 +250,17 @@ public class PFunction implements PMetaDataEntity {
         String jarPath = function.getJarPath();
         String returnType = function.getReturnType();
         List<FunctionArgument> args = new ArrayList<FunctionArgument>(function.getArgumentsCount());
-        for(PFunctionArg arg: function.getArgumentsList()) {
+        for (PFunctionArg arg : function.getArgumentsList()) {
             String argType = arg.getArgumentType();
-            boolean isArrayType = arg.hasIsArrayType()?arg.getIsArrayType():false;
-			PDataType dataType = isArrayType ? PDataType.fromTypeId(PDataType
-					.sqlArrayType(SchemaUtil.normalizeIdentifier(SchemaUtil
-							.normalizeIdentifier(argType)))) : PDataType
-					.fromSqlTypeName(SchemaUtil.normalizeIdentifier(argType));
-            boolean isConstant = arg.hasIsConstant()?arg.getIsConstant():false;
-            String defaultValue = arg.hasDefaultValue()?arg.getDefaultValue():null;
-            String minValue = arg.hasMinValue()?arg.getMinValue():null;
-            String maxValue = arg.hasMaxValue()?arg.getMaxValue():null;
+            boolean isArrayType = arg.hasIsArrayType() ? arg.getIsArrayType() : false;
+            PDataType dataType = isArrayType ? PDataType.fromTypeId(PDataType
+                    .sqlArrayType(SchemaUtil.normalizeIdentifier(SchemaUtil
+                            .normalizeIdentifier(argType)))) : PDataType
+                    .fromSqlTypeName(SchemaUtil.normalizeIdentifier(argType));
+            boolean isConstant = arg.hasIsConstant() ? arg.getIsConstant() : false;
+            String defaultValue = arg.hasDefaultValue() ? arg.getDefaultValue() : null;
+            String minValue = arg.hasMinValue() ? arg.getMinValue() : null;
+            String maxValue = arg.hasMaxValue() ? arg.getMaxValue() : null;
             args.add(new FunctionArgument(argType, isArrayType, isConstant,
                     defaultValue == null ? null : LiteralExpression.newConstant((new LiteralParseNode(dataType.toObject(defaultValue))).getValue()),
                     minValue == null ? null : LiteralExpression.newConstant((new LiteralParseNode(dataType.toObject(minValue))).getValue()),

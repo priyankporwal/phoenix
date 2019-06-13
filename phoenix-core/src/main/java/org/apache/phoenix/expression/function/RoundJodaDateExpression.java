@@ -28,16 +28,16 @@ import org.joda.time.DateTime;
 import org.joda.time.chrono.ISOChronology;
 
 /**
- * 
- * Base class for functions that use joda time. 
- * Used primarily by FLOOR , ROUND and CEIL on the time units WEEK,MONTH and YEAR. 
+ * Base class for functions that use joda time.
+ * Used primarily by FLOOR , ROUND and CEIL on the time units WEEK,MONTH and YEAR.
  */
-public abstract class RoundJodaDateExpression extends RoundDateExpression{
+public abstract class RoundJodaDateExpression extends RoundDateExpression {
 
-    public RoundJodaDateExpression(){}
-    
+    public RoundJodaDateExpression() {
+    }
+
     public RoundJodaDateExpression(List<Expression> children) {
-       super(children);
+        super(children);
     }
 
     @Override
@@ -48,7 +48,7 @@ public abstract class RoundJodaDateExpression extends RoundDateExpression{
             }
             PDataType dataType = getDataType();
             long time = dataType.getCodec().decodeLong(ptr, children.get(0).getSortOrder());
-            DateTime dt = new DateTime(time,ISOChronology.getInstanceUTC());
+            DateTime dt = new DateTime(time, ISOChronology.getInstanceUTC());
             long value = roundDateTime(dt);
             Date d = new Date(value);
             byte[] byteValue = dataType.toBytes(d);
@@ -57,7 +57,7 @@ public abstract class RoundJodaDateExpression extends RoundDateExpression{
         }
         return false;
     }
-    
+
     /**
      * @param dateTime
      * @return Time in millis.

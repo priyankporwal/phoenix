@@ -33,21 +33,21 @@ public class CreateIndexStatement extends SingleTableStatement {
     private final IndexKeyConstraint indexKeyConstraint;
     private final List<ColumnName> includeColumns;
     private final List<ParseNode> splitNodes;
-    private final ListMultimap<String,Pair<String,Object>> props;
+    private final ListMultimap<String, Pair<String, Object>> props;
     private final boolean ifNotExists;
     private final IndexType indexType;
     private final boolean async;
     private final Map<String, UDFParseNode> udfParseNodes;
 
-    public CreateIndexStatement(NamedNode indexTableName, NamedTableNode dataTable, 
-            IndexKeyConstraint indexKeyConstraint, List<ColumnName> includeColumns, List<ParseNode> splits,
-            ListMultimap<String,Pair<String,Object>> props, boolean ifNotExists, IndexType indexType, boolean async, int bindCount, Map<String, UDFParseNode> udfParseNodes) {
+    public CreateIndexStatement(NamedNode indexTableName, NamedTableNode dataTable,
+                                IndexKeyConstraint indexKeyConstraint, List<ColumnName> includeColumns, List<ParseNode> splits,
+                                ListMultimap<String, Pair<String, Object>> props, boolean ifNotExists, IndexType indexType, boolean async, int bindCount, Map<String, UDFParseNode> udfParseNodes) {
         super(dataTable, bindCount);
-        this.indexTableName =TableName.create(dataTable.getName().getSchemaName(),indexTableName.getName());
+        this.indexTableName = TableName.create(dataTable.getName().getSchemaName(), indexTableName.getName());
         this.indexKeyConstraint = indexKeyConstraint == null ? IndexKeyConstraint.EMPTY : indexKeyConstraint;
         this.includeColumns = includeColumns == null ? Collections.<ColumnName>emptyList() : includeColumns;
         this.splitNodes = splits == null ? Collections.<ParseNode>emptyList() : splits;
-        this.props = props == null ? ArrayListMultimap.<String,Pair<String,Object>>create() : props;
+        this.props = props == null ? ArrayListMultimap.<String, Pair<String, Object>>create() : props;
         this.ifNotExists = ifNotExists;
         this.indexType = indexType;
         this.async = async;
@@ -70,7 +70,7 @@ public class CreateIndexStatement extends SingleTableStatement {
         return splitNodes;
     }
 
-    public ListMultimap<String,Pair<String,Object>> getProps() {
+    public ListMultimap<String, Pair<String, Object>> getProps() {
         return props;
     }
 

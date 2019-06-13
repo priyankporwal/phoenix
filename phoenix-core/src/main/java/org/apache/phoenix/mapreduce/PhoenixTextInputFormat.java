@@ -36,62 +36,63 @@ import org.slf4j.LoggerFactory;
  * for a file.
  */
 public class PhoenixTextInputFormat extends TextInputFormat {
-  public static final String SKIP_HEADER_KEY = "phoenix.input.format.skip.header";
+    public static final String SKIP_HEADER_KEY = "phoenix.input.format.skip.header";
 
-  public static void setSkipHeader(Configuration conf) {
-    conf.setBoolean(SKIP_HEADER_KEY, true);
-  }
-
-  @Override
-  public RecordReader<LongWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext context) {
-    RecordReader<LongWritable,Text> rr = super.createRecordReader(split, context);
-    
-    return new PhoenixLineRecordReader((LineRecordReader) rr);
-  }
-
-  public static class PhoenixLineRecordReader extends RecordReader<LongWritable,Text> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixLineRecordReader.class);
-    private final LineRecordReader rr;
-    private PhoenixLineRecordReader(LineRecordReader rr) {
-      this.rr = rr;
+    public static void setSkipHeader(Configuration conf) {
+        conf.setBoolean(SKIP_HEADER_KEY, true);
     }
 
     @Override
-    public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException, InterruptedException {
-      rr.initialize(genericSplit, context);
-      final Configuration conf = context.getConfiguration();
-      final FileSplit split = (FileSplit) genericSplit;
-      if (conf.getBoolean(SKIP_HEADER_KEY, false) && split.getStart() == 0) {
-        LOGGER.trace("Consuming first key-value from {}", genericSplit);
-        nextKeyValue();
-      } else {
-        LOGGER.trace("Not configured to skip header or not the first input split: {}", split);
-      }
+    public RecordReader<LongWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext context) {
+        RecordReader<LongWritable, Text> rr = super.createRecordReader(split, context);
+
+        return new PhoenixLineRecordReader((LineRecordReader) rr);
     }
 
-    @Override
-    public boolean nextKeyValue() throws IOException, InterruptedException {
-      return rr.nextKeyValue();
-    }
+    public static class PhoenixLineRecordReader extends RecordReader<LongWritable, Text> {
+        private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixLineRecordReader.class);
+        private final LineRecordReader rr;
 
-    @Override
-    public LongWritable getCurrentKey() throws IOException {
-      return rr.getCurrentKey();
-    }
+        private PhoenixLineRecordReader(LineRecordReader rr) {
+            this.rr = rr;
+        }
 
-    @Override
-    public Text getCurrentValue() throws IOException {
-      return rr.getCurrentValue();
-    }
+        @Override
+        public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException, InterruptedException {
+            rr.initialize(genericSplit, context);
+            final Configuration conf = context.getConfiguration();
+            final FileSplit split = (FileSplit) genericSplit;
+            if (conf.getBoolean(SKIP_HEADER_KEY, false) && split.getStart() == 0) {
+                LOGGER.trace("Consuming first key-value from {}", genericSplit);
+                nextKeyValue();
+            } else {
+                LOGGER.trace("Not configured to skip header or not the first input split: {}", split);
+            }
+        }
 
-    @Override
-    public float getProgress() throws IOException {
-      return rr.getProgress();
-    }
+        @Override
+        public boolean nextKeyValue() throws IOException, InterruptedException {
+            return rr.nextKeyValue();
+        }
 
-    @Override
-    public void close() throws IOException {
-      rr.close();
+        @Override
+        public LongWritable getCurrentKey() throws IOException {
+            return rr.getCurrentKey();
+        }
+
+        @Override
+        public Text getCurrentValue() throws IOException {
+            return rr.getCurrentValue();
+        }
+
+        @Override
+        public float getProgress() throws IOException {
+            return rr.getProgress();
+        }
+
+        @Override
+        public void close() throws IOException {
+            rr.close();
+        }
     }
-  }
 }

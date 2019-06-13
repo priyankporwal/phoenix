@@ -26,7 +26,7 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertTrue;
 
-public class PropertyPolicyProviderTest extends BaseConnectionlessQueryTest{
+public class PropertyPolicyProviderTest extends BaseConnectionlessQueryTest {
     @Test
     public void testPropertyPolicyProvider() {
         PropertyPolicy provided = PropertyPolicyProvider.getPropertyPolicy();
@@ -35,28 +35,31 @@ public class PropertyPolicyProviderTest extends BaseConnectionlessQueryTest{
 
     @Test(expected = PropertyNotAllowedException.class)
     public void testPropertyPolicyBlacklisted() throws SQLException {
-        Properties properties=new Properties();
-        properties.put("DisallowedProperty","value");
-        try(Connection conn = DriverManager.getConnection(getUrl(),properties);
-        ){}
+        Properties properties = new Properties();
+        properties.put("DisallowedProperty", "value");
+        try (Connection conn = DriverManager.getConnection(getUrl(), properties);
+        ) {
+        }
     }
 
     @Test
     public void testPropertyPolicyWhitelisted() throws SQLException {
-        Properties properties=new Properties();
-        properties.put("allowedProperty","value");
-        try(
-        Connection conn = DriverManager.getConnection(getUrl(),properties);
-        ){}
+        Properties properties = new Properties();
+        properties.put("allowedProperty", "value");
+        try (
+                Connection conn = DriverManager.getConnection(getUrl(), properties);
+        ) {
+        }
     }
 
     @Test
     public void testDisablePropertyPolicyProvider() throws SQLException {
-        Properties properties=new Properties();
-        properties.put("DisallowedProperty","value");
+        Properties properties = new Properties();
+        properties.put("DisallowedProperty", "value");
         properties.put(QueryServices.PROPERTY_POLICY_PROVIDER_ENABLED, "false");
-        try(
+        try (
                 Connection conn = DriverManager.getConnection(getUrl(), properties)
-        ){}
+        ) {
+        }
     }
 }

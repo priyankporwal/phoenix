@@ -42,17 +42,16 @@ public class PhoenixInputSplit extends InputSplit implements Writable {
     private KeyRange keyRange;
     private String regionLocation = null;
     private long regionSize = 0;
-   
+
     /**
      * No Arg constructor
      */
     public PhoenixInputSplit() {
     }
-    
-   /**
-    * 
-    * @param keyRange
-    */
+
+    /**
+     * @param keyRange
+     */
     public PhoenixInputSplit(final List<Scan> scans) {
         this(scans, 0, null);
     }
@@ -65,19 +64,19 @@ public class PhoenixInputSplit extends InputSplit implements Writable {
         this.regionLocation = regionLocation;
         init();
     }
-    
+
     public List<Scan> getScans() {
         return scans;
     }
-    
+
     public KeyRange getKeyRange() {
         return keyRange;
     }
-    
+
     private void init() {
-        this.keyRange = KeyRange.getKeyRange(scans.get(0).getStartRow(), scans.get(scans.size()-1).getStopRow());
+        this.keyRange = KeyRange.getKeyRange(scans.get(0).getStartRow(), scans.get(scans.size() - 1).getStopRow());
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         regionLocation = WritableUtils.readString(input);
@@ -93,7 +92,7 @@ public class PhoenixInputSplit extends InputSplit implements Writable {
         }
         init();
     }
-    
+
     @Override
     public void write(DataOutput output) throws IOException {
         WritableUtils.writeString(output, regionLocation);
@@ -111,16 +110,15 @@ public class PhoenixInputSplit extends InputSplit implements Writable {
 
     @Override
     public long getLength() throws IOException, InterruptedException {
-         return regionSize;
+        return regionSize;
     }
 
     @Override
     public String[] getLocations() throws IOException, InterruptedException {
-        if(regionLocation == null) {
-            return new String[]{};
-        }
-        else {
-            return new String[]{regionLocation};
+        if (regionLocation == null) {
+            return new String[] {};
+        } else {
+            return new String[] {regionLocation};
         }
     }
 
@@ -134,13 +132,23 @@ public class PhoenixInputSplit extends InputSplit implements Writable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) { return true; }
-        if (obj == null) { return false; }
-        if (!(obj instanceof PhoenixInputSplit)) { return false; }
-        PhoenixInputSplit other = (PhoenixInputSplit)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof PhoenixInputSplit)) {
+            return false;
+        }
+        PhoenixInputSplit other = (PhoenixInputSplit) obj;
         if (keyRange == null) {
-            if (other.keyRange != null) { return false; }
-        } else if (!keyRange.equals(other.keyRange)) { return false; }
+            if (other.keyRange != null) {
+                return false;
+            }
+        } else if (!keyRange.equals(other.keyRange)) {
+            return false;
+        }
         return true;
     }
 

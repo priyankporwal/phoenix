@@ -30,14 +30,12 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.types.PDataType;
 
 
-
 /**
  * Built-in function for finding MAX.
- * 
- * 
+ *
  * @since 0.1
  */
-@BuiltInFunction(name=MaxAggregateFunction.NAME, nodeClass=MaxAggregateParseNode.class, args= {@Argument()} )
+@BuiltInFunction(name = MaxAggregateFunction.NAME, nodeClass = MaxAggregateParseNode.class, args = {@Argument()})
 public class MaxAggregateFunction extends MinAggregateFunction {
     public static final String NAME = "MAX";
 
@@ -47,12 +45,12 @@ public class MaxAggregateFunction extends MinAggregateFunction {
     public MaxAggregateFunction(List<Expression> childExpressions) {
         this(childExpressions, null);
     }
-    
+
     public MaxAggregateFunction(List<Expression> childExpressions, CountAggregateFunction delegate) {
         super(childExpressions, delegate);
     }
 
-    @Override 
+    @Override
     public Aggregator newServerAggregator(Configuration conf) {
         Expression child = getAggregatorExpression();
         final PDataType type = child.getDataType();
@@ -69,14 +67,14 @@ public class MaxAggregateFunction extends MinAggregateFunction {
             }
         };
     }
-    
+
     @Override
     public String getName() {
         return NAME;
     }
-    
+
     @Override
     public SortOrder getSortOrder() {
-       return getAggregatorExpression().getSortOrder(); 
-    }    
+        return getAggregatorExpression().getSortOrder();
+    }
 }

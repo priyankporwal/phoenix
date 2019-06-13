@@ -20,38 +20,36 @@ package org.apache.phoenix.schema;
 import java.util.Collection;
 
 /**
- * 
  * Definition of a Phoenix Column Family
  *
- * 
  * @since 0.1
  */
 public interface PColumnFamily {
-    
+
     /**
      * @return The column family name.
      */
     PName getName();
-    
+
     /**
      * @return All the PColumns in this column family.
      */
     Collection<PColumn> getColumns();
-    
+
     /**
      * @return The PColumn for the specified column name.
      * @throws ColumnNotFoundException if the column cannot be found
      */
     PColumn getPColumnForColumnNameBytes(byte[] columnNameBytes) throws ColumnNotFoundException;
-    
+
     /**
      * @return The PColumn for the specified column name.
      * @throws ColumnNotFoundException if the column cannot be found
      */
     PColumn getPColumnForColumnName(String columnName) throws ColumnNotFoundException;
-    
+
     int getEstimatedSize();
-    
+
     /**
      * @return The PColumn for the specified column qualifier.
      * @throws ColumnNotFoundException if the column cannot be found

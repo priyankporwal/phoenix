@@ -30,12 +30,9 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.TypeMismatchException;
 
 
-
 /**
- * 
  * Implementation of ParameterMetaData for Phoenix
  *
- * 
  * @since 0.1
  */
 public class PhoenixParameterMetaData implements ParameterMetaData {
@@ -45,51 +42,53 @@ public class PhoenixParameterMetaData implements ParameterMetaData {
         public boolean isNullable() {
             return false;
         }
-        
+
         @Override
         public Integer getScale() {
             return null;
         }
-        
+
         @Override
         public Integer getMaxLength() {
             return null;
         }
-        
+
         @Override
         public PDataType getDataType() {
             return null;
         }
-        
+
         @Override
         public SortOrder getSortOrder() {
             return SortOrder.getDefault();
         }
     };
     public static final PhoenixParameterMetaData EMPTY_PARAMETER_META_DATA = new PhoenixParameterMetaData(0);
+
     public PhoenixParameterMetaData(int paramCount) {
         params = new PDatum[paramCount];
         //initialize the params array with the empty_datum marker value.
-        for(int i = 0; i < paramCount; i++) {
+        for (int i = 0; i < paramCount; i++) {
             params[i] = EMPTY_DATUM;
         }
     }
- 
+
     private PDatum getParam(int index) throws SQLException {
         if (index <= 0 || index > params.length) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.PARAM_INDEX_OUT_OF_BOUND)
-                .setMessage("The index is " + index + ". Must be between 1 and " + params.length)
-                .build().buildException();
+                    .setMessage("The index is " + index + ". Must be between 1 and " + params.length)
+                    .build().buildException();
         }
-        PDatum param = params[index-1];
-        
+        PDatum param = params[index - 1];
+
         if (param == EMPTY_DATUM) {
             //value at params[index-1] was never set.
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.PARAM_VALUE_UNBOUND)
-                .setMessage("Parameter at index " + index + " is unbound").build().buildException();
+                    .setMessage("Parameter at index " + index + " is unbound").build().buildException();
         }
         return param;
     }
+
     @Override
     public String getParameterClassName(int index) throws SQLException {
         PDatum datum = getParam(index);
@@ -135,7 +134,7 @@ public class PhoenixParameterMetaData implements ParameterMetaData {
     @Override
     public boolean isSigned(int index) throws SQLException {
         @SuppressWarnings("rawtypes")
-		Class clazz = getParam(index).getDataType().getJavaClass();
+        Class clazz = getParam(index).getDataType().getJavaClass();
         return Number.class.isInstance(clazz);
     }
 
@@ -149,10 +148,10 @@ public class PhoenixParameterMetaData implements ParameterMetaData {
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (!iface.isInstance(this)) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.CLASS_NOT_UNWRAPPABLE)
-                .setMessage(this.getClass().getName() + " not unwrappable from " + iface.getName())
-                .build().buildException();
+                    .setMessage(this.getClass().getName() + " not unwrappable from " + iface.getName())
+                    .build().buildException();
         }
-        return (T)this;
+        return (T) this;
     }
 
     public void addParam(BindParseNode bind, PDatum datum) throws SQLException {

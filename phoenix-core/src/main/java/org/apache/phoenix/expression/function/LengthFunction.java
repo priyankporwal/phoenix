@@ -35,20 +35,19 @@ import org.apache.phoenix.util.StringUtil;
 
 
 /**
- * 
  * Implementation of the LENGTH(<string>) build-in function. <string> is the string
  * of characters we want to find the length of. If <string> is NULL or empty, null
  * is returned.
- * 
- * 
+ *
  * @since 0.1
  */
-@BuiltInFunction(name=LengthFunction.NAME, args={
-    @Argument(allowedTypes={ PVarchar.class })} )
+@BuiltInFunction(name = LengthFunction.NAME, args = {
+        @Argument(allowedTypes = {PVarchar.class})})
 public class LengthFunction extends ScalarFunction {
     public static final String NAME = "LENGTH";
 
-    public LengthFunction() { }
+    public LengthFunction() {
+    }
 
     public LengthFunction(List<Expression> children) throws SQLException {
         super(children);

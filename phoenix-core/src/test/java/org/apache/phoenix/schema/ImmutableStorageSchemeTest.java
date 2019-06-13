@@ -55,10 +55,10 @@ import com.google.common.collect.Lists;
 
 @RunWith(Parameterized.class)
 public class ImmutableStorageSchemeTest {
-    
+
     protected static final LiteralExpression CONSTANT_EXPRESSION = LiteralExpression.newConstant(QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
-    protected static final byte[] BYTE_ARRAY1 = new byte[]{1,2,3,4,5};
-    protected static final byte[] BYTE_ARRAY2 = new byte[]{6,7,8};
+    protected static final byte[] BYTE_ARRAY1 = new byte[] {1, 2, 3, 4, 5};
+    protected static final byte[] BYTE_ARRAY2 = new byte[] {6, 7, 8};
     protected Expression FALSE_EVAL_EXPRESSION = new DelegateExpression(LiteralExpression.newConstant(null)) {
         @Override
         public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
@@ -67,17 +67,18 @@ public class ImmutableStorageSchemeTest {
     };
     private ImmutableStorageScheme immutableStorageScheme;
     byte serializationVersion;
-    
-    @Parameters(name="ImmutableStorageSchemeTest_immutableStorageScheme={0},serializationVersion={1}}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "ImmutableStorageSchemeTest_immutableStorageScheme={0},serializationVersion={1}}")
+    // name is used by failsafe as file name in reports
     public static List<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { SINGLE_CELL_ARRAY_WITH_OFFSETS,
-                        IMMUTABLE_SERIALIZATION_VERSION },
-                { SINGLE_CELL_ARRAY_WITH_OFFSETS,
-                        IMMUTABLE_SERIALIZATION_V2 }
-                        });
+                {SINGLE_CELL_ARRAY_WITH_OFFSETS,
+                        IMMUTABLE_SERIALIZATION_VERSION},
+                {SINGLE_CELL_ARRAY_WITH_OFFSETS,
+                        IMMUTABLE_SERIALIZATION_V2}
+        });
     }
-    
+
     public ImmutableStorageSchemeTest(ImmutableStorageScheme immutableStorageScheme, byte serializationVersion) {
         this.immutableStorageScheme = immutableStorageScheme;
         this.immutableStorageScheme.setSerializationVersion(serializationVersion);
@@ -93,7 +94,7 @@ public class ImmutableStorageSchemeTest {
         children.add(FALSE_EVAL_EXPRESSION);
         children.add(LiteralExpression.newConstant(BYTE_ARRAY2, PVarbinary.INSTANCE));
         ImmutableBytesPtr ptr = evaluate(children);
-        
+
         ImmutableBytesPtr ptrCopy = new ImmutableBytesPtr(ptr);
         ColumnValueDecoder decoder = immutableStorageScheme.getDecoder();
         assertTrue(decoder.decode(ptrCopy, 0));
@@ -111,12 +112,12 @@ public class ImmutableStorageSchemeTest {
         assertTrue(decoder.decode(ptrCopy, 4));
         assertArrayEquals(BYTE_ARRAY2, ptrCopy.copyBytesIfNecessary());
     }
-    
+
     @Test
     public void testWithMaxOffsetLargerThanShortMax() throws Exception {
-        int numElements = Short.MAX_VALUE+2;
+        int numElements = Short.MAX_VALUE + 2;
         List<Expression> children = Lists.newArrayListWithExpectedSize(numElements);
-        for (int i=0; i<numElements; ++i) {
+        for (int i = 0; i < numElements; ++i) {
             children.add(CONSTANT_EXPRESSION);
         }
         SingleCellConstructorExpression singleCellConstructorExpression = new SingleCellConstructorExpression(immutableStorageScheme, children);
@@ -127,21 +128,21 @@ public class ImmutableStorageSchemeTest {
         ColumnValueDecoder decoder = immutableStorageScheme.getDecoder();
         assertTrue(decoder.decode(ptrCopy, 0));
         assertArrayEquals(QueryConstants.EMPTY_COLUMN_VALUE_BYTES, ptrCopy.copyBytesIfNecessary());
-        
+
         ptrCopy = new ImmutableBytesPtr(ptr);
         assertTrue(decoder.decode(ptrCopy, 14999));
         assertArrayEquals(QueryConstants.EMPTY_COLUMN_VALUE_BYTES, ptrCopy.copyBytesIfNecessary());
-        
+
         ptrCopy = new ImmutableBytesPtr(ptr);
-        assertTrue(decoder.decode(ptrCopy, numElements-1));
+        assertTrue(decoder.decode(ptrCopy, numElements - 1));
         assertArrayEquals(QueryConstants.EMPTY_COLUMN_VALUE_BYTES, ptrCopy.copyBytesIfNecessary());
     }
-    
+
     @Test
     public void testWithMaxOffsetSmallerThanShortMin() throws Exception {
-        int numElements = Short.MAX_VALUE+2;
+        int numElements = Short.MAX_VALUE + 2;
         List<Expression> children = Lists.newArrayListWithExpectedSize(numElements);
-        for (int i=0; i<=numElements; i+=2) {
+        for (int i = 0; i <= numElements; i += 2) {
             children.add(CONSTANT_EXPRESSION);
             children.add(FALSE_EVAL_EXPRESSION);
         }
@@ -153,20 +154,20 @@ public class ImmutableStorageSchemeTest {
         ColumnValueDecoder decoder = immutableStorageScheme.getDecoder();
         assertTrue(decoder.decode(ptrCopy, 0));
         assertArrayEquals(QueryConstants.EMPTY_COLUMN_VALUE_BYTES, ptrCopy.copyBytesIfNecessary());
-        
+
         ptrCopy = new ImmutableBytesPtr(ptr);
         assertFalse(decoder.decode(ptrCopy, 1));
         assertArrayEquals(ByteUtil.EMPTY_BYTE_ARRAY, ptrCopy.copyBytesIfNecessary());
-        
+
         ptrCopy = new ImmutableBytesPtr(ptr);
-        assertTrue(decoder.decode(ptrCopy, numElements-1));
+        assertTrue(decoder.decode(ptrCopy, numElements - 1));
         assertArrayEquals(QueryConstants.EMPTY_COLUMN_VALUE_BYTES, ptrCopy.copyBytesIfNecessary());
-        
+
         ptrCopy = new ImmutableBytesPtr(ptr);
         assertFalse(decoder.decode(ptrCopy, numElements));
         assertArrayEquals(ByteUtil.EMPTY_BYTE_ARRAY, ptrCopy.copyBytesIfNecessary());
     }
-    
+
     @Test
     public void testLeadingNulls() throws Exception {
         List<Expression> children = Lists.newArrayListWithExpectedSize(4);
@@ -221,7 +222,7 @@ public class ImmutableStorageSchemeTest {
         ImmutableBytesPtr ptr = evaluate(children);
 
         assertDecodedContents(ptr,
-            new byte[][] { EMPTY_BYTE_ARRAY, BYTE_ARRAY1, EMPTY_BYTE_ARRAY });
+                new byte[][] {EMPTY_BYTE_ARRAY, BYTE_ARRAY1, EMPTY_BYTE_ARRAY});
     }
 
     @Test
@@ -233,7 +234,7 @@ public class ImmutableStorageSchemeTest {
         children.add(LiteralExpression.newConstant(BYTE_ARRAY2, PVarbinary.INSTANCE));
         ImmutableBytesPtr ptr = evaluate(children);
 
-        assertDecodedContents(ptr, new byte[][] { BYTE_ARRAY1, EMPTY_BYTE_ARRAY, BYTE_ARRAY2 });
+        assertDecodedContents(ptr, new byte[][] {BYTE_ARRAY1, EMPTY_BYTE_ARRAY, BYTE_ARRAY2});
     }
 
     @Test
@@ -250,7 +251,7 @@ public class ImmutableStorageSchemeTest {
                 failedValues.add(curr);
             } else {
                 if (curr != PSmallint.INSTANCE.getCodec().decodeShort(ptr.copyBytesIfNecessary(), 0,
-                    SortOrder.ASC)) {
+                        SortOrder.ASC)) {
                     failedValues.add(curr);
                 }
             }
@@ -260,10 +261,10 @@ public class ImmutableStorageSchemeTest {
         // in v1, we can't distinguish a null from two short values
         if (serializationVersion == IMMUTABLE_SERIALIZATION_VERSION) {
             assertTrue(failedValues.size() + " values were not properly decoded: " + failedValues,
-                failedValues.size() == 2);
+                    failedValues.size() == 2);
         } else {
             assertTrue(failedValues.size() + " values were not properly decoded: " + failedValues,
-                failedValues.size() == 0);
+                    failedValues.size() == 0);
         }
     }
 
@@ -336,7 +337,7 @@ public class ImmutableStorageSchemeTest {
     }
 
     private void assertValueAtIndex(ImmutableBytesPtr ptr, int index, Object value,
-            PDataType type) {
+                                    PDataType type) {
         ImmutableBytesPtr ptrCopy = new ImmutableBytesPtr(ptr);
         ColumnValueDecoder decoder = immutableStorageScheme.getDecoder();
         assertTrue(decoder.decode(ptrCopy, index));

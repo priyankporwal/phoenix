@@ -34,9 +34,9 @@ public class AvgAggregateParseNode extends AggregateFunctionParseNode {
     @Override
     public FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException {
         SumAggregateFunction sumFunc;
-        CountAggregateFunction countFunc = (CountAggregateFunction)context.getExpressionManager().addIfAbsent(new CountAggregateFunction(children));
+        CountAggregateFunction countFunc = (CountAggregateFunction) context.getExpressionManager().addIfAbsent(new CountAggregateFunction(children));
         if (!countFunc.isConstantExpression()) {
-            sumFunc = (SumAggregateFunction)context.getExpressionManager().addIfAbsent(new SumAggregateFunction(countFunc.getChildren(),null));
+            sumFunc = (SumAggregateFunction) context.getExpressionManager().addIfAbsent(new SumAggregateFunction(countFunc.getChildren(), null));
         } else {
             sumFunc = null;
         }

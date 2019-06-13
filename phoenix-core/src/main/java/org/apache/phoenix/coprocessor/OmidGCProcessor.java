@@ -42,14 +42,14 @@ public class OmidGCProcessor extends DelegateRegionObserver implements RegionCop
     @Override
     public void start(CoprocessorEnvironment env) throws IOException {
         if (delegate instanceof RegionCoprocessor) {
-            ((RegionCoprocessor)delegate).start(env);
+            ((RegionCoprocessor) delegate).start(env);
         }
     }
 
     @Override
     public void stop(CoprocessorEnvironment env) throws IOException {
         if (delegate instanceof RegionCoprocessor) {
-            ((RegionCoprocessor)delegate).stop(env);
+            ((RegionCoprocessor) delegate).stop(env);
         }
     }
 

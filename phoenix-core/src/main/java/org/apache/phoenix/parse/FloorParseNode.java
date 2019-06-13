@@ -31,12 +31,11 @@ import org.apache.phoenix.schema.types.PTimestamp;
 import org.apache.phoenix.schema.TypeMismatchException;
 
 /**
- * Parse node corresponding to {@link FloorFunction}. 
+ * Parse node corresponding to {@link FloorFunction}.
  * It also acts as a factory for creating the right kind of
- * floor expression according to the data type of the 
+ * floor expression according to the data type of the
  * first child.
  *
- * 
  * @since 3.0.0
  */
 public class FloorParseNode extends FunctionParseNode {
@@ -53,22 +52,22 @@ public class FloorParseNode extends FunctionParseNode {
     public static Expression getFloorExpression(List<Expression> children) throws SQLException {
         final Expression firstChild = children.get(0);
         final PDataType firstChildDataType = firstChild.getDataType();
-        
+
         //FLOOR on timestamp doesn't really care about the nanos part i.e. it just sets it to zero. 
         //Which is exactly what FloorDateExpression does too. 
-        if(firstChildDataType.isCoercibleTo(PTimestamp.INSTANCE)) {
+        if (firstChildDataType.isCoercibleTo(PTimestamp.INSTANCE)) {
             return FloorDateExpression.create(children);
-        } else if(firstChildDataType.isCoercibleTo(PDecimal.INSTANCE)) {
+        } else if (firstChildDataType.isCoercibleTo(PDecimal.INSTANCE)) {
             return FloorDecimalExpression.create(children);
         } else {
             throw TypeMismatchException.newException(firstChildDataType, "1");
         }
     }
-    
+
     /**
-     * When rounding off decimals, user need not specify the scale. In such cases, 
+     * When rounding off decimals, user need not specify the scale. In such cases,
      * we need to prevent the function from getting evaluated as null. This is really
-     * a hack. A better way would have been if {@link org.apache.phoenix.parse.FunctionParseNode.BuiltInFunctionInfo} provided a 
+     * a hack. A better way would have been if {@link org.apache.phoenix.parse.FunctionParseNode.BuiltInFunctionInfo} provided a
      * way of associating default values for each permissible data type.
      * Something like: @ Argument(allowedTypes={PDataType.VARCHAR, PDataType.INTEGER}, defaultValues = {"null", "1"} isConstant=true)
      * Till then, this will have to do.

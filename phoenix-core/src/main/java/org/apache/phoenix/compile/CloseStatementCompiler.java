@@ -40,7 +40,7 @@ public class CloseStatementCompiler {
         final PhoenixConnection connection = statement.getConnection();
         final StatementContext context = new StatementContext(statement);
         final MetaDataClient client = new MetaDataClient(connection);
-        
+
         return new BaseMutationPlan(context, operation) {
             @Override
             public MutationState execute() throws SQLException {

@@ -48,8 +48,8 @@ public class IndexedKeyValueTest {
         KeyValueCodec.write(out, indexedKeyValue);
 
         IndexedKeyValue deSerializedKV = (IndexedKeyValue)
-            KeyValueCodec.readKeyValue(new DataInputStream(
-                new ByteArrayInputStream(baos.toByteArray())));
+                KeyValueCodec.readKeyValue(new DataInputStream(
+                        new ByteArrayInputStream(baos.toByteArray())));
         testIndexedKeyValueHelper(deSerializedKV, row, tableNameBytes, mutation);
 
     }

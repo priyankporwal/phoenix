@@ -28,15 +28,15 @@ import org.apache.hadoop.hbase.filter.FilterBase;
  */
 public class NewerTimestampFilter extends FilterBase {
 
-  private long timestamp;
+    private long timestamp;
 
-  public NewerTimestampFilter(long timestamp) {
-    this.timestamp = timestamp;
-  }
+    public NewerTimestampFilter(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-  @Override
-  public ReturnCode filterKeyValue(Cell ignored) {
-    return ignored.getTimestamp() > timestamp ? ReturnCode.SKIP : ReturnCode.INCLUDE;
-  }
+    @Override
+    public ReturnCode filterKeyValue(Cell ignored) {
+        return ignored.getTimestamp() > timestamp ? ReturnCode.SKIP : ReturnCode.INCLUDE;
+    }
 
 }

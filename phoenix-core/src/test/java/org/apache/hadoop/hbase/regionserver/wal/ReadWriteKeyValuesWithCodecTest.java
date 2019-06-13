@@ -51,135 +51,135 @@ import org.junit.Test;
  */
 public class ReadWriteKeyValuesWithCodecTest {
 
-  private static final HBaseTestingUtility UTIL = new HBaseTestingUtility();
-  private static final byte[] ROW = Bytes.toBytes("row");
-  private static final byte[] FAMILY = Bytes.toBytes("family");
+    private static final HBaseTestingUtility UTIL = new HBaseTestingUtility();
+    private static final byte[] ROW = Bytes.toBytes("row");
+    private static final byte[] FAMILY = Bytes.toBytes("family");
 
-  @BeforeClass
-  public static void setupCodec() {
-    Configuration conf = UTIL.getConfiguration();
-    IndexTestingUtils.setupConfig(conf);
-    conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-  }
-
-  @Test
-  public void testWithoutCompression() throws Exception {
-    // get the FS ready to read/write the edits
-    Path testDir = UTIL.getDataTestDir("TestReadWriteCustomEdits_withoutCompression");
-    Path testFile = new Path(testDir, "testfile");
-    FileSystem fs = UTIL.getTestFileSystem();
-
-    List<WALEdit> edits = getEdits();
-    writeReadAndVerify(null, fs, edits, testFile);
-  }
-
-  @Test
-  public void testWithCompression() throws Exception {
-    // get the FS ready to read/write the edit
-    Path testDir = UTIL.getDataTestDir("TestReadWriteCustomEdits_withCompression");
-    Path testFile = new Path(testDir, "testfile");
-    FileSystem fs = UTIL.getTestFileSystem();
-
-    List<WALEdit> edits = getEdits();
-    CompressionContext compression = new CompressionContext(LRUDictionary.class, false, false);
-    writeReadAndVerify(compression, fs, edits, testFile);
-  }
-
-  /**
-   * @return a bunch of {@link WALEdit}s that test a range of serialization possibilities.
-   */
-  private List<WALEdit> getEdits() {
-    // Build up a couple of edits
-    List<WALEdit> edits = new ArrayList<WALEdit>();
-    Put p = new Put(ROW);
-    p.addColumn(FAMILY, null, Bytes.toBytes("v1"));
-
-    WALEdit withPut = new WALEdit();
-    addMutation(withPut, p, FAMILY);
-    edits.add(withPut);
-
-    Delete d = new Delete(ROW);
-    d.addColumn(FAMILY, null);
-    WALEdit withDelete = new WALEdit();
-    addMutation(withDelete, d, FAMILY);
-    edits.add(withDelete);
-    
-    WALEdit withPutsAndDeletes = new WALEdit();
-    addMutation(withPutsAndDeletes, d, FAMILY);
-    addMutation(withPutsAndDeletes, p, FAMILY);
-    edits.add(withPutsAndDeletes);
-    
-    WALEdit justIndexUpdates = new WALEdit();
-    byte[] table = Bytes.toBytes("targetTable");
-    IndexedKeyValue ikv = new IndexedKeyValue(table, p);
-    justIndexUpdates.add(ikv);
-    edits.add(justIndexUpdates);
-
-    WALEdit mixed = new WALEdit();
-    addMutation(mixed, d, FAMILY);
-    mixed.add(ikv);
-    addMutation(mixed, p, FAMILY);
-    edits.add(mixed);
-
-    return edits;
-  }
-
-  /**
-   * Add all the {@link KeyValue}s in the {@link Mutation}, for the pass family, to the given
-   * {@link WALEdit}.
-   */
-  private void addMutation(WALEdit edit, Mutation m, byte[] family) {
-    List<Cell> kvs = m.getFamilyCellMap().get(FAMILY);
-    for (Cell kv : kvs) {
-      edit.add(PhoenixKeyValueUtil.maybeCopyCell(kv));
+    @BeforeClass
+    public static void setupCodec() {
+        Configuration conf = UTIL.getConfiguration();
+        IndexTestingUtils.setupConfig(conf);
+        conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
     }
-  }
 
-  
-  private void writeWALEdit(WALCellCodec codec, List<Cell> kvs, FSDataOutputStream out) throws IOException {
-    out.writeInt(kvs.size());
-    Codec.Encoder cellEncoder = codec.getEncoder(out);
-    // We interleave the two lists for code simplicity
-    for (Cell kv : kvs) {
-        cellEncoder.write(kv);
-    }
-  }
-  
-  /**
-   * Write the edits to the specified path on the {@link FileSystem} using the given codec and then
-   * read them back in and ensure that we read the same thing we wrote.
-   */
-  private void writeReadAndVerify(final CompressionContext compressionContext, FileSystem fs, List<WALEdit> edits,
-      Path testFile) throws IOException {
-	  
-	WALCellCodec codec = WALCellCodec.create(UTIL.getConfiguration(), compressionContext);  
-    // write the edits out
-    FSDataOutputStream out = fs.create(testFile);
-    for (WALEdit edit : edits) {
-      writeWALEdit(codec, edit.getCells(), out);
-    }
-    out.close();
+    @Test
+    public void testWithoutCompression() throws Exception {
+        // get the FS ready to read/write the edits
+        Path testDir = UTIL.getDataTestDir("TestReadWriteCustomEdits_withoutCompression");
+        Path testFile = new Path(testDir, "testfile");
+        FileSystem fs = UTIL.getTestFileSystem();
 
-    // read in the edits
-    FSDataInputStream in = fs.open(testFile);
-    List<WALEdit> read = new ArrayList<WALEdit>();
-    for (int i = 0; i < edits.size(); i++) {
-      WALEdit edit = new WALEdit();
-      int numEdits = in.readInt();
-      edit.readFromCells(codec.getDecoder(in), numEdits);
-      read.add(edit);
+        List<WALEdit> edits = getEdits();
+        writeReadAndVerify(null, fs, edits, testFile);
     }
-    in.close();
 
-    // make sure the read edits match the written
-    for(int i=0; i< edits.size(); i++){
-      WALEdit expected = edits.get(i);
-      WALEdit found = read.get(i);
-      for(int j=0; j< expected.getCells().size(); j++){
-        Cell fkv = found.getCells().get(j);
-        Cell ekv = expected.getCells().get(j);
-        assertEquals("KV mismatch for edit! Expected: "+expected+", but found: "+found, ekv, fkv);
-      }
+    @Test
+    public void testWithCompression() throws Exception {
+        // get the FS ready to read/write the edit
+        Path testDir = UTIL.getDataTestDir("TestReadWriteCustomEdits_withCompression");
+        Path testFile = new Path(testDir, "testfile");
+        FileSystem fs = UTIL.getTestFileSystem();
+
+        List<WALEdit> edits = getEdits();
+        CompressionContext compression = new CompressionContext(LRUDictionary.class, false, false);
+        writeReadAndVerify(compression, fs, edits, testFile);
     }
-  }
+
+    /**
+     * @return a bunch of {@link WALEdit}s that test a range of serialization possibilities.
+     */
+    private List<WALEdit> getEdits() {
+        // Build up a couple of edits
+        List<WALEdit> edits = new ArrayList<WALEdit>();
+        Put p = new Put(ROW);
+        p.addColumn(FAMILY, null, Bytes.toBytes("v1"));
+
+        WALEdit withPut = new WALEdit();
+        addMutation(withPut, p, FAMILY);
+        edits.add(withPut);
+
+        Delete d = new Delete(ROW);
+        d.addColumn(FAMILY, null);
+        WALEdit withDelete = new WALEdit();
+        addMutation(withDelete, d, FAMILY);
+        edits.add(withDelete);
+
+        WALEdit withPutsAndDeletes = new WALEdit();
+        addMutation(withPutsAndDeletes, d, FAMILY);
+        addMutation(withPutsAndDeletes, p, FAMILY);
+        edits.add(withPutsAndDeletes);
+
+        WALEdit justIndexUpdates = new WALEdit();
+        byte[] table = Bytes.toBytes("targetTable");
+        IndexedKeyValue ikv = new IndexedKeyValue(table, p);
+        justIndexUpdates.add(ikv);
+        edits.add(justIndexUpdates);
+
+        WALEdit mixed = new WALEdit();
+        addMutation(mixed, d, FAMILY);
+        mixed.add(ikv);
+        addMutation(mixed, p, FAMILY);
+        edits.add(mixed);
+
+        return edits;
+    }
+
+    /**
+     * Add all the {@link KeyValue}s in the {@link Mutation}, for the pass family, to the given
+     * {@link WALEdit}.
+     */
+    private void addMutation(WALEdit edit, Mutation m, byte[] family) {
+        List<Cell> kvs = m.getFamilyCellMap().get(FAMILY);
+        for (Cell kv : kvs) {
+            edit.add(PhoenixKeyValueUtil.maybeCopyCell(kv));
+        }
+    }
+
+
+    private void writeWALEdit(WALCellCodec codec, List<Cell> kvs, FSDataOutputStream out) throws IOException {
+        out.writeInt(kvs.size());
+        Codec.Encoder cellEncoder = codec.getEncoder(out);
+        // We interleave the two lists for code simplicity
+        for (Cell kv : kvs) {
+            cellEncoder.write(kv);
+        }
+    }
+
+    /**
+     * Write the edits to the specified path on the {@link FileSystem} using the given codec and then
+     * read them back in and ensure that we read the same thing we wrote.
+     */
+    private void writeReadAndVerify(final CompressionContext compressionContext, FileSystem fs, List<WALEdit> edits,
+                                    Path testFile) throws IOException {
+
+        WALCellCodec codec = WALCellCodec.create(UTIL.getConfiguration(), compressionContext);
+        // write the edits out
+        FSDataOutputStream out = fs.create(testFile);
+        for (WALEdit edit : edits) {
+            writeWALEdit(codec, edit.getCells(), out);
+        }
+        out.close();
+
+        // read in the edits
+        FSDataInputStream in = fs.open(testFile);
+        List<WALEdit> read = new ArrayList<WALEdit>();
+        for (int i = 0; i < edits.size(); i++) {
+            WALEdit edit = new WALEdit();
+            int numEdits = in.readInt();
+            edit.readFromCells(codec.getDecoder(in), numEdits);
+            read.add(edit);
+        }
+        in.close();
+
+        // make sure the read edits match the written
+        for (int i = 0; i < edits.size(); i++) {
+            WALEdit expected = edits.get(i);
+            WALEdit found = read.get(i);
+            for (int j = 0; j < expected.getCells().size(); j++) {
+                Cell fkv = found.getCells().get(j);
+                Cell ekv = expected.getCells().get(j);
+                assertEquals("KV mismatch for edit! Expected: " + expected + ", but found: " + found, ekv, fkv);
+            }
+        }
+    }
 }

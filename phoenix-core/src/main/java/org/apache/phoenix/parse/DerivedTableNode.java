@@ -23,12 +23,9 @@ import org.apache.phoenix.compile.ColumnResolver;
 import org.apache.phoenix.util.SchemaUtil;
 
 
-
 /**
- * 
  * Node representing a subselect in the FROM clause of SQL
  *
- * 
  * @since 0.1
  */
 public class DerivedTableNode extends TableNode {
@@ -67,13 +64,23 @@ public class DerivedTableNode extends TableNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        DerivedTableNode other = (DerivedTableNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DerivedTableNode other = (DerivedTableNode) obj;
         if (select == null) {
-            if (other.select != null) return false;
-        } else if (!select.equals(other.select)) return false;
+            if (other.select != null) {
+                return false;
+            }
+        } else if (!select.equals(other.select)) {
+            return false;
+        }
         return true;
     }
 }

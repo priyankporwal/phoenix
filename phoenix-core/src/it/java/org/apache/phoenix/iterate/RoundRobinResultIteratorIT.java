@@ -56,11 +56,11 @@ import com.google.common.collect.Sets;
 
 public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
 
-    private static final int NUM_SALT_BUCKETS = 4; 
+    private static final int NUM_SALT_BUCKETS = 4;
 
     private static Connection getConnection() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-        /*  
+        /*
          * Don't force row key order. This causes RoundRobinResultIterator to be used if there was no order by specified
          * on the query.
          */
@@ -68,7 +68,7 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         return conn;
     }
-    
+
     @Test
     public void testRoundRobinAfterTableSplit() throws Exception {
         String tableName = generateUniqueName();
@@ -91,7 +91,7 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
                 nRegions = services.getAllTableRegions(tableNameBytes).size();
                 nTries++;
             }
-            
+
             String query = "SELECT * FROM " + tableName;
             Statement stmt = conn.createStatement();
             stmt.setFetchSize(10); // this makes scanner caches to be replenished in parallel.
@@ -217,7 +217,7 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
         int numRows = 0;
         while (rs.next()) {
             expectedKeys.remove(rs.getString(1));
-            numRows ++;
+            numRows++;
         }
         assertEquals("Number of rows didn't match", expectedNumRows, numRows);
         assertTrue("Not all rows were returned for fetch size: " + fetchSize + " - " + expectedKeys, expectedKeys.size() == 0);
@@ -239,14 +239,14 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
         int MAX_CHAR = 'z';
         Connection conn = getConnection();
         conn.createStatement().execute("CREATE TABLE " + tableName + "("
-                + "a VARCHAR PRIMARY KEY, b VARCHAR) " 
+                + "a VARCHAR PRIMARY KEY, b VARCHAR) "
                 + TableDescriptorBuilder.MAX_FILESIZE + "=" + maxFileSize + ","
                 + " SALT_BUCKETS = " + NUM_SALT_BUCKETS);
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + tableName + " VALUES(?,?)");
         int rowCount = 0;
         for (int c1 = MIN_CHAR; c1 <= MAX_CHAR; c1++) {
             for (int c2 = MIN_CHAR; c2 <= MAX_CHAR; c2++) {
-                String pk = Character.toString((char)c1) + Character.toString((char)c2);
+                String pk = Character.toString((char) c1) + Character.toString((char) c2);
                 stmt.setString(1, pk);
                 stmt.setString(2, payload);
                 stmt.execute();
@@ -306,16 +306,16 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
         assertEquals("Number of rows retrieved didnt match for tableB", insertedRowsB, rowsB);
         assertEquals("Number of rows retrieved didn't match for tableC", insertedRowsC, rowsC);
     }
-    
+
     @Test
     public void testBug2074() throws Exception {
         Connection conn = getConnection();
         try {
-            conn.createStatement().execute("CREATE TABLE EVENTS" 
-                    + "   (id VARCHAR(10) PRIMARY KEY, " 
-                    + "    article VARCHAR(10), " 
+            conn.createStatement().execute("CREATE TABLE EVENTS"
+                    + "   (id VARCHAR(10) PRIMARY KEY, "
+                    + "    article VARCHAR(10), "
                     + "    misc VARCHAR(10))");
-            
+
             PreparedStatement upsertStmt = conn.prepareStatement(
                     "upsert into EVENTS(id, article, misc) " + "values (?, ?, ?)");
             upsertStmt.setString(1, "001");
@@ -336,11 +336,11 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
             upsertStmt.execute();
             conn.commit();
 
-            conn.createStatement().execute("CREATE TABLE MAPPING" 
-                    + "   (id VARCHAR(10) PRIMARY KEY, " 
-                    + "    article VARCHAR(10), " 
+            conn.createStatement().execute("CREATE TABLE MAPPING"
+                    + "   (id VARCHAR(10) PRIMARY KEY, "
+                    + "    article VARCHAR(10), "
                     + "    category VARCHAR(10))");
-            
+
             upsertStmt = conn.prepareStatement(
                     "upsert into MAPPING(id, article, category) " + "values (?, ?, ?)");
             upsertStmt.setString(1, "002");
@@ -376,8 +376,10 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setFetchSize(3);
             ResultSet rs = statement.executeQuery();
-            while(rs.next());
-            
+            while (rs.next()) {
+                ;
+            }
+
         } finally {
             conn.close();
         }
@@ -392,11 +394,11 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
         ResultIterator itr = getResultIterator(rs);
         if (stmt.getFetchSize() > 1) {
             assertTrue(itr instanceof RoundRobinResultIterator);
-            RoundRobinResultIterator roundRobinItr = (RoundRobinResultIterator)itr;
+            RoundRobinResultIterator roundRobinItr = (RoundRobinResultIterator) itr;
             assertEquals(numFetches, roundRobinItr.getNumberOfParallelFetches());
         }
     }
-    
+
     @Test
     public void testIteratorsPickedInRoundRobinFashionForSaltedTable() throws Exception {
         try (Connection conn = getConnection()) {
@@ -429,5 +431,5 @@ public class RoundRobinResultIteratorIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
 }

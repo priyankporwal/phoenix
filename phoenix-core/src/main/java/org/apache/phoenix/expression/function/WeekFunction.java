@@ -31,13 +31,11 @@ import org.apache.phoenix.schema.types.PTimestamp;
 import org.joda.time.DateTime;
 
 /**
- * 
  * Implementation of the WEEK() buildin. Input Date/Timestamp.
  * Returns an integer from 1 to 53 representing the week of the year in date
- * 
  */
-@BuiltInFunction(name=WeekFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = WeekFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class WeekFunction extends DateScalarFunction {
     public static final String NAME = "WEEK";
 
@@ -54,7 +52,7 @@ public class WeekFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());

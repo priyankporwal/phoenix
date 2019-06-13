@@ -23,20 +23,20 @@ public class CreateSequenceStatement extends MutableStatement {
         return new CreateSequenceStatement(sequenceName, null, null, null, null, null, false, true,
                 0);
     }
-    
-	private final TableName sequenceName;
-	private final ParseNode startWith;
-	private final ParseNode incrementBy;
+
+    private final TableName sequenceName;
+    private final ParseNode startWith;
+    private final ParseNode incrementBy;
     private final ParseNode cacheSize;
     private final ParseNode minValue;
     private final ParseNode maxValue;
     private final boolean cycle;
     private final boolean ifNotExists;
-	private final int bindCount;
+    private final int bindCount;
 
     protected CreateSequenceStatement(TableName sequenceName, ParseNode startWith,
-            ParseNode incrementBy, ParseNode cacheSize, ParseNode minValue, ParseNode maxValue,
-            boolean cycle, boolean ifNotExists, int bindCount) {
+                                      ParseNode incrementBy, ParseNode cacheSize, ParseNode minValue, ParseNode maxValue,
+                                      boolean cycle, boolean ifNotExists, int bindCount) {
         this.sequenceName = sequenceName;
         // if MINVALUE, MAXVALUE and START WITH are not specified, set START WITH to 1 in order to
         // maintain backward compatibility
@@ -52,24 +52,24 @@ public class CreateSequenceStatement extends MutableStatement {
         this.bindCount = bindCount;
     }
 
-	@Override
-	public int getBindCount() {
-		return this.bindCount;
-	}
-	
-	public ParseNode getIncrementBy() {
-		return incrementBy;
-	}
+    @Override
+    public int getBindCount() {
+        return this.bindCount;
+    }
 
-	public TableName getSequenceName() {
-		return sequenceName;
-	}
+    public ParseNode getIncrementBy() {
+        return incrementBy;
+    }
+
+    public TableName getSequenceName() {
+        return sequenceName;
+    }
 
     public ParseNode getCacheSize() {
         return cacheSize;
     }
 
-	public ParseNode getMinValue() {
+    public ParseNode getMinValue() {
         return minValue;
     }
 
@@ -82,8 +82,8 @@ public class CreateSequenceStatement extends MutableStatement {
     }
 
     public ParseNode getStartWith() {
-		return startWith;
-	}
+        return startWith;
+    }
 
     public boolean ifNotExists() {
         return ifNotExists;

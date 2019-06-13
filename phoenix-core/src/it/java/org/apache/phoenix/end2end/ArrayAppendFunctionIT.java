@@ -81,14 +81,14 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         String tableName = initTables(conn);
 
         ResultSet rs;
-        String[] strings = new String[]{"34567"};
+        String[] strings = new String[] {"34567"};
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(null,'34567') FROM " + tableName + " LIMIT 1");
         assertTrue(rs.next());
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
-        
+
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND('34567',null) FROM " + tableName + " LIMIT 1");
         assertTrue(rs.next());
         assertEquals(array, rs.getArray(1));
@@ -104,7 +104,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
 
-        Integer[] ints = new Integer[]{123};
+        Integer[] ints = new Integer[] {123};
         array = conn.createArrayOf("INTEGER", ints);
 
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(null,123) FROM " + tableName + " LIMIT 1");
@@ -116,8 +116,8 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
-        
-        Long[] longs = new Long[]{123L};
+
+        Long[] longs = new Long[] {123L};
         array = conn.createArrayOf("BIGINT", longs);
 
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(nullBigint,123) FROM " + tableName + " LIMIT 1");
@@ -130,25 +130,25 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testUpsertEmptyArrayModification() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initTables(conn);
 
         ResultSet rs;
-        String[] strings = new String[]{"34567"};
+        String[] strings = new String[] {"34567"};
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         conn.createStatement().execute("UPSERT INTO " + tableName + " (region_name,nullVarChar) SELECT region_name,ARRAY_APPEND(nullVarChar,'34567') FROM " + tableName);
         conn.commit();
-        
+
         rs = conn.createStatement().executeQuery("SELECT nullVarChar FROM " + tableName + " LIMIT 1");
         assertTrue(rs.next());
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testArrayAppendFunctionVarchar() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -158,27 +158,27 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(varchars,'34567') FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"2345", "46345", "23234", "34567"};
+        String[] strings = new String[] {"2345", "46345", "23234", "34567"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testUpsertArrayAppendFunctionVarchar() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initTables(conn);
 
-        conn.createStatement().execute("UPSERT INTO " + tableName + " (region_name,varchars) SELECT region_name,ARRAY_APPEND(varchars,'34567') as varchars FROM " + tableName+ " WHERE region_name = 'SF Bay Area'");
+        conn.createStatement().execute("UPSERT INTO " + tableName + " (region_name,varchars) SELECT region_name,ARRAY_APPEND(varchars,'34567') as varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         conn.commit();
-        
+
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"2345", "46345", "23234", "34567"};
+        String[] strings = new String[] {"2345", "46345", "23234", "34567"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -195,7 +195,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(integers,1234) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 46345, 23234, 456, 1234};
+        Integer[] integers = new Integer[] {2345, 46345, 23234, 456, 1234};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -212,7 +212,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(doubles,double1) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, 23.45};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, 23.45};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -229,7 +229,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(doubles,23) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, new Double(23)};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, new Double(23)};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -245,7 +245,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(bigints,1112) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Long[] longs = new Long[]{12l, 34l, 56l, 78l, 910l, 1112l};
+        Long[] longs = new Long[] {12l, 34l, 56l, 78l, 910l, 1112l};
 
         Array array = conn.createArrayOf("BIGINT", longs);
 
@@ -261,7 +261,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(chars,'fac') FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"a", "bbbb", "c", "ddd", "e", "fac"};
+        String[] strings = new String[] {"a", "bbbb", "c", "ddd", "e", "fac"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -307,7 +307,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(doubles,45) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, 45.0};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, 45.0};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -324,7 +324,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(ARRAY[23,45],integers[1]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{23, 45, 2345};
+        Integer[] integers = new Integer[] {23, 45, 2345};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -341,7 +341,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(integers,ARRAY_ELEM(ARRAY[2,4],1)) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 46345, 23234, 456, 2};
+        Integer[] integers = new Integer[] {2345, 46345, 23234, 456, 2};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -358,7 +358,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(doubles,ARRAY_ELEM(doubles,2)) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, 46.345};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, 46.345};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -381,7 +381,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"hello", "world", ":-)"};
+        String[] strings = new String[] {"hello", "world", ":-)"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -405,7 +405,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT integers FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{4, 5, 6};
+        Integer[] integers = new Integer[] {4, 5, 6};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -429,7 +429,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT doubles FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{5.67, 7.87, new Double(9)};
+        Double[] doubles = new Double[] {5.67, 7.87, new Double(9)};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -457,21 +457,21 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(dml);
         conn.commit();
 
-        dml = "UPSERT INTO " + targetTableName + "(region_name, doubles) SELECT region_name, ARRAY_APPEND(doubles,5) FROM " + sourceTableName ;
+        dml = "UPSERT INTO " + targetTableName + "(region_name, doubles) SELECT region_name, ARRAY_APPEND(doubles,5) FROM " + sourceTableName;
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT doubles FROM " + targetTableName );
+        rs = conn.createStatement().executeQuery("SELECT doubles FROM " + targetTableName);
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{5.67, 7.87, new Double(9), new Double(5)};
+        Double[] doubles = new Double[] {5.67, 7.87, new Double(9), new Double(5)};
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
         assertEquals(array, rs.getArray(1));
         assertTrue(rs.next());
 
-        doubles = new Double[]{56.7, 7.87, new Double(9.2), new Double(5)};
+        doubles = new Double[] {56.7, 7.87, new Double(9.2), new Double(5)};
         array = conn.createArrayOf("DOUBLE", doubles);
 
         assertEquals(array, rs.getArray(1));
@@ -497,21 +497,21 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(dml);
         conn.commit();
 
-        dml = "UPSERT INTO " + targetTableName + "(region_name, varchars) SELECT region_name, ARRAY_APPEND(varchars,'stu') FROM " + sourceTableName ;
+        dml = "UPSERT INTO " + targetTableName + "(region_name, varchars) SELECT region_name, ARRAY_APPEND(varchars,'stu') FROM " + sourceTableName;
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT varchars FROM " + targetTableName );
+        rs = conn.createStatement().executeQuery("SELECT varchars FROM " + targetTableName);
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"abcd", "b", "c", "stu"};
+        String[] strings = new String[] {"abcd", "b", "c", "stu"};
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
         assertTrue(rs.next());
 
-        strings = new String[]{"d", "fgh", "something", "stu"};
+        strings = new String[] {"d", "fgh", "something", "stu"};
         array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
@@ -618,7 +618,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(varchars,NULL) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"2345", "46345", "23234"};
+        String[] strings = new String[] {"2345", "46345", "23234"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -635,7 +635,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(doubles,NULL) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -652,7 +652,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(chars,NULL) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"a", "bbbb", "c", "ddd", "e"};
+        String[] strings = new String[] {"a", "bbbb", "c", "ddd", "e"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -669,7 +669,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(integers,nullcheck) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 46345, 23234, 456};
+        Integer[] integers = new Integer[] {2345, 46345, 23234, 456};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -686,7 +686,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(chars,char1) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"a", "bbbb", "c", "ddd", "e", "wert"};
+        String[] strings = new String[] {"a", "bbbb", "c", "ddd", "e", "wert"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -703,7 +703,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(integers,pk) FROM " + tableName + "");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 46345, 23234, 456, 23};
+        Integer[] integers = new Integer[] {2345, 46345, 23234, 456, 23};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -721,7 +721,7 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(varchars,pk) FROM " + tableName + "");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"2345", "46345", "23234", "e"};
+        String[] strings = new String[] {"2345", "46345", "23234", "e"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -734,10 +734,10 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initTablesDesc(conn, "BIGINT", "1112");
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(bigints,pk) FROM " + tableName );
+        rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(bigints,pk) FROM " + tableName);
         assertTrue(rs.next());
 
-        Long[] longs = new Long[]{12l, 34l, 56l, 78l, 910l, 1112l};
+        Long[] longs = new Long[] {12l, 34l, 56l, 78l, 910l, 1112l};
 
         Array array = conn.createArrayOf("BIGINT", longs);
 
@@ -750,10 +750,10 @@ public class ArrayAppendFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initTablesDesc(conn, "BOOLEAN", "false");
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(bools,pk) FROM " + tableName );
+        rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(bools,pk) FROM " + tableName);
         assertTrue(rs.next());
 
-        Boolean[] booleans = new Boolean[]{true, false, false};
+        Boolean[] booleans = new Boolean[] {true, false, false};
 
         Array array = conn.createArrayOf("BOOLEAN", booleans);
 

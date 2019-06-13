@@ -24,17 +24,18 @@ import org.apache.hadoop.hbase.Abortable;
 /**
  * Like a {@link Callable}, but supports an internal {@link Abortable} that can be checked
  * periodically to determine if the batch should abort
+ *
  * @param <V> expected result of the task
  */
 public abstract class Task<V> implements Callable<V> {
 
-  private Abortable batch;
+    private Abortable batch;
 
-  void setBatchMonitor(Abortable abort) {
-    this.batch = abort;
-  }
+    void setBatchMonitor(Abortable abort) {
+        this.batch = abort;
+    }
 
-  protected boolean isBatchFailed() {
-    return this.batch.isAborted();
-  }
+    protected boolean isBatchFailed() {
+        return this.batch.isAborted();
+    }
 }

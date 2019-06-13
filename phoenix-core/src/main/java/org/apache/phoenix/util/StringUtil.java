@@ -35,26 +35,30 @@ public class StringUtil {
     private static final int BYTES_2_MASK = 0xFF << 5; // 110xxxxx is a double byte char
     private static final int BYTES_3_MASK = 0xFF << 4; // 1110xxxx is a triple byte char
     private static final int BYTES_4_MASK = 0xFF << 3; // 11110xxx is a quadruple byte char
-    
-    public static final byte INVERTED_SPACE_UTF8 = SortOrder.invert(new byte[] {SPACE_UTF8}, 0, new byte[1], 0, 1)[0]; 
+
+    public static final byte INVERTED_SPACE_UTF8 = SortOrder.invert(new byte[] {SPACE_UTF8}, 0, new byte[1], 0, 1)[0];
     public final static char SINGLE_CHAR_WILDCARD = '?';
     public final static char SINGLE_CHAR_LIKE = '_';
     public final static char MULTI_CHAR_WILDCARD = '*';
     public final static char MULTI_CHAR_LIKE = '%';
-    public final static String[] LIKE_ESCAPE_SEQS = new String[]{"\\"+SINGLE_CHAR_LIKE, "\\"+MULTI_CHAR_LIKE};
-    public final static String[] LIKE_UNESCAPED_SEQS = new String[]{""+SINGLE_CHAR_LIKE, ""+MULTI_CHAR_LIKE};
-    
+    public final static String[] LIKE_ESCAPE_SEQS = new String[] {"\\" + SINGLE_CHAR_LIKE, "\\" + MULTI_CHAR_LIKE};
+    public final static String[] LIKE_UNESCAPED_SEQS = new String[] {"" + SINGLE_CHAR_LIKE, "" + MULTI_CHAR_LIKE};
+
 
     private StringUtil() {
     }
 
-    /** Replace instances of character ch in String value with String replacement */
+    /**
+     * Replace instances of character ch in String value with String replacement
+     */
     public static String replaceChar(String value, char ch, CharSequence replacement) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         int i = value.indexOf(ch);
-        if (i == -1)
+        if (i == -1) {
             return value; // nothing to do
+        }
 
         // we've got at least one character to replace
         StringBuilder buf = new StringBuilder(value.length() + 16); // some extra space
@@ -64,22 +68,25 @@ public class StringUtil {
             j = i + 1;
             i = value.indexOf(ch, j);
         }
-        if (j < value.length())
+        if (j < value.length()) {
             buf.append(value, j, value.length());
+        }
         return buf.toString();
     }
 
     /**
      * @return the replacement of all occurrences of src[i] with target[i] in s. Src and target are not regex's so this
-     *         uses simple searching with indexOf()
+     * uses simple searching with indexOf()
      */
     public static String replace(String s, String[] src, String[] target) {
-        assert src != null && target != null && src.length > 0 && src.length == target.length;
+        assert src !=
+        null && target != null && src.length > 0 && src.length == target.length;
         if (src.length == 1 && src[0].length() == 1) {
             return replaceChar(s, src[0].charAt(0), target[0]);
         }
-        if (s == null)
+        if (s == null) {
             return null;
+        }
         StringBuilder sb = new StringBuilder(s.length());
         int pos = 0;
         int limit = s.length();
@@ -106,16 +113,18 @@ public class StringUtil {
             // we didn't match anything, so return the source string
             return s;
         }
-        
+
         // apppend the trailing portion
         sb.append(s.substring(lastMatch));
-        
+
         return sb.toString();
     }
 
     public static int getBytesInChar(byte b, SortOrder sortOrder) {
         int ret = getBytesInCharNoException(b, sortOrder);
-        if (ret == -1) throw new UndecodableByteException(b);
+        if (ret == -1) {
+            throw new UndecodableByteException(b);
+        }
         return ret;
     }
 
@@ -125,14 +134,18 @@ public class StringUtil {
             b = SortOrder.invert(b);
         }
         int c = b & 0xff;
-        if ((c & BYTES_1_MASK) == 0)
+        if ((c & BYTES_1_MASK) == 0) {
             return 1;
-        if ((c & BYTES_2_MASK) == 0xC0)
+        }
+        if ((c & BYTES_2_MASK) == 0xC0) {
             return 2;
-        if ((c & BYTES_3_MASK) == 0xE0)
+        }
+        if ((c & BYTES_3_MASK) == 0xE0) {
             return 3;
-        if ((c & BYTES_4_MASK) == 0xF0)
+        }
+        if ((c & BYTES_4_MASK) == 0xF0) {
             return 4;
+        }
         return -1;
     }
 
@@ -151,11 +164,15 @@ public class StringUtil {
     // range, and return the next character offset, -1 if no next character available or
     // UndecodableByteException
     private static int calculateNextCharOffset(byte[] bytes, int curPos, int range,
-            SortOrder sortOrder) {
+                                               SortOrder sortOrder) {
         int ret = getBytesInCharNoException(bytes[curPos], sortOrder);
-        if (ret == -1) return -1;
+        if (ret == -1) {
+            return -1;
+        }
         ret += curPos;
-        if (ret >= range) return -1;
+        if (ret >= range) {
+            return -1;
+        }
         return ret;
     }
 
@@ -163,11 +180,13 @@ public class StringUtil {
     // the previous character offset , -1 if UndecodableByteException. curPos points to current
     // character starting offset.
     private static int calculatePreCharOffset(byte[] bytes, int curPos, int offset,
-            SortOrder sortOrder) {
+                                              SortOrder sortOrder) {
         --curPos;
         for (int i = 1, pos = curPos - i + 1; i <= 4 && offset <= pos; ++i, --pos) {
             int ret = getBytesInCharNoException(bytes[pos], sortOrder);
-            if (ret == i) return pos;
+            if (ret == i) {
+                return pos;
+            }
         }
         return -1;
     }
@@ -182,14 +201,18 @@ public class StringUtil {
     // meaning counting from the end of encoded strings
     // @return actural offsetInBytes corresponding to offsetInStr. -1 if offsetInStr is out of index
     public static int calculateUTF8Offset(byte[] bytes, int offset, int length,
-            SortOrder sortOrder, int offsetInStr) {
-        if (offsetInStr == 0) return offset;
+                                          SortOrder sortOrder, int offsetInStr) {
+        if (offsetInStr == 0) {
+            return offset;
+        }
         int ret, range = offset + length;
         if (offsetInStr > 0) {
             ret = offset;
             while (offsetInStr > 0) {
                 ret = calculateNextCharOffset(bytes, ret, range, sortOrder);
-                if (ret == -1) return -1;
+                if (ret == -1) {
+                    return -1;
+                }
                 --offsetInStr;
             }
         } else {
@@ -197,7 +220,9 @@ public class StringUtil {
             while (offsetInStr < 0) {
                 ret = calculatePreCharOffset(bytes, ret, offset, sortOrder);
                 // if calculateCurCharOffset returns -1, ret must be smaller than offset
-                if (ret < offset) return -1;
+                if (ret < offset) {
+                    return -1;
+                }
                 ++offsetInStr;
             }
         }
@@ -208,9 +233,9 @@ public class StringUtil {
     // parameter, return the actual index into the byte array which would represent a substring
     // of <length> starting from the character at <offset>. We assume the <offset> is the start
     // byte of an UTF-8 character.
-    public static int getByteLengthForUtf8SubStr(byte[] bytes, int offset, int length, SortOrder sortOrder)  {
+    public static int getByteLengthForUtf8SubStr(byte[] bytes, int offset, int length, SortOrder sortOrder) {
         int byteLength = 0;
-        while(length > 0 && offset + byteLength < bytes.length) {
+        while (length > 0 && offset + byteLength < bytes.length) {
             int charLength = getBytesInChar(bytes[offset + byteLength], sortOrder);
             byteLength += charLength;
             length--;
@@ -231,7 +256,7 @@ public class StringUtil {
     public static int getFirstNonBlankCharIdxFromStart(byte[] string, int offset, int length, SortOrder sortOrder) {
         int i = offset;
         byte space = sortOrder == SortOrder.ASC ? SPACE_UTF8 : INVERTED_SPACE_UTF8;
-        for ( ; i < offset + length; i++) {
+        for (; i < offset + length; i++) {
             if (string[i] != space) {
                 break;
             }
@@ -242,11 +267,11 @@ public class StringUtil {
     public static int getFirstNonBlankCharIdxFromEnd(byte[] string, int offset, int length, SortOrder sortOrder) {
         int i = offset + length - 1;
         byte space = sortOrder == SortOrder.ASC ? SPACE_UTF8 : INVERTED_SPACE_UTF8;
-        for ( ; i >= offset; i--) {
+        for (; i >= offset; i--) {
             if (string[i] != space) {
                 break;
             }
-         }
+        }
         return i;
     }
 
@@ -274,9 +299,10 @@ public class StringUtil {
         }
         return newValue;
     }
-    
+
     /**
      * Lame - StringBuilder.equals is retarded.
+     *
      * @param b1
      * @param b2
      * @return whether or not the two builders consist the same sequence of characters
@@ -292,30 +318,22 @@ public class StringUtil {
         }
         return true;
     }
-    
+
     /**
      * LPAD implementation
-     * 
-     * @param str
-     *            array containing string to be left padded
-     * @param strOffset
-     *            byte offset of string
-     * @param strLength
-     *            byte length of string
-     * @param fill
-     *            array containing fill values
-     * @param fillOffset
-     *            byte offset of fill
-     * @param fillLength
-     *            byte length of fill
-     * @param invertFill
-     *            if true inverts the bits in fill before filling the array
-     * @param strWithPaddingLen
-     *            length of the string that is returned with fill values left padded
+     *
+     * @param str               array containing string to be left padded
+     * @param strOffset         byte offset of string
+     * @param strLength         byte length of string
+     * @param fill              array containing fill values
+     * @param fillOffset        byte offset of fill
+     * @param fillLength        byte length of fill
+     * @param invertFill        if true inverts the bits in fill before filling the array
+     * @param strWithPaddingLen length of the string that is returned with fill values left padded
      * @return byte[] containing left padded string
      */
     public static byte[] lpad(byte[] str, int strOffset, int strLength, byte[] fill, int fillOffset, int fillLength,
-        boolean invertFill, int strWithPaddingLen) {
+                              boolean invertFill, int strWithPaddingLen) {
         byte[] paddedStr = new byte[strWithPaddingLen];
         int fillStopIdx = strWithPaddingLen - strLength;
         // copy fill into the start of paddedStr
@@ -324,36 +342,30 @@ public class StringUtil {
         System.arraycopy(str, strOffset, paddedStr, fillStopIdx, strLength);
         return paddedStr;
     }
-    
+
     /**
      * Assigns the specified byte values to elements of the specified range of the specified array of bytes. The range
      * to be filled extends from index fromIndex, inclusive, to index toIndex, exclusive. (If
      * fromIndex==toIndex, the range to be filled is empty.)
-     * 
-     * @param str
-     *            the array to be filled
-     * @param strFromIdx
-     *            the index of the first element (inclusive) to be filled with the fill values
-     * @param strToIdx
-     *            the index of the last element (exclusive) to be filled with the fill values
-     * @param fillArray
-     *            the values to be stored in all elements of the array
-     * @param fillFromIdx
-     *            the index of the first element (inclusive) to be used as fill values
-     * @param filToIdx
-     *            the index of the last element (exclusive) to be used as fill value
-     * @param invertFill
-     *            if true inverts the bits in fill before filling the array
+     *
+     * @param str         the array to be filled
+     * @param strFromIdx  the index of the first element (inclusive) to be filled with the fill values
+     * @param strToIdx    the index of the last element (exclusive) to be filled with the fill values
+     * @param fillArray   the values to be stored in all elements of the array
+     * @param fillFromIdx the index of the first element (inclusive) to be used as fill values
+     * @param filToIdx    the index of the last element (exclusive) to be used as fill value
+     * @param invertFill  if true inverts the bits in fill before filling the array
      */
     public static void fill(byte[] str, int strFromIdx, int strToIdx, byte[] fillArray, int fillFromIdx, int fillToIdx,
-        boolean invertFill) {
+                            boolean invertFill) {
         rangeCheck(str.length, strFromIdx, strToIdx);
         rangeCheck(fillArray.length, fillFromIdx, fillToIdx);
         int strIdx = strFromIdx;
         byte[] fill = fillArray;
         int fillLen = fillToIdx - fillFromIdx;
-        if (invertFill)
+        if (invertFill) {
             fill = SortOrder.invert(fillArray, fillFromIdx, fillLen);
+        }
         while (strIdx < strToIdx) {
             int fillIdx = fillFromIdx;
             while (fillIdx < fillToIdx && strIdx < strToIdx) {
@@ -365,7 +377,7 @@ public class StringUtil {
             }
         }
     }
-    
+
     /**
      * Checks that fromIndex and toIndex are in the range and throws an appropriate exception, if they
      * are not
@@ -391,10 +403,10 @@ public class StringUtil {
             return null;
         }
         return org.apache.commons.lang3.StringUtils.replace(pattern, "'", "''");
-    }   
-    
+    }
+
     public static String escapeBackslash(String input) {
-    	// see http://stackoverflow.com/questions/4653831/regex-how-to-escape-backslashes-and-special-characters
-    	return input.replaceAll("\\\\","\\\\\\\\");
+        // see http://stackoverflow.com/questions/4653831/regex-how-to-escape-backslashes-and-special-characters
+        return input.replaceAll("\\\\", "\\\\\\\\");
     }
 }

@@ -34,38 +34,38 @@ import com.google.common.collect.Multimap;
  */
 public class KillServerOnFailurePolicy implements IndexFailurePolicy {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(KillServerOnFailurePolicy.class);
-  private Stoppable stoppable;
+    private static final Logger LOGGER = LoggerFactory.getLogger(KillServerOnFailurePolicy.class);
+    private Stoppable stoppable;
 
-  @Override
-  public void setup(Stoppable parent, RegionCoprocessorEnvironment env) {
-    setup(parent);
-  }
+    @Override
+    public void setup(Stoppable parent, RegionCoprocessorEnvironment env) {
+        setup(parent);
+    }
 
-  public void setup(Stoppable parent) {
-    this.stoppable = parent;
-  }
+    public void setup(Stoppable parent) {
+        this.stoppable = parent;
+    }
 
-  @Override
-  public void stop(String why) {
-    // noop
-  }
+    @Override
+    public void stop(String why) {
+        // noop
+    }
 
-  @Override
-  public boolean isStopped() {
-    return this.stoppable.isStopped();
-  }
+    @Override
+    public boolean isStopped() {
+        return this.stoppable.isStopped();
+    }
 
-  @Override
-  public void
-      handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException{
-    // cleanup resources
-    this.stop("Killing ourselves because of an error:" + cause);
-    // notify the regionserver of the failure
-    String msg =
-        "Could not update the index table, killing server region because couldn't write to an index table";
-    LOGGER.error(msg, cause);
-    throw new FatalIndexBuildingFailureException(msg,cause);
-  }
+    @Override
+    public void
+    handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException {
+        // cleanup resources
+        this.stop("Killing ourselves because of an error:" + cause);
+        // notify the regionserver of the failure
+        String msg =
+                "Could not update the index table, killing server region because couldn't write to an index table";
+        LOGGER.error(msg, cause);
+        throw new FatalIndexBuildingFailureException(msg, cause);
+    }
 
 }

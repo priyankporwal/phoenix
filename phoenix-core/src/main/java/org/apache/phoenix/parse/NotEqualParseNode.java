@@ -20,12 +20,9 @@ package org.apache.phoenix.parse;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 
 
-
 /**
- * 
  * Node representing a not equal expression (!=,<>) in SQL
  *
- * 
  * @since 0.1
  */
 public class NotEqualParseNode extends ComparisonParseNode {

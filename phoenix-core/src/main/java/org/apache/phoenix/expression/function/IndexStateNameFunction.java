@@ -33,27 +33,25 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Function used to get the index state name from the serialized byte value
  * Usage:
  * IndexStateName('a')
  * will return 'ACTIVE'
- * 
- * 
+ *
  * @since 2.1
  */
-@BuiltInFunction(name=IndexStateNameFunction.NAME, args= {
-    @Argument(allowedTypes= PChar.class)} )
+@BuiltInFunction(name = IndexStateNameFunction.NAME, args = {
+        @Argument(allowedTypes = PChar.class)})
 public class IndexStateNameFunction extends ScalarFunction {
     public static final String NAME = "IndexStateName";
 
     public IndexStateNameFunction() {
     }
-    
+
     public IndexStateNameFunction(List<Expression> children) throws SQLException {
         super(children);
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Expression child = children.get(0);
@@ -73,7 +71,7 @@ public class IndexStateNameFunction extends ScalarFunction {
     public PDataType getDataType() {
         return PVarchar.INSTANCE;
     }
-    
+
     @Override
     public String getName() {
         return NAME;

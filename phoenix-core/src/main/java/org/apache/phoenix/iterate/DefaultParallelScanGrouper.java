@@ -37,38 +37,38 @@ import org.apache.phoenix.util.ScanUtil;
  */
 public class DefaultParallelScanGrouper implements ParallelScanGrouper {
 
-  private static DefaultParallelScanGrouper INSTANCE = new DefaultParallelScanGrouper();
+    private static DefaultParallelScanGrouper INSTANCE = new DefaultParallelScanGrouper();
 
 
-  public DefaultParallelScanGrouper() {
-  }
-
-  public static DefaultParallelScanGrouper getInstance() {
-    return INSTANCE;
-  }
-
-
-  @Override
-  public boolean shouldStartNewScan(QueryPlan plan, List<Scan> scans, byte[] startKey, boolean crossedRegionBoundary) {
-    PTable table = plan.getTableRef().getTable();
-    boolean startNewScanGroup = false;
-    if (!plan.isRowKeyOrdered()) {
-      startNewScanGroup = true;
-    } else if (crossedRegionBoundary) {
-      if (table.getIndexType() == IndexType.LOCAL) {
-        startNewScanGroup = true;
-      } else if (table.getBucketNum() != null) {
-        startNewScanGroup = scans.isEmpty() ||
-            ScanUtil.crossesPrefixBoundary(startKey,
-                ScanUtil.getPrefix(scans.get(scans.size()-1).getStartRow(), SaltingUtil.NUM_SALTING_BYTES),
-                SaltingUtil.NUM_SALTING_BYTES);
-      }
+    public DefaultParallelScanGrouper() {
     }
-    return startNewScanGroup;
-  }
 
-  @Override
-  public List<HRegionLocation> getRegionBoundaries(StatementContext context, byte[] tableName) throws SQLException{
-    return context.getConnection().getQueryServices().getAllTableRegions(tableName);
-  }
+    public static DefaultParallelScanGrouper getInstance() {
+        return INSTANCE;
+    }
+
+
+    @Override
+    public boolean shouldStartNewScan(QueryPlan plan, List<Scan> scans, byte[] startKey, boolean crossedRegionBoundary) {
+        PTable table = plan.getTableRef().getTable();
+        boolean startNewScanGroup = false;
+        if (!plan.isRowKeyOrdered()) {
+            startNewScanGroup = true;
+        } else if (crossedRegionBoundary) {
+            if (table.getIndexType() == IndexType.LOCAL) {
+                startNewScanGroup = true;
+            } else if (table.getBucketNum() != null) {
+                startNewScanGroup = scans.isEmpty() ||
+                        ScanUtil.crossesPrefixBoundary(startKey,
+                                ScanUtil.getPrefix(scans.get(scans.size() - 1).getStartRow(), SaltingUtil.NUM_SALTING_BYTES),
+                                SaltingUtil.NUM_SALTING_BYTES);
+            }
+        }
+        return startNewScanGroup;
+    }
+
+    @Override
+    public List<HRegionLocation> getRegionBoundaries(StatementContext context, byte[] tableName) throws SQLException {
+        return context.getConnection().getQueryServices().getAllTableRegions(tableName);
+    }
 }

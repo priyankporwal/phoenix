@@ -37,14 +37,13 @@ public class PSynchronizedMetaData implements PMetaData {
     public PSynchronizedMetaData(PMetaData metadata) {
         this.delegate = metadata;
     }
-    
+
     @Override
     public Iterator<PTable> iterator() {
         readWriteLock.readLock().lock();
         try {
             return delegate.iterator();
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
@@ -54,8 +53,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.readLock().lock();
         try {
             return delegate.size();
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
@@ -65,8 +63,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.readLock().lock();
         try {
             return delegate.clone();
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
@@ -76,8 +73,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.addTable(table, resolvedTime);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -87,8 +83,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.readLock().lock();
         try {
             return delegate.getTableRef(key);
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
@@ -98,8 +93,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.updateResolvedTimestamp(table, resolvedTimestamp);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -109,8 +103,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.pruneTables(pruner);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -120,20 +113,18 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.readLock().lock();
         try {
             return delegate.getFunction(key);
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
 
     @Override
     public void removeTable(PName tenantId, String tableName, String parentTableName,
-            long tableTimeStamp) throws SQLException {
+                            long tableTimeStamp) throws SQLException {
         readWriteLock.writeLock().lock();
         try {
             delegate.removeTable(tenantId, tableName, parentTableName, tableTimeStamp);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -143,8 +134,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.pruneFunctions(pruner);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -154,8 +144,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.readLock().lock();
         try {
             return delegate.getAge(ref);
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
@@ -165,21 +154,19 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.readLock().lock();
         try {
             return delegate.getSchema(key);
-        }
-        finally {
+        } finally {
             readWriteLock.readLock().unlock();
         }
     }
 
     @Override
     public void removeColumn(PName tenantId, String tableName, List<PColumn> columnsToRemove,
-            long tableTimeStamp, long tableSeqNum, long resolvedTime) throws SQLException {
+                             long tableTimeStamp, long tableSeqNum, long resolvedTime) throws SQLException {
         readWriteLock.writeLock().lock();
         try {
             delegate.removeColumn(tenantId, tableName, columnsToRemove, tableTimeStamp, tableSeqNum,
-                resolvedTime);
-        }
-        finally {
+                    resolvedTime);
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -189,8 +176,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.addFunction(function);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -201,8 +187,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.removeFunction(tenantId, function, functionTimeStamp);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -212,8 +197,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.addSchema(schema);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }
@@ -223,8 +207,7 @@ public class PSynchronizedMetaData implements PMetaData {
         readWriteLock.writeLock().lock();
         try {
             delegate.removeSchema(schema, schemaTimeStamp);
-        }
-        finally {
+        } finally {
             readWriteLock.writeLock().unlock();
         }
     }

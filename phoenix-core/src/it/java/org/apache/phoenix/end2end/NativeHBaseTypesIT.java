@@ -57,17 +57,15 @@ import org.junit.Test;
 
 
 /**
- * 
  * Tests using native HBase types (i.e. Bytes.toBytes methods) for
  * integers and longs. Phoenix can support this if the numbers are
  * positive.
  *
- * 
  * @since 0.1
  */
 
 public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
-    
+
     private String initTableValues() throws Exception {
         final String tableName = SchemaUtil.getTableName(generateUniqueName(), generateUniqueName());
         final byte[] tableBytes = tableName.getBytes();
@@ -82,7 +80,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
         } finally {
             admin.close();
         }
-        
+
         ConnectionQueryServices services = driver.getConnectionQueryServices(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES));
         Table hTable = services.getTable(tableBytes);
         try {
@@ -93,7 +91,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             byte[] ulongCol = Bytes.toBytes("ULONG_COL");
             byte[] key, bKey;
             Put put;
-            
+
             bKey = key = ByteUtil.concat(Bytes.toBytes(20), Bytes.toBytes(200L), Bytes.toBytes("b"));
             put = new Put(key);
             put.addColumn(family, uintCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(5000));
@@ -109,7 +107,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             put.addColumn(family, uintCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(2000));
             put.addColumn(family, ulongCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(20000L));
             mutations.add(put);
-            
+
             key = ByteUtil.concat(Bytes.toBytes(10), Bytes.toBytes(100L), Bytes.toBytes("a"));
             put = new Put(key);
             put.addColumn(family, uintCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(5));
@@ -119,21 +117,21 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             put.addColumn(family, uintCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(10));
             put.addColumn(family, ulongCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(100L));
             mutations.add(put);
-            
+
             key = ByteUtil.concat(Bytes.toBytes(30), Bytes.toBytes(300L), Bytes.toBytes("c"));
             put = new Put(key);
             put.addColumn(family, uintCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(3000));
             put.addColumn(family, ulongCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(30000L));
             mutations.add(put);
-            
+
             key = ByteUtil.concat(Bytes.toBytes(40), Bytes.toBytes(400L), Bytes.toBytes("d"));
             put = new Put(key);
             put.addColumn(family, uintCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(4000));
             put.addColumn(family, ulongCol, HConstants.LATEST_TIMESTAMP, Bytes.toBytes(40000L));
             mutations.add(put);
-            
+
             hTable.batch(mutations, null);
-            
+
             Result r = hTable.get(new Get(bKey));
             assertFalse(r.isEmpty());
         } finally {
@@ -149,14 +147,14 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
                 "    \"1\".ulong_col unsigned_long" +
                 "    CONSTRAINT pk PRIMARY KEY (uint_key, ulong_key, string_key))\n" +
                 ColumnFamilyDescriptorBuilder.DATA_BLOCK_ENCODING + "='" + DataBlockEncoding.NONE + "'";
-        
+
         try (Connection conn = DriverManager.getConnection(url)) {
             conn.createStatement().execute(ddl);
-        } 
-        
+        }
+
         return tableName;
     }
-    
+
     @Test
     public void testRangeQuery1() throws Exception {
         String tableName = initTableValues();
@@ -174,7 +172,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRangeQuery2() throws Exception {
         String tableName = initTableValues();
@@ -192,7 +190,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRangeQuery3() throws Exception {
         String tableName = initTableValues();
@@ -211,7 +209,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNegativeAgainstUnsignedNone() throws Exception {
         String tableName = initTableValues();
@@ -225,7 +223,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNegativeAgainstUnsignedAll() throws Exception {
         String tableName = initTableValues();
@@ -247,7 +245,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNegativeAddNegativeValue() throws Exception {
         String tableName = initTableValues();
@@ -256,7 +254,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + tableName + "(uint_key,ulong_key,string_key, uint_col) VALUES(?,?,?,?)");
             stmt.setInt(1, -1);
             stmt.setLong(2, 2L);
-            stmt.setString(3,"foo");
+            stmt.setString(3, "foo");
             stmt.setInt(4, 3);
             stmt.execute();
             fail();
@@ -264,21 +262,21 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
             assertTrue(e.getMessage().contains("Type mismatch"));
         }
     }
-    
+
     @Test
     public void testNegativeCompareNegativeValue() throws Exception {
         String tableName = initTableValues();
         String query = "SELECT string_key FROM " + tableName + " WHERE uint_key > 100000";
         PhoenixConnection conn = DriverManager.getConnection(getUrl()).unwrap(PhoenixConnection.class);
         Table hTable = conn.getQueryServices().getTable(tableName.getBytes());
-        
+
         List<Row> mutations = new ArrayList<Row>();
         byte[] family = Bytes.toBytes("1");
         byte[] uintCol = Bytes.toBytes("UINT_COL");
         byte[] ulongCol = Bytes.toBytes("ULONG_COL");
         byte[] key;
         Put put;
-        
+
         // Need to use native APIs because the Phoenix APIs wouldn't let you insert a
         // negative number for an unsigned type
         key = ByteUtil.concat(Bytes.toBytes(-10), Bytes.toBytes(100L), Bytes.toBytes("e"));
@@ -288,7 +286,7 @@ public class NativeHBaseTypesIT extends ParallelStatsDisabledIT {
         put.addColumn(family, QueryConstants.EMPTY_COLUMN_BYTES, HConstants.LATEST_TIMESTAMP, ByteUtil.EMPTY_BYTE_ARRAY);
         mutations.add(put);
         hTable.batch(mutations, null);
-    
+
         // Demonstrates weakness of HBase Bytes serialization. Negative numbers
         // show up as bigger than positive numbers
         PreparedStatement statement = conn.prepareStatement(query);

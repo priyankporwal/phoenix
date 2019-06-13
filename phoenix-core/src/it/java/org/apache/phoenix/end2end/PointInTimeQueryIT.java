@@ -49,17 +49,17 @@ import com.google.common.collect.Lists;
 
 public class PointInTimeQueryIT extends BaseQueryIT {
 
-    @Parameters(name="PointInTimeQueryIT_{index},columnEncoded={1}")
+    @Parameters(name = "PointInTimeQueryIT_{index},columnEncoded={1}")
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
         for (String indexDDL : INDEX_DDLS) {
-            for (boolean columnEncoded : new boolean[]{false,true}) {
-                testCases.add(new Object[] { indexDDL, columnEncoded });
+            for (boolean columnEncoded : new boolean[] {false, true}) {
+                testCases.add(new Object[] {indexDDL, columnEncoded});
             }
         }
         return testCases;
     }
-    
+
     public PointInTimeQueryIT(String idxDdl, boolean columnEncoded)
             throws Exception {
         // These queries fail without KEEP_DELETED_CELLS=true
@@ -68,14 +68,14 @@ public class PointInTimeQueryIT extends BaseQueryIT {
 
     @Test
     public void testPointInTimeDeleteUngroupedAggregation() throws Exception {
-        String updateStmt = 
-            "upsert into " + tableName +
-            " (" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_STRING) " +
-            "VALUES (?, ?, ?)";
-        
+        String updateStmt =
+                "upsert into " + tableName +
+                        " (" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_STRING) " +
+                        "VALUES (?, ?, ?)";
+
         // Override value that was set at creation time
         String url = getUrl();
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -87,7 +87,7 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         stmt.setString(2, ROW7);
         stmt.setString(3, null);
         stmt.execute();
-        
+
         // Delete row 
         stmt = conn.prepareStatement("delete from " + tableName + " where organization_id=? and entity_id=?");
         stmt.setString(1, tenantId);
@@ -96,9 +96,9 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         conn.commit();
         conn.close();
         long firstDeleteTime = System.currentTimeMillis();
-        long timeDelta = 100; 
-        Thread.sleep(timeDelta); 
-        
+        long timeDelta = 100;
+        Thread.sleep(timeDelta);
+
         // Delete row at timestamp 3. This should not be seen by the query executing
         // Remove column value at ts + 1 (i.e. equivalent to setting the value to null)
         Connection futureConn = DriverManager.getConnection(getUrl());
@@ -108,7 +108,7 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         stmt.execute();
         futureConn.commit();
         futureConn.close();
-        
+
         // query at a time which is beyong deleteTime1 but before the time at which above delete
         // happened
         long queryTime = firstDeleteTime + timeDelta / 2;
@@ -125,7 +125,7 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         assertFalse(rs.next());
         conn.close();
     }
-    
+
     @Test
     public void testPointInTimeScan() throws Exception {
         // Override value that was set at creation time
@@ -133,12 +133,12 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection upsertConn = DriverManager.getConnection(url, props);
         String upsertStmt =
-            "upsert into " + tableName +
-            " (" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_INTEGER) " +
-            "VALUES (?, ?, ?)";
+                "upsert into " + tableName +
+                        " (" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_INTEGER) " +
+                        "VALUES (?, ?, ?)";
         upsertConn.setAutoCommit(true); // Test auto commit
         PreparedStatement stmt = upsertConn.prepareStatement(upsertStmt);
         stmt.setString(1, tenantId);
@@ -149,7 +149,7 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         long upsert1Time = System.currentTimeMillis();
         long timeDelta = 100;
         Thread.sleep(timeDelta);
-        
+
         upsertConn = DriverManager.getConnection(url, props);
         upsertConn.setAutoCommit(true); // Test auto commit
         stmt = upsertConn.prepareStatement(upsertStmt);
@@ -158,7 +158,7 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         stmt.setInt(3, 9);
         stmt.execute(); // should commit too
         upsertConn.close();
-        
+
         long queryTime = upsert1Time + timeDelta / 2;
         String query = "SELECT organization_id, a_string AS a FROM " + tableName + " WHERE organization_id=? and a_integer = 5";
         props.setProperty(PhoenixRuntime.CURRENT_SCN_ATTRIB, Long.toString(queryTime));
@@ -184,12 +184,12 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection upsertConn = DriverManager.getConnection(url, props);
         String upsertStmt =
-            "upsert into " + tableName +
-            " (" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_INTEGER) " +
-            "VALUES (?, ?, ?)";
+                "upsert into " + tableName +
+                        " (" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_INTEGER) " +
+                        "VALUES (?, ?, ?)";
         upsertConn.setAutoCommit(true); // Test auto commit
         // Insert all rows at ts
         PreparedStatement stmt = upsertConn.prepareStatement(upsertStmt);
@@ -212,8 +212,8 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         stmt.setInt(3, 0);
         stmt.execute(); // should commit too
         upsertConn.close();
-        
-        long queryTime = upsert1Time + timeDelta  / 2;
+
+        long queryTime = upsert1Time + timeDelta / 2;
         String query = "SELECT a_integer,b_string FROM " + tableName + " WHERE organization_id=? and a_integer <= 5 limit 2";
         props.setProperty(PhoenixRuntime.CURRENT_SCN_ATTRIB, Long.toString(queryTime));
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -222,14 +222,14 @@ public class PointInTimeQueryIT extends BaseQueryIT {
         ResultSet rs = statement.executeQuery();
         List<List<Object>> expectedResultsA = Lists.newArrayList(
                 Arrays.<Object>asList(2, C_VALUE),
-                Arrays.<Object>asList( 3, E_VALUE));
+                Arrays.<Object>asList(3, E_VALUE));
         List<List<Object>> expectedResultsB = Lists.newArrayList(
-                Arrays.<Object>asList( 5, C_VALUE),
+                Arrays.<Object>asList(5, C_VALUE),
                 Arrays.<Object>asList(4, B_VALUE));
         // Since we're not ordering and we may be using a descending index, we don't
         // know which rows we'll get back.
-        assertOneOfValuesEqualsResultSet(rs, expectedResultsA,expectedResultsB);
-       conn.close();
+        assertOneOfValuesEqualsResultSet(rs, expectedResultsA, expectedResultsB);
+        conn.close();
     }
-    
+
 }

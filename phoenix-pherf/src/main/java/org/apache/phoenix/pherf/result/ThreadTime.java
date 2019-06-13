@@ -41,7 +41,9 @@ public class ThreadTime {
      * @return The earliest start time out of collected run times.
      */
     public Date getStartTime() {
-        if (getRunTimesInMs().isEmpty()) return new Date(0);
+        if (getRunTimesInMs().isEmpty()) {
+            return new Date(0);
+        }
 
         Date startTime = null;
         synchronized (getRunTimesInMs()) {
@@ -62,12 +64,16 @@ public class ThreadTime {
     }
 
     public RunTime getMinTimeInMs() {
-        if (getRunTimesInMs().isEmpty()) return null;
+        if (getRunTimesInMs().isEmpty()) {
+            return null;
+        }
         return Collections.min(getRunTimesInMs());
     }
 
     public Integer getAvgTimeInMs() {
-        if (getRunTimesInMs().isEmpty()) return null;
+        if (getRunTimesInMs().isEmpty()) {
+            return null;
+        }
 
         Integer totalTimeInMs = new Integer(0);
         for (RunTime runTime : getRunTimesInMs()) {
@@ -79,11 +85,14 @@ public class ThreadTime {
     }
 
     public RunTime getMaxTimeInMs() {
-        if (getRunTimesInMs().isEmpty()) return null;
+        if (getRunTimesInMs().isEmpty()) {
+            return null;
+        }
         return Collections.max(getRunTimesInMs());
     }
 
-    @XmlAttribute() public String getThreadName() {
+    @XmlAttribute()
+    public String getThreadName() {
         return threadName;
     }
 
@@ -92,7 +101,9 @@ public class ThreadTime {
     }
 
     private String parseThreadName(boolean getConcurrency) {
-        if (getThreadName() == null || !getThreadName().contains(",")) return null;
+        if (getThreadName() == null || !getThreadName().contains(",")) {
+            return null;
+        }
         String[] threadNameSet = getThreadName().split(",");
         if (getConcurrency) {
             return threadNameSet[1];
@@ -138,7 +149,9 @@ public class ThreadTime {
     }
 
     public int getRunCount() {
-        if (getRunTimesInMs().isEmpty()) return 0;
+        if (getRunTimesInMs().isEmpty()) {
+            return 0;
+        }
         return getRunTimesInMs().size();
     }
 }

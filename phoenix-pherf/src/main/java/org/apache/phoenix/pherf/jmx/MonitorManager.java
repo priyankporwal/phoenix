@@ -59,7 +59,8 @@ public class MonitorManager implements Workload {
     private final AtomicBoolean shouldStop = new AtomicBoolean(false);
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
-    @SuppressWarnings("unused") public MonitorManager() throws Exception {
+    @SuppressWarnings("unused")
+    public MonitorManager() throws Exception {
         this(PherfConstants.MONITOR_FREQUENCY);
     }
 
@@ -88,13 +89,16 @@ public class MonitorManager implements Workload {
         this.resultHandler.setResultFileName(PherfConstants.MONITOR_FILE_NAME);
     }
 
-    @Override public synchronized void complete() {
+    @Override
+    public synchronized void complete() {
         this.shouldStop.set(true);
     }
 
-    @Override public Callable<Void> execute() {
+    @Override
+    public Callable<Void> execute() {
         return new Callable<Void>() {
-            @Override public Void call() throws Exception {
+            @Override
+            public Void call() throws Exception {
                 try {
                     while (!shouldStop()) {
                         isRunning.set(true);

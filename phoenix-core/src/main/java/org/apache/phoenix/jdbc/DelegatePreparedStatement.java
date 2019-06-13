@@ -43,7 +43,7 @@ import java.util.Calendar;
 public class DelegatePreparedStatement implements PreparedStatement {
 
     protected PreparedStatement ps;
-    
+
     public DelegatePreparedStatement(PreparedStatement ps) {
         this.ps = ps;
     }

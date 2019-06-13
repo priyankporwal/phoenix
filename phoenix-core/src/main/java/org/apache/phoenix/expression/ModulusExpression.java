@@ -27,17 +27,16 @@ import org.apache.phoenix.schema.types.PLong;
 
 
 /**
- * 
  * Implementation of the LENGTH(<string>) build-in function. <string> is the string
  * of characters we want to find the length of. If <string> is NULL or empty, null
  * is returned.
- * 
- * 
+ *
  * @since 0.1
  */
 public class ModulusExpression extends ArithmeticExpression {
 
-    public ModulusExpression() { }
+    public ModulusExpression() {
+    }
 
     public ModulusExpression(List<Expression> children) {
         super(children);
@@ -46,7 +45,7 @@ public class ModulusExpression extends ArithmeticExpression {
     private Expression getDividendExpression() {
         return children.get(0);
     }
-    
+
     private Expression getDivisorExpression() {
         return children.get(1);
     }
@@ -62,7 +61,7 @@ public class ModulusExpression extends ArithmeticExpression {
             return true;
         }
         long dividend = dividendExpression.getDataType().getCodec().decodeLong(ptr, dividendExpression.getSortOrder());
-        
+
         // get the divisor
         Expression divisorExpression = getDivisorExpression();
         if (!divisorExpression.evaluate(tuple, ptr)) {
@@ -72,12 +71,12 @@ public class ModulusExpression extends ArithmeticExpression {
             return true;
         }
         long divisor = divisorExpression.getDataType().getCodec().decodeLong(ptr, divisorExpression.getSortOrder());
-        
+
         // actually perform modulus
         long remainder = dividend % divisor;
-        
+
         // return the result, use encodeLong to avoid extra Long allocation
-        byte[] resultPtr=new byte[PLong.INSTANCE.getByteSize()];
+        byte[] resultPtr = new byte[PLong.INSTANCE.getByteSize()];
         getDataType().getCodec().encodeLong(remainder, resultPtr, 0);
         ptr.set(resultPtr);
         return true;

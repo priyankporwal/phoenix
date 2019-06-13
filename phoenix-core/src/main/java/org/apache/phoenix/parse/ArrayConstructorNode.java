@@ -25,24 +25,23 @@ import org.apache.phoenix.compile.ColumnResolver;
 import org.apache.phoenix.schema.types.PArrayDataType;
 
 /**
- * Holds the list of array elements that will be used by the upsert stmt with ARRAY column 
- *
+ * Holds the list of array elements that will be used by the upsert stmt with ARRAY column
  */
 public class ArrayConstructorNode extends CompoundParseNode {
 
-	public ArrayConstructorNode(List<ParseNode> children) {
-		super(children);
-	}
+    public ArrayConstructorNode(List<ParseNode> children) {
+        super(children);
+    }
 
-	@Override
-	public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
-		List<T> l = Collections.emptyList();
+    @Override
+    public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
+        List<T> l = Collections.emptyList();
         if (visitor.visitEnter(this)) {
             l = acceptChildren(visitor);
         }
         return visitor.visitLeave(this, l);
-	}
-    
+    }
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append(' ');
@@ -50,7 +49,7 @@ public class ArrayConstructorNode extends CompoundParseNode {
         buf.append('[');
         List<ParseNode> children = getChildren();
         children.get(0).toSQL(resolver, buf);
-        for (int i = 1 ; i < children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             buf.append(',');
             children.get(i).toSQL(resolver, buf);
         }

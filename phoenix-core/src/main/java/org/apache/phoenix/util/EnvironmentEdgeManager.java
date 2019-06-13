@@ -24,52 +24,52 @@ package org.apache.phoenix.util;
  * defer to the delegate on invocation.
  */
 public class EnvironmentEdgeManager {
-  private static volatile EnvironmentEdge delegate = new DefaultEnvironmentEdge();
+    private static volatile EnvironmentEdge delegate = new DefaultEnvironmentEdge();
 
-  private EnvironmentEdgeManager() {
+    private EnvironmentEdgeManager() {
 
-  }
-
-  /**
-   * Retrieves the singleton instance of the {@link EnvironmentEdge} that is
-   * being managed.
-   *
-   * @return the edge.
-   */
-  public static EnvironmentEdge getDelegate() {
-    return delegate;
-  }
-
-  /**
-   * Resets the managed instance to the default instance: {@link
-   * DefaultEnvironmentEdge}.
-   */
-  public static void reset() {
-    injectEdge(new DefaultEnvironmentEdge());
-  }
-
-  /**
-   * Injects the given edge such that it becomes the managed entity. If null is
-   * passed to this method, the default type is assigned to the delegate.
-   *
-   * @param edge the new edge.
-   */
-  public static void injectEdge(EnvironmentEdge edge) {
-    org.apache.hadoop.hbase.util.EnvironmentEdgeManager.injectEdge(edge);
-    if (edge == null) {
-      reset();
-    } else {
-      delegate = edge;
     }
-  }
 
-  /**
-   * Defers to the delegate and calls the
-   * {@link EnvironmentEdge#currentTime()} method.
-   *
-   * @return current time in millis according to the delegate.
-   */
-  public static long currentTimeMillis() {
-    return getDelegate().currentTime();
-  }
+    /**
+     * Retrieves the singleton instance of the {@link EnvironmentEdge} that is
+     * being managed.
+     *
+     * @return the edge.
+     */
+    public static EnvironmentEdge getDelegate() {
+        return delegate;
+    }
+
+    /**
+     * Resets the managed instance to the default instance: {@link
+     * DefaultEnvironmentEdge}.
+     */
+    public static void reset() {
+        injectEdge(new DefaultEnvironmentEdge());
+    }
+
+    /**
+     * Injects the given edge such that it becomes the managed entity. If null is
+     * passed to this method, the default type is assigned to the delegate.
+     *
+     * @param edge the new edge.
+     */
+    public static void injectEdge(EnvironmentEdge edge) {
+        org.apache.hadoop.hbase.util.EnvironmentEdgeManager.injectEdge(edge);
+        if (edge == null) {
+            reset();
+        } else {
+            delegate = edge;
+        }
+    }
+
+    /**
+     * Defers to the delegate and calls the
+     * {@link EnvironmentEdge#currentTime()} method.
+     *
+     * @return current time in millis according to the delegate.
+     */
+    public static long currentTimeMillis() {
+        return getDelegate().currentTime();
+    }
 }

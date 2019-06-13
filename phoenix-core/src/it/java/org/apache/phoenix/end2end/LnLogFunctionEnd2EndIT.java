@@ -80,8 +80,8 @@ public class LnLogFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         updateTableSpec(conn, data, tableName);
         ResultSet rs =
                 conn.createStatement().executeQuery(
-                    "SELECT LN(doub),LN(fl),LN(inte),LN(lon),LN(smalli),LN(tinyi) FROM "
-                            + tableName);
+                        "SELECT LN(doub),LN(fl),LN(inte),LN(lon),LN(smalli),LN(tinyi) FROM "
+                                + tableName);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.log(d.doubleValue())));
@@ -94,8 +94,8 @@ public class LnLogFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         assertTrue(!rs.next());
         rs =
                 conn.createStatement().executeQuery(
-                    "SELECT LOG(doub),LOG(fl),LOG(inte),LOG(lon),LOG(smalli),LOG(tinyi) FROM "
-                            + tableName);
+                        "SELECT LOG(doub),LOG(fl),LOG(inte),LOG(lon),LOG(smalli),LOG(tinyi) FROM "
+                                + tableName);
         assertTrue(rs.next());
         d = Double.valueOf(data);
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.log10(d.doubleValue())));
@@ -108,8 +108,8 @@ public class LnLogFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
         rs =
                 conn.createStatement().executeQuery(
-                    "SELECT LOG(doub,3),LOG(fl,3),LOG(inte,3),LOG(lon,3),LOG(smalli,3),LOG(tinyi,3) FROM "
-                            + tableName);
+                        "SELECT LOG(doub,3),LOG(fl,3),LOG(inte,3),LOG(lon,3),LOG(smalli,3),LOG(tinyi,3) FROM "
+                                + tableName);
         assertTrue(rs.next());
         d = Double.valueOf(data);
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.log(d.doubleValue()) / Math.log(3)));
@@ -124,9 +124,11 @@ public class LnLogFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void test() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, -1.0, 123.1234, -123.1234 }) {
-            testNumberSpec(conn, d, signedTableName );
-            if (d >= 0) testNumberSpec(conn, d, unsignedTableName );
+        for (double d : new double[] {0.0, 1.0, -1.0, 123.1234, -123.1234}) {
+            testNumberSpec(conn, d, signedTableName);
+            if (d >= 0) {
+                testNumberSpec(conn, d, unsignedTableName);
+            }
         }
     }
 }

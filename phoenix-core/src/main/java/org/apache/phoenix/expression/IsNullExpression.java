@@ -32,9 +32,7 @@ import org.apache.phoenix.util.ExpressionUtil;
 
 
 /**
- * 
  * Implementation of IS NULL and IS NOT NULL expression
- *
  */
 public class IsNullExpression extends BaseSingleExpression {
     private boolean isNegate;
@@ -49,10 +47,10 @@ public class IsNullExpression extends BaseSingleExpression {
         }
         return new IsNullExpression(child, negate);
     }
-    
+
     public IsNullExpression() {
     }
-    
+
     private IsNullExpression(Expression expression, boolean negate) {
         super(expression);
         this.isNegate = negate;
@@ -66,7 +64,7 @@ public class IsNullExpression extends BaseSingleExpression {
     public IsNullExpression clone(List<Expression> children) {
         return new IsNullExpression(children, this.isNegate());
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         boolean evaluated = getChild().evaluate(tuple, ptr);
@@ -78,14 +76,14 @@ public class IsNullExpression extends BaseSingleExpression {
             ptr.set(isNegate ? PDataType.FALSE_BYTES : PDataType.TRUE_BYTES);
             return true;
         }
-        
+
         return false;
     }
 
     public boolean isNegate() {
         return isNegate;
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
@@ -102,7 +100,7 @@ public class IsNullExpression extends BaseSingleExpression {
     public PDataType getDataType() {
         return PBoolean.INSTANCE;
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         List<T> l = acceptChildren(visitor, visitor.visitEnter(this));
@@ -112,7 +110,7 @@ public class IsNullExpression extends BaseSingleExpression {
         }
         return t;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder(children.get(0).toString());
@@ -123,7 +121,7 @@ public class IsNullExpression extends BaseSingleExpression {
         }
         return buf.toString();
     }
-    
+
     @Override
     public boolean requiresFinalEvaluation() {
         return super.requiresFinalEvaluation() || !this.isNegate();

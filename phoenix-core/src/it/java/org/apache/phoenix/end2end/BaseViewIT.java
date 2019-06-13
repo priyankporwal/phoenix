@@ -53,49 +53,49 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public abstract class BaseViewIT extends ParallelStatsEnabledIT {
-	
-	protected String tableName;
-    protected String schemaName;
-	protected String fullTableName;
-	protected String tableDDLOptions;
-	protected String txProvider;
 
-    public BaseViewIT( String txProvider) {
-		StringBuilder optionBuilder = new StringBuilder();
-		this.txProvider = txProvider;
-		if (txProvider != null) {
-			optionBuilder.append(" TRANSACTIONAL=true,TRANSACTION_PROVIDER='" + txProvider + "'");
-		}
-		this.schemaName = "S_" + generateUniqueName();
-		this.tableDDLOptions = optionBuilder.toString();
-		this.tableName = "T_" + generateUniqueName();
+    protected String tableName;
+    protected String schemaName;
+    protected String fullTableName;
+    protected String tableDDLOptions;
+    protected String txProvider;
+
+    public BaseViewIT(String txProvider) {
+        StringBuilder optionBuilder = new StringBuilder();
+        this.txProvider = txProvider;
+        if (txProvider != null) {
+            optionBuilder.append(" TRANSACTIONAL=true,TRANSACTION_PROVIDER='" + txProvider + "'");
+        }
+        this.schemaName = "S_" + generateUniqueName();
+        this.tableDDLOptions = optionBuilder.toString();
+        this.tableName = "T_" + generateUniqueName();
         this.fullTableName = SchemaUtil.getTableName(schemaName, tableName);
-	}
-    
-    @Parameters(name="transactionProvider={0}")
-    public static Collection<Object[]> data() {
-        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] { {"TEPHRA"}, {"OMID"}, {null} }), 0);
     }
-    
+
+    @Parameters(name = "transactionProvider={0}")
+    public static Collection<Object[]> data() {
+        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {{"TEPHRA"}, {"OMID"}, {null}}), 0);
+    }
+
     protected void testUpdatableViewWithIndex(Integer saltBuckets, boolean localIndex) throws Exception {
         String viewName = testUpdatableView(saltBuckets);
-        Pair<String,Scan> pair = testUpdatableViewIndex(saltBuckets, localIndex, viewName);
+        Pair<String, Scan> pair = testUpdatableViewIndex(saltBuckets, localIndex, viewName);
         Scan scan = pair.getSecond();
         String tableName = pair.getFirst();
         // Confirm that dropping the view also deletes the rows in the index
         if (saltBuckets == null) {
             try (Connection conn = DriverManager.getConnection(getUrl())) {
                 Table htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(tableName));
-                if(ScanUtil.isLocalIndex(scan)) {
+                if (ScanUtil.isLocalIndex(scan)) {
                     ScanUtil.setLocalIndexAttributes(scan, 0, HConstants.EMPTY_BYTE_ARRAY, HConstants.EMPTY_BYTE_ARRAY, scan.getStartRow(), scan.getStopRow());
                 }
                 ResultScanner scanner = htable.getScanner(scan);
                 Result result = scanner.next();
                 // Confirm index has rows
                 assertTrue(result != null && !result.isEmpty());
-                
+
                 conn.createStatement().execute("DROP VIEW " + viewName);
-                
+
                 // Confirm index has no rows after view is dropped
                 scanner = htable.getScanner(scan);
                 result = scanner.next();
@@ -106,22 +106,23 @@ public abstract class BaseViewIT extends ParallelStatsEnabledIT {
 
     protected String testUpdatableView(Integer saltBuckets) throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-		if (saltBuckets!=null) {
-			if (tableDDLOptions.length()!=0)
-				tableDDLOptions+=",";
-			tableDDLOptions+=(" SALT_BUCKETS="+saltBuckets);
-		}
-		String viewName = "V_" + generateUniqueName();
+        if (saltBuckets != null) {
+            if (tableDDLOptions.length() != 0) {
+                tableDDLOptions += ",";
+            }
+            tableDDLOptions += (" SALT_BUCKETS=" + saltBuckets);
+        }
+        String viewName = "V_" + generateUniqueName();
         String ddl = "CREATE TABLE " + fullTableName + " (k1 INTEGER NOT NULL, k2 INTEGER NOT NULL, k3 DECIMAL, s VARCHAR CONSTRAINT pk PRIMARY KEY (k1, k2, k3))" + tableDDLOptions;
         conn.createStatement().execute(ddl);
         ddl = "CREATE VIEW " + viewName + " AS SELECT * FROM " + fullTableName + " WHERE k1 = 1";
         conn.createStatement().execute(ddl);
         for (int i = 0; i < 10; i++) {
-            conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES(" + (i % 4) + "," + (i+100) + "," + (i > 5 ? 2 : 1) + ")");
+            conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES(" + (i % 4) + "," + (i + 100) + "," + (i > 5 ? 2 : 1) + ")");
         }
         conn.commit();
         ResultSet rs;
-        
+
         rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + fullTableName);
         assertTrue(rs.next());
         assertEquals(10, rs.getInt(1));
@@ -158,11 +159,11 @@ public abstract class BaseViewIT extends ParallelStatsEnabledIT {
         return viewName;
     }
 
-    protected Pair<String,Scan> testUpdatableViewIndex(Integer saltBuckets, String viewName) throws Exception {
+    protected Pair<String, Scan> testUpdatableViewIndex(Integer saltBuckets, String viewName) throws Exception {
         return testUpdatableViewIndex(saltBuckets, false, viewName);
     }
 
-    protected Pair<String,Scan> testUpdatableViewIndex(Integer saltBuckets, boolean localIndex, String viewName) throws Exception {
+    protected Pair<String, Scan> testUpdatableViewIndex(Integer saltBuckets, boolean localIndex, String viewName) throws Exception {
         ResultSet rs;
         Connection conn = DriverManager.getConnection(getUrl());
         String viewIndexName1 = "I_" + generateUniqueName();
@@ -175,31 +176,31 @@ public abstract class BaseViewIT extends ParallelStatsEnabledIT {
         conn.createStatement().execute("UPSERT INTO " + viewName + "(k2,S,k3) VALUES(120,'foo',50.0)");
         conn.commit();
 
-        analyzeTable(conn, viewName);        
+        analyzeTable(conn, viewName);
         List<KeyRange> splits = getAllSplits(conn, viewIndexName1);
         // More guideposts with salted, since it's already pre-split at salt buckets
         assertEquals(saltBuckets == null ? 6 : 8, splits.size());
-        
+
         String query = "SELECT k1, k2, k3, s FROM " + viewName + " WHERE k3 = 51.0";
         rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
         assertEquals(121, rs.getInt(2));
-        assertTrue(BigDecimal.valueOf(51.0).compareTo(rs.getBigDecimal(3))==0);
+        assertTrue(BigDecimal.valueOf(51.0).compareTo(rs.getBigDecimal(3)) == 0);
         assertEquals("bar", rs.getString(4));
         assertFalse(rs.next());
         rs = conn.createStatement().executeQuery("EXPLAIN " + query);
         String queryPlan = QueryUtil.getExplainPlan(rs);
         if (localIndex) {
-            assertEquals("CLIENT PARALLEL "+ (saltBuckets == null ? 1 : saltBuckets)  +"-WAY RANGE SCAN OVER " + fullTableName +" [1,51]\n"
-                    + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                    + "CLIENT MERGE SORT",
-                queryPlan);
+            assertEquals("CLIENT PARALLEL " + (saltBuckets == null ? 1 : saltBuckets) + "-WAY RANGE SCAN OVER " + fullTableName + " [1,51]\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n"
+                            + "CLIENT MERGE SORT",
+                    queryPlan);
         } else {
             assertEquals(saltBuckets == null
-                    ? "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + viewIndexPhysicalName +" [" + Long.MIN_VALUE + ",51]"
-                            : "CLIENT PARALLEL " + saltBuckets + "-WAY RANGE SCAN OVER " + viewIndexPhysicalName + " [0," + Long.MIN_VALUE + ",51] - ["+(saltBuckets.intValue()-1)+"," + Long.MIN_VALUE + ",51]\nCLIENT MERGE SORT",
-                            queryPlan);
+                            ? "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + viewIndexPhysicalName + " [" + Long.MIN_VALUE + ",51]"
+                            : "CLIENT PARALLEL " + saltBuckets + "-WAY RANGE SCAN OVER " + viewIndexPhysicalName + " [0," + Long.MIN_VALUE + ",51] - [" + (saltBuckets.intValue() - 1) + "," + Long.MIN_VALUE + ",51]\nCLIENT MERGE SORT",
+                    queryPlan);
         }
 
         String viewIndexName2 = "I_" + generateUniqueName();
@@ -208,17 +209,17 @@ public abstract class BaseViewIT extends ParallelStatsEnabledIT {
         } else {
             conn.createStatement().execute("CREATE INDEX " + viewIndexName2 + " on " + viewName + "(s)");
         }
-        
+
         // new index hasn't been analyzed yet
         splits = getAllSplits(conn, viewIndexName2);
         assertEquals(saltBuckets == null ? 1 : 3, splits.size());
-        
+
         // analyze table should analyze all view data
-        analyzeTable(conn, fullTableName);        
+        analyzeTable(conn, fullTableName);
         splits = getAllSplits(conn, viewIndexName2);
         assertEquals(saltBuckets == null ? 6 : 8, splits.size());
 
-        
+
         query = "SELECT k1, k2, s FROM " + viewName + " WHERE s = 'foo'";
         Statement statement = conn.createStatement();
         rs = statement.executeQuery(query);
@@ -232,20 +233,20 @@ public abstract class BaseViewIT extends ParallelStatsEnabledIT {
         String physicalTableName;
         if (localIndex) {
             physicalTableName = fullTableName;
-            assertEquals("CLIENT PARALLEL "+ (saltBuckets == null ? 1 : saltBuckets)  +"-WAY RANGE SCAN OVER " + fullTableName +" [" + (2) + ",'foo']\n"
+            assertEquals("CLIENT PARALLEL " + (saltBuckets == null ? 1 : saltBuckets) + "-WAY RANGE SCAN OVER " + fullTableName + " [" + (2) + ",'foo']\n"
                     + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                    + "CLIENT MERGE SORT",QueryUtil.getExplainPlan(rs));
+                    + "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
         } else {
             physicalTableName = viewIndexPhysicalName;
             assertEquals(saltBuckets == null
-                    ? "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + viewIndexPhysicalName +" [" + (Long.MIN_VALUE+1) + ",'foo']\n"
+                            ? "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + viewIndexPhysicalName + " [" + (Long.MIN_VALUE + 1) + ",'foo']\n"
                             + "    SERVER FILTER BY FIRST KEY ONLY"
-                            : "CLIENT PARALLEL " + saltBuckets + "-WAY RANGE SCAN OVER " + viewIndexPhysicalName + " [0," + (Long.MIN_VALUE+1) + ",'foo'] - ["+(saltBuckets.intValue()-1)+"," + (Long.MIN_VALUE+1) + ",'foo']\n"
-                                    + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                                    + "CLIENT MERGE SORT",
-                            QueryUtil.getExplainPlan(rs));
+                            : "CLIENT PARALLEL " + saltBuckets + "-WAY RANGE SCAN OVER " + viewIndexPhysicalName + " [0," + (Long.MIN_VALUE + 1) + ",'foo'] - [" + (saltBuckets.intValue() - 1) + "," + (Long.MIN_VALUE + 1) + ",'foo']\n"
+                            + "    SERVER FILTER BY FIRST KEY ONLY\n"
+                            + "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
         }
         conn.close();
-        return new Pair<>(physicalTableName,scan);
+        return new Pair<>(physicalTableName, scan);
     }
 }

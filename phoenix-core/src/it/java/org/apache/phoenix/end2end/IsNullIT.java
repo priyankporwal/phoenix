@@ -45,21 +45,21 @@ public class IsNullIT extends ParallelStatsDisabledIT {
         rowsInserted = upsertStmt.executeUpdate();
         assertEquals(1, rowsInserted);
         conn.commit();
-        
+
         String select = "SELECT i/j FROM " + tableName + " WHERE j IS NULL";
         ResultSet rs;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
-        assertEquals(0,rs.getInt(1));
+        assertEquals(0, rs.getInt(1));
         assertTrue(rs.wasNull());
         assertFalse(rs.next());
         select = "SELECT i/j FROM " + tableName + " WHERE j IS NOT NULL";
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
-        assertEquals(2,rs.getInt(1));
+        assertEquals(2, rs.getInt(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testIsNullWithLastPKColDesc() throws Exception {
         String tableName = generateUniqueName();
@@ -70,22 +70,22 @@ public class IsNullIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES ('b',null,'c')");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES ('ba', null, 'd')");
         conn.commit();
-        
+
         ResultSet rs = conn.createStatement().executeQuery("SELECT k1,k2,k3 FROM " + tableName + " WHERE k1='b' AND k2 IS NULL");
         assertTrue(rs.next());
-        assertEquals("b",rs.getString(1));
+        assertEquals("b", rs.getString(1));
         assertNull(rs.getString(2));
         assertNull(rs.getString(3));
 
         assertTrue(rs.next());
-        assertEquals("b",rs.getString(1));
+        assertEquals("b", rs.getString(1));
         assertNull(rs.getString(2));
-        assertEquals("c",rs.getString(3));
-        
+        assertEquals("c", rs.getString(3));
+
         assertFalse(rs.next());
         conn.close();
     }
-    
+
     @Test
     public void testIsNullInCompositeKey() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -94,14 +94,14 @@ public class IsNullIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (null,'a')");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES ('a','a')");
         conn.commit();
-        
+
         ResultSet rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals(2,rs.getInt(1));
+        assertEquals(2, rs.getInt(1));
         rs = conn.createStatement().executeQuery("SELECT count(*) FROM " + tableName + " WHERE k1 = 'a' or k1 is null");
         assertTrue(rs.next());
-        assertEquals(2,rs.getInt(1));
+        assertEquals(2, rs.getInt(1));
         conn.close();
     }
-    
+
 }

@@ -87,11 +87,11 @@ public class MetaDataUtilTest {
 
     @Test
     public void testEncode() {
-        assertEquals(VersionUtil.encodeVersion("0.94.5"),VersionUtil.encodeVersion("0.94.5-mapR"));
-        assertTrue(VersionUtil.encodeVersion("0.94.6")>VersionUtil.encodeVersion("0.94.5-mapR"));
-        assertTrue(VersionUtil.encodeVersion("0.94.6")>VersionUtil.encodeVersion("0.94.5"));
-        assertTrue(VersionUtil.encodeVersion("0.94.1-mapR")>VersionUtil.encodeVersion("0.94"));
-        assertTrue(VersionUtil.encodeVersion("1", "1", "3")>VersionUtil.encodeVersion("1", "1", "1"));
+        assertEquals(VersionUtil.encodeVersion("0.94.5"), VersionUtil.encodeVersion("0.94.5-mapR"));
+        assertTrue(VersionUtil.encodeVersion("0.94.6") > VersionUtil.encodeVersion("0.94.5-mapR"));
+        assertTrue(VersionUtil.encodeVersion("0.94.6") > VersionUtil.encodeVersion("0.94.5"));
+        assertTrue(VersionUtil.encodeVersion("0.94.1-mapR") > VersionUtil.encodeVersion("0.94"));
+        assertTrue(VersionUtil.encodeVersion("1", "1", "3") > VersionUtil.encodeVersion("1", "1", "1"));
     }
 
     @Test
@@ -104,16 +104,16 @@ public class MetaDataUtilTest {
 
     @Test
     public void testCompatibility() {
-        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1,2,1), 1, 2));
-        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1,2,10), 1, 1));
-        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1,2,0), 1, 2));
-        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1,2,255), 1, 2));
-        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(2,2,0), 2, 0));
-        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(2,10,36), 2, 9));
-        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3,1,10), 4, 0));
-        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3,1,10), 2, 0));
-        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3,1,10), 3, 2));
-        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3,1,10), 3, 5));
+        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1, 2, 1), 1, 2));
+        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1, 2, 10), 1, 1));
+        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1, 2, 0), 1, 2));
+        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(1, 2, 255), 1, 2));
+        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(2, 2, 0), 2, 0));
+        assertTrue(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(2, 10, 36), 2, 9));
+        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3, 1, 10), 4, 0));
+        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3, 1, 10), 2, 0));
+        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3, 1, 10), 3, 2));
+        assertFalse(MetaDataUtil.areClientAndServerCompatible(VersionUtil.encodeVersion(3, 1, 10), 3, 5));
     }
 
     @Test
@@ -182,47 +182,48 @@ public class MetaDataUtilTest {
     }
 
     /**
-   * Ensure it supports {@link GenericKeyValueBuilder}
-   * @throws Exception on failure
-   */
-  @Test
-  public void testGetMutationKeyValue() throws Exception {
-    String version = VersionInfo.getVersion();
-    KeyValueBuilder builder = KeyValueBuilder.get(version);
-    KeyValue kv = builder.buildPut(wrap(ROW), wrap(TABLE_FAMILY_BYTES), wrap(QUALIFIER),
-            wrap(ORIGINAL_VALUE));
-    Put put = new Put(ROW);
-    KeyValueBuilder.addQuietly(put, kv);
-
-    // read back out the value
-    ImmutableBytesPtr ptr = new ImmutableBytesPtr();
-    assertTrue(MetaDataUtil.getMutationValue(put, QUALIFIER, builder, ptr));
-    assertEquals("Value returned doesn't match stored value for " + builder.getClass().getName()
-        + "!", 0,
-      ByteUtil.BYTES_PTR_COMPARATOR.compare(ptr, wrap(ORIGINAL_VALUE)));
-
-    // try again, this time with the clientkeyvalue builder
-    if (builder != GenericKeyValueBuilder.INSTANCE) {
-        builder = GenericKeyValueBuilder.INSTANCE;
-        byte[] value = Bytes.toBytes("client-value");
-        kv = builder.buildPut(wrap(ROW), wrap(TABLE_FAMILY_BYTES), wrap(QUALIFIER), wrap(value));
-        put = new Put(ROW);
+     * Ensure it supports {@link GenericKeyValueBuilder}
+     *
+     * @throws Exception on failure
+     */
+    @Test
+    public void testGetMutationKeyValue() throws Exception {
+        String version = VersionInfo.getVersion();
+        KeyValueBuilder builder = KeyValueBuilder.get(version);
+        KeyValue kv = builder.buildPut(wrap(ROW), wrap(TABLE_FAMILY_BYTES), wrap(QUALIFIER),
+                wrap(ORIGINAL_VALUE));
+        Put put = new Put(ROW);
         KeyValueBuilder.addQuietly(put, kv);
-    
+
         // read back out the value
+        ImmutableBytesPtr ptr = new ImmutableBytesPtr();
         assertTrue(MetaDataUtil.getMutationValue(put, QUALIFIER, builder, ptr));
         assertEquals("Value returned doesn't match stored value for " + builder.getClass().getName()
-            + "!", 0,
-          ByteUtil.BYTES_PTR_COMPARATOR.compare(ptr, wrap(value)));
-    
-        // ensure that we don't get matches for qualifiers that don't match
-        assertFalse(MetaDataUtil.getMutationValue(put, Bytes.toBytes("not a match"), builder, ptr));
-    }
-  }
+                        + "!", 0,
+                ByteUtil.BYTES_PTR_COMPARATOR.compare(ptr, wrap(ORIGINAL_VALUE)));
 
-  private static ImmutableBytesPtr wrap(byte[] bytes) {
-    return new ImmutableBytesPtr(bytes);
-  }
+        // try again, this time with the clientkeyvalue builder
+        if (builder != GenericKeyValueBuilder.INSTANCE) {
+            builder = GenericKeyValueBuilder.INSTANCE;
+            byte[] value = Bytes.toBytes("client-value");
+            kv = builder.buildPut(wrap(ROW), wrap(TABLE_FAMILY_BYTES), wrap(QUALIFIER), wrap(value));
+            put = new Put(ROW);
+            KeyValueBuilder.addQuietly(put, kv);
+
+            // read back out the value
+            assertTrue(MetaDataUtil.getMutationValue(put, QUALIFIER, builder, ptr));
+            assertEquals("Value returned doesn't match stored value for " + builder.getClass().getName()
+                            + "!", 0,
+                    ByteUtil.BYTES_PTR_COMPARATOR.compare(ptr, wrap(value)));
+
+            // ensure that we don't get matches for qualifiers that don't match
+            assertFalse(MetaDataUtil.getMutationValue(put, Bytes.toBytes("not a match"), builder, ptr));
+        }
+    }
+
+    private static ImmutableBytesPtr wrap(byte[] bytes) {
+        return new ImmutableBytesPtr(bytes);
+    }
 
     @Test
     public void testEncodeDecode() {
@@ -267,7 +268,7 @@ public class MetaDataUtilTest {
     }
 
     @Test
-    public void testConditionallyAddTagsToPutCells( ) {
+    public void testConditionallyAddTagsToPutCells() {
         List<Tag> tags = TagUtil.asList(VIEW_MODIFIED_PROPERTY_BYTES, 0, VIEW_MODIFIED_PROPERTY_BYTES.length);
         assertEquals(tags.size(), 1);
         Tag expectedTag = tags.get(0);

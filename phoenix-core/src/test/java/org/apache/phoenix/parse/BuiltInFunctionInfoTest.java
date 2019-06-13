@@ -87,9 +87,9 @@ public class BuiltInFunctionInfoTest {
         }
     }
 
-    @BuiltInFunction(name="NO_DEFAULT_ARGS", args={
-            @Argument(allowedTypes={PVarchar.class}),
-            @Argument(allowedTypes={PVarchar.class})})
+    @BuiltInFunction(name = "NO_DEFAULT_ARGS", args = {
+            @Argument(allowedTypes = {PVarchar.class}),
+            @Argument(allowedTypes = {PVarchar.class})})
     static class NoDefaultArgsFunction extends BaseFunctionAdapter {
 
         public NoDefaultArgsFunction(List<Expression> ignoreChildren) {
@@ -98,10 +98,10 @@ public class BuiltInFunctionInfoTest {
 
     }
 
-    @BuiltInFunction(name="WITH_ONE_DEFAULT_ARG", args={
-            @Argument(allowedTypes={PVarchar.class}),
-            @Argument(allowedTypes={PVarchar.class}),
-            @Argument(allowedTypes={PVarchar.class}, defaultValue = "'a'") })
+    @BuiltInFunction(name = "WITH_ONE_DEFAULT_ARG", args = {
+            @Argument(allowedTypes = {PVarchar.class}),
+            @Argument(allowedTypes = {PVarchar.class}),
+            @Argument(allowedTypes = {PVarchar.class}, defaultValue = "'a'")})
     static class WithOneDefaultArg extends BaseFunctionAdapter {
 
         public WithOneDefaultArg(List<Expression> ignoreChildren) {
@@ -109,10 +109,10 @@ public class BuiltInFunctionInfoTest {
         }
     }
 
-    @BuiltInFunction(name="WITH_MULTIPLE_DEFAULT_ARGS", args={
-            @Argument(allowedTypes={PVarchar.class}),
-            @Argument(allowedTypes={PVarchar.class}, defaultValue = "'a'"),
-            @Argument(allowedTypes={PVarchar.class}, defaultValue = "'b'") })
+    @BuiltInFunction(name = "WITH_MULTIPLE_DEFAULT_ARGS", args = {
+            @Argument(allowedTypes = {PVarchar.class}),
+            @Argument(allowedTypes = {PVarchar.class}, defaultValue = "'a'"),
+            @Argument(allowedTypes = {PVarchar.class}, defaultValue = "'b'")})
     static class WithMultipleDefaultArgs extends BaseFunctionAdapter {
 
         public WithMultipleDefaultArgs(List<Expression> ignoreChildren) {

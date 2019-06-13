@@ -40,12 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.getIndexToolDataTableName;
 import static org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil.getIndexToolIndexTableName;
 
 /**
  * {@link InputFormat} implementation from Phoenix for building index
- * 
  */
 public class PhoenixServerBuildIndexInputFormat<T extends DBWritable> extends PhoenixInputFormat {
     QueryPlan queryPlan = null;
@@ -60,7 +60,7 @@ public class PhoenixServerBuildIndexInputFormat<T extends DBWritable> extends Ph
     }
 
     @Override
-    protected  QueryPlan getQueryPlan(final JobContext context, final Configuration configuration)
+    protected QueryPlan getQueryPlan(final JobContext context, final Configuration configuration)
             throws IOException {
         Preconditions.checkNotNull(context);
         if (queryPlan != null) {
@@ -70,11 +70,11 @@ public class PhoenixServerBuildIndexInputFormat<T extends DBWritable> extends Ph
         final String currentScnValue = configuration.get(PhoenixConfigurationUtil.CURRENT_SCN_VALUE);
         final String tenantId = configuration.get(PhoenixConfigurationUtil.MAPREDUCE_TENANT_ID);
         final Properties overridingProps = new Properties();
-        if(txnScnValue==null && currentScnValue!=null) {
+        if (txnScnValue == null && currentScnValue != null) {
             overridingProps.put(PhoenixRuntime.CURRENT_SCN_ATTRIB, currentScnValue);
             overridingProps.put(PhoenixRuntime.BUILD_INDEX_AT_ATTRIB, currentScnValue);
         }
-        if (tenantId != null && configuration.get(PhoenixRuntime.TENANT_ID_ATTRIB) == null){
+        if (tenantId != null && configuration.get(PhoenixRuntime.TENANT_ID_ATTRIB) == null) {
             overridingProps.put(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         }
         String dataTableFullName = getIndexToolDataTableName(configuration);

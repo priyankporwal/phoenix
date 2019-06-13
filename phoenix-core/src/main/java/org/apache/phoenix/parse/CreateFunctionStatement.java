@@ -36,7 +36,7 @@ public class CreateFunctionStatement extends MutableStatement {
     public PFunction getFunctionInfo() {
         return functionInfo;
     }
-    
+
     public boolean isTemporary() {
         return temporary;
     }

@@ -27,47 +27,46 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * Node representing an explicit table reference in the FROM clause of SQL
- * 
- * 
+ *
  * @since 0.1
  */
 public class NamedTableNode extends ConcreteTableNode {
 
     private final List<ColumnDef> dynColumns;
-    
-    public static NamedTableNode create (String alias, TableName name, List<ColumnDef> dynColumns) {
+
+    public static NamedTableNode create(String alias, TableName name, List<ColumnDef> dynColumns) {
         return new NamedTableNode(alias, name, dynColumns);
     }
-    
-    public static NamedTableNode create (TableName name) {
+
+    public static NamedTableNode create(TableName name) {
         return new NamedTableNode(null, name, Collections.<ColumnDef>emptyList());
     }
-    
-    public static NamedTableNode create (String schemaName, String tableName) {
+
+    public static NamedTableNode create(String schemaName, String tableName) {
         return new NamedTableNode(null, TableName.create(schemaName, tableName), Collections.<ColumnDef>emptyList());
     }
-    
+
     @Deprecated
     NamedTableNode(String alias, TableName name) {
         this(alias, name, ConcreteTableNode.DEFAULT_TABLE_SAMPLING_RATE);
     }
-    
+
     @Deprecated
     NamedTableNode(String alias, TableName name, List<ColumnDef> dynColumns) {
-    	this(alias,name,dynColumns,ConcreteTableNode.DEFAULT_TABLE_SAMPLING_RATE);
+        this(alias, name, dynColumns, ConcreteTableNode.DEFAULT_TABLE_SAMPLING_RATE);
     }
-    
+
     NamedTableNode(String alias, TableName name, Double tableSamplingRate) {
-    	super(alias, name, tableSamplingRate);
-        dynColumns = Collections.<ColumnDef> emptyList();
+        super(alias, name, tableSamplingRate);
+        dynColumns = Collections.<ColumnDef>emptyList();
     }
-    
+
     NamedTableNode(String alias, TableName name, List<ColumnDef> dynColumns, Double tableSamplingRate) {
         super(alias, name, tableSamplingRate);
         if (dynColumns != null) {
             this.dynColumns = ImmutableList.copyOf(dynColumns);
         } else {
-            this.dynColumns = Collections.<ColumnDef> emptyList();
+            this.dynColumns = Collections.<ColumnDef>emptyList();
         }
     }
 
@@ -79,7 +78,7 @@ public class NamedTableNode extends ConcreteTableNode {
     public List<ColumnDef> getDynamicColumns() {
         return dynColumns;
     }
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append(this.getName().toString());
@@ -89,11 +88,15 @@ public class NamedTableNode extends ConcreteTableNode {
                 buf.append(def);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
             buf.append(')');
         }
-        if (this.getAlias() != null) buf.append(" " + this.getAlias());
-        if (this.getTableSamplingRate() != null) buf.append(" TABLESAMPLE " + this.getTableSamplingRate());
+        if (this.getAlias() != null) {
+            buf.append(" " + this.getAlias());
+        }
+        if (this.getTableSamplingRate() != null) {
+            buf.append(" TABLESAMPLE " + this.getTableSamplingRate());
+        }
         buf.append(' ');
     }
 
@@ -107,13 +110,23 @@ public class NamedTableNode extends ConcreteTableNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (getClass() != obj.getClass()) return false;
-        NamedTableNode other = (NamedTableNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        NamedTableNode other = (NamedTableNode) obj;
         if (dynColumns == null) {
-            if (other.dynColumns != null) return false;
-        } else if (!dynColumns.equals(other.dynColumns)) return false;
+            if (other.dynColumns != null) {
+                return false;
+            }
+        } else if (!dynColumns.equals(other.dynColumns)) {
+            return false;
+        }
         return true;
     }
 }

@@ -43,8 +43,8 @@ public class Scenario {
     private String tenantId;
     private List<Ddl> preScenarioDdls;
     private List<Ddl> postScenarioDdls;
-    
-   
+
+
     public Scenario() {
     }
 
@@ -95,7 +95,7 @@ public class Scenario {
     public void setRowCount(int rowCount) {
         this.rowCount = rowCount;
     }
-    
+
     /**
      * Phoenix properties
      *
@@ -169,9 +169,10 @@ public class Scenario {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     /**
      * Tenant Id used by connection of this query
+     *
      * @return
      */
     @XmlAttribute
@@ -204,29 +205,29 @@ public class Scenario {
         return stringBuilder.toString();
     }
 
-	public List<Ddl> getPreScenarioDdls() {
-		return preScenarioDdls;
-	}
+    public List<Ddl> getPreScenarioDdls() {
+        return preScenarioDdls;
+    }
 
     /**
      * Scenario level DDLs (for views/index/async) that are executed before data load
      */
     @XmlElementWrapper(name = "preScenarioDdls")
     @XmlElement(name = "ddl")
-	public void setPreScenarioDdls(List<Ddl> preScenarioDdls) {
-		this.preScenarioDdls = preScenarioDdls;
-	}
+    public void setPreScenarioDdls(List<Ddl> preScenarioDdls) {
+        this.preScenarioDdls = preScenarioDdls;
+    }
 
-	public List<Ddl> getPostScenarioDdls() {
-		return postScenarioDdls;
-	}
+    public List<Ddl> getPostScenarioDdls() {
+        return postScenarioDdls;
+    }
 
     /**
      * Scenario level DDLs (for views/index/async) that are executed after data load
      */
     @XmlElementWrapper(name = "postScenarioDdls")
     @XmlElement(name = "ddl")
-	public void setPostScenarioDdls(List<Ddl> postScenarioDdls) {
-		this.postScenarioDdls = postScenarioDdls;
-	}
+    public void setPostScenarioDdls(List<Ddl> postScenarioDdls) {
+        this.postScenarioDdls = postScenarioDdls;
+    }
 }

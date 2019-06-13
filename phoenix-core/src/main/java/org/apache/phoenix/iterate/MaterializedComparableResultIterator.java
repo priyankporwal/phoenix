@@ -39,7 +39,7 @@ public class MaterializedComparableResultIterator
     }
 
     public MaterializedComparableResultIterator(PeekingResultIterator delegate,
-            Comparator<? super Tuple> c) throws SQLException {
+                                                Comparator<? super Tuple> c) throws SQLException {
         this.delegate = delegate;
         this.comparator = c;
         this.current = delegate.peek();

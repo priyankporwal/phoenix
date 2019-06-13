@@ -26,7 +26,6 @@ import org.apache.phoenix.util.PhoenixContextExecutor;
 /**
  * Creates {@link Configuration} instances that contain HBase/Hadoop settings.
  *
- * 
  * @since 2.0
  */
 public interface ConfigurationFactory {

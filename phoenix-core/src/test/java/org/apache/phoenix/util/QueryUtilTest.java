@@ -46,7 +46,7 @@ public class QueryUtilTest {
 
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructUpsertStatement_ColumnInfos_NoColumns() {
         QueryUtil.constructUpsertStatement("MYTAB", ImmutableList.<ColumnInfo>of());
     }
@@ -58,25 +58,25 @@ public class QueryUtilTest {
                 QueryUtil.constructGenericUpsertStatement("MYTAB", 2));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConstructGenericUpsertStatement_NoColumns() {
         QueryUtil.constructGenericUpsertStatement("MYTAB", 0);
     }
-    
+
     @Test
     public void testConstructSelectStatement() {
         assertEquals(
                 "SELECT \"ID\" , \"NAME\" FROM MYTAB",
-                QueryUtil.constructSelectStatement("MYTAB", ImmutableList.of(ID_COLUMN,NAME_COLUMN),null));
+                QueryUtil.constructSelectStatement("MYTAB", ImmutableList.of(ID_COLUMN, NAME_COLUMN), null));
     }
 
     @Test
     public void testConstructSelectStatementWithSchema() {
         assertEquals(
                 "SELECT \"ID\" , \"NAME\" FROM A.MYTAB",
-                QueryUtil.constructSelectStatement("A.MYTAB", ImmutableList.of(ID_COLUMN,NAME_COLUMN),null));
+                QueryUtil.constructSelectStatement("A.MYTAB", ImmutableList.of(ID_COLUMN, NAME_COLUMN), null));
     }
-    
+
     @Test
     public void testConstructSelectStatementWithCaseSensitiveSchema() {
         final String tableName = "MYTAB";
@@ -84,9 +84,9 @@ public class QueryUtilTest {
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         assertEquals(
                 "SELECT \"ID\" , \"NAME\" FROM \"a\".MYTAB",
-                QueryUtil.constructSelectStatement(fullTableName, ImmutableList.of(ID_COLUMN,NAME_COLUMN),null));
+                QueryUtil.constructSelectStatement(fullTableName, ImmutableList.of(ID_COLUMN, NAME_COLUMN), null));
     }
-    
+
     @Test
     public void testConstructSelectStatementWithCaseSensitiveTable() {
         final String tableName = SchemaUtil.getEscapedArgument("mytab");
@@ -94,15 +94,15 @@ public class QueryUtilTest {
         final String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
         assertEquals(
                 "SELECT \"ID\" , \"NAME\" FROM \"a\".\"mytab\"",
-                QueryUtil.constructSelectStatement(fullTableName, ImmutableList.of(ID_COLUMN,NAME_COLUMN),null));
+                QueryUtil.constructSelectStatement(fullTableName, ImmutableList.of(ID_COLUMN, NAME_COLUMN), null));
     }
 
     @Test
     public void testConstructSelectWithHint() {
         assertEquals(
-            "SELECT /*+ NO_INDEX */ \"col1\" , \"col2\" FROM MYTAB WHERE (\"col2\"=? and \"col3\" is null)",
-            QueryUtil.constructSelectStatement("MYTAB", Lists.newArrayList("col1", "col2"),
-                "\"col2\"=? and \"col3\" is null", Hint.NO_INDEX, true));
+                "SELECT /*+ NO_INDEX */ \"col1\" , \"col2\" FROM MYTAB WHERE (\"col2\"=? and \"col3\" is null)",
+                QueryUtil.constructSelectStatement("MYTAB", Lists.newArrayList("col1", "col2"),
+                        "\"col2\"=? and \"col3\" is null", Hint.NO_INDEX, true));
     }
 
     @Test
@@ -114,6 +114,7 @@ public class QueryUtilTest {
     /**
      * Test that we create connection strings from the HBase Configuration that match the
      * expected syntax. Expected to log exceptions as it uses ZK host names that don't exist
+     *
      * @throws Exception on failure
      */
     @Test
@@ -149,7 +150,7 @@ public class QueryUtilTest {
         assertTrue("zk details should contain at least server component", splits.length >= 1);
         // make sure that each server is comma separated
         String[] servers = splits[0].split(",");
-        for(String server: servers){
+        for (String server : servers) {
             assertFalse("Found whitespace in server names for url: " + url, server.contains(" "));
         }
         if (splits.length >= 2) {

@@ -29,20 +29,21 @@ import org.apache.hadoop.hbase.DoNotRetryIOException;
 @SuppressWarnings("serial")
 public class IndexBuildingFailureException extends DoNotRetryIOException {
 
-  /**
-   * Constructor for over the wire propagation. Generally, shouldn't be used since index failure
-   * should have an underlying cause to propagate.
-   * @param msg reason for the failure
-   */
-  public IndexBuildingFailureException(String msg) {
-    super(msg);
-  }
+    /**
+     * Constructor for over the wire propagation. Generally, shouldn't be used since index failure
+     * should have an underlying cause to propagate.
+     *
+     * @param msg reason for the failure
+     */
+    public IndexBuildingFailureException(String msg) {
+        super(msg);
+    }
 
-  /**
-   * @param msg reason
-   * @param cause underlying cause for the failure
-   */
-  public IndexBuildingFailureException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+    /**
+     * @param msg   reason
+     * @param cause underlying cause for the failure
+     */
+    public IndexBuildingFailureException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

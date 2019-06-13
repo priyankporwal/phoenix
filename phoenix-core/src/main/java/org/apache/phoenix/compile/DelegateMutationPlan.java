@@ -67,7 +67,7 @@ public class DelegateMutationPlan implements MutationPlan {
     }
 
     private final MutationPlan plan;
-    
+
     public DelegateMutationPlan(MutationPlan plan) {
         this.plan = plan;
     }

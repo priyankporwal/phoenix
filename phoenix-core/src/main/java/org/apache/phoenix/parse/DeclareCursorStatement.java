@@ -18,43 +18,44 @@
 package org.apache.phoenix.parse;
 
 import org.apache.phoenix.jdbc.PhoenixStatement.Operation;
+
 import java.util.*;
 
 public class DeclareCursorStatement implements BindableStatement {
     private final CursorName cursorName;
     private final SelectStatement select;
 
-    public DeclareCursorStatement(CursorName cursorName, SelectStatement select){
+    public DeclareCursorStatement(CursorName cursorName, SelectStatement select) {
         this.cursorName = cursorName;
         this.select = select;
     }
 
-    public String getCursorName(){
+    public String getCursorName() {
         return cursorName.getName();
     }
 
-    public String getQuerySQL(){
+    public String getQuerySQL() {
         //Check if there are parameters to bind.
-        if(select.getBindCount() > 0){
+        if (select.getBindCount() > 0) {
 
         }
         //TODO: Test if this works
         return select.toString();
     }
 
-    public SelectStatement getSelect(){
-    	return select;
+    public SelectStatement getSelect() {
+        return select;
     }
 
     public List<OrderByNode> getSelectOrderBy() {
         return select.getOrderBy();
     }
 
-    public int getBindCount(){
+    public int getBindCount() {
         return select.getBindCount();
     }
 
-    public Operation getOperation(){
+    public Operation getOperation() {
         return Operation.UPSERT;
     }
 }

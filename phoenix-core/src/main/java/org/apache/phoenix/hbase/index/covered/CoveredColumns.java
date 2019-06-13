@@ -30,20 +30,20 @@ import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
  */
 public class CoveredColumns {
 
-  Set<ColumnReference> columns = new HashSet<ColumnReference>();
+    Set<ColumnReference> columns = new HashSet<ColumnReference>();
 
-  public Collection<? extends ColumnReference> findNonCoveredColumns(
-      Collection<? extends ColumnReference> columns2) {
-    List<ColumnReference> uncovered = new ArrayList<ColumnReference>();
-    for (ColumnReference column : columns2) {
-      if (!columns.contains(column)) {
-        uncovered.add(column);
-      }
+    public Collection<? extends ColumnReference> findNonCoveredColumns(
+            Collection<? extends ColumnReference> columns2) {
+        List<ColumnReference> uncovered = new ArrayList<ColumnReference>();
+        for (ColumnReference column : columns2) {
+            if (!columns.contains(column)) {
+                uncovered.add(column);
+            }
+        }
+        return uncovered;
     }
-    return uncovered;
-  }
 
-  public void addColumn(ColumnReference column) {
-    this.columns.add(column);
-  }
+    public void addColumn(ColumnReference column) {
+        this.columns.add(column);
+    }
 }

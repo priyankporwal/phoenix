@@ -122,11 +122,12 @@ public class OrphanViewToolIT extends ParallelStatsDisabledIT {
         this.columnEncoded = columnEncoded;
     }
 
-    @Parameters(name="OrphanViewToolIT_multiTenant={0}, columnEncoded={1}") // name is used by failsafe as file name in reports
+    @Parameters(name = "OrphanViewToolIT_multiTenant={0}, columnEncoded={1}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean[]> data() {
         return Arrays.asList(new Boolean[][] {
-                { false, false }, { false, true },
-                { true, false }, { true, true } });
+                {false, false}, {false, true},
+                {true, false}, {true, true}});
     }
 
     @AfterClass
@@ -146,13 +147,15 @@ public class OrphanViewToolIT extends ParallelStatsDisabledIT {
     private String generateDDL(String options, String format) {
         StringBuilder optionsBuilder = new StringBuilder(options);
         if (!columnEncoded) {
-            if (optionsBuilder.length()!=0)
+            if (optionsBuilder.length() != 0) {
                 optionsBuilder.append(",");
+            }
             optionsBuilder.append("COLUMN_ENCODED_BYTES=0");
         }
         if (isMultiTenant) {
-            if (optionsBuilder.length()!=0)
+            if (optionsBuilder.length() != 0) {
                 optionsBuilder.append(",");
+            }
             optionsBuilder.append("MULTI_TENANT=true");
         }
         return String.format(format, isMultiTenant ? "TENANT_ID VARCHAR NOT NULL, " : "",
@@ -174,8 +177,8 @@ public class OrphanViewToolIT extends ParallelStatsDisabledIT {
     }
 
     private void deleteAllRows(Connection connection, String baseTableSchema,
-                            String childViewSchemaName,
-                            String grandchildViewSchemaName, String grandGrandChildViewSchemaName) throws SQLException {
+                               String childViewSchemaName,
+                               String grandchildViewSchemaName, String grandGrandChildViewSchemaName) throws SQLException {
         deleteRowsFrom(connection, SYSTEM_CATALOG_NAME, baseTableSchema, childViewSchemaName,
                 grandchildViewSchemaName, grandGrandChildViewSchemaName);
         deleteRowsFrom(connection, SYSTEM_CHILD_LINK_NAME, baseTableSchema, childViewSchemaName,
@@ -210,8 +213,9 @@ public class OrphanViewToolIT extends ParallelStatsDisabledIT {
         while (reader.readLine() != null) {
         }
         int count = reader.getLineNumber();
-        if (count != lineCount)
+        if (count != lineCount) {
             LOGGER.debug(count + " != " + lineCount);
+        }
         assertTrue(count == lineCount);
     }
 
@@ -256,12 +260,13 @@ public class OrphanViewToolIT extends ParallelStatsDisabledIT {
 
     private void verifyOrphanFileLineCounts(long viewCount, long parentLinkCount,
                                             long physicalLinkCount, long childLinkCount)
-        throws Exception {
+            throws Exception {
         verifyLineCount(viewFileName, viewCount);
         verifyLineCount(parentLinkFileName, parentLinkCount);
         verifyLineCount(physicalLinkFileName, physicalLinkCount);
         verifyLineCount(childLinkFileName, childLinkCount);
     }
+
     private void executeDeleteQuery(Connection connection, String deleteQuery, String schemaName) throws Exception {
         connection.createStatement().execute(String.format(deleteQuery,
                 schemaName == null ? "IS NULL" : "= '" + schemaName + "'"));
@@ -443,7 +448,7 @@ public class OrphanViewToolIT extends ParallelStatsDisabledIT {
     }
 
     public static String[] getArgValues(boolean clean, boolean identify, boolean outputPath, boolean inputPath)
-            throws InterruptedException{
+            throws InterruptedException {
         final List<String> args = Lists.newArrayList();
         if (outputPath) {
             args.add("-op");

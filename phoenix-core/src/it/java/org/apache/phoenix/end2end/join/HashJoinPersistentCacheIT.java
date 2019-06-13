@@ -48,11 +48,11 @@ public class HashJoinPersistentCacheIT extends BaseJoinIT {
 
         createTestTable(getUrl(),
                 "CREATE TABLE IF NOT EXISTS states (state CHAR(2) " +
-                "NOT NULL, name VARCHAR NOT NULL CONSTRAINT my_pk PRIMARY KEY (state, name))");
+                        "NOT NULL, name VARCHAR NOT NULL CONSTRAINT my_pk PRIMARY KEY (state, name))");
         createTestTable(getUrl(),
                 "CREATE TABLE IF NOT EXISTS cities (state CHAR(2) " +
-                 "NOT NULL, city VARCHAR NOT NULL, population BIGINT " +
-                  "CONSTRAINT my_pk PRIMARY KEY (state, city))");
+                        "NOT NULL, city VARCHAR NOT NULL, population BIGINT " +
+                        "CONSTRAINT my_pk PRIMARY KEY (state, city))");
 
         conn.prepareStatement(
                 "UPSERT INTO states VALUES ('CA', 'California')").executeUpdate();
@@ -67,11 +67,11 @@ public class HashJoinPersistentCacheIT extends BaseJoinIT {
         conn.commit();
 
         /* First, run query without using the persistent cache. This should return
-        * different results after an UPSERT takes place.
-        */
+         * different results after an UPSERT takes place.
+         */
         ResultSet rs = conn.prepareStatement(
                 "SELECT SUM(population) FROM states s "
-                +"JOIN cities c ON c.state = s.state").executeQuery();
+                        + "JOIN cities c ON c.state = s.state").executeQuery();
         rs.next();
         int population1 = rs.getInt(1);
 
@@ -79,7 +79,7 @@ public class HashJoinPersistentCacheIT extends BaseJoinIT {
         conn.commit();
         rs = conn.prepareStatement(
                 "SELECT SUM(population) FROM states s " +
-                 "JOIN cities c ON c.state = s.state").executeQuery();
+                        "JOIN cities c ON c.state = s.state").executeQuery();
         rs.next();
         int population2 = rs.getInt(1);
 
@@ -87,11 +87,11 @@ public class HashJoinPersistentCacheIT extends BaseJoinIT {
         assertEquals(74500, population2);
 
         /* Second, run query using the persistent cache. This should return the
-        * same results after an UPSERT takes place.
-        */
+         * same results after an UPSERT takes place.
+         */
         rs = conn.prepareStatement(
                 "SELECT /*+ USE_PERSISTENT_CACHE */ SUM(population) FROM states s " +
-                 "JOIN cities c ON c.state = s.state").executeQuery();
+                        "JOIN cities c ON c.state = s.state").executeQuery();
         rs.next();
         int population3 = rs.getInt(1);
 
@@ -101,7 +101,7 @@ public class HashJoinPersistentCacheIT extends BaseJoinIT {
 
         rs = conn.prepareStatement(
                 "SELECT /*+ USE_PERSISTENT_CACHE */ SUM(population) " +
-                 "FROM states s JOIN cities c ON c.state = s.state").executeQuery();
+                        "FROM states s JOIN cities c ON c.state = s.state").executeQuery();
         rs.next();
         int population4 = rs.getInt(1);
         rs = conn.prepareStatement(
@@ -115,9 +115,9 @@ public class HashJoinPersistentCacheIT extends BaseJoinIT {
         assertEquals(76500, population5);
 
         /* Let's make sure caches can be used across queries. We'll set up a
-        * cache, and make sure it is used on two different queries with the
-        * same subquery.
-        */
+         * cache, and make sure it is used on two different queries with the
+         * same subquery.
+         */
 
         String sumQueryCached = "SELECT /*+ USE_PERSISTENT_CACHE */ SUM(population) " +
                 "FROM cities c JOIN (SELECT state FROM states WHERE state LIKE 'C%') sq " +

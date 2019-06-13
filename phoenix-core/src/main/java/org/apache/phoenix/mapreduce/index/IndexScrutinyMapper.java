@@ -116,9 +116,9 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
             SourceTargetColumnNames columnNames =
                     SourceTable.DATA_TABLE_SOURCE.equals(sourceTable)
                             ? new SourceTargetColumnNames.DataSourceColNames(pdataTable,
-                                    pindexTable)
+                            pindexTable)
                             : new SourceTargetColumnNames.IndexSourceColNames(pdataTable,
-                                    pindexTable);
+                            pindexTable);
             qSourceTable = columnNames.getQualifiedSourceTableName();
             qTargetTable = columnNames.getQualifiedTargetTableName();
             List<String> targetColNames = columnNames.getTargetColNames();
@@ -142,7 +142,7 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
             // name)
             targetTableQuery =
                     QueryUtil.constructSelectStatement(qTargetTable, columnNames.getCastedTargetColNames(), targetPksCsv,
-                        Hint.NO_INDEX, false) + " IN ";
+                            Hint.NO_INDEX, false) + " IN ";
             targetTblColumnMetadata =
                     PhoenixRuntime.generateColumnInfo(connection, qTargetTable, targetColNames);
             sourceTblColumnMetadata =
@@ -213,13 +213,15 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
 
     private void processBatch(Context context)
             throws SQLException, IOException, InterruptedException {
-        if (currentBatchValues.size() == 0) return;
+        if (currentBatchValues.size() == 0) {
+            return;
+        }
         context.getCounter(PhoenixScrutinyJobCounters.BATCHES_PROCESSED_COUNT).increment(1);
         // our query selection filter should be the PK columns of the target table (index or data
         // table)
         String inClause =
                 QueryUtil.constructParameterizedInClause(numTargetPkCols,
-                    currentBatchValues.size());
+                        currentBatchValues.size());
         String indexQuery = targetTableQuery + inClause;
         try (PreparedStatement targetStatement = connection.prepareStatement(indexQuery)) {
             // while we build the PreparedStatement, we also maintain a hash of the target table
@@ -240,8 +242,8 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
                     List<Object> valuesWithoutTarget = sourceRowWithoutTargetRow.getSecond();
                     if (OutputFormat.FILE.equals(outputFormat)) {
                         context.write(
-                            new Text(Arrays.toString(valuesWithoutTarget.toArray())),
-                            new Text("Target row not found"));
+                                new Text(Arrays.toString(valuesWithoutTarget.toArray())),
+                                new Text("Target row not found"));
                     } else if (OutputFormat.TABLE.equals(outputFormat)) {
                         writeToOutputTable(context, valuesWithoutTarget, null, sourceRowWithoutTargetRow.getFirst(), -1L);
                     }
@@ -280,7 +282,7 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
     }
 
     private void queryTargetTable(Context context, PreparedStatement targetStatement,
-            Map<String, Pair<Long, List<Object>>> targetPkToSourceValues)
+                                  Map<String, Pair<Long, List<Object>>> targetPkToSourceValues)
             throws SQLException, IOException, InterruptedException {
         ResultSet targetResultSet = targetStatement.executeQuery();
 
@@ -318,10 +320,10 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
     }
 
     private void outputInvalidRow(Context context, List<Object> sourceValues,
-            List<Object> targetValues, long sourceTS, long targetTS) throws SQLException, IOException, InterruptedException {
+                                  List<Object> targetValues, long sourceTS, long targetTS) throws SQLException, IOException, InterruptedException {
         if (OutputFormat.FILE.equals(outputFormat)) {
             context.write(new Text(Arrays.toString(sourceValues.toArray())),
-                new Text(Arrays.toString(targetValues.toArray())));
+                    new Text(Arrays.toString(targetValues.toArray())));
         } else if (OutputFormat.TABLE.equals(outputFormat)) {
             writeToOutputTable(context, sourceValues, targetValues, sourceTS, targetTS);
         }
@@ -367,8 +369,10 @@ public class IndexScrutinyMapper extends Mapper<NullWritable, PhoenixIndexDBWrit
     }
 
     private boolean compareValues(int startIndex, List<Object> targetValues,
-            List<Object> sourceValues, Context context) throws SQLException {
-        if (targetValues == null || sourceValues == null) return false;
+                                  List<Object> sourceValues, Context context) throws SQLException {
+        if (targetValues == null || sourceValues == null) {
+            return false;
+        }
         for (int i = startIndex; i < sourceValues.size(); i++) {
             Object targetValue = targetValues.get(i);
             Object sourceValue = sourceValues.get(i);

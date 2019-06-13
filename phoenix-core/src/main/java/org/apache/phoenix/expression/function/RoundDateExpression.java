@@ -55,46 +55,46 @@ import com.google.common.collect.Lists;
  * ROUND(<date/time col ref>,<'day'|'hour'|'minute'|'second'|'millisecond'|'week'|'month'|'year'>,<optional integer multiplier>)
  * The integer multiplier is optional and is used to do rollups to a partial time unit (i.e. 10 minute rollup)
  * The function returns a {@link org.apache.phoenix.schema.types.PDate}
-
- * 
+ *
  * @since 0.1
  */
 @BuiltInFunction(name = RoundFunction.NAME,
         args = {
-                @Argument(allowedTypes={PDate.class}),
-                @Argument(allowedTypes={PVarchar.class, PInteger.class}, defaultValue = "null", isConstant=true),
-                @Argument(allowedTypes={PInteger.class}, defaultValue="1", isConstant=true)
+                @Argument(allowedTypes = {PDate.class}),
+                @Argument(allowedTypes = {PVarchar.class, PInteger.class}, defaultValue = "null", isConstant = true),
+                @Argument(allowedTypes = {PInteger.class}, defaultValue = "1", isConstant = true)
         },
         classType = FunctionClassType.DERIVED
 )
 public class RoundDateExpression extends ScalarFunction {
-    
+
     long divBy;
-    
+
     public static final String NAME = "ROUND";
-    
+
     private static final long[] TIME_UNIT_MS = new long[] {
-        24 * 60 * 60 * 1000,
-        60 * 60 * 1000,
-        60 * 1000,
-        1000,
-        1
+            24 * 60 * 60 * 1000,
+            60 * 60 * 1000,
+            60 * 1000,
+            1000,
+            1
     };
-    
-    public RoundDateExpression() {}
-    
+
+    public RoundDateExpression() {
+    }
+
     /**
      * @param timeUnit - unit of time to round up to.
-     * Creates a {@link RoundDateExpression} with default multiplier of 1.
+     *                 Creates a {@link RoundDateExpression} with default multiplier of 1.
      */
     public static Expression create(Expression expr, TimeUnit timeUnit) throws SQLException {
         return create(expr, timeUnit, 1);
     }
-    
+
     /**
-     * @param timeUnit - unit of time to round up to
+     * @param timeUnit   - unit of time to round up to
      * @param multiplier - determines the roll up window size.
-     * Create a {@link RoundDateExpression}. 
+     *                   Create a {@link RoundDateExpression}.
      */
     public static Expression create(Expression expr, TimeUnit timeUnit, int multiplier) throws SQLException {
         Expression timeUnitExpr = getTimeUnitExpr(timeUnit);
@@ -102,53 +102,53 @@ public class RoundDateExpression extends ScalarFunction {
         List<Expression> expressions = Lists.newArrayList(expr, timeUnitExpr, defaultMultiplierExpr);
         return create(expressions);
     }
-    
+
     public static Expression create(List<Expression> children) throws SQLException {
         int numChildren = children.size();
-        if(numChildren < 2 || numChildren > 3) {
+        if (numChildren < 2 || numChildren > 3) {
             throw new IllegalArgumentException("Wrong number of arguments : " + numChildren);
         }
-        Object timeUnitValue = ((LiteralExpression)children.get(1)).getValue();
+        Object timeUnitValue = ((LiteralExpression) children.get(1)).getValue();
         TimeUnit timeUnit = TimeUnit.getTimeUnit(timeUnitValue != null ? timeUnitValue.toString() : null);
-        switch(timeUnit) {
-        case WEEK:
-            return new RoundWeekExpression(children);
-        case MONTH:
-            return new RoundMonthExpression(children);
-        case YEAR:
-            return new RoundYearExpression(children);
-         default:
-             return new RoundDateExpression(children);
+        switch (timeUnit) {
+            case WEEK:
+                return new RoundWeekExpression(children);
+            case MONTH:
+                return new RoundMonthExpression(children);
+            case YEAR:
+                return new RoundYearExpression(children);
+            default:
+                return new RoundDateExpression(children);
         }
-        
+
     }
-    
+
     static Expression getTimeUnitExpr(TimeUnit timeUnit) throws SQLException {
         return LiteralExpression.newConstant(timeUnit.name(), PVarchar.INSTANCE, Determinism.ALWAYS);
     }
-    
+
     static Expression getMultiplierExpr(int multiplier) throws SQLException {
         return LiteralExpression.newConstant(multiplier, PInteger.INSTANCE, Determinism.ALWAYS);
     }
-    
+
     public RoundDateExpression(List<Expression> children) {
         super(children.subList(0, 1));
         int numChildren = children.size();
-        Object timeUnitValue = ((LiteralExpression)children.get(1)).getValue();
-        Object multiplierValue = numChildren > 2 ? ((LiteralExpression)children.get(2)).getValue() : null;
-        int multiplier = multiplierValue == null ? 1 :((Number)multiplierValue).intValue();
+        Object timeUnitValue = ((LiteralExpression) children.get(1)).getValue();
+        Object multiplierValue = numChildren > 2 ? ((LiteralExpression) children.get(2)).getValue() : null;
+        int multiplier = multiplierValue == null ? 1 : ((Number) multiplierValue).intValue();
         TimeUnit timeUnit = TimeUnit.getTimeUnit(timeUnitValue != null ? timeUnitValue.toString() : null);
-        if(timeUnit.ordinal() < TIME_UNIT_MS.length) {
+        if (timeUnit.ordinal() < TIME_UNIT_MS.length) {
             divBy = multiplier * TIME_UNIT_MS[timeUnit.ordinal()];
         }
     }
-    
-    
+
+
     protected long getRoundUpAmount() {
-        return divBy/2;
+        return divBy / 2;
     }
-    
-    
+
+
     protected long roundTime(long time) {
         long value;
         long roundUpAmount = getRoundUpAmount();
@@ -159,7 +159,7 @@ public class RoundDateExpression extends ScalarFunction {
         }
         return value * divBy;
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (children.get(0).evaluate(tuple, ptr)) {
@@ -182,23 +182,33 @@ public class RoundDateExpression extends ScalarFunction {
         final int prime = 31;
         int result = 1;
         long roundUpAmount = this.getRoundUpAmount();
-        result = prime * result + (int)(divBy ^ (divBy >>> 32));
-        result = prime * result + (int)(roundUpAmount ^ (roundUpAmount >>> 32));
+        result = prime * result + (int) (divBy ^ (divBy >>> 32));
+        result = prime * result + (int) (roundUpAmount ^ (roundUpAmount >>> 32));
         result = prime * result + children.get(0).hashCode();
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        RoundDateExpression other = (RoundDateExpression)obj;
-        if (divBy != other.divBy) return false;
-        if (getRoundUpAmount() != other.getRoundUpAmount()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RoundDateExpression other = (RoundDateExpression) obj;
+        if (divBy != other.divBy) {
+            return false;
+        }
+        if (getRoundUpAmount() != other.getRoundUpAmount()) {
+            return false;
+        }
         return children.get(0).equals(other.children.get(0));
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
@@ -210,26 +220,26 @@ public class RoundDateExpression extends ScalarFunction {
         super.write(output);
         WritableUtils.writeVLong(output, divBy);
     }
-    
+
     @Override
     public Integer getMaxLength() {
         return children.get(0).getMaxLength();
     }
-    
+
     @Override
     public PDataType getDataType() {
         return children.get(0).getDataType();
     }
-    
+
     @Override
     public boolean isNullable() {
         return children.get(0).isNullable() || divBy == 0;
     }
-    
+
     protected PDataCodec getKeyRangeCodec(PDataType columnDataType) {
         return columnDataType.getCodec();
     }
-    
+
     /**
      * Form the key range from the key to the key right before or at the
      * next rounded value.
@@ -263,30 +273,30 @@ public class RoundDateExpression extends ScalarFunction {
                 byte[] nextKey = new byte[type.getByteSize()];
                 KeyRange range;
                 switch (op) {
-                case EQUAL:
-                    // If the value isn't evenly divisible by the div amount, then it
-                    // can't possibly be equal to any rounded value. For example, if you
-                    // had ROUND(dateCol,'DAY') = TO_DATE('2013-01-01 23:00:00')
-                    // it could never be equal, since date constant isn't at a day
-                    // boundary.
-                    if (value % divBy != 0) {
-                        return KeyRange.EMPTY_RANGE;
-                    }
-                    codec.encodeLong(value + divBy, nextKey, 0);
-                    range = type.getKeyRange(key, true, nextKey, false);
-                    break;
-                case GREATER:
-                case GREATER_OR_EQUAL:
-                    codec.encodeLong((value + divBy - offset)/divBy*divBy, nextKey, 0);
-                    range = type.getKeyRange(nextKey, true, KeyRange.UNBOUND, false);
-                    break;
-                case LESS:
-                case LESS_OR_EQUAL:
-                    codec.encodeLong((value + divBy - (1 -offset))/divBy*divBy, nextKey, 0);
-                    range = type.getKeyRange(KeyRange.UNBOUND, false, nextKey, false);
-                    break;
-                default:
-                    return childPart.getKeyRange(op, rhs);
+                    case EQUAL:
+                        // If the value isn't evenly divisible by the div amount, then it
+                        // can't possibly be equal to any rounded value. For example, if you
+                        // had ROUND(dateCol,'DAY') = TO_DATE('2013-01-01 23:00:00')
+                        // it could never be equal, since date constant isn't at a day
+                        // boundary.
+                        if (value % divBy != 0) {
+                            return KeyRange.EMPTY_RANGE;
+                        }
+                        codec.encodeLong(value + divBy, nextKey, 0);
+                        range = type.getKeyRange(key, true, nextKey, false);
+                        break;
+                    case GREATER:
+                    case GREATER_OR_EQUAL:
+                        codec.encodeLong((value + divBy - offset) / divBy * divBy, nextKey, 0);
+                        range = type.getKeyRange(nextKey, true, KeyRange.UNBOUND, false);
+                        break;
+                    case LESS:
+                    case LESS_OR_EQUAL:
+                        codec.encodeLong((value + divBy - (1 - offset)) / divBy * divBy, nextKey, 0);
+                        range = type.getKeyRange(KeyRange.UNBOUND, false, nextKey, false);
+                        break;
+                    default:
+                        return childPart.getKeyRange(op, rhs);
                 }
                 if (getColumn().getSortOrder() == SortOrder.DESC) {
                     range = range.invert();
@@ -306,7 +316,7 @@ public class RoundDateExpression extends ScalarFunction {
     public String getName() {
         return NAME;
     }
-    
+
     @Override
     public OrderPreserving preservesOrder() {
         return OrderPreserving.YES;

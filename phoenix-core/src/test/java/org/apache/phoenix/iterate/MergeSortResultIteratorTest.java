@@ -42,23 +42,23 @@ public class MergeSortResultIteratorTest {
     @Test
     public void testMergeSort() throws Throwable {
         Tuple[] results1 =
-                new Tuple[] { new SingleKeyValueTuple(
-                        new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))), };
+                new Tuple[] {new SingleKeyValueTuple(
+                        new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))),};
         Tuple[] results2 =
-                new Tuple[] { new SingleKeyValueTuple(
-                        new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))) };
+                new Tuple[] {new SingleKeyValueTuple(
+                        new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1)))};
         Tuple[] results3 =
                 new Tuple[] {
                         new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
                                 Bytes.toBytes(1))),
                         new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
-                                Bytes.toBytes(1))), };
+                                Bytes.toBytes(1))),};
 
         final List<PeekingResultIterator> results =
                 new ArrayList<PeekingResultIterator>(Arrays.asList(new PeekingResultIterator[] {
                         new MaterializedResultIterator(Arrays.asList(results1)),
                         new MaterializedResultIterator(Arrays.asList(results2)),
-                        new MaterializedResultIterator(Arrays.asList(results3)) }));
+                        new MaterializedResultIterator(Arrays.asList(results3))}));
 
         Tuple[] expectedResults =
                 new Tuple[] {
@@ -69,7 +69,7 @@ public class MergeSortResultIteratorTest {
                         new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
                                 Bytes.toBytes(1))),
                         new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
-                                Bytes.toBytes(1))), };
+                                Bytes.toBytes(1))),};
 
         ResultIterators iterators = new ResultIterators() {
 
@@ -138,22 +138,22 @@ public class MergeSortResultIteratorTest {
     @Test
     public void testReverseMergeSort() throws Throwable {
         Tuple[] results1 =
-                new Tuple[] { new SingleKeyValueTuple(
-                        new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))), };
+                new Tuple[] {new SingleKeyValueTuple(
+                        new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))),};
         Tuple[] results2 =
-                new Tuple[] { new SingleKeyValueTuple(
-                        new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))) };
+                new Tuple[] {new SingleKeyValueTuple(
+                        new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1)))};
         Tuple[] results3 =
                 new Tuple[] {
                         new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
                                 Bytes.toBytes(1))),
                         new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
-                                Bytes.toBytes(1))), };
+                                Bytes.toBytes(1))),};
         final List<PeekingResultIterator> results =
                 new ArrayList<PeekingResultIterator>(Arrays.asList(new PeekingResultIterator[] {
                         new MaterializedResultIterator(Arrays.asList(results1)),
                         new MaterializedResultIterator(Arrays.asList(results2)),
-                        new MaterializedResultIterator(Arrays.asList(results3)) }));
+                        new MaterializedResultIterator(Arrays.asList(results3))}));
         Tuple[] expectedResults =
                 new Tuple[] {
                         new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
@@ -163,7 +163,7 @@ public class MergeSortResultIteratorTest {
                         new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
                                 Bytes.toBytes(1))),
                         new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN,
-                                Bytes.toBytes(1))), };
+                                Bytes.toBytes(1))),};
         ResultIterators iterators = new ResultIterators() {
 
             @Override

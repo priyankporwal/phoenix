@@ -62,12 +62,12 @@ public class PhoenixRpcSchedulerFactory implements RpcSchedulerFactory {
         validatePriority(metadataPriority);
 
         // validate index and metadata priorities are not the same
-        Preconditions.checkArgument(indexPriority != metadataPriority, "Index and Metadata priority must not be same "+ indexPriority);
+        Preconditions.checkArgument(indexPriority != metadataPriority, "Index and Metadata priority must not be same " + indexPriority);
         LOGGER.info("Using custom Phoenix Index RPC Handling with index rpc priority "
                 + indexPriority + " and metadata rpc priority " + metadataPriority);
 
         PhoenixRpcScheduler scheduler =
-                new PhoenixRpcScheduler(conf, delegate, indexPriority, metadataPriority, priorityFunction,abortable);
+                new PhoenixRpcScheduler(conf, delegate, indexPriority, metadataPriority, priorityFunction, abortable);
         return scheduler;
     }
 
@@ -80,16 +80,16 @@ public class PhoenixRpcSchedulerFactory implements RpcSchedulerFactory {
      * Validates that the given priority does not overlap with the HBase priority range
      */
     private void validatePriority(int priority) {
-        Preconditions.checkArgument( priority < HConstants.NORMAL_QOS || priority > HConstants.HIGH_QOS, "priority cannot be within hbase priority range " 
-        			+ HConstants.NORMAL_QOS +" to " + HConstants.HIGH_QOS ); 
+        Preconditions.checkArgument(priority < HConstants.NORMAL_QOS || priority > HConstants.HIGH_QOS, "priority cannot be within hbase priority range "
+                + HConstants.NORMAL_QOS + " to " + HConstants.HIGH_QOS);
     }
 
     public static int getIndexPriority(Configuration conf) {
         return conf.getInt(QueryServices.INDEX_PRIOIRTY_ATTRIB, QueryServicesOptions.DEFAULT_INDEX_PRIORITY);
     }
-    
+
     public static int getMetadataPriority(Configuration conf) {
         return conf.getInt(QueryServices.METADATA_PRIOIRTY_ATTRIB, QueryServicesOptions.DEFAULT_METADATA_PRIORITY);
     }
-    
+
 }

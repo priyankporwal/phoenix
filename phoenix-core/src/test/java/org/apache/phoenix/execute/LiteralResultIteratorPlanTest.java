@@ -89,25 +89,25 @@ public class LiteralResultIteratorPlanTest {
     }
 
     private static final Object[][] RELATION = new Object[][] {
-        {"2", 20},
-        {"2", 40},
-        {"5", 50},
-        {"6", 60},
-        {"5", 100},
-        {"1", 10},
-        {"3", 30},
- };
-    PTable table = createProjectedTableFromLiterals(RELATION[0]).getTable();
-
-    @Test
-    public void testLiteralResultIteratorPlanWithOffset() throws SQLException {
-        Object[][] expected = new Object[][] {
+            {"2", 20},
             {"2", 40},
             {"5", 50},
             {"6", 60},
             {"5", 100},
             {"1", 10},
             {"3", 30},
+    };
+    PTable table = createProjectedTableFromLiterals(RELATION[0]).getTable();
+
+    @Test
+    public void testLiteralResultIteratorPlanWithOffset() throws SQLException {
+        Object[][] expected = new Object[][] {
+                {"2", 40},
+                {"5", 50},
+                {"6", 60},
+                {"5", 100},
+                {"1", 10},
+                {"3", 30},
         };
         testLiteralResultIteratorPlan(expected, 1, null);
     }
@@ -115,10 +115,10 @@ public class LiteralResultIteratorPlanTest {
     @Test
     public void testLiteralResultIteratorPlanWithLimit() throws SQLException {
         Object[][] expected = new Object[][] {
-            {"2", 20},
-            {"2", 40},
-            {"5", 50},
-            {"6", 60},
+                {"2", 20},
+                {"2", 40},
+                {"5", 50},
+                {"6", 60},
         };
         testLiteralResultIteratorPlan(expected, null, 4);
     }
@@ -126,11 +126,11 @@ public class LiteralResultIteratorPlanTest {
     @Test
     public void testLiteralResultIteratorPlanWithLimitAndOffset() throws SQLException {
         Object[][] expected = new Object[][] {
-            {"5", 50},
-            {"6", 60},
-            {"5", 100},
-            {"1", 10},
-            };
+                {"5", 50},
+                {"6", 60},
+                {"5", 100},
+                {"1", 10},
+        };
         testLiteralResultIteratorPlan(expected, 2, 4);
     }
 
@@ -172,7 +172,7 @@ public class LiteralResultIteratorPlanTest {
     }
 
     private TableRef createProjectedTableFromLiterals(Object[] row) {
-        List<PColumn> columns = Lists.<PColumn> newArrayList();
+        List<PColumn> columns = Lists.<PColumn>newArrayList();
         for (int i = 0; i < row.length; i++) {
             String name = ParseNodeFactory.createTempAlias();
             Expression expr = LiteralExpression.newConstant(row[i]);
@@ -180,7 +180,7 @@ public class LiteralResultIteratorPlanTest {
             columns.add(new PColumnImpl(PNameFactory.newName(name),
                     PNameFactory.newName(VALUE_COLUMN_FAMILY), expr.getDataType(), expr.getMaxLength(),
                     expr.getScale(), expr.isNullable(), i, expr.getSortOrder(), null, null, false, name, false, false, colName.getBytes(),
-                HConstants.LATEST_TIMESTAMP));
+                    HConstants.LATEST_TIMESTAMP));
         }
         try {
             PTable pTable = new PTableImpl.Builder()

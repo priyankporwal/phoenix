@@ -62,12 +62,12 @@ public final class QueryUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryUtil.class);
 
     /**
-     *  Column family name index within ResultSet resulting from {@link DatabaseMetaData#getColumns(String, String, String, String)}
+     * Column family name index within ResultSet resulting from {@link DatabaseMetaData#getColumns(String, String, String, String)}
      */
     public static final int COLUMN_FAMILY_POSITION = 25;
 
     /**
-     *  Column name index within ResultSet resulting from {@link DatabaseMetaData#getColumns(String, String, String, String)}
+     * Column name index within ResultSet resulting from {@link DatabaseMetaData#getColumns(String, String, String, String)}
      */
     public static final int COLUMN_NAME_POSITION = 4;
 
@@ -101,17 +101,18 @@ public final class QueryUtil {
     public static String toSQL(CompareOp op) {
         return CompareOpString[op.ordinal()];
     }
-    
+
     /**
      * Private constructor
      */
     private QueryUtil() {
     }
+
     /**
      * Generate an upsert statement based on a list of {@code ColumnInfo}s with parameter markers. The list of
      * {@code ColumnInfo}s must contain at least one element.
      *
-     * @param tableName name of the table for which the upsert statement is to be created
+     * @param tableName   name of the table for which the upsert statement is to be created
      * @param columnInfos list of column to be included in the upsert statement
      * @return the created {@code UPSERT} statement
      */
@@ -121,7 +122,7 @@ public final class QueryUtil {
             throw new IllegalArgumentException("At least one column must be provided for upserts");
         }
 
-        final List<String> columnNames = Lists.transform(columnInfos, new Function<ColumnInfo,String>() {
+        final List<String> columnNames = Lists.transform(columnInfos, new Function<ColumnInfo, String>() {
             @Override
             public String apply(ColumnInfo columnInfo) {
                 return columnInfo.getColumnName();
@@ -130,14 +131,14 @@ public final class QueryUtil {
         return constructUpsertStatement(tableName, columnNames, null);
 
     }
-    
+
     /**
      * Generate an upsert statement based on a list of {@code ColumnInfo}s with parameter markers. The list of
      * {@code ColumnInfo}s must contain at least one element.
      *
      * @param tableName name of the table for which the upsert statement is to be created
-     * @param columns list of columns to be included in the upsert statement
-     * @param hint hint to be added to the UPSERT statement.
+     * @param columns   list of columns to be included in the upsert statement
+     * @param hint      hint to be added to the UPSERT statement.
      * @return the created {@code UPSERT} statement
      */
     public static String constructUpsertStatement(String tableName, List<String> columns, Hint hint) {
@@ -145,13 +146,13 @@ public final class QueryUtil {
         if (columns.isEmpty()) {
             throw new IllegalArgumentException("At least one column must be provided for upserts");
         }
-        
+
         String hintStr = "";
-        if(hint != null) {
-           final HintNode node = new HintNode(hint.name());
-           hintStr = node.toString();
+        if (hint != null) {
+            final HintNode node = new HintNode(hint.name());
+            hintStr = node.toString();
         }
-        
+
         List<String> parameterList = Lists.newArrayList();
         for (int i = 0; i < columns.size(); i++) {
             parameterList.add("?");
@@ -162,7 +163,7 @@ public final class QueryUtil {
                 tableName,
                 Joiner.on(", ").join(
                         Iterables.transform(
-                               columns,
+                                columns,
                                 new Function<String, String>() {
                                     @Nullable
                                     @Override
@@ -179,7 +180,7 @@ public final class QueryUtil {
      * any named columns, but will include parameter markers for the given number of columns. The number of columns
      * must be greater than zero.
      *
-     * @param tableName name of the table for which the upsert statement is to be created
+     * @param tableName  name of the table for which the upsert statement is to be created
      * @param numColumns number of columns to be included in the upsert statement
      * @return the created {@code UPSERT} statement
      */
@@ -196,34 +197,33 @@ public final class QueryUtil {
         }
         return String.format("UPSERT INTO %s VALUES (%s)", tableName, Joiner.on(", ").join(parameterList));
     }
-    
+
     /**
-     * 
      * @param fullTableName name of the table for which the select statement needs to be created.
-     * @param columnInfos  list of columns to be projected in the select statement.
-     * @param conditions   The condition clause to be added to the WHERE condition
-     * @return Select Query 
+     * @param columnInfos   list of columns to be projected in the select statement.
+     * @param conditions    The condition clause to be added to the WHERE condition
+     * @return Select Query
      */
-    public static String constructSelectStatement(String fullTableName, List<ColumnInfo> columnInfos,final String conditions) {
-        List<String> columns = Lists.transform(columnInfos, new Function<ColumnInfo, String>(){
+    public static String constructSelectStatement(String fullTableName, List<ColumnInfo> columnInfos, final String conditions) {
+        List<String> columns = Lists.transform(columnInfos, new Function<ColumnInfo, String>() {
             @Override
             public String apply(ColumnInfo input) {
                 return input.getColumnName();
-            }});
-        return constructSelectStatement(fullTableName, columns , conditions, null, false);
+            }
+        });
+        return constructSelectStatement(fullTableName, columns, conditions, null, false);
     }
 
     /**
-     *
      * @param fullTableName name of the table for which the select statement needs to be created.
-     * @param columns list of columns to be projected in the select statement.
-     * @param whereClause The condition clause to be added to the WHERE condition
-     * @param hint hint to use
-     * @param escapeCols whether to escape the projected columns
+     * @param columns       list of columns to be projected in the select statement.
+     * @param whereClause   The condition clause to be added to the WHERE condition
+     * @param hint          hint to use
+     * @param escapeCols    whether to escape the projected columns
      * @return Select Query
      */
     public static String constructSelectStatement(String fullTableName, List<String> columns,
-            final String whereClause, Hint hint, boolean escapeCols) {
+                                                  final String whereClause, Hint hint, boolean escapeCols) {
         return new QueryBuilder().setFullTableName(fullTableName).setSelectColumns(columns)
                 .setWhereClause(whereClause).setHint(hint).setEscapeCols(escapeCols).build();
     }
@@ -231,8 +231,9 @@ public final class QueryUtil {
     /**
      * Constructs parameterized filter for an IN clause e.g. passing in numWhereCols=2, numBatches=3
      * results in ((?,?),(?,?),(?,?))
+     *
      * @param numWhereCols number of WHERE columns
-     * @param numBatches number of column batches
+     * @param numBatches   number of column batches
      * @return paramterized IN filter
      */
     public static String constructParameterizedInClause(int numWhereCols, int numBatches) {
@@ -303,7 +304,7 @@ public final class QueryUtil {
             buf.append('\n');
         }
         if (buf.length() > 0) {
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         return buf.toString();
     }
@@ -317,7 +318,7 @@ public final class QueryUtil {
             buf.append('\n');
         }
         if (buf.length() > 0) {
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         return buf.toString();
     }
@@ -329,12 +330,12 @@ public final class QueryUtil {
             SQLException {
         return getConnectionOnServer(new Properties(), conf);
     }
-    
-    public static void setServerConnection(Properties props){
+
+    public static void setServerConnection(Properties props) {
         UpgradeUtil.doNotUpgradeOnFirstConnection(props);
         props.setProperty(IS_SERVER_CONNECTION, Boolean.TRUE.toString());
     }
-    
+
     public static boolean isServerConnection(ReadOnlyProps props) {
         return props.getBoolean(IS_SERVER_CONNECTION, false);
     }
@@ -374,6 +375,7 @@ public final class QueryUtil {
             throws ClassNotFoundException, SQLException {
         return getConnectionUrl(props, conf, null);
     }
+
     /**
      * @return connection url using the various properties set in props and conf.
      */
@@ -392,7 +394,7 @@ public final class QueryUtil {
         String defaultExtraArgs =
                 conf != null
                         ? conf.get(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-                            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS)
+                        QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS)
                         : QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS;
         // If props doesn't have a default for extra args then use the extra args in conf as default
         String extraArgs =
@@ -406,7 +408,7 @@ public final class QueryUtil {
         }
         return url;
     }
-    
+
     private static int getInt(String key, int defaultValue, Properties props, Configuration conf) {
         if (conf == null) {
             Preconditions.checkNotNull(props);
@@ -453,14 +455,14 @@ public final class QueryUtil {
         }
         return null;
     }
-    
+
     public static String getViewPartitionClause(String partitionColumnName, long autoPartitionNum) {
-        return partitionColumnName  + " " + toSQL(CompareOp.EQUAL) + " " + autoPartitionNum;
+        return partitionColumnName + " " + toSQL(CompareOp.EQUAL) + " " + autoPartitionNum;
     }
 
     public static Connection getConnectionForQueryLog(Configuration config) throws ClassNotFoundException, SQLException {
         //we don't need this connection to upgrade anything or start dispatcher
         return getConnectionOnServer(config);
     }
-    
+
 }

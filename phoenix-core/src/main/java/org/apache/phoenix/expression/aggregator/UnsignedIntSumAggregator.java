@@ -22,18 +22,16 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * Aggregator that sums unsigned integer values
  *
- * 
  * @since 0.12
  */
 public class UnsignedIntSumAggregator extends NumberSumAggregator {
-    
+
     public UnsignedIntSumAggregator(SortOrder sortOrder) {
         super(sortOrder);
     }
-    
+
     @Override
     protected PDataType getInputDataType() {
         return PUnsignedInt.INSTANCE;

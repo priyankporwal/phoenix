@@ -51,34 +51,34 @@ public class HashJoinInfo {
     private Expression postJoinFilterExpression;
     private Integer limit;
     private boolean forceProjection; // always true now, but for backward compatibility.
-    
+
     public HashJoinInfo(PTable joinedTable, ImmutableBytesPtr[] joinIds, List<Expression>[] joinExpressions, JoinType[] joinTypes, boolean[] earlyEvaluation, PTable[] tables, int[] fieldPositions, Expression postJoinFilterExpression, Integer limit) {
-    	this(buildSchema(joinedTable), joinIds, joinExpressions, joinTypes, earlyEvaluation, buildSchemas(tables), fieldPositions, postJoinFilterExpression, limit, true);
+        this(buildSchema(joinedTable), joinIds, joinExpressions, joinTypes, earlyEvaluation, buildSchemas(tables), fieldPositions, postJoinFilterExpression, limit, true);
     }
 
     private static KeyValueSchema[] buildSchemas(PTable[] tables) {
-    	KeyValueSchema[] schemas = new KeyValueSchema[tables.length];
-    	for (int i = 0; i < tables.length; i++) {
-    		schemas[i] = buildSchema(tables[i]);
-    	}
-    	return schemas;
+        KeyValueSchema[] schemas = new KeyValueSchema[tables.length];
+        for (int i = 0; i < tables.length; i++) {
+            schemas[i] = buildSchema(tables[i]);
+        }
+        return schemas;
     }
 
     private static KeyValueSchema buildSchema(PTable table) {
-    	KeyValueSchemaBuilder builder = new KeyValueSchemaBuilder(0);
-    	if (table != null) {
-    	    for (PColumn column : table.getColumns()) {
-    	        if (!SchemaUtil.isPKColumn(column)) {
-    	            builder.addField(column);
-    	        }
-    	    }
-    	}
+        KeyValueSchemaBuilder builder = new KeyValueSchemaBuilder(0);
+        if (table != null) {
+            for (PColumn column : table.getColumns()) {
+                if (!SchemaUtil.isPKColumn(column)) {
+                    builder.addField(column);
+                }
+            }
+        }
         return builder.build();
     }
 
     private HashJoinInfo(KeyValueSchema joinedSchema, ImmutableBytesPtr[] joinIds, List<Expression>[] joinExpressions, JoinType[] joinTypes, boolean[] earlyEvaluation, KeyValueSchema[] schemas, int[] fieldPositions, Expression postJoinFilterExpression, Integer limit, boolean forceProjection) {
-    	this.joinedSchema = joinedSchema;
-    	this.joinIds = joinIds;
+        this.joinedSchema = joinedSchema;
+        this.joinIds = joinIds;
         this.joinExpressions = joinExpressions;
         this.joinTypes = joinTypes;
         this.earlyEvaluation = earlyEvaluation;
@@ -90,7 +90,7 @@ public class HashJoinInfo {
     }
 
     public KeyValueSchema getJoinedSchema() {
-    	return joinedSchema;
+        return joinedSchema;
     }
 
     public ImmutableBytesPtr[] getJoinIds() {
@@ -106,15 +106,15 @@ public class HashJoinInfo {
     }
 
     public boolean[] earlyEvaluation() {
-    	return earlyEvaluation;
+        return earlyEvaluation;
     }
 
     public KeyValueSchema[] getSchemas() {
-    	return schemas;
+        return schemas;
     }
 
     public int[] getFieldPositions() {
-    	return fieldPositions;
+        return fieldPositions;
     }
 
     public Expression getPostJoinFilterExpression() {
@@ -124,11 +124,11 @@ public class HashJoinInfo {
     public Integer getLimit() {
         return limit;
     }
-    
+
     public boolean forceProjection() {
         return forceProjection;
     }
- 
+
     public static void serializeHashJoinIntoScan(Scan scan, HashJoinInfo joinInfo) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
@@ -222,7 +222,7 @@ public class HashJoinInfo {
                 forceProjection = input.readBoolean();
             } catch (EOFException ignore) {
             }
-            return new HashJoinInfo(joinedSchema, joinIds, joinExpressions, joinTypes, earlyEvaluation, schemas, fieldPositions, postJoinFilterExpression, limit >= 0 ? limit : null,  forceProjection);
+            return new HashJoinInfo(joinedSchema, joinIds, joinExpressions, joinTypes, earlyEvaluation, schemas, fieldPositions, postJoinFilterExpression, limit >= 0 ? limit : null, forceProjection);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

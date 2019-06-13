@@ -71,7 +71,7 @@ public class TenantIdByteConversionTest {
             RowKeySchema schema,
             boolean isSalted,
             PName tenantId,
-            byte[] expectedTenantIdBytes ) {
+            byte[] expectedTenantIdBytes) {
         this.schema = schema;
         this.isSalted = isSalted;
         this.tenantId = tenantId;
@@ -221,7 +221,7 @@ public class TenantIdByteConversionTest {
 
         //Binary
         byte[] bytes = new byte[] {0, 1, 2, 3};
-        String byteString = new String( Base64.getEncoder().encode(bytes) );
+        String byteString = new String(Base64.getEncoder().encode(bytes));
         testCases.add(new Object[] {
                 getDataSchema(PBinary.INSTANCE, SortOrder.getDefault()),
                 false,
@@ -240,71 +240,86 @@ public class TenantIdByteConversionTest {
         return testCases;
     }
 
-    public static RowKeySchema getDataSchema (final PDataType data, final SortOrder sortOrder) {
+    public static RowKeySchema getDataSchema(final PDataType data, final SortOrder sortOrder) {
         RowKeySchemaBuilder builder = new RowKeySchemaBuilder(3);
 
         builder.addField(new PDatum() {
-            @Override public boolean isNullable() {
+            @Override
+            public boolean isNullable() {
                 return false;
             }
 
-            @Override public PDataType getDataType() {
+            @Override
+            public PDataType getDataType() {
                 return data;
             }
 
-            @Override public Integer getMaxLength() {
+            @Override
+            public Integer getMaxLength() {
                 return 1;
             }
 
-            @Override public Integer getScale() {
+            @Override
+            public Integer getScale() {
                 return null;
             }
 
-            @Override public SortOrder getSortOrder() {
+            @Override
+            public SortOrder getSortOrder() {
                 return sortOrder;
             }
         }, false, sortOrder);
 
         builder.addField(new PDatum() {
-            @Override public boolean isNullable() {
+            @Override
+            public boolean isNullable() {
                 return false;
             }
 
-            @Override public PDataType getDataType() {
+            @Override
+            public PDataType getDataType() {
                 return PUnsignedInt.INSTANCE;
             }
 
-            @Override public Integer getMaxLength() {
+            @Override
+            public Integer getMaxLength() {
                 return 3;
             }
 
-            @Override public Integer getScale() {
+            @Override
+            public Integer getScale() {
                 return null;
             }
 
-            @Override public SortOrder getSortOrder() {
+            @Override
+            public SortOrder getSortOrder() {
                 return sortOrder;
             }
         }, false, sortOrder);
 
         builder.addField(new PDatum() {
-            @Override public boolean isNullable() {
+            @Override
+            public boolean isNullable() {
                 return true;
             }
 
-            @Override public PDataType getDataType() {
+            @Override
+            public PDataType getDataType() {
                 return PVarchar.INSTANCE;
             }
 
-            @Override public Integer getMaxLength() {
+            @Override
+            public Integer getMaxLength() {
                 return 3;
             }
 
-            @Override public Integer getScale() {
+            @Override
+            public Integer getScale() {
                 return null;
             }
 
-            @Override public SortOrder getSortOrder() {
+            @Override
+            public SortOrder getSortOrder() {
                 return sortOrder;
             }
         }, false, sortOrder);

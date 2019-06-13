@@ -65,7 +65,7 @@ public class GuidePostsCacheProvider {
     }
 
     public GuidePostsCacheWrapper getGuidePostsCache(String classStr, ConnectionQueryServices queryServices,
-            Configuration config) {
+                                                     Configuration config) {
         ReadOnlyProps props = null;
         if (queryServices != null) {
             props = queryServices.getProps();

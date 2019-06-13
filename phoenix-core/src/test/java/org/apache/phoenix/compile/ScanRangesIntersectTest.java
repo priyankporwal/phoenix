@@ -36,15 +36,15 @@ public class ScanRangesIntersectTest {
 
     @Test
     public void testPointLookupIntersect() throws Exception {
-        List<KeyRange> keys = points("a","j","m","z");
+        List<KeyRange> keys = points("a", "j", "m", "z");
         ScanRanges ranges = ScanRanges.createPointLookup(keys);
         assertIntersect(ranges, "b", "l", "j");
-        
+
     }
-    
+
     private static void assertIntersect(ScanRanges ranges, String lowerRange, String upperRange, String... expectedPoints) {
         List<KeyRange> expectedKeys = points(expectedPoints);
-        Collections.sort(expectedKeys,KeyRange.COMPARATOR);
+        Collections.sort(expectedKeys, KeyRange.COMPARATOR);
         Scan scan = new Scan();
         scan.setFilter(ranges.getSkipScanFilter());
         byte[] startKey = lowerRange == null ? KeyRange.UNBOUND : PVarchar.INSTANCE.toBytes(lowerRange);
@@ -54,11 +54,11 @@ public class ScanRangesIntersectTest {
             assertNull(newScan);
         } else {
             assertNotNull(newScan);
-            SkipScanFilter filter = (SkipScanFilter)newScan.getFilter();
+            SkipScanFilter filter = (SkipScanFilter) newScan.getFilter();
             assertEquals(expectedKeys, filter.getSlots().get(0));
         }
     }
-    
+
     private static List<KeyRange> points(String... points) {
         List<KeyRange> keys = Lists.newArrayListWithExpectedSize(points.length);
         for (String point : points) {

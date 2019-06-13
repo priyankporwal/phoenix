@@ -151,11 +151,11 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     private static final Expression NOT_NULL_STRING = LiteralExpression.newConstant(PVarchar.INSTANCE.toObject(KeyRange.IS_NOT_NULL_RANGE.getLowerRange()));
 
     public ExpressionCompiler(StatementContext context) {
-        this(context,GroupBy.EMPTY_GROUP_BY, false);
+        this(context, GroupBy.EMPTY_GROUP_BY, false);
     }
 
     ExpressionCompiler(StatementContext context, boolean resolveViewConstants) {
-        this(context,GroupBy.EMPTY_GROUP_BY, resolveViewConstants);
+        this(context, GroupBy.EMPTY_GROUP_BY, resolveViewConstants);
     }
 
     ExpressionCompiler(StatementContext context, GroupBy groupBy) {
@@ -189,10 +189,10 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
 
     private void addBindParamMetaData(ParseNode lhsNode, ParseNode rhsNode, Expression lhsExpr, Expression rhsExpr) throws SQLException {
         if (lhsNode instanceof BindParseNode) {
-            context.getBindManager().addParamMetaData((BindParseNode)lhsNode, rhsExpr);
+            context.getBindManager().addParamMetaData((BindParseNode) lhsNode, rhsExpr);
         }
         if (rhsNode instanceof BindParseNode) {
-            context.getBindManager().addParamMetaData((BindParseNode)rhsNode, lhsExpr);
+            context.getBindManager().addParamMetaData((BindParseNode) rhsNode, lhsExpr);
         }
     }
 
@@ -206,7 +206,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
 
         if (lhsNode instanceof RowValueConstructorParseNode && rhsNode instanceof RowValueConstructorParseNode) {
             int i = 0;
-            for (; i < Math.min(lhsExpr.getChildren().size(),rhsExpr.getChildren().size()); i++) {
+            for (; i < Math.min(lhsExpr.getChildren().size(), rhsExpr.getChildren().size()); i++) {
                 addBindParamMetaData(lhsNode.getChildren().get(i), rhsNode.getChildren().get(i), lhsExpr.getChildren().get(i), rhsExpr.getChildren().get(i));
             }
             for (; i < lhsExpr.getChildren().size(); i++) {
@@ -319,7 +319,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
      */
     public Expression visitLeave(FunctionParseNode node, List<Expression> children) throws SQLException {
         PFunction function = null;
-        if(node instanceof UDFParseNode) {
+        if (node instanceof UDFParseNode) {
             function = context.getResolver().resolveFunction(node.getName());
             BuiltInFunctionInfo info = new BuiltInFunctionInfo(function);
             node = new UDFParseNode(node.getName(), node.getChildren(), info);
@@ -333,7 +333,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         }
         ImmutableBytesWritable ptr = context.getTempPtr();
         BuiltInFunctionInfo info = node.getInfo();
-        for (int i = 0; i < info.getRequiredArgCount(); i++) { 
+        for (int i = 0; i < info.getRequiredArgCount(); i++) {
             // Optimization to catch cases where a required argument is null resulting in the function
             // returning null. We have to wait until after we create the function expression so that
             // we can get the proper type to use.
@@ -358,6 +358,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     /**
      * Called by visitor to resolve a column expression node into a column reference.
      * Derived classes may use this as a hook to trap all column resolves.
+     *
      * @param node a column expression node
      * @return a resolved ColumnRef
      * @throws SQLException if the column expression node does not refer to a known/unambiguous column
@@ -460,13 +461,13 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     @Override
     public Expression visitLeave(CaseParseNode node, List<Expression> l) throws SQLException {
         final Expression caseExpression = CaseExpression.create(l);
-        for (int i = 0; i < node.getChildren().size(); i+=2) {
+        for (int i = 0; i < node.getChildren().size(); i += 2) {
             ParseNode childNode = node.getChildren().get(i);
             if (childNode instanceof BindParseNode) {
-                context.getBindManager().addParamMetaData((BindParseNode)childNode, new DelegateDatum(caseExpression));
+                context.getBindManager().addParamMetaData((BindParseNode) childNode, new DelegateDatum(caseExpression));
             }
         }
-         return wrapGroupByExpression(caseExpression);
+        return wrapGroupByExpression(caseExpression);
     }
 
     @Override
@@ -480,19 +481,19 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         ParseNode rhsNode = node.getChildren().get(1);
         Expression lhs = children.get(0);
         Expression rhs = children.get(1);
-        if ( rhs.getDataType() != null && lhs.getDataType() != null && 
-                !lhs.getDataType().isCoercibleTo(rhs.getDataType())  && 
+        if (rhs.getDataType() != null && lhs.getDataType() != null &&
+                !lhs.getDataType().isCoercibleTo(rhs.getDataType()) &&
                 !rhs.getDataType().isCoercibleTo(lhs.getDataType())) {
             throw TypeMismatchException.newException(lhs.getDataType(), rhs.getDataType(), node.toString());
         }
         if (lhsNode instanceof BindParseNode) {
-            context.getBindManager().addParamMetaData((BindParseNode)lhsNode, rhs);
+            context.getBindManager().addParamMetaData((BindParseNode) lhsNode, rhs);
         }
         if (rhsNode instanceof BindParseNode) {
-            context.getBindManager().addParamMetaData((BindParseNode)rhsNode, lhs);
+            context.getBindManager().addParamMetaData((BindParseNode) rhsNode, lhs);
         }
         if (rhs instanceof LiteralExpression) {
-            String pattern = (String)((LiteralExpression)rhs).getValue();
+            String pattern = (String) ((LiteralExpression) rhs).getValue();
             if (pattern == null || pattern.length() == 0) {
                 return LiteralExpression.newConstant(null, PBoolean.INSTANCE, rhs.getDeterminism());
             }
@@ -508,19 +509,19 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
             if (index == -1) {
                 String rhsLiteral = LikeExpression.unescapeLike(pattern);
                 if (node.getLikeType() == LikeType.CASE_SENSITIVE) {
-                  CompareOp op = node.isNegate() ? CompareOp.NOT_EQUAL : CompareOp.EQUAL;
-                  if (pattern.equals(rhsLiteral)) {
-                      return new ComparisonExpression(children, op);
-                  } else {
-                      rhs = LiteralExpression.newConstant(rhsLiteral, PChar.INSTANCE, rhs.getDeterminism());
-                      return new ComparisonExpression(Arrays.asList(lhs,rhs), op);
-                  }
+                    CompareOp op = node.isNegate() ? CompareOp.NOT_EQUAL : CompareOp.EQUAL;
+                    if (pattern.equals(rhsLiteral)) {
+                        return new ComparisonExpression(children, op);
+                    } else {
+                        rhs = LiteralExpression.newConstant(rhsLiteral, PChar.INSTANCE, rhs.getDeterminism());
+                        return new ComparisonExpression(Arrays.asList(lhs, rhs), op);
+                    }
                 }
             } else {
                 byte[] wildcardString = new byte[pattern.length()];
                 byte[] wildcard = {StringUtil.MULTI_CHAR_LIKE};
                 StringUtil.fill(wildcardString, 0, pattern.length(), wildcard, 0, 1, false);
-                if (pattern.equals(new String (wildcardString))) {
+                if (pattern.equals(new String(wildcardString))) {
                     List<Expression> compareChildren = Arrays.asList(lhs, NOT_NULL_STRING);
                     return new ComparisonExpression(compareChildren, node.isNegate() ? CompareOp.LESS : CompareOp.GREATER_OR_EQUAL);
                 }
@@ -529,7 +530,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         QueryServices services = context.getConnection().getQueryServices();
         boolean useByteBasedRegex =
                 services.getProps().getBoolean(QueryServices.USE_BYTE_BASED_REGEX_ATTRIB,
-                    QueryServicesOptions.DEFAULT_USE_BYTE_BASED_REGEX);
+                        QueryServicesOptions.DEFAULT_USE_BYTE_BASED_REGEX);
         Expression expression;
         if (useByteBasedRegex) {
             expression = ByteBasedLikeExpression.create(children, node.getLikeType());
@@ -564,7 +565,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
             throw TypeMismatchException.newException(PBoolean.INSTANCE, child.getDataType(), node.toString());
         }
         if (childNode instanceof BindParseNode) { // TODO: valid/possibe?
-            context.getBindManager().addParamMetaData((BindParseNode)childNode, child);
+            context.getBindManager().addParamMetaData((BindParseNode) childNode, child);
         }
         return wrapGroupByExpression(NotExpression.create(child, context.getTempPtr()));
     }
@@ -577,20 +578,20 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     // TODO: don't repeat this ugly cast logic (maybe use isCastable in the last else block.
     private static Expression convertToRoundExpressionIfNeeded(PDataType fromDataType, PDataType targetDataType, List<Expression> expressions) throws SQLException {
         Expression firstChildExpr = expressions.get(0);
-        if(fromDataType == targetDataType) {
+        if (fromDataType == targetDataType) {
             return firstChildExpr;
         } else if ((fromDataType == PDecimal.INSTANCE || fromDataType == PTimestamp.INSTANCE ||
                 fromDataType == PUnsignedTimestamp.INSTANCE) && targetDataType.isCoercibleTo(
                 PLong.INSTANCE)) {
             return RoundDecimalExpression.create(expressions);
-        } else if (expressions.size() == 1 && fromDataType == PTimestamp.INSTANCE  &&
+        } else if (expressions.size() == 1 && fromDataType == PTimestamp.INSTANCE &&
                 targetDataType.isCoercibleTo(PDate.INSTANCE)) {
             return firstChildExpr;
-        } else if((fromDataType == PDecimal.INSTANCE || fromDataType == PTimestamp.INSTANCE ||
+        } else if ((fromDataType == PDecimal.INSTANCE || fromDataType == PTimestamp.INSTANCE ||
                 fromDataType == PUnsignedTimestamp.INSTANCE) && targetDataType.isCoercibleTo(
-                        PDate.INSTANCE)) {
+                PDate.INSTANCE)) {
             return RoundTimestampExpression.create(expressions);
-        } else if(fromDataType.isCastableTo(targetDataType)) {
+        } else if (fromDataType.isCastableTo(targetDataType)) {
             return firstChildExpr;
         } else {
             throw TypeMismatchException.newException(fromDataType, targetDataType, firstChildExpr.toString());
@@ -603,27 +604,27 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         PDataType targetDataType = node.getDataType();
         Expression childExpr = children.get(0);
         PDataType fromDataType = childExpr.getDataType();
-        
+
         if (childNode instanceof BindParseNode) {
-            context.getBindManager().addParamMetaData((BindParseNode)childNode, childExpr);
+            context.getBindManager().addParamMetaData((BindParseNode) childNode, childExpr);
         }
-        
+
         Expression expr = childExpr;
-        if(fromDataType != null) {
+        if (fromDataType != null) {
             /*
              * IndexStatementRewriter creates a CAST parse node when rewriting the query to use
              * indexed columns. Without this check present we wrongly and unnecessarily
-             * end up creating a RoundExpression. 
+             * end up creating a RoundExpression.
              */
             if (context.getCurrentTable().getTable().getType() != PTableType.INDEX) {
-                expr =  convertToRoundExpressionIfNeeded(fromDataType, targetDataType, children);
+                expr = convertToRoundExpressionIfNeeded(fromDataType, targetDataType, children);
             }
         }
         boolean rowKeyOrderOptimizable = context.getCurrentTable().getTable().rowKeyOrderOptimizable();
-        return wrapGroupByExpression(CoerceExpression.create(expr, targetDataType, SortOrder.getDefault(), expr.getMaxLength(), rowKeyOrderOptimizable));  
+        return wrapGroupByExpression(CoerceExpression.create(expr, targetDataType, SortOrder.getDefault(), expr.getMaxLength(), rowKeyOrderOptimizable));
     }
-    
-   @Override
+
+    @Override
     public boolean visitEnter(InListParseNode node) throws SQLException {
         return true;
     }
@@ -635,18 +636,18 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         ImmutableBytesWritable ptr = context.getTempPtr();
         PDataType firstChildType = firstChild.getDataType();
         ParseNode firstChildNode = node.getChildren().get(0);
-        
+
         if (firstChildNode instanceof BindParseNode) {
             PDatum datum = firstChild;
             if (firstChildType == null) {
                 datum = inferBindDatum(inChildren);
             }
-            context.getBindManager().addParamMetaData((BindParseNode)firstChildNode, datum);
+            context.getBindManager().addParamMetaData((BindParseNode) firstChildNode, datum);
         }
         for (int i = 1; i < l.size(); i++) {
             ParseNode childNode = node.getChildren().get(i);
             if (childNode instanceof BindParseNode) {
-                context.getBindManager().addParamMetaData((BindParseNode)childNode, firstChild);
+                context.getBindManager().addParamMetaData((BindParseNode) childNode, firstChild);
             }
         }
         return wrapGroupByExpression(InListExpression.create(inChildren, node.isNegate(), ptr, context.getCurrentTable().getTable().rowKeyOrderOptimizable()));
@@ -657,22 +658,26 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         public boolean isNullable() {
             return true;
         }
+
         @Override
         public PDataType getDataType() {
             return PDecimal.INSTANCE;
         }
+
         @Override
         public Integer getMaxLength() {
             return null;
         }
+
         @Override
         public Integer getScale() {
             return null;
         }
+
         @Override
         public SortOrder getSortOrder() {
             return SortOrder.getDefault();
-        }        
+        }
     };
 
     private static PDatum inferBindDatum(List<Expression> children) {
@@ -696,7 +701,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         // make the return type be the most general number type of DECIMAL.
         // TODO: same for TIMESTAMP for DATE/TIME?
         if (isChildTypeUnknown && datum.getDataType() != null && datum.getDataType().isCoercibleTo(
-            PDecimal.INSTANCE)) {
+                PDecimal.INSTANCE)) {
             return DECIMAL_DATUM;
         }
         return datum;
@@ -712,7 +717,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         ParseNode childNode = node.getChildren().get(0);
         Expression child = children.get(0);
         if (childNode instanceof BindParseNode) { // TODO: valid/possibe?
-            context.getBindManager().addParamMetaData((BindParseNode)childNode, child);
+            context.getBindManager().addParamMetaData((BindParseNode) childNode, child);
         }
         return wrapGroupByExpression(IsNullExpression.create(child, node.isNegate(), context.getTempPtr()));
     }
@@ -731,7 +736,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         boolean isNull = false;
         for (Expression child : children) {
             boolean isChildLiteral = (child instanceof LiteralExpression);
-            isNull |= isChildLiteral && ((LiteralExpression)child).getValue() == null;
+            isNull |= isChildLiteral && ((LiteralExpression) child).getValue() == null;
         }
 
         Expression expression = factory.create(node, children);
@@ -739,7 +744,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         for (int i = 0; i < node.getChildren().size(); i++) {
             ParseNode childNode = node.getChildren().get(i);
             if (childNode instanceof BindParseNode) {
-                context.getBindManager().addParamMetaData((BindParseNode)childNode, binder == null ? expression : binder.getBindMetaData(i, children, expression));
+                context.getBindManager().addParamMetaData((BindParseNode) childNode, binder == null ? expression : binder.getBindMetaData(i, children, expression));
             }
         }
 
@@ -747,15 +752,14 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
 
         // If all children are literals, just evaluate now
         if (ExpressionUtil.isConstant(expression)) {
-            return ExpressionUtil.getConstantExpression(expression, ptr); 
-        } 
-        else if (isNull) {
+            return ExpressionUtil.getConstantExpression(expression, ptr);
+        } else if (isNull) {
             return LiteralExpression.newConstant(null, expression.getDataType(), expression.getDeterminism());
         }
         // Otherwise create and return the expression
         return wrapGroupByExpression(expression);
     }
-    
+
     @Override
     public boolean visitEnter(AddParseNode node) throws SQLException {
         return true;
@@ -765,89 +769,93 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     public Expression visitLeave(AddParseNode node, List<Expression> children) throws SQLException {
         return visitLeave(node, children,
                 new ArithmeticExpressionBinder() {
-            @Override
-            public PDatum getBindMetaData(int i, List<Expression> children, final Expression expression) {
-                PDataType type = expression.getDataType();
-                if (type != null && type.isCoercibleTo(PDate.INSTANCE)) {
-                    return new PDatum() {
-                        @Override
-                        public boolean isNullable() {
-                            return expression.isNullable();
+                    @Override
+                    public PDatum getBindMetaData(int i, List<Expression> children, final Expression expression) {
+                        PDataType type = expression.getDataType();
+                        if (type != null && type.isCoercibleTo(PDate.INSTANCE)) {
+                            return new PDatum() {
+                                @Override
+                                public boolean isNullable() {
+                                    return expression.isNullable();
+                                }
+
+                                @Override
+                                public PDataType getDataType() {
+                                    return PDecimal.INSTANCE;
+                                }
+
+                                @Override
+                                public Integer getMaxLength() {
+                                    return expression.getMaxLength();
+                                }
+
+                                @Override
+                                public Integer getScale() {
+                                    return expression.getScale();
+                                }
+
+                                @Override
+                                public SortOrder getSortOrder() {
+                                    return expression.getSortOrder();
+                                }
+                            };
                         }
-                        @Override
-                        public PDataType getDataType() {
-                            return PDecimal.INSTANCE;
-                        }
-                        @Override
-                        public Integer getMaxLength() {
-                            return expression.getMaxLength();
-                        }
-                        @Override
-                        public Integer getScale() {
-                            return expression.getScale();
-                        }
-                        @Override
-                        public SortOrder getSortOrder() {
-                            return expression.getSortOrder();
-                        }
-                    };
-                }
-                return expression;
-            }
-        },
-        new ArithmeticExpressionFactory() {
-            @Override
-            public Expression create(ArithmeticParseNode node, List<Expression> children) throws SQLException {
-                boolean foundDate = false;
-                Determinism determinism = Determinism.ALWAYS;
-                PDataType theType = null;
-                for(int i = 0; i < children.size(); i++) {
-                    Expression e = children.get(i);
-                    determinism = determinism.combine(e.getDeterminism());
-                    PDataType type = e.getDataType();
-                    if (type == null) {
-                        continue; 
-                    } else if (type.isCoercibleTo(PTimestamp.INSTANCE)) {
-                        if (foundDate) {
-                            throw TypeMismatchException.newException(type, node.toString());
-                        }
-                        if (theType == null || (theType != PTimestamp.INSTANCE && theType != PUnsignedTimestamp.INSTANCE)) {
-                            theType = type;
-                        }
-                        foundDate = true;
-                    }else if (type == PDecimal.INSTANCE) {
-                        if (theType == null || !theType.isCoercibleTo(PTimestamp.INSTANCE)) {
-                            theType = PDecimal.INSTANCE;
-                        }
-                    } else if (type.isCoercibleTo(PLong.INSTANCE)) {
-                        if (theType == null) {
-                            theType = PLong.INSTANCE;
-                        }
-                    } else if (type.isCoercibleTo(PDouble.INSTANCE)) {
-                        if (theType == null) {
-                            theType = PDouble.INSTANCE;
-                        }
-                    } else {
-                        throw TypeMismatchException.newException(type, node.toString());
+                        return expression;
                     }
-                }
-                if (theType == PDecimal.INSTANCE) {
-                    return new DecimalAddExpression(children);
-                } else if (theType == PLong.INSTANCE) {
-                    return new LongAddExpression(children);
-                } else if (theType == PDouble.INSTANCE) {
-                    return new DoubleAddExpression(children);
-                } else if (theType == null) {
-                	return LiteralExpression.newConstant(null, theType, determinism);
-                } else if (theType == PTimestamp.INSTANCE || theType == PUnsignedTimestamp.INSTANCE) {
-                    return new TimestampAddExpression(children);
-                } else if (theType.isCoercibleTo(PDate.INSTANCE)) {
-                    return new DateAddExpression(children);
-                } else {
-                    throw TypeMismatchException.newException(theType, node.toString());
-                }
-            }
-        });
+                },
+                new ArithmeticExpressionFactory() {
+                    @Override
+                    public Expression create(ArithmeticParseNode node, List<Expression> children) throws SQLException {
+                        boolean foundDate = false;
+                        Determinism determinism = Determinism.ALWAYS;
+                        PDataType theType = null;
+                        for (int i = 0; i < children.size(); i++) {
+                            Expression e = children.get(i);
+                            determinism = determinism.combine(e.getDeterminism());
+                            PDataType type = e.getDataType();
+                            if (type == null) {
+                                continue;
+                            } else if (type.isCoercibleTo(PTimestamp.INSTANCE)) {
+                                if (foundDate) {
+                                    throw TypeMismatchException.newException(type, node.toString());
+                                }
+                                if (theType == null || (theType != PTimestamp.INSTANCE && theType != PUnsignedTimestamp.INSTANCE)) {
+                                    theType = type;
+                                }
+                                foundDate = true;
+                            } else if (type == PDecimal.INSTANCE) {
+                                if (theType == null || !theType.isCoercibleTo(PTimestamp.INSTANCE)) {
+                                    theType = PDecimal.INSTANCE;
+                                }
+                            } else if (type.isCoercibleTo(PLong.INSTANCE)) {
+                                if (theType == null) {
+                                    theType = PLong.INSTANCE;
+                                }
+                            } else if (type.isCoercibleTo(PDouble.INSTANCE)) {
+                                if (theType == null) {
+                                    theType = PDouble.INSTANCE;
+                                }
+                            } else {
+                                throw TypeMismatchException.newException(type, node.toString());
+                            }
+                        }
+                        if (theType == PDecimal.INSTANCE) {
+                            return new DecimalAddExpression(children);
+                        } else if (theType == PLong.INSTANCE) {
+                            return new LongAddExpression(children);
+                        } else if (theType == PDouble.INSTANCE) {
+                            return new DoubleAddExpression(children);
+                        } else if (theType == null) {
+                            return LiteralExpression.newConstant(null, theType, determinism);
+                        } else if (theType == PTimestamp.INSTANCE || theType == PUnsignedTimestamp.INSTANCE) {
+                            return new TimestampAddExpression(children);
+                        } else if (theType.isCoercibleTo(PDate.INSTANCE)) {
+                            return new DateAddExpression(children);
+                        } else {
+                            throw TypeMismatchException.newException(theType, node.toString());
+                        }
+                    }
+                });
     }
 
     @Override
@@ -860,7 +868,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         return visitLeave(node, children, new ArithmeticExpressionBinder() {
             @Override
             public PDatum getBindMetaData(int i, List<Expression> children,
-                    final Expression expression) {
+                                          final Expression expression) {
                 final PDataType type;
                 // If we're binding the first parameter and the second parameter
                 // is a date
@@ -872,43 +880,51 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                         public boolean isNullable() {
                             return expression.isNullable();
                         }
+
                         @Override
                         public PDataType getDataType() {
                             return type;
                         }
+
                         @Override
                         public Integer getMaxLength() {
                             return expression.getMaxLength();
                         }
+
                         @Override
                         public Integer getScale() {
                             return expression.getScale();
                         }
+
                         @Override
                         public SortOrder getSortOrder() {
                             return expression.getSortOrder();
-                        }                        
+                        }
                     };
                 } else if (expression.getDataType() != null
                         && expression.getDataType().isCoercibleTo(
-                    PDate.INSTANCE)) {
+                        PDate.INSTANCE)) {
                     return new PDatum() { // Same as with addition
                         @Override
                         public boolean isNullable() {
                             return expression.isNullable();
                         }
+
                         @Override
                         public PDataType getDataType() {
                             return PDecimal.INSTANCE;
                         }
+
                         @Override
                         public Integer getMaxLength() {
                             return expression.getMaxLength();
                         }
+
                         @Override
                         public Integer getScale() {
                             return expression.getScale();
                         }
+
                         @Override
                         public SortOrder getSortOrder() {
                             return expression.getSortOrder();
@@ -921,7 +937,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         }, new ArithmeticExpressionFactory() {
             @Override
             public Expression create(ArithmeticParseNode node,
-                    List<Expression> children) throws SQLException {
+                                     List<Expression> children) throws SQLException {
                 int i = 0;
                 PDataType theType = null;
                 Expression e1 = children.get(0);
@@ -939,16 +955,16 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                  * an error. For example, 5-date1 is an error. The nulls occur if
                  * we have bind variables.
                  */
-                boolean isType1Date = 
-                        type1 != null 
-                        && type1 != PTimestamp.INSTANCE
-                        && type1 != PUnsignedTimestamp.INSTANCE
-                        && type1.isCoercibleTo(PDate.INSTANCE);
-                boolean isType2Date = 
+                boolean isType1Date =
+                        type1 != null
+                                && type1 != PTimestamp.INSTANCE
+                                && type1 != PUnsignedTimestamp.INSTANCE
+                                && type1.isCoercibleTo(PDate.INSTANCE);
+                boolean isType2Date =
                         type2 != null
-                        && type2 != PTimestamp.INSTANCE
-                        && type2 != PUnsignedTimestamp.INSTANCE
-                        && type2.isCoercibleTo(PDate.INSTANCE);
+                                && type2 != PTimestamp.INSTANCE
+                                && type2 != PUnsignedTimestamp.INSTANCE
+                                && type2.isCoercibleTo(PDate.INSTANCE);
                 if (isType1Date || isType2Date) {
                     if (isType1Date && isType2Date) {
                         i = 2;
@@ -966,14 +982,14 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                         i = 2;
                         theType = null;
                     }
-                } else if(type1 == PTimestamp.INSTANCE || type2 == PTimestamp.INSTANCE) {
+                } else if (type1 == PTimestamp.INSTANCE || type2 == PTimestamp.INSTANCE) {
                     i = 2;
                     theType = PTimestamp.INSTANCE;
-                } else if(type1 == PUnsignedTimestamp.INSTANCE || type2 == PUnsignedTimestamp.INSTANCE) {
+                } else if (type1 == PUnsignedTimestamp.INSTANCE || type2 == PUnsignedTimestamp.INSTANCE) {
                     i = 2;
                     theType = PUnsignedTimestamp.INSTANCE;
                 }
-                
+
                 for (; i < children.size(); i++) {
                     // This logic finds the common type to which all child types are coercible
                     // without losing precision.
@@ -997,7 +1013,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                         // Coerce return type to DOUBLE from LONG if DOUBLE child found,
                         // unless we're doing date arithmetic or we've found another child of type DECIMAL
                         if (theType == null
-                                || (theType != PDecimal.INSTANCE && !theType.isCoercibleTo(PDate.INSTANCE) )) {
+                                || (theType != PDecimal.INSTANCE && !theType.isCoercibleTo(PDate.INSTANCE))) {
                             theType = PDouble.INSTANCE;
                         }
                     } else {
@@ -1011,7 +1027,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                 } else if (theType == PDouble.INSTANCE) {
                     return new DoubleSubtractExpression(children);
                 } else if (theType == null) {
-                	return LiteralExpression.newConstant(null, theType, determinism);
+                    return LiteralExpression.newConstant(null, theType, determinism);
                 } else if (theType == PTimestamp.INSTANCE || theType == PUnsignedTimestamp.INSTANCE) {
                     return new TimestampSubtractExpression(children);
                 } else if (theType.isCoercibleTo(PDate.INSTANCE)) {
@@ -1035,7 +1051,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
             public Expression create(ArithmeticParseNode node, List<Expression> children) throws SQLException {
                 PDataType theType = null;
                 Determinism determinism = Determinism.ALWAYS;
-                for(int i = 0; i < children.size(); i++) {
+                for (int i = 0; i < children.size(); i++) {
                     Expression e = children.get(i);
                     determinism = determinism.combine(e.getDeterminism());
                     PDataType type = e.getDataType();
@@ -1056,18 +1072,18 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                     }
                 }
                 if (theType == PDecimal.INSTANCE) {
-                  return new DecimalMultiplyExpression( children);
+                    return new DecimalMultiplyExpression(children);
                 } else if (theType == PLong.INSTANCE) {
-                  return new LongMultiplyExpression( children);
+                    return new LongMultiplyExpression(children);
                 } else if (theType == PDouble.INSTANCE) {
-                  return new DoubleMultiplyExpression( children);
+                    return new DoubleMultiplyExpression(children);
                 } else {
-                  return LiteralExpression.newConstant(null, theType, determinism);
+                    return LiteralExpression.newConstant(null, theType, determinism);
                 }
             }
         });
     }
-    
+
     @Override
     public boolean visitEnter(DivideParseNode node) throws SQLException {
         return true;
@@ -1077,25 +1093,25 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     public Expression visitLeave(DivideParseNode node, List<Expression> children) throws SQLException {
         for (int i = 1; i < children.size(); i++) { // Compile time check for divide by zero and null
             Expression child = children.get(i);
-                if (child.getDataType() != null && child instanceof LiteralExpression) {
-                    LiteralExpression literal = (LiteralExpression)child;
-                    if (literal.getDataType() == PDecimal.INSTANCE) {
-                        if (PDecimal.INSTANCE.compareTo(literal.getValue(), BigDecimal.ZERO) == 0) {
-                            throw new SQLExceptionInfo.Builder(SQLExceptionCode.DIVIDE_BY_ZERO).build().buildException();
-                        }
-                    } else {
-                        if (literal.getDataType().compareTo(literal.getValue(), 0L, PLong.INSTANCE) == 0) {
-                            throw new SQLExceptionInfo.Builder(SQLExceptionCode.DIVIDE_BY_ZERO).build().buildException();
-                        }
+            if (child.getDataType() != null && child instanceof LiteralExpression) {
+                LiteralExpression literal = (LiteralExpression) child;
+                if (literal.getDataType() == PDecimal.INSTANCE) {
+                    if (PDecimal.INSTANCE.compareTo(literal.getValue(), BigDecimal.ZERO) == 0) {
+                        throw new SQLExceptionInfo.Builder(SQLExceptionCode.DIVIDE_BY_ZERO).build().buildException();
+                    }
+                } else {
+                    if (literal.getDataType().compareTo(literal.getValue(), 0L, PLong.INSTANCE) == 0) {
+                        throw new SQLExceptionInfo.Builder(SQLExceptionCode.DIVIDE_BY_ZERO).build().buildException();
                     }
                 }
+            }
         }
         return visitLeave(node, children, null, new ArithmeticExpressionFactory() {
             @Override
             public Expression create(ArithmeticParseNode node, List<Expression> children) throws SQLException {
                 PDataType theType = null;
                 Determinism determinism = Determinism.ALWAYS;
-                for(int i = 0; i < children.size(); i++) {
+                for (int i = 0; i < children.size(); i++) {
                     Expression e = children.get(i);
                     determinism = determinism.combine(e.getDeterminism());
                     PDataType type = e.getDataType();
@@ -1116,18 +1132,18 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
                     }
                 }
                 if (theType == PDecimal.INSTANCE) {
-                  return new DecimalDivideExpression( children);
+                    return new DecimalDivideExpression(children);
                 } else if (theType == PLong.INSTANCE) {
-                  return new LongDivideExpression( children);
+                    return new LongDivideExpression(children);
                 } else if (theType == PDouble.INSTANCE) {
-                  return new DoubleDivideExpression(children);
+                    return new DoubleDivideExpression(children);
                 } else {
-                  return LiteralExpression.newConstant(null, theType, determinism);
+                    return LiteralExpression.newConstant(null, theType, determinism);
                 }
             }
         });
     }
-    
+
     @Override
     public boolean visitEnter(ModulusParseNode node) throws SQLException {
         return true;
@@ -1139,18 +1155,18 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
             @Override
             public Expression create(ArithmeticParseNode node, List<Expression> children) throws SQLException {
                 // ensure integer types
-                for(Expression child : children) {
+                for (Expression child : children) {
                     PDataType type = child.getDataType();
-                    if(type != null && !type.isCoercibleTo(PLong.INSTANCE)) {
+                    if (type != null && !type.isCoercibleTo(PLong.INSTANCE)) {
                         throw TypeMismatchException.newException(type, node.toString());
                     }
                 }
-                
+
                 return new ModulusExpression(children);
             }
         });
     }
-    
+
     @Override
     public boolean visitEnter(ArrayAnyComparisonNode node) throws SQLException {
         return true;
@@ -1165,17 +1181,17 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
     public boolean visitEnter(ArrayAllComparisonNode node) throws SQLException {
         return true;
     }
-    
+
     @Override
     public boolean visitEnter(ArrayElemRefNode node) throws SQLException {
         return true;
     }
-    
+
     @Override
     public Expression visitLeave(ArrayElemRefNode node, List<Expression> l) throws SQLException {
         return new ArrayElemRefExpression(l);
     }
-    
+
     @Override
     public Expression visitLeave(ArrayAllComparisonNode node, List<Expression> children) throws SQLException {
         return new ArrayAllComparisonExpression(children);
@@ -1183,21 +1199,21 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
 
     public static void throwNonAggExpressionInAggException(String nonAggregateExpression) throws SQLException {
         throw new SQLExceptionInfo.Builder(SQLExceptionCode.AGGREGATE_WITH_NOT_GROUP_BY_COLUMN)
-        .setMessage(nonAggregateExpression).build().buildException();
+                .setMessage(nonAggregateExpression).build().buildException();
     }
 
     @Override
     public Expression visitLeave(StringConcatParseNode node, List<Expression> children) throws SQLException {
-        final StringConcatExpression expression=new StringConcatExpression(children);
+        final StringConcatExpression expression = new StringConcatExpression(children);
         for (int i = 0; i < children.size(); i++) {
-            ParseNode childNode=node.getChildren().get(i);
-            if(childNode instanceof BindParseNode) {
-                context.getBindManager().addParamMetaData((BindParseNode)childNode,expression);
+            ParseNode childNode = node.getChildren().get(i);
+            if (childNode instanceof BindParseNode) {
+                context.getBindManager().addParamMetaData((BindParseNode) childNode, expression);
             }
-            PDataType type=children.get(i).getDataType();
-            if(type == PVarbinary.INSTANCE){
+            PDataType type = children.get(i).getDataType();
+            if (type == PVarbinary.INSTANCE) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.TYPE_NOT_SUPPORTED_FOR_OPERATOR)
-                .setMessage("Concatenation does not support "+ type +" in expression" + node).build().buildException();
+                        .setMessage("Concatenation does not support " + type + " in expression" + node).build().buildException();
             }
         }
         ImmutableBytesWritable ptr = context.getTempPtr();
@@ -1224,14 +1240,14 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         return wrapGroupByExpression(new RowValueConstructorExpression(l, node.isStateless()));
     }
 
-	@Override
-	public Expression visit(SequenceValueParseNode node)
-			throws SQLException {
-	    // NEXT VALUE FOR is only supported in SELECT expressions and UPSERT VALUES
+    @Override
+    public Expression visit(SequenceValueParseNode node)
+            throws SQLException {
+        // NEXT VALUE FOR is only supported in SELECT expressions and UPSERT VALUES
         throw new SQLExceptionInfo.Builder(SQLExceptionCode.INVALID_USE_OF_NEXT_VALUE_FOR)
-        .setSchemaName(node.getTableName().getSchemaName())
-        .setTableName(node.getTableName().getTableName()).build().buildException();
-	}
+                .setSchemaName(node.getTableName().getSchemaName())
+                .setTableName(node.getTableName().getTableName()).build().buildException();
+    }
 
     @Override
     public Expression visitLeave(ArrayConstructorNode node, List<Expression> children) throws SQLException {
@@ -1262,21 +1278,21 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         // If we found an "unknown" child type and the return type is a number
         // make the return type be the most general number type of DECIMAL.
         if (isChildTypeUnknown && arrayElemDataType != null && arrayElemDataType.isCoercibleTo(
-            PDecimal.INSTANCE)) {
+                PDecimal.INSTANCE)) {
             arrayElemDataType = PDecimal.INSTANCE;
         }
         final PDataType theArrayElemDataType = arrayElemDataType;
         for (int i = 0; i < node.getChildren().size(); i++) {
             ParseNode childNode = node.getChildren().get(i);
             if (childNode instanceof BindParseNode) {
-                context.getBindManager().addParamMetaData((BindParseNode)childNode,
+                context.getBindManager().addParamMetaData((BindParseNode) childNode,
                         arrayElemDataType == arrayElemChild.getDataType() ? arrayElemChild :
-                            new DelegateDatum(arrayElemChild) {
-                    @Override
-                    public PDataType getDataType() {
-                        return theArrayElemDataType;
-                    }
-                });
+                                new DelegateDatum(arrayElemChild) {
+                                    @Override
+                                    public PDataType getDataType() {
+                                        return theArrayElemDataType;
+                                    }
+                                });
             }
         }
         ImmutableBytesWritable ptr = context.getTempPtr();
@@ -1301,7 +1317,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
             return LiteralExpression.newConstant(value,
                     PDataType.fromTypeId(arrayElemDataType.getSqlType() + PDataType.ARRAY_TYPE_BASE), null, null, arrayExpression.getSortOrder(), Determinism.ALWAYS, rowKeyOrderOptimizable);
         }
-        
+
         return wrapGroupByExpression(arrayExpression);
     }
 
@@ -1327,7 +1343,7 @@ public class ExpressionCompiler extends UnsupportedAllParseNodeVisitor<Expressio
         Object result = context.getSubqueryResult(node.getSelectNode());
         return LiteralExpression.newConstant(result);
     }
-    
+
     public int getTotalNodeCount() {
         return totalNodeCount;
     }

@@ -24,14 +24,12 @@ import java.util.List;
 import org.apache.phoenix.compile.ColumnResolver;
 
 /**
- * 
- * Node representing a row value constructor in SQL.  
+ * Node representing a row value constructor in SQL.
  *
- * 
  * @since 0.1
  */
 public class RowValueConstructorParseNode extends CompoundParseNode {
-    
+
     public RowValueConstructorParseNode(List<ParseNode> l) {
         super(l);
     }
@@ -55,7 +53,7 @@ public class RowValueConstructorParseNode extends CompoundParseNode {
                 child.toSQL(resolver, buf);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         buf.append(')');
     }

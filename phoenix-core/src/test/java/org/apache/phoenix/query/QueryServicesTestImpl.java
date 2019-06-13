@@ -31,7 +31,6 @@ import org.apache.tephra.TxConstants;
 /**
  * QueryServices implementation to use for tests that do not execute queries
  *
- * 
  * @since 0.1
  */
 public final class QueryServicesTestImpl extends BaseQueryServicesImpl {
@@ -39,20 +38,20 @@ public final class QueryServicesTestImpl extends BaseQueryServicesImpl {
     private static final int DEFAULT_THREAD_POOL_SIZE = 10;
     // TODO: setting this down to 5mb causes insufficient memory exceptions. Need to investigate why
     private static final int DEFAULT_MAX_MEMORY_PERC = 30; // 30% of heap
-    private static final int DEFAULT_THREAD_TIMEOUT_MS = 60000*5; //5min
+    private static final int DEFAULT_THREAD_TIMEOUT_MS = 60000 * 5; //5min
     private static final int DEFAULT_SPOOL_THRESHOLD_BYTES = 1024 * 1024; // 1m
     private static final int DEFAULT_MAX_TENANT_MEMORY_PERC = 100;
     private static final int DEFAULT_MAX_SERVER_CACHE_TIME_TO_LIVE_MS = 60000 * 60; // 1HR (to prevent age-out of hash cache during debugging)
-    private static final long DEFAULT_MAX_HASH_CACHE_SIZE = 1024*1024*10;  // 10 Mb
+    private static final long DEFAULT_MAX_HASH_CACHE_SIZE = 1024 * 1024 * 10;  // 10 Mb
     private static final boolean DEFAULT_DROP_METADATA = false;
-    
+
     private static final int DEFAULT_MASTER_INFO_PORT = -1;
     private static final int DEFAULT_REGIONSERVER_INFO_PORT = -1;
     private static final int DEFAULT_REGIONSERVER_LEASE_PERIOD_MS = 9000000;
     private static final int DEFAULT_RPC_TIMEOUT_MS = 9000000;
     private static final String DEFAULT_WAL_EDIT_CODEC = IndexedWALEditCodec.class.getName();
-    public static final long DEFAULT_MAX_SERVER_METADATA_CACHE_SIZE =  1024L*1024L*4L; // 4 Mb
-    public static final long DEFAULT_MAX_CLIENT_METADATA_CACHE_SIZE =  1024L*1024L*2L; // 2 Mb
+    public static final long DEFAULT_MAX_SERVER_METADATA_CACHE_SIZE = 1024L * 1024L * 4L; // 4 Mb
+    public static final long DEFAULT_MAX_CLIENT_METADATA_CACHE_SIZE = 1024L * 1024L * 2L; // 2 Mb
     public static final int DEFAULT_MIN_STATS_UPDATE_FREQ_MS = 0;
     public static final boolean DEFAULT_EXPLAIN_CHUNK_COUNT = false; // TODO: update explain plans in test and set to true
     public static final boolean DEFAULT_EXPLAIN_ROW_COUNT = false; // TODO: update explain plans in test and set to true
@@ -75,7 +74,7 @@ public final class QueryServicesTestImpl extends BaseQueryServicesImpl {
     public static final long DEFAULT_INDEX_REBUILD_TASK_INITIAL_DELAY = Long.MAX_VALUE;
     public static final int DEFAULT_TXN_TIMEOUT_SECONDS = 30;
 
-    
+
     /**
      * Set number of salt buckets lower for sequence table during testing, as a high
      * value overwhelms our mini clusters.
@@ -83,18 +82,18 @@ public final class QueryServicesTestImpl extends BaseQueryServicesImpl {
     public static final int DEFAULT_SEQUENCE_TABLE_SALT_BUCKETS = 4;
     public static final boolean DEFAULT_FORCE_ROWKEY_ORDER = true;
 
-    
+
     public QueryServicesTestImpl(ReadOnlyProps defaultProps) {
         this(defaultProps, ReadOnlyProps.EMPTY_PROPS);
     }
-    
+
     private static QueryServicesOptions getDefaultServicesOptions() {
-    	return withDefaults()
-    	        .setSequenceCacheSize(DEFAULT_SEQUENCE_CACHE_SIZE)
-    	        .setTransactionsEnabled(DEFAULT_TRANSACTIONS_ENABLED)
-    	        .setExplainChunkCount(DEFAULT_EXPLAIN_CHUNK_COUNT)
+        return withDefaults()
+                .setSequenceCacheSize(DEFAULT_SEQUENCE_CACHE_SIZE)
+                .setTransactionsEnabled(DEFAULT_TRANSACTIONS_ENABLED)
+                .setExplainChunkCount(DEFAULT_EXPLAIN_CHUNK_COUNT)
                 .setExplainRowCount(DEFAULT_EXPLAIN_ROW_COUNT)
-    	        .setSequenceSaltBuckets(DEFAULT_SEQUENCE_TABLE_SALT_BUCKETS)
+                .setSequenceSaltBuckets(DEFAULT_SEQUENCE_TABLE_SALT_BUCKETS)
                 .setMinStatsUpdateFrequencyMs(DEFAULT_MIN_STATS_UPDATE_FREQ_MS)
                 .setThreadPoolSize(DEFAULT_THREAD_POOL_SIZE)
                 .setMaxMemoryPerc(DEFAULT_MAX_MEMORY_PERC)
@@ -135,8 +134,8 @@ public final class QueryServicesTestImpl extends BaseQueryServicesImpl {
                 .set(TxConstants.Manager.CFG_TX_SNAPSHOT_INTERVAL, 5L)
                 ;
     }
-    
+
     public QueryServicesTestImpl(ReadOnlyProps defaultProps, ReadOnlyProps overrideProps) {
         super(defaultProps, getDefaultServicesOptions().setAll(overrideProps));
-    }    
+    }
 }

@@ -40,10 +40,10 @@ public interface PDatum {
      * @return scale of a decimal number.
      */
     Integer getScale();
-    
+
     /**
      * @return The SortOrder for this column, never null
      */
     SortOrder getSortOrder();
-    
+
 }

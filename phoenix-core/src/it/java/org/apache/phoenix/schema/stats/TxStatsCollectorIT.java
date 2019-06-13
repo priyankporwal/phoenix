@@ -35,17 +35,17 @@ public class TxStatsCollectorIT extends BaseStatsCollectorIT {
                 Arrays.asList(
                         new Object[][] {
                                 // Immutable, TEPHRA, Column Encoded
-                                { false, "TEPHRA", true },
+                                {false, "TEPHRA", true},
                                 // Immutable, TEPHRA, Non Column Encoded
-                                { false, "TEPHRA", false },
+                                {false, "TEPHRA", false},
                                 // Immutable, OMID, Non Column Encoded
-                                { false, "OMID", false },
+                                {false, "OMID", false},
 
                                 // Mutable, TEPHRA, Column Encoded
-                                { true, "TEPHRA", true },
+                                {true, "TEPHRA", true},
                                 // Mutable, TEPHRA, Non Column Encoded
-                                { true, "TEPHRA", false },
+                                {true, "TEPHRA", false},
                                 // Mutable, OMID, Non Column Encoded
-                                { true, "OMID", false }}), 1);
+                                {true, "OMID", false}}), 1);
     }
 }

@@ -89,47 +89,48 @@ public class UpsertSelectOverlappingBatchesIT extends BaseUniqueNamesOwnClusterI
     }
 
     private class UpsertSelectRunner implements Callable<Boolean> {
-    	private final String dataTable;
-    	private final int minIndex;
-    	private final int maxIndex;
-    	private final int numLoop;
-    	
-    	public UpsertSelectRunner (String dataTable, int minIndex, int maxIndex, int numLoop) {
-    		this.dataTable = dataTable;
-    		this.minIndex = minIndex;
-    		this.maxIndex = maxIndex;
-    		this.numLoop = numLoop;
-    	}
+        private final String dataTable;
+        private final int minIndex;
+        private final int maxIndex;
+        private final int numLoop;
 
-		@Override
-		public Boolean call() throws Exception {
-			Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-			try (Connection myConn = DriverManager.getConnection(getUrl(), props)) {
-				myConn.setAutoCommit(true);
-				String time = String.valueOf(System.currentTimeMillis());
-				String dml = "UPSERT INTO " + dataTable + " SELECT k, v1 || '" + time + "', v2 || '" + time
-						+ "' FROM " + dataTable + " WHERE k >= " + minIndex + " AND k < " + maxIndex;
-				myConn.setAutoCommit(true);
-				for (int j = 0; j < numLoop; ++j) {
-					myConn.createStatement().execute(dml);
-				}
-				return true;
-			}
-		}
+        public UpsertSelectRunner(String dataTable, int minIndex, int maxIndex, int numLoop) {
+            this.dataTable = dataTable;
+            this.minIndex = minIndex;
+            this.maxIndex = maxIndex;
+            this.numLoop = numLoop;
+        }
+
+        @Override
+        public Boolean call() throws Exception {
+            Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+            try (Connection myConn = DriverManager.getConnection(getUrl(), props)) {
+                myConn.setAutoCommit(true);
+                String time = String.valueOf(System.currentTimeMillis());
+                String dml = "UPSERT INTO " + dataTable + " SELECT k, v1 || '" + time + "', v2 || '" + time
+                        + "' FROM " + dataTable + " WHERE k >= " + minIndex + " AND k < " + maxIndex;
+                myConn.setAutoCommit(true);
+                for (int j = 0; j < numLoop; ++j) {
+                    myConn.createStatement().execute(dml);
+                }
+                return true;
+            }
+        }
     }
 
     private static class UpsertSelectLooper implements Runnable {
         private UpsertSelectRunner runner;
+
         public UpsertSelectLooper(UpsertSelectRunner runner) {
             this.runner = runner;
         }
+
         @Override
         public void run() {
             while (true) {
                 try {
                     runner.call();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     if (ExceptionUtils.indexOfThrowable(e, InterruptedException.class) != -1) {
                         LOGGER.info("Interrupted, exiting", e);
                         Thread.currentThread().interrupt();
@@ -138,7 +139,10 @@ public class UpsertSelectOverlappingBatchesIT extends BaseUniqueNamesOwnClusterI
                     LOGGER.error("Hit exception while writing", e);
                 }
             }
-        }};
+        }
+    }
+
+    ;
 
     @Before
     public void setup() throws Exception {
@@ -164,34 +168,34 @@ public class UpsertSelectOverlappingBatchesIT extends BaseUniqueNamesOwnClusterI
         }
     }
 
-	@Test
-	public void testUpsertSelectSameBatchConcurrently() throws Exception {
-		try (Connection conn = driver.connect(url, props)) {
-		        int numUpsertSelectRunners = 5;
-		        ExecutorService exec = Executors.newFixedThreadPool(numUpsertSelectRunners);
-		        CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(exec);
-		        List<Future<Boolean>> futures = Lists.newArrayListWithExpectedSize(numUpsertSelectRunners);
-		        // run one UPSERT SELECT for 100 rows (that locks the rows for a long time)
-		        futures.add(completionService.submit(new UpsertSelectRunner(dataTable, 0, 105, 1)));
-		        // run four UPSERT SELECTS for 5 rows (that overlap with slow running UPSERT SELECT)
-		        for (int i = 0; i < 100; i += 25) {
-		            futures.add(completionService.submit(new UpsertSelectRunner(dataTable, i, i+25, 5)));
-		        }
-		        int received = 0;
-		        while (received < futures.size()) {
-		            Future<Boolean> resultFuture = completionService.take();
-		            Boolean result = resultFuture.get();
-		            received++;
-		            assertTrue(result);
-		        }
-		        exec.shutdownNow();
-		}
-	}
+    @Test
+    public void testUpsertSelectSameBatchConcurrently() throws Exception {
+        try (Connection conn = driver.connect(url, props)) {
+            int numUpsertSelectRunners = 5;
+            ExecutorService exec = Executors.newFixedThreadPool(numUpsertSelectRunners);
+            CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(exec);
+            List<Future<Boolean>> futures = Lists.newArrayListWithExpectedSize(numUpsertSelectRunners);
+            // run one UPSERT SELECT for 100 rows (that locks the rows for a long time)
+            futures.add(completionService.submit(new UpsertSelectRunner(dataTable, 0, 105, 1)));
+            // run four UPSERT SELECTS for 5 rows (that overlap with slow running UPSERT SELECT)
+            for (int i = 0; i < 100; i += 25) {
+                futures.add(completionService.submit(new UpsertSelectRunner(dataTable, i, i + 25, 5)));
+            }
+            int received = 0;
+            while (received < futures.size()) {
+                Future<Boolean> resultFuture = completionService.take();
+                Boolean result = resultFuture.get();
+                received++;
+                assertTrue(result);
+            }
+            exec.shutdownNow();
+        }
+    }
 
     /**
      * Tests that splitting a region is not blocked indefinitely by UPSERT SELECT load
      */
-	@Test
+    @Test
     public void testSplitDuringUpsertSelect() throws Exception {
         int numUpsertSelectRunners = 4;
         ExecutorService exec = Executors.newFixedThreadPool(numUpsertSelectRunners);
@@ -232,7 +236,7 @@ public class UpsertSelectOverlappingBatchesIT extends BaseUniqueNamesOwnClusterI
                     } catch (NotServingRegionException | DoNotRetryRegionException re) {
                         // during split
                         return false;
-                    } 
+                    }
                 }
             });
         } finally {
@@ -289,18 +293,19 @@ public class UpsertSelectOverlappingBatchesIT extends BaseUniqueNamesOwnClusterI
             exec.awaitTermination(60, TimeUnit.SECONDS);
         }
     }
-    
+
     public static class SlowBatchRegionObserver extends SimpleRegionObserver {
         public static volatile boolean SLOW_MUTATE = false;
+
         @Override
         public void preBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c, MiniBatchOperationInProgress<Mutation> miniBatchOp) throws HBaseIOException {
-        	// model a slow batch that takes a long time
-            if ((miniBatchOp.size()==100 || SLOW_MUTATE) && c.getEnvironment().getRegionInfo().getTable().getNameAsString().equals(dataTable)) {
-            	try {
-					Thread.sleep(6000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+            // model a slow batch that takes a long time
+            if ((miniBatchOp.size() == 100 || SLOW_MUTATE) && c.getEnvironment().getRegionInfo().getTable().getNameAsString().equals(dataTable)) {
+                try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

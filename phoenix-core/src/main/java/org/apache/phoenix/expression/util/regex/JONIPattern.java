@@ -80,17 +80,17 @@ public class JONIPattern extends AbstractBasePattern implements AbstractBaseSpli
 
     @Override
     public void replaceAll(ImmutableBytesWritable srcPtr, byte[] rStrBytes, int rStrOffset,
-            int rStrLen) {
+                           int rStrLen) {
         Preconditions.checkNotNull(srcPtr);
         Preconditions.checkNotNull(rStrBytes);
         byte[] replacedBytes =
                 replaceAll(srcPtr.get(), srcPtr.getOffset(), srcPtr.getLength(), rStrBytes,
-                    rStrOffset, rStrLen);
+                        rStrOffset, rStrLen);
         srcPtr.set(replacedBytes);
     }
 
     private byte[] replaceAll(byte[] srcBytes, int srcOffset, int srcLen, byte[] replaceBytes,
-            int replaceOffset, int replaceLen) {
+                              int replaceOffset, int replaceLen) {
         class PairInt {
             public int begin, end;
 
@@ -157,7 +157,7 @@ public class JONIPattern extends AbstractBasePattern implements AbstractBaseSpli
     }
 
     private boolean
-            split(byte[] srcBytes, int srcOffset, int srcLen, ImmutableBytesWritable outPtr) {
+    split(byte[] srcBytes, int srcOffset, int srcLen, ImmutableBytesWritable outPtr) {
         SortOrder sortOrder = SortOrder.ASC;
         PArrayDataTypeEncoder builder =
                 new PArrayDataTypeEncoder(PVarchar.INSTANCE, sortOrder);
@@ -191,7 +191,9 @@ public class JONIPattern extends AbstractBasePattern implements AbstractBaseSpli
             }
         }
         byte[] bytes = builder.encode();
-        if (bytes == null) return false;
+        if (bytes == null) {
+            return false;
+        }
         outPtr.set(bytes);
         return true;
     }

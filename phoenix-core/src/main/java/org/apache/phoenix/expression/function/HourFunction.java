@@ -30,13 +30,11 @@ import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PTimestamp;
 
 /**
- * 
  * Implementation of the HOUR() buildin. Input Date/Timestamp/Time.
  * Returns an integer from 0 to 23 representing the hour component of time
- * 
  */
-@BuiltInFunction(name=HourFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = HourFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class HourFunction extends DateScalarFunction {
     public static final String NAME = "HOUR";
 
@@ -53,11 +51,11 @@ public class HourFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());
-        int hour = (int)(((dateTime/1000) % (24*3600))/3600);
+        int hour = (int) (((dateTime / 1000) % (24 * 3600)) / 3600);
         PDataType returnType = getDataType();
         byte[] byteValue = new byte[returnType.getByteSize()];
         returnType.getCodec().encodeInt(hour, byteValue, 0);

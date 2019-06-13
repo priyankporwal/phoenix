@@ -34,12 +34,11 @@ import org.joda.time.DateTimeZone;
 /**
  * Build in function CONVERT_TZ(date, 'timezone_from', 'timezone_to). Convert date from one timezone to
  * another
- *
  */
 @FunctionParseNode.BuiltInFunction(name = ConvertTimezoneFunction.NAME, args = {
-    @FunctionParseNode.Argument(allowedTypes = { PTimestamp.class }),
-    @FunctionParseNode.Argument(allowedTypes = { PVarchar.class }),
-    @FunctionParseNode.Argument(allowedTypes = { PVarchar.class })})
+        @FunctionParseNode.Argument(allowedTypes = {PTimestamp.class}),
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}),
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class})})
 public class ConvertTimezoneFunction extends ScalarFunction {
 
     public static final String NAME = "CONVERT_TZ";

@@ -44,28 +44,28 @@ public final class CursorUtil {
         ImmutableBytesWritable row;
         ImmutableBytesWritable previousRow;
         private Scan scan;
-        private boolean moreValues=true;
+        private boolean moreValues = true;
         private boolean isReversed;
         private boolean islastCallNext;
         private CursorFetchPlan fetchPlan;
         private int offset = -1;
         private boolean isAggregate;
 
-        private CursorWrapper(String cursorName, String selectSQL, QueryPlan queryPlan){
+        private CursorWrapper(String cursorName, String selectSQL, QueryPlan queryPlan) {
             this.cursorName = cursorName;
             this.selectSQL = selectSQL;
             this.queryPlan = queryPlan;
             this.islastCallNext = true;
-            this.fetchPlan = new CursorFetchPlan(queryPlan,cursorName);
+            this.fetchPlan = new CursorFetchPlan(queryPlan, cursorName);
             isAggregate = fetchPlan.isAggregate();
         }
 
         private synchronized void openCursor(Connection conn) throws SQLException {
-            if(isOpen){
+            if (isOpen) {
                 return;
             }
             this.scan = this.queryPlan.getContext().getScan();
-            isReversed=OrderBy.REV_ROW_KEY_ORDER_BY.equals(this.queryPlan.getOrderBy());
+            isReversed = OrderBy.REV_ROW_KEY_ORDER_BY.equals(this.queryPlan.getOrderBy());
             isOpen = true;
         }
 
@@ -78,22 +78,23 @@ public final class CursorUtil {
         }
 
         private QueryPlan getFetchPlan(boolean isNext, int fetchSize) throws SQLException {
-            if (!isOpen)
+            if (!isOpen) {
                 throw new SQLException("Fetch call on closed cursor '" + this.cursorName + "'!");
-            ((CursorResultIterator)fetchPlan.iterator()).setFetchSize(fetchSize);
-            if (!isAggregate) { 
-                if (row!=null){
+            }
+            ((CursorResultIterator) fetchPlan.iterator()).setFetchSize(fetchSize);
+            if (!isAggregate) {
+                if (row != null) {
                     scan.setStartRow(row.get());
                 }
             }
             return this.fetchPlan;
         }
 
-        public void updateLastScanRow(Tuple rowValues,Tuple nextRowValues) {
-        	
+        public void updateLastScanRow(Tuple rowValues, Tuple nextRowValues) {
+
             this.moreValues = !isReversed ? nextRowValues != null : rowValues != null;
-            if(!moreValues()){
-               return;
+            if (!moreValues()) {
+                return;
             }
             if (row == null) {
                 row = new ImmutableBytesWritable();
@@ -103,7 +104,7 @@ public final class CursorUtil {
             }
             if (nextRowValues != null) {
                 nextRowValues.getKey(row);
-            } 
+            }
             if (rowValues != null) {
                 rowValues.getKey(previousRow);
             }
@@ -115,13 +116,14 @@ public final class CursorUtil {
         }
 
         public String getFetchSQL() throws SQLException {
-            if (!isOpen)
+            if (!isOpen) {
                 throw new SQLException("Fetch call on closed cursor '" + this.cursorName + "'!");
+            }
             return selectSQL;
         }
     }
 
-    private static Map<String, CursorWrapper> mapCursorIDQuery = new HashMap<String,CursorWrapper>();
+    private static Map<String, CursorWrapper> mapCursorIDQuery = new HashMap<String, CursorWrapper>();
 
     /**
      * Private constructor
@@ -130,13 +132,12 @@ public final class CursorUtil {
     }
 
     /**
-     *
      * @param stmt DeclareCursorStatement instance intending to declare a new cursor.
      * @return Returns true if the new cursor was successfully declared. False if a cursor with the same
      * identifier already exists.
      */
     public static boolean declareCursor(DeclareCursorStatement stmt, QueryPlan queryPlan) throws SQLException {
-        if(mapCursorIDQuery.containsKey(stmt.getCursorName())){
+        if (mapCursorIDQuery.containsKey(stmt.getCursorName())) {
             throw new SQLException("Can't declare cursor " + stmt.getCursorName() + ", cursor identifier already in use.");
         } else {
             mapCursorIDQuery.put(stmt.getCursorName(), new CursorWrapper(stmt.getCursorName(), stmt.getQuerySQL(), queryPlan));
@@ -145,28 +146,28 @@ public final class CursorUtil {
     }
 
     public static boolean openCursor(OpenStatement stmt, Connection conn) throws SQLException {
-        if(mapCursorIDQuery.containsKey(stmt.getCursorName())){
+        if (mapCursorIDQuery.containsKey(stmt.getCursorName())) {
             mapCursorIDQuery.get(stmt.getCursorName()).openCursor(conn);
             return true;
-        } else{
+        } else {
             throw new SQLException("Cursor " + stmt.getCursorName() + " not declared.");
         }
     }
 
     public static void closeCursor(CloseStatement stmt) throws SQLException {
-        if(mapCursorIDQuery.containsKey(stmt.getCursorName())){
+        if (mapCursorIDQuery.containsKey(stmt.getCursorName())) {
             mapCursorIDQuery.get(stmt.getCursorName()).closeCursor();
         }
     }
 
     public static QueryPlan getFetchPlan(String cursorName, boolean isNext, int fetchSize) throws SQLException {
-        if(mapCursorIDQuery.containsKey(cursorName)){
+        if (mapCursorIDQuery.containsKey(cursorName)) {
             return mapCursorIDQuery.get(cursorName).getFetchPlan(isNext, fetchSize);
         } else {
             throw new SQLException("Cursor " + cursorName + " not declared.");
         }
     }
-    
+
     public static String getFetchSQL(String cursorName) throws SQLException {
         if (mapCursorIDQuery.containsKey(cursorName)) {
             return mapCursorIDQuery.get(cursorName).getFetchSQL();
@@ -176,10 +177,10 @@ public final class CursorUtil {
     }
 
     public static void updateCursor(String cursorName, Tuple rowValues, Tuple nextRowValues) throws SQLException {
-        mapCursorIDQuery.get(cursorName).updateLastScanRow(rowValues,nextRowValues);
+        mapCursorIDQuery.get(cursorName).updateLastScanRow(rowValues, nextRowValues);
     }
 
-    public static boolean cursorDeclared(String cursorName){
+    public static boolean cursorDeclared(String cursorName) {
         return mapCursorIDQuery.containsKey(cursorName);
     }
 

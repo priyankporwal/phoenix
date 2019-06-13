@@ -34,7 +34,9 @@ import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
  */
 public interface StatisticsCollector extends Closeable {
 
-    /** Constant used if no max timestamp is available */
+    /**
+     * Constant used if no max timestamp is available
+     */
     long NO_TIMESTAMP = -1;
 
     /**
@@ -50,13 +52,15 @@ public interface StatisticsCollector extends Closeable {
     /**
      * Collect statistics for the given list of cells. This method can be called multiple times
      * during collection of statistics.
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     void collectStatistics(List<Cell> results);
 
     /**
      * Called before beginning the collection of statistics through {@link #collectStatistics(List)}
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     void init() throws IOException;
 

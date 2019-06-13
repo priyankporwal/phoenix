@@ -36,21 +36,20 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default {@link RecordWriter} implementation from Phoenix
- *
  */
-public class PhoenixRecordWriter<T extends DBWritable>  extends RecordWriter<NullWritable, T> {
-    
+public class PhoenixRecordWriter<T extends DBWritable> extends RecordWriter<NullWritable, T> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixRecordWriter.class);
-    
+
     private final Connection conn;
     private final PreparedStatement statement;
     private final long batchSize;
     private long numRecords = 0;
-    
+
     public PhoenixRecordWriter(final Configuration configuration) throws SQLException {
         this(configuration, Collections.<String>emptySet());
     }
-    
+
     public PhoenixRecordWriter(final Configuration configuration, Set<String> propsToIgnore) throws SQLException {
         Connection connection = null;
         try {
@@ -72,23 +71,22 @@ public class PhoenixRecordWriter<T extends DBWritable>  extends RecordWriter<Nul
     public void close(TaskAttemptContext context) throws IOException, InterruptedException {
         try {
             conn.commit();
-         } catch (SQLException e) {
-             LOGGER.error("SQLException while performing the commit for the task.");
-             throw new RuntimeException(e);
-          } finally {
+        } catch (SQLException e) {
+            LOGGER.error("SQLException while performing the commit for the task.");
+            throw new RuntimeException(e);
+        } finally {
             try {
-              statement.close();
-              conn.close();
+                statement.close();
+                conn.close();
+            } catch (SQLException ex) {
+                LOGGER.error("SQLException while closing the connection for the task.");
+                throw new RuntimeException(ex);
             }
-            catch (SQLException ex) {
-              LOGGER.error("SQLException while closing the connection for the task.");
-              throw new RuntimeException(ex);
-            }
-          }
+        }
     }
 
     @Override
-    public void write(NullWritable n, T record) throws IOException, InterruptedException {      
+    public void write(NullWritable n, T record) throws IOException, InterruptedException {
         try {
             record.write(statement);
             numRecords++;

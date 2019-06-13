@@ -27,31 +27,34 @@ import org.apache.phoenix.schema.TableRef;
 
 public interface StatementPlan {
     StatementContext getContext();
+
     /**
      * Returns the ParameterMetaData for the statement
      */
     ParameterMetaData getParameterMetaData();
-    
+
     ExplainPlan getExplainPlan() throws SQLException;
+
     public Set<TableRef> getSourceRefs();
+
     Operation getOperation();
 
     /**
      * @return estimated number of rows that will be scanned when this statement plan is been executed.
-     *         Returns null if the estimate cannot be provided.
+     * Returns null if the estimate cannot be provided.
      * @throws SQLException
      */
     public Long getEstimatedRowsToScan() throws SQLException;
 
     /**
      * @return estimated number of bytes that will be scanned when this statement plan is been executed.
-     *         Returns null if the estimate cannot be provided.
+     * Returns null if the estimate cannot be provided.
      */
     public Long getEstimatedBytesToScan() throws SQLException;
 
     /**
      * @return timestamp at which the estimate information (estimated bytes and estimated rows) was
-     *         computed. executed. Returns null if the information cannot be provided.
+     * computed. executed. Returns null if the information cannot be provided.
      */
     public Long getEstimateInfoTimestamp() throws SQLException;
 }

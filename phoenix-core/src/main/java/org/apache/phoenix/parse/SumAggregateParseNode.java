@@ -31,9 +31,9 @@ public class SumAggregateParseNode extends DelegateConstantToCountParseNode {
     public SumAggregateParseNode(String name, List<ParseNode> children, BuiltInFunctionInfo info) {
         super(name, children, info);
     }
-    
+
     @Override
     public FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException {
-        return new SumAggregateFunction(children, getDelegateFunction(children,context));
+        return new SumAggregateFunction(children, getDelegateFunction(children, context));
     }
 }

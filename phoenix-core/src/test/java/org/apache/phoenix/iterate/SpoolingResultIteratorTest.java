@@ -38,7 +38,6 @@ import org.apache.phoenix.util.AssertResults;
 import org.junit.Test;
 
 
-
 public class SpoolingResultIteratorTest {
     private final static byte[] A = Bytes.toBytes("a");
     private final static byte[] B = Bytes.toBytes("b");
@@ -47,33 +46,34 @@ public class SpoolingResultIteratorTest {
         Tuple[] results = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))),
-            };
+        };
         PeekingResultIterator iterator = new MaterializedResultIterator(Arrays.asList(results));
 
         Tuple[] expectedResults = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1))),
-            };
+        };
 
         MemoryManager memoryManager = new DelegatingMemoryManager(new GlobalMemoryManager(threshold));
         ResultIterator scanner = new SpoolingResultIterator(
                 SpoolingMetricsHolder.NO_OP_INSTANCE,
-                new MemoryMetricsHolder(new ReadMetricQueue(false,LogLevel.OFF), ""), iterator, memoryManager, threshold,
+                new MemoryMetricsHolder(new ReadMetricQueue(false, LogLevel.OFF), ""), iterator, memoryManager, threshold,
                 maxSizeSpool, "/tmp");
         AssertResults.assertResults(scanner, expectedResults);
     }
 
     @Test
     public void testInMemorySpooling() throws Throwable {
-        testSpooling(1024*1024, QueryServicesOptions.DEFAULT_MAX_SPOOL_TO_DISK_BYTES);
+        testSpooling(1024 * 1024, QueryServicesOptions.DEFAULT_MAX_SPOOL_TO_DISK_BYTES);
     }
+
     @Test
     public void testOnDiskSpooling() throws Throwable {
         testSpooling(1, QueryServicesOptions.DEFAULT_MAX_SPOOL_TO_DISK_BYTES);
     }
 
     @Test(expected = SpoolTooBigToDiskException.class)
-    public void testFailToSpool() throws Throwable{
-    		testSpooling(1, 0L);
+    public void testFailToSpool() throws Throwable {
+        testSpooling(1, 0L);
     }
 }

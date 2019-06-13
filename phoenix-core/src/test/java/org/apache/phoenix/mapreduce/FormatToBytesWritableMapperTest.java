@@ -86,7 +86,7 @@ public class FormatToBytesWritableMapperTest {
                 processor.getClass());
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testLoadPreUpdateProcessor_ClassNotFound() {
         Configuration conf = new Configuration();
         conf.set(PhoenixConfigurationUtil.UPSERT_HOOK_CLASS_CONFKEY, "MyUndefinedClass");

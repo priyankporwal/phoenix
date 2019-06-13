@@ -103,7 +103,7 @@ public class PLong extends PWholeNumber<Long> {
 
     @Override
     public Long toObject(byte[] b, int o, int l, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                         Integer maxLength, Integer scale) {
         if (l == 0) {
             return null;
         }
@@ -131,8 +131,8 @@ public class PLong extends PWholeNumber<Long> {
 
     @Override
     public void coerceBytes(ImmutableBytesWritable ptr, Object object, PDataType actualType,
-            Integer maxLength, Integer scale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier) {
+                            Integer maxLength, Integer scale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier) {
 
         // Decrease size of TIMESTAMP to size of LONG and continue coerce
         if (ptr.getLength() > getByteSize() && actualType.isCoercibleTo(PTimestamp.INSTANCE)) {

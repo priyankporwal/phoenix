@@ -29,35 +29,34 @@ import com.google.common.base.Preconditions;
 /**
  * Base class for Aggregator implementations
  *
- * 
  * @since 0.1
  */
 public abstract class BaseAggregator extends BaseTerminalExpression implements Aggregator {
-    
-    protected final SortOrder sortOrder;    
-    
+
+    protected final SortOrder sortOrder;
+
     public BaseAggregator(SortOrder sortOrder) {
-    	Preconditions.checkNotNull(sortOrder);
+        Preconditions.checkNotNull(sortOrder);
         this.sortOrder = sortOrder;
     }
-    
+
     @Override
     public boolean isNullable() {
         return true;
     }
-    
+
     @Override
     public int getSize() {
         return SizedUtil.OBJECT_SIZE;
     }
-    
+
     ImmutableBytesWritable evalClientAggs(Aggregator clientAgg) {
-        CountAggregator ca = (CountAggregator)clientAgg;
+        CountAggregator ca = (CountAggregator) clientAgg;
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         ca.evaluate(null, ptr);
         return ptr;
     }
-    
+
     @Override
     public <T> T accept(ExpressionVisitor<T> visitor) {
         return null;

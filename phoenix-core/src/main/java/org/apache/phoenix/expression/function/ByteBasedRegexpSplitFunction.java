@@ -28,10 +28,10 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.parse.FunctionParseNode.Argument;
 import org.apache.phoenix.parse.FunctionParseNode.FunctionClassType;
 
-@BuiltInFunction(name=RegexpSplitFunction.NAME,
-        args= {
-                @Argument(allowedTypes={PVarchar.class}),
-                @Argument(allowedTypes={PVarchar.class})},
+@BuiltInFunction(name = RegexpSplitFunction.NAME,
+        args = {
+                @Argument(allowedTypes = {PVarchar.class}),
+                @Argument(allowedTypes = {PVarchar.class})},
         classType = FunctionClassType.DERIVED
 )
 public class ByteBasedRegexpSplitFunction extends RegexpSplitFunction {

@@ -83,9 +83,9 @@ import com.google.common.collect.Sets;
 /**
  * Tests that
  * 1. Phoenix Global metrics are exposed via
- *   a. PhoenixRuntime b. Hadoop-Metrics2 defined sinks
+ * a. PhoenixRuntime b. Hadoop-Metrics2 defined sinks
  * 2. Phoenix Request level metrics are exposed via
- *   a. PhoenixRuntime
+ * a. PhoenixRuntime
  */
 public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
 
@@ -284,7 +284,8 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
         String query = "SELECT * FROM " + tableName;
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(query);
-        while (rs.next()) {}
+        while (rs.next()) {
+        }
         rs.close();
     }
 
@@ -306,11 +307,12 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
         ResultSet rs = stmt.executeQuery(query);
         PhoenixResultSet resultSetBeingTested = rs.unwrap(PhoenixResultSet.class);
         changeInternalStateForTesting(resultSetBeingTested);
-        while (resultSetBeingTested.next()) {}
+        while (resultSetBeingTested.next()) {
+        }
         resultSetBeingTested.close();
         Set<String> expectedTableNames = Sets.newHashSet(tableName);
         assertReadMetricValuesForSelectSql(Lists.newArrayList(numRows), Lists.newArrayList(numExpectedTasks),
-            resultSetBeingTested, expectedTableNames);
+                resultSetBeingTested, expectedTableNames);
     }
 
     @Test
@@ -335,7 +337,7 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
             boolean mutationBytesPresent = false;
             boolean mutationBatchFailedPresent = false;
             for (Entry<MetricType, Long> metric : p.entrySet()) {
-            	MetricType metricType = metric.getKey();
+                MetricType metricType = metric.getKey();
                 long metricValue = metric.getValue();
                 if (metricType.equals(MetricType.MUTATION_BATCH_SIZE)) {
                     assertEquals("Mutation batch sizes didn't match!", numRows, metricValue);
@@ -429,7 +431,8 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
         props.setProperty(QueryServices.LOG_LEVEL, LogLevel.OFF.name());
         Connection conn = DriverManager.getConnection(getUrl(), props);
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
-        while (rs.next()) {}
+        while (rs.next()) {
+        }
         rs.close();
         Map<String, Map<MetricType, Long>> readMetrics = PhoenixRuntime.getRequestReadMetricInfo(rs);
         assertTrue("No read metrics should have been generated", readMetrics.size() == 0);
@@ -731,7 +734,7 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
     }
 
     private void assertMetricsAreSame(Map<String, Map<MetricType, Long>> metric1, Map<String, Map<MetricType, Long>> metric2,
-            List<MetricType> metricsToSkip) {
+                                      List<MetricType> metricsToSkip) {
         assertTrue("The two metrics have different or unequal number of table names ",
                 metric1.keySet().equals(metric2.keySet()));
         for (Entry<String, Map<MetricType, Long>> entry : metric1.entrySet()) {
@@ -742,11 +745,11 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
     }
 
     private void assertMetricsHaveSameValues(Map<MetricType, Long> metricNameValueMap1,
-            Map<MetricType, Long> metricNameValueMap2, List<MetricType> metricsToSkip) {
+                                             Map<MetricType, Long> metricNameValueMap2, List<MetricType> metricsToSkip) {
         assertTrue("The two metrics have different or unequal number of metric names ", metricNameValueMap1.keySet()
                 .equals(metricNameValueMap2.keySet()));
         for (Entry<MetricType, Long> entry : metricNameValueMap1.entrySet()) {
-        	MetricType metricType = entry.getKey();
+            MetricType metricType = entry.getKey();
             if (!metricsToSkip.contains(metricType)) {
                 assertEquals("Unequal values for metric " + metricType, entry.getValue(),
                         metricNameValueMap2.get(metricType));
@@ -756,14 +759,14 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
 
     private void changeInternalStateForTesting(PhoenixResultSet rs) {
         // get and set the internal state for testing purposes.
-        ReadMetricQueue testMetricsQueue = new TestReadMetricsQueue(LogLevel.OFF,true);
-        StatementContext ctx = (StatementContext)Whitebox.getInternalState(rs, "context");
+        ReadMetricQueue testMetricsQueue = new TestReadMetricsQueue(LogLevel.OFF, true);
+        StatementContext ctx = (StatementContext) Whitebox.getInternalState(rs, "context");
         Whitebox.setInternalState(ctx, "readMetricsQueue", testMetricsQueue);
         Whitebox.setInternalState(rs, "readMetricsQueue", testMetricsQueue);
     }
 
     private void assertReadMetricValuesForSelectSql(ArrayList<Long> numRows, ArrayList<Long> numExpectedTasks,
-            PhoenixResultSet resultSetBeingTested, Set<String> expectedTableNames) throws SQLException {
+                                                    PhoenixResultSet resultSetBeingTested, Set<String> expectedTableNames) throws SQLException {
         Map<String, Map<MetricType, Long>> metrics = PhoenixRuntime.getRequestReadMetricInfo(resultSetBeingTested);
         int counter = 0;
         for (Entry<String, Map<MetricType, Long>> entry : metrics.entrySet()) {
@@ -774,7 +777,7 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
             boolean taskExecutionTimeMetricsPresent = false;
             boolean memoryMetricsPresent = false;
             for (Entry<MetricType, Long> pair : metricValues.entrySet()) {
-            	MetricType metricType = pair.getKey();
+                MetricType metricType = pair.getKey();
                 long metricValue = pair.getValue();
                 long numTask = numExpectedTasks.get(counter);
                 if (metricType.equals(TASK_EXECUTED_COUNTER)) {
@@ -816,37 +819,37 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
         @Override
         public CombinableMetric getMetric(MetricType type) {
             switch (type) {
-            case SCAN_BYTES:
-                return new CombinableMetricImpl(type) {
+                case SCAN_BYTES:
+                    return new CombinableMetricImpl(type) {
 
-                    @Override
-                    public void change(long delta) {
-                        super.change(SCAN_BYTES_DELTA);
-                    }
-                };
-            case TASK_EXECUTION_TIME:
-                return new CombinableMetricImpl(type) {
+                        @Override
+                        public void change(long delta) {
+                            super.change(SCAN_BYTES_DELTA);
+                        }
+                    };
+                case TASK_EXECUTION_TIME:
+                    return new CombinableMetricImpl(type) {
 
-                    @Override
-                    public void change(long delta) {
-                        super.change(TASK_EXECUTION_TIME_DELTA);
-                    }
-                };
-            case MEMORY_CHUNK_BYTES:
-                return new CombinableMetricImpl(type) {
+                        @Override
+                        public void change(long delta) {
+                            super.change(TASK_EXECUTION_TIME_DELTA);
+                        }
+                    };
+                case MEMORY_CHUNK_BYTES:
+                    return new CombinableMetricImpl(type) {
 
-                    @Override
-                    public void change(long delta) {
-                        super.change(MEMORY_CHUNK_BYTES_DELTA);
-                    }
-                };
+                        @Override
+                        public void change(long delta) {
+                            super.change(MEMORY_CHUNK_BYTES_DELTA);
+                        }
+                    };
             }
             return super.getMetric(type);
         }
     }
 
     @Test
-    public void testGetConnectionsForSameUrlConcurrently()  throws Exception {
+    public void testGetConnectionsForSameUrlConcurrently() throws Exception {
         // establish url and quorum. Need to use PhoenixDriver and not PhoenixTestDriver
         String zkQuorum = "localhost:" + getUtility().getZkCluster().getClientPort();
         String url = PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkQuorum;
@@ -868,7 +871,8 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
                 Connection c = futures.get(i).get();
                 try {
                     c.close();
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                }
             }
             assertEquals(expectedHConnections, GLOBAL_HCONNECTIONS_COUNTER.getMetric().getValue());
             assertEquals(expectedHConnections, GLOBAL_QUERY_SERVICES_COUNTER.getMetric().getValue());
@@ -880,11 +884,11 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
     @Test
     public void testGetConnectionsThrottledForSameUrl() throws Exception {
         int attemptedPhoenixConnections = 11;
-        int maxConnections = attemptedPhoenixConnections -1;
+        int maxConnections = attemptedPhoenixConnections - 1;
         List<Connection> connections = Lists.newArrayList();
         String zkQuorum = "localhost:" + getUtility().getZkCluster().getClientPort();
         String url = PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkQuorum +
-        ':' +  CUSTOM_URL_STRING + '=' + "throttletest";
+                ':' + CUSTOM_URL_STRING + '=' + "throttletest";
 
         Properties props = new Properties();
         props.setProperty(QueryServices.CLIENT_CONNECTION_MAX_ALLOWED_CONNECTIONS, Integer.toString(maxConnections));
@@ -911,15 +915,15 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
         assertEquals(1, GLOBAL_PHOENIX_CONNECTIONS_THROTTLED_COUNTER.getMetric().getValue());
         assertEquals(maxConnections, connections.size());
         assertTrue("Not all connections were attempted!",
-            attemptedPhoenixConnections <= GLOBAL_PHOENIX_CONNECTIONS_ATTEMPTED_COUNTER.getMetric().getValue());
+                attemptedPhoenixConnections <= GLOBAL_PHOENIX_CONNECTIONS_ATTEMPTED_COUNTER.getMetric().getValue());
         connections.clear();
         //now check that we decremented the counter for the connections we just released
         try {
-            for (int k = 0; k < maxConnections; k++){
+            for (int k = 0; k < maxConnections; k++) {
                 connections.add(DriverManager.getConnection(url, props));
             }
-        } catch(SQLException se) {
-            if (se.getErrorCode() == (SQLExceptionCode.NEW_CONNECTION_THROTTLED).getErrorCode()){
+        } catch (SQLException se) {
+            if (se.getErrorCode() == (SQLExceptionCode.NEW_CONNECTION_THROTTLED).getErrorCode()) {
                 fail("Connection was throttled when it shouldn't be!");
             }
         } finally {
@@ -931,7 +935,7 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
     }
 
     @Test
-    public void testGetConnectionsForDifferentTenantsConcurrently()  throws Exception {
+    public void testGetConnectionsForDifferentTenantsConcurrently() throws Exception {
         // establish url and quorum. Need to use PhoenixDriver and not PhoenixTestDriver
         String zkQuorum = "localhost:" + getUtility().getZkCluster().getClientPort();
         String url = PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkQuorum;
@@ -954,7 +958,8 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
                 Connection c = futures.get(i).get();
                 try {
                     c.close();
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                }
             }
             assertEquals(expectedHConnections, GLOBAL_HCONNECTIONS_COUNTER.getMetric().getValue());
             assertEquals(expectedHConnections, GLOBAL_QUERY_SERVICES_COUNTER.getMetric().getValue());
@@ -964,7 +969,7 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
     }
 
     @Test
-    public void testGetConnectionsWithDifferentJDBCParamsConcurrently()  throws Exception {
+    public void testGetConnectionsWithDifferentJDBCParamsConcurrently() throws Exception {
         DriverManager.registerDriver(PhoenixDriver.INSTANCE);
         ExecutorService exec = Executors.newFixedThreadPool(4);
         // establish url and quorum. Need to use PhoenixDriver and not PhoenixTestDriver
@@ -979,7 +984,7 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
             assertEquals(0, GLOBAL_HCONNECTIONS_COUNTER.getMetric().getValue());
             assertEquals(0, GLOBAL_QUERY_SERVICES_COUNTER.getMetric().getValue());
             for (int i = 1; i <= numConnections; i++) {
-                String customUrl = baseUrl + ':' +  CUSTOM_URL_STRING + '=' + i;
+                String customUrl = baseUrl + ':' + CUSTOM_URL_STRING + '=' + i;
                 Callable<Connection> c = new GetConnectionCallable(customUrl + ";");
                 callables.add(c);
                 futures.add(exec.submit(c));
@@ -997,16 +1002,19 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
                     // close the query services instance because we created a lot of HConnections.
                     c.unwrap(PhoenixConnection.class).getQueryServices().close();
                     c.close();
-                } catch (Exception ignore) {}
+                } catch (Exception ignore) {
+                }
             }
         }
     }
 
     private static class GetConnectionCallable implements Callable<Connection> {
         private final String url;
+
         GetConnectionCallable(String url) {
             this.url = url;
         }
+
         @Override
         public Connection call() throws Exception {
             Connection c = DriverManager.getConnection(url);
@@ -1019,6 +1027,6 @@ public class PhoenixMetricsIT extends BasePhoenixMetricsIT {
             return c;
         }
     }
-    
+
 
 }

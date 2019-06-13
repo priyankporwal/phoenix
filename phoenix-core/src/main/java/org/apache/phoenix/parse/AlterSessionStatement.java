@@ -21,9 +21,9 @@ import java.util.Map;
 
 public class AlterSessionStatement extends MutableStatement {
 
-    private final Map<String,Object> props;
+    private final Map<String, Object> props;
 
-    public AlterSessionStatement(Map<String,Object> props) {
+    public AlterSessionStatement(Map<String, Object> props) {
         this.props = props;
     }
 
@@ -32,7 +32,7 @@ public class AlterSessionStatement extends MutableStatement {
         return 0;
     }
 
-    public Map<String, Object> getProps(){
+    public Map<String, Object> getProps() {
         return props;
     }
 }

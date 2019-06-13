@@ -25,10 +25,8 @@ import org.apache.phoenix.util.SchemaUtil;
 
 
 /**
- * 
  * Exception thrown when a table name could not be found in the schema
  *
- * 
  * @since 0.1
  */
 public class TableNotFoundException extends MetaDataEntityNotFoundException {
@@ -37,7 +35,7 @@ public class TableNotFoundException extends MetaDataEntityNotFoundException {
     private final long timestamp;
 
     public TableNotFoundException(TableNotFoundException e, long timestamp) {
-        this(e.getSchemaName(),e.getTableName(), timestamp);
+        this(e.getSchemaName(), e.getTableName(), timestamp);
     }
 
     public TableNotFoundException(String tableName) {
@@ -47,7 +45,7 @@ public class TableNotFoundException extends MetaDataEntityNotFoundException {
     public TableNotFoundException(String schemaName, String tableName) {
         this(schemaName, tableName, HConstants.LATEST_TIMESTAMP);
     }
-    
+
     public TableNotFoundException(String schemaName, String tableName, long timestamp) {
         this(schemaName, tableName, timestamp, code);
     }

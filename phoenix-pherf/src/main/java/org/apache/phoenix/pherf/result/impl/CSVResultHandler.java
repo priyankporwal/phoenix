@@ -61,6 +61,7 @@ public abstract class CSVResultHandler extends DefaultResultHandler {
 
     /**
      * This method is meant to open the connection to the target CSV location
+     *
      * @param header {@link String} Comma separated list of header values for CSV
      * @throws IOException
      */

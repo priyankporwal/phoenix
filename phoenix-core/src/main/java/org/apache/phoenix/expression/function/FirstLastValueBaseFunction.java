@@ -26,7 +26,6 @@ import org.apache.phoenix.schema.types.PDataType;
 
 /**
  * (FIRST|LAST|NTH)_VALUE build in function interface
- *
  */
 abstract public class FirstLastValueBaseFunction extends DelegateConstantToCountAggregateFunction {
 
@@ -53,12 +52,12 @@ abstract public class FirstLastValueBaseFunction extends DelegateConstantToCount
     public PDataType getDataType() {
         return children.get(2).getDataType();
     }
-    
+
     @Override
     public Integer getMaxLength() {
         return children.get(2).getMaxLength();
     }
-    
+
     @Override
     public Integer getScale() {
         return children.get(2).getScale();

@@ -20,6 +20,7 @@ import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.stats.GuidePostsInfo;
 import org.apache.phoenix.schema.stats.GuidePostsKey;
+
 import java.util.concurrent.ExecutionException;
 
 

@@ -83,15 +83,15 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
     private static final String TEST_TABLE_STRING = "TEST_TABLE";
     private static final String TEST_TABLE_DDL = "CREATE TABLE IF NOT EXISTS " +
             TEST_TABLE_STRING + " (\n" +
-        "    ORGANIZATION_ID CHAR(4) NOT NULL,\n" +
-        "    ENTITY_ID CHAR(7) NOT NULL,\n" +
-        "    SCORE INTEGER,\n" +
-        "    LAST_UPDATE_TIME TIMESTAMP\n" +
-        "    CONSTRAINT TEST_TABLE_PK PRIMARY KEY (\n" +
-        "        ORGANIZATION_ID,\n" +
-        "        ENTITY_ID\n" +
-        "    )\n" +
-        ") VERSIONS=1, MULTI_TENANT=TRUE";
+            "    ORGANIZATION_ID CHAR(4) NOT NULL,\n" +
+            "    ENTITY_ID CHAR(7) NOT NULL,\n" +
+            "    SCORE INTEGER,\n" +
+            "    LAST_UPDATE_TIME TIMESTAMP\n" +
+            "    CONSTRAINT TEST_TABLE_PK PRIMARY KEY (\n" +
+            "        ORGANIZATION_ID,\n" +
+            "        ENTITY_ID\n" +
+            "    )\n" +
+            ") VERSIONS=1, MULTI_TENANT=TRUE";
     private static final String TEST_TABLE_INDEX_STRING = "TEST_TABLE_SCORE";
     private static final String TEST_TABLE_INDEX_DDL = "CREATE INDEX IF NOT EXISTS " +
             TEST_TABLE_INDEX_STRING
@@ -148,7 +148,7 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
         Mockito.when(mockRegionInfo.getTable()).thenReturn(TableName.valueOf(TEST_TABLE_STRING));
 
         mockIndexMetaData = Mockito.mock(PhoenixIndexMetaData.class);
-        Mockito.when(mockIndexMetaData.requiresPriorRowState((Mutation)Mockito.any())).thenReturn(true);
+        Mockito.when(mockIndexMetaData.requiresPriorRowState((Mutation) Mockito.any())).thenReturn(true);
         Mockito.when(mockIndexMetaData.getIndexMaintainers())
                 .thenReturn(Collections.singletonList(getTestIndexMaintainer()));
 
@@ -216,15 +216,15 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
                 indexBuilder.getIndexUpdate(mutation, mockIndexMetaData);
         assertEquals(2, indexUpdates.size());
         assertContains(indexUpdates, 2, ROW, KeyValue.Type.DeleteFamily, FAM,
-            new byte[0] /* qual not needed */, 2);
+                new byte[0] /* qual not needed */, 2);
         assertContains(indexUpdates, ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP, ROW,
-            KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 2);
+                KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 2);
     }
 
     /**
      * Tests a partial rebuild of a row with multiple versions. 3 versions of the row in data table,
      * and we rebuild the index starting from time t=2
-     *
+     * <p>
      * There should be one index row version per data row version.
      */
     @Test
@@ -262,17 +262,17 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
         assertEquals(6, indexUpdates.size());
 
         assertContains(indexUpdates, 2, ROW, KeyValue.Type.DeleteFamily, FAM,
-            new byte[0] /* qual not needed */, 2);
+                new byte[0] /* qual not needed */, 2);
         assertContains(indexUpdates, ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP, ROW,
-            KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 2);
+                KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 2);
         assertContains(indexUpdates, 3, ROW, KeyValue.Type.DeleteFamily, FAM,
-            new byte[0] /* qual not needed */, 3);
+                new byte[0] /* qual not needed */, 3);
         assertContains(indexUpdates, ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP, ROW,
-            KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 3);
+                KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 3);
         assertContains(indexUpdates, 4, ROW, KeyValue.Type.DeleteFamily, FAM,
-            new byte[0] /* qual not needed */, 4);
+                new byte[0] /* qual not needed */, 4);
         assertContains(indexUpdates, ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP, ROW,
-            KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 4);
+                KeyValue.Type.Put, FAM, QueryConstants.EMPTY_COLUMN_BYTES, 4);
     }
 
     /**
@@ -296,8 +296,8 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
 
     // Assert that the given collection of indexUpdates contains the given cell
     private void assertContains(Collection<Pair<Mutation, byte[]>> indexUpdates,
-            final long mutationTs, final byte[] row, final Type cellType, final byte[] fam,
-            final byte[] qual, final long cellTs) {
+                                final long mutationTs, final byte[] row, final Type cellType, final byte[] fam,
+                                final byte[] qual, final long cellTs) {
         Predicate<Pair<Mutation, byte[]>> hasCellPredicate =
                 new Predicate<Pair<Mutation, byte[]>>() {
                     @Override
@@ -311,7 +311,7 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
                             if (cellType == KeyValue.Type.codeToType(updateCell.getTypeByte())
                                     && Bytes.compareTo(fam, CellUtil.cloneFamily(updateCell)) == 0
                                     && Bytes.compareTo(qual,
-                                        CellUtil.cloneQualifier(updateCell)) == 0
+                                    CellUtil.cloneQualifier(updateCell)) == 0
                                     && cellTs == updateCell.getTimestamp()) {
                                 return true;
                             }

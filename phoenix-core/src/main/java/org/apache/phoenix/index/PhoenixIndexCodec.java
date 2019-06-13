@@ -45,17 +45,17 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
     public static final String INDEX_UUID = "IdxUUID";
     public static final String INDEX_MAINTAINERS = "IndexMaintainers";
     public static KeyValueBuilder KV_BUILDER = GenericKeyValueBuilder.INSTANCE;
-    
+
     private byte[] tableName;
-    
+
     public PhoenixIndexCodec() {
-        
+
     }
 
     public PhoenixIndexCodec(Configuration conf, byte[] tableName) {
         initialize(conf, tableName);
     }
-    
+
 
     @Override
     public void initialize(Configuration conf, byte[] tableName) {
@@ -63,15 +63,19 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
     }
 
     boolean hasIndexMaintainers(Map<String, byte[]> attributes) {
-        if (attributes == null) { return false; }
+        if (attributes == null) {
+            return false;
+        }
         byte[] uuid = attributes.get(INDEX_UUID);
-        if (uuid == null) { return false; }
+        if (uuid == null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public Iterable<IndexUpdate> getIndexUpserts(TableState state, IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) throws IOException {
-        PhoenixIndexMetaData metaData = (PhoenixIndexMetaData)context;
+        PhoenixIndexMetaData metaData = (PhoenixIndexMetaData) context;
         List<IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
         if (indexMaintainers.get(0).isRowDeleted(state.getPendingUpdate())) {
             return Collections.emptyList();
@@ -94,7 +98,7 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
 
     @Override
     public Iterable<IndexUpdate> getIndexDeletes(TableState state, IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) throws IOException {
-        PhoenixIndexMetaData metaData = (PhoenixIndexMetaData)context;
+        PhoenixIndexMetaData metaData = (PhoenixIndexMetaData) context;
         List<IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         ptr.set(state.getCurrentRowKey());
@@ -108,7 +112,7 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
             cols.add(new ColumnReference(indexMaintainers.get(0).getDataEmptyKeyValueCF(), indexMaintainers.get(0).getEmptyKeyValueQualifier()));
             Pair<ValueGetter, IndexUpdate> statePair = state.getIndexUpdateState(cols, metaData.getReplayWrite() != null, true, context);
             ValueGetter valueGetter = statePair.getFirst();
-            if (valueGetter!=null) {
+            if (valueGetter != null) {
                 IndexUpdate indexUpdate = statePair.getSecond();
                 indexUpdate.setTable(maintainer.isLocalIndex() ? tableName : maintainer.getIndexTableName());
                 Delete delete = maintainer.buildDeleteMutation(KV_BUILDER, valueGetter, ptr, state.getPendingUpdate(),

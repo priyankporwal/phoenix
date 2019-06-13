@@ -22,10 +22,11 @@ import java.util.Objects;
 /**
  * Optimizer cost in terms of CPU, memory, and I/O usage, the unit of which is now the
  * number of bytes processed.
- *
  */
 public class Cost implements Comparable<Cost> {
-    /** The unknown cost. */
+    /**
+     * The unknown cost.
+     */
     public static Cost UNKNOWN = new Cost(Double.NaN, Double.NaN, Double.NaN) {
         @Override
         public String toString() {
@@ -33,12 +34,14 @@ public class Cost implements Comparable<Cost> {
         }
     };
 
-    /** The zero cost. */
+    /**
+     * The zero cost.
+     */
     public static Cost ZERO = new Cost(0, 0, 0) {
         @Override
         public String toString() {
             return "{zero}";
-        }        
+        }
     };
 
     private final double cpu;

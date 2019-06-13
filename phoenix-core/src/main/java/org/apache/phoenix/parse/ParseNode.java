@@ -23,33 +23,31 @@ import java.util.List;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
-
 /**
- * 
  * Abstract base class for a parse node in SQL
  *
- * 
  * @since 0.1
  */
 public abstract class ParseNode {
     public abstract List<ParseNode> getChildren();
+
     public abstract <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException;
-    
+
     public boolean isStateless() {
         return false;
     }
-    
+
     /**
      * Allows node to override what the alias is for a given node.
      * Useful for a column reference, as JDBC says that the alias
      * name for "a.b" should be "b"
+     *
      * @return the alias to use for this node or null for no alias
      */
     public String getAlias() {
         return null;
     }
-    
+
     @Override
     public final String toString() {
         StringBuilder buf = new StringBuilder();

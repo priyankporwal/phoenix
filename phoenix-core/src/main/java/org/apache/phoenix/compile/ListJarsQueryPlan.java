@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -77,7 +77,7 @@ public class ListJarsQueryPlan implements QueryPlan {
     private boolean first = true;
 
     private static final RowProjector JARS_PROJECTOR;
-    
+
     static {
         List<ExpressionProjector> projectedColumns = new ArrayList<ExpressionProjector>();
         PName colName = PNameFactory.newName("jar_location");
@@ -114,7 +114,7 @@ public class ListJarsQueryPlan implements QueryPlan {
     public ExplainPlan getExplainPlan() throws SQLException {
         return ExplainPlan.EMPTY_PLAN;
     }
-    
+
     @Override
     public ResultIterator iterator() throws SQLException {
         return iterator(DefaultParallelScanGrouper.getInstance());
@@ -124,6 +124,7 @@ public class ListJarsQueryPlan implements QueryPlan {
     public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan s) throws SQLException {
         return iterator(scanGrouper);
     }
+
     @Override
     public ResultIterator iterator(ParallelScanGrouper scanGrouper) throws SQLException {
         return new ResultIterator() {
@@ -131,17 +132,17 @@ public class ListJarsQueryPlan implements QueryPlan {
 
             @Override
             public void close() throws SQLException {
-                
+
             }
-            
+
             @Override
             public Tuple next() throws SQLException {
                 try {
-                    if(first) {
+                    if (first) {
                         String dynamicJarsDir =
                                 stmt.getConnection().getQueryServices().getProps()
                                         .get(QueryServices.DYNAMIC_JARS_DIR_KEY);
-                        if(dynamicJarsDir == null) {
+                        if (dynamicJarsDir == null) {
                             throw new SQLException(QueryServices.DYNAMIC_JARS_DIR_KEY
                                     + " is not configured for the listing the jars.");
                         }
@@ -153,34 +154,36 @@ public class ListJarsQueryPlan implements QueryPlan {
                         listFiles = fs.listFiles(dynamicJarsDirPath, true);
                         first = false;
                     }
-                    if(listFiles == null || !listFiles.hasNext()) return null;
+                    if (listFiles == null || !listFiles.hasNext()) {
+                        return null;
+                    }
                     ImmutableBytesWritable ptr = new ImmutableBytesWritable();
                     ParseNodeFactory factory = new ParseNodeFactory();
                     LiteralParseNode literal =
                             factory.literal(listFiles.next().getPath().toString());
                     LiteralExpression expression =
                             LiteralExpression.newConstant(literal.getValue(), PVarchar.INSTANCE,
-                                Determinism.ALWAYS);
+                                    Determinism.ALWAYS);
                     expression.evaluate(null, ptr);
                     byte[] rowKey = ByteUtil.copyKeyBytesIfNecessary(ptr);
                     Cell cell =
                             PhoenixKeyValueUtil.newKeyValue(rowKey, HConstants.EMPTY_BYTE_ARRAY,
-                                HConstants.EMPTY_BYTE_ARRAY, EnvironmentEdgeManager.currentTimeMillis(),
-                                HConstants.EMPTY_BYTE_ARRAY);
+                                    HConstants.EMPTY_BYTE_ARRAY, EnvironmentEdgeManager.currentTimeMillis(),
+                                    HConstants.EMPTY_BYTE_ARRAY);
                     List<Cell> cells = new ArrayList<Cell>(1);
                     cells.add(cell);
                     return new ResultTuple(Result.create(cells));
                 } catch (IOException e) {
                     throw new SQLException(e);
-                }  
+                }
             }
-            
+
             @Override
             public void explain(List<String> planSteps) {
             }
         };
     }
-    
+
     @Override
     public long getEstimatedSize() {
         return PVarchar.INSTANCE.getByteSize();
@@ -245,7 +248,7 @@ public class ListJarsQueryPlan implements QueryPlan {
     public boolean isRowKeyOrdered() {
         return false;
     }
-    
+
     @Override
     public boolean useRoundRobinIterator() {
         return false;
@@ -257,14 +260,14 @@ public class ListJarsQueryPlan implements QueryPlan {
     }
 
     @Override
-	public Set<TableRef> getSourceRefs() {
-		return Collections.<TableRef>emptySet();
-	}
+    public Set<TableRef> getSourceRefs() {
+        return Collections.<TableRef>emptySet();
+    }
 
-	@Override
-	public Operation getOperation() {
-		return stmt.getUpdateOperation();
-	}
+    @Override
+    public Operation getOperation() {
+        return stmt.getUpdateOperation();
+    }
 
     @Override
     public Long getEstimatedRowsToScan() {
@@ -283,6 +286,6 @@ public class ListJarsQueryPlan implements QueryPlan {
 
     @Override
     public List<OrderBy> getOutputOrderBys() {
-        return Collections.<OrderBy> emptyList();
+        return Collections.<OrderBy>emptyList();
     }
 }

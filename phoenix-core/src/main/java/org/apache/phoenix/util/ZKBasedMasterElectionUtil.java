@@ -35,7 +35,7 @@ public class ZKBasedMasterElectionUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZKBasedMasterElectionUtil.class);
 
     public static boolean acquireLock(ZKWatcher zooKeeperWatcher, String parentNode,
-            String lockName) throws KeeperException, InterruptedException {
+                                      String lockName) throws KeeperException, InterruptedException {
         // Create the parent node as Persistent
         LOGGER.info("Creating the parent lock node:" + parentNode);
         ZKUtil.createWithParents(zooKeeperWatcher, parentNode);
@@ -47,7 +47,7 @@ public class ZKBasedMasterElectionUtil {
         // Create the ephemeral node
         try {
             zooKeeperWatcher.getRecoverableZooKeeper().create(lockNode, Bytes.toBytes(nodeValue),
-                Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                    Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         } catch (KeeperException.NodeExistsException e) {
             LOGGER.info("Could not acquire lock. Another process had already acquired the lock on Node "
                     + lockName);

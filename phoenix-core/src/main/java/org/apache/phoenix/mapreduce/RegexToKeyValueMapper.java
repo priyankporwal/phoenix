@@ -48,19 +48,25 @@ public class RegexToKeyValueMapper extends FormatToBytesWritableMapper<Map<?, ?>
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(RegexToKeyValueMapper.class);
 
-    /** Configuration key for the regex */
+    /**
+     * Configuration key for the regex
+     */
     public static final String REGEX_CONFKEY = "phoenix.mapreduce.import.regex";
 
-    /** Configuration key for the array element delimiter for input arrays */
+    /**
+     * Configuration key for the array element delimiter for input arrays
+     */
     public static final String ARRAY_DELIMITER_CONFKEY = "phoenix.mapreduce.import.arraydelimiter";
-    
-    /** Configuration key for default array delimiter */
+
+    /**
+     * Configuration key for default array delimiter
+     */
     public static final String ARRAY_DELIMITER_DEFAULT = ",";
-    
+
     private LineParser<Map<?, ?>> lineParser;
-    
+
     @Override
-    protected  LineParser<Map<?, ?>> getLineParser() {
+    protected LineParser<Map<?, ?>> getLineParser() {
         return lineParser;
     }
 
@@ -74,14 +80,14 @@ public class RegexToKeyValueMapper extends FormatToBytesWritableMapper<Map<?, ?>
     protected UpsertExecutor<Map<?, ?>, ?> buildUpsertExecutor(Configuration conf) {
         String tableName = conf.get(TABLE_NAME_CONFKEY);
         Preconditions.checkNotNull(tableName, "table name is not configured");
-        
+
         String regex = conf.get(REGEX_CONFKEY);
         Preconditions.checkNotNull(regex, "regex is not configured");
-        
+
         List<ColumnInfo> columnInfoList = buildColumnInfoList(conf);
-        
+
         String arraySeparator = conf.get(ARRAY_DELIMITER_CONFKEY, ARRAY_DELIMITER_DEFAULT);
-        
+
         lineParser = new RegexLineParser(regex, columnInfoList, arraySeparator);
 
         return new RegexUpsertExecutor(conn, tableName, columnInfoList, upsertListener);
@@ -95,43 +101,43 @@ public class RegexToKeyValueMapper extends FormatToBytesWritableMapper<Map<?, ?>
         private Pattern inputPattern;
         private List<ColumnInfo> columnInfoList;
         private String arraySeparator;
-        
+
         public RegexLineParser(String regex, List<ColumnInfo> columnInfo, String arraySep) {
-        	inputPattern = Pattern.compile(regex);
-        	columnInfoList = columnInfo;
-        	arraySeparator = arraySep;
-		}
+            inputPattern = Pattern.compile(regex);
+            columnInfoList = columnInfo;
+            arraySeparator = arraySep;
+        }
 
         /**
          * based on the regex and input, providing mapping between schema and input
          */
-		@Override
+        @Override
         public Map<?, ?> parse(String input) throws IOException {
-			Map<String, Object> data = new HashMap<>();
-			Matcher m = inputPattern.matcher(input);
-			if (m.groupCount() != columnInfoList.size()) {
+            Map<String, Object> data = new HashMap<>();
+            Matcher m = inputPattern.matcher(input);
+            if (m.groupCount() != columnInfoList.size()) {
                 LOGGER.debug(String.format("based on the regex and input, input fileds %s size " +
-                        "doesn't match the table columns %s size",
+                                "doesn't match the table columns %s size",
                         m.groupCount(), columnInfoList.size()));
-				return data;
-			}
-			
-			if (m.find( )) {
-				for (int i = 0; i < columnInfoList.size(); i++) {
-					ColumnInfo columnInfo = columnInfoList.get(i);
-					String colName = columnInfo.getColumnName();
-					String value = m.group(i + 1);
-					PDataType pDataType = PDataType.fromTypeId(columnInfo.getSqlType());
-					if (pDataType.isArrayType()) {
-						data.put(colName, Arrays.asList(value.split(arraySeparator)));
-					} else if (pDataType.isCoercibleTo(PTimestamp.INSTANCE)) {
-						data.put(colName, value);
-					} else {
-						data.put(colName, pDataType.toObject(value));
-					}
-				}
-			}
-			return data;
+                return data;
+            }
+
+            if (m.find()) {
+                for (int i = 0; i < columnInfoList.size(); i++) {
+                    ColumnInfo columnInfo = columnInfoList.get(i);
+                    String colName = columnInfo.getColumnName();
+                    String value = m.group(i + 1);
+                    PDataType pDataType = PDataType.fromTypeId(columnInfo.getSqlType());
+                    if (pDataType.isArrayType()) {
+                        data.put(colName, Arrays.asList(value.split(arraySeparator)));
+                    } else if (pDataType.isCoercibleTo(PTimestamp.INSTANCE)) {
+                        data.put(colName, value);
+                    } else {
+                        data.put(colName, pDataType.toObject(value));
+                    }
+                }
+            }
+            return data;
         }
     }
 }

@@ -18,18 +18,16 @@
 package org.apache.phoenix.join;
 
 /**
- * 
  * Exception thrown when the size of the hash cache exceeds the
  * maximum size as specified by the phoenix.query.maxHashCacheBytes
  * parameter in the {@link org.apache.hadoop.conf.Configuration}
  *
- * 
  * @since 0.1
  */
 public class MaxServerCacheSizeExceededException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public MaxServerCacheSizeExceededException() {
+    public MaxServerCacheSizeExceededException() {
     }
 
     public MaxServerCacheSizeExceededException(String message) {

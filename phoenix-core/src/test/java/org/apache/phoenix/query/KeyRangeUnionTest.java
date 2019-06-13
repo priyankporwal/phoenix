@@ -43,51 +43,52 @@ public class KeyRangeUnionTest extends TestCase {
         this.union = union;
     }
 
-    @Parameters(name="union of {0} and {1} is {2}")
+    @Parameters(name = "union of {0} and {1} is {2}")
     public static Collection<?> data() {
         return Arrays.asList(new Object[][] {
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("F"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("F"), true)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("F"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("F"), true)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), false),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("F"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("F"), true)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), false),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("F"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("F"), true)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), false),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("E"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), true)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), false),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("E"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), true)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), false),
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), false, toBytes("E"), false),
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
-                    EMPTY_RANGE,
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
+                        EMPTY_RANGE,
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
                 },
                 {
-                    EVERYTHING_RANGE,
-                    PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
-                    EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
+                        PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
+                        EVERYTHING_RANGE,
                 },
                 {
-                    EVERYTHING_RANGE,
-                    EVERYTHING_RANGE,
-                    EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
                 },
                 {
-                    EMPTY_RANGE,
-                    EVERYTHING_RANGE,
-                    EVERYTHING_RANGE,
+                        EMPTY_RANGE,
+                        EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
                 },
         });
     }
+
     @Test
     public void union() {
         assertEquals(union, a.union(b));

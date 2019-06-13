@@ -42,13 +42,13 @@ public class CsvUpsertExecutorTest extends AbstractUpsertExecutorTest<CSVRecord,
     public UpsertExecutor<CSVRecord, String> getUpsertExecutor() {
         return upsertExecutor;
     }
-    
+
     @Override
     public UpsertExecutor<CSVRecord, String> getUpsertExecutor(Connection conn) {
         return new CsvUpsertExecutor(conn, columnInfoList, preparedStatement,
                 upsertListener, ARRAY_SEP);
     }
-    
+
     @Override
     public CSVRecord createRecord(Object... columnValues) throws IOException {
         for (int i = 0; i < columnValues.length; i++) {
@@ -71,5 +71,5 @@ public class CsvUpsertExecutorTest extends AbstractUpsertExecutorTest<CSVRecord,
                 upsertListener, ARRAY_SEP);
     }
 
-    
+
 }

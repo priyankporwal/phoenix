@@ -76,14 +76,14 @@ public class IndexToolForDeleteBeforeRebuildIT extends ParallelStatsDisabledIT {
         serverProps.put(QueryServices.STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB, Long.toString(20));
         serverProps.put(QueryServices.MAX_SERVER_METADATA_CACHE_TIME_TO_LIVE_MS_ATTRIB, Long.toString(5));
         serverProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         Map<String, String> clientProps = Maps.newHashMapWithExpectedSize(4);
         clientProps.put(QueryServices.USE_STATS_FOR_PARALLELIZATION, Boolean.toString(true));
         clientProps.put(QueryServices.STATS_UPDATE_FREQ_MS_ATTRIB, Long.toString(5));
         clientProps.put(QueryServices.TRANSACTIONS_ENABLED, Boolean.TRUE.toString());
         clientProps.put(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, Boolean.TRUE.toString());
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()),
-            new ReadOnlyProps(clientProps.entrySet().iterator()));
+                new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
 
     @Before
@@ -102,8 +102,8 @@ public class IndexToolForDeleteBeforeRebuildIT extends ParallelStatsDisabledIT {
         createTestTable(getUrl(), String.format(VIEW_DDL, viewFullName, dataTableFullName));
         String dataTableUpsert = String.format(UPSERT_SQL, dataTableFullName);
         PreparedStatement stmt = conn.prepareStatement(dataTableUpsert);
-        for (int i=1; i < 4; i++) {
-            upsertRow(stmt, "tenantID1", i, "name" + i, 9990+i);
+        for (int i = 1; i < 4; i++) {
+            upsertRow(stmt, "tenantID1", i, "name" + i, 9990 + i);
         }
         conn.commit();
     }
@@ -144,12 +144,12 @@ public class IndexToolForDeleteBeforeRebuildIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(String.format(INDEX_GLOBAL_DDL, globalIndexName, dataTableFullName));
         String globalIndexUpsert = String.format(UPSERT_SQL, globalIndexFullName);
         PreparedStatement stmt = conn.prepareStatement(globalIndexUpsert);
-        upsertRow(stmt, "tenantID1",11, "name11", 99911);
+        upsertRow(stmt, "tenantID1", 11, "name11", 99911);
         conn.commit();
 
         ConnectionQueryServices queryServices = conn.unwrap(PhoenixConnection.class).getQueryServices();
         PTable physicalTable = PhoenixRuntime.getTable(conn, globalIndexFullName);
-        Table hIndexTable= queryServices.getTable(physicalTable.getPhysicalName().getBytes());
+        Table hIndexTable = queryServices.getTable(physicalTable.getPhysicalName().getBytes());
         int count = getUtility().countRows(hIndexTable);
         // Confirm index has rows.
         assertEquals(4, count);
@@ -199,8 +199,8 @@ public class IndexToolForDeleteBeforeRebuildIT extends ParallelStatsDisabledIT {
 
 
     public static void runIndexTool(String schemaName,
-            String dataTableName, String indexTableName,  int expectedStatus,
-            String... additionalArgs) throws Exception {
+                                    String dataTableName, String indexTableName, int expectedStatus,
+                                    String... additionalArgs) throws Exception {
         IndexTool indexingTool = new IndexTool();
         Configuration conf = new Configuration(getUtility().getConfiguration());
         conf.set(QueryServices.TRANSACTIONS_ENABLED, Boolean.TRUE.toString());

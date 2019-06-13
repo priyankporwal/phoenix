@@ -35,7 +35,7 @@ public class ByteUtilTest {
             assertTrue(Bytes.toStringBinary(splitPoint), Bytes.compareTo(stopRow, splitPoint) >= 0);
         }
     }
-    
+
     @Test
     public void testVIntToBytes() {
         for (int i = -10000; i <= 10000; i++) {
@@ -43,24 +43,24 @@ public class ByteUtilTest {
             int vintSize = vint.length;
             byte[] vint2 = new byte[vint.length];
             assertEquals(vintSize, ByteUtil.vintToBytes(vint2, 0, i));
-            assertTrue(Bytes.BYTES_COMPARATOR.compare(vint,vint2) == 0);
+            assertTrue(Bytes.BYTES_COMPARATOR.compare(vint, vint2) == 0);
         }
     }
-    
+
     @Test
     public void testNextKey() {
         byte[] key = new byte[] {1};
-        assertEquals((byte)2, ByteUtil.nextKey(key)[0]); 
-        key = new byte[] {1, (byte)255};
+        assertEquals((byte) 2, ByteUtil.nextKey(key)[0]);
+        key = new byte[] {1, (byte) 255};
         byte[] nextKey = ByteUtil.nextKey(key);
-        byte[] expectedKey = new byte[] {2,(byte)0};
-        assertArrayEquals(expectedKey, nextKey); 
+        byte[] expectedKey = new byte[] {2, (byte) 0};
+        assertArrayEquals(expectedKey, nextKey);
         key = ByteUtil.concat(Bytes.toBytes("00D300000000XHP"), PInteger.INSTANCE.toBytes(Integer.MAX_VALUE));
         nextKey = ByteUtil.nextKey(key);
         expectedKey = ByteUtil.concat(Bytes.toBytes("00D300000000XHQ"), PInteger.INSTANCE.toBytes(Integer.MIN_VALUE));
         assertArrayEquals(expectedKey, nextKey);
-        
-        key = new byte[] {(byte)255};
+
+        key = new byte[] {(byte) 255};
         assertNull(ByteUtil.nextKey(key));
     }
 }

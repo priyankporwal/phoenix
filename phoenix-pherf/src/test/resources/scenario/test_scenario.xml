@@ -196,7 +196,7 @@
                 <datavalue distribution="20">
                     <value>LMN</value>
                 </datavalue>
-            </valuelist>            
+            </valuelist>
         </column>
         <column>
             <type>CHAR</type>
@@ -215,12 +215,12 @@
             <prefix>VBOxx00</prefix>
         </column>
         <column>
-           <type>VARCHAR</type>
-           <userDefined>true</userDefined>
-           <dataSequence>SEQUENTIAL</dataSequence>
-           <length>1</length>
-           <name>FIELD</name>
-       </column>
+            <type>VARCHAR</type>
+            <userDefined>true</userDefined>
+            <dataSequence>SEQUENTIAL</dataSequence>
+            <length>1</length>
+            <name>FIELD</name>
+        </column>
     </datamapping>
     <scenarios>
         <scenario tableName="PHERF.TEST_TABLE" rowCount="100" name="testScenarioRW">
@@ -276,7 +276,7 @@
                     <name>FIELD</name>
                 </column>
             </dataOverride>
-            
+
             <!--Note: 1. Minimum of executionDurationInMs or numberOfExecutions. Which ever is reached first 
                       2. DDL included in query are executed only once on start of querySet execution.
             -->
@@ -296,23 +296,25 @@
                 <query id="q4" statement="select sum(SOME_INT) from PHERF.TEST_TABLE"/>
             </querySet>
         </scenario>
-        
+
         <scenario tableName="PHERF.TEST_TABLE" rowCount="99" name="testPreAndPostDdls">
             <preScenarioDdls>
-                 <ddl statement="CREATE INDEX IDX_DIVISION ON ? (DIVISION)" tableName="PHERF.PHERF_PROD_TEST_UNSALTED"/>
+                <ddl statement="CREATE INDEX IDX_DIVISION ON ? (DIVISION)" tableName="PHERF.PHERF_PROD_TEST_UNSALTED"/>
             </preScenarioDdls>
- 
+
             <postScenarioDdls>
-                 <ddl statement="CREATE INDEX IDX_OLDVAL_STRING ON ? (OLDVAL_STRING)" tableName="PHERF.PHERF_PROD_TEST_UNSALTED"/>
-                 <ddl statement="CREATE INDEX IDX_CONNECTION_ID ON ? (CONNECTION_ID)" tableName="PHERF.PHERF_PROD_TEST_UNSALTED"/>
+                <ddl statement="CREATE INDEX IDX_OLDVAL_STRING ON ? (OLDVAL_STRING)"
+                     tableName="PHERF.PHERF_PROD_TEST_UNSALTED"/>
+                <ddl statement="CREATE INDEX IDX_CONNECTION_ID ON ? (CONNECTION_ID)"
+                     tableName="PHERF.PHERF_PROD_TEST_UNSALTED"/>
             </postScenarioDdls>
-            
+
             <querySet concurrency="1" executionType="SERIAL" executionDurationInMs="5000"
                       numberOfExecutions="1">
                 <query id="q1" expectedAggregateRowCount="99" statement="select count(*) from PHERF.TEST_TABLE"/>
             </querySet>
         </scenario>
-        
+
         <!-- To configure a Write Workload to write to a tenant specific view users need to
              specify the tenantId attribute on the scenario, specifying the tenant they 
              want to write data for as the attribute value. This tells Pherf to take out a 
@@ -322,9 +324,9 @@
              dynamically create the view see comments below with regard to the ddl attribute. 
         -->
         <scenario tableName="PHERF.TEST_VIEW" tenantId="xyzdefghijklmno"
-                    rowCount="100" name="testMTWriteScenario">
-           <preScenarioDdls>
-                <ddl statement="CREATE VIEW IF NOT EXISTS PHERF.TEST_VIEW (field1 VARCHAR, field2 VARCHAR) AS SELECT * FROM PHERF.TEST_MULTI_TENANT_TABLE" />
+                  rowCount="100" name="testMTWriteScenario">
+            <preScenarioDdls>
+                <ddl statement="CREATE VIEW IF NOT EXISTS PHERF.TEST_VIEW (field1 VARCHAR, field2 VARCHAR) AS SELECT * FROM PHERF.TEST_MULTI_TENANT_TABLE"/>
             </preScenarioDdls>
         </scenario>
         <!--  Scenario level DDL that is dynamically executed before the Write Workload is run.
@@ -334,12 +336,12 @@
               in the ddl attribute. Queries accessing the View will need to manually make sure Pherf was run with the -l option at
               least once. 
          -->
-        <scenario tableName="PHERF.TEST_MT_VIEW" tenantId="abcdefghijklmno" 
-                    rowCount="100" name="testMTDdlWriteScenario">
+        <scenario tableName="PHERF.TEST_MT_VIEW" tenantId="abcdefghijklmno"
+                  rowCount="100" name="testMTDdlWriteScenario">
             <preScenarioDdls>
-                <ddl statement="CREATE VIEW IF NOT EXISTS PHERF.TEST_MT_VIEW (field1 VARCHAR) AS SELECT * FROM PHERF.TEST_MULTI_TENANT_TABLE" />
+                <ddl statement="CREATE VIEW IF NOT EXISTS PHERF.TEST_MT_VIEW (field1 VARCHAR) AS SELECT * FROM PHERF.TEST_MULTI_TENANT_TABLE"/>
             </preScenarioDdls>
         </scenario>
-        
+
     </scenarios>
 </datamodel>

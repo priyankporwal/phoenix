@@ -42,8 +42,9 @@ public class SortMergeJoinNoSpoolingIT extends SortMergeJoinNoIndexIT {
         super(indexDDL, plans);
     }
 
-    @Parameters(name = "SortMergeJoinNoSpoolingIT_{index}") // name is used by failsafe as file name
-                                                            // in reports
+    @Parameters(name = "SortMergeJoinNoSpoolingIT_{index}")
+    // name is used by failsafe as file name
+    // in reports
     public static Collection<Object> data() {
         return SortMergeJoinNoIndexIT.data();
     }
@@ -52,9 +53,9 @@ public class SortMergeJoinNoSpoolingIT extends SortMergeJoinNoIndexIT {
     public static void doSetup() throws Exception {
         Map<String, String> props = Maps.newHashMapWithExpectedSize(1);
         props.put(QueryServices.CLIENT_JOIN_SPOOLING_ENABLED_ATTRIB,
-            Boolean.toString(Boolean.FALSE));
+                Boolean.toString(Boolean.FALSE));
         props.put(QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
-            Integer.toString(10 * 1000 * 1000));
+                Integer.toString(10 * 1000 * 1000));
         setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
     }
 
@@ -77,7 +78,7 @@ public class SortMergeJoinNoSpoolingIT extends SortMergeJoinNoIndexIT {
                 fail("Expected PhoenixIOException due to IllegalStateException");
             } catch (PhoenixIOException e) {
                 assertThat(e.getMessage(), containsString(
-                    "Queue full. Consider increasing memory threshold or spooling to disk"));
+                        "Queue full. Consider increasing memory threshold or spooling to disk"));
             }
 
         }

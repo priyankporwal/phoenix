@@ -54,20 +54,20 @@ public class UnionCompiler {
     private static final PName UNION_TABLE_NAME = PNameFactory.newName("unionTableName");
 
     private static List<TargetDataExpression> checkProjectionNumAndExpressions(
-        List<QueryPlan> selectPlans) throws SQLException {
+            List<QueryPlan> selectPlans) throws SQLException {
         int columnCount = selectPlans.get(0).getProjector().getColumnCount();
         List<TargetDataExpression> targetTypes = new ArrayList<TargetDataExpression>(columnCount);
 
         for (int i = 0; i < columnCount; i++) {
             for (QueryPlan plan : selectPlans) {
-                if (columnCount !=plan.getProjector().getColumnCount()) {
+                if (columnCount != plan.getProjector().getColumnCount()) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode
-                        .SELECT_COLUMN_NUM_IN_UNIONALL_DIFFS).setMessage("1st query has " + columnCount + " columns whereas 2nd " +
+                            .SELECT_COLUMN_NUM_IN_UNIONALL_DIFFS).setMessage("1st query has " + columnCount + " columns whereas 2nd " +
                             "query has " + plan.getProjector().getColumnCount())
-                        .build().buildException();
+                            .build().buildException();
                 }
                 ColumnProjector colproj = plan.getProjector().getColumnProjector(i);
-                if(targetTypes.size() < i+1 ) {
+                if (targetTypes.size() < i + 1) {
                     targetTypes.add(new TargetDataExpression(colproj.getExpression()));
                 } else {
                     compareExperssions(i, colproj.getExpression(), targetTypes);
@@ -78,7 +78,7 @@ public class UnionCompiler {
     }
 
     public static TableRef contructSchemaTable(PhoenixStatement statement, List<QueryPlan> plans,
-            List<AliasedNode> selectNodes) throws SQLException {
+                                               List<AliasedNode> selectNodes) throws SQLException {
         List<TargetDataExpression> targetTypes = checkProjectionNumAndExpressions(plans);
         for (int i = 0; i < plans.size(); i++) {
             QueryPlan subPlan = plans.get(i);
@@ -93,10 +93,10 @@ public class UnionCompiler {
             String name = selectNodes == null ? colProj.getName() : selectNodes.get(i).getAlias();
             PName colName = PNameFactory.newName(name);
             PColumnImpl projectedColumn = new PColumnImpl(PNameFactory.newName(name),
-                UNION_FAMILY_NAME, targetTypes.get(i).getType(), targetTypes.get(i).getMaxLength(),
-                targetTypes.get(i).getScale(), colProj.getExpression().isNullable(), i,
-                targetTypes.get(i).getSortOrder(), 500, null, false,
-                colProj.getExpression().toString(), false, false, colName.getBytes(), HConstants.LATEST_TIMESTAMP);
+                    UNION_FAMILY_NAME, targetTypes.get(i).getType(), targetTypes.get(i).getMaxLength(),
+                    targetTypes.get(i).getScale(), colProj.getExpression().isNullable(), i,
+                    targetTypes.get(i).getSortOrder(), 500, null, false,
+                    colProj.getExpression().toString(), false, false, colName.getBytes(), HConstants.LATEST_TIMESTAMP);
             projectedColumns.add(projectedColumn);
         }
         Long scn = statement.getConnection().getSCN();
@@ -131,19 +131,18 @@ public class UnionCompiler {
     }
 
     private static void compareExperssions(int i, Expression expression,
-            List<TargetDataExpression> targetTypes) throws SQLException {
+                                           List<TargetDataExpression> targetTypes) throws SQLException {
         PDataType type = expression.getDataType();
         if (type != null && type.isCoercibleTo(targetTypes.get(i).getType())) {
             ;
-        }
-        else if (targetTypes.get(i).getType() == null || targetTypes.get(i).getType().isCoercibleTo(type)) {
+        } else if (targetTypes.get(i).getType() == null || targetTypes.get(i).getType().isCoercibleTo(type)) {
             targetTypes.get(i).setType(type);
         } else {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode
-                .SELECT_COLUMN_TYPE_IN_UNIONALL_DIFFS).setMessage("Column # " + i + " is "
+                    .SELECT_COLUMN_TYPE_IN_UNIONALL_DIFFS).setMessage("Column # " + i + " is "
                     + targetTypes.get(i).getType().getSqlTypeName() + " in 1st query where as it is "
                     + type.getSqlTypeName() + " in 2nd query")
-                .build().buildException();
+                    .build().buildException();
         }
         Integer len = expression.getMaxLength();
         if (len != null && (targetTypes.get(i).getMaxLength() == null ||
@@ -152,22 +151,23 @@ public class UnionCompiler {
         }
         Integer scale = expression.getScale();
         if (scale != null && (targetTypes.get(i).getScale() == null ||
-                scale > targetTypes.get(i).getScale())){
+                scale > targetTypes.get(i).getScale())) {
             targetTypes.get(i).setScale(scale);
         }
-       SortOrder sortOrder = expression.getSortOrder();
-        if (sortOrder != null && (!sortOrder.equals(targetTypes.get(i).getSortOrder())))
-            targetTypes.get(i).setSortOrder(SortOrder.getDefault()); 
+        SortOrder sortOrder = expression.getSortOrder();
+        if (sortOrder != null && (!sortOrder.equals(targetTypes.get(i).getSortOrder()))) {
+            targetTypes.get(i).setSortOrder(SortOrder.getDefault());
+        }
     }
 
     private static TupleProjector getTupleProjector(RowProjector rowProj,
-            List<TargetDataExpression> targetTypes) throws SQLException {
+                                                    List<TargetDataExpression> targetTypes) throws SQLException {
         Expression[] exprs = new Expression[targetTypes.size()];
         int i = 0;
         for (ColumnProjector colProj : rowProj.getColumnProjectors()) {
             exprs[i] = CoerceExpression.create(colProj.getExpression(),
-                targetTypes.get(i).getType(), targetTypes.get(i).getSortOrder(),
-                targetTypes.get(i).getMaxLength());
+                    targetTypes.get(i).getType(), targetTypes.get(i).getSortOrder(),
+                    targetTypes.get(i).getMaxLength());
             i++;
         }
         return new TupleProjector(exprs);

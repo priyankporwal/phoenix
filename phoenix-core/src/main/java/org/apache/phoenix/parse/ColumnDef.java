@@ -40,10 +40,8 @@ import com.google.common.base.Preconditions;
 
 
 /**
- * 
  * Represents a column definition during DDL
- * 
- * 
+ *
  * @since 0.1
  */
 public class ColumnDef {
@@ -74,7 +72,7 @@ public class ColumnDef {
     }
 
     ColumnDef(ColumnName columnDefName, String sqlTypeName, boolean isArray, Integer arrSize, Boolean isNull, Integer maxLength,
-            Integer scale, boolean isPK, SortOrder sortOrder, String expressionStr, boolean isRowTimestamp) {
+              Integer scale, boolean isPK, SortOrder sortOrder, String expressionStr, boolean isRowTimestamp) {
         try {
             Preconditions.checkNotNull(sortOrder);
             PDataType baseType;
@@ -91,7 +89,7 @@ public class ColumnDef {
                 this.arrSize = arrSize; // Can only be non negative based on parsing
                 if (baseType == PVarbinary.INSTANCE) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.VARBINARY_ARRAY_NOT_SUPPORTED)
-                    .setColumnName(columnDefName.getColumnName()).build().buildException();
+                            .setColumnName(columnDefName.getColumnName()).build().buildException();
                 }
             } else {
                 baseType = dataType = sqlTypeName == null ? null : PDataType.fromSqlTypeName(SchemaUtil.normalizeIdentifier(sqlTypeName));
@@ -109,7 +107,7 @@ public class ColumnDef {
                 } else {
                     if (maxLength < 1 || maxLength > PDataType.MAX_PRECISION) {
                         throw new SQLExceptionInfo.Builder(SQLExceptionCode.DECIMAL_PRECISION_OUT_OF_RANGE)
-                        .setColumnName(columnDefName.getColumnName()).build().buildException();
+                                .setColumnName(columnDefName.getColumnName()).build().buildException();
                     }
                     // When a precision is specified and a scale is not specified, it is set to 0. 
                     // 
@@ -121,12 +119,12 @@ public class ColumnDef {
                     //
                     // When neither a precision nor a scale is specified, the precision and scale is
                     // ignored. All decimal are stored with as much decimal points as possible.
-                    scale = scale == null ? PDataType.DEFAULT_SCALE : scale > maxLength ? maxLength : scale; 
+                    scale = scale == null ? PDataType.DEFAULT_SCALE : scale > maxLength ? maxLength : scale;
                 }
             } else {
                 if (maxLength != null && maxLength < 1) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.NONPOSITIVE_MAX_LENGTH)
-                    .setColumnName(columnDefName.getColumnName()).build().buildException();
+                            .setColumnName(columnDefName.getColumnName()).build().buildException();
                 }
                 scale = null;
                 if (baseType == null) {
@@ -135,7 +133,7 @@ public class ColumnDef {
                     if (baseType.getByteSize() == null) {
                         if (maxLength == null) {
                             throw new SQLExceptionInfo.Builder(SQLExceptionCode.MISSING_MAX_LENGTH)
-                            .setColumnName(columnDefName.getColumnName()).build().buildException();
+                                    .setColumnName(columnDefName.getColumnName()).build().buildException();
                         }
                     } else {
                         maxLength = null;
@@ -155,7 +153,7 @@ public class ColumnDef {
     }
 
     ColumnDef(ColumnName columnDefName, String sqlTypeName, Boolean isNull, Integer maxLength,
-            Integer scale, boolean isPK, SortOrder sortOrder, String expressionStr, boolean isRowTimestamp) {
+              Integer scale, boolean isPK, SortOrder sortOrder, String expressionStr, boolean isRowTimestamp) {
         this(columnDefName, sqlTypeName, false, 0, isNull, maxLength, scale, isPK, sortOrder, expressionStr, isRowTimestamp);
     }
 
@@ -208,11 +206,11 @@ public class ColumnDef {
     public boolean isRowTimestamp() {
         return isRowTimestamp;
     }
-    
+
     public void setIsPK(boolean isPK) {
         this.isPK = isPK;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder(columnDefName.getColumnNode().toString());
@@ -224,7 +222,7 @@ public class ColumnDef {
             if (scale != null) {
                 buf.append(',');
                 buf.append(scale); // has both max length and scale. For ex- decimal(10,2)
-            }       
+            }
             buf.append(')');
         }
         if (isArray) {
@@ -234,7 +232,7 @@ public class ColumnDef {
         }
         return buf.toString();
     }
-    
+
     public boolean validateDefault(StatementContext context, PrimaryKeyConstraint pkConstraint) throws SQLException {
         String defaultStr = this.getExpression();
         if (defaultStr == null) {
@@ -250,7 +248,7 @@ public class ColumnDef {
                     .setColumnName(this.getColumnDefName().getColumnName()).build()
                     .buildException();
         }
-        if (this.isRowTimestamp() || ( pkConstraint != null && pkConstraint.isColumnRowTimestamp(this.getColumnDefName()))) {
+        if (this.isRowTimestamp() || (pkConstraint != null && pkConstraint.isColumnRowTimestamp(this.getColumnDefName()))) {
             throw new SQLExceptionInfo.Builder(
                     SQLExceptionCode.CANNOT_CREATE_DEFAULT_ROWTIMESTAMP)
                     .setColumnName(this.getColumnDefName().getColumnName())
@@ -280,13 +278,13 @@ public class ColumnDef {
             }
             throw e;
         }
-        if (!targetType.isSizeCompatible(ptr, defaultValue.getValue(), sourceType, 
-                sortOrder, defaultValue.getMaxLength(), 
+        if (!targetType.isSizeCompatible(ptr, defaultValue.getValue(), sourceType,
+                sortOrder, defaultValue.getMaxLength(),
                 defaultValue.getScale(), this.getMaxLength(), this.getScale())) {
             throw new SQLExceptionInfo.Builder(
                     SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY).setColumnName(this.getColumnDefName().getColumnName())
                     .setMessage("DEFAULT " + this.getExpression()).build()
-                    .buildException();            
+                    .buildException();
         }
         return true;
     }

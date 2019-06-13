@@ -42,13 +42,11 @@ import org.apache.phoenix.util.SchemaUtil;
 import com.google.common.base.Preconditions;
 
 /**
- * 
  * Class to access a column that is stored in a Cell that contains all
  * columns for a given column family (stored in a serialized array).
- *
  */
 public class SingleCellColumnExpression extends KeyValueColumnExpression {
-    
+
     private int decodedColumnQualifier;
     private String arrayColDisplayName;
     private KeyValueColumnExpression keyValueColumnExpression;
@@ -63,7 +61,7 @@ public class SingleCellColumnExpression extends KeyValueColumnExpression {
     }
 
     public SingleCellColumnExpression(PDatum column, byte[] cf, byte[] cq,
-            QualifierEncodingScheme encodingScheme, ImmutableStorageScheme immutableStorageScheme) {
+                                      QualifierEncodingScheme encodingScheme, ImmutableStorageScheme immutableStorageScheme) {
         super(column, cf, SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES);
         this.immutableStorageScheme = immutableStorageScheme;
         Preconditions.checkNotNull(encodingScheme);
@@ -72,7 +70,7 @@ public class SingleCellColumnExpression extends KeyValueColumnExpression {
         this.encodingScheme = encodingScheme;
         setKeyValueExpression();
     }
-    
+
     public SingleCellColumnExpression(PColumn column, String displayName, QualifierEncodingScheme encodingScheme, ImmutableStorageScheme immutableStorageScheme) {
         super(column, column.getFamilyName().getBytes(), SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES);
         this.immutableStorageScheme = immutableStorageScheme;
@@ -86,16 +84,16 @@ public class SingleCellColumnExpression extends KeyValueColumnExpression {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-    	if (!super.evaluate(tuple, ptr)) {
+        if (!super.evaluate(tuple, ptr)) {
             return false;
-        } else if (ptr.getLength() == 0) { 
-        	return true; 
+        } else if (ptr.getLength() == 0) {
+            return true;
         }
-    	// the first position is reserved and we offset maxEncodedColumnQualifier by ENCODED_CQ_COUNTER_INITIAL_VALUE (which is the minimum encoded column qualifier)
-    	int index = decodedColumnQualifier-QueryConstants.ENCODED_CQ_COUNTER_INITIAL_VALUE+1;
+        // the first position is reserved and we offset maxEncodedColumnQualifier by ENCODED_CQ_COUNTER_INITIAL_VALUE (which is the minimum encoded column qualifier)
+        int index = decodedColumnQualifier - QueryConstants.ENCODED_CQ_COUNTER_INITIAL_VALUE + 1;
         // Given a ptr to the entire array, set ptr to point to a particular element within that array
-    	ColumnValueDecoder encoderDecoder = immutableStorageScheme.getDecoder();
-    	return encoderDecoder.decode(ptr, index);
+        ColumnValueDecoder encoderDecoder = immutableStorageScheme.getDecoder();
+        return encoderDecoder.decode(ptr, index);
     }
 
     @Override
@@ -124,45 +122,45 @@ public class SingleCellColumnExpression extends KeyValueColumnExpression {
         WritableUtils.writeVInt(output, -encodingScheme.ordinal()); //negative since PHOENIX-4432
         WritableUtils.writeVInt(output, immutableStorageScheme.getSerializedMetadataValue());
     }
-    
+
     public KeyValueColumnExpression getKeyValueExpression() {
         return keyValueColumnExpression;
     }
-    
+
     private void setKeyValueExpression() {
         final boolean isNullable = isNullable();
         final SortOrder sortOrder = getSortOrder();
         final Integer scale = getScale();
         final Integer maxLength = getMaxLength();
         final PDataType datatype = getDataType();
-    	this.keyValueColumnExpression = new KeyValueColumnExpression(new PDatum() {
-			@Override
-			public boolean isNullable() {
-				return isNullable;
-			}
-			
-			@Override
-			public SortOrder getSortOrder() {
-				return sortOrder;
-			}
-			
-			@Override
-			public Integer getScale() {
-				return scale;
-			}
-			
-			@Override
-			public Integer getMaxLength() {
-				return maxLength;
-			}
-			
-			@Override
-			public PDataType getDataType() {
-				return datatype;
-			}
-		}, getColumnFamily(), getPositionInArray());
+        this.keyValueColumnExpression = new KeyValueColumnExpression(new PDatum() {
+            @Override
+            public boolean isNullable() {
+                return isNullable;
+            }
+
+            @Override
+            public SortOrder getSortOrder() {
+                return sortOrder;
+            }
+
+            @Override
+            public Integer getScale() {
+                return scale;
+            }
+
+            @Override
+            public Integer getMaxLength() {
+                return maxLength;
+            }
+
+            @Override
+            public PDataType getDataType() {
+                return datatype;
+            }
+        }, getColumnFamily(), getPositionInArray());
     }
-    
+
     @Override
     public String toString() {
         if (arrayColDisplayName == null) {
@@ -170,11 +168,11 @@ public class SingleCellColumnExpression extends KeyValueColumnExpression {
         }
         return arrayColDisplayName;
     }
-    
+
     public byte[] getPositionInArray() {
         return encodingScheme.encode(decodedColumnQualifier);
     }
-    
+
     @Override
     public <T> T accept(ExpressionVisitor<T> visitor) {
         //FIXME: this is ugly but can't think of a good solution.
@@ -187,8 +185,10 @@ public class SingleCellColumnExpression extends KeyValueColumnExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass() != SingleCellColumnExpression.class) return false;
-        return keyValueColumnExpression.equals(((SingleCellColumnExpression)obj).getKeyValueExpression());
+        if (obj.getClass() != SingleCellColumnExpression.class) {
+            return false;
+        }
+        return keyValueColumnExpression.equals(((SingleCellColumnExpression) obj).getKeyValueExpression());
     }
 
     @Override

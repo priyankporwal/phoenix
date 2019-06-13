@@ -33,27 +33,25 @@ import org.apache.phoenix.transaction.TransactionFactory;
 
 
 /**
- * 
  * Function used to get the index state name from the serialized byte value
  * Usage:
  * IndexStateName('a')
  * will return 'ACTIVE'
- * 
- * 
+ *
  * @since 2.1
  */
-@BuiltInFunction(name=TransactionProviderNameFunction.NAME, args= {
-    @Argument(allowedTypes= PInteger.class)} )
+@BuiltInFunction(name = TransactionProviderNameFunction.NAME, args = {
+        @Argument(allowedTypes = PInteger.class)})
 public class TransactionProviderNameFunction extends ScalarFunction {
     public static final String NAME = "TransactionProviderName";
 
     public TransactionProviderNameFunction() {
     }
-    
+
     public TransactionProviderNameFunction(List<Expression> children) throws SQLException {
         super(children);
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Expression child = children.get(0);
@@ -73,7 +71,7 @@ public class TransactionProviderNameFunction extends ScalarFunction {
     public PDataType getDataType() {
         return PVarchar.INSTANCE;
     }
-    
+
     @Override
     public String getName() {
         return NAME;

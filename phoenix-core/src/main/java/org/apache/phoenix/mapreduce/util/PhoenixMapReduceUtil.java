@@ -39,7 +39,6 @@ public final class PhoenixMapReduceUtil {
     }
 
     /**
-     *
      * @param job
      * @param inputClass DBWritable class
      * @param tableName  Input table name
@@ -49,32 +48,30 @@ public final class PhoenixMapReduceUtil {
     public static void setInput(final Job job, final Class<? extends DBWritable> inputClass, final String tableName,
                                 final String conditions, final String... fieldNames) {
         final Configuration configuration = setInput(job, inputClass, tableName);
-        if(conditions != null) {
+        if (conditions != null) {
             PhoenixConfigurationUtil.setInputTableConditions(configuration, conditions);
         }
         PhoenixConfigurationUtil.setSelectColumnNames(configuration, fieldNames);
     }
 
     /**
-     *
      * @param job
-     * @param inputClass  DBWritable class
-     * @param tableName   Input table name
-     * @param inputQuery  Select query.
+     * @param inputClass DBWritable class
+     * @param tableName  Input table name
+     * @param inputQuery Select query.
      */
     public static void setInput(final Job job, final Class<? extends DBWritable> inputClass, final String tableName, final String inputQuery) {
         final Configuration configuration = setInput(job, inputClass, tableName);
         PhoenixConfigurationUtil.setInputQuery(configuration, inputQuery);
         PhoenixConfigurationUtil.setSchemaType(configuration, SchemaType.QUERY);
-     }
+    }
 
     /**
-     *
      * @param job
-     * @param inputClass        DBWritable class
-     * @param inputFormatClass  InputFormat class
-     * @param tableName         Input table name
-     * @param inputQuery        Select query
+     * @param inputClass       DBWritable class
+     * @param inputFormatClass InputFormat class
+     * @param tableName        Input table name
+     * @param inputQuery       Select query
      */
 
     public static void setInput(final Job job, final Class<? extends DBWritable> inputClass,
@@ -86,39 +83,37 @@ public final class PhoenixMapReduceUtil {
     }
 
     /**
-     *
      * @param job
-     * @param inputClass DBWritable class
+     * @param inputClass   DBWritable class
      * @param snapshotName The name of a snapshot (of a table) to read from
-     * @param tableName Input table name
-     * @param restoreDir a temporary dir to copy the snapshot files into
-     * @param conditions Condition clause to be added to the WHERE clause. Can be <tt>null</tt> if there are no conditions.
-     * @param fieldNames fields being projected for the SELECT query.
+     * @param tableName    Input table name
+     * @param restoreDir   a temporary dir to copy the snapshot files into
+     * @param conditions   Condition clause to be added to the WHERE clause. Can be <tt>null</tt> if there are no conditions.
+     * @param fieldNames   fields being projected for the SELECT query.
      */
     public static void setInput(final Job job, final Class<? extends DBWritable> inputClass, final String snapshotName, String tableName,
-        Path restoreDir, final String conditions, final String... fieldNames) throws
-        IOException {
+                                Path restoreDir, final String conditions, final String... fieldNames) throws
+            IOException {
         final Configuration configuration = setSnapshotInput(job, inputClass, snapshotName, tableName, restoreDir, SchemaType.QUERY);
-        if(conditions != null) {
+        if (conditions != null) {
             PhoenixConfigurationUtil.setInputTableConditions(configuration, conditions);
         }
         PhoenixConfigurationUtil.setSelectColumnNames(configuration, fieldNames);
     }
 
     /**
-     *
      * @param job
-     * @param inputClass DBWritable class
+     * @param inputClass   DBWritable class
      * @param snapshotName The name of a snapshot (of a table) to read from
-     * @param tableName Input table name
-     * @param restoreDir a temporary dir to copy the snapshot files into
-     * @param inputQuery The select query
+     * @param tableName    Input table name
+     * @param restoreDir   a temporary dir to copy the snapshot files into
+     * @param inputQuery   The select query
      */
     public static void setInput(final Job job, final Class<? extends DBWritable> inputClass, final String snapshotName, String tableName,
-        Path restoreDir, String inputQuery) throws
-        IOException {
+                                Path restoreDir, String inputQuery) throws
+            IOException {
         final Configuration configuration = setSnapshotInput(job, inputClass, snapshotName, tableName, restoreDir, SchemaType.QUERY);
-        if(inputQuery != null) {
+        if (inputQuery != null) {
             PhoenixConfigurationUtil.setInputQuery(configuration, inputQuery);
         }
 
@@ -130,15 +125,14 @@ public final class PhoenixMapReduceUtil {
     }
 
     /**
-     *
      * @param job
-     * @param inputClass DBWritable class
+     * @param inputClass   DBWritable class
      * @param snapshotName The name of a snapshot (of a table) to read from
-     * @param tableName Input table name
-     * @param restoreDir a temporary dir to copy the snapshot files into
+     * @param tableName    Input table name
+     * @param restoreDir   a temporary dir to copy the snapshot files into
      */
     private static Configuration setSnapshotInput(Job job, Class<? extends DBWritable> inputClass, String snapshotName,
-        String tableName, Path restoreDir, SchemaType schemaType) {
+                                                  String tableName, Path restoreDir, SchemaType schemaType) {
         job.setInputFormatClass(PhoenixInputFormat.class);
         final Configuration configuration = job.getConfiguration();
         PhoenixConfigurationUtil.setInputClass(configuration, inputClass);
@@ -150,62 +144,63 @@ public final class PhoenixMapReduceUtil {
         return configuration;
     }
 
-    private static Configuration setInput(final Job job, final Class<? extends DBWritable> inputClass, final String tableName){
+    private static Configuration setInput(final Job job, final Class<? extends DBWritable> inputClass, final String tableName) {
         job.setInputFormatClass(PhoenixInputFormat.class);
         final Configuration configuration = job.getConfiguration();
         PhoenixConfigurationUtil.setInputTableName(configuration, tableName);
-        PhoenixConfigurationUtil.setInputClass(configuration,inputClass);
+        PhoenixConfigurationUtil.setInputClass(configuration, inputClass);
         return configuration;
     }
 
     private static Configuration setInput(final Job job, final Class<? extends DBWritable> inputClass,
-                                          final Class<? extends InputFormat> inputFormatClass, final String tableName){
+                                          final Class<? extends InputFormat> inputFormatClass, final String tableName) {
         job.setInputFormatClass(inputFormatClass);
         final Configuration configuration = job.getConfiguration();
         PhoenixConfigurationUtil.setInputTableName(configuration, tableName);
-        PhoenixConfigurationUtil.setInputClass(configuration,inputClass);
+        PhoenixConfigurationUtil.setInputClass(configuration, inputClass);
         return configuration;
     }
 
     /**
      * A method to override which HBase cluster for {@link PhoenixInputFormat} to read from
-     * @param job MapReduce Job
+     *
+     * @param job    MapReduce Job
      * @param quorum an HBase cluster's ZooKeeper quorum
      */
     public static void setInputCluster(final Job job, final String quorum) {
         final Configuration configuration = job.getConfiguration();
         PhoenixConfigurationUtil.setInputCluster(configuration, quorum);
     }
+
     /**
-     *
      * @param job
-     * @param tableName  Output table
-     * @param columns    List of columns separated by ,
+     * @param tableName Output table
+     * @param columns   List of columns separated by ,
      */
-    public static void setOutput(final Job job, final String tableName,final String columns) {
+    public static void setOutput(final Job job, final String tableName, final String columns) {
         job.setOutputFormatClass(PhoenixOutputFormat.class);
         final Configuration configuration = job.getConfiguration();
         PhoenixConfigurationUtil.setOutputTableName(configuration, tableName);
-        PhoenixConfigurationUtil.setUpsertColumnNames(configuration,columns.split(","));
+        PhoenixConfigurationUtil.setUpsertColumnNames(configuration, columns.split(","));
     }
 
 
     /**
-     *
      * @param job
      * @param tableName  Output table
      * @param fieldNames fields
      */
-    public static void setOutput(final Job job, final String tableName , final String... fieldNames) {
-          job.setOutputFormatClass(PhoenixOutputFormat.class);
-          final Configuration configuration = job.getConfiguration();
-          PhoenixConfigurationUtil.setOutputTableName(configuration, tableName);
-          PhoenixConfigurationUtil.setUpsertColumnNames(configuration,fieldNames);
+    public static void setOutput(final Job job, final String tableName, final String... fieldNames) {
+        job.setOutputFormatClass(PhoenixOutputFormat.class);
+        final Configuration configuration = job.getConfiguration();
+        PhoenixConfigurationUtil.setOutputTableName(configuration, tableName);
+        PhoenixConfigurationUtil.setUpsertColumnNames(configuration, fieldNames);
     }
 
     /**
      * A method to override which HBase cluster for {@link PhoenixOutputFormat} to write to
-     * @param job MapReduce Job
+     *
+     * @param job    MapReduce Job
      * @param quorum an HBase cluster's ZooKeeper quorum
      */
     public static void setOutputCluster(final Job job, final String quorum) {

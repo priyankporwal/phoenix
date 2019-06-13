@@ -24,11 +24,11 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 
 public class DelegateTuple implements Tuple {
     private final Tuple delegate;
-    
+
     public DelegateTuple(Tuple delegate) {
         this.delegate = delegate;
     }
-    
+
     @Override
     public int size() {
         return delegate.size();

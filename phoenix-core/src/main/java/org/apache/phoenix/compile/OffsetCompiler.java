@@ -60,11 +60,14 @@ public class OffsetCompiler {
         }
     };
 
-    private OffsetCompiler() {}
+    private OffsetCompiler() {
+    }
 
     public static Integer compile(StatementContext context, FilterableStatement statement) throws SQLException {
         OffsetNode offsetNode = statement.getOffset();
-        if (offsetNode == null) { return null; }
+        if (offsetNode == null) {
+            return null;
+        }
         OffsetParseNodeVisitor visitor = new OffsetParseNodeVisitor(context);
         offsetNode.getOffsetParseNode().accept(visitor);
         return visitor.getOffset();
@@ -86,7 +89,7 @@ public class OffsetCompiler {
         public Void visit(LiteralParseNode node) throws SQLException {
             Object offsetValue = node.getValue();
             if (offsetValue != null) {
-                Integer offset = (Integer)OFFSET_DATUM.getDataType().toObject(offsetValue, node.getType());
+                Integer offset = (Integer) OFFSET_DATUM.getDataType().toObject(offsetValue, node.getType());
                 if (offset.intValue() >= 0) {
                     this.offset = offset;
                 }
@@ -97,7 +100,9 @@ public class OffsetCompiler {
         @Override
         public Void visit(BindParseNode node) throws SQLException {
             // This is for static evaluation in SubselectRewriter.
-            if (context == null) return null;
+            if (context == null) {
+                return null;
+            }
 
             Object value = context.getBindManager().getBindValue(node);
             context.getBindManager().addParamMetaData(node, OFFSET_DATUM);

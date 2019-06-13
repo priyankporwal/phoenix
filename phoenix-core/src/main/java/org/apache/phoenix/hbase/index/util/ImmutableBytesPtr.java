@@ -25,7 +25,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class ImmutableBytesPtr extends ImmutableBytesWritable {
     private int hashCode;
-    
+
     public ImmutableBytesPtr() {
     }
 
@@ -56,36 +56,46 @@ public class ImmutableBytesPtr extends ImmutableBytesWritable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ImmutableBytesPtr that = (ImmutableBytesPtr)obj;
-        if (this.hashCode != that.hashCode) return false;
-        if (Bytes.compareTo(this.get(), this.getOffset(), this.getLength(), that.get(), that.getOffset(), that.getLength()) != 0) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ImmutableBytesPtr that = (ImmutableBytesPtr) obj;
+        if (this.hashCode != that.hashCode) {
+            return false;
+        }
+        if (Bytes.compareTo(this.get(), this.getOffset(), this.getLength(), that.get(), that.getOffset(), that.getLength()) != 0) {
+            return false;
+        }
         return true;
     }
 
     public void set(ImmutableBytesWritable ptr) {
-        set(ptr.get(),ptr.getOffset(),ptr.getLength());
-      }
-
-    /**
-     * @param b Use passed bytes as backing array for this instance.
-     */
-    @Override
-    public void set(final byte [] b) {
-      super.set(b);
-      hashCode = super.hashCode();
+        set(ptr.get(), ptr.getOffset(), ptr.getLength());
     }
 
     /**
      * @param b Use passed bytes as backing array for this instance.
+     */
+    @Override
+    public void set(final byte[] b) {
+        super.set(b);
+        hashCode = super.hashCode();
+    }
+
+    /**
+     * @param b      Use passed bytes as backing array for this instance.
      * @param offset
      * @param length
      */
     @Override
-    public void set(final byte [] b, final int offset, final int length) {
-        super.set(b,offset,length);
+    public void set(final byte[] b, final int offset, final int length) {
+        super.set(b, offset, length);
         hashCode = super.hashCode();
     }
 
@@ -94,18 +104,18 @@ public class ImmutableBytesPtr extends ImmutableBytesWritable {
         super.readFields(in);
         hashCode = super.hashCode();
     }
-    
+
     /**
      * @return the backing byte array, copying only if necessary
      */
     public byte[] copyBytesIfNecessary() {
-    return copyBytesIfNecessary(this);
+        return copyBytesIfNecessary(this);
     }
 
-  public static byte[] copyBytesIfNecessary(ImmutableBytesWritable ptr) {
-    if (ptr.getOffset() == 0 && ptr.getLength() == ptr.get().length) {
-      return ptr.get();
+    public static byte[] copyBytesIfNecessary(ImmutableBytesWritable ptr) {
+        if (ptr.getOffset() == 0 && ptr.getLength() == ptr.get().length) {
+            return ptr.get();
+        }
+        return ptr.copyBytes();
     }
-    return ptr.copyBytes();
-  }
 }

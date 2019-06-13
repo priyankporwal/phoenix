@@ -49,21 +49,25 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Function;
 
-/** {@link UpsertExecutor} over {@link Map} objects, as parsed from JSON. */
+/**
+ * {@link UpsertExecutor} over {@link Map} objects, as parsed from JSON.
+ */
 public class JsonUpsertExecutor extends UpsertExecutor<Map<?, ?>, Object> {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(JsonUpsertExecutor.class);
 
-    /** Testing constructor. Do not use in prod. */
+    /**
+     * Testing constructor. Do not use in prod.
+     */
     @VisibleForTesting
     protected JsonUpsertExecutor(Connection conn, List<ColumnInfo> columnInfoList,
-            PreparedStatement stmt, UpsertListener<Map<?, ?>> upsertListener) {
+                                 PreparedStatement stmt, UpsertListener<Map<?, ?>> upsertListener) {
         super(conn, columnInfoList, stmt, upsertListener);
         finishInit();
     }
 
     public JsonUpsertExecutor(Connection conn, String tableName, List<ColumnInfo> columnInfoList,
-            UpsertExecutor.UpsertListener<Map<?, ?>> upsertListener) {
+                              UpsertExecutor.UpsertListener<Map<?, ?>> upsertListener) {
         super(conn, tableName, columnInfoList, upsertListener);
         finishInit();
     }
@@ -194,40 +198,42 @@ public class JsonUpsertExecutor extends UpsertExecutor<Map<?, ?>, Object> {
                 byte[] byteValue = new byte[dataType.getByteSize()];
                 dataType.getCodec().encodeLong(epochTime, byteValue, 0);
                 return dataType.toObject(byteValue);
-            }else if (dataType == PBoolean.INSTANCE) {
+            } else if (dataType == PBoolean.INSTANCE) {
                 switch (input.toString()) {
-                case "true":
-                case "t":
-                case "T":
-                case "1":
-                    return Boolean.TRUE;
-                case "false":
-                case "f":
-                case "F":
-                case "0":
-                    return Boolean.FALSE;
-                default:
-                    throw new RuntimeException("Invalid boolean value: '" + input
-                            + "', must be one of ['true','t','1','false','f','0']");
+                    case "true":
+                    case "t":
+                    case "T":
+                    case "1":
+                        return Boolean.TRUE;
+                    case "false":
+                    case "f":
+                    case "F":
+                    case "0":
+                        return Boolean.FALSE;
+                    default:
+                        throw new RuntimeException("Invalid boolean value: '" + input
+                                + "', must be one of ['true','t','1','false','f','0']");
+                }
+            } else if (dataType == PVarbinary.INSTANCE || dataType == PBinary.INSTANCE) {
+                EncodeFormat format = EncodeFormat.valueOf(binaryEncoding.toUpperCase());
+                Object object = null;
+                switch (format) {
+                    case BASE64:
+                        object = Base64.getDecoder().decode(input.toString());
+                        if (object == null) {
+                            throw new IllegalDataException(
+                                    "Input: [" + input + "]  is not base64 encoded");
+                        }
+                        break;
+                    case ASCII:
+                        object = Bytes.toBytes(input.toString());
+                        break;
+                    default:
+                        throw new IllegalDataException("Unsupported encoding \"" + binaryEncoding + "\"");
+                }
+                return object;
             }
-        }else if (dataType == PVarbinary.INSTANCE || dataType == PBinary.INSTANCE){
-            EncodeFormat format = EncodeFormat.valueOf(binaryEncoding.toUpperCase());
-            Object object = null;
-            switch (format) {
-                case BASE64:
-                    object = Base64.getDecoder().decode(input.toString());
-                    if (object == null) { throw new IllegalDataException(
-                            "Input: [" + input + "]  is not base64 encoded"); }
-                    break;
-                case ASCII:
-                    object = Bytes.toBytes(input.toString());
-                    break;
-                default:
-                    throw new IllegalDataException("Unsupported encoding \"" + binaryEncoding + "\"");
-            }
-            return object;
-        }
-            
+
             return dataType.toObject(input, dataType);
         }
     }

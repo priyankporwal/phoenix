@@ -81,9 +81,9 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
     private final ClientAggregators clientAggregators;
     private final boolean useHashAgg;
     private OrderBy actualOutputOrderBy;
-    
+
     public ClientAggregatePlan(StatementContext context, FilterableStatement statement, TableRef table, RowProjector projector,
-            Integer limit, Integer offset, Expression where, OrderBy orderBy, GroupBy groupBy, Expression having, QueryPlan delegate) {
+                               Integer limit, Integer offset, Expression where, OrderBy orderBy, GroupBy groupBy, Expression having, QueryPlan delegate) {
         super(context, statement, table, projector, limit, offset, where, orderBy, delegate);
         this.groupBy = groupBy;
         this.having = having;
@@ -93,7 +93,7 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
         // aggregators. We use the Configuration directly here to avoid the expense of creating
         // another one.
         this.serverAggregators = ServerAggregators.deserialize(context.getScan()
-                        .getAttribute(BaseScannerRegionObserver.AGGREGATORS), context.getConnection().getQueryServices().getConfiguration(), null);
+                .getAttribute(BaseScannerRegionObserver.AGGREGATORS), context.getConnection().getQueryServices().getConfiguration(), null);
 
         // Extract hash aggregate hint, if any.
         HintNode hints = statement.getHint();
@@ -138,7 +138,7 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
         if (where != null) {
             iterator = new FilterResultIterator(iterator, where);
         }
-        
+
         AggregatingResultIterator aggResultIterator;
         if (groupBy.isEmpty()) {
             aggResultIterator = new ClientUngroupedAggregatingResultIterator(LookAheadResultIterator.wrap(iterator), serverAggregators);
@@ -150,12 +150,12 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
             } else {
                 long thresholdBytes =
                         context.getConnection().getQueryServices().getProps().getLong(
-                            QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
-                            QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
+                                QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
+                                QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
                 boolean spoolingEnabled =
                         context.getConnection().getQueryServices().getProps().getBoolean(
-                            QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
-                            QueryServicesOptions.DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED);
+                                QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
+                                QueryServicesOptions.DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED);
                 List<OrderByExpression> keyExpressionOrderBy = Lists.newArrayListWithExpectedSize(keyExpressions.size());
                 for (Expression keyExpression : keyExpressions) {
                     /**
@@ -183,7 +183,7 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
         if (having != null) {
             aggResultIterator = new FilterAggregatingResultIterator(aggResultIterator, having);
         }
-        
+
         if (statement.isDistinct() && statement.isAggregate()) { // Dedup on client if select distinct and aggregation
             aggResultIterator = new DistinctAggregatingResultIterator(aggResultIterator, getProjector());
         }
@@ -199,12 +199,12 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
         } else {
             long thresholdBytes =
                     context.getConnection().getQueryServices().getProps().getLong(
-                        QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
-                        QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
+                            QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
+                            QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
             boolean spoolingEnabled =
                     context.getConnection().getQueryServices().getProps().getBoolean(
-                        QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
-                        QueryServicesOptions.DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED);
+                            QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
+                            QueryServicesOptions.DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED);
             resultScanner =
                     new OrderedAggregatingResultIterator(aggResultIterator,
                             orderBy.getOrderByExpressions(), spoolingEnabled, thresholdBytes, limit,
@@ -213,7 +213,7 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
         if (context.getSequenceManager().getSequenceCount() > 0) {
             resultScanner = new SequenceResultIterator(resultScanner, context.getSequenceManager());
         }
-        
+
         return resultScanner;
     }
 
@@ -250,13 +250,13 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
                 planSteps.add("CLIENT " + limit + " ROW LIMIT");
             }
         } else {
-            planSteps.add("CLIENT" + (limit == null ? "" : " TOP " + limit + " ROW"  + (limit == 1 ? "" : "S"))  + " SORTED BY " + orderBy.getOrderByExpressions().toString());
+            planSteps.add("CLIENT" + (limit == null ? "" : " TOP " + limit + " ROW" + (limit == 1 ? "" : "S")) + " SORTED BY " + orderBy.getOrderByExpressions().toString());
         }
         if (context.getSequenceManager().getSequenceCount() > 0) {
             int nSequences = context.getSequenceManager().getSequenceCount();
             planSteps.add("CLIENT RESERVE VALUES FROM " + nSequences + " SEQUENCE" + (nSequences == 1 ? "" : "S"));
         }
-        
+
         return new ExplainPlan(planSteps);
     }
 
@@ -284,7 +284,7 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
 
         @Override
         protected ImmutableBytesWritable getGroupingKey(Tuple tuple,
-                ImmutableBytesWritable ptr) throws SQLException {
+                                                        ImmutableBytesWritable ptr) throws SQLException {
             try {
                 ImmutableBytesWritable key = TupleUtil.getConcatenatedValue(tuple, groupByExpressions);
                 ptr.set(key.get(), key.getOffset(), key.getLength());
@@ -296,12 +296,12 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
 
         @Override
         protected Tuple wrapKeyValueAsResult(Cell keyValue) {
-            return new MultiKeyValueTuple(Collections.<Cell> singletonList(keyValue));
+            return new MultiKeyValueTuple(Collections.<Cell>singletonList(keyValue));
         }
 
         @Override
         public String toString() {
-            return "ClientGroupedAggregatingResultIterator [resultIterator=" 
+            return "ClientGroupedAggregatingResultIterator [resultIterator="
                     + resultIterator + ", aggregators=" + aggregators + ", groupByExpressions="
                     + groupByExpressions + "]";
         }
@@ -315,7 +315,7 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
 
         @Override
         protected ImmutableBytesWritable getGroupingKey(Tuple tuple,
-                ImmutableBytesWritable ptr) throws SQLException {
+                                                        ImmutableBytesWritable ptr) throws SQLException {
             ptr.set(UNGROUPED_AGG_ROW_KEY);
             return ptr;
         }
@@ -323,26 +323,26 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
         @Override
         protected Tuple wrapKeyValueAsResult(Cell keyValue)
                 throws SQLException {
-            return new MultiKeyValueTuple(Collections.<Cell> singletonList(keyValue));
+            return new MultiKeyValueTuple(Collections.<Cell>singletonList(keyValue));
         }
 
         @Override
         public String toString() {
-            return "ClientUngroupedAggregatingResultIterator [resultIterator=" 
+            return "ClientUngroupedAggregatingResultIterator [resultIterator="
                     + resultIterator + ", aggregators=" + aggregators + "]";
         }
     }
 
     private OrderBy convertActualOutputOrderBy(OrderBy orderBy, GroupBy groupBy, StatementContext statementContext) {
-        if(!orderBy.isEmpty()) {
+        if (!orderBy.isEmpty()) {
             return OrderBy.convertCompiledOrderByToOutputOrderBy(orderBy);
         }
 
-        if(this.useHashAgg &&
-           !groupBy.isEmpty() &&
-           !groupBy.isOrderPreserving() &&
-           orderBy != OrderBy.FWD_ROW_KEY_ORDER_BY &&
-           orderBy != OrderBy.REV_ROW_KEY_ORDER_BY) {
+        if (this.useHashAgg &&
+                !groupBy.isEmpty() &&
+                !groupBy.isOrderPreserving() &&
+                orderBy != OrderBy.FWD_ROW_KEY_ORDER_BY &&
+                orderBy != OrderBy.REV_ROW_KEY_ORDER_BY) {
             return OrderBy.EMPTY_ORDER_BY;
         }
 
@@ -351,6 +351,6 @@ public class ClientAggregatePlan extends ClientProcessingPlan {
 
     @Override
     public List<OrderBy> getOutputOrderBys() {
-       return OrderBy.wrapForOutputOrderBys(this.actualOutputOrderBy);
+        return OrderBy.wrapForOutputOrderBys(this.actualOutputOrderBy);
     }
 }

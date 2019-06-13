@@ -33,7 +33,8 @@ public class RepairUtil {
                 byte[] fileFirstRowKey = CellUtil.cloneRow(file.getFirstKey().get());
                 if ((fileFirstRowKey != null && Bytes.compareTo(fileFirstRowKey, 0,
                         indexKeyEmbedded.length, indexKeyEmbedded, 0, indexKeyEmbedded.length) != 0)) {
-                    return false; }
+                    return false;
+                }
             }
         }
         return true;

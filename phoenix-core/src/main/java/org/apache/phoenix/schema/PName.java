@@ -23,11 +23,9 @@ import org.apache.phoenix.util.ByteUtil;
 
 
 /**
- * 
  * Interface to encapsulate both the client-side name
  * together with the server-side name for a named object
  *
- * 
  * @since 0.1
  */
 public interface PName {
@@ -41,7 +39,7 @@ public interface PName {
         public byte[] getBytes() {
             return ByteUtil.EMPTY_BYTE_ARRAY;
         }
-        
+
         @Override
         public String toString() {
             return getString();
@@ -67,7 +65,7 @@ public interface PName {
         public byte[] getBytes() {
             return QueryConstants.EMPTY_COLUMN_BYTES;
         }
-        
+
         @Override
         public String toString() {
             return getString();
@@ -83,16 +81,19 @@ public interface PName {
             return 0;
         }
     };
+
     /**
      * Get the client-side, normalized name as referenced
      * in a SQL statement.
+     *
      * @return the normalized string name
      */
     String getString();
-    
+
     /**
      * Get the server-side name as referenced in HBase-related
      * APIs such as Scan, Filter, etc.
+     *
      * @return the name as a byte array
      */
     byte[] getBytes();
@@ -101,6 +102,6 @@ public interface PName {
      * @return a pointer to the underlying bytes
      */
     ImmutableBytesPtr getBytesPtr();
-    
+
     int getEstimatedSize();
 }

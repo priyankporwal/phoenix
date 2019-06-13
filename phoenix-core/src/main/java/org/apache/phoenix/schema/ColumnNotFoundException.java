@@ -22,11 +22,9 @@ import org.apache.phoenix.exception.SQLExceptionInfo;
 
 
 /**
- * 
  * Exception thrown when a column name referenced in a select
  * statement cannot be found in any table.
  *
- * 
  * @since 0.1
  */
 public class ColumnNotFoundException extends MetaDataEntityNotFoundException {
@@ -40,7 +38,7 @@ public class ColumnNotFoundException extends MetaDataEntityNotFoundException {
 
     public ColumnNotFoundException(String schemaName, String tableName, String familyName, String columnName) {
         super(new SQLExceptionInfo.Builder(code).setSchemaName(schemaName).setTableName(tableName)
-                .setFamilyName(familyName).setColumnName(columnName).build().toString(),
+                        .setFamilyName(familyName).setColumnName(columnName).build().toString(),
                 code.getSQLState(), code.getErrorCode(), schemaName, tableName, null);
         this.columnName = columnName;
     }

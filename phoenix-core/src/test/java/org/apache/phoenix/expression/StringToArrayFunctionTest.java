@@ -56,7 +56,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction1() throws SQLException {
         String string = "1,2,3,4,5";
-        Object[] o1 = new Object[]{"1", "2", "3", "4", "5"};
+        Object[] o1 = new Object[] {"1", "2", "3", "4", "5"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -67,7 +67,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction2() throws SQLException {
         String string = "1,2,3,4,5";
-        Object[] o1 = new Object[]{"1", "2", "3", "4", "5"};
+        Object[] o1 = new Object[] {"1", "2", "3", "4", "5"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = ",";
         String nullString = "";
@@ -78,7 +78,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction3() throws SQLException {
         String string = "1234";
-        Object[] o1 = new Object[]{"1", "2", "3", "4"};
+        Object[] o1 = new Object[] {"1", "2", "3", "4"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = null;
         String nullString = "";
@@ -89,7 +89,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction4() throws SQLException {
         String string = "1";
-        Object[] o1 = new Object[]{"1"};
+        Object[] o1 = new Object[] {"1"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = ",";
         String nullString = "";
@@ -100,7 +100,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction5() throws SQLException {
         String string = "hello, hello, hello";
-        Object[] o1 = new Object[]{"hello", "hello", "hello"};
+        Object[] o1 = new Object[] {"hello", "hello", "hello"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = ", ";
         String nullString = "";
@@ -111,7 +111,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction6() throws SQLException {
         String string = "1.2...2.3...5.6";
-        Object[] o1 = new Object[]{"1.2", "2.3", "5.6"};
+        Object[] o1 = new Object[] {"1.2", "2.3", "5.6"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = "...";
         String nullString = "";
@@ -122,7 +122,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction7() throws SQLException {
         String string = "a\\b\\c\\d\\e\\f";
-        Object[] o1 = new Object[]{"a", "b", "c", "d", "e", "f"};
+        Object[] o1 = new Object[] {"a", "b", "c", "d", "e", "f"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = "\\";
         String nullString = "";
@@ -133,7 +133,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction8() throws SQLException {
         String string = "a-b-c-d-e-f-";
-        Object[] o1 = new Object[]{"a", "b", "c", "d", "e", "f"};
+        Object[] o1 = new Object[] {"a", "b", "c", "d", "e", "f"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = "-";
         String nullString = "";
@@ -144,7 +144,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction9() throws SQLException {
         String string = "a b c d e f";
-        Object[] o1 = new Object[]{"a", "b", "c", "d", "e", "f"};
+        Object[] o1 = new Object[] {"a", "b", "c", "d", "e", "f"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = " ";
         String nullString = "";
@@ -155,7 +155,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction10() throws SQLException {
         String string = "axbxcxdxexf";
-        Object[] o1 = new Object[]{"a", "b", "c", "d", "e", "f"};
+        Object[] o1 = new Object[] {"a", "b", "c", "d", "e", "f"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = "x";
         String nullString = "";
@@ -166,7 +166,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction11() throws SQLException {
         String string = "axbxcxdxexfx*";
-        Object[] o1 = new Object[]{"a", "b", "c", "d", "e", "f", null};
+        Object[] o1 = new Object[] {"a", "b", "c", "d", "e", "f", null};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = "x";
         String nullString = "*";
@@ -177,7 +177,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction12() throws SQLException {
         String string = "* a b c d e f";
-        Object[] o1 = new Object[]{null, "a", "b", "c", "d", "e", "f"};
+        Object[] o1 = new Object[] {null, "a", "b", "c", "d", "e", "f"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = " ";
         String nullString = "*";
@@ -188,7 +188,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction13() throws SQLException {
         String string = "a * b * c d e f";
-        Object[] o1 = new Object[]{"a", null, "b", null, "c", "d", "e", "f"};
+        Object[] o1 = new Object[] {"a", null, "b", null, "c", "d", "e", "f"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = " ";
         String nullString = "*";
@@ -199,7 +199,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction14() throws SQLException {
         String string = "null a null";
-        Object[] o1 = new Object[]{null, "a", null};
+        Object[] o1 = new Object[] {null, "a", null};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = " ";
         String nullString = "null";
@@ -210,7 +210,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction16() throws SQLException {
         String string = "null a null";
-        Object[] o1 = new Object[]{null, "a", null};
+        Object[] o1 = new Object[] {null, "a", null};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = " ";
         String nullString = "null";
@@ -221,7 +221,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction17() throws SQLException {
         String string = "null a null";
-        Object[] o1 = new Object[]{null, "a", null};
+        Object[] o1 = new Object[] {null, "a", null};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = " ";
         String nullString = "null";
@@ -232,7 +232,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction18() throws SQLException {
         String string = "null,a,null";
-        Object[] o1 = new Object[]{null, "a", null};
+        Object[] o1 = new Object[] {null, "a", null};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = ",";
         String nullString = "null";
@@ -243,7 +243,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction19() throws SQLException {
         String string = "null,a,null";
-        Object[] o1 = new Object[]{null, "a", null};
+        Object[] o1 = new Object[] {null, "a", null};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = ",";
         String nullString = "null";
@@ -254,7 +254,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction20() throws SQLException {
         String string = "abc";
-        Object[] o1 = new Object[]{"a", "b", "c"};
+        Object[] o1 = new Object[] {"a", "b", "c"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = null;
         String nullString = "null";
@@ -265,7 +265,7 @@ public class StringToArrayFunctionTest {
     @Test
     public void testStringToArrayFunction21() throws SQLException {
         String string = "(?!^)";
-        Object[] o1 = new Object[]{"(", "?", "!", "^", ")"};
+        Object[] o1 = new Object[] {"(", "?", "!", "^", ")"};
         PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, o1);
         String delimiter = null;
         String nullString = null;

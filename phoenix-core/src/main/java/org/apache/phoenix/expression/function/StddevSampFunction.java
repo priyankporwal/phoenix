@@ -33,13 +33,11 @@ import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * Built-in function for STDDEV_SAMP(<expression>) aggregate function
- * 
- * 
+ *
  * @since 1.2.1
  */
-@BuiltInFunction(name = StddevSampFunction.NAME, args = { @Argument(allowedTypes={PDecimal.class})})
+@BuiltInFunction(name = StddevSampFunction.NAME, args = {@Argument(allowedTypes = {PDecimal.class})})
 public class StddevSampFunction extends DistinctValueWithCountAggregateFunction {
     public static final String NAME = "STDDEV_SAMP";
 
@@ -64,7 +62,7 @@ public class StddevSampFunction extends DistinctValueWithCountAggregateFunction 
         }
         return new StddevSampAggregator(children, getAggregatorExpression().getSortOrder());
     }
-    
+
     @Override
     public String getName() {
         return NAME;

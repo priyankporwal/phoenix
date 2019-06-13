@@ -24,29 +24,29 @@ public class FetchStatement implements BindableStatement {
     private final boolean isNext;
     private final int fetchSize;
 
-    public FetchStatement(CursorName cursorName, boolean isNext, int fetchSize){
+    public FetchStatement(CursorName cursorName, boolean isNext, int fetchSize) {
         this.cursorName = cursorName;
         this.isNext = isNext;
         this.fetchSize = fetchSize;
     }
 
-    public CursorName getCursorName(){
+    public CursorName getCursorName() {
         return cursorName;
     }
 
-    public boolean isNext(){
+    public boolean isNext() {
         return isNext;
     }
 
-    public int getBindCount(){
+    public int getBindCount() {
         return 0;
     }
 
-    public Operation getOperation(){
+    public Operation getOperation() {
         return Operation.QUERY;
     }
-    
-    public int getFetchSize(){
-    	return fetchSize;
+
+    public int getFetchSize() {
+        return fetchSize;
     }
 }

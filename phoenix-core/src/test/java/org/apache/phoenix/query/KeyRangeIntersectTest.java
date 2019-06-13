@@ -45,56 +45,57 @@ public class KeyRangeIntersectTest extends TestCase {
         this.intersection = intersection;
     }
 
-    @Parameters(name="intersection of {0} and {1} is {2}")
+    @Parameters(name = "intersection of {0} and {1} is {2}")
     public static Collection<?> data() {
         return Arrays.asList(new Object[][] {
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("F"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("E"), true)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("F"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), true, toBytes("E"), true)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("F"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("E"), true)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("F"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("E"), true)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("F"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("E"), false)
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("F"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("D"), false, toBytes("E"), false)
                 },
                 {
-                    PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
-                    PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
-                    EMPTY_RANGE
+                        PChar.INSTANCE.getKeyRange(toBytes("C"), true, toBytes("E"), false),
+                        PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
+                        EMPTY_RANGE
                 },
                 {
-                    EVERYTHING_RANGE,
-                    PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
-                    PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
+                        EVERYTHING_RANGE,
+                        PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
+                        PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
                 },
                 {
-                    EVERYTHING_RANGE,
-                    EVERYTHING_RANGE,
-                    EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
+                        EVERYTHING_RANGE,
                 },
                 {
-                    EMPTY_RANGE,
-                    EVERYTHING_RANGE,
-                    EMPTY_RANGE
+                        EMPTY_RANGE,
+                        EVERYTHING_RANGE,
+                        EMPTY_RANGE
                 },
                 {
-                    EMPTY_RANGE,
-                    PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
-                    EMPTY_RANGE
+                        EMPTY_RANGE,
+                        PChar.INSTANCE.getKeyRange(toBytes("E"), false, toBytes("F"), true),
+                        EMPTY_RANGE
                 },
                 {
-                    PDate.INSTANCE.getKeyRange(PDate.INSTANCE.toBytes(DateUtil.parseDate("2011-01-01")), true, PDate.INSTANCE.toBytes(DateUtil.parseDate("2016-01-01")), true),
-                    PDate.INSTANCE.getKeyRange(PDate.INSTANCE.toBytes(DateUtil.parseDate("2012-10-21")), false, PDate.INSTANCE.toBytes(DateUtil.parseDate("2016-10-31")), false),
-                    PDate.INSTANCE.getKeyRange(PDate.INSTANCE.toBytes(DateUtil.parseDate("2012-10-21")), false, PDate.INSTANCE.toBytes(DateUtil.parseDate("2016-01-01")), true)
+                        PDate.INSTANCE.getKeyRange(PDate.INSTANCE.toBytes(DateUtil.parseDate("2011-01-01")), true, PDate.INSTANCE.toBytes(DateUtil.parseDate("2016-01-01")), true),
+                        PDate.INSTANCE.getKeyRange(PDate.INSTANCE.toBytes(DateUtil.parseDate("2012-10-21")), false, PDate.INSTANCE.toBytes(DateUtil.parseDate("2016-10-31")), false),
+                        PDate.INSTANCE.getKeyRange(PDate.INSTANCE.toBytes(DateUtil.parseDate("2012-10-21")), false, PDate.INSTANCE.toBytes(DateUtil.parseDate("2016-01-01")), true)
                 }
         });
     }
+
     @Test
     public void intersect() {
         assertEquals(intersection, a.intersect(b));

@@ -74,40 +74,40 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
     public static final String ATOMIC_OP_ATTRIB = "_ATOMIC_OP_ATTRIB";
     private static final byte[] ON_DUP_KEY_IGNORE_BYTES = new byte[] {1}; // boolean true
     private static final int ON_DUP_KEY_HEADER_BYTE_SIZE = Bytes.SIZEOF_SHORT + Bytes.SIZEOF_BOOLEAN;
-    
+
     private PhoenixIndexMetaDataBuilder indexMetaDataBuilder;
-    
+
     @Override
     public void setup(RegionCoprocessorEnvironment env) throws IOException {
         super.setup(env);
         this.indexMetaDataBuilder = new PhoenixIndexMetaDataBuilder(env);
     }
-    
+
     private static List<Cell> flattenCells(Mutation m, int estimatedSize) throws IOException {
         List<Cell> flattenedCells = Lists.newArrayListWithExpectedSize(estimatedSize);
         flattenCells(m, flattenedCells);
         return flattenedCells;
     }
-    
+
     private static void flattenCells(Mutation m, List<Cell> flattenedCells) throws IOException {
         for (List<Cell> cells : m.getFamilyCellMap().values()) {
             flattenedCells.addAll(cells);
         }
     }
-    
+
     @Override
     public PhoenixIndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
         return indexMetaDataBuilder.getIndexMetaData(miniBatchOp);
     }
 
     protected PhoenixIndexCodec getCodec() {
-        return (PhoenixIndexCodec)codec;
+        return (PhoenixIndexCodec) codec;
     }
 
     @Override
     public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData context) throws IOException {
     }
-    
+
     @Override
     public boolean isAtomicOp(Mutation m) {
         return m.getAttribute(ATOMIC_OP_ATTRIB) != null;
@@ -116,11 +116,13 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
     private static void transferCells(Mutation source, Mutation target) {
         target.getFamilyCellMap().putAll(source.getFamilyCellMap());
     }
+
     private static void transferAttributes(Mutation source, Mutation target) {
         for (Map.Entry<String, byte[]> entry : source.getAttributesMap().entrySet()) {
             target.setAttribute(entry.getKey(), entry.getValue());
         }
     }
+
     private static List<Mutation> convertIncrementToPutInSingletonList(Increment inc) {
         byte[] rowKey = inc.getRow();
         Put put = new Put(rowKey);
@@ -128,7 +130,7 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
         transferAttributes(inc, put);
         return Collections.<Mutation>singletonList(put);
     }
-    
+
     @Override
     public List<Mutation> executeAtomicOp(Increment inc) throws IOException {
         byte[] opBytes = inc.getAttribute(ATOMIC_OP_ATTRIB);
@@ -170,12 +172,12 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
             };
             try {
                 int nExpressions = WritableUtils.readVInt(input);
-                List<Expression>expressions = Lists.newArrayListWithExpectedSize(nExpressions);
+                List<Expression> expressions = Lists.newArrayListWithExpectedSize(nExpressions);
                 for (int i = 0; i < nExpressions; i++) {
                     Expression expression = ExpressionType.values()[WritableUtils.readVInt(input)].newInstance();
                     expression.readFields(input);
                     expressions.add(expression);
-                    expression.accept(visitor);                    
+                    expression.accept(visitor);
                 }
                 PTableProtos.PTable tableProto = PTableProtos.PTable.parseDelimitedFrom(input);
                 PTable table = PTableImpl.createFromProto(tableProto);
@@ -190,7 +192,7 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
         }
         MultiKeyValueTuple tuple;
         List<Cell> flattenedCells = null;
-        List<Cell>cells = ((HRegion)this.env.getRegion()).get(get, false);
+        List<Cell> cells = ((HRegion) this.env.getRegion()).get(get, false);
         if (cells.isEmpty()) {
             if (skipFirstOp) {
                 if (operations.size() <= 1 && repeat <= 1) {
@@ -216,7 +218,7 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
                 // ordered correctly). We only need the list sorted if the expressions are going to be
                 // executed, not when the outer loop is exited. Hence we do it here, at the top of the loop.
                 if (flattenedCells != null) {
-                    Collections.sort(flattenedCells,CellComparatorImpl.COMPARATOR);
+                    Collections.sort(flattenedCells, CellComparatorImpl.COMPARATOR);
                 }
                 PRow row = table.newRow(GenericKeyValueBuilder.INSTANCE, ts, ptr, false);
                 int adjust = table.getBucketNum() == null ? 1 : 2;
@@ -232,11 +234,11 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
                             expression.getSortOrder(), expression.getMaxLength(), expression.getScale(),
                             column.getMaxLength(), column.getScale())) {
                         throw new DataExceedsCapacityException(column.getDataType(), column.getMaxLength(),
-                            column.getScale());
+                                column.getScale());
                     }
                     column.getDataType().coerceBytes(ptr, value, expression.getDataType(), expression.getMaxLength(),
-                        expression.getScale(), expression.getSortOrder(),column.getMaxLength(), column.getScale(),
-                        column.getSortOrder(), table.rowKeyOrderOptimizable());
+                            expression.getScale(), expression.getSortOrder(), column.getMaxLength(), column.getScale(),
+                            column.getSortOrder(), table.rowKeyOrderOptimizable());
                     byte[] bytes = ByteUtil.copyKeyBytesIfNecessary(ptr);
                     row.setValue(column, bytes);
                 }
@@ -250,7 +252,7 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
             // Repeat only applies to first statement
             repeat = 1;
         }
-        
+
         List<Mutation> mutations = Lists.newArrayListWithExpectedSize(2);
         for (int i = 0; i < tuple.size(); i++) {
             Cell cell = tuple.getValue(i);
@@ -276,18 +278,19 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
     public static byte[] serializeOnDupKeyIgnore() {
         return ON_DUP_KEY_IGNORE_BYTES;
     }
-    
+
     /**
      * Serialize ON DUPLICATE KEY UPDATE info with the following format:
      * 1) Boolean value tracking whether or not to execute the first ON DUPLICATE KEY clause.
-     *    We know the clause should be executed when there are other UPSERT VALUES clauses earlier in
-     *    the same batch for this row key. We need this for two main cases: 
-     *       UPSERT VALUES followed by UPSERT VALUES ON DUPLICATE KEY UPDATE
-     *       UPSERT VALUES ON DUPLICATE KEY IGNORE followed by UPSERT VALUES ON DUPLICATE KEY UPDATE
+     * We know the clause should be executed when there are other UPSERT VALUES clauses earlier in
+     * the same batch for this row key. We need this for two main cases:
+     * UPSERT VALUES followed by UPSERT VALUES ON DUPLICATE KEY UPDATE
+     * UPSERT VALUES ON DUPLICATE KEY IGNORE followed by UPSERT VALUES ON DUPLICATE KEY UPDATE
      * 2) Short value tracking how many times the next first clause should be executed. This
-     *    optimizes the same clause be executed many times by only serializing it once.
+     * optimizes the same clause be executed many times by only serializing it once.
      * 3) Repeating {List<Expression>, PTable} pairs that encapsulate the ON DUPLICATE KEY clause.
-     * @param table table representing columns being updated
+     *
+     * @param table       table representing columns being updated
      * @param expressions list of expressions to evaluate for updating columns
      * @return serialized byte array representation of ON DUPLICATE KEY UPDATE info
      */
@@ -310,7 +313,7 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
             throw new RuntimeException(e);
         }
     }
-    
+
     private static byte[] doNotSkipFirstOnDupKey(byte[] oldOnDupKeyBytes) {
         byte[] newOnDupKeyBytes = Arrays.copyOf(oldOnDupKeyBytes, oldOnDupKeyBytes.length);
         newOnDupKeyBytes[0] = 0; // false means do not skip first ON DUPLICATE KEY
@@ -333,13 +336,13 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
             return oldOnDupKeyBytes;
         }
         boolean isOldDupKeyIgnore = isDupKeyIgnore(oldOnDupKeyBytes);
-        try (TrustedByteArrayOutputStream stream = new TrustedByteArrayOutputStream(Math.max(0, oldOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE) + newOnDupKeyBytes.length); 
-                ByteArrayInputStream oldStream = new ByteArrayInputStream(oldOnDupKeyBytes); 
-                ByteArrayInputStream newStream = new ByteArrayInputStream(newOnDupKeyBytes);
-                DataOutputStream output = new DataOutputStream(stream);
-                DataInputStream oldInput = new DataInputStream(oldStream);
-                DataInputStream newInput = new DataInputStream(newStream)) {
-            
+        try (TrustedByteArrayOutputStream stream = new TrustedByteArrayOutputStream(Math.max(0, oldOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE) + newOnDupKeyBytes.length);
+             ByteArrayInputStream oldStream = new ByteArrayInputStream(oldOnDupKeyBytes);
+             ByteArrayInputStream newStream = new ByteArrayInputStream(newOnDupKeyBytes);
+             DataOutputStream output = new DataOutputStream(stream);
+             DataInputStream oldInput = new DataInputStream(oldStream);
+             DataInputStream newInput = new DataInputStream(newStream)) {
+
             boolean execute1 = oldInput.readBoolean();
             newInput.readBoolean(); // ignore
             int repeating2 = newInput.readShort();
@@ -350,14 +353,14 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
             } else {
                 int repeating1 = oldInput.readShort();
                 if (Bytes.compareTo(
-                    oldOnDupKeyBytes, ON_DUP_KEY_HEADER_BYTE_SIZE, oldOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE, 
-                    newOnDupKeyBytes, Bytes.SIZEOF_SHORT + Bytes.SIZEOF_BOOLEAN, newOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE) == 0) {
-                // If both old and new ON DUPLICATE KEY UPDATE clauses match,
-                // reduce the size of data we're sending over the wire.
-                // TODO: optimization size of RPC more.
-                output.writeBoolean(execute1);
-                output.writeShort(repeating1 + repeating2);
-                output.write(newOnDupKeyBytes, ON_DUP_KEY_HEADER_BYTE_SIZE, newOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE);
+                        oldOnDupKeyBytes, ON_DUP_KEY_HEADER_BYTE_SIZE, oldOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE,
+                        newOnDupKeyBytes, Bytes.SIZEOF_SHORT + Bytes.SIZEOF_BOOLEAN, newOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE) == 0) {
+                    // If both old and new ON DUPLICATE KEY UPDATE clauses match,
+                    // reduce the size of data we're sending over the wire.
+                    // TODO: optimization size of RPC more.
+                    output.writeBoolean(execute1);
+                    output.writeShort(repeating1 + repeating2);
+                    output.write(newOnDupKeyBytes, ON_DUP_KEY_HEADER_BYTE_SIZE, newOnDupKeyBytes.length - ON_DUP_KEY_HEADER_BYTE_SIZE);
                 } else {
                     output.writeBoolean(execute1);
                     output.writeShort(repeating1); // retain first ON DUPLICATE KEY UPDATE having repeated
@@ -383,5 +386,5 @@ public class PhoenixIndexBuilder extends NonTxIndexBuilder {
     public ReplayWrite getReplayWrite(Mutation m) {
         return PhoenixIndexMetaData.getReplayWrite(m.getAttributesMap());
     }
-    
+
 }

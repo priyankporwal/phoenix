@@ -51,30 +51,30 @@ import com.google.common.base.Joiner;
 
 public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
 
-    protected static final byte[] KMIN  = new byte[] {'!'};
-    protected static final byte[] KMIN2  = new byte[] {'.'};
-    protected static final byte[] K1  = new byte[] {'a'};
-    protected static final byte[] K3  = new byte[] {'c'};
-    protected static final byte[] K4  = new byte[] {'d'};
-    protected static final byte[] K5  = new byte[] {'e'};
-    protected static final byte[] K6  = new byte[] {'f'};
-    protected static final byte[] K9  = new byte[] {'i'};
+    protected static final byte[] KMIN = new byte[] {'!'};
+    protected static final byte[] KMIN2 = new byte[] {'.'};
+    protected static final byte[] K1 = new byte[] {'a'};
+    protected static final byte[] K3 = new byte[] {'c'};
+    protected static final byte[] K4 = new byte[] {'d'};
+    protected static final byte[] K5 = new byte[] {'e'};
+    protected static final byte[] K6 = new byte[] {'f'};
+    protected static final byte[] K9 = new byte[] {'i'};
     protected static final byte[] K11 = new byte[] {'k'};
     protected static final byte[] K12 = new byte[] {'l'};
-    protected static final byte[] KMAX  = new byte[] {'~'};
-    protected static final byte[] KMAX2  = new byte[] {'z'};
-    protected static final byte[] KR = new byte[] { 'r' };
-    protected static final byte[] KP = new byte[] { 'p' };
+    protected static final byte[] KMAX = new byte[] {'~'};
+    protected static final byte[] KMAX2 = new byte[] {'z'};
+    protected static final byte[] KR = new byte[] {'r'};
+    protected static final byte[] KP = new byte[] {'p'};
 
     private String tableName;
     private String indexName;
-    
+
     @Before
     public void generateTableNames() {
         tableName = "T_" + generateUniqueName();
         indexName = "I_" + generateUniqueName();
     }
-    
+
     private List<KeyRange> getSplits(Connection conn, byte[] lowerRange, byte[] upperRange) throws SQLException {
         return TestUtil.getSplits(conn, tableName, STABLE_PK_NAME, lowerRange, upperRange, null, "COUNT(*)");
     }
@@ -82,7 +82,7 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
     @Test
     public void testGetSplits() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl(), TEST_PROPERTIES);
-        byte[][] splits = new byte[][] {K3,K4,K9,K11};
+        byte[][] splits = new byte[][] {K3, K4, K9, K11};
         createTable(conn, splits);
         PreparedStatement stmt = conn.prepareStatement("upsert into " + tableName + " VALUES (?, ?)");
         stmt.setString(1, new String(KMIN));
@@ -92,11 +92,11 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
         stmt.setInt(2, 2);
         stmt.execute();
         conn.commit();
-        
+
         conn.createStatement().execute("UPDATE STATISTICS " + tableName);
-        
+
         List<KeyRange> keyRanges;
-        
+
         keyRanges = getAllSplits(conn, tableName);
         assertEquals("Unexpected number of splits: " + keyRanges, 7, keyRanges.size());
         assertEquals(newKeyRange(KeyRange.UNBOUND, KMIN), keyRanges.get(0));
@@ -105,17 +105,17 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
         assertEquals(newKeyRange(K4, K9), keyRanges.get(3));
         assertEquals(newKeyRange(K9, K11), keyRanges.get(4));
         assertEquals(newKeyRange(K11, KMAX), keyRanges.get(5));
-        assertEquals(newKeyRange(KMAX,  KeyRange.UNBOUND), keyRanges.get(6));
-        
+        assertEquals(newKeyRange(KMAX, KeyRange.UNBOUND), keyRanges.get(6));
+
         keyRanges = getSplits(conn, K3, K6);
         assertEquals("Unexpected number of splits: " + keyRanges, 2, keyRanges.size());
         assertEquals(newKeyRange(K3, K4), keyRanges.get(0));
         assertEquals(newKeyRange(K4, K6), keyRanges.get(1));
-        
+
         keyRanges = getSplits(conn, K5, K6);
         assertEquals("Unexpected number of splits: " + keyRanges, 1, keyRanges.size());
         assertEquals(newKeyRange(K5, K6), keyRanges.get(0));
-        
+
         keyRanges = getSplits(conn, null, K1);
         assertEquals("Unexpected number of splits: " + keyRanges, 2, keyRanges.size());
         assertEquals(newKeyRange(KeyRange.UNBOUND, KMIN), keyRanges.get(0));
@@ -126,9 +126,9 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
     @Test
     public void testServerNameOnScan() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl(), TEST_PROPERTIES);
-        byte[][] splits = new byte[][] { K3, K9, KR };
+        byte[][] splits = new byte[][] {K3, K9, KR};
         createTable(conn, splits);
-        
+
         PhoenixStatement stmt = conn.createStatement().unwrap(PhoenixStatement.class);
         ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName + " LIMIT 1");
         rs.next();
@@ -144,19 +144,19 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
             }
         }
     }
-    
+
     @Test
     public void testGuidePostsLifeCycle() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl(), TEST_PROPERTIES);
-        byte[][] splits = new byte[][] { K3, K9, KR };
+        byte[][] splits = new byte[][] {K3, K9, KR};
         createTable(conn, splits);
-        
+
         // create index
         conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + tableName + "( \"value\")");
         // before upserting
         List<KeyRange> keyRanges = getAllSplits(conn, tableName);
         assertEquals(4, keyRanges.size());
-        upsert(conn, new byte[][] { KMIN, K4, K11 });
+        upsert(conn, new byte[][] {KMIN, K4, K11});
         // Analyze table alone
         analyzeTableColumns(conn, tableName);
         keyRanges = getAllSplits(conn, tableName);
@@ -172,7 +172,7 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
         // check the splits on the index table
         indexSplits = getAllSplits(conn, indexName);
         assertEquals(4, indexSplits.size());
-        upsert(conn, new byte[][] { KMIN2, K5, K12 });
+        upsert(conn, new byte[][] {KMIN2, K5, K12});
         // Update the stats for both the table and the index table
         analyzeTable(conn, tableName);
         keyRanges = getAllSplits(conn, tableName);
@@ -180,7 +180,7 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
         // the above analyze should have udpated the index splits also
         indexSplits = getAllSplits(conn, indexName);
         assertEquals(7, indexSplits.size());
-        upsert(conn, new byte[][] { K1, K6, KP });
+        upsert(conn, new byte[][] {K1, K6, KP});
         // Update only the table
         analyzeTableColumns(conn, tableName);
         keyRanges = getAllSplits(conn, tableName);
@@ -215,10 +215,10 @@ public class ParallelIteratorsIT extends ParallelStatsEnabledIT {
     private static KeyRange newKeyRange(byte[] lowerRange, byte[] upperRange) {
         return PChar.INSTANCE.getKeyRange(lowerRange, true, upperRange, false);
     }
-    
-    private void createTable (Connection conn, byte[][] splits) throws SQLException {
+
+    private void createTable(Connection conn, byte[][] splits) throws SQLException {
         List<String> splitsList = new ArrayList<String>(splits.length);
-        for(byte[] split : splits) {
+        for (byte[] split : splits) {
             splitsList.add("'" + Bytes.toString(split) + "'");
         }
         conn.createStatement().execute("create table " + tableName +

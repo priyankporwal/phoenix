@@ -56,7 +56,7 @@ public class IndexBuildTimestampIT extends BaseUniqueNamesOwnClusterIT {
     private final String tableDDLOptions;
 
     public IndexBuildTimestampIT(boolean mutable, boolean localIndex,
-                            boolean async, boolean view) {
+                                 boolean async, boolean view) {
         this.localIndex = localIndex;
         this.async = async;
         this.view = view;
@@ -77,12 +77,12 @@ public class IndexBuildTimestampIT extends BaseUniqueNamesOwnClusterIT {
             name = "mutable={0},localIndex={1},async={2},view={3}")
     public static Collection<Object[]> data() {
         List<Object[]> list = Lists.newArrayListWithExpectedSize(16);
-        boolean[] Booleans = new boolean[]{false, true};
+        boolean[] Booleans = new boolean[] {false, true};
         for (boolean mutable : Booleans) {
             for (boolean localIndex : Booleans) {
                 for (boolean async : Booleans) {
                     for (boolean view : Booleans) {
-                        list.add(new Object[]{mutable, localIndex, async, view});
+                        list.add(new Object[] {mutable, localIndex, async, view});
                     }
                 }
             }
@@ -186,11 +186,11 @@ public class IndexBuildTimestampIT extends BaseUniqueNamesOwnClusterIT {
         String viewName = null;
         if (view) {
             viewName = generateUniqueName();
-            conn.createStatement().execute("CREATE VIEW "+ viewName + " AS SELECT * FROM " +
+            conn.createStatement().execute("CREATE VIEW " + viewName + " AS SELECT * FROM " +
                     dataTableName);
         }
         String indexName = generateUniqueName();
-        conn.createStatement().execute("CREATE "+ (localIndex ? "LOCAL " : "") + " INDEX " + indexName + " on " +
+        conn.createStatement().execute("CREATE " + (localIndex ? "LOCAL " : "") + " INDEX " + indexName + " on " +
                 (view ? viewName : dataTableName) + " (val) include (ts)" + (async ? "ASYNC" : ""));
 
         conn.close();
@@ -206,7 +206,7 @@ public class IndexBuildTimestampIT extends BaseUniqueNamesOwnClusterIT {
         // assert we are pulling from index table
         assertExplainPlan(conn, localIndex, selectSql, dataTableName, (view ? "_IDX_" + dataTableName : indexName));
         ResultSet rs = conn.createStatement().executeQuery(selectSql);
-        assertTrue (rs.next());
+        assertTrue(rs.next());
         assertTrue(rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() < clock2.initialTime() &&
                 rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() >= clock1.initialTime());
 
@@ -216,11 +216,11 @@ public class IndexBuildTimestampIT extends BaseUniqueNamesOwnClusterIT {
         assertExplainPlan(conn, localIndex, selectSql, dataTableName, (view ? "_IDX_" + dataTableName : indexName));
 
         rs = conn.createStatement().executeQuery(selectSql);
-        assertTrue (rs.next());
+        assertTrue(rs.next());
         assertTrue(rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() < clock3.initialTime() &&
-                        rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() >= clock2.initialTime()
-                );
-        assertFalse (rs.next());
+                rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() >= clock2.initialTime()
+        );
+        assertFalse(rs.next());
 
         // Verify the index timestamps via HBase
         PTable pIndexTable = PhoenixRuntime.getTable(conn, indexName);

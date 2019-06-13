@@ -51,21 +51,21 @@ public class ImmutableTablePropertiesIT extends ParallelStatsDisabledIT {
                     "  (a_string varchar not null, col1 integer" +
                     "  CONSTRAINT pk PRIMARY KEY (a_string)) STORE_NULLS=true";
             stmt.execute(ddl);
-            
+
             // create table without immutable keyword
             ddl = "CREATE TABLE  " + mutableDataTableFullName +
                     "  (a_string varchar not null, col1 integer" +
                     "  CONSTRAINT pk PRIMARY KEY (a_string)) STORE_NULLS=true";
             stmt.execute(ddl);
-            
+
             PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
             PTable immutableTable = phxConn.getTable(new PTableKey(null, immutableDataTableFullName));
             assertTrue("IMMUTABLE_ROWS should be set to true", immutableTable.isImmutableRows());
             PTable mutableTable = phxConn.getTable(new PTableKey(null, mutableDataTableFullName));
             assertFalse("IMMUTABLE_ROWS should be set to false", mutableTable.isImmutableRows());
-        } 
+        }
     }
-    
+
     @Test
     public void testImmutableProperty() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -78,21 +78,21 @@ public class ImmutableTablePropertiesIT extends ParallelStatsDisabledIT {
                     "  (a_string varchar not null, col1 integer" +
                     "  CONSTRAINT pk PRIMARY KEY (a_string)) IMMUTABLE_ROWS=true";
             stmt.execute(ddl);
-            
+
             // create table with immutable table property set to false
             ddl = "CREATE TABLE  " + mutableDataTableFullName +
                     "  (a_string varchar not null, col1 integer" +
                     "  CONSTRAINT pk PRIMARY KEY (a_string))  IMMUTABLE_ROWS=false";
             stmt.execute(ddl);
-            
+
             PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
             PTable immutableTable = phxConn.getTable(new PTableKey(null, immutableDataTableFullName));
             assertTrue("IMMUTABLE_ROWS should be set to true", immutableTable.isImmutableRows());
             PTable mutableTable = phxConn.getTable(new PTableKey(null, mutableDataTableFullName));
             assertFalse("IMMUTABLE_ROWS should be set to false", mutableTable.isImmutableRows());
-        } 
+        }
     }
-    
+
     @Test
     public void testImmutableKeywordAndProperty() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -107,11 +107,10 @@ public class ImmutableTablePropertiesIT extends ParallelStatsDisabledIT {
                         "  CONSTRAINT pk PRIMARY KEY (a_string)) IMMUTABLE_ROWS=true";
                 stmt.execute(ddl);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.IMMUTABLE_TABLE_PROPERTY_INVALID.getErrorCode(), e.getErrorCode());
             }
-            
+
             try {
                 // create immutable table with immutable table property set to false
                 String ddl = "CREATE IMMUTABLE TABLE  " + mutableDataTableFullName +
@@ -119,14 +118,13 @@ public class ImmutableTablePropertiesIT extends ParallelStatsDisabledIT {
                         "  CONSTRAINT pk PRIMARY KEY (a_string))  IMMUTABLE_ROWS=false";
                 stmt.execute(ddl);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.IMMUTABLE_TABLE_PROPERTY_INVALID.getErrorCode(), e.getErrorCode());
             }
-            
-        } 
+
+        }
     }
-    
+
     @Test
     public void testImmutableTableWithStorageSchemeAndColumnEncodingProps() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -141,13 +139,12 @@ public class ImmutableTablePropertiesIT extends ParallelStatsDisabledIT {
                         + PTable.ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS;
                 stmt.execute(ddl);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.INVALID_IMMUTABLE_STORAGE_SCHEME_AND_COLUMN_QUALIFIER_BYTES.getErrorCode(), e.getErrorCode());
             }
-        } 
+        }
     }
-    
+
     @Test
     public void testAlterImmutableStorageSchemeProp() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -167,23 +164,21 @@ public class ImmutableTablePropertiesIT extends ParallelStatsDisabledIT {
                     "  CONSTRAINT pk PRIMARY KEY (a_string)) COLUMN_ENCODED_BYTES=4, IMMUTABLE_STORAGE_SCHEME="
                     + PTable.ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS;
             stmt.execute(ddl);
-            
+
             // changing the storage scheme from/to ONCE_CELL_PER_COLUMN should fail
             try {
                 stmt.execute("ALTER TABLE " + immutableDataTableFullName1 + " SET IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.INVALID_IMMUTABLE_STORAGE_SCHEME_CHANGE.getErrorCode(), e.getErrorCode());
             }
             try {
                 stmt.execute("ALTER TABLE " + immutableDataTableFullName2 + " SET IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.INVALID_IMMUTABLE_STORAGE_SCHEME_CHANGE.getErrorCode(), e.getErrorCode());
             }
-        } 
+        }
     }
-    
+
 }

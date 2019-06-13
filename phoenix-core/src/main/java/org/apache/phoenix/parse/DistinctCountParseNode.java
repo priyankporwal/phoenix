@@ -27,12 +27,10 @@ import org.apache.phoenix.expression.function.DistinctCountAggregateFunction;
 import org.apache.phoenix.expression.function.FunctionExpression;
 
 /**
- * 
- * 
  * @since 1.2.1
  */
 public class DistinctCountParseNode extends DelegateConstantToCountParseNode {
-    
+
     public DistinctCountParseNode(String name, List<ParseNode> children, BuiltInFunctionInfo info) {
         super(name, children, info);
     }
@@ -42,7 +40,7 @@ public class DistinctCountParseNode extends DelegateConstantToCountParseNode {
             throws SQLException {
         return new DistinctCountAggregateFunction(children, getDelegateFunction(children, context));
     }
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append(' ');
@@ -53,7 +51,7 @@ public class DistinctCountParseNode extends DelegateConstantToCountParseNode {
                 child.toSQL(resolver, buf);
                 buf.append(',');
             }
-            buf.setLength(buf.length()-1);
+            buf.setLength(buf.length() - 1);
         }
         buf.append(')');
     }

@@ -33,7 +33,7 @@ import org.apache.phoenix.schema.types.PLong;
 
 public class DateAddExpression extends AddExpression {
     static private final BigDecimal BD_MILLIS_IN_DAY = BigDecimal.valueOf(QueryConstants.MILLIS_IN_DAY);
-    
+
     public DateAddExpression() {
     }
 
@@ -43,9 +43,9 @@ public class DateAddExpression extends AddExpression {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        long finalResult=0;
-        
-        for(int i=0;i<children.size();i++) {
+        long finalResult = 0;
+
+        for (int i = 0; i < children.size(); i++) {
             if (!children.get(i).evaluate(tuple, ptr)) {
                 return false;
             }
@@ -61,7 +61,7 @@ public class DateAddExpression extends AddExpression {
             } else if (type.isCoercibleTo(PLong.INSTANCE)) {
                 value = type.getCodec().decodeLong(ptr, sortOrder) * QueryConstants.MILLIS_IN_DAY;
             } else if (type.isCoercibleTo(PDouble.INSTANCE)) {
-                value = (long)(type.getCodec().decodeDouble(ptr, sortOrder) * QueryConstants.MILLIS_IN_DAY);
+                value = (long) (type.getCodec().decodeDouble(ptr, sortOrder) * QueryConstants.MILLIS_IN_DAY);
             } else {
                 value = type.getCodec().decodeLong(ptr, sortOrder);
             }

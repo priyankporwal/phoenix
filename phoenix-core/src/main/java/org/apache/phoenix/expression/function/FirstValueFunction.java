@@ -32,12 +32,11 @@ import org.apache.phoenix.schema.types.PBoolean;
 /**
  * Built-in function for FIRST_VALUE(<expression>) WITHIN GROUP (ORDER BY <expression> ASC/DESC) aggregate
  * function
- *
  */
 @FunctionParseNode.BuiltInFunction(name = FirstValueFunction.NAME, nodeClass = FirstValueAggregateParseNode.class, args = {
-    @FunctionParseNode.Argument(),
-    @FunctionParseNode.Argument(allowedTypes = { PBoolean.class }, isConstant = true),
-    @FunctionParseNode.Argument()})
+        @FunctionParseNode.Argument(),
+        @FunctionParseNode.Argument(allowedTypes = {PBoolean.class}, isConstant = true),
+        @FunctionParseNode.Argument()})
 public class FirstValueFunction extends FirstLastValueBaseFunction {
 
     public static final String NAME = "FIRST_VALUE";

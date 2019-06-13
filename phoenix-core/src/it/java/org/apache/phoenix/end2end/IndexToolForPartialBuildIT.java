@@ -70,16 +70,16 @@ import com.google.common.collect.Maps;
  * Tests for the {@link IndexToolForPartialBuildIT}
  */
 public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
-    
+
     protected boolean isNamespaceEnabled = false;
     protected final String tableDDLOptions;
-    
+
     public IndexToolForPartialBuildIT() {
         StringBuilder optionBuilder = new StringBuilder();
         optionBuilder.append(" SPLIT ON(1,2)");
         this.tableDDLOptions = optionBuilder.toString();
     }
-    
+
     public static Map<String, String> getServerProperties() {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(10);
         serverProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB, QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
@@ -93,13 +93,13 @@ public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
         serverProps.put(QueryServices.INDEX_FAILURE_HANDLING_REBUILD_OVERLAP_FORWARD_TIME_ATTRIB, Long.toString(2000));
         return serverProps;
     }
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = getServerProperties();
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), ReadOnlyProps.EMPTY_PROPS);
     }
-    
+
     @Test
     public void testSecondaryIndex() throws Exception {
         String schemaName = generateUniqueName();
@@ -135,30 +135,32 @@ public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
             try {
                 conn.commit();
                 fail();
-            } catch (SQLException e) {} catch (Exception e) {}
+            } catch (SQLException e) {
+            } catch (Exception e) {
+            }
             conn.createStatement()
                     .execute(String.format("ALTER INDEX %s on %s REBUILD ASYNC", indxTable, fullTableName));
-            
+
             FailingRegionObserver.FAIL_WRITE = false;
             ResultSet rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(schemaName), indxTable,
-                    new String[] { PTableType.INDEX.toString() });
+                    new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
             assertEquals(indxTable, rs.getString(3));
             String indexState = rs.getString("INDEX_STATE");
-            assertEquals(PIndexState.BUILDING.toString(), indexState);            
+            assertEquals(PIndexState.BUILDING.toString(), indexState);
             assertFalse(rs.next());
             upsertRow(stmt1, 6000);
             upsertRow(stmt1, 7000);
             conn.commit();
-            
-			rs = conn.createStatement()
-					.executeQuery(String.format("SELECT " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + ","
-							+ PhoenixDatabaseMetaData.INDEX_DISABLE_TIMESTAMP + " FROM "
-							+"\""+ SYSTEM_CATALOG_SCHEMA + "\"." + SYSTEM_CATALOG_TABLE + " ("
-							+ PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " bigint) where "
-							+ PhoenixDatabaseMetaData.TABLE_SCHEM + "='" + schemaName + "' and "
-							+ PhoenixDatabaseMetaData.TABLE_NAME + "='" + indxTable + "'"));
-			rs.next();
+
+            rs = conn.createStatement()
+                    .executeQuery(String.format("SELECT " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + ","
+                            + PhoenixDatabaseMetaData.INDEX_DISABLE_TIMESTAMP + " FROM "
+                            + "\"" + SYSTEM_CATALOG_SCHEMA + "\"." + SYSTEM_CATALOG_TABLE + " ("
+                            + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " bigint) where "
+                            + PhoenixDatabaseMetaData.TABLE_SCHEM + "='" + schemaName + "' and "
+                            + PhoenixDatabaseMetaData.TABLE_NAME + "='" + indxTable + "'"));
+            rs.next();
             PTable pindexTable = PhoenixRuntime.getTable(conn, SchemaUtil.getTableName(schemaName, indxTable));
             assertEquals(PIndexState.BUILDING, pindexTable.getIndexState());
             assertEquals(rs.getLong(1), pindexTable.getTimeStamp());
@@ -171,23 +173,23 @@ public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
             String actualExplainPlan = QueryUtil.getExplainPlan(rs);
 
             // assert we are pulling from data table.
-			assertExplainPlan(actualExplainPlan, schemaName, dataTableName, null, isNamespaceEnabled);
+            assertExplainPlan(actualExplainPlan, schemaName, dataTableName, null, isNamespaceEnabled);
 
             rs = stmt1.executeQuery(selectSql);
             for (int i = 1; i <= 7; i++) {
                 assertTrue(rs.next());
-                assertEquals("xxUNAME" + i*1000 + "_xyz", rs.getString(1));
+                assertEquals("xxUNAME" + i * 1000 + "_xyz", rs.getString(1));
             }
 
             // Validate Index table data till disabled timestamp
             rs = stmt1.executeQuery(String.format("SELECT * FROM %s", SchemaUtil.getTableName(schemaName, indxTable)));
             for (int i = 1; i <= 2; i++) {
                 assertTrue(rs.next());
-                assertEquals("xxUNAME" + i*1000 + "_xyz", rs.getString(1));
+                assertEquals("xxUNAME" + i * 1000 + "_xyz", rs.getString(1));
             }
             for (int i = 6; i <= 7; i++) {
                 assertTrue(rs.next());
-                assertEquals("xxUNAME" + i*1000 + "_xyz", rs.getString(1));
+                assertEquals("xxUNAME" + i * 1000 + "_xyz", rs.getString(1));
             }
             assertFalse(rs.next());
             // run the index MR job.
@@ -214,31 +216,31 @@ public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
 
             for (int i = 1; i <= 9; i++) {
                 assertTrue(rs.next());
-                assertEquals("xxUNAME" + i*1000 + "_xyz", rs.getString(1));
+                assertEquals("xxUNAME" + i * 1000 + "_xyz", rs.getString(1));
             }
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
-	public static void assertExplainPlan(final String actualExplainPlan, String schemaName, String dataTable,
-			String indxTable, boolean isNamespaceMapped) {
 
-		String expectedExplainPlan = "";
-		if (indxTable != null) {
-		    expectedExplainPlan = String.format("CLIENT PARALLEL 1-WAY FULL SCAN OVER %s",
-		            SchemaUtil.getPhysicalHBaseTableName(schemaName, indxTable, isNamespaceMapped));
-		} else {
-			expectedExplainPlan = String.format("CLIENT PARALLEL 1-WAY FULL SCAN OVER %s",
-			        SchemaUtil.getPhysicalHBaseTableName(schemaName, dataTable, isNamespaceMapped));
-		}
-		assertTrue(actualExplainPlan.contains(expectedExplainPlan));
-	}
+    public static void assertExplainPlan(final String actualExplainPlan, String schemaName, String dataTable,
+                                         String indxTable, boolean isNamespaceMapped) {
+
+        String expectedExplainPlan = "";
+        if (indxTable != null) {
+            expectedExplainPlan = String.format("CLIENT PARALLEL 1-WAY FULL SCAN OVER %s",
+                    SchemaUtil.getPhysicalHBaseTableName(schemaName, indxTable, isNamespaceMapped));
+        } else {
+            expectedExplainPlan = String.format("CLIENT PARALLEL 1-WAY FULL SCAN OVER %s",
+                    SchemaUtil.getPhysicalHBaseTableName(schemaName, dataTable, isNamespaceMapped));
+        }
+        assertTrue(actualExplainPlan.contains(expectedExplainPlan));
+    }
 
     public String[] getArgValues(String schemaName, String dataTable, String indexName) {
         final List<String> args = Lists.newArrayList();
-        if (schemaName!=null) {
+        if (schemaName != null) {
             args.add("-s");
             args.add(schemaName);
         }
@@ -259,11 +261,12 @@ public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
         stmt.setInt(3, 95050 + i);
         stmt.executeUpdate();
     }
-    
+
 
     public static class FailingRegionObserver extends SimpleRegionObserver {
         public static volatile boolean FAIL_WRITE = false;
         public static final String INDEX_NAME = "IDX";
+
         @Override
         public void preBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c, MiniBatchOperationInProgress<Mutation> miniBatchOp) throws HBaseIOException {
             if (c.getEnvironment().getRegionInfo().getTable().getNameAsString().contains(INDEX_NAME) && FAIL_WRITE) {
@@ -271,13 +274,13 @@ public class IndexToolForPartialBuildIT extends BaseOwnClusterIT {
             }
             Mutation operation = miniBatchOp.getOperation(0);
             Set<byte[]> keySet = operation.getFamilyCellMap().keySet();
-            for(byte[] family: keySet) {
-                if(Bytes.toString(family).startsWith(QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX) && FAIL_WRITE) {
+            for (byte[] family : keySet) {
+                if (Bytes.toString(family).startsWith(QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX) && FAIL_WRITE) {
                     throw new DoNotRetryIOException();
                 }
             }
         }
 
     }
-    
+
 }

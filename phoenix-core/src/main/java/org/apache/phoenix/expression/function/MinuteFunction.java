@@ -30,13 +30,11 @@ import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PTimestamp;
 
 /**
- * 
  * Implementation of the Minute() buildin. Input Date/Timestamp/Time.
  * Returns an integer from 0 to 59 representing the minute component of time
- * 
  */
-@BuiltInFunction(name=MinuteFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = MinuteFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class MinuteFunction extends DateScalarFunction {
     public static final String NAME = "MINUTE";
 
@@ -53,11 +51,11 @@ public class MinuteFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());
-        int minute = (int)(((dateTime/1000) % 3600)/60);
+        int minute = (int) (((dateTime / 1000) % 3600) / 60);
         PDataType returnType = getDataType();
         byte[] byteValue = new byte[returnType.getByteSize()];
         returnType.getCodec().encodeInt(minute, byteValue, 0);

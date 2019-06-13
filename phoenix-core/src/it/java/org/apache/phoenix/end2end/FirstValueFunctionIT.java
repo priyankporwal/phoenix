@@ -40,20 +40,20 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 1, 3)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 1, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 3, 9)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 3, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 5, 158)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 5, 158)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 4, 5)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 4, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 3);
@@ -71,20 +71,20 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 3)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, 7)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, 9)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (5, 8, 5, 158)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (5, 8, 5, 158)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (4, 8, 4, 5)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (4, 8, 4, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY dates ASC) FROM " + tableName
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY dates ASC) FROM " + tableName
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 3);
@@ -102,20 +102,20 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 3)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (1, 8, 1, 3)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, 7)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, 9)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (3, 8, 3, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (5, 8, 5, 158)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (5, 8, 5, 158)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (4, 8, 4, 5)");
+                "UPSERT INTO " + tableName + " (id, page_id, dates, \"value\") VALUES (4, 8, 4, 5)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY dates ASC) FROM " + tableName
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY dates ASC) FROM " + tableName
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getLong(1), 3);
@@ -133,20 +133,20 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 1, 300)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 1, 300)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 3, 9)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 3, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 5, 400)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 5, 400)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals("doubles", rs.getDouble(1), 300, 0.00001);
@@ -164,20 +164,20 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, '1', '3')");
+                "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, '1', '3')");
         conn.createStatement().execute(
-            "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, '2', '7')");
+                "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, '2', '7')");
         conn.createStatement().execute(
-            "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, '3', '9')");
+                "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, '3', '9')");
         conn.createStatement().execute(
-            "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, '4', '2')");
+                "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, '4', '2')");
         conn.createStatement().execute(
-            "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, '5', '4')");
+                "UPSERT INTO " + table_name + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, '5', '4')");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + table_name
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + table_name
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getString(1), "3");
@@ -195,20 +195,20 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 1, 300)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (1, 8, 1, 300)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (2, 8, 2, 7)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 3, 9)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (3, 8, 3, 9)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (5, 8, 4, 2)");
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 5, 400)");
+                "UPSERT INTO " + tableName + " (id, page_id, \"DATE\", \"value\") VALUES (4, 8, 5, 400)");
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         assertEquals(rs.getFloat(1), 300.0, 0.000001);
@@ -234,8 +234,8 @@ public class FirstValueFunctionIT extends ParallelStatsDisabledIT {
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
-                + " GROUP BY page_id");
+                "SELECT FIRST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) FROM " + tableName
+                        + " GROUP BY page_id");
 
         assertTrue(rs.next());
         byte[] nothing = rs.getBytes(1);

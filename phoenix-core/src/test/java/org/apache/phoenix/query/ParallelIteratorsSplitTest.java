@@ -105,17 +105,17 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
     @Test
     public void testGetSplitsWithSkipScanFilter() throws Exception {
         byte[][] splits = new byte[][] {Ka1A, Ka1B, Ka1E, Ka1G, Ka1I, Ka2A};
-        createTestTable(getUrl(),DDL,splits, null);
+        createTestTable(getUrl(), DDL, splits, null);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
-        
+
         PTable table = pconn.getTable(new PTableKey(pconn.getTenantId(), TABLE_NAME));
         TableRef tableRef = new TableRef(table);
         List<HRegionLocation> regions = pconn.getQueryServices().getAllTableRegions(tableRef.getTable().getPhysicalName().getBytes());
         List<KeyRange> ranges = getSplits(tableRef, scan, regions, scanRanges);
         assertEquals("Unexpected number of splits: " + ranges.size(), expectedSplits.size(), ranges.size());
-        for (int i=0; i<expectedSplits.size(); i++) {
+        for (int i = 0; i < expectedSplits.size(); i++) {
             assertEquals(expectedSplits.get(i), ranges.get(i));
         }
     }
@@ -127,134 +127,134 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
     private static KeyRange getKeyRange(String lowerRange, boolean lowerInclusive, String upperRange, boolean upperInclusive) {
         return PChar.INSTANCE.getKeyRange(Bytes.toBytes(lowerRange), lowerInclusive, Bytes.toBytes(upperRange), upperInclusive);
     }
-    
+
     private static KeyRange getKeyRange(String lowerRange, boolean lowerInclusive, byte[] upperRange, boolean upperInclusive) {
         return PChar.INSTANCE.getKeyRange(Bytes.toBytes(lowerRange), lowerInclusive, upperRange, upperInclusive);
     }
-    
+
     private static KeyRange getKeyRange(byte[] lowerRange, boolean lowerInclusive, String upperRange, boolean upperInclusive) {
         return PChar.INSTANCE.getKeyRange(lowerRange, lowerInclusive, Bytes.toBytes(upperRange), upperInclusive);
     }
-    
+
     private static String nextKey(String s) {
         return Bytes.toString(ByteUtil.nextKey(Bytes.toBytes(s)));
     }
 
-    @Parameters(name="{1} {2}")
+    @Parameters(name = "{1} {2}")
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
         // Scan range is empty.
         testCases.addAll(
                 foreach(ScanRanges.NOTHING,
-                        new int[] {1,1,1},
-                        new KeyRange[] { }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {}));
         // Scan range is everything.
         testCases.addAll(
                 foreach(ScanRanges.EVERYTHING,
-                        new int[] {1,1,1},
+                        new int[] {1, 1, 1},
                         new KeyRange[] {
-                            getKeyRange(KeyRange.UNBOUND, true, Ka1A, false),
-                            getKeyRange(Ka1A, true, Ka1B, false),
-                            getKeyRange(Ka1B, true, Ka1E, false),
-                            getKeyRange(Ka1E, true, Ka1G, false),
-                            getKeyRange(Ka1G, true, Ka1I, false),
-                            getKeyRange(Ka1I, true, Ka2A, false),
-                            getKeyRange(Ka2A, true, KeyRange.UNBOUND, false)
-                }));
+                                getKeyRange(KeyRange.UNBOUND, true, Ka1A, false),
+                                getKeyRange(Ka1A, true, Ka1B, false),
+                                getKeyRange(Ka1B, true, Ka1E, false),
+                                getKeyRange(Ka1E, true, Ka1G, false),
+                                getKeyRange(Ka1G, true, Ka1I, false),
+                                getKeyRange(Ka1I, true, Ka2A, false),
+                                getKeyRange(Ka2A, true, KeyRange.UNBOUND, false)
+                        }));
         // Scan range lies inside first region.
         testCases.addAll(
-                foreach(new KeyRange[][]{
-                        {
-                            getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("0"), true, Bytes.toBytes("0"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("A"), true, Bytes.toBytes("Z"), true)
+                foreach(new KeyRange[][] {
+                                {
+                                        getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
+                                }, {
+                                getKeyRange(Bytes.toBytes("0"), true, Bytes.toBytes("0"), true)
+                        }, {
+                                getKeyRange(Bytes.toBytes("A"), true, Bytes.toBytes("Z"), true)
                         }},
-                    new int[] {1,1,1},
-                    new KeyRange[] {
-                        getKeyRange("a0A", true, nextKey("a0Z"), false)
-                }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {
+                                getKeyRange("a0A", true, nextKey("a0Z"), false)
+                        }));
         // Scan range lies in between first and second, intersecting bound on second.
         testCases.addAll(
-                foreach(new KeyRange[][]{
-                        {
-                            getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("0"), true, Bytes.toBytes("0"), true),
-                            getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("A"), true, Bytes.toBytes("A"), true)
+                foreach(new KeyRange[][] {
+                                {
+                                        getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
+                                }, {
+                                getKeyRange(Bytes.toBytes("0"), true, Bytes.toBytes("0"), true),
+                                getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
+                        }, {
+                                getKeyRange(Bytes.toBytes("A"), true, Bytes.toBytes("A"), true)
                         }},
-                    new int[] {1,1,1},
-                    new KeyRange[] {
-                        getKeyRange("a0A", true, Ka1A, false),
-                        getKeyRange(Ka1A, true, Ka1B, false),
-                }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {
+                                getKeyRange("a0A", true, Ka1A, false),
+                                getKeyRange(Ka1A, true, Ka1B, false),
+                        }));
         // Scan range spans third, split into 3 due to concurrency config.
         testCases.addAll(
-                foreach(new KeyRange[][]{
-                        {
-                            getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("B"), true, Bytes.toBytes("E"), false)
+                foreach(new KeyRange[][] {
+                                {
+                                        getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
+                                }, {
+                                getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
+                        }, {
+                                getKeyRange(Bytes.toBytes("B"), true, Bytes.toBytes("E"), false)
                         }},
-                    new int[] {1,1,1},
-                    new KeyRange[] {
-                        getKeyRange(Ka1B, true, Ka1E, false)
-                }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {
+                                getKeyRange(Ka1B, true, Ka1E, false)
+                        }));
         // Scan range spans third, split into 3 due to concurrency config.
         testCases.addAll(
-                foreach(new KeyRange[][]{
-                        {
-                            getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("B"), true, Bytes.toBytes("E"), false)
+                foreach(new KeyRange[][] {
+                                {
+                                        getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
+                                }, {
+                                getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
+                        }, {
+                                getKeyRange(Bytes.toBytes("B"), true, Bytes.toBytes("E"), false)
                         }},
-                    new int[] {1,1,1},
-                    new KeyRange[] {
-                        getKeyRange(Ka1B, true, Ka1E, false),
-                }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {
+                                getKeyRange(Ka1B, true, Ka1E, false),
+                        }));
         // Scan range spans 2 ranges, split into 4 due to concurrency config.
         testCases.addAll(
-                foreach(new KeyRange[][]{
-                        {
-                            getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("F"), true, Bytes.toBytes("H"), false)
+                foreach(new KeyRange[][] {
+                                {
+                                        getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true)
+                                }, {
+                                getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true)
+                        }, {
+                                getKeyRange(Bytes.toBytes("F"), true, Bytes.toBytes("H"), false)
                         }},
-                    new int[] {1,1,1},
-                    new KeyRange[] {
-                        getKeyRange("a1F", true, Ka1G, false),
-                        getKeyRange(Ka1G, true, "a1H", false),
-                }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {
+                                getKeyRange("a1F", true, Ka1G, false),
+                                getKeyRange(Ka1G, true, "a1H", false),
+                        }));
         // Scan range spans more than 3 range, no split.
         testCases.addAll(
-                foreach(new KeyRange[][]{
-                        {
-                            getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true),
-                            getKeyRange(Bytes.toBytes("b"), true, Bytes.toBytes("b"), true)
-                        },{
-                            getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true),
-                            getKeyRange(Bytes.toBytes("2"), true, Bytes.toBytes("2"), true),
-                        },{
-                            getKeyRange(Bytes.toBytes("A"), true, Bytes.toBytes("A"), true),
-                            getKeyRange(Bytes.toBytes("C"), true, Bytes.toBytes("D"), true),
-                            getKeyRange(Bytes.toBytes("G"), true, Bytes.toBytes("G"), true)
+                foreach(new KeyRange[][] {
+                                {
+                                        getKeyRange(Bytes.toBytes("a"), true, Bytes.toBytes("a"), true),
+                                        getKeyRange(Bytes.toBytes("b"), true, Bytes.toBytes("b"), true)
+                                }, {
+                                getKeyRange(Bytes.toBytes("1"), true, Bytes.toBytes("1"), true),
+                                getKeyRange(Bytes.toBytes("2"), true, Bytes.toBytes("2"), true),
+                        }, {
+                                getKeyRange(Bytes.toBytes("A"), true, Bytes.toBytes("A"), true),
+                                getKeyRange(Bytes.toBytes("C"), true, Bytes.toBytes("D"), true),
+                                getKeyRange(Bytes.toBytes("G"), true, Bytes.toBytes("G"), true)
                         }},
-                    new int[] {1,1,1},
-                    new KeyRange[] {
-                        getKeyRange(Ka1A, true, Ka1B, false),
-                        getKeyRange(Ka1B, true, Ka1E, false),
-                        getKeyRange(Ka1G, true, Ka1I, false),
-                        getKeyRange(Ka2A, true, nextKey("b2G"), false)
-                }));
+                        new int[] {1, 1, 1},
+                        new KeyRange[] {
+                                getKeyRange(Ka1A, true, Ka1B, false),
+                                getKeyRange(Ka1B, true, Ka1E, false),
+                                getKeyRange(Ka1G, true, Ka1I, false),
+                                getKeyRange(Ka2A, true, nextKey("b2G"), false)
+                        }));
         return testCases;
     }
 
@@ -266,18 +266,22 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
                 public boolean isNullable() {
                     return false;
                 }
+
                 @Override
                 public PDataType getDataType() {
                     return PChar.INSTANCE;
                 }
+
                 @Override
                 public Integer getMaxLength() {
                     return width;
                 }
+
                 @Override
                 public Integer getScale() {
                     return null;
                 }
+
                 @Override
                 public SortOrder getSortOrder() {
                     return SortOrder.getDefault();
@@ -286,9 +290,9 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
         }
         return builder.build();
     }
-    
+
     private static Collection<?> foreach(ScanRanges scanRanges, int[] widths, KeyRange[] expectedSplits) {
-         SkipScanFilter filter = new SkipScanFilter(scanRanges.getRanges(), buildSchema(widths));
+        SkipScanFilter filter = new SkipScanFilter(scanRanges.getRanges(), buildSchema(widths));
         Scan scan = new Scan().setFilter(filter).setStartRow(KeyRange.UNBOUND).setStopRow(KeyRange.UNBOUND);
         List<Object> ret = Lists.newArrayList();
         ret.add(new Object[] {scan, scanRanges, Arrays.<KeyRange>asList(expectedSplits)});
@@ -308,19 +312,19 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
         return ret;
     }
 
-    private static final Function<KeyRange[], List<KeyRange>> ARRAY_TO_LIST = 
+    private static final Function<KeyRange[], List<KeyRange>> ARRAY_TO_LIST =
             new Function<KeyRange[], List<KeyRange>>() {
-                @Override 
+                @Override
                 public List<KeyRange> apply(KeyRange[] input) {
                     return Lists.newArrayList(input);
                 }
-    };
+            };
 
     private static List<KeyRange> getSplits(final TableRef tableRef, final Scan scan, final List<HRegionLocation> regions,
-            final ScanRanges scanRanges) throws SQLException {
+                                            final ScanRanges scanRanges) throws SQLException {
         final List<TableRef> tableRefs = Collections.singletonList(tableRef);
         ColumnResolver resolver = new ColumnResolver() {
-            
+
             @Override
             public List<PFunction> getFunctions() {
                 return Collections.emptyList();
@@ -346,7 +350,7 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
             public PFunction resolveFunction(String functionName) throws SQLException {
                 throw new UnsupportedOperationException();
             }
-            
+
             @Override
             public boolean hasUDFs() {
                 return false;
@@ -368,7 +372,7 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
         context.setScanRanges(scanRanges);
         ParallelIterators parallelIterators = new ParallelIterators(new QueryPlan() {
             private final Set<TableRef> tableRefs = ImmutableSet.of(tableRef);
-            
+
             @Override
             public StatementContext getContext() {
                 return context;
@@ -468,7 +472,7 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
             public Operation getOperation() {
                 return Operation.QUERY;
             }
-            
+
             @Override
             public boolean useRoundRobinIterator() {
                 return false;
@@ -501,7 +505,7 @@ public class ParallelIteratorsSplitTest extends BaseConnectionlessQueryTest {
 
             @Override
             public List<OrderBy> getOutputOrderBys() {
-                return Collections.<OrderBy> emptyList();
+                return Collections.<OrderBy>emptyList();
             }
         }, null, new SpoolingResultIterator.SpoolingResultIteratorFactory(context.getConnection().getQueryServices()), context.getScan(), false, null, null);
         List<KeyRange> keyRanges = parallelIterators.getSplits();

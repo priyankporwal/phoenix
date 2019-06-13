@@ -53,25 +53,24 @@ import org.apache.phoenix.util.ServerUtil;
 import org.apache.phoenix.util.TupleUtil;
 
 /**
- *
  * Result iterator that spools the results of a scan to disk once an in-memory threshold has been reached.
  * If the in-memory threshold is not reached, the results are held in memory with no disk writing perfomed.
- * 
  * <p>
- * Spooling is deprecated and shouldn't be used while implementing new features. As of HBase 0.98.17, 
- * we rely on pacing the server side scanners instead of pulling rows from the server and  potentially 
+ * <p>
+ * Spooling is deprecated and shouldn't be used while implementing new features. As of HBase 0.98.17,
+ * we rely on pacing the server side scanners instead of pulling rows from the server and  potentially
  * spooling to a temporary file created on clients.
  * </p>
- *  
+ *
  * @since 0.1
  */
 @Deprecated
 public class SpoolingResultIterator implements PeekingResultIterator {
-    
+
     private final PeekingResultIterator spoolFrom;
     private final SpoolingMetricsHolder spoolMetrics;
     private final MemoryMetricsHolder memoryMetrics;
-    
+
     /**
      * Spooling is deprecated and shouldn't be used while implementing new features. As of HBase
      * 0.98.17, we rely on pacing the server side scanners instead of pulling rows from the server
@@ -84,6 +83,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
         public SpoolingResultIteratorFactory(QueryServices services) {
             this.services = services;
         }
+
         @Override
         public PeekingResultIterator newIterator(StatementContext context, ResultIterator scanner, Scan scan, String physicalTableName, QueryPlan plan) throws SQLException {
             ReadMetricQueue readRequestMetric = context.getReadMetricsQueue();
@@ -94,22 +94,23 @@ public class SpoolingResultIterator implements PeekingResultIterator {
     }
 
     private SpoolingResultIterator(SpoolingMetricsHolder spoolMetrics, MemoryMetricsHolder memoryMetrics, ResultIterator scanner, QueryServices services) throws SQLException {
-        this (spoolMetrics, memoryMetrics, scanner, services.getMemoryManager(),
+        this(spoolMetrics, memoryMetrics, scanner, services.getMemoryManager(),
                 services.getProps().getLong(QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
-                    QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES),
+                        QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES),
                 services.getProps().getLong(QueryServices.MAX_SPOOL_TO_DISK_BYTES_ATTRIB, QueryServicesOptions.DEFAULT_MAX_SPOOL_TO_DISK_BYTES),
                 services.getProps().get(QueryServices.SPOOL_DIRECTORY, QueryServicesOptions.DEFAULT_SPOOL_DIRECTORY));
     }
 
     /**
-    * Create a result iterator by iterating through the results of a scan, spooling them to disk once
-    * a threshold has been reached. The scanner passed in is closed prior to returning.
-    * @param scanner the results of a table scan
-    * @param mm memory manager tracking memory usage across threads.
-    * @param thresholdBytes the requested threshold.  Will be dialed down if memory usage (as determined by
-    *  the memory manager) is exceeded.
-    * @throws SQLException
-    */
+     * Create a result iterator by iterating through the results of a scan, spooling them to disk once
+     * a threshold has been reached. The scanner passed in is closed prior to returning.
+     *
+     * @param scanner        the results of a table scan
+     * @param mm             memory manager tracking memory usage across threads.
+     * @param thresholdBytes the requested threshold.  Will be dialed down if memory usage (as determined by
+     *                       the memory manager) is exceeded.
+     * @throws SQLException
+     */
     SpoolingResultIterator(SpoolingMetricsHolder sMetrics, MemoryMetricsHolder mMetrics, ResultIterator scanner, MemoryManager mm, final long thresholdBytes, final long maxSpoolToDisk, final String spoolDirectory) throws SQLException {
         this.spoolMetrics = sMetrics;
         this.memoryMetrics = mMetrics;
@@ -122,8 +123,8 @@ public class SpoolingResultIterator implements PeekingResultIterator {
         DeferredFileOutputStream spoolTo = null;
         try {
             // Can't be bigger than int, since it's the max of the above allocation
-            int size = (int)chunk.getSize();
-            spoolTo = new DeferredFileOutputStream(size, "ResultSpooler",".bin", new File(spoolDirectory)) {
+            int size = (int) chunk.getSize();
+            spoolTo = new DeferredFileOutputStream(size, "ResultSpooler", ".bin", new File(spoolDirectory)) {
                 @Override
                 protected void thresholdReached() throws IOException {
                     try {
@@ -135,13 +136,13 @@ public class SpoolingResultIterator implements PeekingResultIterator {
             };
             DataOutputStream out = new DataOutputStream(spoolTo);
             final long maxBytesAllowed = maxSpoolToDisk == -1 ?
-            		Long.MAX_VALUE : thresholdBytes + maxSpoolToDisk;
+                    Long.MAX_VALUE : thresholdBytes + maxSpoolToDisk;
             long bytesWritten = 0L;
             for (Tuple result = scanner.next(); result != null; result = scanner.next()) {
                 int length = TupleUtil.write(result, out);
                 bytesWritten += length;
-                if(bytesWritten > maxBytesAllowed){
-                		throw new SpoolTooBigToDiskException("result too big, max allowed(bytes): " + maxBytesAllowed);
+                if (bytesWritten > maxBytesAllowed) {
+                    throw new SpoolTooBigToDiskException("result too big, max allowed(bytes): " + maxBytesAllowed);
                 }
             }
             if (spoolTo.isInMemory()) {
@@ -170,13 +171,13 @@ public class SpoolingResultIterator implements PeekingResultIterator {
             } finally {
                 try {
                     if (spoolTo != null) {
-                        if(!success && spoolTo.getFile() != null){
+                        if (!success && spoolTo.getFile() != null) {
                             spoolTo.getFile().delete();
                         }
                         spoolTo.close();
                     }
                 } catch (IOException ignored) {
-                  // ignore close error
+                    // ignore close error
                 } finally {
                     if (!success) {
                         chunk.close();
@@ -202,9 +203,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
     }
 
     /**
-     *
      * Backing result iterator if it was not necessary to spool results to disk.
-     *
      *
      * @since 0.1
      */
@@ -226,7 +225,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
             }
             int resultSize = ByteUtil.vintFromBytes(bytes, offset);
             offset += WritableUtils.getVIntSize(resultSize);
-            ImmutableBytesWritable value = new ImmutableBytesWritable(bytes,offset,resultSize);
+            ImmutableBytesWritable value = new ImmutableBytesWritable(bytes, offset, resultSize);
             offset += resultSize;
             Tuple result = new ResultTuple(ResultUtil.toResult(value));
             return next = result;
@@ -255,9 +254,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
     }
 
     /**
-     *
      * Backing result iterator if results were spooled to disk
-     *
      *
      * @since 0.1
      */
@@ -267,7 +264,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
         private Tuple next;
         private boolean isClosed;
 
-        private OnDiskResultIterator (File file) {
+        private OnDiskResultIterator(File file) {
             this.file = file;
         }
 
@@ -304,7 +301,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
             int totalBytesRead = 0;
             int offset = 0;
             byte[] buffer = new byte[length];
-            while(totalBytesRead < length) {
+            while (totalBytesRead < length) {
                 int bytesRead = spoolFrom.read(buffer, offset, length);
                 if (bytesRead == -1) {
                     reachedEnd();
@@ -313,7 +310,7 @@ public class SpoolingResultIterator implements PeekingResultIterator {
                 offset += bytesRead;
                 totalBytesRead += bytesRead;
             }
-            next = new ResultTuple(ResultUtil.toResult(new ImmutableBytesWritable(buffer,0,length)));
+            next = new ResultTuple(ResultUtil.toResult(new ImmutableBytesWritable(buffer, 0, length)));
             return next;
         }
 

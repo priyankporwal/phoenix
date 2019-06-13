@@ -32,10 +32,8 @@ import org.apache.phoenix.util.SchemaUtil;
 
 
 /**
- * 
  * Class to access a column value stored in a KeyValue
  *
- * 
  * @since 0.1
  */
 public class KeyValueColumnExpression extends ColumnExpression {
@@ -45,7 +43,7 @@ public class KeyValueColumnExpression extends ColumnExpression {
 
     public KeyValueColumnExpression() {
     }
-    
+
     public KeyValueColumnExpression(PColumn column) {
         super(column);
         this.cf = column.getFamilyName().getBytes();
@@ -53,7 +51,7 @@ public class KeyValueColumnExpression extends ColumnExpression {
         this.cq = column.getColumnQualifierBytes() != null ? column.getColumnQualifierBytes() : column.getName().getBytes();
         this.displayName = column.getName().getString();
     }
-    
+
     public KeyValueColumnExpression(PColumn column, String displayName) {
         super(column);
         this.cf = column.getFamilyName().getBytes();
@@ -71,7 +69,7 @@ public class KeyValueColumnExpression extends ColumnExpression {
     public byte[] getColumnFamily() {
         return cf;
     }
-    
+
     public byte[] getColumnQualifier() {
         return cq;
     }
@@ -88,12 +86,22 @@ public class KeyValueColumnExpression extends ColumnExpression {
     // TODO: assumes single table
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        KeyValueColumnExpression other = (KeyValueColumnExpression)obj;
-        if (!Arrays.equals(cf, other.cf)) return false;
-        if (!Arrays.equals(cq, other.cq)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        KeyValueColumnExpression other = (KeyValueColumnExpression) obj;
+        if (!Arrays.equals(cf, other.cf)) {
+            return false;
+        }
+        if (!Arrays.equals(cq, other.cq)) {
+            return false;
+        }
         return true;
     }
 

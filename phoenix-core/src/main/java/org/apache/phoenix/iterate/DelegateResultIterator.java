@@ -25,15 +25,15 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 public class DelegateResultIterator implements ResultIterator {
     private final ResultIterator delegate;
-    
+
     public DelegateResultIterator(ResultIterator delegate) {
         this.delegate = delegate;
     }
-    
+
     protected ResultIterator getDelegate() {
-    	return delegate;
+        return delegate;
     }
-    
+
     @Override
     public void close() throws SQLException {
         delegate.close();

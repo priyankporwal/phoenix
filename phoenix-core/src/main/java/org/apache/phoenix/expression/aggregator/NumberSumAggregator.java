@@ -26,10 +26,8 @@ import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.util.SizedUtil;
 
 /**
- * 
  * Aggregator that sums integral number values
- * 
- * 
+ *
  * @since 0.1
  */
 abstract public class NumberSumAggregator extends BaseAggregator {
@@ -41,7 +39,7 @@ abstract public class NumberSumAggregator extends BaseAggregator {
     }
 
     public NumberSumAggregator(SortOrder sortOrder,
-            ImmutableBytesWritable ptr) {
+                               ImmutableBytesWritable ptr) {
         this(sortOrder);
         if (ptr != null) {
             initBuffer();

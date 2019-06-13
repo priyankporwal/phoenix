@@ -24,11 +24,9 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Interface for iterating through results returned from a scan, adding the
  * ability to peek at the next result.
  *
- * 
  * @since 0.1
  */
 public interface PeekingResultIterator extends ResultIterator {
@@ -55,6 +53,7 @@ public interface PeekingResultIterator extends ResultIterator {
 
     /**
      * Returns the next result without advancing the iterator
+     *
      * @throws SQLException
      */
     public Tuple peek() throws SQLException;

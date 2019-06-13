@@ -92,12 +92,13 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
     /**
      * Set configuration values based on parsed command line options.
      *
-     * @param cmdLine supplied command line options
+     * @param cmdLine       supplied command line options
      * @param importColumns descriptors of columns to be imported
-     * @param conf job configuration
+     * @param conf          job configuration
      */
     protected abstract void configureOptions(CommandLine cmdLine, List<ColumnInfo> importColumns,
-                                         Configuration conf) throws SQLException;
+                                             Configuration conf) throws SQLException;
+
     protected abstract void setupJob(Job job);
 
     protected Options getOptions() {
@@ -187,7 +188,7 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
         String indexTableName = cmdLine.getOptionValue(INDEX_TABLE_NAME_OPT.getOpt());
         String qualifiedTableName = SchemaUtil.getQualifiedTableName(schemaName, tableName);
         String qualifiedIndexTableName = null;
-        if (indexTableName != null){
+        if (indexTableName != null) {
             qualifiedIndexTableName = SchemaUtil.getQualifiedTableName(schemaName, indexTableName);
         }
 
@@ -196,7 +197,7 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
             String zkQuorum = cmdLine.getOptionValue(ZK_QUORUM_OPT.getOpt());
             PhoenixDriver.ConnectionInfo info = PhoenixDriver.ConnectionInfo.create(zkQuorum);
             LOGGER.info("Configuring HBase connection to {}", info);
-            for (Map.Entry<String,String> entry : info.asProps()) {
+            for (Map.Entry<String, String> entry : info.asProps()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Setting {} = {}", entry.getKey(), entry.getValue());
                 }
@@ -241,27 +242,29 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
         PTable table = PhoenixRuntime.getTable(conn, qualifiedTableName);
         tablesToBeLoaded.add(new TargetTableRef(qualifiedTableName, table.getPhysicalName().getString()));
         boolean hasLocalIndexes = false;
-        for(PTable index: table.getIndexes()) {
+        for (PTable index : table.getIndexes()) {
             if (index.getIndexType() == IndexType.LOCAL) {
                 hasLocalIndexes =
                         qualifiedIndexTableName == null ? true : index.getTableName().getString()
                                 .equals(qualifiedIndexTableName);
-                if (hasLocalIndexes) break;
+                if (hasLocalIndexes) {
+                    break;
+                }
             }
         }
         // using conn after it's been closed... o.O
         tablesToBeLoaded.addAll(getIndexTables(conn, schemaName, qualifiedTableName));
 
         // When loading a single index table, check index table name is correct
-        if (qualifiedIndexTableName != null){
+        if (qualifiedIndexTableName != null) {
             TargetTableRef targetIndexRef = null;
-            for (TargetTableRef tmpTable : tablesToBeLoaded){
+            for (TargetTableRef tmpTable : tablesToBeLoaded) {
                 if (tmpTable.getLogicalName().compareToIgnoreCase(qualifiedIndexTableName) == 0) {
                     targetIndexRef = tmpTable;
                     break;
                 }
             }
-            if (targetIndexRef == null){
+            if (targetIndexRef == null) {
                 throw new IllegalStateException("Bulk Loader error: index table " +
                         qualifiedIndexTableName + " doesn't exist");
             }
@@ -275,11 +278,12 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
     /**
      * Submits the jobs to the cluster.
      * Loads the HFiles onto the respective tables.
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public int submitJob(final Configuration conf, final String qualifiedTableName,
-        final String inputPaths, final Path outputPath, List<TargetTableRef> tablesToBeLoaded, boolean hasLocalIndexes) throws Exception {
-       
+                         final String inputPaths, final Path outputPath, List<TargetTableRef> tablesToBeLoaded, boolean hasLocalIndexes) throws Exception {
+
         Job job = Job.getInstance(conf, "Phoenix MapReduce import for " + qualifiedTableName);
         FileInputFormat.addInputPaths(job, inputPaths);
         FileOutputFormat.setOutputPath(job, outputPath);
@@ -291,16 +295,18 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
         job.setOutputValueClass(KeyValue.class);
         job.setReducerClass(FormatToKeyValueReducer.class);
         byte[][] splitKeysBeforeJob = null;
-        try(org.apache.hadoop.hbase.client.Connection hbaseConn =
-                ConnectionFactory.createConnection(job.getConfiguration())) {
+        try (org.apache.hadoop.hbase.client.Connection hbaseConn =
+                     ConnectionFactory.createConnection(job.getConfiguration())) {
             RegionLocator regionLocator = null;
-            if(hasLocalIndexes) {
-                try{
+            if (hasLocalIndexes) {
+                try {
                     regionLocator = hbaseConn.getRegionLocator(
                             TableName.valueOf(qualifiedTableName));
                     splitKeysBeforeJob = regionLocator.getStartKeys();
                 } finally {
-                    if (regionLocator != null) regionLocator.close();
+                    if (regionLocator != null) {
+                        regionLocator.close();
+                    }
                 }
             }
             MultiHfileOutputFormat.configureIncrementalLoad(job, tablesToBeLoaded);
@@ -326,7 +332,7 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
                     try {
                         regionLocator = hbaseConn.getRegionLocator(
                                 TableName.valueOf(qualifiedTableName));
-                        if(!IndexUtil.matchingSplitKeys(splitKeysBeforeJob,
+                        if (!IndexUtil.matchingSplitKeys(splitKeysBeforeJob,
                                 regionLocator.getStartKeys())) {
                             LOGGER.error("The table " + qualifiedTableName + " has local indexes and"
                                     + " there is split key mismatch before and after running"
@@ -335,36 +341,38 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
                             return -1;
                         }
                     } finally {
-                        if (regionLocator != null) regionLocator.close();
+                        if (regionLocator != null) {
+                            regionLocator.close();
+                        }
                     }
                 }
                 LOGGER.info("Loading HFiles from {}", outputPath);
-                completebulkload(conf,outputPath,tablesToBeLoaded);
+                completebulkload(conf, outputPath, tablesToBeLoaded);
                 LOGGER.info("Removing output directory {}", outputPath);
-                if(!outputPath.getFileSystem(conf).delete(outputPath, true)) {
+                if (!outputPath.getFileSystem(conf).delete(outputPath, true)) {
                     LOGGER.error("Failed to delete the output directory {}", outputPath);
                 }
                 return 0;
             } else {
-               return -1;
-           }
-       }
+                return -1;
+            }
+        }
     }
 
-    private void completebulkload(Configuration conf,Path outputPath , List<TargetTableRef> tablesToBeLoaded) throws Exception {
+    private void completebulkload(Configuration conf, Path outputPath, List<TargetTableRef> tablesToBeLoaded) throws Exception {
         Set<String> tableNames = new HashSet<>(tablesToBeLoaded.size());
-        for(TargetTableRef table : tablesToBeLoaded) {
-            if(tableNames.contains(table.getPhysicalName())){
+        for (TargetTableRef table : tablesToBeLoaded) {
+            if (tableNames.contains(table.getPhysicalName())) {
                 continue;
             }
             tableNames.add(table.getPhysicalName());
             LoadIncrementalHFiles loader = new LoadIncrementalHFiles(conf);
             String tableName = table.getPhysicalName();
             Path tableOutputPath = CsvBulkImportUtil.getOutputPath(outputPath, tableName);
-            try(org.apache.hadoop.hbase.client.Connection hbaseConn =
-                    ConnectionFactory.createConnection(conf);
-                    Table htable = hbaseConn.getTable(TableName.valueOf(tableName))) {
-                LOGGER.info("Loading HFiles for {} from {}", tableName , tableOutputPath);
+            try (org.apache.hadoop.hbase.client.Connection hbaseConn =
+                         ConnectionFactory.createConnection(conf);
+                 Table htable = hbaseConn.getTable(TableName.valueOf(tableName))) {
+                LOGGER.info("Loading HFiles for {} from {}", tableName, tableOutputPath);
                 loader.doBulkLoad(tableOutputPath, hbaseConn.getAdmin(), htable,
                         hbaseConn.getRegionLocator(TableName.valueOf(tableName)));
                 LOGGER.info("Incremental load complete for table=" + tableName);
@@ -376,8 +384,8 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
      * Build up the list of columns to be imported. The list is taken from the command line if
      * present, otherwise it is taken from the table description.
      *
-     * @param conn connection to Phoenix
-     * @param cmdLine supplied command line options
+     * @param conn               connection to Phoenix
+     * @param cmdLine            supplied command line options
      * @param qualifiedTableName table name (possibly with schema) of the table to be imported
      * @return the list of columns to be imported
      */
@@ -396,6 +404,7 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
     /**
      * Perform any required validation on the table being bulk loaded into:
      * - ensure no column family names start with '_', as they'd be ignored leading to problems.
+     *
      * @throws java.sql.SQLException
      */
     private void validateTable(Connection conn, String schemaName,
@@ -423,13 +432,14 @@ public abstract class AbstractBulkLoadTool extends Configured implements Tool {
 
     /**
      * Get the index tables of current data table
+     *
      * @throws java.sql.SQLException
      */
     private List<TargetTableRef> getIndexTables(Connection conn, String schemaName, String qualifiedTableName)
             throws SQLException {
         PTable table = PhoenixRuntime.getTable(conn, qualifiedTableName);
         List<TargetTableRef> indexTables = new ArrayList<TargetTableRef>();
-        for(PTable indexTable : table.getIndexes()){
+        for (PTable indexTable : table.getIndexes()) {
             indexTables.add(new TargetTableRef(indexTable.getName().getString(), indexTable
                     .getPhysicalName().getString()));
         }

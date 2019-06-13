@@ -1,18 +1,18 @@
 /**
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.phoenix.expression.function;
 
@@ -31,14 +31,14 @@ import org.apache.phoenix.util.Base62Encoder;
 
 /**
  * Implementation of ENCODE(input number, format encodeformat)
- * 
+ *
  * Converts the given base 10 number to a base 62 number and returns a string representing the number.
  */
-@BuiltInFunction(name = EncodeFunction.NAME, args = { @Argument(allowedTypes = { PLong.class }),
-    @Argument(enumeration = "EncodeFormat") })
+@BuiltInFunction(name = EncodeFunction.NAME, args = {@Argument(allowedTypes = {PLong.class}),
+        @Argument(enumeration = "EncodeFormat")})
 public class EncodeFunction extends ScalarFunction {
     public static final String NAME = "ENCODE";
-    
+
     public EncodeFunction() {
     }
 
@@ -56,7 +56,7 @@ public class EncodeFunction extends ScalarFunction {
             return true;
         }
         long num = numExpr.getDataType().getCodec().decodeLong(ptr, numExpr.getSortOrder());
-        
+
         Expression encodingExpression = getEncodingExpr();
         if (!encodingExpression.evaluate(tuple, ptr)) {
             return false;
@@ -79,11 +79,11 @@ public class EncodeFunction extends ScalarFunction {
         }
         return true;
     }
-    
+
     public static String getMissingEncodeFormatMsg() {
         return "Missing Encode Format";
     }
-    
+
     public static String getUnsupportedEncodeFormatMsg(String encodeFormat) {
         return "Unsupported Encode Format : " + encodeFormat;
     }

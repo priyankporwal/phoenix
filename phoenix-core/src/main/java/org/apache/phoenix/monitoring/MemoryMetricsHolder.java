@@ -26,7 +26,7 @@ import static org.apache.phoenix.monitoring.MetricType.MEMORY_WAIT_TIME;
 public class MemoryMetricsHolder {
     private final CombinableMetric memoryChunkSizeMetric;
     private final CombinableMetric memoryWaitTimeMetric;
-    
+
     public MemoryMetricsHolder(ReadMetricQueue readMetrics, String tableName) {
         this.memoryChunkSizeMetric = readMetrics.allotMetric(MEMORY_CHUNK_BYTES, tableName);
         this.memoryWaitTimeMetric = readMetrics.allotMetric(MEMORY_WAIT_TIME, tableName);

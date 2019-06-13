@@ -19,7 +19,7 @@
 package org.apache.phoenix.pherf.exception;
 
 public class PherfRuntimeException extends RuntimeException {
-    public PherfRuntimeException(String message) throws Exception{
+    public PherfRuntimeException(String message) throws Exception {
         super(message);
     }
 

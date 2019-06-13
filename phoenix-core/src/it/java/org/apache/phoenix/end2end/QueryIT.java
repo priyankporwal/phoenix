@@ -42,21 +42,20 @@ import org.junit.runners.Parameterized.Parameters;
 
 
 /**
- * 
  * Basic tests for Phoenix JDBC implementation
- *
  */
 public class QueryIT extends BaseQueryIT {
-    
-    @Parameters(name="QueryIT_{index}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "QueryIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
-    }    
-    
+    }
+
     public QueryIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
+
     @Test
     public void testToDateOnString() throws Exception { // TODO: test more conversion combinations
         String query = "SELECT a_string FROM " + tableName + " WHERE organization_id=? and a_integer = 5";
@@ -66,11 +65,11 @@ public class QueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             rs.getDate(1);
             fail();
         } catch (SQLException e) { // Expected
-            assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(), e.getErrorCode());
         } finally {
             conn.close();
         }
@@ -85,7 +84,7 @@ public class QueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
             assertFalse(rs.next());
         } finally {
@@ -102,7 +101,7 @@ public class QueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getString("B_string"), C_VALUE);
             assertFalse(rs.next());
@@ -110,7 +109,7 @@ public class QueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testAllScan() throws Exception {
         String query = "SELECT ALL a_string, b_string FROM " + tableName + " WHERE ?=organization_id and 5=a_integer";
@@ -120,7 +119,7 @@ public class QueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getString("B_string"), C_VALUE);
             assertFalse(rs.next());
@@ -128,7 +127,7 @@ public class QueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDistinctScan() throws Exception {
         String query = "SELECT DISTINCT a_string FROM " + tableName + " WHERE organization_id=?";
@@ -138,11 +137,11 @@ public class QueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), C_VALUE);
             assertFalse(rs.next());
         } finally {
@@ -159,7 +158,7 @@ public class QueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertFalse(rs.next());
         } finally {

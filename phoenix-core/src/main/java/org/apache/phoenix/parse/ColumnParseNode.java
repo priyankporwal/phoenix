@@ -28,8 +28,7 @@ import org.apache.phoenix.util.SchemaUtil;
 
 /**
  * Node representing a reference to a column in a SQL expression
- * 
- * 
+ *
  * @since 0.1
  */
 public class ColumnParseNode extends NamedParseNode {
@@ -50,7 +49,7 @@ public class ColumnParseNode extends NamedParseNode {
     public ColumnParseNode(TableName tableName, String name) {
         this(tableName, name, null);
     }
-    
+
     @Override
     public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
         return visitor.visit(this);
@@ -80,13 +79,19 @@ public class ColumnParseNode extends NamedParseNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ColumnParseNode other = (ColumnParseNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ColumnParseNode other = (ColumnParseNode) obj;
         return fullName.equals(other.fullName);
     }
-    
+
     public boolean isTableNameCaseSensitive() {
         return tableName == null ? false : tableName.isTableNameCaseSensitive();
     }
@@ -107,10 +112,10 @@ public class ColumnParseNode extends NamedParseNode {
                     PTable table = ref.getTable();
                     String defaultFamilyName = table.getDefaultFamilyName() == null ? QueryConstants.DEFAULT_COLUMN_FAMILY : table.getDefaultFamilyName().getString();
                     // Translate to the data table column name
-                    String dataFamilyName = column.getFamilyName().getString() ;
+                    String dataFamilyName = column.getFamilyName().getString();
                     tableName = defaultFamilyName.equals(dataFamilyName) ? null : dataFamilyName;
                 }
-                
+
             } catch (SQLException e) {
                 throw new RuntimeException(e); // Already resolved, so not possible
             }

@@ -27,10 +27,8 @@ import org.apache.phoenix.schema.types.PDataType;
 
 
 /**
- *
  * Internal function used to get the default value for a column not specified in UPSERT.
  * If expr1 is evaluated (can be null), then it is returned, otherwise expr2 is returned.
- *
  */
 public class DefaultValueExpression extends ScalarFunction {
     public static final String NAME = "DEFAULT";

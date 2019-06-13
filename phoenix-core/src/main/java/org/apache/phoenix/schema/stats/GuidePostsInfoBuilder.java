@@ -34,9 +34,9 @@ import org.apache.phoenix.util.TrustedByteArrayOutputStream;
 public class GuidePostsInfoBuilder {
     private PrefixByteEncoder encoder;
     private ImmutableBytesWritable lastRow;
-    private ImmutableBytesWritable guidePosts=new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY);
+    private ImmutableBytesWritable guidePosts = new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY);
     private int guidePostsCount;
-    
+
     /**
      * The rowCount that is flattened across the total number of guide posts.
      */
@@ -55,7 +55,7 @@ public class GuidePostsInfoBuilder {
     public boolean isEmpty() {
         return rowCounts.size() == 0;
     }
-    
+
     public List<Long> getRowCounts() {
         return rowCounts;
     }
@@ -71,15 +71,16 @@ public class GuidePostsInfoBuilder {
     public int getMaxLength() {
         return maxLength;
     }
-    public GuidePostsInfoBuilder(){
+
+    public GuidePostsInfoBuilder() {
         this.stream = new TrustedByteArrayOutputStream(1);
         this.output = new DataOutputStream(stream);
-        this.encoder=new PrefixByteEncoder();
+        this.encoder = new PrefixByteEncoder();
         lastRow = new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY);
     }
 
     public boolean addGuidePostOnCollection(ImmutableBytesWritable row, long byteCount,
-            long rowCount) {
+                                            long rowCount) {
         /*
          * When collecting guideposts, we don't care about the time at which guide post is being
          * created/updated at. So passing it as 0 here. The update/create timestamp is important
@@ -90,13 +91,14 @@ public class GuidePostsInfoBuilder {
 
     /**
      * Track a new guide post
-     * @param row number of rows in the guidepost
-     * @param byteCount number of bytes in the guidepost
+     *
+     * @param row             number of rows in the guidepost
+     * @param byteCount       number of bytes in the guidepost
      * @param updateTimestamp time at which guidepost was created/updated.
      * @throws IOException
      */
     public boolean trackGuidePost(ImmutableBytesWritable row, long byteCount, long rowCount,
-            long updateTimestamp) {
+                                  long updateTimestamp) {
         if (row.getLength() != 0 && lastRow.compareTo(row) < 0) {
             try {
                 encoder.encode(output, row.get(), row.getOffset(), row.getLength());
@@ -132,7 +134,7 @@ public class GuidePostsInfoBuilder {
     public long getRowCount() {
         return rowCount;
     }
-    
+
     public boolean hasGuidePosts() {
         return guidePostsCount > 0;
     }

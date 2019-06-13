@@ -25,12 +25,14 @@ public class UpsertColumnsValuesMismatchException extends MetaDataEntityNotFound
     private static final long serialVersionUID = 1L;
     private static SQLExceptionCode code = SQLExceptionCode.UPSERT_COLUMN_NUMBERS_MISMATCH;
     private final long timestamp;
+
     public UpsertColumnsValuesMismatchException(String schemaName, String tableName, String message) {
         this(schemaName, tableName, message, HConstants.LATEST_TIMESTAMP);
     }
+
     public UpsertColumnsValuesMismatchException(String schemaName, String tableName, String message, long timestamp) {
         super(new SQLExceptionInfo.Builder(code).setSchemaName(schemaName).
-          setTableName(tableName).setMessage(message).build().toString(), code.getSQLState(),
+                        setTableName(tableName).setMessage(message).build().toString(), code.getSQLState(),
                 code.getErrorCode(), schemaName, tableName, null);
         this.timestamp = timestamp;
     }

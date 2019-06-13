@@ -36,32 +36,36 @@ import org.apache.phoenix.util.SchemaUtil;
 
 
 /**
- * 
  * Built-in function for COUNT(<expression>) aggregate function,
  * for example COUNT(foo), COUNT(1), COUNT(*)
  *
- * 
  * @since 0.1
  */
-@BuiltInFunction(name=CountAggregateFunction.NAME, args= {@Argument()} )
+@BuiltInFunction(name = CountAggregateFunction.NAME, args = {@Argument()})
 public class CountAggregateFunction extends SingleAggregateFunction {
     public static final String NAME = "COUNT";
     public static final List<Expression> STAR = Arrays.<Expression>asList(LiteralExpression.newConstant(1, Determinism.ALWAYS));
     public static final String NORMALIZED_NAME = SchemaUtil.normalizeIdentifier(NAME);
-    
+
     public CountAggregateFunction() {
     }
-    
+
     public CountAggregateFunction(List<Expression> childExpressions) {
         super(childExpressions);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        CountAggregateFunction other = (CountAggregateFunction)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CountAggregateFunction other = (CountAggregateFunction) obj;
         return (isConstantExpression() && other.isConstantExpression()) || children.equals(other.getChildren());
     }
 
@@ -77,13 +81,13 @@ public class CountAggregateFunction extends SingleAggregateFunction {
     public boolean isNullable() {
         return false;
     }
-    
+
     @Override
     public PDataType getDataType() {
         return PLong.INSTANCE;
     }
 
-    @Override 
+    @Override
     public LongSumAggregator newClientAggregator() {
         // Since COUNT can never be null, ensure the aggregator is not nullable.
         // This allows COUNT(*) to return 0 with the initial state of ClientAggregators
@@ -95,12 +99,12 @@ public class CountAggregateFunction extends SingleAggregateFunction {
             }
         };
     }
-    
-    @Override 
+
+    @Override
     public Aggregator newServerAggregator(Configuration conf) {
         return new CountAggregator();
     }
-    
+
     @Override
     public String getName() {
         return NAME;

@@ -24,13 +24,11 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 
 /**
- * 
  * Child memory manager that delegates through to global memory manager,
  * but enforces that at most a threshold percentage is used by this
  * memory manager.  No blocking is done if the threshold is exceeded,
  * but the standard blocking will be done by the global memory manager.
  *
- * 
  * @since 0.1
  */
 @ThreadSafe
@@ -39,7 +37,7 @@ public class ChildMemoryManager extends DelegatingMemoryManager {
     private final int maxPercOfTotal;
     @GuardedBy("sync")
     private long allocatedBytes;
-    
+
     public ChildMemoryManager(MemoryManager mm, int maxPercOfTotal) {
         super(mm);
         if (mm instanceof ChildMemoryManager) {
@@ -59,13 +57,13 @@ public class ChildMemoryManager extends DelegatingMemoryManager {
         if (minBytes > availBytes) {
             throw new InsufficientMemoryException(
                     new SQLExceptionInfo.Builder(SQLExceptionCode.INSUFFICIENT_MEMORY)
-                    .setMessage("Attempt to allocate more memory than the max allowed of " + maxPercOfTotal + "%")
-                    .build().buildException());
+                            .setMessage("Attempt to allocate more memory than the max allowed of " + maxPercOfTotal + "%")
+                            .build().buildException());
         }
         // Revise reqBytes down to available memory if necessary
-        return Math.min(reqBytes,availBytes);
+        return Math.min(reqBytes, availBytes);
     }
-    
+
     @Override
     public MemoryChunk allocate(long minBytes, long nBytes) {
         synchronized (sync) {
@@ -81,19 +79,19 @@ public class ChildMemoryManager extends DelegatingMemoryManager {
                         chunk.close();
                     }
                 }
-    
+
                 @Override
                 public long getSize() {
                     return chunk.getSize();
                 }
-    
+
                 @Override
                 public void resize(long nBytes) {
                     synchronized (sync) {
                         long size = getSize();
                         long deltaBytes = nBytes - size;
                         if (deltaBytes > 0) {
-                            adjustAllocation(deltaBytes,deltaBytes); // Throw if too much memory
+                            adjustAllocation(deltaBytes, deltaBytes); // Throw if too much memory
                         }
                         chunk.resize(nBytes);
                         allocatedBytes += deltaBytes;
@@ -114,9 +112,9 @@ public class ChildMemoryManager extends DelegatingMemoryManager {
             return availBytes;
         }
     }
-    
+
     @Override
     public long getMaxMemory() {
-        return maxPercOfTotal  * super.getMaxMemory() / 100;
+        return maxPercOfTotal * super.getMaxMemory() / 100;
     }
 }

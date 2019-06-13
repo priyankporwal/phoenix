@@ -134,10 +134,10 @@ public class NoOpStatsCollectorIT extends ParallelStatsDisabledIT {
     private void upsertValues(Connection conn, String tableName) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + tableName + " VALUES(?,?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] { "abc", "def", "ghi", "jkll", null, null, "xxx" };
+        String[] s = new String[] {"abc", "def", "ghi", "jkll", null, null, "xxx"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "abc", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"abc", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();

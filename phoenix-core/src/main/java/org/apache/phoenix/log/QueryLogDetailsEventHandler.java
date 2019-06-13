@@ -30,10 +30,10 @@ public class QueryLogDetailsEventHandler implements SequenceReportingEventHandle
     private Sequence sequenceCallback;
     private LogWriter logWriter;
 
-    public QueryLogDetailsEventHandler(Configuration configuration) throws SQLException{
+    public QueryLogDetailsEventHandler(Configuration configuration) throws SQLException {
         this.logWriter = new TableLogWriter(configuration);
     }
-    
+
     @Override
     public void setSequenceCallback(final Sequence sequenceCallback) {
         this.sequenceCallback = sequenceCallback;

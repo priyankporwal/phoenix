@@ -65,7 +65,8 @@ import org.junit.runners.Parameterized.Parameters;
 public class ViewIndexIT extends SplitSystemCatalogIT {
     private boolean isNamespaceMapped;
 
-    @Parameters(name = "ViewIndexIT_isNamespaceMapped={0}") // name is used by failsafe as file name in reports
+    @Parameters(name = "ViewIndexIT_isNamespaceMapped={0}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean> data() {
         return Arrays.asList(true, false);
     }
@@ -91,7 +92,7 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         if (splits != null) {
             ddlOptions = ddlOptions
                     + (ddlOptions.isEmpty() ? "" : ",")
-                    + "splits=" + splits;            
+                    + "splits=" + splits;
         }
         conn.createStatement().execute(ddl + ddlOptions);
         conn.close();
@@ -117,20 +118,20 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + fullViewName + "(" + indexColumn + ")");
         conn.commit();
     }
-    
-    private Connection getConnection() throws SQLException{
+
+    private Connection getConnection() throws SQLException {
         Properties props = new Properties();
         props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.toString(isNamespaceMapped));
-        return DriverManager.getConnection(getUrl(),props);
+        return DriverManager.getConnection(getUrl(), props);
     }
 
     private Connection getTenantConnection(String tenant) throws SQLException {
         Properties props = new Properties();
         props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenant);
         props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.toString(isNamespaceMapped));
-        return DriverManager.getConnection(getUrl(),props);
+        return DriverManager.getConnection(getUrl(), props);
     }
-    
+
     public ViewIndexIT(boolean isNamespaceMapped) {
         this.isNamespaceMapped = isNamespaceMapped;
     }
@@ -157,23 +158,23 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         conn1.createStatement().execute("CREATE INDEX " + indexName + "_2 ON " + fullViewName + " (v1)");
         verifySequenceValue(null, sequenceName, sequenceSchemaName, Long.MIN_VALUE + 2);
         conn1.createStatement().execute("DROP VIEW " + fullViewName);
-        conn1.createStatement().execute("DROP TABLE "+ fullTableName);
-        
+        conn1.createStatement().execute("DROP TABLE " + fullTableName);
+
         verifySequenceNotExists(null, sequenceName, sequenceSchemaName);
     }
-    
+
     @Test
     public void testMultiTenantViewLocalIndex() throws Exception {
         String tableName = generateUniqueName();
-		String indexName = "IND_" + generateUniqueName();
+        String indexName = "IND_" + generateUniqueName();
         String fullTableName = SchemaUtil.getTableName(SCHEMA1, tableName);
         String fullViewName = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
-        
+
         createBaseTable(SCHEMA1, tableName, true, null, null);
         Connection conn = DriverManager.getConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement(
                 "UPSERT INTO " + fullTableName
-                + " VALUES(?,?,?,?,?)");
+                        + " VALUES(?,?,?,?,?)");
         stmt.setString(1, "10");
         stmt.setString(2, "a");
         stmt.setInt(3, 1);
@@ -199,8 +200,8 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         stmt.setInt(5, 400);
         stmt.execute();
         conn.commit();
-        
-        Properties props  = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
+
+        Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         props.setProperty("TenantId", "10");
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute("CREATE VIEW " + fullViewName
@@ -209,24 +210,24 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
                 + indexName + " ON "
                 + fullViewName + "(v2)");
         conn1.commit();
-        
+
         String sql = "SELECT * FROM " + fullViewName + " WHERE v2 = 100";
         ResultSet rs = conn1.prepareStatement("EXPLAIN " + sql).executeQuery();
         assertEquals(
                 "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + SchemaUtil.getPhysicalTableName(Bytes.toBytes(fullTableName), isNamespaceMapped) + " [1,'10',100]\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
         rs = conn1.prepareStatement(sql).executeQuery();
         assertTrue(rs.next());
         assertFalse(rs.next());
-        
+
         TestUtil.analyzeTable(conn, fullTableName);
         List<KeyRange> guideposts = TestUtil.getAllSplits(conn, fullTableName);
         assertEquals(1, guideposts.size());
         assertEquals(KeyRange.EVERYTHING_RANGE, guideposts.get(0));
-        
+
         conn.createStatement().execute("ALTER TABLE " + fullTableName + " SET " + PhoenixDatabaseMetaData.GUIDE_POSTS_WIDTH + "=20");
-        
+
         TestUtil.analyzeTable(conn, fullTableName);
         guideposts = TestUtil.getAllSplits(conn, fullTableName);
         assertEquals(5, guideposts.size());
@@ -240,15 +241,15 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         QueryPlan plan = stmt.unwrap(PhoenixStatement.class).getQueryPlan();
         assertEquals(4, plan.getSplits().size());
     }
-    
-    
+
+
     @Test
     public void testMultiTenantViewGlobalIndex() throws Exception {
-        String baseTable =  SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
+        String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         String globalViewName = generateUniqueName();
         String fullGlobalViewName = SchemaUtil.getTableName(SCHEMA2, globalViewName);
-        String globalViewIdx =  generateUniqueName();
-        String tenantView =  generateUniqueName();
+        String globalViewIdx = generateUniqueName();
+        String tenantView = generateUniqueName();
         String fullIndexName = SchemaUtil.getTableName(SCHEMA2, globalViewIdx);
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute("CREATE TABLE " + baseTable + " (TENANT_ID CHAR(15) NOT NULL, PK2 DATE NOT NULL, PK3 INTEGER NOT NULL, KV1 VARCHAR, KV2 VARCHAR, KV3 CHAR(15) CONSTRAINT PK PRIMARY KEY(TENANT_ID, PK2, PK3)) MULTI_TENANT=true");
@@ -315,14 +316,14 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
             assertTrue(rs.next());
             assertEquals("KV1", rs.getString(1));
             assertFalse(rs.next());
-            
+
             TestUtil.analyzeTable(conn, baseTable);
             List<KeyRange> guideposts = TestUtil.getAllSplits(conn, baseTable);
             assertEquals(1, guideposts.size());
             assertEquals(KeyRange.EVERYTHING_RANGE, guideposts.get(0));
-            
+
             conn.createStatement().execute("ALTER TABLE " + baseTable + " SET " + PhoenixDatabaseMetaData.GUIDE_POSTS_WIDTH + "=20");
-            
+
             TestUtil.analyzeTable(conn, baseTable);
             guideposts = TestUtil.getAllSplits(conn, baseTable);
             assertEquals(6, guideposts.size());
@@ -348,16 +349,16 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         rs = stmt.executeQuery("EXPLAIN SELECT COUNT(*) FROM " + fullTableName);
         if (fullBaseName != null) {
             // Uses index and finds correct number of rows
-            assertTrue(QueryUtil.getExplainPlan(rs).startsWith("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + Bytes.toString(MetaDataUtil.getViewIndexPhysicalName(Bytes.toBytes(fullBaseName))))); 
+            assertTrue(QueryUtil.getExplainPlan(rs).startsWith("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + Bytes.toString(MetaDataUtil.getViewIndexPhysicalName(Bytes.toBytes(fullBaseName)))));
         }
-        
+
         // Force it not to use index and still finds correct number of rows
         rs = stmt.executeQuery("SELECT /*+ NO_INDEX */ * FROM " + fullTableName);
         int count = 0;
         while (rs.next()) {
             count++;
         }
-        
+
         assertEquals(expectedCount, count);
         // Ensure that the table, not index is being used
         assertEquals(fullTableName, stmt.getQueryPlan().getContext().getCurrentTable().getTable().getName().getString());
@@ -388,10 +389,10 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
                             + "        ORGANIZATION_ID,\n" + "        KEY_PREFIX\n" + "    )\n"
                             + ") VERSIONS=1, IMMUTABLE_ROWS=true, MULTI_TENANT=true");
             conn.createStatement().execute(
-                    "CREATE VIEW " + viewFullName + " (\n" + 
-                            "INT1 BIGINT NOT NULL,\n" + 
+                    "CREATE VIEW " + viewFullName + " (\n" +
+                            "INT1 BIGINT NOT NULL,\n" +
                             "DOUBLE1 DECIMAL(12, 3),\n" +
-                            "IS_BOOLEAN BOOLEAN,\n" + 
+                            "IS_BOOLEAN BOOLEAN,\n" +
                             "TEXT1 VARCHAR,\n" + "CONSTRAINT PKVIEW PRIMARY KEY\n" + "(\n" +
                             "INT1\n" + ")) AS SELECT * FROM " + baseFullName + " WHERE KEY_PREFIX = '123'");
             conn.createStatement().execute(
@@ -412,10 +413,10 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
             tsConn.createStatement().execute("UPSERT INTO " + tsViewFullName + "(INT1,DOUBLE1,IS_BOOLEAN,TEXT1) VALUES (9,9.0, true, 'i')");
             tsConn.createStatement().execute("UPSERT INTO " + tsViewFullName + "(INT1,DOUBLE1,IS_BOOLEAN,TEXT1) VALUES (10,10.0, true, 'j')");
             tsConn.commit();
-            
+
             String basePhysicalName = SchemaUtil.getPhysicalTableName(Bytes.toBytes(baseFullName), isNamespaceMapped).toString();
             assertRowCount(tsConn, tsViewFullName, basePhysicalName, 10);
-            
+
             tsConn.createStatement().execute("DELETE FROM " + tsViewFullName + " WHERE TEXT1='d'");
             tsConn.commit();
             assertRowCount(tsConn, tsViewFullName, basePhysicalName, 9);
@@ -423,13 +424,13 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
             tsConn.createStatement().execute("DELETE FROM " + tsViewFullName + " WHERE INT1=2");
             tsConn.commit();
             assertRowCount(tsConn, tsViewFullName, basePhysicalName, 8);
-            
+
             // Use different connection for delete
             Connection tsConn2 = DriverManager.getConnection(getUrl(), tsProps);
             tsConn2.createStatement().execute("DELETE FROM " + tsViewFullName + " WHERE DOUBLE1 > 7.5 AND DOUBLE1 < 9.5");
             tsConn2.commit();
             assertRowCount(tsConn2, tsViewFullName, basePhysicalName, 6);
-            
+
             tsConn2.createStatement().execute("DROP VIEW " + tsViewFullName);
             // Should drop view and index and remove index data
             conn.createStatement().execute("DROP VIEW " + viewFullName);
@@ -441,13 +442,13 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
                 tsConn3.createStatement().execute("SELECT * FROM " + tsViewFullName + " LIMIT 1");
                 fail("Expected table not to be found");
             } catch (TableNotFoundException e) {
-                
+
             }
             conn.createStatement().execute(
-                    "CREATE VIEW " + viewFullName + " (\n" + 
-                            "INT1 BIGINT NOT NULL,\n" + 
+                    "CREATE VIEW " + viewFullName + " (\n" +
+                            "INT1 BIGINT NOT NULL,\n" +
                             "DOUBLE1 DECIMAL(12, 3),\n" +
-                            "IS_BOOLEAN BOOLEAN,\n" + 
+                            "IS_BOOLEAN BOOLEAN,\n" +
                             "TEXT1 VARCHAR,\n" + "CONSTRAINT PKVIEW PRIMARY KEY\n" + "(\n" +
                             "INT1\n" + ")) AS SELECT * FROM " + baseFullName + " WHERE KEY_PREFIX = '123'");
             tsConn3.createStatement().execute("CREATE VIEW " + tsViewFullName + " AS SELECT * FROM " + viewFullName);
@@ -455,27 +456,27 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
                     "CREATE INDEX " + indexName + " \n" + "ON " + viewFullName + " (TEXT1 DESC, INT1)\n"
                             + "INCLUDE (CREATED_BY, DOUBLE1, IS_BOOLEAN, CREATED_DATE)");
             assertRowCount(tsConn3, tsViewFullName, basePhysicalName, 0);
-            
+
             tsConn.close();
             tsConn2.close();
             tsConn3.close();
-            
+
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testHintForIndexOnViewWithInclude() throws Exception {
         testHintForIndexOnView(true);
     }
-    
+
     @Ignore("PHOENIX-4274 Hint query for index on view does not use include")
     @Test
     public void testHintForIndexOnViewWithoutInclude() throws Exception {
-        testHintForIndexOnView(false);        
+        testHintForIndexOnView(false);
     }
-    
+
     private void testHintForIndexOnView(boolean includeColumns) throws Exception {
         Properties props = new Properties();
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
@@ -485,10 +486,10 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         String indexName = generateUniqueName();
         String fullIndexName = SchemaUtil.getTableName(SCHEMA2, indexName);
         conn1.createStatement().execute(
-          "CREATE TABLE "+tableName+" (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR) UPDATE_CACHE_FREQUENCY=1000000");
-        conn1.createStatement().execute("upsert into "+tableName+" values ('row1', 'value1', 'key1')");
+                "CREATE TABLE " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR) UPDATE_CACHE_FREQUENCY=1000000");
+        conn1.createStatement().execute("upsert into " + tableName + " values ('row1', 'value1', 'key1')");
         conn1.createStatement().execute(
-          "CREATE VIEW "+viewName+" (v3 VARCHAR, v4 VARCHAR) AS SELECT * FROM "+tableName+" WHERE v1 = 'value1'");
+                "CREATE VIEW " + viewName + " (v3 VARCHAR, v4 VARCHAR) AS SELECT * FROM " + tableName + " WHERE v1 = 'value1'");
         conn1.createStatement().execute("CREATE INDEX " + indexName + " ON " + viewName + "(v3)" + (includeColumns ? " INCLUDE(v4)" : ""));
         PhoenixStatement stmt = conn1.createStatement().unwrap(PhoenixStatement.class);
         ResultSet rs = stmt.executeQuery("SELECT /*+ INDEX(" + viewName + " " + fullIndexName + ") */ v1 FROM " + viewName + " WHERE v3 = 'foo' ORDER BY v4");
@@ -501,7 +502,7 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
         try (Connection c = getConnection(); Statement s = c.createStatement()) {
             String tableName = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
             String viewName = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
-            String indexName=generateUniqueName();
+            String indexName = generateUniqueName();
             c.setAutoCommit(true);
             if (isNamespaceMapped) {
                 c.createStatement().execute("CREATE SCHEMA IF NOT EXISTS " + SCHEMA1);
@@ -569,11 +570,11 @@ public class ViewIndexIT extends SplitSystemCatalogIT {
     }
 
     private int getRowCountOfView(Connection conn, String schemaName, String viewName) throws SQLException {
-      int size = 0;
-      ResultSet rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + SchemaUtil.getTableName(schemaName, viewName));
-      while (rs.next()){
-        size++;
-      }
-      return size;
+        int size = 0;
+        ResultSet rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + SchemaUtil.getTableName(schemaName, viewName));
+        while (rs.next()) {
+            size++;
+        }
+        return size;
     }
 }

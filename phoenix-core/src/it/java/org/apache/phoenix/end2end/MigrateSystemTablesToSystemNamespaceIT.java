@@ -62,10 +62,10 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
 
     private static final Set<String> PHOENIX_SYSTEM_TABLES = new HashSet<>(Arrays.asList(
             "SYSTEM.CATALOG", "SYSTEM.SEQUENCE", "SYSTEM.STATS", "SYSTEM.FUNCTION",
-            "SYSTEM.MUTEX","SYSTEM.LOG", "SYSTEM.CHILD_LINK", "SYSTEM.TASK"));
+            "SYSTEM.MUTEX", "SYSTEM.LOG", "SYSTEM.CHILD_LINK", "SYSTEM.TASK"));
     private static final Set<String> PHOENIX_NAMESPACE_MAPPED_SYSTEM_TABLES = new HashSet<>(
             Arrays.asList("SYSTEM:CATALOG", "SYSTEM:SEQUENCE", "SYSTEM:STATS", "SYSTEM:FUNCTION",
-                    "SYSTEM:MUTEX","SYSTEM:LOG", "SYSTEM:CHILD_LINK", "SYSTEM:TASK"));
+                    "SYSTEM:MUTEX", "SYSTEM:LOG", "SYSTEM:CHILD_LINK", "SYSTEM:TASK"));
     private static final String SCHEMA_NAME = "MIGRATETEST";
     private static final String TABLE_NAME =
             SCHEMA_NAME + "." + MigrateSystemTablesToSystemNamespaceIT.class.getSimpleName().toUpperCase();
@@ -107,8 +107,8 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
 
     // Tests that client can create and read tables on a fresh HBase cluster with
     // system namespace mapping enabled from the start
-	@Test
-	public void freshClientsCreateNamespaceMappedSystemTables() throws Exception {
+    @Test
+    public void freshClientsCreateNamespaceMappedSystemTables() throws Exception {
         doSetup(true);
         user1.doAs(new PrivilegedExceptionAction<Void>() {
             @Override
@@ -134,9 +134,9 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
     }
 
     // Tests that NEWER clients can read tables on HBase cluster after system tables are migrated
-	@Test
-	public void migrateSystemTablesInExistingCluster() throws Exception {
-		doSetup(false);
+    @Test
+    public void migrateSystemTablesInExistingCluster() throws Exception {
+        doSetup(false);
         user1.doAs(new PrivilegedExceptionAction<Void>() {
             @Override
             public Void run() throws Exception {
@@ -164,8 +164,8 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
 
     // Tests that OLDER clients fail after system tables are migrated
     // Clients should be restarted with new properties which are consistent on both client and server
-	@Test
-	public void oldClientsAfterSystemTableMigrationShouldFail() throws Exception {
+    @Test
+    public void oldClientsAfterSystemTableMigrationShouldFail() throws Exception {
         doSetup(true);
         user1.doAs(new PrivilegedExceptionAction<Void>() {
             @Override
@@ -199,8 +199,8 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
 
     // Tests that only one client can migrate the system table to system namespace
     // Migrate process acquires lock in SYSMUTEX table
-	@Test
-	public void onlyOneClientCanMigrate() throws Exception {
+    @Test
+    public void onlyOneClientCanMigrate() throws Exception {
         doSetup(false);
         user1.doAs(new PrivilegedExceptionAction<Void>() {
             @Override
@@ -237,7 +237,7 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
             });
             fail("Multiple clients should not be able to migrate simultaneously.");
         } catch (Exception e) {
-            if(!(e.getCause() instanceof UpgradeInProgressException)) {
+            if (!(e.getCause() instanceof UpgradeInProgressException)) {
                 fail("UpgradeInProgressException expected since the user is trying to migrate when SYSMUTEX is locked.");
             }
         }
@@ -277,20 +277,20 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
 
         try (Connection conn = DriverManager.getConnection(getJdbcUrl(), clientProps)) {
             services = conn.unwrap(PhoenixConnection.class).getQueryServices();
-            if(acquire) {
-               assertTrue(((ConnectionQueryServicesImpl) services)
+            if (acquire) {
+                assertTrue(((ConnectionQueryServicesImpl) services)
                         .acquireUpgradeMutex(MetaDataProtocol.MIN_SYSTEM_TABLE_MIGRATION_TIMESTAMP));
             } else {
                 services.deleteMutexCell(null, PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA,
-                    PhoenixDatabaseMetaData.SYSTEM_CATALOG_TABLE, null, null);
+                        PhoenixDatabaseMetaData.SYSTEM_CATALOG_TABLE, null, null);
             }
         }
     }
 
     private void enableNamespacesOnServer(Configuration conf, boolean systemMappingEnabled) {
         conf.set(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.TRUE.toString());
-		conf.set(QueryServices.IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE,
-				systemMappingEnabled ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
+        conf.set(QueryServices.IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE,
+                systemMappingEnabled ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
     }
 
     // For PHOENIX-4389 (Flapping tests SystemTablePermissionsIT and MigrateSystemTablesToSystemNamespaceIT)
@@ -365,15 +365,15 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
     private void verifySyscatData(Properties clientProps, String connName, Statement stmt) throws SQLException {
         ResultSet rs = stmt.executeQuery("SELECT * FROM SYSTEM.CATALOG");
 
-        ReadOnlyProps props = new ReadOnlyProps((Map)clientProps);
+        ReadOnlyProps props = new ReadOnlyProps((Map) clientProps);
         boolean systemTablesMapped = SchemaUtil.isNamespaceMappingEnabled(PTableType.SYSTEM, props);
         boolean systemSchemaExists = false;
         Set<String> namespaceMappedSystemTablesSet = new HashSet<>(PHOENIX_NAMESPACE_MAPPED_SYSTEM_TABLES);
         Set<String> systemTablesSet = new HashSet<>(PHOENIX_SYSTEM_TABLES);
 
-        while(rs.next()) {
+        while (rs.next()) {
 
-            if(rs.getString("IS_NAMESPACE_MAPPED") == null) {
+            if (rs.getString("IS_NAMESPACE_MAPPED") == null) {
                 // Check that entry for SYSTEM namespace exists in SYSCAT
                 systemSchemaExists = rs.getString("TABLE_SCHEM").equals(PhoenixDatabaseMetaData.SYSTEM_SCHEMA_NAME) ? true : systemSchemaExists;
             } else if (rs.getString("COLUMN_NAME") == null) {
@@ -381,7 +381,7 @@ public class MigrateSystemTablesToSystemNamespaceIT extends BaseTest {
                 String schemaName = rs.getString("TABLE_SCHEM");
                 String tableName = rs.getString("TABLE_NAME");
 
-                if(schemaName.equals(PhoenixDatabaseMetaData.SYSTEM_SCHEMA_NAME)) {
+                if (schemaName.equals(PhoenixDatabaseMetaData.SYSTEM_SCHEMA_NAME)) {
                     if (systemTablesMapped) {
                         namespaceMappedSystemTablesSet.remove(String.valueOf
                                 (TableName.valueOf(schemaName + QueryConstants.NAMESPACE_SEPARATOR + tableName)));

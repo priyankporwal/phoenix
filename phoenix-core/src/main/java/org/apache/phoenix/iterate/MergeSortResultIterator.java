@@ -27,6 +27,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
  * Base class for a ResultIterator that does a merge sort on the list of iterators provided.
+ *
  * @since 1.2
  */
 public abstract class MergeSortResultIterator implements PeekingResultIterator {
@@ -49,14 +50,18 @@ public abstract class MergeSortResultIterator implements PeekingResultIterator {
     @Override
     public Tuple peek() throws SQLException {
         MaterializedComparableResultIterator iterator = minIterator();
-        if (iterator == null) { return null; }
+        if (iterator == null) {
+            return null;
+        }
         return iterator.peek();
     }
 
     @Override
     public Tuple next() throws SQLException {
         MaterializedComparableResultIterator iterator = minIterator();
-        if (iterator == null) { return null; }
+        if (iterator == null) {
+            return null;
+        }
         Tuple next = iterator.next();
         minHeap.poll();
         if (iterator.peek() != null) {

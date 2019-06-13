@@ -50,8 +50,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class RangeScanIT extends BaseQueryIT {
-    
-    @Parameters(name="RangeScanIT_{index}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "RangeScanIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
@@ -59,7 +60,7 @@ public class RangeScanIT extends BaseQueryIT {
     public RangeScanIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
+
     @Test
     public void testNegateExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER - 4 = -1";
@@ -68,14 +69,14 @@ public class RangeScanIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW3, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIntEqualityFilter() throws Exception {
         String query = "SELECT a_string, /* comment ok? */ b_string FROM " + tableName + " WHERE ?=organization_id and 5=a_integer";
@@ -85,7 +86,7 @@ public class RangeScanIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getString("B_string"), C_VALUE);
             assertFalse(rs.next());
@@ -93,16 +94,16 @@ public class RangeScanIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIntRangeFilter() throws Exception {
-        String updateStmt = 
-            "upsert into " + tableName +
-            " (" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_INTEGER) " +
-            "VALUES (?, ?, ?)";
+        String updateStmt =
+                "upsert into " + tableName +
+                        " (" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_INTEGER) " +
+                        "VALUES (?, ?, ?)";
         // Override value that was set at creation time
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(url, props);
@@ -112,7 +113,7 @@ public class RangeScanIT extends BaseQueryIT {
         stmt.setInt(3, -10);
         stmt.execute();
         conn.commit();
-        
+
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and a_integer >= ?";
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, tenantId);
@@ -136,12 +137,12 @@ public class RangeScanIT extends BaseQueryIT {
         statement = conn.prepareStatement(query);
         statement.setString(1, tenantId);
         rs = statement.executeQuery();
-        assertTrue (rs.next());
+        assertTrue(rs.next());
         assertEquals(rs.getString(1), ROW9);
         assertFalse(rs.next());
         conn.close();
     }
-    
+
     @Test
     public void testUnboundRangeScan1() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id <= ?";
@@ -151,30 +152,30 @@ public class RangeScanIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW3);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW4);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testUnboundRangeScan2() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id >= ?";
@@ -184,30 +185,30 @@ public class RangeScanIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW3);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW4);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testUpperLowerBoundRangeScan() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and substr(entity_id,1,3) > '00A' and substr(entity_id,1,3) < '00C'";
@@ -217,13 +218,13 @@ public class RangeScanIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
             assertFalse(rs.next());
         } finally {
@@ -240,15 +241,15 @@ public class RangeScanIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
             assertFalse(rs.next());
         } finally {
@@ -265,13 +266,13 @@ public class RangeScanIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW3);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW4);
             assertFalse(rs.next());
         } finally {

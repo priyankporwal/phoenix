@@ -20,31 +20,31 @@ package org.apache.phoenix.pherf.jmx;
 
 import org.apache.phoenix.pherf.jmx.monitors.*;
 
-public enum MonitorDetails {
-    FREE_MEMORY("org.apache.phoenix.pherf:type=RuntimeFreeMemory", new FreeMemoryMonitor()),
-    TOTAL_MEMORY("org.apache.phoenix.pherf:type=RuntimeTotalMemory", new TotalMemoryMonitor()),
-    MAX_MEMORY("org.apache.phoenix.pherf:type=RuntimeMaxMemory", new MaxMemoryMonitor()),
-    HEAP_MEMORY_USAGE("org.apache.phoenix.pherf:type=HeapMemoryUsage", new HeapMemoryMonitor()),
-    NON_HEAP_MEMORY_USAGE("org.apache.phoenix.pherf:type=NonHeapMemoryUsage", new NonHeapMemoryMonitor()),
-    OBJECT_PENDING_FINALIZATION("org.apache.phoenix.pherf:type=ObjectPendingFinalizationCount", new ObjectPendingFinalizationCountMonitor()),
-    GARBAGE_COLLECTOR_ELAPSED_TIME("org.apache.phoenix.pherf:type=GarbageCollectorElapsedTime", new GarbageCollectorElapsedTimeMonitor()),
-    CPU_LOAD_AVERAGE("org.apache.phoenix.pherf:type=CPULoadAverage", new CPULoadAverageMonitor()),
-    THREAD_COUNT("org.apache.phoenix.pherf:type=PherfThreads",new ThreadMonitor());
+public enum MonitorDetails{
+        FREE_MEMORY("org.apache.phoenix.pherf:type=RuntimeFreeMemory",new FreeMemoryMonitor()),
+        TOTAL_MEMORY("org.apache.phoenix.pherf:type=RuntimeTotalMemory",new TotalMemoryMonitor()),
+        MAX_MEMORY("org.apache.phoenix.pherf:type=RuntimeMaxMemory",new MaxMemoryMonitor()),
+        HEAP_MEMORY_USAGE("org.apache.phoenix.pherf:type=HeapMemoryUsage",new HeapMemoryMonitor()),
+        NON_HEAP_MEMORY_USAGE("org.apache.phoenix.pherf:type=NonHeapMemoryUsage",new NonHeapMemoryMonitor()),
+        OBJECT_PENDING_FINALIZATION("org.apache.phoenix.pherf:type=ObjectPendingFinalizationCount",new ObjectPendingFinalizationCountMonitor()),
+        GARBAGE_COLLECTOR_ELAPSED_TIME("org.apache.phoenix.pherf:type=GarbageCollectorElapsedTime",new GarbageCollectorElapsedTimeMonitor()),
+        CPU_LOAD_AVERAGE("org.apache.phoenix.pherf:type=CPULoadAverage",new CPULoadAverageMonitor()),
+        THREAD_COUNT("org.apache.phoenix.pherf:type=PherfThreads",new ThreadMonitor());
 
-    private final String monitorName;
-    private final Monitor monitor;
+private final String monitorName;
+private final Monitor monitor;
 
-    private MonitorDetails(String monitorName, Monitor monitor) {
-        this.monitorName = monitorName;
-        this.monitor = monitor;
-    }
+private MonitorDetails(String monitorName,Monitor monitor){
+        this.monitorName=monitorName;
+        this.monitor=monitor;
+        }
 
-    @Override
-    public String toString() {
+@Override
+public String toString(){
         return monitorName;
-    }
+        }
 
-    public Monitor getMonitor() {
+public Monitor getMonitor(){
         return monitor;
-    }
-}
+        }
+        }

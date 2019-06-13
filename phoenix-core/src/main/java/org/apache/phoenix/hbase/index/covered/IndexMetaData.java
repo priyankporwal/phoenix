@@ -32,7 +32,7 @@ public interface IndexMetaData {
 
         @Override
         public ReplayWrite getReplayWrite() {
-          return null;
+            return null;
         }
 
         @Override
@@ -41,15 +41,16 @@ public interface IndexMetaData {
         }
     };
 
-        
+
     /**
      * Determines whether or not we need to look up the old row to retrieve old row values for maintaining the index.
+     *
      * @param m mutation being performed on the data table
      * @return true if prior row state is required and false otherwise
      */
     public boolean requiresPriorRowState(Mutation m);
 
     public ReplayWrite getReplayWrite();
-    
+
     public int getClientVersion();
 }

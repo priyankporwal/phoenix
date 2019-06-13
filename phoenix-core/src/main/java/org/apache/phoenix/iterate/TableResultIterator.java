@@ -65,11 +65,9 @@ import com.google.common.annotations.VisibleForTesting;
 
 
 /**
- *
  * Wrapper for ResultScanner creation that closes HTableInterface
  * when ResultScanner is closed.
  *
- * 
  * @since 0.1
  */
 public class TableResultIterator implements ResultIterator {
@@ -95,10 +93,11 @@ public class TableResultIterator implements ResultIterator {
     private final Lock renewLeaseLock = new ReentrantLock();
 
     private int retry;
-    private Map<ImmutableBytesPtr,ServerCache> caches;
+    private Map<ImmutableBytesPtr, ServerCache> caches;
     private HashCacheClient hashCacheClient;
 
-    @VisibleForTesting // Exposed for testing. DON'T USE ANYWHERE ELSE!
+    @VisibleForTesting
+        // Exposed for testing. DON'T USE ANYWHERE ELSE!
     TableResultIterator() {
         this.scanMetricsHolder = null;
         this.renewLeaseThreshold = 0;
@@ -110,17 +109,21 @@ public class TableResultIterator implements ResultIterator {
         this.retry = 0;
     }
 
-    public static enum RenewLeaseStatus {
+    public static enum RenewLeaseStatus
+
+    {
         RENEWED, NOT_RENEWED, CLOSED, UNINITIALIZED, THRESHOLD_NOT_REACHED, LOCK_NOT_ACQUIRED, NOT_SUPPORTED
-    };
+    }
+
+    ;
 
     public TableResultIterator(MutationState mutationState, Scan scan, ScanMetricsHolder scanMetricsHolder,
-            long renewLeaseThreshold, QueryPlan plan, ParallelScanGrouper scanGrouper) throws SQLException {
+                               long renewLeaseThreshold, QueryPlan plan, ParallelScanGrouper scanGrouper) throws SQLException {
         this(mutationState, scan, scanMetricsHolder, renewLeaseThreshold, plan, scanGrouper, null);
     }
 
     public TableResultIterator(MutationState mutationState, Scan scan, ScanMetricsHolder scanMetricsHolder,
-            long renewLeaseThreshold, QueryPlan plan, ParallelScanGrouper scanGrouper,Map<ImmutableBytesPtr,ServerCache> caches) throws SQLException {
+                               long renewLeaseThreshold, QueryPlan plan, ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr, ServerCache> caches) throws SQLException {
         this.scan = scan;
         this.scanMetricsHolder = scanMetricsHolder;
         this.plan = plan;
@@ -131,7 +134,7 @@ public class TableResultIterator implements ResultIterator {
         this.scanGrouper = scanGrouper;
         this.hashCacheClient = new HashCacheClient(plan.getContext().getConnection());
         this.caches = caches;
-        this.retry=plan.getContext().getConnection().getQueryServices().getProps()
+        this.retry = plan.getContext().getConnection().getQueryServices().getProps()
                 .getInt(QueryConstants.HASH_JOIN_CACHE_RETRIES, QueryConstants.DEFAULT_HASH_JOIN_CACHE_RETRIES);
         IndexUtil.setScanAttributesForIndexReadRepair(scan, table, plan.getContext().getConnection());
     }
@@ -171,16 +174,16 @@ public class TableResultIterator implements ResultIterator {
             } catch (SQLException e) {
                 try {
                     throw ServerUtil.parseServerException(e);
-                } catch(HashJoinCacheNotFoundException e1) {
-                    if(ScanUtil.isNonAggregateScan(scan) && plan.getContext().getAggregationManager().isEmpty()) {
+                } catch (HashJoinCacheNotFoundException e1) {
+                    if (ScanUtil.isNonAggregateScan(scan) && plan.getContext().getAggregationManager().isEmpty()) {
                         // For non aggregate queries if we get stale region boundary exception we can
                         // continue scanning from the next value of lasted fetched result.
                         Scan newScan = ScanUtil.newScan(scan);
                         newScan.withStartRow(newScan.getAttribute(SCAN_ACTUAL_START_ROW));
-                        if(lastTuple != null) {
+                        if (lastTuple != null) {
                             lastTuple.getKey(ptr);
                             byte[] startRowSuffix = ByteUtil.copyKeyBytesIfNecessary(ptr);
-                            if(ScanUtil.isLocalIndex(newScan)) {
+                            if (ScanUtil.isLocalIndex(newScan)) {
                                 // If we just set scan start row suffix then server side we prepare
                                 // actual scan boundaries by prefixing the region start key.
                                 newScan.setAttribute(SCAN_START_ROW_SUFFIX, ByteUtil.nextKey(startRowSuffix));
@@ -243,7 +246,7 @@ public class TableResultIterator implements ResultIterator {
 
     @Override
     public String toString() {
-        return "TableResultIterator [htable=" + htable + ", scan=" + scan  + "]";
+        return "TableResultIterator [htable=" + htable + ", scan=" + scan + "]";
     }
 
     public RenewLeaseStatus renewLease() {
@@ -262,9 +265,9 @@ public class TableResultIterator implements ResultIterator {
                     return THRESHOLD_NOT_REACHED;
                 }
                 if (scanIterator instanceof ScanningResultIterator
-                        && ((ScanningResultIterator)scanIterator).getScanner() instanceof AbstractClientScanner) {
+                        && ((ScanningResultIterator) scanIterator).getScanner() instanceof AbstractClientScanner) {
                     // Need this explicit cast because HBase's ResultScanner doesn't have this method exposed.
-                    boolean leaseRenewed = ((AbstractClientScanner)((ScanningResultIterator)scanIterator).getScanner()).renewLease();
+                    boolean leaseRenewed = ((AbstractClientScanner) ((ScanningResultIterator) scanIterator).getScanner()).renewLease();
                     if (leaseRenewed) {
                         renewLeaseTime = now();
                         return RENEWED;
@@ -276,8 +279,7 @@ public class TableResultIterator implements ResultIterator {
                 }
             }
             return LOCK_NOT_ACQUIRED;
-        } 
-        finally {
+        } finally {
             if (lockAcquired) {
                 renewLeaseLock.unlock();
             }

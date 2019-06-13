@@ -33,60 +33,60 @@ import org.junit.Test;
 
 public class TestThreadPoolManager {
 
-  @Rule
-  public IndexTableName name = new IndexTableName();
+    @Rule
+    public IndexTableName name = new IndexTableName();
 
-  @Test
-  public void testShutdownGetsNewThreadPool() throws Exception{
-    Map<String, Object> cache = new HashMap<String, Object>();
-    ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    ThreadPoolExecutor exec = ThreadPoolManager.getExecutor(builder, cache);
-    assertNotNull("Got a null exector from the pool!", exec);
-    //shutdown the pool and ensure that it actually shutdown
-    exec.shutdown();
-    ThreadPoolExecutor exec2 = ThreadPoolManager.getExecutor(builder, cache);
-    assertFalse("Got the same exectuor, even though the original shutdown", exec2 == exec);
-  }
+    @Test
+    public void testShutdownGetsNewThreadPool() throws Exception {
+        Map<String, Object> cache = new HashMap<String, Object>();
+        ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+        ThreadPoolExecutor exec = ThreadPoolManager.getExecutor(builder, cache);
+        assertNotNull("Got a null exector from the pool!", exec);
+        //shutdown the pool and ensure that it actually shutdown
+        exec.shutdown();
+        ThreadPoolExecutor exec2 = ThreadPoolManager.getExecutor(builder, cache);
+        assertFalse("Got the same exectuor, even though the original shutdown", exec2 == exec);
+    }
 
-  @Test
-  public void testShutdownWithReferencesDoesNotStopExecutor() throws Exception {
-    Map<String, Object> cache = new HashMap<String, Object>();
-    ThreadPoolBuilder builder =
-        new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    ThreadPoolExecutor exec = ThreadPoolManager.getExecutor(builder, cache);
-    assertNotNull("Got a null exector from the pool!", exec);
-    ThreadPoolExecutor exec2 = ThreadPoolManager.getExecutor(builder, cache);
-    assertTrue("Should have gotten the same executor", exec2 == exec);
-    exec.shutdown();
-    assertFalse("Executor is shutting down, even though we have a live reference!",
-      exec.isShutdown() || exec.isTerminating());
-    exec2.shutdown();
-    // wait 5 minutes for thread pool to shutdown
-    assertTrue("Executor is NOT shutting down, after releasing live reference!",
-      exec.awaitTermination(300, TimeUnit.SECONDS));
-  }
+    @Test
+    public void testShutdownWithReferencesDoesNotStopExecutor() throws Exception {
+        Map<String, Object> cache = new HashMap<String, Object>();
+        ThreadPoolBuilder builder =
+                new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+        ThreadPoolExecutor exec = ThreadPoolManager.getExecutor(builder, cache);
+        assertNotNull("Got a null exector from the pool!", exec);
+        ThreadPoolExecutor exec2 = ThreadPoolManager.getExecutor(builder, cache);
+        assertTrue("Should have gotten the same executor", exec2 == exec);
+        exec.shutdown();
+        assertFalse("Executor is shutting down, even though we have a live reference!",
+                exec.isShutdown() || exec.isTerminating());
+        exec2.shutdown();
+        // wait 5 minutes for thread pool to shutdown
+        assertTrue("Executor is NOT shutting down, after releasing live reference!",
+                exec.awaitTermination(300, TimeUnit.SECONDS));
+    }
 
-  @Test
-  public void testGetExpectedExecutorForName() throws Exception {
-    Map<String, Object> cache = new HashMap<String, Object>();
-    ThreadPoolBuilder builder =
-        new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    ThreadPoolExecutor exec = ThreadPoolManager.getExecutor(builder, cache);
-    assertNotNull("Got a null exector from the pool!", exec);
-    ThreadPoolExecutor exec2 = ThreadPoolManager.getExecutor(builder, cache);
-    assertTrue("Got a different exectuor, even though they have the same name", exec2 == exec);
-    builder = new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    exec2 = ThreadPoolManager.getExecutor(builder, cache);
-    assertTrue(
-      "Got a different exectuor, even though they have the same name, but different confs",
-      exec2 == exec);
+    @Test
+    public void testGetExpectedExecutorForName() throws Exception {
+        Map<String, Object> cache = new HashMap<String, Object>();
+        ThreadPoolBuilder builder =
+                new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+        ThreadPoolExecutor exec = ThreadPoolManager.getExecutor(builder, cache);
+        assertNotNull("Got a null exector from the pool!", exec);
+        ThreadPoolExecutor exec2 = ThreadPoolManager.getExecutor(builder, cache);
+        assertTrue("Got a different exectuor, even though they have the same name", exec2 == exec);
+        builder = new ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+        exec2 = ThreadPoolManager.getExecutor(builder, cache);
+        assertTrue(
+                "Got a different exectuor, even though they have the same name, but different confs",
+                exec2 == exec);
 
-    builder =
-        new ThreadPoolBuilder(name.getTableNameString() + "-some-other-pool", new Configuration(
-            false));
-    exec2 = ThreadPoolManager.getExecutor(builder, cache);
-    assertFalse(
-      "Got a different exectuor, even though they have the same name, but different confs",
-      exec2 == exec);
-  }
+        builder =
+                new ThreadPoolBuilder(name.getTableNameString() + "-some-other-pool", new Configuration(
+                        false));
+        exec2 = ThreadPoolManager.getExecutor(builder, cache);
+        assertFalse(
+                "Got a different exectuor, even though they have the same name, but different confs",
+                exec2 == exec);
+    }
 }

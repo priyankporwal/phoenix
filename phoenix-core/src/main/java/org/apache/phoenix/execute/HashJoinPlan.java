@@ -100,7 +100,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
     private final Set<TableRef> tableRefs;
     private final int maxServerCacheTimeToLive;
     private final long serverCacheLimit;
-    private final Map<ImmutableBytesPtr,ServerCache> dependencies = Maps.newHashMap();
+    private final Map<ImmutableBytesPtr, ServerCache> dependencies = Maps.newHashMap();
     private HashCacheClient hashClient;
     private AtomicLong firstJobEndTime;
     private List<Expression> keyRangeExpressions;
@@ -109,14 +109,15 @@ public class HashJoinPlan extends DelegateQueryPlan {
     private Long estimateInfoTs;
     private boolean getEstimatesCalled;
     private boolean hasSubPlansWithPersistentCache;
-    
-    public static HashJoinPlan create(SelectStatement statement, 
-            QueryPlan plan, HashJoinInfo joinInfo, SubPlan[] subPlans) throws SQLException {
-        if (!(plan instanceof HashJoinPlan))
-            return new HashJoinPlan(statement, plan, joinInfo, subPlans, joinInfo == null, Collections.<ImmutableBytesPtr,ServerCache>emptyMap());
-        
+
+    public static HashJoinPlan create(SelectStatement statement,
+                                      QueryPlan plan, HashJoinInfo joinInfo, SubPlan[] subPlans) throws SQLException {
+        if (!(plan instanceof HashJoinPlan)) {
+            return new HashJoinPlan(statement, plan, joinInfo, subPlans, joinInfo == null, Collections.<ImmutableBytesPtr, ServerCache>emptyMap());
+        }
+
         HashJoinPlan hashJoinPlan = (HashJoinPlan) plan;
-        assert (hashJoinPlan.joinInfo == null && hashJoinPlan.delegate instanceof BaseQueryPlan);
+        assert(hashJoinPlan.joinInfo == null && hashJoinPlan.delegate instanceof BaseQueryPlan);
         SubPlan[] mergedSubPlans = new SubPlan[hashJoinPlan.subPlans.length + subPlans.length];
         int i = 0;
         for (SubPlan subPlan : hashJoinPlan.subPlans) {
@@ -127,9 +128,9 @@ public class HashJoinPlan extends DelegateQueryPlan {
         }
         return new HashJoinPlan(statement, hashJoinPlan.delegate, joinInfo, mergedSubPlans, true, hashJoinPlan.dependencies);
     }
-    
-    private HashJoinPlan(SelectStatement statement, 
-            QueryPlan plan, HashJoinInfo joinInfo, SubPlan[] subPlans, boolean recompileWhereClause, Map<ImmutableBytesPtr,ServerCache> dependencies) throws SQLException {
+
+    private HashJoinPlan(SelectStatement statement,
+                         QueryPlan plan, HashJoinInfo joinInfo, SubPlan[] subPlans, boolean recompileWhereClause, Map<ImmutableBytesPtr, ServerCache> dependencies) throws SQLException {
         super(plan);
         this.dependencies.putAll(dependencies);
         this.statement = statement;
@@ -141,7 +142,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
         this.hasSubPlansWithPersistentCache = false;
         for (SubPlan subPlan : subPlans) {
             tableRefs.addAll(subPlan.getInnerPlan().getSourceRefs());
-            if (subPlan instanceof HashSubPlan && ((HashSubPlan)subPlan).usePersistentCache) {
+            if (subPlan instanceof HashSubPlan && ((HashSubPlan) subPlan).usePersistentCache) {
                 this.hasSubPlansWithPersistentCache = true;
             }
         }
@@ -151,31 +152,31 @@ public class HashJoinPlan extends DelegateQueryPlan {
         this.serverCacheLimit = services.getProps().getLong(
                 QueryServices.MAX_SERVER_CACHE_SIZE_ATTRIB, QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_SIZE);
     }
-    
+
     @Override
     public Set<TableRef> getSourceRefs() {
         return tableRefs;
     }
-        
+
     @Override
     public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
         if (scan == null) {
             scan = delegate.getContext().getScan();
         }
-        
+
         int count = subPlans.length;
         PhoenixConnection connection = getContext().getConnection();
         ConnectionQueryServices services = connection.getQueryServices();
         ExecutorService executor = services.getExecutor();
         List<Future<ServerCache>> futures = Lists.newArrayListWithExpectedSize(count);
         if (joinInfo != null) {
-            hashClient = hashClient != null ? 
-                    hashClient 
-                  : new HashCacheClient(delegate.getContext().getConnection());
+            hashClient = hashClient != null ?
+                    hashClient
+                    : new HashCacheClient(delegate.getContext().getConnection());
             firstJobEndTime = new AtomicLong(0);
             keyRangeExpressions = new CopyOnWriteArrayList<Expression>();
         }
-        
+
         for (int i = 0; i < count; i++) {
             final int index = i;
             futures.add(executor.submit(new JobCallable<ServerCache>() {
@@ -197,13 +198,13 @@ public class HashJoinPlan extends DelegateQueryPlan {
                 }
             }));
         }
-        
+
         SQLException firstException = null;
         for (int i = 0; i < count; i++) {
             try {
                 ServerCache result = futures.get(i).get();
                 if (result != null) {
-                    dependencies.put(new ImmutableBytesPtr(result.getId()),result);
+                    dependencies.put(new ImmutableBytesPtr(result.getId()), result);
                 }
                 subPlans[i].postProcess(result, this);
             } catch (InterruptedException e) {
@@ -213,7 +214,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
                 }
             } catch (ExecutionException e) {
                 if (firstException == null) {
-                    firstException = new SQLException("Encountered exception in sub plan [" + i + "] execution.", 
+                    firstException = new SQLException("Encountered exception in sub plan [" + i + "] execution.",
                             e.getCause());
                 }
             }
@@ -244,7 +245,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
         if (joinInfo != null) {
             HashJoinInfo.serializeHashJoinIntoScan(scan, joinInfo);
         }
-        
+
         ResultIterator iterator = joinInfo == null ? delegate.iterator(scanGrouper, scan) : ((BaseQueryPlan) delegate).iterator(dependencies, scanGrouper, scan);
         if (statement.getInnerSelectStatement() != null && postFilter != null) {
             iterator = new FilterResultIterator(iterator, postFilter);
@@ -281,13 +282,14 @@ public class HashJoinPlan extends DelegateQueryPlan {
     }
 
     private Expression createKeyRangeExpression(Expression lhsExpression,
-            Expression rhsExpression, List<Expression> rhsValues, 
-            ImmutableBytesWritable ptr, boolean rowKeyOrderOptimizable) throws SQLException {
-        if (rhsValues.isEmpty())
-            return LiteralExpression.newConstant(false, PBoolean.INSTANCE, Determinism.ALWAYS);        
-        
+                                                Expression rhsExpression, List<Expression> rhsValues,
+                                                ImmutableBytesWritable ptr, boolean rowKeyOrderOptimizable) throws SQLException {
+        if (rhsValues.isEmpty()) {
+            return LiteralExpression.newConstant(false, PBoolean.INSTANCE, Determinism.ALWAYS);
+        }
+
         rhsValues.add(0, lhsExpression);
-        
+
         return InListExpression.create(rhsValues, false, ptr, rowKeyOrderOptimizable);
     }
 
@@ -301,7 +303,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
         for (int i = 0; i < count; i++) {
             planSteps.addAll(subPlans[i].getPostSteps(this));
         }
-        
+
         if (joinInfo != null && joinInfo.getPostJoinFilterExpression() != null) {
             planSteps.add("    AFTER-JOIN SERVER FILTER BY " + joinInfo.getPostJoinFilterExpression().toString());
         }
@@ -406,18 +408,23 @@ public class HashJoinPlan extends DelegateQueryPlan {
 
     public interface SubPlan {
         public ServerCache execute(HashJoinPlan parent) throws SQLException;
+
         public void postProcess(ServerCache result, HashJoinPlan parent) throws SQLException;
+
         public List<String> getPreSteps(HashJoinPlan parent) throws SQLException;
+
         public List<String> getPostSteps(HashJoinPlan parent) throws SQLException;
+
         public QueryPlan getInnerPlan();
+
         public boolean hasKeyRangeExpression();
     }
-    
+
     public static class WhereClauseSubPlan implements SubPlan {
         private final QueryPlan plan;
         private final SelectStatement select;
         private final boolean expectSingleRow;
-        
+
         public WhereClauseSubPlan(QueryPlan plan, SelectStatement select, boolean expectSingleRow) {
             this.plan = plan;
             this.select = select;
@@ -426,7 +433,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
 
         @Override
         public ServerCache execute(HashJoinPlan parent) throws SQLException {
-            List<Object> values = Lists.<Object> newArrayList();
+            List<Object> values = Lists.<Object>newArrayList();
             ResultIterator iterator = plan.iterator();
             try {
                 RowProjector projector = plan.getProjector();
@@ -435,8 +442,9 @@ public class HashJoinPlan extends DelegateQueryPlan {
                 int rowCount = 0;
                 PDataType baseType = PVarbinary.INSTANCE;
                 for (Tuple tuple = iterator.next(); tuple != null; tuple = iterator.next()) {
-                    if (expectSingleRow && rowCount >= 1)
+                    if (expectSingleRow && rowCount >= 1) {
                         throw new SQLExceptionInfo.Builder(SQLExceptionCode.SINGLE_ROW_SUBQUERY_RETURNS_MULTIPLE_ROWS).build().buildException();
+                    }
 
                     if (columnCount == 1) {
                         ColumnProjector columnProjector = projector.getColumnProjector(0);
@@ -496,8 +504,8 @@ public class HashJoinPlan extends DelegateQueryPlan {
             return false;
         }
     }
-    
-    public static class HashSubPlan implements SubPlan {        
+
+    public static class HashSubPlan implements SubPlan {
         private final int index;
         private final QueryPlan plan;
         private final List<Expression> hashExpressions;
@@ -506,13 +514,13 @@ public class HashJoinPlan extends DelegateQueryPlan {
         private final Expression keyRangeLhsExpression;
         private final Expression keyRangeRhsExpression;
         private final MessageDigest digest;
-        
-        public HashSubPlan(int index, QueryPlan subPlan, 
-                List<Expression> hashExpressions,
-                boolean singleValueOnly,
-                boolean usePersistentCache,
-                Expression keyRangeLhsExpression, 
-                Expression keyRangeRhsExpression) {
+
+        public HashSubPlan(int index, QueryPlan subPlan,
+                           List<Expression> hashExpressions,
+                           boolean singleValueOnly,
+                           boolean usePersistentCache,
+                           Expression keyRangeLhsExpression,
+                           Expression keyRangeRhsExpression) {
             this.index = index;
             this.plan = subPlan;
             this.hashExpressions = hashExpressions;
@@ -565,22 +573,22 @@ public class HashJoinPlan extends DelegateQueryPlan {
                         if (!isSet && (endTime
                                 - parent.firstJobEndTime.get()) > parent.maxServerCacheTimeToLive) {
                             LOGGER.warn(addCustomAnnotations(
-                                "Hash plan [" + index
-                                        + "] execution seems too slow. Earlier hash cache(s) might have expired on servers.",
-                                parent.delegate.getContext().getConnection()));
+                                    "Hash plan [" + index
+                                            + "] execution seems too slow. Earlier hash cache(s) might have expired on servers.",
+                                    parent.delegate.getContext().getConnection()));
                         }
                     }
                 } finally {
                     iterator.close();
                 }
             } else {
-                assert (keyRangeRhsExpression != null);
+                assert(keyRangeRhsExpression != null);
                 ResultIterator iterator = plan.iterator();
                 try {
                     for (Tuple result = iterator.next(); result != null; result = iterator.next()) {
                         // Evaluate key expressions for hash join key range optimization.
                         keyRangeRhsValues.add(HashCacheClient.evaluateKeyExpression(
-                            keyRangeRhsExpression, result, plan.getContext().getTempPtr()));
+                                keyRangeRhsExpression, result, plan.getContext().getTempPtr()));
                     }
                 } finally {
                     iterator.close();
@@ -609,8 +617,7 @@ public class HashJoinPlan extends DelegateQueryPlan {
             if (hashExpressions != null) {
                 steps.add("    PARALLEL " + parent.joinInfo.getJoinTypes()[index].toString().toUpperCase()
                         + "-JOIN TABLE " + index + (earlyEvaluation ? "" : "(DELAYED EVALUATION)") + (skipMerge ? " (SKIP MERGE)" : ""));
-            }
-            else {
+            } else {
                 steps.add("    SKIP-SCAN-JOIN TABLE " + index);
             }
             for (String step : plan.getExplainPlan().getPlanSteps()) {
@@ -621,12 +628,13 @@ public class HashJoinPlan extends DelegateQueryPlan {
 
         @Override
         public List<String> getPostSteps(HashJoinPlan parent) throws SQLException {
-            if (keyRangeLhsExpression == null)
-                return Collections.<String> emptyList();
-            
-            String step = "    DYNAMIC SERVER FILTER BY " + keyRangeLhsExpression.toString() 
+            if (keyRangeLhsExpression == null) {
+                return Collections.<String>emptyList();
+            }
+
+            String step = "    DYNAMIC SERVER FILTER BY " + keyRangeLhsExpression.toString()
                     + " IN (" + keyRangeRhsExpression.toString() + ")";
-            return Collections.<String> singletonList(step);
+            return Collections.<String>singletonList(step);
         }
 
 

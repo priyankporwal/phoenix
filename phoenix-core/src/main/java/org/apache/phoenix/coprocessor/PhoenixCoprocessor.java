@@ -23,6 +23,6 @@ import org.apache.hadoop.hbase.Coprocessor;
 
 public interface PhoenixCoprocessor extends Coprocessor {
     default Optional<MetaDataEndpointObserver> getPhoenixObserver() {
-      return Optional.empty();
+        return Optional.empty();
     }
-  }
+}

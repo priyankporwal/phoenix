@@ -34,12 +34,12 @@ import org.junit.Test;
 
 public abstract class UnnestArrayIT extends ParallelStatsDisabledIT {
     private String tableName;
-    
+
     @Before
     public void setup() {
         tableName = generateUniqueName();
     }
-    
+
     @Test
     public void testUnnestWithIntArray1() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);

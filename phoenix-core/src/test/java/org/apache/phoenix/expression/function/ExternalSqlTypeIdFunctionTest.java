@@ -74,6 +74,6 @@ public class ExternalSqlTypeIdFunctionTest {
         assertTrue(externalIdFunction.evaluate(null, ptr));
 
         return PInteger.INSTANCE.toObject(ptr.get(), ptr.getOffset(), ptr.getLength(),
-            PInteger.INSTANCE, inputArg.getSortOrder());
+                PInteger.INSTANCE, inputArg.getSortOrder());
     }
 }

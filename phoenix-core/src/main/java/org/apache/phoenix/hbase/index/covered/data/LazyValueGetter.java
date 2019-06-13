@@ -44,7 +44,8 @@ public class LazyValueGetter implements ValueGetter {
 
     /**
      * Back the getter with a {@link Scanner} to actually access the local data.
-     * @param scan backing scanner
+     *
+     * @param scan       backing scanner
      * @param currentRow row key for the row to seek in the scanner
      */
     public LazyValueGetter(CoveredDeleteScanner scan, byte[] currentRow) {
@@ -102,6 +103,6 @@ public class LazyValueGetter implements ValueGetter {
 
     @Override
     public byte[] getRowKey() {
-        return this.row; 
+        return this.row;
     }
 }

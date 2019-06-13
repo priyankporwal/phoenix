@@ -50,6 +50,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 /**
  * Unit tests for {@link SinFunction}
  * Unit tests for {@link CosFunction}
@@ -69,71 +70,71 @@ public class MathTrigFunctionTest {
 
     @Parameters(name = "{0} {1}")
     public static Collection<Object> data() {
-        return Arrays.asList(new Object[][]{
-            {
-                new BigDecimal[]{BigDecimal.valueOf(1.0), BigDecimal.valueOf(0.0),
-                    BigDecimal.valueOf(-1.0), BigDecimal.valueOf(123.1234),
-                    BigDecimal.valueOf(-123.1234)},
-                PDecimal.INSTANCE
-            },
-            {
-                new Float[]{1.0f, 0.0f, -1.0f, Float.MAX_VALUE, Float.MIN_VALUE,
-                    -Float.MAX_VALUE, -Float.MIN_VALUE, 123.1234f, -123.1234f},
-                PFloat.INSTANCE
-            },
-            {
-                new Float[]{1.0f, 0.0f, Float.MAX_VALUE, Float.MIN_VALUE, 123.1234f},
-                PUnsignedFloat.INSTANCE
-            },
-            {
-                new Double[]{1.0, 0.0, -1.0, Double.MAX_VALUE, Double.MIN_VALUE,
-                    -Double.MAX_VALUE, -Double.MIN_VALUE, 123.1234, -123.1234},
-                PDouble.INSTANCE
-            },
-            {
-                new Double[]{1.0, 0.0, Double.MAX_VALUE, Double.MIN_VALUE, 123.1234},
-                PUnsignedDouble.INSTANCE
-            },
-            {
-                new Long[]{(long) 1, (long) 0, (long) -1, Long.MAX_VALUE,
-                    Long.MIN_VALUE, (long) 123, (long) -123},
-                PLong.INSTANCE
-            },
-            {
-                new Long[]{(long) 1, (long) 0, Long.MAX_VALUE, (long) 123},
-                PUnsignedLong.INSTANCE
-            },
-            {
-                new Integer[]{1, 0, -1, Integer.MAX_VALUE, Integer.MIN_VALUE, 123, -123},
-                PInteger.INSTANCE
-            },
-            {
-                new Integer[]{1, 0, Integer.MAX_VALUE, 123},
-                PUnsignedInt.INSTANCE
-            },
-            {
-                new Short[]{(short) 1, (short) 0, (short) -1, Short.MAX_VALUE,
-                    Short.MIN_VALUE, (short) 123, (short) -123},
-                PSmallint.INSTANCE
-            },
-            {
-                new Short[]{(short) 1, (short) 0, Short.MAX_VALUE, (short) 123},
-                PSmallint.INSTANCE
-            },
-            {
-                new Byte[]{(byte) 1, (byte) 0, (byte) -1, Byte.MAX_VALUE,
-                    Byte.MIN_VALUE, (byte) 123, (byte) -123},
-                PTinyint.INSTANCE
-            },
-            {
-                new Byte[]{(byte) 1, (byte) 0, Byte.MAX_VALUE, (byte) 123},
-                PTinyint.INSTANCE
-            }
-    });
+        return Arrays.asList(new Object[][] {
+                {
+                        new BigDecimal[] {BigDecimal.valueOf(1.0), BigDecimal.valueOf(0.0),
+                                BigDecimal.valueOf(-1.0), BigDecimal.valueOf(123.1234),
+                                BigDecimal.valueOf(-123.1234)},
+                        PDecimal.INSTANCE
+                },
+                {
+                        new Float[] {1.0f, 0.0f, -1.0f, Float.MAX_VALUE, Float.MIN_VALUE,
+                                -Float.MAX_VALUE, -Float.MIN_VALUE, 123.1234f, -123.1234f},
+                        PFloat.INSTANCE
+                },
+                {
+                        new Float[] {1.0f, 0.0f, Float.MAX_VALUE, Float.MIN_VALUE, 123.1234f},
+                        PUnsignedFloat.INSTANCE
+                },
+                {
+                        new Double[] {1.0, 0.0, -1.0, Double.MAX_VALUE, Double.MIN_VALUE,
+                                -Double.MAX_VALUE, -Double.MIN_VALUE, 123.1234, -123.1234},
+                        PDouble.INSTANCE
+                },
+                {
+                        new Double[] {1.0, 0.0, Double.MAX_VALUE, Double.MIN_VALUE, 123.1234},
+                        PUnsignedDouble.INSTANCE
+                },
+                {
+                        new Long[] {(long) 1, (long) 0, (long) -1, Long.MAX_VALUE,
+                                Long.MIN_VALUE, (long) 123, (long) -123},
+                        PLong.INSTANCE
+                },
+                {
+                        new Long[] {(long) 1, (long) 0, Long.MAX_VALUE, (long) 123},
+                        PUnsignedLong.INSTANCE
+                },
+                {
+                        new Integer[] {1, 0, -1, Integer.MAX_VALUE, Integer.MIN_VALUE, 123, -123},
+                        PInteger.INSTANCE
+                },
+                {
+                        new Integer[] {1, 0, Integer.MAX_VALUE, 123},
+                        PUnsignedInt.INSTANCE
+                },
+                {
+                        new Short[] {(short) 1, (short) 0, (short) -1, Short.MAX_VALUE,
+                                Short.MIN_VALUE, (short) 123, (short) -123},
+                        PSmallint.INSTANCE
+                },
+                {
+                        new Short[] {(short) 1, (short) 0, Short.MAX_VALUE, (short) 123},
+                        PSmallint.INSTANCE
+                },
+                {
+                        new Byte[] {(byte) 1, (byte) 0, (byte) -1, Byte.MAX_VALUE,
+                                Byte.MIN_VALUE, (byte) 123, (byte) -123},
+                        PTinyint.INSTANCE
+                },
+                {
+                        new Byte[] {(byte) 1, (byte) 0, Byte.MAX_VALUE, (byte) 123},
+                        PTinyint.INSTANCE
+                }
+        });
     }
 
     private boolean testExpression(LiteralExpression literal, double expectedResult,
-                                          String testedFunction) throws SQLException {
+                                   String testedFunction) throws SQLException {
         List<Expression> expressions = Lists.newArrayList((Expression) literal);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         Expression mathFunction = null;
@@ -157,7 +158,7 @@ public class MathTrigFunctionTest {
     }
 
     private void test(Number value, PNumericType dataType, double expectedResult,
-                             String testedFunction)
+                      String testedFunction)
             throws SQLException {
         LiteralExpression literal = LiteralExpression.newConstant(value, dataType, SortOrder.ASC);
         boolean ret1 = testExpression(literal, expectedResult, testedFunction);

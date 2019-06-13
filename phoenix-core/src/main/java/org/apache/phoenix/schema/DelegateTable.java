@@ -81,7 +81,7 @@ public class DelegateTable implements PTable {
     public List<PColumn> getColumns() {
         return delegate.getColumns();
     }
-    
+
     @Override
     public List<PColumn> getExcludedColumns() {
         return delegate.getExcludedColumns();
@@ -272,7 +272,7 @@ public class DelegateTable implements PTable {
     public int getRowTimestampColPos() {
         return delegate.getRowTimestampColPos();
     }
-    
+
     @Override
     public String toString() {
         return delegate.toString();
@@ -292,12 +292,12 @@ public class DelegateTable implements PTable {
     public String getAutoPartitionSeqName() {
         return delegate.getAutoPartitionSeqName();
     }
-    
+
     @Override
     public boolean isAppendOnlySchema() {
         return delegate.isAppendOnlySchema();
     }
-    
+
     @Override
     public int hashCode() {
         return delegate.hashCode();
@@ -307,7 +307,7 @@ public class DelegateTable implements PTable {
     public boolean equals(Object obj) {
         return delegate.equals(obj);
     }
-    
+
     @Override
     public ImmutableStorageScheme getImmutableStorageScheme() {
         return delegate.getImmutableStorageScheme();
@@ -333,11 +333,13 @@ public class DelegateTable implements PTable {
         return delegate.useStatsForParallelization();
     }
 
-    @Override public boolean hasViewModifiedUpdateCacheFrequency() {
+    @Override
+    public boolean hasViewModifiedUpdateCacheFrequency() {
         return delegate.hasViewModifiedUpdateCacheFrequency();
     }
 
-    @Override public boolean hasViewModifiedUseStatsForParallelization() {
+    @Override
+    public boolean hasViewModifiedUseStatsForParallelization() {
         return delegate.hasViewModifiedUseStatsForParallelization();
     }
 }

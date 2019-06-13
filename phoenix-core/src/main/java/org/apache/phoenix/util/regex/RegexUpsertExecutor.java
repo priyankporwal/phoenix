@@ -30,20 +30,24 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-/** {@link UpsertExecutor} over {@link Map} objects, convert input record into {@link Map} objects by using regex. */
+/**
+ * {@link UpsertExecutor} over {@link Map} objects, convert input record into {@link Map} objects by using regex.
+ */
 public class RegexUpsertExecutor extends JsonUpsertExecutor {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(RegexUpsertExecutor.class);
 
-    /** Testing constructor. Do not use in prod. */
+    /**
+     * Testing constructor. Do not use in prod.
+     */
     @VisibleForTesting
     protected RegexUpsertExecutor(Connection conn, List<ColumnInfo> columnInfoList,
-            PreparedStatement stmt, UpsertListener<Map<?, ?>> upsertListener) {
+                                  PreparedStatement stmt, UpsertListener<Map<?, ?>> upsertListener) {
         super(conn, columnInfoList, stmt, upsertListener);
     }
 
     public RegexUpsertExecutor(Connection conn, String tableName, List<ColumnInfo> columnInfoList,
-            UpsertExecutor.UpsertListener<Map<?, ?>> upsertListener) {
+                               UpsertExecutor.UpsertListener<Map<?, ?>> upsertListener) {
         super(conn, tableName, columnInfoList, upsertListener);
     }
 

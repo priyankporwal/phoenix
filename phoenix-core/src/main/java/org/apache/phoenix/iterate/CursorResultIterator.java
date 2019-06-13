@@ -29,6 +29,7 @@ public class CursorResultIterator implements ResultIterator {
     //TODO Configure fetch size from FETCH call
     private int fetchSize = 0;
     private int rowsRead = 0;
+
     public CursorResultIterator(PeekingResultIterator delegate, String cursorName) {
         this.delegate = delegate;
         this.cursorName = cursorName;
@@ -36,18 +37,18 @@ public class CursorResultIterator implements ResultIterator {
 
     @Override
     public Tuple next() throws SQLException {
-    	if(!CursorUtil.moreValues(cursorName)){
-    	    return null;
+        if (!CursorUtil.moreValues(cursorName)) {
+            return null;
         } else if (fetchSize == rowsRead) {
             return null;
-    	}
+        }
 
         Tuple next = delegate.next();
-        CursorUtil.updateCursor(cursorName,next, delegate.peek());
+        CursorUtil.updateCursor(cursorName, next, delegate.peek());
         rowsRead++;
         return next;
     }
-    
+
     @Override
     public void explain(List<String> planSteps) {
         delegate.explain(planSteps);
@@ -68,7 +69,7 @@ public class CursorResultIterator implements ResultIterator {
         delegate.close();
     }
 
-    public void setFetchSize(int fetchSize){
+    public void setFetchSize(int fetchSize) {
         this.fetchSize = fetchSize;
         this.rowsRead = 0;
     }

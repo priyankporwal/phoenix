@@ -31,54 +31,54 @@ import java.util.Map;
  */
 public class EntityFactory {
 
-  private String queryString;
-  protected Connection connection;
+    private String queryString;
+    protected Connection connection;
 
-  public EntityFactory(Connection connection, String queryString) {
-    this.queryString = queryString;
-    this.connection = connection;
-  }
-
-  public List<Map<String, Object>> findMultiple()
-      throws SQLException {
-    ResultSet rs = null;
-    PreparedStatement ps = null;
-    try {
-      ps = this.connection.prepareStatement(this.queryString);
-      rs = ps.executeQuery();
-      return getEntitiesFromResultSet(rs);
-    } catch (SQLException e) {
-      throw (e);
-    } finally {
-      if (rs != null) {
-        rs.close();
-      }
-      if (ps != null) {
-        ps.close();
-      }
+    public EntityFactory(Connection connection, String queryString) {
+        this.queryString = queryString;
+        this.connection = connection;
     }
-  }
 
-  protected static List<Map<String, Object>> getEntitiesFromResultSet(
-      ResultSet resultSet) throws SQLException {
-    ArrayList<Map<String, Object>> entities = new ArrayList<>();
-    while (resultSet.next()) {
-      entities.add(getEntityFromResultSet(resultSet));
+    public List<Map<String, Object>> findMultiple()
+            throws SQLException {
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+        try {
+            ps = this.connection.prepareStatement(this.queryString);
+            rs = ps.executeQuery();
+            return getEntitiesFromResultSet(rs);
+        } catch (SQLException e) {
+            throw (e);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+        }
     }
-    return entities;
-  }
 
-  protected static Map<String, Object> getEntityFromResultSet(ResultSet resultSet)
-      throws SQLException {
-    ResultSetMetaData metaData = resultSet.getMetaData();
-    int columnCount = metaData.getColumnCount();
-    Map<String, Object> resultsMap = new HashMap<>();
-    for (int i = 1; i <= columnCount; ++i) {
-      String columnName = metaData.getColumnName(i).toLowerCase();
-      Object object = resultSet.getObject(i);
-      resultsMap.put(columnName, object);
+    protected static List<Map<String, Object>> getEntitiesFromResultSet(
+            ResultSet resultSet) throws SQLException {
+        ArrayList<Map<String, Object>> entities = new ArrayList<>();
+        while (resultSet.next()) {
+            entities.add(getEntityFromResultSet(resultSet));
+        }
+        return entities;
     }
-    return resultsMap;
-  }
+
+    protected static Map<String, Object> getEntityFromResultSet(ResultSet resultSet)
+            throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        Map<String, Object> resultsMap = new HashMap<>();
+        for (int i = 1; i <= columnCount; ++i) {
+            String columnName = metaData.getColumnName(i).toLowerCase();
+            Object object = resultSet.getObject(i);
+            resultsMap.put(columnName, object);
+        }
+        return resultsMap;
+    }
 
 }

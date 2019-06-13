@@ -52,7 +52,7 @@ public class PhoenixIndexImportDirectReducer extends
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixIndexImportDirectReducer.class);
 
     @Override
-    protected void cleanup(Context context) throws IOException, InterruptedException{
+    protected void cleanup(Context context) throws IOException, InterruptedException {
         try {
             IndexToolUtil.updateIndexState(context.getConfiguration(), PIndexState.ACTIVE);
 

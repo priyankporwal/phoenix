@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * Global memory manager to track course grained memory usage across all requests.
- *
  *
  * @since 0.1
  */
@@ -38,6 +36,7 @@ public class GlobalMemoryManager implements MemoryManager {
     private final long maxMemoryBytes;
     @GuardedBy("sync")
     private volatile long usedMemoryBytes;
+
     public GlobalMemoryManager(long maxBytes) {
         if (maxBytes <= 0) {
             throw new IllegalStateException(
@@ -49,7 +48,7 @@ public class GlobalMemoryManager implements MemoryManager {
 
     @Override
     public long getAvailableMemory() {
-        synchronized(sync) {
+        synchronized (sync) {
             return maxMemoryBytes - usedMemoryBytes;
         }
     }
@@ -68,19 +67,19 @@ public class GlobalMemoryManager implements MemoryManager {
         if (minBytes > maxMemoryBytes) {
             throw new InsufficientMemoryException(
                     new SQLExceptionInfo.Builder(SQLExceptionCode.INSUFFICIENT_MEMORY)
-                    .setMessage("Requested memory of " + minBytes
-                              + " bytes is larger than global pool of " + maxMemoryBytes + " bytes.")
-                    .build().buildException());
+                            .setMessage("Requested memory of " + minBytes
+                                    + " bytes is larger than global pool of " + maxMemoryBytes + " bytes.")
+                            .build().buildException());
         }
         long nBytes;
-        synchronized(sync) {
+        synchronized (sync) {
             if (usedMemoryBytes + minBytes > maxMemoryBytes) {
                 throw new InsufficientMemoryException(
                         new SQLExceptionInfo.Builder(SQLExceptionCode.INSUFFICIENT_MEMORY)
-                        .setMessage("Requested memory of " + minBytes
-                                + " bytes could not be allocated. Using memory of " + usedMemoryBytes
-                                + " bytes from global pool of " + maxMemoryBytes)
-                        .build().buildException());
+                                .setMessage("Requested memory of " + minBytes
+                                        + " bytes could not be allocated. Using memory of " + usedMemoryBytes
+                                        + " bytes from global pool of " + maxMemoryBytes)
+                                .build().buildException());
             }
             // Allocate at most reqBytes, but at least minBytes
             nBytes = Math.min(reqBytes, maxMemoryBytes - usedMemoryBytes);
@@ -101,7 +100,7 @@ public class GlobalMemoryManager implements MemoryManager {
 
     @Override
     public MemoryChunk allocate(long nBytes) {
-        return allocate(nBytes,nBytes);
+        return allocate(nBytes, nBytes);
     }
 
     private MemoryChunk newMemoryChunk(long sizeBytes) {
@@ -131,7 +130,7 @@ public class GlobalMemoryManager implements MemoryManager {
             if (nBytes < 0) {
                 throw new IllegalStateException("Number of bytes to resize to must be greater than zero, but instead is " + nBytes);
             }
-            synchronized(sync) {
+            synchronized (sync) {
                 long nAdditionalBytes = (nBytes - size);
                 if (nAdditionalBytes < 0) {
                     usedMemoryBytes += nAdditionalBytes;
@@ -161,12 +160,12 @@ public class GlobalMemoryManager implements MemoryManager {
         }
 
         private void freeMemory() {
-            synchronized(sync) {
+            synchronized (sync) {
                 usedMemoryBytes -= size;
                 size = 0;
             }
         }
-        
+
         @Override
         public void close() {
             freeMemory();

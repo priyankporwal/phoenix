@@ -35,13 +35,13 @@ public class ParallelWriterIndexCommitter extends AbstractParallelWriterIndexCom
     private static final Logger LOGGER = LoggerFactory.getLogger(ParallelWriterIndexCommitter.class);
 
 
-    public ParallelWriterIndexCommitter() {}
+    public ParallelWriterIndexCommitter() {
+    }
 
     // For testing
     public ParallelWriterIndexCommitter(String hbaseVersion) {
         super(hbaseVersion);
     }
-
 
 
     @Override

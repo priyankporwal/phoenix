@@ -26,8 +26,8 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PDouble;
 
-@BuiltInFunction(name = PowerFunction.NAME, args = { @Argument(allowedTypes = { PDouble.class, PDecimal.class }),
-        @Argument(allowedTypes = { PDouble.class, PDecimal.class }) })
+@BuiltInFunction(name = PowerFunction.NAME, args = {@Argument(allowedTypes = {PDouble.class, PDecimal.class}),
+        @Argument(allowedTypes = {PDouble.class, PDecimal.class})})
 public class PowerFunction extends JavaMathTwoArgumentFunction {
 
     public static final String NAME = "POWER";

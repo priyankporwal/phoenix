@@ -92,7 +92,7 @@ import com.google.common.collect.Lists;
 
 public class MetaDataUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetaDataUtil.class);
-  
+
     public static final String VIEW_INDEX_TABLE_PREFIX = "_IDX_";
     public static final String LOCAL_INDEX_TABLE_PREFIX = "_LOCAL_IDX_";
     public static final String VIEW_INDEX_SEQUENCE_PREFIX = "_SEQ_";
@@ -140,7 +140,7 @@ public class MetaDataUtil {
     public static int decodePhoenixVersion(long version) {
         return (int) ((version << Byte.SIZE * 4) >>> Byte.SIZE * 5);
     }
-    
+
     // TODO: generalize this to use two bytes to return a SQL error code instead
     public static long encodeHasIndexWALCodec(long version, boolean isValid) {
         if (!isValid) {
@@ -148,7 +148,7 @@ public class MetaDataUtil {
         }
         return version;
     }
-    
+
     public static boolean decodeHasIndexWALCodec(long version) {
         return (version & 0xF) == 0;
     }
@@ -161,27 +161,27 @@ public class MetaDataUtil {
     }
 
     public static String decodeHBaseVersionAsString(int version) {
-        int major = (version >>> Byte.SIZE  * 2) & 0xFF;
-        int minor = (version >>> Byte.SIZE  * 1) & 0xFF;
+        int major = (version >>> Byte.SIZE * 2) & 0xFF;
+        int minor = (version >>> Byte.SIZE * 1) & 0xFF;
         int patch = version & 0xFF;
         return major + "." + minor + "." + patch;
     }
-    
+
     // Given the encoded integer representing the phoenix version in the encoded version value.
     // The second byte in int would be the major version, 3rd byte minor version, and 4th byte
     // patch version.
     public static boolean decodeTableNamespaceMappingEnabled(long version) {
-        return ((int)((version << Byte.SIZE * 3) >>> Byte.SIZE * 7) & 0x1) != 0;
+        return ((int) ((version << Byte.SIZE * 3) >>> Byte.SIZE * 7) & 0x1) != 0;
     }
 
     // The first 3 bytes of the long is used to encoding the HBase version as major.minor.patch.
     // The next 4 bytes of the value is used to encode the Phoenix version as major.minor.patch.
+
     /**
      * Encode HBase and Phoenix version along with some server-side config information such as whether WAL codec is
      * installed (necessary for non transactional, mutable secondar indexing), and whether systemNamespace mapping is enabled.
-     * 
-     * @param env
-     *            RegionCoprocessorEnvironment to access HBase version and Configuration.
+     *
+     * @param env RegionCoprocessorEnvironment to access HBase version and Configuration.
      * @return long value sent back during initialization of a cluster connection.
      */
     public static long encodeVersion(String hbaseVersionStr, Configuration config) {
@@ -192,17 +192,17 @@ public class MetaDataUtil {
                 MetaDataProtocol.PHOENIX_MINOR_VERSION, MetaDataProtocol.PHOENIX_PATCH_NUMBER);
         long walCodec = IndexManagementUtil.isWALEditCodecSet(config) ? 0 : 1;
         long version =
-        // Encode HBase major, minor, patch version
-        (hbaseVersion << (Byte.SIZE * 5))
-                // Encode if systemMappingEnabled are enabled on the server side
-                | (isTableNamespaceMappingEnabled << (Byte.SIZE * 4))
-                // Encode Phoenix major, minor, patch version
-                | (phoenixVersion << (Byte.SIZE * 1))
-                // Encode whether or not non transactional, mutable secondary indexing was configured properly.
-                | walCodec;
+                // Encode HBase major, minor, patch version
+                (hbaseVersion << (Byte.SIZE * 5))
+                        // Encode if systemMappingEnabled are enabled on the server side
+                        | (isTableNamespaceMappingEnabled << (Byte.SIZE * 4))
+                        // Encode Phoenix major, minor, patch version
+                        | (phoenixVersion << (Byte.SIZE * 1))
+                        // Encode whether or not non transactional, mutable secondary indexing was configured properly.
+                        | walCodec;
         return version;
     }
-    
+
     public static byte[] getTenantIdAndSchemaAndTableName(Mutation someRow) {
         byte[][] rowKeyMetaData = new byte[3][];
         getVarChars(someRow.getRow(), 3, rowKeyMetaData);
@@ -227,10 +227,11 @@ public class MetaDataUtil {
                 for (Cell cell : cells) {
                     // compare using offsets
                     if (Bytes.compareTo(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength(), PhoenixDatabaseMetaData.BASE_COLUMN_COUNT_BYTES, 0,
-                        PhoenixDatabaseMetaData.BASE_COLUMN_COUNT_BYTES.length) == 0)
-                    if (Bytes.contains(cell.getQualifierArray(), PhoenixDatabaseMetaData.BASE_COLUMN_COUNT_BYTES)) {
-                        result = PInteger.INSTANCE.getCodec()
-                            .decodeInt(cell.getValueArray(), cell.getValueOffset(), SortOrder.ASC);
+                            PhoenixDatabaseMetaData.BASE_COLUMN_COUNT_BYTES.length) == 0) {
+                        if (Bytes.contains(cell.getQualifierArray(), PhoenixDatabaseMetaData.BASE_COLUMN_COUNT_BYTES)) {
+                            result = PInteger.INSTANCE.getCodec()
+                                    .decodeInt(cell.getValueArray(), cell.getValueOffset(), SortOrder.ASC);
+                        }
                     }
                 }
             }
@@ -245,11 +246,11 @@ public class MetaDataUtil {
         if (cells != null) {
             for (Cell cell : cells) {
                 if (Bytes.compareTo(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength(),
-                    qualifier, 0, qualifier.length) == 0) {
+                        qualifier, 0, qualifier.length) == 0) {
                     Cell replacementCell = new KeyValue(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength(),
-                        cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength(), cell.getQualifierArray(),
-                        cell.getQualifierOffset(), cell.getQualifierLength(), cell.getTimestamp(),
-                        KeyValue.Type.codeToType(cell.getType().getCode()), newValue, 0, newValue.length);
+                            cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength(), cell.getQualifierArray(),
+                            cell.getQualifierOffset(), cell.getQualifierLength(), cell.getTimestamp(),
+                            KeyValue.Type.codeToType(cell.getType().getCode()), newValue, 0, newValue.length);
                     newCells.add(replacementCell);
                 } else {
                     newCells.add(cell);
@@ -264,15 +265,16 @@ public class MetaDataUtil {
      * column qualifier and conditionally modifies those cells to add a tags list. We only add tags
      * if the cell value does not match the passed valueArray. If we always want to add tags to
      * these cells, we can pass in a null valueArray
-     * @param somePut Put operation
-     * @param family column family of the cells
-     * @param qualifier column qualifier of the cells
+     *
+     * @param somePut     Put operation
+     * @param family      column family of the cells
+     * @param qualifier   column qualifier of the cells
      * @param cellBuilder ExtendedCellBuilder object
-     * @param valueArray byte array of values or null
-     * @param tagArray byte array of tags to add to the cells
+     * @param valueArray  byte array of values or null
+     * @param tagArray    byte array of tags to add to the cells
      */
     public static void conditionallyAddTagsToPutCells(Put somePut, byte[] family, byte[] qualifier,
-            ExtendedCellBuilder cellBuilder, byte[] valueArray, byte[] tagArray) {
+                                                      ExtendedCellBuilder cellBuilder, byte[] valueArray, byte[] tagArray) {
         NavigableMap<byte[], List<Cell>> familyCellMap = somePut.getFamilyCellMap();
         List<Cell> cells = familyCellMap.get(family);
         List<Cell> newCells = Lists.newArrayList();
@@ -343,14 +345,14 @@ public class MetaDataUtil {
         getVarChars(m.getRow(), 3, rowKeyMetaData);
         if (Bytes.compareTo(tenantId, rowKeyMetaData[PhoenixDatabaseMetaData.TENANT_ID_INDEX]) == 0
                 && Bytes.compareTo(schemaName,
-                    rowKeyMetaData[PhoenixDatabaseMetaData.SCHEMA_NAME_INDEX]) == 0
+                rowKeyMetaData[PhoenixDatabaseMetaData.SCHEMA_NAME_INDEX]) == 0
                 && Bytes.compareTo(tableName,
-                    rowKeyMetaData[PhoenixDatabaseMetaData.TABLE_NAME_INDEX]) == 0) {
+                rowKeyMetaData[PhoenixDatabaseMetaData.TABLE_NAME_INDEX]) == 0) {
             return null;
         }
         return rowKeyMetaData[PhoenixDatabaseMetaData.TABLE_NAME_INDEX];
     }
-    
+
     public static long getSequenceNumber(Mutation tableMutation) {
         List<Cell> kvs = tableMutation.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES);
         if (kvs != null) {
@@ -366,39 +368,39 @@ public class MetaDataUtil {
     public static long getSequenceNumber(List<Mutation> tableMetaData) {
         return getSequenceNumber(getPutOnlyTableHeaderRow(tableMetaData));
     }
-    
+
     public static PTableType getTableType(List<Mutation> tableMetaData, KeyValueBuilder builder,
-      ImmutableBytesWritable value) {
+                                          ImmutableBytesWritable value) {
         if (getMutationValue(getPutOnlyTableHeaderRow(tableMetaData),
-            PhoenixDatabaseMetaData.TABLE_TYPE_BYTES, builder, value)) {
+                PhoenixDatabaseMetaData.TABLE_TYPE_BYTES, builder, value)) {
             return PTableType.fromSerializedValue(value.get()[value.getOffset()]);
         }
         return null;
     }
 
     public static boolean isNameSpaceMapped(List<Mutation> tableMetaData, KeyValueBuilder builder,
-            ImmutableBytesWritable value) {
+                                            ImmutableBytesWritable value) {
         if (getMutationValue(getPutOnlyTableHeaderRow(tableMetaData),
-            PhoenixDatabaseMetaData.IS_NAMESPACE_MAPPED_BYTES, builder, value)) {
-            return (boolean)PBoolean.INSTANCE.toObject(ByteUtil.copyKeyBytesIfNecessary(value));
+                PhoenixDatabaseMetaData.IS_NAMESPACE_MAPPED_BYTES, builder, value)) {
+            return (boolean) PBoolean.INSTANCE.toObject(ByteUtil.copyKeyBytesIfNecessary(value));
         }
         return false;
     }
 
-    
+
     public static ViewType getViewType(List<Mutation> tableMetaData, KeyValueBuilder builder,
-    	      ImmutableBytesWritable value) {
-    	        if (getMutationValue(getPutOnlyTableHeaderRow(tableMetaData),
-    	            PhoenixDatabaseMetaData.VIEW_TYPE_BYTES, builder, value)) {
-    	            return ViewType.fromSerializedValue(value.get()[value.getOffset()]);
-    	        }
-    	        return null;
-    	    }
-    
-    public static int getSaltBuckets(List<Mutation> tableMetaData, KeyValueBuilder builder,
-      ImmutableBytesWritable value) {
+                                       ImmutableBytesWritable value) {
         if (getMutationValue(getPutOnlyTableHeaderRow(tableMetaData),
-            PhoenixDatabaseMetaData.SALT_BUCKETS_BYTES, builder, value)) {
+                PhoenixDatabaseMetaData.VIEW_TYPE_BYTES, builder, value)) {
+            return ViewType.fromSerializedValue(value.get()[value.getOffset()]);
+        }
+        return null;
+    }
+
+    public static int getSaltBuckets(List<Mutation> tableMetaData, KeyValueBuilder builder,
+                                     ImmutableBytesWritable value) {
+        if (getMutationValue(getPutOnlyTableHeaderRow(tableMetaData),
+                PhoenixDatabaseMetaData.SALT_BUCKETS_BYTES, builder, value)) {
             return PInteger.INSTANCE.getCodec().decodeInt(value, SortOrder.getDefault());
         }
         return 0;
@@ -407,30 +409,31 @@ public class MetaDataUtil {
     public static long getParentSequenceNumber(List<Mutation> tableMetaData) {
         return getSequenceNumber(getParentTableHeaderRow(tableMetaData));
     }
-    
+
     public static Mutation getTableHeaderRow(List<Mutation> tableMetaData) {
         return tableMetaData.get(0);
     }
 
-  /**
-   * Get the mutation who's qualifier matches the passed key
-   * <p>
-   * We need to pass in an {@link ImmutableBytesPtr} to pass the result back to make life easier
-   * when dealing with a regular {@link KeyValue} vs. a custom KeyValue as the latter may not
-   * support things like {@link KeyValue#getBuffer()}
-   * @param headerRow mutation to check
-   * @param key to check
-   * @param builder that created the {@link KeyValue KeyValues} in the {@link Mutation}
-   * @param ptr to point to the KeyValue's value if found
-   * @return true if the KeyValue was found and false otherwise
-   */
-  public static boolean getMutationValue(Mutation headerRow, byte[] key,
-      KeyValueBuilder builder, ImmutableBytesWritable ptr) {
+    /**
+     * Get the mutation who's qualifier matches the passed key
+     * <p>
+     * We need to pass in an {@link ImmutableBytesPtr} to pass the result back to make life easier
+     * when dealing with a regular {@link KeyValue} vs. a custom KeyValue as the latter may not
+     * support things like {@link KeyValue#getBuffer()}
+     *
+     * @param headerRow mutation to check
+     * @param key       to check
+     * @param builder   that created the {@link KeyValue KeyValues} in the {@link Mutation}
+     * @param ptr       to point to the KeyValue's value if found
+     * @return true if the KeyValue was found and false otherwise
+     */
+    public static boolean getMutationValue(Mutation headerRow, byte[] key,
+                                           KeyValueBuilder builder, ImmutableBytesWritable ptr) {
         List<Cell> kvs = headerRow.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES);
         if (kvs != null) {
             for (Cell cell : kvs) {
                 KeyValue kv = PhoenixKeyValueUtil.maybeCopyCell(cell);
-                if (builder.compareQualifier(kv, key, 0, key.length) ==0) {
+                if (builder.compareQualifier(kv, key, 0, key.length) == 0) {
                     builder.getValueAsPtr(kv, ptr);
                     return true;
                 }
@@ -440,12 +443,12 @@ public class MetaDataUtil {
     }
 
     public static KeyValue getMutationValue(Mutation headerRow, byte[] key,
-        KeyValueBuilder builder) {
+                                            KeyValueBuilder builder) {
         List<Cell> kvs = headerRow.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES);
         if (kvs != null) {
             for (Cell cell : kvs) {
                 KeyValue kv = org.apache.hadoop.hbase.KeyValueUtil.ensureKeyValue(cell);
-                if (builder.compareQualifier(kv, key, 0, key.length) ==0) {
+                if (builder.compareQualifier(kv, key, 0, key.length) == 0) {
                     return kv;
                 }
             }
@@ -454,12 +457,12 @@ public class MetaDataUtil {
     }
 
     public static boolean setMutationValue(Mutation headerRow, byte[] key,
-        KeyValueBuilder builder, KeyValue keyValue) {
+                                           KeyValueBuilder builder, KeyValue keyValue) {
         List<Cell> kvs = headerRow.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES);
         if (kvs != null) {
             for (Cell cell : kvs) {
                 KeyValue kv = org.apache.hadoop.hbase.KeyValueUtil.ensureKeyValue(cell);
-                if (builder.compareQualifier(kv, key, 0, key.length) ==0) {
+                if (builder.compareQualifier(kv, key, 0, key.length) == 0) {
                     KeyValueBuilder.addQuietly(headerRow, keyValue);
                     return true;
                 }
@@ -474,35 +477,39 @@ public class MetaDataUtil {
      */
     public static Put getPutOnlyTableHeaderRow(List<Mutation> tableMetaData) {
         for (Mutation m : tableMetaData) {
-            if (m instanceof Put) { return (Put) m; }
+            if (m instanceof Put) {
+                return (Put) m;
+            }
         }
         throw new IllegalStateException("No table header row found in table metadata");
     }
-    
+
     public static Put getPutOnlyAutoPartitionColumn(PTable parentTable, List<Mutation> tableMetaData) {
-        int autoPartitionPutIndex = parentTable.isMultiTenant() ? 2: 1;
-        int i=0;
+        int autoPartitionPutIndex = parentTable.isMultiTenant() ? 2 : 1;
+        int i = 0;
         for (Mutation m : tableMetaData) {
-            if (m instanceof Put && i++==autoPartitionPutIndex) { return (Put) m; }
+            if (m instanceof Put && i++ == autoPartitionPutIndex) {
+                return (Put) m;
+            }
         }
         throw new IllegalStateException("No auto partition column row found in table metadata");
     }
 
     public static Mutation getParentTableHeaderRow(List<Mutation> tableMetaData) {
-        return tableMetaData.get(tableMetaData.size()-1);
+        return tableMetaData.get(tableMetaData.size() - 1);
     }
 
     public static long getClientTimeStamp(List<Mutation> tableMetadata) {
         Mutation m = tableMetadata.get(0);
         return getClientTimeStamp(m);
-    }    
+    }
 
     public static long getClientTimeStamp(Mutation m) {
         Collection<List<Cell>> kvs = m.getFamilyCellMap().values();
         // Empty if Mutation is a Delete
         // TODO: confirm that Delete timestamp is reset like Put
         return kvs.isEmpty() ? m.getTimeStamp() : kvs.iterator().next().get(0).getTimestamp();
-    }    
+    }
 
     public static byte[] getParentLinkKey(String tenantId, String schemaName, String tableName, String indexName) {
         return ByteUtil.concat(tenantId == null ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(tenantId), QueryConstants.SEPARATOR_BYTE_ARRAY, schemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(schemaName), QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(tableName), QueryConstants.SEPARATOR_BYTE_ARRAY, QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(indexName));
@@ -511,15 +518,15 @@ public class MetaDataUtil {
     public static byte[] getParentLinkKey(byte[] tenantId, byte[] schemaName, byte[] tableName, byte[] indexName) {
         return ByteUtil.concat(tenantId == null ? ByteUtil.EMPTY_BYTE_ARRAY : tenantId, QueryConstants.SEPARATOR_BYTE_ARRAY, schemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : schemaName, QueryConstants.SEPARATOR_BYTE_ARRAY, tableName, QueryConstants.SEPARATOR_BYTE_ARRAY, QueryConstants.SEPARATOR_BYTE_ARRAY, indexName);
     }
-    
+
     public static byte[] getChildLinkKey(PName parentTenantId, PName parentSchemaName, PName parentTableName, PName viewTenantId, PName viewName) {
-        return ByteUtil.concat(parentTenantId == null ? ByteUtil.EMPTY_BYTE_ARRAY : parentTenantId.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY, 
-                        parentSchemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : parentSchemaName.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY, 
-                        parentTableName.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY,
-                        viewTenantId == null ? ByteUtil.EMPTY_BYTE_ARRAY : viewTenantId.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY, 
-                        viewName.getBytes());
+        return ByteUtil.concat(parentTenantId == null ? ByteUtil.EMPTY_BYTE_ARRAY : parentTenantId.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY,
+                parentSchemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : parentSchemaName.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY,
+                parentTableName.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY,
+                viewTenantId == null ? ByteUtil.EMPTY_BYTE_ARRAY : viewTenantId.getBytes(), QueryConstants.SEPARATOR_BYTE_ARRAY,
+                viewName.getBytes());
     }
-    
+
     public static Cell getCell(List<Cell> cells, byte[] cq) {
         for (Cell cell : cells) {
             if (Bytes.compareTo(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength(), cq, 0, cq.length) == 0) {
@@ -528,25 +535,25 @@ public class MetaDataUtil {
         }
         return null;
     }
-    
+
     public static boolean isMultiTenant(Mutation m, KeyValueBuilder builder, ImmutableBytesWritable ptr) {
         if (getMutationValue(m, PhoenixDatabaseMetaData.MULTI_TENANT_BYTES, builder, ptr)) {
             return Boolean.TRUE.equals(PBoolean.INSTANCE.toObject(ptr));
         }
         return false;
     }
-    
+
     public static boolean isTransactional(Mutation m, KeyValueBuilder builder, ImmutableBytesWritable ptr) {
         if (getMutationValue(m, PhoenixDatabaseMetaData.TRANSACTIONAL_BYTES, builder, ptr)) {
             return Boolean.TRUE.equals(PBoolean.INSTANCE.toObject(ptr));
         }
         return false;
     }
-    
+
     public static boolean isSalted(Mutation m, KeyValueBuilder builder, ImmutableBytesWritable ptr) {
         return MetaDataUtil.getMutationValue(m, PhoenixDatabaseMetaData.SALT_BUCKETS_BYTES, builder, ptr);
     }
-    
+
     public static byte[] getViewIndexPhysicalName(byte[] physicalTableName) {
         return getIndexPhysicalName(physicalTableName, VIEW_INDEX_TABLE_PREFIX);
     }
@@ -580,7 +587,7 @@ public class MetaDataUtil {
 
     public static String getLocalIndexSchemaName(String schemaName) {
         return schemaName;
-    }  
+    }
 
     public static String getLocalIndexUserTableName(String localIndexTableName) {
         if (localIndexTableName.contains(QueryConstants.NAMESPACE_SEPARATOR)) {
@@ -592,7 +599,9 @@ public class MetaDataUtil {
             return (schemaName + QueryConstants.NAMESPACE_SEPARATOR + userTableName);
         } else {
             String schemaName = SchemaUtil.getSchemaNameFromFullName(localIndexTableName);
-            if (!schemaName.isEmpty()) schemaName = schemaName.substring(LOCAL_INDEX_TABLE_PREFIX.length());
+            if (!schemaName.isEmpty()) {
+                schemaName = schemaName.substring(LOCAL_INDEX_TABLE_PREFIX.length());
+            }
             String tableName = localIndexTableName.substring(
                     (schemaName.isEmpty() ? 0 : (schemaName.length() + QueryConstants.NAME_SEPARATOR.length()))
                             + LOCAL_INDEX_TABLE_PREFIX.length());
@@ -610,7 +619,9 @@ public class MetaDataUtil {
             return (schemaName + QueryConstants.NAMESPACE_SEPARATOR + userTableName);
         } else {
             String schemaName = SchemaUtil.getSchemaNameFromFullName(viewIndexTableName);
-            if (!schemaName.isEmpty()) schemaName = schemaName.substring(VIEW_INDEX_TABLE_PREFIX.length());
+            if (!schemaName.isEmpty()) {
+                schemaName = schemaName.substring(VIEW_INDEX_TABLE_PREFIX.length());
+            }
             String tableName = viewIndexTableName.substring(
                     (schemaName.isEmpty() ? 0 : (schemaName.length() + QueryConstants.NAME_SEPARATOR.length()))
                             + VIEW_INDEX_TABLE_PREFIX.length());
@@ -619,17 +630,21 @@ public class MetaDataUtil {
     }
 
     public static String getOldViewIndexSequenceSchemaName(PName physicalName, boolean isNamespaceMapped) {
-        if (!isNamespaceMapped) { return VIEW_INDEX_SEQUENCE_PREFIX + physicalName.getString(); }
+        if (!isNamespaceMapped) {
+            return VIEW_INDEX_SEQUENCE_PREFIX + physicalName.getString();
+        }
         return SchemaUtil.getSchemaNameFromFullName(physicalName.toString());
     }
 
     public static String getOldViewIndexSequenceName(PName physicalName, PName tenantId, boolean isNamespaceMapped) {
-        if (!isNamespaceMapped) { return VIEW_INDEX_SEQUENCE_NAME_PREFIX + (tenantId == null ? "" : tenantId); }
+        if (!isNamespaceMapped) {
+            return VIEW_INDEX_SEQUENCE_NAME_PREFIX + (tenantId == null ? "" : tenantId);
+        }
         return SchemaUtil.getTableNameFromFullName(physicalName.toString()) + VIEW_INDEX_SEQUENCE_NAME_PREFIX;
     }
 
     public static SequenceKey getOldViewIndexSequenceKey(String tenantId, PName physicalName, int nSaltBuckets,
-                                                      boolean isNamespaceMapped) {
+                                                         boolean isNamespaceMapped) {
         // Create global sequence of the form: <prefixed base table name><tenant id>
         // rather than tenant-specific sequence, as it makes it much easier
         // to cleanup when the physical table is dropped, as we can delete
@@ -642,7 +657,7 @@ public class MetaDataUtil {
     public static String getViewIndexSequenceSchemaName(PName physicalName, boolean isNamespaceMapped) {
         if (!isNamespaceMapped) {
             String baseTableName = SchemaUtil.getParentTableNameFromIndexTable(physicalName.getString(),
-                MetaDataUtil.VIEW_INDEX_TABLE_PREFIX);
+                    MetaDataUtil.VIEW_INDEX_TABLE_PREFIX);
             return SchemaUtil.getSchemaNameFromFullName(baseTableName);
         } else {
             return SchemaUtil.getSchemaNameFromFullName(physicalName.toString());
@@ -655,15 +670,14 @@ public class MetaDataUtil {
     }
 
     /**
-     *
-     * @param tenantId No longer used, but kept in signature for backwards compatibility
-     * @param physicalName Name of physical view index table
-     * @param nSaltBuckets Number of salt buckets
+     * @param tenantId          No longer used, but kept in signature for backwards compatibility
+     * @param physicalName      Name of physical view index table
+     * @param nSaltBuckets      Number of salt buckets
      * @param isNamespaceMapped Is namespace mapping enabled
      * @return SequenceKey for the ViewIndexId
      */
     public static SequenceKey getViewIndexSequenceKey(String tenantId, PName physicalName, int nSaltBuckets,
-            boolean isNamespaceMapped) {
+                                                      boolean isNamespaceMapped) {
         // Create global sequence of the form: <prefixed base table name>.
         // We can't use a tenant-owned or escaped sequence because of collisions,
         // with other view indexes that may be global or owned by other tenants that
@@ -676,7 +690,7 @@ public class MetaDataUtil {
     }
 
     public static PDataType getViewIndexIdDataType() {
-       return PLong.INSTANCE;
+        return PLong.INSTANCE;
     }
 
     public static PDataType getLegacyViewIndexIdDataType() {
@@ -709,7 +723,9 @@ public class MetaDataUtil {
     public static boolean hasLocalIndexTable(PhoenixConnection connection, byte[] physicalTableName) throws SQLException {
         try {
             TableDescriptor desc = connection.getQueryServices().getTableDescriptor(physicalTableName);
-            if(desc == null ) return false;
+            if (desc == null) {
+                return false;
+            }
             return hasLocalIndexColumnFamily(desc);
         } catch (TableNotFoundException e) {
             return false;
@@ -726,18 +742,20 @@ public class MetaDataUtil {
     }
 
     public static List<byte[]> getNonLocalIndexColumnFamilies(TableDescriptor desc) {
-    	List<byte[]> families = new ArrayList<byte[]>(desc.getColumnFamilies().length);
+        List<byte[]> families = new ArrayList<byte[]>(desc.getColumnFamilies().length);
         for (ColumnFamilyDescriptor cf : desc.getColumnFamilies()) {
             if (!cf.getNameAsString().startsWith(QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX)) {
-            	families.add(cf.getName());
+                families.add(cf.getName());
             }
         }
-    	return families;
+        return families;
     }
 
     public static List<byte[]> getLocalIndexColumnFamilies(PhoenixConnection conn, byte[] physicalTableName) throws SQLException {
         TableDescriptor desc = conn.getQueryServices().getTableDescriptor(physicalTableName);
-        if(desc == null ) return Collections.emptyList();
+        if (desc == null) {
+            return Collections.emptyList();
+        }
         List<byte[]> families = new ArrayList<byte[]>(desc.getColumnFamilies().length / 2);
         for (ColumnFamilyDescriptor cf : desc.getColumnFamilies()) {
             if (cf.getNameAsString().startsWith(QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX)) {
@@ -754,12 +772,13 @@ public class MetaDataUtil {
         connection.createStatement().executeUpdate("DELETE FROM " + PhoenixDatabaseMetaData.SYSTEM_SEQUENCE + " WHERE "
                 + PhoenixDatabaseMetaData.SEQUENCE_SCHEMA
                 + (schemaName.length() > 0 ? "='" + schemaName + "'" : " IS NULL") + (isNamespaceMapped
-                        ? " AND " + PhoenixDatabaseMetaData.SEQUENCE_NAME + " = '" + sequenceName + "'" : ""));
+                ? " AND " + PhoenixDatabaseMetaData.SEQUENCE_NAME + " = '" + sequenceName + "'" : ""));
 
     }
-    
+
     /**
      * This function checks if all regions of a table is online
+     *
      * @param table
      * @return true when all regions of a table are online
      * @throws IOException
@@ -769,19 +788,21 @@ public class MetaDataUtil {
         ClusterConnection hcon = null;
 
         try {
-            hcon = (ClusterConnection)ConnectionFactory.createConnection(conf);
+            hcon = (ClusterConnection) ConnectionFactory.createConnection(conf);
             List<HRegionLocation> locations = hcon.locateRegions(
-                org.apache.hadoop.hbase.TableName.valueOf(table.getPhysicalName().getBytes()));
+                    org.apache.hadoop.hbase.TableName.valueOf(table.getPhysicalName().getBytes()));
 
             for (HRegionLocation loc : locations) {
                 try {
                     ServerName sn = loc.getServerName();
-                    if (sn == null) continue;
+                    if (sn == null) {
+                        continue;
+                    }
 
                     AdminService.BlockingInterface admin = hcon.getAdmin(sn);
                     HBaseRpcController controller = hcon.getRpcControllerFactory().newController();
                     org.apache.hadoop.hbase.shaded.protobuf.ProtobufUtil.getRegionInfo(controller,
-                        admin, loc.getRegion().getRegionName());
+                            admin, loc.getRegion().getRegionName());
                 } catch (RemoteException e) {
                     LOGGER.debug("Cannot get region " + loc.getRegion().getEncodedName() + " info due to error:" + e);
                     return false;
@@ -809,7 +830,7 @@ public class MetaDataUtil {
     public static Map<String, Object> getSyncedProps(ColumnFamilyDescriptor defaultCFDesc) {
         Map<String, Object> syncedProps = new HashMap<>();
         if (defaultCFDesc != null) {
-            for (String propToKeepInSync: SYNCED_DATA_TABLE_AND_INDEX_COL_FAM_PROPERTIES) {
+            for (String propToKeepInSync : SYNCED_DATA_TABLE_AND_INDEX_COL_FAM_PROPERTIES) {
                 syncedProps.put(propToKeepInSync, Bytes.toString(
                         defaultCFDesc.getValue(Bytes.toBytes(propToKeepInSync))));
             }
@@ -817,21 +838,21 @@ public class MetaDataUtil {
         return syncedProps;
     }
 
-    public static Scan newTableRowsScan(byte[] key, long startTimeStamp, long stopTimeStamp){
+    public static Scan newTableRowsScan(byte[] key, long startTimeStamp, long stopTimeStamp) {
         return newTableRowsScan(key, null, startTimeStamp, stopTimeStamp);
     }
 
-	public static Scan newTableRowsScan(byte[] startKey, byte[] stopKey, long startTimeStamp, long stopTimeStamp) {
-		Scan scan = new Scan();
-		ScanUtil.setTimeRange(scan, startTimeStamp, stopTimeStamp);
-		scan.setStartRow(startKey);
-		if (stopKey == null) {
-			stopKey = ByteUtil.concat(startKey, QueryConstants.SEPARATOR_BYTE_ARRAY);
-			ByteUtil.nextKey(stopKey, stopKey.length);
-		}
-		scan.setStopRow(stopKey);
-		return scan;
-	}
+    public static Scan newTableRowsScan(byte[] startKey, byte[] stopKey, long startTimeStamp, long stopTimeStamp) {
+        Scan scan = new Scan();
+        ScanUtil.setTimeRange(scan, startTimeStamp, stopTimeStamp);
+        scan.setStartRow(startKey);
+        if (stopKey == null) {
+            stopKey = ByteUtil.concat(startKey, QueryConstants.SEPARATOR_BYTE_ARRAY);
+            ByteUtil.nextKey(stopKey, stopKey.length);
+        }
+        scan.setStopRow(stopKey);
+        return scan;
+    }
 
     public static LinkType getLinkType(Mutation tableMutation) {
         return getLinkType(tableMutation.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES));
@@ -841,17 +862,21 @@ public class MetaDataUtil {
         if (kvs != null) {
             for (Cell kv : kvs) {
                 if (Bytes.compareTo(kv.getQualifierArray(), kv.getQualifierOffset(), kv.getQualifierLength(),
-                    PhoenixDatabaseMetaData.LINK_TYPE_BYTES, 0,
-                    PhoenixDatabaseMetaData.LINK_TYPE_BYTES.length) == 0) { return LinkType
-                    .fromSerializedValue(PUnsignedTinyint.INSTANCE.getCodec().decodeByte(kv.getValueArray(),
-                        kv.getValueOffset(), SortOrder.getDefault())); }
+                        PhoenixDatabaseMetaData.LINK_TYPE_BYTES, 0,
+                        PhoenixDatabaseMetaData.LINK_TYPE_BYTES.length) == 0) {
+                    return LinkType
+                            .fromSerializedValue(PUnsignedTinyint.INSTANCE.getCodec().decodeByte(kv.getValueArray(),
+                                    kv.getValueOffset(), SortOrder.getDefault()));
+                }
             }
         }
         return null;
     }
 
     public static boolean isLocalIndex(String physicalName) {
-        if (physicalName.contains(LOCAL_INDEX_TABLE_PREFIX)) { return true; }
+        if (physicalName.contains(LOCAL_INDEX_TABLE_PREFIX)) {
+            return true;
+        }
         return false;
     }
 
@@ -872,19 +897,19 @@ public class MetaDataUtil {
     // this method should only be called on the parent table (since it has the _SALT column)
     public static int getAutoPartitionColIndex(PTable parentTable) {
         boolean isMultiTenant = parentTable.isMultiTenant();
-        boolean isSalted = parentTable.getBucketNum()!=null;
+        boolean isSalted = parentTable.getBucketNum() != null;
         return (isMultiTenant && isSalted) ? 2 : (isMultiTenant || isSalted) ? 1 : 0;
     }
 
     public static String getJdbcUrl(RegionCoprocessorEnvironment env) {
         String zkQuorum = env.getConfiguration().get(HConstants.ZOOKEEPER_QUORUM);
         String zkClientPort = env.getConfiguration().get(HConstants.ZOOKEEPER_CLIENT_PORT,
-            Integer.toString(HConstants.DEFAULT_ZOOKEPER_CLIENT_PORT));
+                Integer.toString(HConstants.DEFAULT_ZOOKEPER_CLIENT_PORT));
         String zkParentNode = env.getConfiguration().get(HConstants.ZOOKEEPER_ZNODE_PARENT,
-            HConstants.DEFAULT_ZOOKEEPER_ZNODE_PARENT);
+                HConstants.DEFAULT_ZOOKEEPER_ZNODE_PARENT);
         return PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkQuorum
-            + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkClientPort
-            + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkParentNode;
+                + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkClientPort
+                + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkParentNode;
     }
 
     public static boolean isHColumnProperty(String propName) {
@@ -897,44 +922,46 @@ public class MetaDataUtil {
 
     public static boolean isLocalIndexFamily(ImmutableBytesPtr cfPtr) {
         return cfPtr.getLength() >= QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES.length &&
-               Bytes.compareTo(cfPtr.get(), cfPtr.getOffset(), QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES.length, QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES, 0, QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES.length) == 0;
+                Bytes.compareTo(cfPtr.get(), cfPtr.getOffset(), QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES.length, QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES, 0, QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES.length) == 0;
     }
-    
+
     public static boolean isLocalIndexFamily(byte[] cf) {
         return Bytes.startsWith(cf, QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES);
     }
-    
+
     public static final byte[] getPhysicalTableRowForView(PTable view) {
         byte[] physicalTableSchemaName = Bytes.toBytes(SchemaUtil.getSchemaNameFromFullName(view.getPhysicalName().getString()));
         byte[] physicalTableName = Bytes.toBytes(SchemaUtil.getTableNameFromFullName(view.getPhysicalName().getString()));
         return SchemaUtil.getTableKey(ByteUtil.EMPTY_BYTE_ARRAY, physicalTableSchemaName, physicalTableName);
     }
-    
-	public static List<Mutation> removeChildLinks(List<Mutation> catalogMutations) {
-		List<Mutation> childLinks = Lists.newArrayList();
-		Iterator<Mutation> iter = catalogMutations.iterator();
-		while (iter.hasNext()) {
-			Mutation m = iter.next();
-			for (Cell kv : m.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES)) {
-				// remove mutations of link type LinkType.CHILD_TABLE
-				if ((Bytes.compareTo(kv.getQualifierArray(), kv.getQualifierOffset(), kv.getQualifierLength(),
-						PhoenixDatabaseMetaData.LINK_TYPE_BYTES, 0,
-						PhoenixDatabaseMetaData.LINK_TYPE_BYTES.length) == 0)
-						&& ((Bytes.compareTo(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength(),
-								LinkType.CHILD_TABLE.getSerializedValueAsByteArray(), 0,
-								LinkType.CHILD_TABLE.getSerializedValueAsByteArray().length) == 0))) {
-					childLinks.add(m);
-					iter.remove();
-				}
-			}
-		}
-		return childLinks;
-	}
 
-	public static IndexType getIndexType(List<Mutation> tableMetaData, KeyValueBuilder builder,
-            ImmutableBytesWritable value) {
+    public static List<Mutation> removeChildLinks(List<Mutation> catalogMutations) {
+        List<Mutation> childLinks = Lists.newArrayList();
+        Iterator<Mutation> iter = catalogMutations.iterator();
+        while (iter.hasNext()) {
+            Mutation m = iter.next();
+            for (Cell kv : m.getFamilyCellMap().get(PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES)) {
+                // remove mutations of link type LinkType.CHILD_TABLE
+                if ((Bytes.compareTo(kv.getQualifierArray(), kv.getQualifierOffset(), kv.getQualifierLength(),
+                        PhoenixDatabaseMetaData.LINK_TYPE_BYTES, 0,
+                        PhoenixDatabaseMetaData.LINK_TYPE_BYTES.length) == 0)
+                        && ((Bytes.compareTo(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength(),
+                        LinkType.CHILD_TABLE.getSerializedValueAsByteArray(), 0,
+                        LinkType.CHILD_TABLE.getSerializedValueAsByteArray().length) == 0))) {
+                    childLinks.add(m);
+                    iter.remove();
+                }
+            }
+        }
+        return childLinks;
+    }
+
+    public static IndexType getIndexType(List<Mutation> tableMetaData, KeyValueBuilder builder,
+                                         ImmutableBytesWritable value) {
         if (getMutationValue(getPutOnlyTableHeaderRow(tableMetaData), PhoenixDatabaseMetaData.INDEX_TYPE_BYTES, builder,
-                value)) { return IndexType.fromSerializedValue(value.get()[value.getOffset()]); }
+                value)) {
+            return IndexType.fromSerializedValue(value.get()[value.getOffset()]);
+        }
         return null;
     }
 }

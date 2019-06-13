@@ -45,7 +45,8 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
     protected IndexCodec codec;
 
     @Override
-    public void extendBaseIndexBuilderInstead() {}
+    public void extendBaseIndexBuilderInstead() {
+    }
 
     @Override
     public void setup(RegionCoprocessorEnvironment env) throws IOException {
@@ -68,7 +69,7 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
     public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData context) throws IOException {
         // noop
     }
-    
+
     @Override
     public IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
         return IndexMetaData.NULL_INDEX_META_DATA;
@@ -83,7 +84,7 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
      * By default, we always attempt to index the mutation. Commonly this can be slow (because the framework spends the
      * time to do the indexing, only to realize that you don't need it) or not ideal (if you want to turn on/off
      * indexing on a table without completely reloading it).
-     * 
+     *
      * @throws IOException
      */
     @Override
@@ -101,12 +102,11 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
     public List<Mutation> executeAtomicOp(Increment inc) throws IOException {
         return null;
     }
-    
+
     /**
      * Exposed for testing!
-     * 
-     * @param codec
-     *            codec to use for this instance of the builder
+     *
+     * @param codec codec to use for this instance of the builder
      */
     public void setIndexCodecForTesting(IndexCodec codec) {
         this.codec = codec;

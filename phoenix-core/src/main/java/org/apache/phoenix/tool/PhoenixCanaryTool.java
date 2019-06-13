@@ -56,7 +56,6 @@ import java.util.concurrent.TimeUnit;
  * is already present as following command
  * CREATE TABLE IF NOT EXISTS TEST.PQSTEST (mykey INTEGER NOT NULL
  * PRIMARY KEY, mycolumn VARCHAR, insert_date TIMESTAMP);
- *
  */
 public class PhoenixCanaryTool extends Configured implements Tool {
 
@@ -126,8 +125,8 @@ public class PhoenixCanaryTool extends Configured implements Tool {
         void onExecute() throws Exception {
             result.setTestName("readTable");
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM "
-                    + FQ_TABLE_NAME+" WHERE INSERT_DATE = ?");
-            ps.setTimestamp(1,timestamp);
+                    + FQ_TABLE_NAME + " WHERE INSERT_DATE = ?");
+            ps.setTimestamp(1, timestamp);
             ResultSet rs = ps.executeQuery();
 
             int totalRows = 0;
@@ -368,8 +367,8 @@ public class PhoenixCanaryTool extends Configured implements Tool {
     }
 
     private Connection getConnectionWithRetry(String connectionURL) {
-        Connection connection=null;
-        try{
+        Connection connection = null;
+        try {
             connection = getConnectionWithRetry(connectionURL, true);
         } catch (Exception e) {
             LOGGER.info("Failed to get connection with namespace enabled", e);
@@ -383,7 +382,7 @@ public class PhoenixCanaryTool extends Configured implements Tool {
     }
 
     private Connection getConnectionWithRetry(String connectionURL, boolean namespaceFlag)
-        throws Exception {
+            throws Exception {
         Properties connProps = new Properties();
         Connection connection = null;
 

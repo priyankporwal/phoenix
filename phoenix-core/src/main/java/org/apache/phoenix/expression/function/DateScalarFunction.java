@@ -40,13 +40,13 @@ public abstract class DateScalarFunction extends ScalarFunction {
     protected final PDataCodec getInputCodec() {
         return inputCodec;
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
         init();
     }
-    
+
     private void init() {
         PDataType returnType = getChildren().get(0).getDataType();
         inputCodec = DateUtil.getCodecFor(returnType);

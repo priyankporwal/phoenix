@@ -36,8 +36,7 @@ import com.google.common.collect.Sets;
  * Result scanner that dedups the incoming tuples to make them distinct.
  * <p>
  * Note that the results are held in memory
- *  
- * 
+ *
  * @since 1.2
  */
 public class DistinctAggregatingResultIterator implements AggregatingResultIterator {
@@ -92,23 +91,23 @@ public class DistinctAggregatingResultIterator implements AggregatingResultItera
             }
             return true;
         }
-        
+
         @Override
         public int hashCode() {
             return hashCode;
         }
-        
+
         Tuple getResult() {
             return result;
         }
     }
-    
+
     protected ResultIterator getDelegate() {
         return delegate;
     }
-    
+
     public DistinctAggregatingResultIterator(AggregatingResultIterator delegate,
-            RowProjector rowProjector) {
+                                             RowProjector rowProjector) {
         this.delegate = delegate;
         this.rowProjector = rowProjector;
     }
@@ -125,12 +124,12 @@ public class DistinctAggregatingResultIterator implements AggregatingResultItera
         resultIterator = Collections.emptyIterator();
         return null;
     }
-    
+
     private Iterator<ResultEntry> getResultIterator() throws SQLException {
         if (resultIterator != null) {
             return resultIterator;
         }
-        
+
         Set<ResultEntry> entries = Sets.<ResultEntry>newHashSet(); // TODO: size?
         try {
             for (Tuple result = delegate.next(); result != null; result = delegate.next()) {
@@ -140,13 +139,13 @@ public class DistinctAggregatingResultIterator implements AggregatingResultItera
         } finally {
             delegate.close();
         }
-        
+
         resultIterator = entries.iterator();
         return resultIterator;
     }
 
     @Override
-    public void close()  {
+    public void close() {
         resultIterator = Collections.emptyIterator();
     }
 
@@ -162,10 +161,10 @@ public class DistinctAggregatingResultIterator implements AggregatingResultItera
         return delegate.aggregate(result);
     }
 
-	@Override
-	public String toString() {
-		return "DistinctAggregatingResultIterator [delegate=" + delegate
-				+ ", rowProjector=" + rowProjector + ", resultIterator="
-				+ resultIterator + ", ptr1=" + ptr1 + ", ptr2=" + ptr2 + "]";
-	}
+    @Override
+    public String toString() {
+        return "DistinctAggregatingResultIterator [delegate=" + delegate
+                + ", rowProjector=" + rowProjector + ", resultIterator="
+                + resultIterator + ", ptr1=" + ptr1 + ", ptr2=" + ptr2 + "]";
+    }
 }

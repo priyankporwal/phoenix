@@ -34,13 +34,13 @@ import org.apache.phoenix.util.QueryUtil;
 import org.junit.Test;
 
 public class ClientHashAggregateIT extends ParallelStatsDisabledIT {
-    
+
     @Test
-    public void testSalted() throws Exception { 
+    public void testSalted() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-   
+
         try {
             String table = createSalted(conn);
             testTable(conn, table);
@@ -48,13 +48,13 @@ public class ClientHashAggregateIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
-    public void testUnsalted() throws Exception { 
+    public void testUnsalted() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-   
+
         try {
             String table = createUnsalted(conn);
             testTable(conn, table);
@@ -81,28 +81,28 @@ public class ClientHashAggregateIT extends ParallelStatsDisabledIT {
     }
 
     private String createSalted(Connection conn) throws Exception {
-    
+
         String table = "SALTED_" + generateUniqueName();
         String create = "CREATE TABLE " + table + " ("
-            + " keyA BIGINT NOT NULL,"
-            + " keyB BIGINT NOT NULL,"
-            + " val SMALLINT,"
-            + " CONSTRAINT pk PRIMARY KEY (keyA, keyB)"
-            + ") SALT_BUCKETS = 4";
+                + " keyA BIGINT NOT NULL,"
+                + " keyB BIGINT NOT NULL,"
+                + " val SMALLINT,"
+                + " CONSTRAINT pk PRIMARY KEY (keyA, keyB)"
+                + ") SALT_BUCKETS = 4";
 
         conn.createStatement().execute(create);
         return table;
     }
 
     private String createUnsalted(Connection conn) throws Exception {
-    
+
         String table = "UNSALTED_" + generateUniqueName();
         String create = "CREATE TABLE " + table + " ("
-            + " keyA BIGINT NOT NULL,"
-            + " keyB BIGINT NOT NULL,"
-            + " val SMALLINT,"
-            + " CONSTRAINT pk PRIMARY KEY (keyA, keyB)"
-            + ")";
+                + " keyA BIGINT NOT NULL,"
+                + " keyB BIGINT NOT NULL,"
+                + " val SMALLINT,"
+                + " CONSTRAINT pk PRIMARY KEY (keyA, keyB)"
+                + ")";
 
         conn.createStatement().execute(create);
         return table;
@@ -111,15 +111,14 @@ public class ClientHashAggregateIT extends ParallelStatsDisabledIT {
     private String getQuery(String table, boolean hash, boolean swap, boolean sort) {
 
         String query = "SELECT /*+ USE_SORT_MERGE_JOIN"
-            + (hash ? " HASH_AGGREGATE" : "") + " */"
-            + " t1.val v1, t2.val v2, COUNT(*) c"
-            + " FROM " + table + " t1 JOIN " + table + " t2"
-            + " ON (t1.keyB = t2.keyB)"
-            + " WHERE t1.keyA = 10 AND t2.keyA = 20"
-            + " GROUP BY "
-            + (swap ? "t2.val, t1.val" : "t1.val, t2.val")
-            + (sort ? " ORDER BY t1.val, t2.val" : "")
-            ;
+                + (hash ? " HASH_AGGREGATE" : "") + " */"
+                + " t1.val v1, t2.val v2, COUNT(*) c"
+                + " FROM " + table + " t1 JOIN " + table + " t2"
+                + " ON (t1.keyB = t2.keyB)"
+                + " WHERE t1.keyA = 10 AND t2.keyA = 20"
+                + " GROUP BY "
+                + (swap ? "t2.val, t1.val" : "t1.val, t2.val")
+                + (sort ? " ORDER BY t1.val, t2.val" : "");
 
         return query;
     }
@@ -141,23 +140,23 @@ public class ClientHashAggregateIT extends ParallelStatsDisabledIT {
         PreparedStatement upsertStmt = conn.prepareStatement(upsert);
         for (int i = 0; i < c1; i++) {
             upsertStmt.setInt(1, 10);
-            upsertStmt.setInt(2, 100+i);
+            upsertStmt.setInt(2, 100 + i);
             upsertStmt.setInt(3, 1);
             upsertStmt.execute();
 
             upsertStmt.setInt(1, 20);
-            upsertStmt.setInt(2, 100+i);
+            upsertStmt.setInt(2, 100 + i);
             upsertStmt.setInt(3, 2);
             upsertStmt.execute();
         }
         for (int i = 0; i < c2; i++) {
             upsertStmt.setInt(1, 10);
-            upsertStmt.setInt(2, 200+i);
+            upsertStmt.setInt(2, 200 + i);
             upsertStmt.setInt(3, 2);
             upsertStmt.execute();
 
             upsertStmt.setInt(1, 20);
-            upsertStmt.setInt(2, 200+i);
+            upsertStmt.setInt(2, 200 + i);
             upsertStmt.setInt(3, 1);
             upsertStmt.execute();
         }

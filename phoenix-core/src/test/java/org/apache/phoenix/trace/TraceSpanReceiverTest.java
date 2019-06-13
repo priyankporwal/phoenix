@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,51 +32,51 @@ import org.junit.Test;
  */
 public class TraceSpanReceiverTest {
 
-  @BeforeClass
-  public static void setup() throws Exception{
-  }
+    @BeforeClass
+    public static void setup() throws Exception {
+    }
 
-  /**
-   * For PHOENIX-1126, Phoenix originally assumed all the annotation values were integers,
-   * but HBase writes some strings as well, so we need to be able to handle that too
-   */
-  @Test
-  public void testNonIntegerAnnotations(){
-    Span span = getSpan();
-    // make sure its less than the length of an integer
+    /**
+     * For PHOENIX-1126, Phoenix originally assumed all the annotation values were integers,
+     * but HBase writes some strings as well, so we need to be able to handle that too
+     */
+    @Test
+    public void testNonIntegerAnnotations() {
+        Span span = getSpan();
+        // make sure its less than the length of an integer
 
-    byte[] value = Bytes.toBytes("a");
-    byte[] someInt = Bytes.toBytes(1);
-    assertTrue(someInt.length > value.length);
+        byte[] value = Bytes.toBytes("a");
+        byte[] someInt = Bytes.toBytes(1);
+        assertTrue(someInt.length > value.length);
 
-    // an annotation that is not an integer
-    span.addKVAnnotation(Bytes.toBytes("key"), value);
+        // an annotation that is not an integer
+        span.addKVAnnotation(Bytes.toBytes("key"), value);
 
-    // Create the sink and write the span
-    TraceSpanReceiver source = new TraceSpanReceiver();
-    Trace.addReceiver(source);
+        // Create the sink and write the span
+        TraceSpanReceiver source = new TraceSpanReceiver();
+        Trace.addReceiver(source);
 
-    Tracer.getInstance().deliver(span);
+        Tracer.getInstance().deliver(span);
 
-    assertTrue(source.getNumSpans() == 1);
-  }
+        assertTrue(source.getNumSpans() == 1);
+    }
 
-  @Test
-  public void testIntegerAnnotations(){
-    Span span = getSpan();
+    @Test
+    public void testIntegerAnnotations() {
+        Span span = getSpan();
 
-    // add annotation through the phoenix interfaces
-    TracingUtils.addAnnotation(span, "message", 10);
+        // add annotation through the phoenix interfaces
+        TracingUtils.addAnnotation(span, "message", 10);
 
-    TraceSpanReceiver source = new TraceSpanReceiver();
-    Trace.addReceiver(source);
+        TraceSpanReceiver source = new TraceSpanReceiver();
+        Trace.addReceiver(source);
 
-    Tracer.getInstance().deliver(span);
-    assertTrue(source.getNumSpans() == 1);
-  }
+        Tracer.getInstance().deliver(span);
+        assertTrue(source.getNumSpans() == 1);
+    }
 
-  private Span getSpan(){
-    // Spans with Trace Id as 0 will be rejected (See PHOENIX-3767 for details)
-    return new MilliSpan("test span", 1, 1 , 2, "pid");
-  }
+    private Span getSpan() {
+        // Spans with Trace Id as 0 will be rejected (See PHOENIX-3767 for details)
+        return new MilliSpan("test span", 1, 1, 2, "pid");
+    }
 }

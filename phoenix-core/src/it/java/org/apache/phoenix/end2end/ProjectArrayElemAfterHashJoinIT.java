@@ -80,10 +80,10 @@ public class ProjectArrayElemAfterHashJoinIT extends ParallelStatsDisabledIT {
 
         String table = "SALTED_" + generateUniqueName();
         String create = "CREATE TABLE " + table + " ("
-            + " id INTEGER NOT NULL,"
-            + " vals TINYINT[],"
-            + " CONSTRAINT pk PRIMARY KEY (id)"
-            + ") SALT_BUCKETS = 4";
+                + " id INTEGER NOT NULL,"
+                + " vals TINYINT[],"
+                + " CONSTRAINT pk PRIMARY KEY (id)"
+                + ") SALT_BUCKETS = 4";
 
         conn.createStatement().execute(create);
         return table;
@@ -93,10 +93,10 @@ public class ProjectArrayElemAfterHashJoinIT extends ParallelStatsDisabledIT {
 
         String table = "UNSALTED_" + generateUniqueName();
         String create = "CREATE TABLE " + table + " ("
-            + " id INTEGER NOT NULL,"
-            + " vals TINYINT[],"
-            + " CONSTRAINT pk PRIMARY KEY (id)"
-            + ")";
+                + " id INTEGER NOT NULL,"
+                + " vals TINYINT[],"
+                + " CONSTRAINT pk PRIMARY KEY (id)"
+                + ")";
 
         conn.createStatement().execute(create);
         return table;
@@ -105,17 +105,16 @@ public class ProjectArrayElemAfterHashJoinIT extends ParallelStatsDisabledIT {
     private String getQuery(String table, boolean fullArray, boolean hashJoin) {
 
         String query = "SELECT id, vals[1] v1, vals[2] v2, vals[3] v3, vals[4] v4"
-            + (fullArray ? ", vals" : "")
-            + " FROM " + table
-            + " WHERE id IN "
-            + (hashJoin ? "(SELECT 1)" : "(1, 2, 3)")
-            ;
+                + (fullArray ? ", vals" : "")
+                + " FROM " + table
+                + " WHERE id IN "
+                + (hashJoin ? "(SELECT 1)" : "(1, 2, 3)");
 
         return query;
     }
 
     private void verifyExplain(Connection conn, String table, boolean fullArray, boolean hashJoin)
-        throws Exception {
+            throws Exception {
 
         String query = "EXPLAIN " + getQuery(table, fullArray, hashJoin);
         Statement stmt = conn.createStatement();
@@ -132,10 +131,10 @@ public class ProjectArrayElemAfterHashJoinIT extends ParallelStatsDisabledIT {
     }
 
     private void verifyResults(Connection conn, String table, boolean fullArray, boolean hashJoin)
-        throws Exception {
+            throws Exception {
 
         String upsert = "UPSERT INTO " + table + "(id, vals)"
-            + " VALUES(1, ARRAY[10, 20, 30, 40, 50])";
+                + " VALUES(1, ARRAY[10, 20, 30, 40, 50])";
         PreparedStatement upsertStmt = conn.prepareStatement(upsert);
         upsertStmt.execute();
         conn.commit();

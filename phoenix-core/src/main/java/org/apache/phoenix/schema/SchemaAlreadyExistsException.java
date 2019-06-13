@@ -24,10 +24,8 @@ import org.apache.phoenix.exception.SQLExceptionInfo;
 
 
 /**
- * 
  * Exception thrown when a schema name already exists
  *
- * 
  * @since 0.1
  */
 public class SchemaAlreadyExistsException extends SQLException {

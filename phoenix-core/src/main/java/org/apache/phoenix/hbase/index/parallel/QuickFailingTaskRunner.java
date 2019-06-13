@@ -32,18 +32,18 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 public class QuickFailingTaskRunner extends BaseTaskRunner {
 
-  static final Logger LOGGER = LoggerFactory.getLogger(QuickFailingTaskRunner.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(QuickFailingTaskRunner.class);
 
-  /**
-   * @param service thread pool to which {@link Task}s are submitted. This service is then 'owned'
-   *          by <tt>this</tt> and will be shutdown on calls to {@link #stop(String)}.
-   */
-  public QuickFailingTaskRunner(ExecutorService service) {
-    super(service);
-  }
+    /**
+     * @param service thread pool to which {@link Task}s are submitted. This service is then 'owned'
+     *                by <tt>this</tt> and will be shutdown on calls to {@link #stop(String)}.
+     */
+    public QuickFailingTaskRunner(ExecutorService service) {
+        super(service);
+    }
 
-  @Override
-  protected <R> ListenableFuture<List<R>> submitTasks(List<ListenableFuture<R>> futures) {
-    return Futures.allAsList(futures);
-  }
+    @Override
+    protected <R> ListenableFuture<List<R>> submitTasks(List<ListenableFuture<R>> futures) {
+        return Futures.allAsList(futures);
+    }
 }

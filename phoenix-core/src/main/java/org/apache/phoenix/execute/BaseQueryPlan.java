@@ -86,18 +86,15 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 
-
 /**
- *
  * Query plan that has no child plans
  *
- * 
  * @since 0.1
  */
 public abstract class BaseQueryPlan implements QueryPlan {
-	private static final Logger LOGGER = LoggerFactory.getLogger(BaseQueryPlan.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseQueryPlan.class);
     protected static final long DEFAULT_ESTIMATED_SIZE = 10 * 1024; // 10 K
-    
+
     protected final TableRef tableRef;
     protected final Set<TableRef> tableRefs;
     protected final StatementContext context;
@@ -108,10 +105,10 @@ public abstract class BaseQueryPlan implements QueryPlan {
     protected final Integer offset;
     protected final OrderBy orderBy;
     protected final GroupBy groupBy;
-    protected final ParallelIteratorFactory parallelIteratorFactory;    
+    protected final ParallelIteratorFactory parallelIteratorFactory;
     /*
      * The filter expression that contains CorrelateVariableFieldAccessExpression
-     * and will have impact on the ScanRanges. It will recompiled at runtime 
+     * and will have impact on the ScanRanges. It will recompiled at runtime
      * immediately before creating the ResultIterator.
      */
     protected final Expression dynamicFilter;
@@ -120,7 +117,7 @@ public abstract class BaseQueryPlan implements QueryPlan {
     protected Long estimatedSize;
     protected Long estimateInfoTimestamp;
     private boolean getEstimatesCalled;
-    
+
 
     protected BaseQueryPlan(
             StatementContext context, FilterableStatement statement, TableRef table,
@@ -142,23 +139,23 @@ public abstract class BaseQueryPlan implements QueryPlan {
         this.dataPlan = dataPlan;
     }
 
-	@Override
-	public Operation getOperation() {
-		return Operation.QUERY;
-	}
-	
+    @Override
+    public Operation getOperation() {
+        return Operation.QUERY;
+    }
+
     @Override
     public boolean isDegenerate() {
         return context.getScanRanges() == ScanRanges.NOTHING;
 
     }
-    
+
     @Override
     public GroupBy getGroupBy() {
         return groupBy;
     }
 
-    
+
     @Override
     public OrderBy getOrderBy() {
         return orderBy;
@@ -178,7 +175,7 @@ public abstract class BaseQueryPlan implements QueryPlan {
     public Integer getLimit() {
         return limit;
     }
-    
+
     @Override
     public Integer getOffset() {
         return offset;
@@ -188,7 +185,7 @@ public abstract class BaseQueryPlan implements QueryPlan {
     public RowProjector getProjector() {
         return projection;
     }
-    
+
     public Expression getDynamicFilter() {
         return dynamicFilter;
     }
@@ -206,7 +203,7 @@ public abstract class BaseQueryPlan implements QueryPlan {
     public final ResultIterator iterator() throws SQLException {
         return iterator(DefaultParallelScanGrouper.getInstance());
     }
-    
+
     @Override
     public final ResultIterator iterator(ParallelScanGrouper scanGrouper) throws SQLException {
         return iterator(scanGrouper, null);
@@ -216,54 +213,54 @@ public abstract class BaseQueryPlan implements QueryPlan {
     public final ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
         return iterator(Collections.emptyMap(), scanGrouper, scan);
     }
-        
-	private ResultIterator getWrappedIterator(final Map<ImmutableBytesPtr,ServerCache> dependencies,
-			ResultIterator iterator) {
-		ResultIterator wrappedIterator = dependencies.isEmpty() ? iterator : new DelegateResultIterator(iterator) {
-			@Override
-			public void close() throws SQLException {
-				try {
-					super.close();
-				} finally {
-					SQLCloseables.closeAll(dependencies.values());
-				}
-			}
-		};
-		return wrappedIterator;
-	}
 
-    public final ResultIterator iterator(final Map<ImmutableBytesPtr,ServerCache> caches,
-            ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
-         if (scan == null) {
-             scan = context.getScan();
-         }
-         
-         ScanRanges scanRanges = context.getScanRanges();
+    private ResultIterator getWrappedIterator(final Map<ImmutableBytesPtr, ServerCache> dependencies,
+                                              ResultIterator iterator) {
+        ResultIterator wrappedIterator = dependencies.isEmpty() ? iterator : new DelegateResultIterator(iterator) {
+            @Override
+            public void close() throws SQLException {
+                try {
+                    super.close();
+                } finally {
+                    SQLCloseables.closeAll(dependencies.values());
+                }
+            }
+        };
+        return wrappedIterator;
+    }
 
-		/*
-		 * For aggregate queries, we still need to let the AggregationPlan to
-		 * proceed so that we can give proper aggregates even if there are no
-		 * row to be scanned.
-		 */
-        if (scanRanges == ScanRanges.NOTHING && !getStatement().isAggregate()) {
-        return getWrappedIterator(caches, ResultIterator.EMPTY_ITERATOR);
+    public final ResultIterator iterator(final Map<ImmutableBytesPtr, ServerCache> caches,
+                                         ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
+        if (scan == null) {
+            scan = context.getScan();
         }
-        
+
+        ScanRanges scanRanges = context.getScanRanges();
+
+        /*
+         * For aggregate queries, we still need to let the AggregationPlan to
+         * proceed so that we can give proper aggregates even if there are no
+         * row to be scanned.
+         */
+        if (scanRanges == ScanRanges.NOTHING && !getStatement().isAggregate()) {
+            return getWrappedIterator(caches, ResultIterator.EMPTY_ITERATOR);
+        }
+
         if (tableRef == TableRef.EMPTY_TABLE_REF) {
             return newIterator(scanGrouper, scan, caches);
         }
-        
+
         ScanUtil.setClientVersion(scan, MetaDataProtocol.PHOENIX_VERSION);
-        
+
         // Set miscellaneous scan attributes. This is the last chance to set them before we
         // clone the scan for each parallelized chunk.
         TableRef tableRef = context.getCurrentTable();
         PTable table = tableRef.getTable();
-        
+
         if (dynamicFilter != null) {
             WhereCompiler.compile(context, statement, null, Collections.singletonList(dynamicFilter), null);
         }
-        
+
         if (OrderBy.REV_ROW_KEY_ORDER_BY.equals(orderBy)) {
             ScanUtil.setReversed(scan);
             // Hack for working around PHOENIX-3121 and HBASE-16296.
@@ -273,16 +270,16 @@ public abstract class BaseQueryPlan implements QueryPlan {
                 scan.setCaching(scannerCacheSize + 1);
             }
         }
-        
+
 
         PhoenixConnection connection = context.getConnection();
         final int smallScanThreshold = connection.getQueryServices().getProps().getInt(QueryServices.SMALL_SCAN_THRESHOLD_ATTRIB,
-          QueryServicesOptions.DEFAULT_SMALL_SCAN_THRESHOLD);
+                QueryServicesOptions.DEFAULT_SMALL_SCAN_THRESHOLD);
 
         if (statement.getHint().hasHint(Hint.SMALL) || (scanRanges.isPointLookup() && scanRanges.getPointLookupCount() < smallScanThreshold)) {
             scan.setSmall(true);
         }
-        
+
 
         // set read consistency
         if (table.getType() != PTableType.SYSTEM) {
@@ -290,27 +287,27 @@ public abstract class BaseQueryPlan implements QueryPlan {
         }
         // TODO fix this in PHOENIX-2415 Support ROW_TIMESTAMP with transactional tables
         if (!table.isTransactional()) {
-	                // Get the time range of row_timestamp column
-	        TimeRange rowTimestampRange = scanRanges.getRowTimestampRange();
-	        // Get the already existing time range on the scan.
-	        TimeRange scanTimeRange = scan.getTimeRange();
-	        Long scn = connection.getSCN();
-	        if (scn == null) {
-	        	// Always use latest timestamp unless scn is set or transactional (see PHOENIX-4089)
+            // Get the time range of row_timestamp column
+            TimeRange rowTimestampRange = scanRanges.getRowTimestampRange();
+            // Get the already existing time range on the scan.
+            TimeRange scanTimeRange = scan.getTimeRange();
+            Long scn = connection.getSCN();
+            if (scn == null) {
+                // Always use latest timestamp unless scn is set or transactional (see PHOENIX-4089)
                 scn = HConstants.LATEST_TIMESTAMP;
-	        }
-	        try {
-	            TimeRange timeRangeToUse = ScanUtil.intersectTimeRange(rowTimestampRange, scanTimeRange, scn);
-	            if (timeRangeToUse == null) {
-	                return ResultIterator.EMPTY_ITERATOR;
-	            }
-	            scan.setTimeRange(timeRangeToUse.getMin(), timeRangeToUse.getMax());
-	        } catch (IOException e) {
-	            throw new RuntimeException(e);
-	        }
-	    }
+            }
+            try {
+                TimeRange timeRangeToUse = ScanUtil.intersectTimeRange(rowTimestampRange, scanTimeRange, scn);
+                if (timeRangeToUse == null) {
+                    return ResultIterator.EMPTY_ITERATOR;
+                }
+                scan.setTimeRange(timeRangeToUse.getMin(), timeRangeToUse.getMax());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         byte[] tenantIdBytes;
-        if( table.isMultiTenant() == true ) {
+        if (table.isMultiTenant() == true) {
             tenantIdBytes = connection.getTenantId() == null ? null :
                     ScanUtil.getTenantIdBytes(
                             table.getRowKeySchema(),
@@ -341,27 +338,27 @@ public abstract class BaseQueryPlan implements QueryPlan {
                 // TODO: is it necessary to re-resolve the table?
                 TableRef dataTableRef =
                         FromCompiler.getResolver(
-                            FACTORY.namedTable(null, TableName.create(parentSchemaName, parentTableName)),
-                            context.getConnection()).resolveTable(parentSchemaName, parentTableName);
+                                FACTORY.namedTable(null, TableName.create(parentSchemaName, parentTableName)),
+                                context.getConnection()).resolveTable(parentSchemaName, parentTableName);
                 PTable dataTable = dataTableRef.getTable();
                 // Set data columns to be join back from data table.
                 serializeDataTableColumnsToJoin(scan, dataColumns, dataTable);
                 KeyValueSchema schema = ProjectedColumnExpression.buildSchema(dataColumns);
                 // Set key value schema of the data columns.
                 serializeSchemaIntoScan(scan, schema);
-                
+
                 // Set index maintainer of the local index.
                 serializeIndexMaintainerIntoScan(scan, dataTable);
                 // Set view constants if exists.
                 serializeViewConstantsIntoScan(scan, dataTable);
             }
         }
-        
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(LogUtil.addCustomAnnotations("Scan ready for iteration: " + scan, connection));
         }
-        
-        ResultIterator iterator =  newIterator(scanGrouper, scan, caches);
+
+        ResultIterator iterator = newIterator(scanGrouper, scan, caches);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(LogUtil.addCustomAnnotations("Iterator ready: " + iterator, connection));
         }
@@ -370,7 +367,9 @@ public abstract class BaseQueryPlan implements QueryPlan {
         if (Tracing.isTracing()) {
             TraceScope scope = Tracing.startNewSpan(context.getConnection(),
                     "Creating basic query for " + getPlanSteps(iterator));
-            if (scope.getSpan() != null) return new TracingIterator(scope, iterator);
+            if (scope.getSpan() != null) {
+                return new TracingIterator(scope, iterator);
+            }
         }
         return iterator;
     }
@@ -487,8 +486,8 @@ public abstract class BaseQueryPlan implements QueryPlan {
         }
     }
 
-    abstract protected ResultIterator newIterator(ParallelScanGrouper scanGrouper, Scan scan, Map<ImmutableBytesPtr,ServerCache> caches) throws SQLException;
-    
+    abstract protected ResultIterator newIterator(ParallelScanGrouper scanGrouper, Scan scan, Map<ImmutableBytesPtr, ServerCache> caches) throws SQLException;
+
     @Override
     public long getEstimatedSize() {
         return DEFAULT_ESTIMATED_SIZE;
@@ -531,7 +530,7 @@ public abstract class BaseQueryPlan implements QueryPlan {
     public boolean isRowKeyOrdered() {
         return groupBy.isEmpty() ? orderBy.getOrderByExpressions().isEmpty() : groupBy.isOrderPreserving();
     }
-    
+
     @Override
     public Long getEstimatedRowsToScan() throws SQLException {
         if (!getEstimatesCalled) {

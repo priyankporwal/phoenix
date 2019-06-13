@@ -74,17 +74,17 @@ import com.google.common.collect.Maps;
 @RunWith(Parameterized.class)
 // Needs to extend BaseUniqueNamesOwnClusterIT due to installation of FailingRegionObserver coprocessor
 public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
-    
-	private final String aSuccessTable;
-	private final String bFailureTable;
-	private final String cSuccessTable;
+
+    private final String aSuccessTable;
+    private final String bFailureTable;
+    private final String cSuccessTable;
     private final String upsertToFail;
     private final String upsertSelectToFail;
     private final String deleteToFail;
     private static final String TABLE_NAME_TO_FAIL = "B_FAILURE_TABLE";
     private static final byte[] ROW_TO_FAIL_UPSERT_BYTES = Bytes.toBytes("fail me upsert");
     private static final byte[] ROW_TO_FAIL_DELETE_BYTES = Bytes.toBytes("fail me delete");
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(3);
@@ -96,27 +96,27 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
         clientProps.put(QueryServices.COLLECT_REQUEST_LEVEL_METRICS, String.valueOf(true));
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
-    
+
     private final boolean transactional;
     private final String transactionProvider;
-    
-    @Parameters(name="PartialCommitIT_transactionProvider={0}")
+
+    @Parameters(name = "PartialCommitIT_transactionProvider={0}")
     public static Collection<Object[]> data() {
-        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] { 
-                 {"TEPHRA"},{"OMID"}}),0);
+        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {
+                {"TEPHRA"}, {"OMID"}}), 0);
     }
-    
+
     public PartialCommitIT(String transactionProvider) {
         this.transactionProvider = transactionProvider;
         this.transactional = transactionProvider != null;
-		aSuccessTable = generateUniqueName();
-		bFailureTable = TABLE_NAME_TO_FAIL + generateUniqueName();
-		cSuccessTable = generateUniqueName();
-	    upsertToFail = "upsert into " + bFailureTable + " values ('" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "', 'boom!')";
-	    upsertSelectToFail = "upsert into " + bFailureTable + " select k, c from " + aSuccessTable;
-	    deleteToFail = "delete from " + bFailureTable + "  where k='" + Bytes.toString(ROW_TO_FAIL_DELETE_BYTES) + "'";
-	}
-    
+        aSuccessTable = generateUniqueName();
+        bFailureTable = TABLE_NAME_TO_FAIL + generateUniqueName();
+        cSuccessTable = generateUniqueName();
+        upsertToFail = "upsert into " + bFailureTable + " values ('" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "', 'boom!')";
+        upsertSelectToFail = "upsert into " + bFailureTable + " select k, c from " + aSuccessTable;
+        deleteToFail = "delete from " + bFailureTable + "  where k='" + Bytes.toString(ROW_TO_FAIL_DELETE_BYTES) + "'";
+    }
+
     private void createTables() throws Exception {
         try (Connection con = DriverManager.getConnection(getUrl())) {
             Statement sta = con.createStatement();
@@ -125,7 +125,7 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
             sta.execute("create table " + cSuccessTable + " (k varchar primary key, c varchar)" + (transactional ? (" TRANSACTIONAL=true,TRANSACTION_PROVIDER='" + transactionProvider + "'") : ""));
         }
     }
-    
+
     private void populateTables() throws Exception {
         try (Connection con = DriverManager.getConnection(getUrl())) {
             con.setAutoCommit(false);
@@ -139,7 +139,7 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
             con.commit();
         }
     }
-    
+
     @Before
     public void resetGlobalMetrics() throws Exception {
         createTables();
@@ -148,84 +148,85 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
             m.reset();
         }
     }
-    
+
     @Test
     public void testNoFailure() throws SQLException {
         testPartialCommit(singletonList("upsert into " + aSuccessTable + " values ('testNoFailure', 'a')"), new int[0], false, singletonList("select count(*) from " + aSuccessTable + " where k='testNoFailure'"),
-                                        singletonList(new Integer(1)));
+                singletonList(new Integer(1)));
     }
-    
+
     @Test
     public void testUpsertFailure() throws SQLException {
-        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testUpsertFailure1', 'a')", 
-                                       upsertToFail, 
-                                       "upsert into " + aSuccessTable + " values ('testUpsertFailure2', 'b')"), 
-                                       transactional ? new int[] {0,1,2} : new int[]{1}, true,
-                                       newArrayList("select count(*) from " + aSuccessTable + " where k like 'testUpsertFailure_'",
-                                                    "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'"),
-                                       transactional ? newArrayList(new Integer(0), new Integer(0)) : newArrayList(new Integer(2), new Integer(0)));
+        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testUpsertFailure1', 'a')",
+                upsertToFail,
+                "upsert into " + aSuccessTable + " values ('testUpsertFailure2', 'b')"),
+                transactional ? new int[] {0, 1, 2} : new int[] {1}, true,
+                newArrayList("select count(*) from " + aSuccessTable + " where k like 'testUpsertFailure_'",
+                        "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'"),
+                transactional ? newArrayList(new Integer(0), new Integer(0)) : newArrayList(new Integer(2), new Integer(0)));
     }
-    
+
     @Test
     public void testUpsertSelectFailure() throws SQLException {
         try (Connection con = DriverManager.getConnection(getUrl())) {
             con.createStatement().execute("upsert into " + aSuccessTable + " values ('" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "', 'boom!')");
             con.commit();
         }
-        
-        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testUpsertSelectFailure', 'a')", 
-                                       upsertSelectToFail), 
-                                       transactional ? new int[] {0,1} : new int[]{1}, true, 
-                                       newArrayList("select count(*) from " + aSuccessTable + " where k in ('testUpsertSelectFailure', '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "')",
-                                                    "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'"),
-                                       transactional ? newArrayList(new Integer(1) /* from commit above */, new Integer(0)) : newArrayList(new Integer(2), new Integer(0)));
+
+        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testUpsertSelectFailure', 'a')",
+                upsertSelectToFail),
+                transactional ? new int[] {0, 1} : new int[] {1}, true,
+                newArrayList("select count(*) from " + aSuccessTable + " where k in ('testUpsertSelectFailure', '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "')",
+                        "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'"),
+                transactional ? newArrayList(new Integer(1) /* from commit above */, new Integer(0)) : newArrayList(new Integer(2), new Integer(0)));
     }
-    
+
     @Test
     public void testDeleteFailure() throws SQLException {
-        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testDeleteFailure1', 'a')", 
-                                       deleteToFail,
-                                       "upsert into " + aSuccessTable + " values ('testDeleteFailure2', 'b')"), 
-                                       transactional ? new int[] {0,1,2} : new int[]{1}, true, 
-                                       newArrayList("select count(*) from " + aSuccessTable + " where k like 'testDeleteFailure_'",
-                                                    "select count(*) from " + bFailureTable + " where k = 'z'"),
-                                       transactional ? newArrayList(new Integer(0), new Integer(1) /* original row */) : newArrayList(new Integer(2), new Integer(1)));
+        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testDeleteFailure1', 'a')",
+                deleteToFail,
+                "upsert into " + aSuccessTable + " values ('testDeleteFailure2', 'b')"),
+                transactional ? new int[] {0, 1, 2} : new int[] {1}, true,
+                newArrayList("select count(*) from " + aSuccessTable + " where k like 'testDeleteFailure_'",
+                        "select count(*) from " + bFailureTable + " where k = 'z'"),
+                transactional ? newArrayList(new Integer(0), new Integer(1) /* original row */) : newArrayList(new Integer(2), new Integer(1)));
     }
-    
+
     /**
      * {@link MutationState} keeps mutations ordered lexicographically by table name.
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     @Test
     public void testOrderOfMutationsIsPredicatable() throws SQLException {
         testPartialCommit(newArrayList("upsert into " + cSuccessTable + " values ('testOrderOfMutationsIsPredicatable', 'c')", // will fail because c_success_table is after b_failure_table by table sort order
-                                       upsertToFail, 
-                                       "upsert into " + aSuccessTable + " values ('testOrderOfMutationsIsPredicatable', 'a')"), // will succeed because a_success_table is before b_failure_table by table sort order
-                                       transactional ? new int[] {0,1,2} : new int[]{0,1}, true, 
-                                       newArrayList("select count(*) from " + cSuccessTable + " where k='testOrderOfMutationsIsPredicatable'",
-                                                    "select count(*) from " + aSuccessTable + " where k='testOrderOfMutationsIsPredicatable'",
-                                                    "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'"),
-                                       transactional ? newArrayList(new Integer(0), new Integer(0), new Integer(0)) : newArrayList(new Integer(0), new Integer(1), new Integer(0)));
+                upsertToFail,
+                "upsert into " + aSuccessTable + " values ('testOrderOfMutationsIsPredicatable', 'a')"), // will succeed because a_success_table is before b_failure_table by table sort order
+                transactional ? new int[] {0, 1, 2} : new int[] {0, 1}, true,
+                newArrayList("select count(*) from " + cSuccessTable + " where k='testOrderOfMutationsIsPredicatable'",
+                        "select count(*) from " + aSuccessTable + " where k='testOrderOfMutationsIsPredicatable'",
+                        "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'"),
+                transactional ? newArrayList(new Integer(0), new Integer(0), new Integer(0)) : newArrayList(new Integer(0), new Integer(1), new Integer(0)));
     }
-    
+
     @Test
     public void testStatementOrderMaintainedInConnection() throws SQLException {
-        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testStatementOrderMaintainedInConnection', 'a')", 
-                                       "upsert into " + aSuccessTable + " select k, c from " + cSuccessTable,
-                                       deleteToFail,
-                                       "select * from " + aSuccessTable + "", 
-                                       upsertToFail), 
-                                       transactional ? new int[] {0,1,2,4} : new int[]{2,4}, true, 
-                                       newArrayList("select count(*) from " + aSuccessTable + " where k='testStatementOrderMaintainedInConnection' or k like 'z%'", // rows left: zz, zzz, checkThatAllStatementTypesMaintainOrderInConnection
-                                                    "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'",
-                                                    "select count(*) from " + bFailureTable + " where k = 'z'"),
-                                       transactional ? newArrayList(new Integer(3) /* original rows */, new Integer(0), new Integer(1) /* original row */) : newArrayList(new Integer(4), new Integer(0), new Integer(1)));
+        testPartialCommit(newArrayList("upsert into " + aSuccessTable + " values ('testStatementOrderMaintainedInConnection', 'a')",
+                "upsert into " + aSuccessTable + " select k, c from " + cSuccessTable,
+                deleteToFail,
+                "select * from " + aSuccessTable + "",
+                upsertToFail),
+                transactional ? new int[] {0, 1, 2, 4} : new int[] {2, 4}, true,
+                newArrayList("select count(*) from " + aSuccessTable + " where k='testStatementOrderMaintainedInConnection' or k like 'z%'", // rows left: zz, zzz, checkThatAllStatementTypesMaintainOrderInConnection
+                        "select count(*) from " + bFailureTable + " where k = '" + Bytes.toString(ROW_TO_FAIL_UPSERT_BYTES) + "'",
+                        "select count(*) from " + bFailureTable + " where k = 'z'"),
+                transactional ? newArrayList(new Integer(3) /* original rows */, new Integer(0), new Integer(1) /* original row */) : newArrayList(new Integer(4), new Integer(0), new Integer(1)));
     }
-    
+
     private void testPartialCommit(List<String> statements, int[] expectedUncommittedStatementIndexes, boolean willFail, List<String> countStatementsForVerification,
                                    List<Integer> expectedCountsForVerification) throws SQLException {
         Preconditions.checkArgument(countStatementsForVerification.size() == expectedCountsForVerification.size());
-        
+
         try (Connection con = getConnectionWithTableOrderPreservingMutationState()) {
             con.setAutoCommit(false);
             Statement sta = con.createStatement();
@@ -244,14 +245,14 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
                     fail("Expected no statements to fail");
                 }
                 assertEquals(CommitException.class, sqle.getClass());
-                int[] uncommittedStatementIndexes = ((CommitException)sqle).getUncommittedStatementIndexes();
+                int[] uncommittedStatementIndexes = ((CommitException) sqle).getUncommittedStatementIndexes();
                 assertArrayEquals(expectedUncommittedStatementIndexes, uncommittedStatementIndexes);
                 Map<String, Map<MetricType, Long>> mutationWriteMetrics = PhoenixRuntime.getWriteMetricInfoForMutationsSinceLastReset(con);
                 assertEquals(expectedUncommittedStatementIndexes.length, mutationWriteMetrics.get(bFailureTable).get(MUTATION_BATCH_FAILED_SIZE).intValue());
                 assertEquals(expectedUncommittedStatementIndexes.length, GLOBAL_MUTATION_BATCH_FAILED_COUNT.getMetric().getValue());
             }
-            
-            
+
+
             // verify data in HBase
             for (int i = 0; i < countStatementsForVerification.size(); i++) {
                 String countStatement = countStatementsForVerification.get(i);
@@ -263,16 +264,18 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
             }
         }
     }
-    
+
     private PhoenixConnection getConnectionWithTableOrderPreservingMutationState() throws SQLException {
         try (PhoenixConnection con = DriverManager.getConnection(getUrl()).unwrap(PhoenixConnection.class)) {
             final Map<TableRef, MultiRowMutationState> mutations = Maps.newTreeMap(new TableRefComparator());
             // passing a null mutation state forces the connection.newMutationState() to be used to create the MutationState
-            return new PhoenixConnection(con, (MutationState)null) {
+            return new PhoenixConnection(con, (MutationState) null) {
                 @Override
                 protected MutationState newMutationState(int maxSize, int maxSizeBytes) {
                     return new MutationState(maxSize, maxSizeBytes, this, mutations, false, null);
-                };
+                }
+
+                ;
             };
         }
     }
@@ -280,7 +283,7 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
     public static class FailingRegionObserver extends SimpleRegionObserver {
         @Override
         public void prePut(ObserverContext<RegionCoprocessorEnvironment> c, Put put, WALEdit edit,
-                final Durability durability) throws HBaseIOException {
+                           final Durability durability) throws HBaseIOException {
             if (shouldFail(c, put)) {
                 // throwing anything other than instances of IOException result
                 // in this coprocessor being unloaded
@@ -289,10 +292,10 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
                 throw new DoNotRetryIOException();
             }
         }
-        
+
         @Override
         public void preDelete(ObserverContext<RegionCoprocessorEnvironment> c,
-                Delete delete, WALEdit edit, Durability durability) throws IOException {
+                              Delete delete, WALEdit edit, Durability durability) throws IOException {
             if (shouldFail(c, delete)) {
                 // throwing anything other than instances of IOException result
                 // in this coprocessor being unloaded
@@ -301,16 +304,16 @@ public class PartialCommitIT extends BaseUniqueNamesOwnClusterIT {
                 throw new DoNotRetryIOException();
             }
         }
-        
+
         private boolean shouldFail(ObserverContext<RegionCoprocessorEnvironment> c, Mutation m) {
             String tableName = c.getEnvironment().getRegion().getRegionInfo().getTable().getNameAsString();
             // deletes on transactional tables are converted to put, so use a single helper method
-            return tableName.contains(TABLE_NAME_TO_FAIL) && 
-            		(Bytes.equals(ROW_TO_FAIL_UPSERT_BYTES, m.getRow()) || Bytes.equals(ROW_TO_FAIL_DELETE_BYTES, m.getRow()));
+            return tableName.contains(TABLE_NAME_TO_FAIL) &&
+                    (Bytes.equals(ROW_TO_FAIL_UPSERT_BYTES, m.getRow()) || Bytes.equals(ROW_TO_FAIL_DELETE_BYTES, m.getRow()));
         }
-        
+
     }
-    
+
     /**
      * Used for ordering {@link MutationState#mutations} map.
      */

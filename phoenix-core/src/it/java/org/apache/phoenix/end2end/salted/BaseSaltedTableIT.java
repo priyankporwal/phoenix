@@ -37,7 +37,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public abstract class BaseSaltedTableIT extends ParallelStatsDisabledIT  {
+public abstract class BaseSaltedTableIT extends ParallelStatsDisabledIT {
 
     protected static String initTableValues(byte[][] splits) throws Exception {
         String tableName = generateUniqueName();
@@ -128,9 +128,9 @@ public abstract class BaseSaltedTableIT extends ParallelStatsDisabledIT  {
             String tableName = initTableValues(null);
             // "SELECT * FROM " + tableName;
             QueryBuilder queryBuilder = new QueryBuilder()
-                .setSelectColumns(
-                    Lists.newArrayList("A_INTEGER", "A_STRING", "A_ID", "B_STRING", "B_INTEGER"))
-                .setFullTableName(tableName);
+                    .setSelectColumns(
+                            Lists.newArrayList("A_INTEGER", "A_STRING", "A_ID", "B_STRING", "B_INTEGER"))
+                    .setFullTableName(tableName);
             ResultSet rs = executeQuery(conn, queryBuilder);
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));
@@ -191,10 +191,10 @@ public abstract class BaseSaltedTableIT extends ParallelStatsDisabledIT  {
 
             // Variable length slot with bounded ranges.
             QueryBuilder queryBuilder = new QueryBuilder()
-                .setSelectColumns(
-                        Lists.newArrayList("A_INTEGER", "A_STRING", "A_ID", "B_STRING", "B_INTEGER"))
-                .setFullTableName(tableName)
-                .setWhereClause("A_INTEGER = 1 AND A_STRING >= 'ab' AND A_STRING < 'de' AND A_ID = '123'");
+                    .setSelectColumns(
+                            Lists.newArrayList("A_INTEGER", "A_STRING", "A_ID", "B_STRING", "B_INTEGER"))
+                    .setFullTableName(tableName)
+                    .setWhereClause("A_INTEGER = 1 AND A_STRING >= 'ab' AND A_STRING < 'de' AND A_ID = '123'");
             rs = executeQuery(conn, queryBuilder);
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));
@@ -287,7 +287,7 @@ public abstract class BaseSaltedTableIT extends ParallelStatsDisabledIT  {
             // Variable length slot with unbounded ranges.
             queryBuilder.setWhereClause("A_INTEGER = 1 AND A_STRING > 'ab' AND A_ID = '123'");
             queryBuilder.setSelectColumns(
-                Lists.newArrayList("A_INTEGER", "A_STRING", "A_ID", "B_STRING", "B_INTEGER"));
+                    Lists.newArrayList("A_INTEGER", "A_STRING", "A_ID", "B_STRING", "B_INTEGER"));
             rs = executeQuery(conn, queryBuilder);
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));

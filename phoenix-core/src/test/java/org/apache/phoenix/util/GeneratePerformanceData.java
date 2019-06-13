@@ -27,9 +27,9 @@ import java.util.Random;
 
 public class GeneratePerformanceData {
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        String[] host = {"NA","CS","EU"};
-        String[] domain = {"Salesforce.com","Apple.com","Google.com"};
-        String[] feature = {"Login","Report","Dashboard"};
+        String[] host = {"NA", "CS", "EU"};
+        String[] domain = {"Salesforce.com", "Apple.com", "Google.com"};
+        String[] feature = {"Login", "Report", "Dashboard"};
         Calendar now = GregorianCalendar.getInstance();
         Random random = new Random();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -42,15 +42,15 @@ public class GeneratePerformanceData {
         FileOutputStream fostream = null;
         try {
             fostream = new FileOutputStream(dataFile);
-            for (int i=0; i<rowCount; i++) {
+            for (int i = 0; i < rowCount; i++) {
                 now.add(Calendar.SECOND, 1);
-                fostream.write((host[random.nextInt(host.length)] + "," + 
-                        domain[random.nextInt(domain.length)] + "," + 
-                        feature[random.nextInt(feature.length)] + "," + 
-                        sdf.format(now.getTime()) + "," + 
-                        random.nextInt(500) + "," + 
-                        random.nextInt(2000)+"," + 
-                        random.nextInt(10000) + 
+                fostream.write((host[random.nextInt(host.length)] + "," +
+                        domain[random.nextInt(domain.length)] + "," +
+                        feature[random.nextInt(feature.length)] + "," +
+                        sdf.format(now.getTime()) + "," +
+                        random.nextInt(500) + "," +
+                        random.nextInt(2000) + "," +
+                        random.nextInt(10000) +
                         "\n").getBytes());
                 if (i % 10000 == 0) {
                     System.out.print(".");

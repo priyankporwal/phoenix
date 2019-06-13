@@ -28,7 +28,7 @@ import org.apache.phoenix.schema.PTable.QualifierEncodingScheme.InvalidQualifier
 import org.junit.Test;
 
 public class QualifierEncodingSchemeTest {
-    
+
     @Test
     public void testOneByteQualifierEncodeDecode() {
         assertEquals(1, ONE_BYTE_QUALIFIERS.decode(ONE_BYTE_QUALIFIERS.encode(1)));
@@ -42,14 +42,16 @@ public class QualifierEncodingSchemeTest {
         try {
             ONE_BYTE_QUALIFIERS.decode(arr2);
             fail();
-        } catch (InvalidQualifierBytesException expected) {}
+        } catch (InvalidQualifierBytesException expected) {
+        }
         try {
             ONE_BYTE_QUALIFIERS.decode(arr2, 0, 2);
             fail();
-        } catch (InvalidQualifierBytesException expected) {}
-        
+        } catch (InvalidQualifierBytesException expected) {
+        }
+
     }
-    
+
     @Test
     public void testTwoByteQualifierEncodeDecode() {
         assertEquals(1, TWO_BYTE_QUALIFIERS.decode(TWO_BYTE_QUALIFIERS.encode(1)));
@@ -67,9 +69,10 @@ public class QualifierEncodingSchemeTest {
         try {
             TWO_BYTE_QUALIFIERS.decode(arr2);
             fail();
-        } catch (InvalidQualifierBytesException expected) {}
+        } catch (InvalidQualifierBytesException expected) {
+        }
     }
-    
+
     @Test
     public void testThreeByteQualifierEncodeDecode() {
         assertEquals(1, THREE_BYTE_QUALIFIERS.decode(THREE_BYTE_QUALIFIERS.encode(1)));
@@ -88,9 +91,10 @@ public class QualifierEncodingSchemeTest {
         try {
             THREE_BYTE_QUALIFIERS.decode(arr2, 0, 2);
             fail();
-        } catch (InvalidQualifierBytesException expected) {}
+        } catch (InvalidQualifierBytesException expected) {
+        }
     }
-    
+
     @Test
     public void testFourByteQualifierEncodeDecode() {
         assertEquals(1, FOUR_BYTE_QUALIFIERS.decode(FOUR_BYTE_QUALIFIERS.encode(1)));
@@ -109,11 +113,13 @@ public class QualifierEncodingSchemeTest {
         try {
             FOUR_BYTE_QUALIFIERS.decode(arr2);
             fail();
-        } catch (InvalidQualifierBytesException expected) {}
+        } catch (InvalidQualifierBytesException expected) {
+        }
         try {
             FOUR_BYTE_QUALIFIERS.decode(arr2, 0, 3);
             fail();
-        } catch (InvalidQualifierBytesException expected) {}
+        } catch (InvalidQualifierBytesException expected) {
+        }
     }
-    
+
 }

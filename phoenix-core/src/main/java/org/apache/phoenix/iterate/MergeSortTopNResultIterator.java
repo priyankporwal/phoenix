@@ -26,11 +26,9 @@ import org.apache.phoenix.expression.OrderByExpression;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
- * 
  * ResultIterator that does a merge sort on the list of iterators provided,
  * returning the rows ordered by the OrderByExpression. The input
  * iterators must be ordered by the OrderByExpression.
- *
  */
 public class MergeSortTopNResultIterator extends MergeSortResultIterator {
 
@@ -41,9 +39,9 @@ public class MergeSortTopNResultIterator extends MergeSortResultIterator {
     private final ImmutableBytesWritable ptr1 = new ImmutableBytesWritable();
     private final ImmutableBytesWritable ptr2 = new ImmutableBytesWritable();
     private final int offset;
-    
+
     public MergeSortTopNResultIterator(ResultIterators iterators, Integer limit, Integer offset,
-            List<OrderByExpression> orderByColumns) {
+                                       List<OrderByExpression> orderByColumns) {
         super(iterators);
         this.limit = limit == null ? -1 : limit;
         this.offset = offset == null ? -1 : offset;
@@ -76,7 +74,9 @@ public class MergeSortTopNResultIterator extends MergeSortResultIterator {
     @Override
     public Tuple peek() throws SQLException {
         while (offsetCount < offset) {
-            if (super.next() == null) { return null; }
+            if (super.next() == null) {
+                return null;
+            }
             offsetCount++;
         }
         if (limit >= 0 && count >= limit) {
@@ -88,10 +88,14 @@ public class MergeSortTopNResultIterator extends MergeSortResultIterator {
     @Override
     public Tuple next() throws SQLException {
         while (offsetCount < offset) {
-            if (super.next() == null) { return null; }
+            if (super.next() == null) {
+                return null;
+            }
             offsetCount++;
         }
-        if (limit >= 0 && count++ >= limit) { return null; }
+        if (limit >= 0 && count++ >= limit) {
+            return null;
+        }
         return super.next();
     }
 
@@ -108,10 +112,10 @@ public class MergeSortTopNResultIterator extends MergeSortResultIterator {
         }
     }
 
-	@Override
-	public String toString() {
-		return "MergeSortTopNResultIterator [limit=" + limit + ", count="
-				+ count + ", orderByColumns=" + orderByColumns + ", ptr1="
-				+ ptr1 + ", ptr2=" + ptr2 + ",offset=" + offset + "]";
-	}
+    @Override
+    public String toString() {
+        return "MergeSortTopNResultIterator [limit=" + limit + ", count="
+                + count + ", orderByColumns=" + orderByColumns + ", ptr1="
+                + ptr1 + ", ptr2=" + ptr2 + ",offset=" + offset + "]";
+    }
 }

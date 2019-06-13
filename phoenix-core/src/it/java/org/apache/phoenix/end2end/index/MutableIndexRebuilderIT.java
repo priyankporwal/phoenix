@@ -70,6 +70,7 @@ public class MutableIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
 
     /**
      * Tests that the index rebuilder retries for exactly the configured # of retries
+     *
      * @throws Exception
      */
     @Test
@@ -86,13 +87,13 @@ public class MutableIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
         indexRebuildTaskRegionEnvironment =
                 getUtility()
-                         .getRSForFirstRegionInTable(
-                             PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
-                         .getRegions(PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
-                         .get(0).getCoprocessorHost()
-                         .findCoprocessorEnvironment(MetaDataRegionObserver.class.getName());
+                        .getRSForFirstRegionInTable(
+                                PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
+                        .getRegions(PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
+                        .get(0).getCoprocessorHost()
+                        .findCoprocessorEnvironment(MetaDataRegionObserver.class.getName());
         MetaDataRegionObserver.initRebuildIndexConnectionProps(
-            indexRebuildTaskRegionEnvironment.getConfiguration());
+                indexRebuildTaskRegionEnvironment.getConfiguration());
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String schemaName = generateUniqueName();
             String tableName = generateUniqueName();
@@ -116,7 +117,8 @@ public class MutableIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
                     public Boolean call() throws Exception {
                         runIndexRebuilder(fullTableName);
                         return true;
-                    }});
+                    }
+                });
                 assertTrue(future.get(120, TimeUnit.SECONDS));
                 assertEquals(numberOfRetries, WriteFailingRegionObserver.attempts.get());
             } finally {
@@ -151,6 +153,7 @@ public class MutableIndexRebuilderIT extends BaseUniqueNamesOwnClusterIT {
 
     public static class WriteFailingRegionObserver extends SimpleRegionObserver {
         public static volatile AtomicInteger attempts = new AtomicInteger(0);
+
         @Override
         public void postBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c, MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
             attempts.incrementAndGet();

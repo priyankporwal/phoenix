@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,30 +69,34 @@ public class Tracing {
     /**
      * Manage the types of frequencies that we support. By default, we never turn on tracing.
      */
-    public static enum Frequency {
+    public static enum Frequency
+
+    {
         NEVER("never", CREATE_NEVER), // default
-        ALWAYS("always", CREATE_ALWAYS), PROBABILITY("probability", CREATE_PROBABILITY);
+                ALWAYS("always", CREATE_ALWAYS), PROBABILITY("probability", CREATE_PROBABILITY);
 
         String key;
         Function<ConfigurationAdapter, Sampler<?>> builder;
 
-        private Frequency(String key, Function<ConfigurationAdapter, Sampler<?>> builder) {
+        private
+        Frequency(String key, Function < ConfigurationAdapter, Sampler < ? >> builder)
+        {
             this.key = key;
             this.builder = builder;
         }
 
-        public String getKey() {
-            return key;
-        }
+        public String getKey () {
+        return key;
+    }
 
-        static Frequency getSampler(String key) {
-            for (Frequency type : Frequency.values()) {
-                if (type.key.equals(key)) {
-                    return type;
-                }
+        static Frequency getSampler (String key){
+        for (Frequency type : Frequency.values()) {
+            if (type.key.equals(key)) {
+                return type;
             }
-            return NEVER;
         }
+        return NEVER;
+    }
     }
 
     private static Function<ConfigurationAdapter, Sampler<?>> CREATE_ALWAYS =
@@ -136,16 +140,16 @@ public class Tracing {
     }
 
     public static Sampler<?> getConfiguredSampler(TraceStatement traceStatement) {
-      double samplingRate = traceStatement.getSamplingRate();
-      if (samplingRate >= 1.0) {
-          return Sampler.ALWAYS;
-      } else if (samplingRate < 1.0 && samplingRate > 0.0) {
-          Map<String, String> items = new HashMap<String, String>();
-          items.put(ProbabilitySampler.SAMPLER_FRACTION_CONF_KEY, Double.toString(samplingRate));
-          return new ProbabilitySampler(HTraceConfiguration.fromMap(items));
-      } else {
-          return Sampler.NEVER;
-      }
+        double samplingRate = traceStatement.getSamplingRate();
+        if (samplingRate >= 1.0) {
+            return Sampler.ALWAYS;
+        } else if (samplingRate < 1.0 && samplingRate > 0.0) {
+            Map<String, String> items = new HashMap<String, String>();
+            items.put(ProbabilitySampler.SAMPLER_FRACTION_CONF_KEY, Double.toString(samplingRate));
+            return new ProbabilitySampler(HTraceConfiguration.fromMap(items));
+        } else {
+            return Sampler.NEVER;
+        }
     }
 
     private static Sampler<?> getSampler(String traceLevel, ConfigurationAdapter conf) {
@@ -225,12 +229,12 @@ public class Tracing {
         Preconditions.checkNotNull(conn);
 
         if (span == null) {
-        	return;
+            return;
         }
-		Map<String, String> annotations = conn.getCustomTracingAnnotations();
-		// copy over the annotations as bytes
-		for (Map.Entry<String, String> annotation : annotations.entrySet()) {
-			span.addKVAnnotation(toBytes(annotation.getKey()), toBytes(annotation.getValue()));
+        Map<String, String> annotations = conn.getCustomTracingAnnotations();
+        // copy over the annotations as bytes
+        for (Map.Entry<String, String> annotation : annotations.entrySet()) {
+            span.addKVAnnotation(toBytes(annotation.getKey()), toBytes(annotation.getValue()));
         }
     }
 
@@ -239,7 +243,7 @@ public class Tracing {
         private final PhoenixConnection conn;
         private final String desc;
 
-        public TracingWrapper(PhoenixConnection conn, String desc){
+        public TracingWrapper(PhoenixConnection conn, String desc) {
             this.conn = conn;
             this.desc = desc;
         }
@@ -293,9 +297,12 @@ public class Tracing {
 
     public static boolean isTraceOn(String traceOption) {
         Preconditions.checkArgument(traceOption != null);
-        if(traceOption.equalsIgnoreCase("ON")) return true;
-        if(traceOption.equalsIgnoreCase("OFF")) return false;
-        else {
+        if (traceOption.equalsIgnoreCase("ON")) {
+            return true;
+        }
+        if (traceOption.equalsIgnoreCase("OFF")) {
+            return false;
+        } else {
             throw new IllegalArgumentException("Unknown tracing option: " + traceOption);
         }
     }

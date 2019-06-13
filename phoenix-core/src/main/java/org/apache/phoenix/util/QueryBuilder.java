@@ -35,7 +35,7 @@ public class QueryBuilder {
     private List<String> selectColumns = Collections.emptyList();
 
     // columns that are required for expressions in the select clause
-    private List<String> selectExpressionColumns  = Collections.emptyList();
+    private List<String> selectExpressionColumns = Collections.emptyList();
     // expression string in the select clause (for eg COL1 || COL2)
     private String selectExpression;
     private String whereClause;
@@ -166,7 +166,7 @@ public class QueryBuilder {
 
         StringBuilder selectClauseBuilder = new StringBuilder();
         if (StringUtils.isNotBlank(selectExpression)) {
-            if (selectClauseBuilder.length()!=0) {
+            if (selectClauseBuilder.length() != 0) {
                 selectClauseBuilder.append(" , ");
             }
             selectClauseBuilder.append(selectExpression);
@@ -175,7 +175,7 @@ public class QueryBuilder {
         boolean first = true;
         for (String col : selectColumns) {
             if (StringUtils.isNotBlank(col)) {
-                if ((first && selectClauseBuilder.length()!=0) || !first) {
+                if ((first && selectClauseBuilder.length() != 0) || !first) {
                     selectClauseBuilder.append(" , ");
                 }
                 String fullColumnName = col;

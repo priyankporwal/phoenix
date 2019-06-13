@@ -33,11 +33,11 @@ import org.apache.phoenix.parse.FunctionParseNode.BuiltInFunction;
 import org.apache.phoenix.parse.FunctionParseNode.Argument;
 import org.apache.phoenix.parse.FunctionParseNode.FunctionClassType;
 
-@BuiltInFunction(name=RegexpSubstrFunction.NAME,
-        args= {
-                @Argument(allowedTypes={PVarchar.class}),
-                @Argument(allowedTypes={PVarchar.class}),
-                @Argument(allowedTypes={PLong.class}, defaultValue="1")},
+@BuiltInFunction(name = RegexpSubstrFunction.NAME,
+        args = {
+                @Argument(allowedTypes = {PVarchar.class}),
+                @Argument(allowedTypes = {PVarchar.class}),
+                @Argument(allowedTypes = {PLong.class}, defaultValue = "1")},
         classType = FunctionClassType.DERIVED
 )
 public class ByteBasedRegexpSubstrFunction extends RegexpSubstrFunction {

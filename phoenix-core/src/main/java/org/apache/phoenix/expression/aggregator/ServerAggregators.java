@@ -37,27 +37,26 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Aggregators that execute on the server-side
- *
  */
 public abstract class ServerAggregators extends Aggregators {
     protected final Expression[] expressions;
-    
+
     protected ServerAggregators(SingleAggregateFunction[] functions, Aggregator[] aggregators, Expression[] expressions, int minNullableIndex) {
         super(functions, aggregators, minNullableIndex);
         if (aggregators.length != expressions.length) {
-            throw new IllegalArgumentException("Number of aggregators (" + aggregators.length 
+            throw new IllegalArgumentException("Number of aggregators (" + aggregators.length
                     + ") must match the number of expressions (" + Arrays.toString(expressions) + ")");
         }
         this.expressions = expressions;
     }
-    
+
     @Override
     public abstract void aggregate(Aggregator[] aggregators, Tuple result);
-    
+
     /**
      * Serialize an Aggregator into a byte array
+     *
      * @param aggFuncs list of aggregator to serialize
      * @return serialized byte array respresentation of aggregator
      */
@@ -99,7 +98,8 @@ public abstract class ServerAggregators extends Aggregators {
 
     /**
      * Deserialize aggregators from the serialized byte array representation
-     * @param b byte array representation of a list of Aggregators
+     *
+     * @param b    byte array representation of a list of Aggregators
      * @param conf Server side configuration used by HBase
      * @return newly instantiated Aggregators instance
      */
@@ -116,7 +116,7 @@ public abstract class ServerAggregators extends Aggregators {
             Expression[] expressions = new Expression[len];
             SingleAggregateFunction[] functions = new SingleAggregateFunction[len];
             for (int i = 0; i < aggregators.length; i++) {
-                SingleAggregateFunction aggFunc = (SingleAggregateFunction)ExpressionType.values()[WritableUtils.readVInt(input)].newInstance();
+                SingleAggregateFunction aggFunc = (SingleAggregateFunction) ExpressionType.values()[WritableUtils.readVInt(input)].newInstance();
                 aggFunc.readFields(input, conf);
                 functions[i] = aggFunc;
                 aggregators[i] = aggFunc.getAggregator();
@@ -132,10 +132,10 @@ public abstract class ServerAggregators extends Aggregators {
                 }
             }
             return trackSize ?
-                    new SizeTrackingServerAggregators(functions, aggregators,expressions, minNullableIndex, chunk, 
-                            conf.getInt(QueryServices.AGGREGATE_CHUNK_SIZE_INCREASE_ATTRIB, 
+                    new SizeTrackingServerAggregators(functions, aggregators, expressions, minNullableIndex, chunk,
+                            conf.getInt(QueryServices.AGGREGATE_CHUNK_SIZE_INCREASE_ATTRIB,
                                     QueryServicesOptions.DEFAULT_AGGREGATE_CHUNK_SIZE_INCREASE)) :
-                    new NonSizeTrackingServerAggregators(functions, aggregators,expressions, minNullableIndex);
+                    new NonSizeTrackingServerAggregators(functions, aggregators, expressions, minNullableIndex);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

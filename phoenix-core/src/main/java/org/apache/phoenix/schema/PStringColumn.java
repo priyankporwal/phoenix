@@ -21,10 +21,8 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PVarchar;
 
 /**
- * 
  * Abstract class for columns of type {@link org.apache.phoenix.schema.types.PVarchar}
  *
- * 
  * @since 0.1
  */
 public abstract class PStringColumn extends PBaseColumn {

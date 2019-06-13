@@ -27,16 +27,18 @@ import org.apache.phoenix.memory.MemoryManager;
 
 
 /**
- * 
  * Inteface to set and set cached values for a tenant
  *
- * 
  * @since 0.1
  */
 public interface TenantCache {
     MemoryManager getMemoryManager();
+
     Closeable getServerCache(ImmutableBytesPtr cacheId);
+
     Closeable addServerCache(ImmutableBytesPtr cacheId, ImmutableBytesWritable cachePtr, byte[] txState, ServerCacheFactory cacheFactory, boolean useProtoForIndexMaintainer, boolean usePersistentCache, int clientVersion) throws SQLException;
+
     void removeServerCache(ImmutableBytesPtr cacheId);
+
     void removeAllServerCache();
 }

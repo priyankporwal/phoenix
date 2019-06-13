@@ -24,12 +24,9 @@ import java.util.List;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Node representing the NOT in SQL
  *
- * 
  * @since 0.1
  */
 public class NotParseNode extends UnaryParseNode {

@@ -52,7 +52,7 @@ public class GetSetByteBitFunctionEnd2EndIT extends ParallelStatsDisabledIT {
             conn = DriverManager.getConnection(getUrl());
             String ddl;
             ddl = "CREATE TABLE " + TABLE_NAME
-                + " (k VARCHAR NOT NULL PRIMARY KEY, b BINARY(4), vb VARBINARY)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, b BINARY(4), vb VARBINARY)";
             conn.createStatement().execute(ddl);
             conn.commit();
         } finally {
@@ -64,16 +64,16 @@ public class GetSetByteBitFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     public void test() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement(
-            "UPSERT INTO " + TABLE_NAME + " VALUES (?, ?, ?)");
+                "UPSERT INTO " + TABLE_NAME + " VALUES (?, ?, ?)");
         stmt.setString(1, KEY);
-        stmt.setBytes(2, new byte[] { 1, 2, 3, 4 });
-        stmt.setBytes(3, new byte[] { 1, 2, 3, 4 });
+        stmt.setBytes(2, new byte[] {1, 2, 3, 4});
+        stmt.setBytes(3, new byte[] {1, 2, 3, 4});
         stmt.executeUpdate();
         conn.commit();
         ResultSet rs =
                 conn.createStatement()
                         .executeQuery("SELECT GET_BYTE(vb, 1), GET_BYTE(b, 1) FROM " + TABLE_NAME
-                            + " WHERE GET_BYTE(vb, 1)=2 and GET_BYTE(b, 1)=2");
+                                + " WHERE GET_BYTE(vb, 1)=2 and GET_BYTE(b, 1)=2");
         assertTrue(rs.next());
         assertEquals(2, rs.getInt(1));
         assertEquals(2, rs.getInt(2));
@@ -81,24 +81,24 @@ public class GetSetByteBitFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         rs =
                 conn.createStatement()
                         .executeQuery("SELECT GET_BIT(b, 0),GET_BIT(b, 9) FROM " + TABLE_NAME
-                            + " WHERE GET_BIT(vb, 0)=1 and GET_BIT(vb, 9)=1");
+                                + " WHERE GET_BIT(vb, 0)=1 and GET_BIT(vb, 9)=1");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
         assertEquals(1, rs.getInt(2));
         assertTrue(!rs.next());
         rs =
                 conn.createStatement().executeQuery(
-                    "SELECT SET_BYTE(vb, 1, 1), SET_BYTE(b, 1, 1) FROM " + TABLE_NAME);
+                        "SELECT SET_BYTE(vb, 1, 1), SET_BYTE(b, 1, 1) FROM " + TABLE_NAME);
         assertTrue(rs.next());
-        assertArrayEquals(new byte[] { 1, 1, 3, 4 }, rs.getBytes(1));
-        assertArrayEquals(new byte[] { 1, 1, 3, 4 }, rs.getBytes(2));
+        assertArrayEquals(new byte[] {1, 1, 3, 4}, rs.getBytes(1));
+        assertArrayEquals(new byte[] {1, 1, 3, 4}, rs.getBytes(2));
         assertTrue(!rs.next());
         rs =
                 conn.createStatement().executeQuery(
-                    "SELECT SET_BIT(vb, 8, 1), SET_BIT(b, 8, 1) FROM " + TABLE_NAME);
+                        "SELECT SET_BIT(vb, 8, 1), SET_BIT(b, 8, 1) FROM " + TABLE_NAME);
         assertTrue(rs.next());
-        assertArrayEquals(new byte[] { 1, 3, 3, 4 }, rs.getBytes(1));
-        assertArrayEquals(new byte[] { 1, 3, 3, 4 }, rs.getBytes(2));
+        assertArrayEquals(new byte[] {1, 3, 3, 4}, rs.getBytes(1));
+        assertArrayEquals(new byte[] {1, 3, 3, 4}, rs.getBytes(2));
         assertTrue(!rs.next());
     }
 }

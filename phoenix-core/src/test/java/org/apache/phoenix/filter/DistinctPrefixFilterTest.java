@@ -39,34 +39,34 @@ public class DistinctPrefixFilterTest extends TestCase {
         RowKeySchemaBuilder builder = new RowKeySchemaBuilder(widths.length);
         for (final int width : widths) {
             builder.addField(
-                new PDatum() {
+                    new PDatum() {
 
-                @Override
-                public boolean isNullable() {
-                    return width <= 0;
-                }
+                        @Override
+                        public boolean isNullable() {
+                            return width <= 0;
+                        }
 
-                @Override
-                public PDataType<?> getDataType() {
-                    return width <= 0 ? PVarchar.INSTANCE : PChar.INSTANCE;
-                }
+                        @Override
+                        public PDataType<?> getDataType() {
+                            return width <= 0 ? PVarchar.INSTANCE : PChar.INSTANCE;
+                        }
 
-                @Override
-                public Integer getMaxLength() {
-                    return width <= 0 ? null : width;
-                }
+                        @Override
+                        public Integer getMaxLength() {
+                            return width <= 0 ? null : width;
+                        }
 
-                @Override
-                public Integer getScale() {
-                    return null;
-                }
+                        @Override
+                        public Integer getScale() {
+                            return null;
+                        }
 
-                @Override
-                public SortOrder getSortOrder() {
-                    return SortOrder.getDefault();
-                }
+                        @Override
+                        public SortOrder getSortOrder() {
+                            return SortOrder.getDefault();
+                        }
 
-            }, width <= 0, SortOrder.getDefault());
+                    }, width <= 0, SortOrder.getDefault());
         }
         return new DistinctPrefixFilter(builder.build(), prefixLength);
     }
@@ -99,7 +99,7 @@ public class DistinctPrefixFilterTest extends TestCase {
     }
 
     public void testSingleFixedWidth() throws Exception {
-        Filter f = createFilter(new int[]{3}, 1);
+        Filter f = createFilter(new int[] {3}, 1);
         assertInclude("000", f);
         assertInclude("001", f);
         assertSeekAndHint("001", f, "002");
@@ -108,19 +108,19 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("005", f);
         assertSeekAndHint("005", f, "006");
 
-        f = createFilter(new int[]{3}, 1);
+        f = createFilter(new int[] {3}, 1);
         f.setReversed(true);
         assertInclude("005", f);
         assertInclude("004", f);
-        assertSeekAndHint(new byte[]{'0','0','4'}, f, new byte[]{'0','0','4'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '4'}, f, new byte[] {'0', '0', '4'}, false);
         assertInclude("003", f);
         assertInclude("002", f);
         assertInclude("001", f);
-        assertSeekAndHint(new byte[]{'0','0','1'}, f, new byte[]{'0','0','1'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '1'}, f, new byte[] {'0', '0', '1'}, false);
     }
 
     public void testMultiFixedWidth() throws Exception {
-        Filter f = createFilter(new int[]{5,4}, 1);
+        Filter f = createFilter(new int[] {5, 4}, 1);
         assertInclude("00000aaaa", f);
         assertInclude("00001aaaa", f);
         assertSeekAndHint("00001aaaa", f, "00002");
@@ -129,7 +129,7 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("00005aaaa", f);
         assertSeekAndHint("00005aaaa", f, "00006");
 
-        f = createFilter(new int[]{5,4}, 2);
+        f = createFilter(new int[] {5, 4}, 2);
         assertInclude("00000aaaa", f);
         assertInclude("00001aaaa", f);
         assertSeekAndHint("00001aaaa", f, "00001aaab");
@@ -138,30 +138,30 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("00005aaaa", f);
         assertSeekAndHint("00005aaaa", f, "00005aaab");
 
-        f = createFilter(new int[]{3,2}, 1);
+        f = createFilter(new int[] {3, 2}, 1);
         f.setReversed(true);
         assertInclude("005aa", f);
         assertInclude("004aa", f);
-        assertSeekAndHint(new byte[]{'0','0','4','a','a'}, f, new byte[]{'0','0','4'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '4', 'a', 'a'}, f, new byte[] {'0', '0', '4'}, false);
         assertInclude("003aa", f);
         assertInclude("002aa", f);
         assertInclude("001aa", f);
-        assertSeekAndHint(new byte[]{'0','0','1','a','a'}, f, new byte[]{'0','0','1'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '1', 'a', 'a'}, f, new byte[] {'0', '0', '1'}, false);
 
-        f = createFilter(new int[]{3,2}, 2);
+        f = createFilter(new int[] {3, 2}, 2);
         f.setReversed(true);
         assertInclude("005bb", f);
         assertInclude("004bb", f);
         assertInclude("003bb", f);
-        assertSeekAndHint(new byte[]{'0','0','3','b','b'}, f, new byte[]{'0','0','3','b','b'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '3', 'b', 'b'}, f, new byte[] {'0', '0', '3', 'b', 'b'}, false);
         assertInclude("003ba", f);
         assertInclude("002bb", f);
         assertInclude("001bb", f);
-        assertSeekAndHint(new byte[]{'0','0','1','b','b'}, f, new byte[]{'0','0','1','b','b'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '1', 'b', 'b'}, f, new byte[] {'0', '0', '1', 'b', 'b'}, false);
     }
 
     public void testSingleVariableWidth() throws Exception {
-        Filter f = createFilter(new int[]{-5}, 1);
+        Filter f = createFilter(new int[] {-5}, 1);
         assertInclude("00000", f);
         assertInclude("00001", f);
         assertSeekAndHint("00001", f, "00001\01");
@@ -172,19 +172,19 @@ public class DistinctPrefixFilterTest extends TestCase {
     }
 
     public void testVariableWithNull() throws Exception {
-        Filter f = createFilter(new int[]{-2,-2}, 1);
+        Filter f = createFilter(new int[] {-2, -2}, 1);
         assertInclude("\00aa", f);
         assertSeekAndHint("\00aa", f, "\01");
         assertSeekAndHint("\00aa", f, "\01");
 
-        f = createFilter(new int[]{-2,-2}, 2);
+        f = createFilter(new int[] {-2, -2}, 2);
         assertInclude("\00\00", f);
         assertSeekAndHint("\00\00", f, "\00\00\01");
         assertSeekAndHint("\00\00", f, "\00\00\01");
     }
 
     public void testMultiVariableWidth() throws Exception {
-        Filter f = createFilter(new int[]{-5,-4}, 1);
+        Filter f = createFilter(new int[] {-5, -4}, 1);
         assertInclude("00000\00aaaa", f);
         assertInclude("00001\00aaaa", f);
         assertSeekAndHint("00001\00aaaa", f, "00001\01");
@@ -193,7 +193,7 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("00005\00aaaa", f);
         assertSeekAndHint("00005\00aaaa", f, "00005\01");
 
-        f = createFilter(new int[]{-5,-4}, 2);
+        f = createFilter(new int[] {-5, -4}, 2);
         assertInclude("00000\00aaaa", f);
         assertInclude("00001\00aaaa", f);
         assertSeekAndHint("00001\00aaaa", f, "00001\00aaaa\01");
@@ -202,23 +202,23 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("00005\00aaaa", f);
         assertSeekAndHint("00005\00aaaa", f, "00005\00aaaa\01");
 
-        f = createFilter(new int[]{-3,-2}, 1);
+        f = createFilter(new int[] {-3, -2}, 1);
         f.setReversed(true);
         assertInclude("005\00aa", f);
         assertInclude("004\00aa", f);
-        assertSeekAndHint(new byte[]{'0','0','4', 0, 'a', 'a'}, f,
-                new byte[] {'0','0','4'}, false);
+        assertSeekAndHint(new byte[] {'0', '0', '4', 0, 'a', 'a'}, f,
+                new byte[] {'0', '0', '4'}, false);
 
-        f = createFilter(new int[]{-3,-2}, 2);
+        f = createFilter(new int[] {-3, -2}, 2);
         f.setReversed(true);
         assertInclude("005\00bb", f);
         assertInclude("004\00bb", f);
-        assertSeekAndHint(new byte[]{'0','0','4', 0, 'b', 'b'}, f,
-                new byte[]{'0','0','4', 0, 'b', 'b'}, false); 
+        assertSeekAndHint(new byte[] {'0', '0', '4', 0, 'b', 'b'}, f,
+                new byte[] {'0', '0', '4', 0, 'b', 'b'}, false);
     }
 
     public void testFixedAfterVariable() throws Exception {
-        Filter f = createFilter(new int[]{-5,4}, 1);
+        Filter f = createFilter(new int[] {-5, 4}, 1);
         assertInclude("00000\00aaaa", f);
         assertInclude("00001\00aaaa", f);
         assertSeekAndHint("00001\00aaaa", f, "00001\01");
@@ -227,7 +227,7 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("00005\00aaaa", f);
         assertSeekAndHint("00005\00aaaa", f, "00005\01");
 
-        f = createFilter(new int[]{-5,4}, 2);
+        f = createFilter(new int[] {-5, 4}, 2);
         assertInclude("00000\00aaaa", f);
         assertInclude("00001\00aaaa", f);
         assertSeekAndHint("00001\00aaaa", f, "00001\00aaab");
@@ -238,7 +238,7 @@ public class DistinctPrefixFilterTest extends TestCase {
     }
 
     public void testVariableAfterFixed() throws Exception {
-        Filter f = createFilter(new int[]{5,-4}, 1);
+        Filter f = createFilter(new int[] {5, -4}, 1);
         assertInclude("00000aaaa", f);
         assertInclude("00001aaaa", f);
         assertSeekAndHint("00001aaaa", f, "00002");
@@ -247,7 +247,7 @@ public class DistinctPrefixFilterTest extends TestCase {
         assertInclude("00005aaaa", f);
         assertSeekAndHint("00005aaaa", f, "00006");
 
-        f = createFilter(new int[]{5,-4}, 2);
+        f = createFilter(new int[] {5, -4}, 2);
         assertInclude("00000aaaa", f);
         assertInclude("00001aaaa", f);
         assertSeekAndHint("00001aaaa", f, "00001aaaa\01");
@@ -258,17 +258,17 @@ public class DistinctPrefixFilterTest extends TestCase {
     }
 
     public void testNoNextKey() throws Exception {
-        Filter f = createFilter(new int[]{2,2}, 1);
+        Filter f = createFilter(new int[] {2, 2}, 1);
         assertInclude("00cc", f);
-        assertInclude(new byte[]{-1,-1,20,20}, f);
+        assertInclude(new byte[] {-1, -1, 20, 20}, f);
         // make sure we end the scan when we cannot increase a fixed length prefix
-        assertSeekAndHint(new byte[]{-1,-1,20,20}, f, new byte[]{-1,-1}, true);
-        assertSeekAndHint(new byte[]{-1,-1,20,20}, f, new byte[]{-1,-1}, true);
+        assertSeekAndHint(new byte[] {-1, -1, 20, 20}, f, new byte[] {-1, -1}, true);
+        assertSeekAndHint(new byte[] {-1, -1, 20, 20}, f, new byte[] {-1, -1}, true);
 
-        f = createFilter(new int[]{2,2}, 1);
+        f = createFilter(new int[] {2, 2}, 1);
         f.setReversed(true);
-        assertInclude(new byte[]{0,0,1,1}, f);
-        assertSeekAndHint(new byte[]{0,0,1,1}, f, new byte[]{0,0}, false);
-        assertSeekAndHint(new byte[]{0,0,1,1}, f, new byte[]{0,0}, false);
+        assertInclude(new byte[] {0, 0, 1, 1}, f);
+        assertSeekAndHint(new byte[] {0, 0, 1, 1}, f, new byte[] {0, 0}, false);
+        assertSeekAndHint(new byte[] {0, 0, 1, 1}, f, new byte[] {0, 0}, false);
     }
 }

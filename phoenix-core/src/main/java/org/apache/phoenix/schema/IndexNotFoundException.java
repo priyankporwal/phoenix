@@ -25,7 +25,7 @@ public class IndexNotFoundException extends TableNotFoundException {
     private static SQLExceptionCode code = SQLExceptionCode.INDEX_UNDEFINED;
 
     public IndexNotFoundException(IndexNotFoundException e, long timestamp) {
-        this(e.getSchemaName(),e.getTableName(), timestamp);
+        this(e.getSchemaName(), e.getTableName(), timestamp);
     }
 
     public IndexNotFoundException(String tableName) {

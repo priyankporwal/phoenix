@@ -34,12 +34,12 @@ public class MinMaxAggregateFunctionIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(false);
         try {
             conn.prepareStatement(
-                "create table " + TABLE_NAME + "("
-                        + "VAL1 integer not null, "
-                        + "VAL2 char(2), "
-                        + "VAL3 varchar, "
-                        + "VAL4 varchar "
-                        + "constraint PK primary key (VAL1))").execute();
+                    "create table " + TABLE_NAME + "("
+                            + "VAL1 integer not null, "
+                            + "VAL2 char(2), "
+                            + "VAL3 varchar, "
+                            + "VAL4 varchar "
+                            + "constraint PK primary key (VAL1))").execute();
             conn.commit();
 
             conn.prepareStatement("upsert into " + TABLE_NAME + " values (0, '00', '00', '0')").execute();
@@ -65,7 +65,7 @@ public class MinMaxAggregateFunctionIT extends ParallelStatsDisabledIT {
 
             rs =
                     conn.prepareStatement(
-                        "select min(VAL1), min(VAL2), min(VAL3), min(VAL4) from " + TABLE_NAME).executeQuery();
+                            "select min(VAL1), min(VAL2), min(VAL3), min(VAL4) from " + TABLE_NAME).executeQuery();
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
             assertEquals("00", rs.getString(2));
@@ -74,7 +74,7 @@ public class MinMaxAggregateFunctionIT extends ParallelStatsDisabledIT {
 
             rs =
                     conn.prepareStatement(
-                        "select max(VAL1), max(VAL2), max(VAL3), max(VAL4) from " + TABLE_NAME).executeQuery();
+                            "select max(VAL1), max(VAL2), max(VAL3), max(VAL4) from " + TABLE_NAME).executeQuery();
 
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));

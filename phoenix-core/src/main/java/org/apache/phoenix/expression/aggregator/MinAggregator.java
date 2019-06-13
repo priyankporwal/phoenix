@@ -29,13 +29,14 @@ import org.apache.phoenix.util.SizedUtil;
 /**
  * Aggregator that finds the min of values. Inverse of {@link MaxAggregator}.
  *
- * 
  * @since 0.1
  */
 abstract public class MinAggregator extends BaseAggregator {
-    /** Used to store the accumulate the results of the MIN function */
+    /**
+     * Used to store the accumulate the results of the MIN function
+     */
     protected final ImmutableBytesWritable value = new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY);
-    
+
     public MinAggregator(SortOrder sortOrder) {
         super(sortOrder);
     }
@@ -55,7 +56,7 @@ abstract public class MinAggregator extends BaseAggregator {
      * Compares two bytes writables, and returns true if the first one should be
      * kept, and false otherwise. For the MIN function, this method will return
      * true if the first bytes writable is less than the second.
-     * 
+     *
      * @param ibw1 the first bytes writable
      * @param ibw2 the second bytes writable
      * @return true if the first bytes writable should be kept
@@ -67,7 +68,7 @@ abstract public class MinAggregator extends BaseAggregator {
     private boolean isNull() {
         return value.get() == ByteUtil.EMPTY_BYTE_ARRAY;
     }
-    
+
     @Override
     public void aggregate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (isNull()) {
@@ -79,10 +80,10 @@ abstract public class MinAggregator extends BaseAggregator {
             }
         }
     }
-    
+
     @Override
     public String toString() {
-        return "MIN [value=" + Bytes.toStringBinary(value.get(),value.getOffset(),value.getLength()) + "]";
+        return "MIN [value=" + Bytes.toStringBinary(value.get(), value.getOffset(), value.getLength()) + "]";
     }
 
     @Override

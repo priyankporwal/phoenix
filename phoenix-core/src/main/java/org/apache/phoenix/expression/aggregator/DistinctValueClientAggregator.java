@@ -27,7 +27,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 public class DistinctValueClientAggregator extends DistinctValueWithCountClientAggregator {
     private final PDataType valueType;
     private final PDataType resultType;
-    
+
     public DistinctValueClientAggregator(SortOrder sortOrder, PDataType valueType, PDataType resultType) {
         super(sortOrder);
         this.valueType = valueType;
@@ -36,7 +36,7 @@ public class DistinctValueClientAggregator extends DistinctValueWithCountClientA
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        if (cachedResult == null) {            
+        if (cachedResult == null) {
             Object[] values = new Object[valueVsCount.size()];
             int i = 0;
             for (ImmutableBytesPtr key : valueVsCount.keySet()) {
@@ -53,7 +53,7 @@ public class DistinctValueClientAggregator extends DistinctValueWithCountClientA
     protected PDataType getResultDataType() {
         return resultType;
     }
-    
+
     @Override
     protected int getBufferLength() {
         return 0;

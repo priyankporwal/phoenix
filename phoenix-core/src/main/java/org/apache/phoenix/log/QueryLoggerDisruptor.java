@@ -38,24 +38,24 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-public class QueryLoggerDisruptor implements Closeable{
-    
+public class QueryLoggerDisruptor implements Closeable {
+
     private volatile Disruptor<RingBufferEvent> disruptor;
     private boolean isClosed = false;
     //number of elements to create within the ring buffer.
     private static final int RING_BUFFER_SIZE = 8 * 1024;
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryLoggerDisruptor.class);
     private static final String DEFAULT_WAIT_STRATEGY = BlockingWaitStrategy.class.getName();
-    
-    public QueryLoggerDisruptor(Configuration configuration) throws SQLException{
+
+    public QueryLoggerDisruptor(Configuration configuration) throws SQLException {
         WaitStrategy waitStrategy;
         try {
-            waitStrategy = (WaitStrategy)Class
+            waitStrategy = (WaitStrategy) Class
                     .forName(configuration.get(QueryServices.LOG_BUFFER_WAIT_STRATEGY, DEFAULT_WAIT_STRATEGY)).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new SQLException(e); 
+            throw new SQLException(e);
         }
-        
+
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat("QueryLogger" + "-thread-%s")
                 .setDaemon(true)
@@ -74,30 +74,31 @@ public class QueryLoggerDisruptor implements Closeable{
         final ExceptionHandler<RingBufferEvent> errorHandler = new QueryLoggerDefaultExceptionHandler();
         disruptor.setDefaultExceptionHandler(errorHandler);
 
-        final QueryLogDetailsEventHandler[] handlers = { new QueryLogDetailsEventHandler(configuration) };
+        final QueryLogDetailsEventHandler[] handlers = {new QueryLogDetailsEventHandler(configuration)};
         disruptor.handleEventsWith(handlers);
         LOGGER.info("Starting  QueryLoggerDisruptor for with ringbufferSize=" + disruptor.getRingBuffer().getBufferSize()
                 + ", waitStrategy=" + waitStrategy.getClass().getSimpleName() + ", " + "exceptionHandler="
                 + errorHandler + "...");
         disruptor.start();
-        
+
     }
-    
+
     /**
      * Attempts to publish an event by translating (write) data representations into events claimed from the RingBuffer.
+     *
      * @param translator
      * @return
      */
     public boolean tryPublish(final EventTranslator<RingBufferEvent> translator) {
-        if(isClosed()){
+        if (isClosed()) {
             return false;
         }
         return disruptor.getRingBuffer().tryPublishEvent(translator);
     }
-    
+
 
     public boolean isClosed() {
-        return isClosed ;
+        return isClosed;
     }
 
     @Override
@@ -112,6 +113,6 @@ public class QueryLoggerDisruptor implements Closeable{
         }
 
     }
-    
-    
+
+
 }

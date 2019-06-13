@@ -33,23 +33,23 @@ public class TestPhoenixIndexRpcSchedulerFactory extends PhoenixRpcSchedulerFact
     private static final Configuration conf = HBaseConfiguration.create();
     private static PriorityFunction qosFunction = Mockito.mock(PriorityFunction.class);
     private static RpcExecutor indexRpcExecutor = Mockito.spy(new BalancedQueueRpcExecutor("test-index-queue", 30, 1,
-            qosFunction,conf,abortable));
+            qosFunction, conf, abortable));
     private static RpcExecutor metadataRpcExecutor = Mockito.spy(new BalancedQueueRpcExecutor("test-metataqueue", 30,
-            1, qosFunction,conf,abortable));
+            1, qosFunction, conf, abortable));
 
     @Override
     public RpcScheduler create(Configuration conf, PriorityFunction priorityFunction, Abortable abortable) {
-        PhoenixRpcScheduler phoenixIndexRpcScheduler = (PhoenixRpcScheduler)super.create(conf, priorityFunction, abortable);
+        PhoenixRpcScheduler phoenixIndexRpcScheduler = (PhoenixRpcScheduler) super.create(conf, priorityFunction, abortable);
         phoenixIndexRpcScheduler.setIndexExecutorForTesting(indexRpcExecutor);
         phoenixIndexRpcScheduler.setMetadataExecutorForTesting(metadataRpcExecutor);
         return phoenixIndexRpcScheduler;
     }
-    
+
     @Override
     public RpcScheduler create(Configuration configuration, PriorityFunction priorityFunction) {
         return create(configuration, priorityFunction, null);
     }
-    
+
     private static class AbortServer implements Abortable {
         private boolean aborted = false;
 
@@ -63,15 +63,15 @@ public class TestPhoenixIndexRpcSchedulerFactory extends PhoenixRpcSchedulerFact
             return aborted;
         }
     }
-    
+
     public static RpcExecutor getIndexRpcExecutor() {
         return indexRpcExecutor;
     }
-    
+
     public static RpcExecutor getMetadataRpcExecutor() {
         return metadataRpcExecutor;
     }
-    
+
     public static void reset() {
         Mockito.reset(metadataRpcExecutor);
         Mockito.reset(indexRpcExecutor);

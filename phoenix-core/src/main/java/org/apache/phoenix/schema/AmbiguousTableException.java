@@ -23,11 +23,9 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 
 /**
- * 
  * Exception thrown when a table name is used without being qualified with an alias
  * and more than one schema contains that table.
  *
- * 
  * @since 0.1
  */
 public class AmbiguousTableException extends SQLException {

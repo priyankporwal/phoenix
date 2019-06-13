@@ -32,9 +32,9 @@ import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PVarbinary;
 
 @BuiltInFunction(name = SetBitFunction.NAME,
-        args = { @Argument(allowedTypes = { PBinary.class, PVarbinary.class }),
-                @Argument(allowedTypes = { PInteger.class }),
-                @Argument(allowedTypes = { PInteger.class }) })
+        args = {@Argument(allowedTypes = {PBinary.class, PVarbinary.class}),
+                @Argument(allowedTypes = {PInteger.class}),
+                @Argument(allowedTypes = {PInteger.class})})
 public class SetBitFunction extends ScalarFunction {
 
     public static final String NAME = "SET_BIT";
@@ -55,25 +55,39 @@ public class SetBitFunction extends ScalarFunction {
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         // get offset parameter
         Expression offsetExpr = children.get(1);
-        if (!offsetExpr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength()==0) return true;
+        if (!offsetExpr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         int offset = (Integer) PInteger.INSTANCE.toObject(ptr, offsetExpr.getSortOrder());
         // get newValue parameter
         Expression newValueExpr = children.get(2);
-        if (!newValueExpr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength()==0) return true;
+        if (!newValueExpr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         int newValue = (Integer) PInteger.INSTANCE.toObject(ptr, newValueExpr.getSortOrder());
         byte newByteValue = (byte) (newValue & 0x1);
         // get binary data parameter
         Expression dataExpr = children.get(0);
-        if (!dataExpr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength()==0) return true;
-        if (ptr.getLength() == 0) return true;
+        if (!dataExpr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         int len = ptr.getLength() * Byte.SIZE;
         offset = (offset % len + len) % len;
         // set result
         ((PBinaryBase) dataExpr.getDataType()).setBit(ptr, dataExpr.getSortOrder(), offset,
-            newByteValue, ptr);
+                newByteValue, ptr);
         return true;
     }
 

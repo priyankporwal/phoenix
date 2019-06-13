@@ -36,12 +36,12 @@ public class LocalIndexDataColumnRef extends ColumnRef {
     public LocalIndexDataColumnRef(StatementContext context, TableRef tRef, String indexColumnName)
             throws MetaDataEntityNotFoundException, SQLException {
         super(FromCompiler.getResolver(
-            FACTORY.namedTable(
-                null,
-                TableName.create(tRef.getTable().getSchemaName().getString(), tRef.getTable()
-                        .getParentTableName().getString())), context.getConnection(), false)
-                .resolveTable(context.getCurrentTable().getTable().getSchemaName().getString(),
-                    tRef.getTable().getParentTableName().getString()),
+                FACTORY.namedTable(
+                        null,
+                        TableName.create(tRef.getTable().getSchemaName().getString(), tRef.getTable()
+                                .getParentTableName().getString())), context.getConnection(), false)
+                        .resolveTable(context.getCurrentTable().getTable().getSchemaName().getString(),
+                                tRef.getTable().getParentTableName().getString()),
                 IndexUtil.getDataColumnFamilyName(indexColumnName), IndexUtil
                         .getDataColumnName(indexColumnName));
         position = context.getDataColumnPosition(this.getColumn());

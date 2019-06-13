@@ -29,7 +29,7 @@ public abstract class CurrentDateTimeFunction extends ScalarFunction {
     public CurrentDateTimeFunction(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     public boolean isStateless() {
         return true;

@@ -36,7 +36,7 @@ import org.apache.phoenix.pherf.result.Result;
 import org.apache.phoenix.pherf.result.ResultValue;
 import org.apache.phoenix.pherf.result.file.ResultFileDetails;
 
-public class XMLResultHandler extends DefaultResultHandler{
+public class XMLResultHandler extends DefaultResultHandler {
 
     public XMLResultHandler() {
         super();

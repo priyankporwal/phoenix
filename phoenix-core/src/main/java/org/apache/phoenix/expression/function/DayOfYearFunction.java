@@ -31,12 +31,11 @@ import org.joda.time.DateTime;
 
 /**
  * Implementation of DayOfYearFunction(Date/Timestamp)
- *
+ * <p>
  * Returns an integer from 1 to 365 (for each day of the week). Returns 366 in a leap year.
- *
  */
-@BuiltInFunction(name=DayOfYearFunction.NAME,
-        args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = DayOfYearFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class DayOfYearFunction extends DateScalarFunction {
     public static final String NAME = "DAYOFYEAR";
 
@@ -55,7 +54,7 @@ public class DayOfYearFunction extends DateScalarFunction {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Expression arg = getChildren().get(0);
-        if (!arg.evaluate(tuple,ptr)) {
+        if (!arg.evaluate(tuple, ptr)) {
             return false;
         }
         if (ptr.getLength() == 0) {

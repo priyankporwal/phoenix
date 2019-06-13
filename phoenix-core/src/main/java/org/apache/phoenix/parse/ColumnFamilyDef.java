@@ -24,21 +24,19 @@ import com.google.common.collect.ImmutableList;
 import org.apache.phoenix.util.SchemaUtil;
 
 /**
- * 
  * Definition of a Column Family at DDL time
  *
- * 
  * @since 0.1
  */
 public class ColumnFamilyDef {
     private final String name;
     private final List<ColumnDef> columnDefs;
-    private final Map<String,Object> props;
-    
-    ColumnFamilyDef(String name, List<ColumnDef> columnDefs, Map<String,Object> props) {
+    private final Map<String, Object> props;
+
+    ColumnFamilyDef(String name, List<ColumnDef> columnDefs, Map<String, Object> props) {
         this.name = SchemaUtil.normalizeIdentifier(name);
         this.columnDefs = ImmutableList.copyOf(columnDefs);
-        this.props = props == null ? Collections.<String,Object>emptyMap() : props;
+        this.props = props == null ? Collections.<String, Object>emptyMap() : props;
     }
 
     public String getName() {
@@ -49,7 +47,7 @@ public class ColumnFamilyDef {
         return columnDefs;
     }
 
-    public Map<String,Object> getProps() {
+    public Map<String, Object> getProps() {
         return props;
     }
 }

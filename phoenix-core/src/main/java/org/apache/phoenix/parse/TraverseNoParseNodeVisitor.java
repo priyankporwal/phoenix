@@ -22,10 +22,8 @@ import java.util.List;
 
 
 /**
- * 
  * Visitor that traverses into no parse nodes
  *
- * 
  * @since 0.1
  */
 public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor<T> {
@@ -48,7 +46,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public boolean visitEnter(ComparisonParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public boolean visitEnter(CaseParseNode node) throws SQLException {
         return false;
@@ -58,77 +56,77 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public boolean visitEnter(LikeParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public boolean visitEnter(BetweenParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public T visitLeave(LikeParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(NotParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public boolean visitEnter(ExistsParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public boolean visitEnter(CastParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public T visitLeave(NotParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visitLeave(ExistsParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visitLeave(CastParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(InListParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public T visitLeave(InListParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(InParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public T visitLeave(InParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(IsNullParseNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public T visitLeave(IsNullParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visit(ColumnParseNode node) throws SQLException {
         return null;
@@ -148,17 +146,17 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visit(WildcardParseNode node) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visit(TableWildcardParseNode node) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visit(FamilyWildcardParseNode node) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visit(SubqueryParseNode node) throws SQLException {
         return null;
@@ -183,7 +181,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(ComparisonParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visitLeave(CaseParseNode node, List<T> l) throws SQLException {
         return null;
@@ -198,7 +196,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(MultiplyParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(SubtractParseNode node) throws SQLException {
         return false;
@@ -208,7 +206,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(SubtractParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(AddParseNode node) throws SQLException {
         return false;
@@ -218,7 +216,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(AddParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(DivideParseNode node) throws SQLException {
         return false;
@@ -228,7 +226,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(DivideParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(ModulusParseNode node) throws SQLException {
         return false;
@@ -238,7 +236,7 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(ModulusParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(StringConcatParseNode node) throws SQLException {
         return false;
@@ -248,12 +246,12 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(StringConcatParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public T visitLeave(BetweenParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(RowValueConstructorParseNode node) throws SQLException {
         return false;
@@ -263,11 +261,11 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(RowValueConstructorParseNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
-    public T visit(SequenceValueParseNode node) throws SQLException {			
-		return null;
-	}
+    public T visit(SequenceValueParseNode node) throws SQLException {
+        return null;
+    }
 
     @Override
     public boolean visitEnter(ArrayConstructorNode node) throws SQLException {
@@ -278,31 +276,33 @@ public abstract class TraverseNoParseNodeVisitor<T> extends BaseParseNodeVisitor
     public T visitLeave(ArrayConstructorNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(ArrayAllComparisonNode node) throws SQLException {
         return false;
     }
+
     @Override
     public T visitLeave(ArrayAllComparisonNode node, List<T> l) throws SQLException {
         return null;
     }
-    
-    
+
+
     @Override
     public boolean visitEnter(ArrayAnyComparisonNode node) throws SQLException {
         return false;
     }
+
     @Override
     public T visitLeave(ArrayAnyComparisonNode node, List<T> l) throws SQLException {
         return null;
     }
-    
+
     @Override
     public boolean visitEnter(ArrayElemRefNode node) throws SQLException {
         return false;
     }
-    
+
     @Override
     public T visitLeave(ArrayElemRefNode node, List<T> l) throws SQLException {
         return null;

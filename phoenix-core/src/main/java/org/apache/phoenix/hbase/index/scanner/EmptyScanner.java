@@ -29,34 +29,34 @@ import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanne
  * {@link Scanner} that has no underlying data
  */
 public class EmptyScanner implements CoveredDeleteScanner {
-  private final DeleteTracker deleteTracker;
-  
-  public EmptyScanner (DeleteTracker deleteTracker) {
-      this.deleteTracker = deleteTracker;
-  }
-  
-  @Override
-  public Cell next() throws IOException {
-    return null;
-  }
+    private final DeleteTracker deleteTracker;
 
-  @Override
-  public boolean seek(Cell next) throws IOException {
-    return false;
-  }
+    public EmptyScanner(DeleteTracker deleteTracker) {
+        this.deleteTracker = deleteTracker;
+    }
 
-  @Override
-  public Cell peek() throws IOException {
-    return null;
-  }
+    @Override
+    public Cell next() throws IOException {
+        return null;
+    }
 
-  @Override
-  public void close() throws IOException {
-    // noop
-  }
+    @Override
+    public boolean seek(Cell next) throws IOException {
+        return false;
+    }
 
-  @Override
-  public DeleteTracker getDeleteTracker() {
-    return deleteTracker;
-  }
+    @Override
+    public Cell peek() throws IOException {
+        return null;
+    }
+
+    @Override
+    public void close() throws IOException {
+        // noop
+    }
+
+    @Override
+    public DeleteTracker getDeleteTracker() {
+        return deleteTracker;
+    }
 }

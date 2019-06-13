@@ -20,7 +20,7 @@ public class PermissionNSEnabledIT extends BasePermissionsIT {
     }
 
     @Test
-    public void testSchemaPermissions() throws Throwable{
+    public void testSchemaPermissions() throws Throwable {
         try {
             grantSystemTableAccess();
             final String schemaName = "S_" + generateUniqueName();
@@ -32,7 +32,7 @@ public class PermissionNSEnabledIT extends BasePermissionsIT {
                                 Permission.Action.ADMIN);
                     } catch (Throwable e) {
                         if (e instanceof Exception) {
-                            throw (Exception)e;
+                            throw (Exception) e;
                         } else {
                             throw new Exception(e);
                         }

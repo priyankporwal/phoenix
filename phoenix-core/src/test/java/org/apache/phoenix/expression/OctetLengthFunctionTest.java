@@ -44,7 +44,7 @@ public class OctetLengthFunctionTest {
         octetLengthFunction.evaluate(null, ptr);
         Integer result =
                 (Integer) octetLengthFunction.getDataType().toObject(ptr,
-                    octetLengthFunction.getSortOrder());
+                        octetLengthFunction.getSortOrder());
         if (expected == 0) {
             assertNull(result);
         } else {

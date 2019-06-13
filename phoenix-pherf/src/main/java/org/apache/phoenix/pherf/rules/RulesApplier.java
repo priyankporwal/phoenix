@@ -75,27 +75,27 @@ public class RulesApplier {
     public List<Map> getModelList() {
         return Collections.unmodifiableList(this.modelList);
     }
-    
-    private Map<DataTypeMapping, List> getCachedScenarioOverrides(Scenario scenario) {
-    	if (this.cachedScenarioOverrideName == null || this.cachedScenarioOverrideName != scenario.getName()) {
-    		this.cachedScenarioOverrideName = scenario.getName();
-    		this.scenarioOverrideMap = new HashMap<DataTypeMapping, List>();
 
-    	       if (scenario.getDataOverride() != null) {
-				for (Column column : scenario.getDataOverride().getColumn()) {
-					List<Column> cols;
-					DataTypeMapping type = column.getType();
-					if (this.scenarioOverrideMap.containsKey(type)) {
-						this.scenarioOverrideMap.get(type).add(column);
-					} else {
-						cols = new LinkedList<Column>();
-						cols.add(column);
-						this.scenarioOverrideMap.put(type, cols);
-					}
-				}
-			}
-    	}
-		return scenarioOverrideMap;
+    private Map<DataTypeMapping, List> getCachedScenarioOverrides(Scenario scenario) {
+        if (this.cachedScenarioOverrideName == null || this.cachedScenarioOverrideName != scenario.getName()) {
+            this.cachedScenarioOverrideName = scenario.getName();
+            this.scenarioOverrideMap = new HashMap<DataTypeMapping, List>();
+
+            if (scenario.getDataOverride() != null) {
+                for (Column column : scenario.getDataOverride().getColumn()) {
+                    List<Column> cols;
+                    DataTypeMapping type = column.getType();
+                    if (this.scenarioOverrideMap.containsKey(type)) {
+                        this.scenarioOverrideMap.get(type).add(column);
+                    } else {
+                        cols = new LinkedList<Column>();
+                        cols.add(column);
+                        this.scenarioOverrideMap.put(type, cols);
+                    }
+                }
+            }
+        }
+        return scenarioOverrideMap;
     }
 
 
@@ -112,26 +112,26 @@ public class RulesApplier {
      */
     public DataValue getDataForRule(Scenario scenario, Column phxMetaColumn) throws Exception {
         // TODO Make a Set of Rules that have already been applied so that so we don't generate for every value
-    	
+
         List<Scenario> scenarios = parser.getScenarios();
         DataValue value = null;
         if (scenarios.contains(scenario)) {
             LOGGER.debug("We found a correct Scenario");
-            
+
             Map<DataTypeMapping, List> overrideRuleMap = this.getCachedScenarioOverrides(scenario);
-            
+
             if (overrideRuleMap != null) {
-	            List<Column> overrideRuleList = this.getCachedScenarioOverrides(scenario).get(phxMetaColumn.getType());
-	            
-				if (overrideRuleList != null && overrideRuleList.contains(phxMetaColumn)) {
-					LOGGER.debug("We found a correct override column rule");
-					Column columnRule = getColumnForRuleOverride(overrideRuleList, phxMetaColumn);
-					if (columnRule != null) {
-						return getDataValue(columnRule);
-					}
-				}
+                List<Column> overrideRuleList = this.getCachedScenarioOverrides(scenario).get(phxMetaColumn.getType());
+
+                if (overrideRuleList != null && overrideRuleList.contains(phxMetaColumn)) {
+                    LOGGER.debug("We found a correct override column rule");
+                    Column columnRule = getColumnForRuleOverride(overrideRuleList, phxMetaColumn);
+                    if (columnRule != null) {
+                        return getDataValue(columnRule);
+                    }
+                }
             }
-            
+
             // Assume the first rule map
             Map<DataTypeMapping, List> ruleMap = modelList.get(0);
             List<Column> ruleList = ruleMap.get(phxMetaColumn.getType());
@@ -145,12 +145,12 @@ public class RulesApplier {
                 value = getDataValue(columnRule);
             } else {
                 LOGGER.warn("Attempted to apply rule to data, but could not find a rule to match type:"
-                                + phxMetaColumn.getType()
+                        + phxMetaColumn.getType()
                 );
             }
 
         }
-        
+
         return value;
     }
 
@@ -160,7 +160,7 @@ public class RulesApplier {
      * @param column {@link org.apache.phoenix.pherf.configuration.Column} Column rule to get data for
      * @return {@link org.apache.phoenix.pherf.rules.DataValue} Container Type --> Value mapping
      */
-    public DataValue getDataValue(Column column) throws Exception{
+    public DataValue getDataValue(Column column) throws Exception {
         DataValue data = null;
         String prefix = "";
         int length = column.getLength();
@@ -199,16 +199,16 @@ public class RulesApplier {
                 }
                 break;
             case VARCHAR_ARRAY:
-            	//only list datavalues are supported
-            	String arr = "";
-            	for (DataValue dv : dataValues) {
-            		arr += "," + dv.getValue();
-            	}
-            	if (arr.startsWith(",")) {
-            		arr = arr.replaceFirst(",", "");
-            	}
-            	data = new DataValue(column.getType(), arr);
-            	break;
+                //only list datavalues are supported
+                String arr = "";
+                for (DataValue dv : dataValues) {
+                    arr += "," + dv.getValue();
+                }
+                if (arr.startsWith(",")) {
+                    arr = arr.replaceFirst(",", "");
+                }
+                data = new DataValue(column.getType(), arr);
+                break;
             case DECIMAL:
                 if ((column.getDataValues() != null) && (column.getDataValues().size() > 0)) {
                     data = pickDataValueFromList(dataValues);
@@ -251,8 +251,9 @@ public class RulesApplier {
                 } else {
                     long minLong = column.getMinValue();
                     long maxLong = column.getMaxValue();
-                    if (column.getType() == DataTypeMapping.UNSIGNED_LONG)
+                    if (column.getType() == DataTypeMapping.UNSIGNED_LONG) {
                         Preconditions.checkArgument((minLong > 0) && (maxLong > 0), "min and max values need to be set in configuration for unsigned_longs " + column.getName());
+                    }
                     long longVal = RandomUtils.nextLong(minLong, maxLong);
                     data = new DataValue(column.getType(), String.valueOf(longVal));
                 }
@@ -263,7 +264,7 @@ public class RulesApplier {
                     data = pickDataValueFromList(dataValues);
                     // Check if date has right format or not
                     data.setValue(checkDatePattern(data.getValue()));
-                } else if (column.getUseCurrentDate() != true){
+                } else if (column.getUseCurrentDate() != true) {
                     int minYear = (int) column.getMinValue();
                     int maxYear = (int) column.getMaxValue();
                     Preconditions.checkArgument((minYear > 0) && (maxYear > 0), "min and max values need to be set in configuration for date/timestamps " + column.getName());
@@ -304,7 +305,7 @@ public class RulesApplier {
         // Get Ms Date between min and max
         synchronized (randomDataGenerator) {
             //Make sure date generated is exactly between the passed limits
-            long rndLong = randomDataGenerator.nextLong(minDt.getMillis()+1, maxDt.getMillis()-1);
+            long rndLong = randomDataGenerator.nextLong(minDt.getMillis() + 1, maxDt.getMillis() - 1);
             dt = new DateTime(rndLong, PherfConstants.DEFAULT_TIME_ZONE);
         }
 
@@ -312,7 +313,8 @@ public class RulesApplier {
     }
 
     public String getCurrentDate() {
-        DateTimeFormatter fmtr = DateTimeFormat.forPattern(PherfConstants.DEFAULT_DATE_PATTERN).withZone(DateTimeZone.UTC);;
+        DateTimeFormatter fmtr = DateTimeFormat.forPattern(PherfConstants.DEFAULT_DATE_PATTERN).withZone(DateTimeZone.UTC);
+        ;
         DateTime dt = new DateTime(PherfConstants.DEFAULT_TIME_ZONE);
         return fmtr.print(dt);
     }
@@ -327,7 +329,7 @@ public class RulesApplier {
         return (rndNull.nextInt(100) < chance);
     }
 
-    private DataValue pickDataValueFromList(List<DataValue> values) throws Exception{
+    private DataValue pickDataValueFromList(List<DataValue> values) throws Exception {
         DataValue generatedDataValue = null;
         int sum = 0, count = 0;
 
@@ -351,7 +353,7 @@ public class RulesApplier {
 
             // While it's possible to get here if you have a bunch of really small distributions,
             // It's just really unlikely. This is just a safety just so we actually pick a value.
-            if(count++ == OH_SHIT_LIMIT){
+            if (count++ == OH_SHIT_LIMIT) {
                 LOGGER.info("We generated a value from hitting our OH_SHIT_LIMIT: " + OH_SHIT_LIMIT);
                 generatedDataValue = valueRule;
             }
@@ -360,7 +362,7 @@ public class RulesApplier {
         return generatedDataValue;
     }
 
-    private DataValue pickDataValueFromList(final DataValue valueRule) throws Exception{
+    private DataValue pickDataValueFromList(final DataValue valueRule) throws Exception {
         DataValue retValue = new DataValue(valueRule);
 
         // Path taken when configuration specifies a specific value to be taken with the <value> tag
@@ -390,7 +392,8 @@ public class RulesApplier {
 
     // Checks if date is in defult pattern
     public String checkDatePattern(String date) {
-        DateTimeFormatter fmtr = DateTimeFormat.forPattern(PherfConstants.DEFAULT_DATE_PATTERN).withZone(DateTimeZone.UTC);;
+        DateTimeFormatter fmtr = DateTimeFormat.forPattern(PherfConstants.DEFAULT_DATE_PATTERN).withZone(DateTimeZone.UTC);
+        ;
         DateTime parsedDate = fmtr.parseDateTime(date);
         return fmtr.print(parsedDate);
     }
@@ -416,15 +419,15 @@ public class RulesApplier {
         if (!modelList.isEmpty()) {
             return;
         }
-        
+
         // Support for multiple models, but rules are only relevant each model
         for (DataModel model : parser.getDataModels()) {
 
             // Step 1
             final Map<DataTypeMapping, List> ruleMap = new HashMap<DataTypeMapping, List>();
             for (Column column : model.getDataMappingColumns()) {
-            	columnMap.put(column.getName(), column);
-            	
+                columnMap.put(column.getName(), column);
+
                 List<Column> cols;
                 DataTypeMapping type = column.getType();
                 if (ruleMap.containsKey(type)) {
@@ -447,21 +450,21 @@ public class RulesApplier {
         List<Column> ruleList = ruleMap.get(phxMetaColumn.getType());
         return getColumnForRule(ruleList, phxMetaColumn);
     }
-    
-    public Column getRule(String columnName) {
-    	return getRule(columnName, null);
-    }
-    
-    public Column getRule(String columnName, Scenario scenario) {
-    	if (null != scenario && null != scenario.getDataOverride()) {
-    		for (Column column: scenario.getDataOverride().getColumn()) {
-    			if (column.getName().equals(columnName)) {
-    				return column;
-    			}
-    		}
-    	}
 
-    	return columnMap.get(columnName);
+    public Column getRule(String columnName) {
+        return getRule(columnName, null);
+    }
+
+    public Column getRule(String columnName, Scenario scenario) {
+        if (null != scenario && null != scenario.getDataOverride()) {
+            for (Column column : scenario.getDataOverride().getColumn()) {
+                if (column.getName().equals(columnName)) {
+                    return column;
+                }
+            }
+        }
+
+        return columnMap.get(columnName);
     }
 
     private Column getColumnForRuleOverride(List<Column> ruleList, Column phxMetaColumn) {
@@ -471,9 +474,9 @@ public class RulesApplier {
             }
         }
 
-       	return null;
+        return null;
     }
-    
+
     private Column getColumnForRule(List<Column> ruleList, Column phxMetaColumn) {
 
         // Column pointer to head of list
@@ -491,7 +494,7 @@ public class RulesApplier {
             ruleAppliedColumn.mutate(columnRule);
         }
 
-       	return ruleAppliedColumn;
+        return ruleAppliedColumn;
     }
 
     /**
@@ -505,14 +508,14 @@ public class RulesApplier {
         DataValue data = null;
         long inc = COUNTER.getAndIncrement();
         String strInc = String.valueOf(inc);
-		int paddedLength = column.getLengthExcludingPrefix();
-		String strInc1 = StringUtils.leftPad(strInc, paddedLength, "0");
-		String strInc2 = StringUtils.right(strInc1, column.getLengthExcludingPrefix());
-        String varchar = (column.getPrefix() != null) ? column.getPrefix() + strInc2:
+        int paddedLength = column.getLengthExcludingPrefix();
+        String strInc1 = StringUtils.leftPad(strInc, paddedLength, "0");
+        String strInc2 = StringUtils.right(strInc1, column.getLengthExcludingPrefix());
+        String varchar = (column.getPrefix() != null) ? column.getPrefix() + strInc2 :
                 strInc2;
-        
+
         // Truncate string back down if it exceeds length
-        varchar = StringUtils.left(varchar,column.getLength());
+        varchar = StringUtils.left(varchar, column.getLength());
         data = new DataValue(column.getType(), varchar);
         return data;
     }

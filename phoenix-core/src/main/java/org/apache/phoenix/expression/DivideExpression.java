@@ -24,10 +24,8 @@ import org.apache.phoenix.schema.types.PDataType;
 
 
 /**
- * 
  * Divide expression implementation
  *
- * 
  * @since 0.1
  */
 public abstract class DivideExpression extends ArithmeticExpression {
@@ -42,7 +40,7 @@ public abstract class DivideExpression extends ArithmeticExpression {
         Expression firstChild = children.get(0);
         maxLength = getPrecision(firstChild);
         scale = getScale(firstChild);
-        for (int i=1; i<children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             Expression childExpr = children.get(i);
             maxLength = getPrecision(maxLength, getPrecision(childExpr), scale, getScale(childExpr));
             scale = getScale(maxLength, getPrecision(childExpr), scale, getScale(childExpr));
@@ -63,7 +61,7 @@ public abstract class DivideExpression extends ArithmeticExpression {
     public String getOperatorString() {
         return " / ";
     }
-    
+
     private static Integer getPrecision(Integer lp, Integer rp, Integer ls, Integer rs) {
         if (ls == null || rs == null) {
             return PDataType.MAX_PRECISION;

@@ -44,7 +44,7 @@ public class RegexpReplaceFunctionTest {
     }
 
     private String testExpression(String srcStr, String patternStr, String replaceStr,
-            SortOrder sortOrder) throws SQLException {
+                                  SortOrder sortOrder) throws SQLException {
         Expression srcExp, patternExp, replaceExp;
         srcExp = LiteralExpression.newConstant(srcStr, TYPE, sortOrder);
         patternExp = LiteralExpression.newConstant(patternStr, TYPE, sortOrder);
@@ -66,7 +66,7 @@ public class RegexpReplaceFunctionTest {
     }
 
     private void testExpression(String srcStr, String patternStr, String replaceStr,
-            String expectedStr) throws SQLException {
+                                String expectedStr) throws SQLException {
         String result = testExpression(srcStr, patternStr, replaceStr);
         assertEquals(expectedStr, result);
     }

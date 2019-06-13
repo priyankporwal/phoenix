@@ -81,7 +81,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
     @Test
     public void testMapTableToNamespaceDuringUpgrade()
             throws SQLException, IOException, IllegalArgumentException, InterruptedException {
-        String[] strings = new String[] { "a", "b", "c", "d" };
+        String[] strings = new String[] {"a", "b", "c", "d"};
 
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String schemaName = "TEST";
@@ -92,9 +92,9 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             String viewName = "VIEW_" + generateUniqueName();
             String viewIndexName = "VIDX_" + generateUniqueName();
 
-            String[] tableNames = new String[] { phoenixFullTableName, schemaName + "." + indexName,
+            String[] tableNames = new String[] {phoenixFullTableName, schemaName + "." + indexName,
                     schemaName + "." + localIndexName, "diff." + viewName, "test." + viewName, viewName};
-            String[] viewIndexes = new String[] { "diff." + viewIndexName, "test." + viewIndexName };
+            String[] viewIndexes = new String[] {"diff." + viewIndexName, "test." + viewIndexName};
             conn.createStatement().execute("CREATE TABLE " + phoenixFullTableName
                     + "(k VARCHAR PRIMARY KEY, v INTEGER, f INTEGER, g INTEGER NULL, h INTEGER NULL)");
             PreparedStatement upsertStmt = conn
@@ -153,11 +153,13 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             phxConn = DriverManager.getConnection(getUrl(), props).unwrap(PhoenixConnection.class);
             // purge MetaDataCache except for system tables
             phxConn.getMetaDataCache().pruneTables(new PMetaData.Pruner() {
-                @Override public boolean prune(PTable table) {
+                @Override
+                public boolean prune(PTable table) {
                     return table.getType() != PTableType.SYSTEM;
                 }
 
-                @Override public boolean prune(PFunction function) {
+                @Override
+                public boolean prune(PFunction function) {
                     return false;
                 }
             });
@@ -196,9 +198,9 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
     @Test
     public void testMapMultiTenantTableToNamespaceDuringUpgrade() throws SQLException, SnapshotCreationException,
             IllegalArgumentException, IOException, InterruptedException {
-        String[] strings = new String[] { "a", "b", "c", "d" };
-        String schemaName1 = "S_" +generateUniqueName(); // TEST
-        String schemaName2 = "S_" +generateUniqueName(); // DIFF
+        String[] strings = new String[] {"a", "b", "c", "d"};
+        String schemaName1 = "S_" + generateUniqueName(); // TEST
+        String schemaName2 = "S_" + generateUniqueName(); // DIFF
         String phoenixFullTableName = schemaName1 + "." + generateUniqueName();
         String hbaseTableName = SchemaUtil.getPhysicalTableName(Bytes.toBytes(phoenixFullTableName), true)
                 .getNameAsString();
@@ -208,9 +210,9 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         String viewIndexName = "V_IDX_" + generateUniqueName();
         String tenantViewIndexName = "V1_IDX_" + generateUniqueName();
 
-        String[] tableNames = new String[] { phoenixFullTableName, schemaName2 + "." + viewName1, schemaName1 + "." + viewName1, viewName1 };
-        String[] viewIndexes = new String[] { schemaName1 + "." + viewIndexName, schemaName2 + "." + viewIndexName };
-        String[] tenantViewIndexes = new String[] { schemaName1 + "." + tenantViewIndexName, schemaName2 + "." + tenantViewIndexName };
+        String[] tableNames = new String[] {phoenixFullTableName, schemaName2 + "." + viewName1, schemaName1 + "." + viewName1, viewName1};
+        String[] viewIndexes = new String[] {schemaName1 + "." + viewIndexName, schemaName2 + "." + viewIndexName};
+        String[] tenantViewIndexes = new String[] {schemaName1 + "." + tenantViewIndexName, schemaName2 + "." + tenantViewIndexName};
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute("CREATE TABLE " + phoenixFullTableName
                     + "(k VARCHAR not null, v INTEGER not null, f INTEGER, g INTEGER NULL, h INTEGER NULL CONSTRAINT pk PRIMARY KEY(k,v)) MULTI_TENANT=true");
@@ -269,11 +271,13 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         phxConn = DriverManager.getConnection(getUrl(), props).unwrap(PhoenixConnection.class);
         // purge MetaDataCache except for system tables
         phxConn.getMetaDataCache().pruneTables(new PMetaData.Pruner() {
-            @Override public boolean prune(PTable table) {
+            @Override
+            public boolean prune(PTable table) {
                 return table.getType() != PTableType.SYSTEM;
             }
 
-            @Override public boolean prune(PFunction function) {
+            @Override
+            public boolean prune(PFunction function) {
                 return false;
             }
         });
@@ -321,7 +325,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertTrue(rs.getString(1).contains(hbaseTableName));
     }
-        
+
     @Test
     public void testUpgradeRequiredPreventsSQL() throws SQLException {
         String tableName = generateUniqueName();
@@ -336,7 +340,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
                     return true;
                 }
             };
-            try (PhoenixConnection phxConn = new PhoenixConnection(servicesWithUpgrade, getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES), 
+            try (PhoenixConnection phxConn = new PhoenixConnection(servicesWithUpgrade, getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES),
                     conn.unwrap(PhoenixConnection.class).getMetaDataCache())) {
                 try {
                     phxConn.createStatement().execute(
@@ -360,14 +364,14 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
                 }
                 try {
                     phxConn.createStatement().execute(
-                            "CREATE INDEX " + tableName + "_IDX ON " + tableName + " (KV1) INCLUDE (KV2)" );
+                            "CREATE INDEX " + tableName + "_IDX ON " + tableName + " (KV1) INCLUDE (KV2)");
                     fail("CREATE INDEX should have failed with UpgradeRequiredException");
                 } catch (UpgradeRequiredException expected) {
 
                 }
                 try {
                     phxConn.createStatement().execute(
-                            "UPSERT INTO " + tableName + " VALUES ('PK1', 'PK2', 'KV1', 'KV2')" );
+                            "UPSERT INTO " + tableName + " VALUES ('PK1', 'PK2', 'KV1', 'KV2')");
                     fail("UPSERT VALUES should have failed with UpgradeRequiredException");
                 } catch (UpgradeRequiredException expected) {
 
@@ -375,7 +379,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     @Test
     public void testUpgradingConnectionBypassesUpgradeRequiredCheck() throws Exception {
         String tableName = generateUniqueName();
@@ -404,7 +408,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
                 // Marking connection as the one running upgrade should let SQL execute fine.
                 phxConn.setRunningUpgrade(true);
                 phxConn.createStatement().execute(
-                        "UPSERT INTO " + tableName + " VALUES ('PK1', 'PK2', 'KV1', 'KV2')" );
+                        "UPSERT INTO " + tableName + " VALUES ('PK1', 'PK2', 'KV1', 'KV2')");
                 phxConn.commit();
                 try (ResultSet rs = phxConn.createStatement().executeQuery("SELECT * FROM " + tableName)) {
                     assertTrue(rs.next());
@@ -413,25 +417,25 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     @Test
     public void testAcquiringAndReleasingUpgradeMutex() throws Exception {
         ConnectionQueryServices services = null;
         try (Connection conn = getConnection(false, null)) {
             services = conn.unwrap(PhoenixConnection.class).getQueryServices();
-            assertTrue(((ConnectionQueryServicesImpl)services)
+            assertTrue(((ConnectionQueryServicesImpl) services)
                     .acquireUpgradeMutex(MetaDataProtocol.MIN_SYSTEM_TABLE_TIMESTAMP_4_7_0));
             try {
-                ((ConnectionQueryServicesImpl)services)
+                ((ConnectionQueryServicesImpl) services)
                         .acquireUpgradeMutex(MetaDataProtocol.MIN_SYSTEM_TABLE_TIMESTAMP_4_7_0);
                 fail();
             } catch (UpgradeInProgressException expected) {
 
             }
-            ((ConnectionQueryServicesImpl)services).releaseUpgradeMutex();
+            ((ConnectionQueryServicesImpl) services).releaseUpgradeMutex();
         }
     }
-    
+
     @Test
     public void testConcurrentUpgradeThrowsUprgadeInProgressException() throws Exception {
         final AtomicBoolean mutexStatus1 = new AtomicBoolean(false);
@@ -460,14 +464,15 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             assertEquals("One and only one thread should have caught UpgradeRequiredException ", 1, numExceptions.get());
         }
     }
-    
+
     private static class AcquireMutexRunnable implements Callable<Void> {
-        
+
         private final AtomicBoolean acquireStatus;
         private final ConnectionQueryServices services;
         private final CountDownLatch latch;
         private final AtomicInteger numExceptions;
         private final byte[] mutexRowKey;
+
         public AcquireMutexRunnable(AtomicBoolean acquireStatus, ConnectionQueryServices services, CountDownLatch latch, AtomicInteger numExceptions, byte[] mutexKey) {
             this.acquireStatus = acquireStatus;
             this.services = services;
@@ -475,10 +480,11 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             this.numExceptions = numExceptions;
             this.mutexRowKey = mutexKey;
         }
+
         @Override
         public Void call() throws Exception {
             try {
-                ((ConnectionQueryServicesImpl)services).acquireUpgradeMutex(
+                ((ConnectionQueryServicesImpl) services).acquireUpgradeMutex(
                         MetaDataProtocol.MIN_SYSTEM_TABLE_TIMESTAMP_4_7_0);
                 acquireStatus.set(true);
             } catch (UpgradeInProgressException e) {
@@ -486,12 +492,12 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
             } finally {
                 latch.countDown();
                 if (acquireStatus.get()) {
-                    ((ConnectionQueryServicesImpl)services).releaseUpgradeMutex();
+                    ((ConnectionQueryServicesImpl) services).releaseUpgradeMutex();
                 }
             }
             return null;
         }
-        
+
     }
 
     private Connection createTenantConnection(String tenantId) throws SQLException {
@@ -501,21 +507,22 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
     }
 
     private Connection getConnection(boolean tenantSpecific, String tenantId, boolean isNamespaceMappingEnabled)
-        throws SQLException {
+            throws SQLException {
         if (tenantSpecific) {
             checkNotNull(tenantId);
             return createTenantConnection(tenantId);
         }
         Properties props = new Properties();
-        if (isNamespaceMappingEnabled){
+        if (isNamespaceMappingEnabled) {
             props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, "true");
         }
         return DriverManager.getConnection(getUrl(), props);
     }
+
     private Connection getConnection(boolean tenantSpecific, String tenantId) throws SQLException {
         return getConnection(tenantSpecific, tenantId, false);
     }
-    
+
     @Test
     public void testMoveParentChildLinks() throws Exception {
         String schema = "S_" + generateUniqueName();
@@ -528,8 +535,8 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         String viewName2 = "VIEW_" + generateUniqueName();
         String viewIndexName2 = "VIDX_" + generateUniqueName();
         try (Connection conn = getConnection(false, null);
-                Connection tenantConn = getConnection(true, "tenant1");
-                Connection metaConn = getConnection(false, null)) {
+             Connection tenantConn = getConnection(true, "tenant1");
+             Connection metaConn = getConnection(false, null)) {
             // create a non multi-tenant and multi-tenant table
             conn.createStatement()
                     .execute("CREATE TABLE IF NOT EXISTS " + tableName + " ("
@@ -544,7 +551,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
                             + " ) MULTI_TENANT= true");
             // create tenant and global view
             conn.createStatement().execute(
-                "CREATE VIEW " + viewName1 + " (col VARCHAR) AS SELECT * FROM " + tableName);
+                    "CREATE VIEW " + viewName1 + " (col VARCHAR) AS SELECT * FROM " + tableName);
             tenantConn.createStatement().execute("CREATE VIEW " + viewName2
                     + "(col VARCHAR) AS SELECT * FROM " + multiTenantTableName);
             // create index on the above views
@@ -576,8 +583,8 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
     private Set<String> getChildLinks(Connection conn) throws SQLException {
         ResultSet rs =
                 conn.createStatement().executeQuery(
-                    "SELECT TENANT_ID, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, COLUMN_FAMILY FROM SYSTEM.CHILD_LINK WHERE LINK_TYPE = "
-                            + LinkType.CHILD_TABLE.getSerializedValue());
+                        "SELECT TENANT_ID, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, COLUMN_FAMILY FROM SYSTEM.CHILD_LINK WHERE LINK_TYPE = "
+                                + LinkType.CHILD_TABLE.getSerializedValue());
         Set<String> childLinkSet = Sets.newHashSet();
         while (rs.next()) {
             String key =
@@ -612,15 +619,15 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         PName tenantOne = PNameFactory.newName("TENANT_ONE");
         PName tenantTwo = PNameFactory.newName("TENANT_TWO");
         String tableName =
-            SchemaUtil.getPhysicalHBaseTableName("TEST",
-                "T_" + generateUniqueName(), isNamespaceMappingEnabled).getString();
+                SchemaUtil.getPhysicalHBaseTableName("TEST",
+                        "T_" + generateUniqueName(), isNamespaceMappingEnabled).getString();
         PName viewIndexTable = PNameFactory.newName(MetaDataUtil.getViewIndexPhysicalName(tableName));
         SequenceKey sequenceOne =
-            createViewIndexSequenceWithOldName(cqs, tenantOne, viewIndexTable, isNamespaceMappingEnabled);
+                createViewIndexSequenceWithOldName(cqs, tenantOne, viewIndexTable, isNamespaceMappingEnabled);
         SequenceKey sequenceTwo =
-            createViewIndexSequenceWithOldName(cqs, tenantTwo, viewIndexTable, isNamespaceMappingEnabled);
+                createViewIndexSequenceWithOldName(cqs, tenantTwo, viewIndexTable, isNamespaceMappingEnabled);
         SequenceKey sequenceGlobal =
-            createViewIndexSequenceWithOldName(cqs, null, viewIndexTable, isNamespaceMappingEnabled);
+                createViewIndexSequenceWithOldName(cqs, null, viewIndexTable, isNamespaceMappingEnabled);
 
         List<SequenceAllocation> allocations = Lists.newArrayList();
         long val1 = 10;
@@ -635,7 +642,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         SQLException[] exceptions = new SQLException[3];
         //simulate incrementing the view indexes
         cqs.incrementSequences(allocations, EnvironmentEdgeManager.currentTimeMillis(), incrementedValues,
-            exceptions);
+                exceptions);
         for (SQLException e : exceptions) {
             assertNull(e);
         }
@@ -653,7 +660,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
 
         assertNull(afterUpgradeExceptions[0]);
         int safetyIncrement = 100;
-        if (isNamespaceMappingEnabled){
+        if (isNamespaceMappingEnabled) {
             //since one sequence (the global one) will be reused as the "new" sequence,
             // it's already in cache and will reflect the final increment immediately
             assertEquals(Long.MIN_VALUE + val3 + safetyIncrement + 1, afterUpgradeValues[0]);
@@ -668,7 +675,7 @@ public class UpgradeIT extends ParallelStatsDisabledIT {
         //Sequences are owned globally even if they contain a tenantId in the name
         String sequenceTenantId = isNamespaceMapped ? tenantId : null;
         cqs.createSequence(sequenceTenantId, key.getSchemaName(), key.getSequenceName(),
-            Long.MIN_VALUE, 1, 1, Long.MIN_VALUE, Long.MAX_VALUE, false, EnvironmentEdgeManager.currentTimeMillis());
+                Long.MIN_VALUE, 1, 1, Long.MIN_VALUE, Long.MAX_VALUE, false, EnvironmentEdgeManager.currentTimeMillis());
         return key;
     }
 

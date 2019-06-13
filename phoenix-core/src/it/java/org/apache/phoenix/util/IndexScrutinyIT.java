@@ -40,9 +40,9 @@ public class IndexScrutinyIT extends ParallelStatsDisabledIT {
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('b','bb')");
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('a','ccc')");
             conn.commit();
-            
+
             int count = conn.createStatement().executeUpdate("DELETE FROM " + fullIndexName + " WHERE \":K\"='a' AND \"0:V\"='ccc'");
-            assertEquals(1,count);
+            assertEquals(1, count);
             conn.commit();
             try {
                 IndexScrutiny.scrutinizeIndex(conn, fullTableName, fullIndexName);
@@ -52,6 +52,7 @@ public class IndexScrutinyIT extends ParallelStatsDisabledIT {
             }
         }
     }
+
     @Test
     public void testExtraRowIndexScrutiny() throws Throwable {
         String schemaName = generateUniqueName();
@@ -65,7 +66,7 @@ public class IndexScrutinyIT extends ParallelStatsDisabledIT {
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('b','bb','0')");
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('a','ccc','1')");
             conn.commit();
-            
+
             conn.createStatement().executeUpdate("UPSERT INTO " + fullIndexName + " VALUES ('bbb','x','0')");
             conn.commit();
             try {
@@ -76,7 +77,7 @@ public class IndexScrutinyIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     @Test
     public void testValueIndexScrutiny() throws Throwable {
         String schemaName = generateUniqueName();
@@ -90,7 +91,7 @@ public class IndexScrutinyIT extends ParallelStatsDisabledIT {
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('b','bb','0')");
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES('a','ccc','1')");
             conn.commit();
-            
+
             conn.createStatement().executeUpdate("UPSERT INTO " + fullIndexName + " VALUES ('ccc','a','2')");
             conn.commit();
             try {

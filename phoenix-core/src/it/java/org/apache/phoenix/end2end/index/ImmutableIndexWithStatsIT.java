@@ -34,12 +34,12 @@ import org.junit.Test;
 
 
 public class ImmutableIndexWithStatsIT extends ParallelStatsEnabledIT {
-    
+
     @Test
     public void testIndexCreationDeadlockWithStats() throws Exception {
         String query;
         ResultSet rs;
-        
+
         String tableName = generateUniqueName();
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -50,13 +50,13 @@ public class ImmutableIndexWithStatsIT extends ParallelStatsEnabledIT {
         assertFalse(rs.next());
 
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + tableName + " VALUES(?,?)");
-        for (int i=0; i<6;i++) {
-	        stmt.setString(1, "kkkkkkkkkk" + i);
-	        stmt.setString(2, "vvvvvvvvvv" + i );
-	        stmt.execute();
+        for (int i = 0; i < 6; i++) {
+            stmt.setString(1, "kkkkkkkkkk" + i);
+            stmt.setString(2, "vvvvvvvvvv" + i);
+            stmt.execute();
         }
         conn.commit();
-        
+
         conn.createStatement().execute("UPDATE STATISTICS " + tableName);
         query = "SELECT COUNT(*) FROM " + tableName;
         rs = conn.createStatement().executeQuery("EXPLAIN " + query);
@@ -64,7 +64,7 @@ public class ImmutableIndexWithStatsIT extends ParallelStatsEnabledIT {
 
         String indexName = "I_" + generateUniqueName();
         conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + tableName + " (v)");
-        
+
         query = "SELECT * FROM " + indexName;
         rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());

@@ -29,16 +29,14 @@ import com.google.common.collect.ImmutableList;
 
 
 /**
- * 
  * Base class for expressions which have a single child expression
  *
- * 
  * @since 0.1
  */
 public abstract class BaseSingleExpression extends BaseExpression {
 
     protected List<Expression> children;
-    
+
     public BaseSingleExpression() {
     }
 
@@ -54,7 +52,7 @@ public abstract class BaseSingleExpression extends BaseExpression {
     public List<Expression> getChildren() {
         return children;
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         Expression expression = ExpressionType.values()[WritableUtils.readVInt(input)].newInstance();
@@ -88,11 +86,19 @@ public abstract class BaseSingleExpression extends BaseExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        BaseSingleExpression other = (BaseSingleExpression)obj;
-        if (!children.get(0).equals(other.children.get(0))) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BaseSingleExpression other = (BaseSingleExpression) obj;
+        if (!children.get(0).equals(other.children.get(0))) {
+            return false;
+        }
         return true;
     }
 
@@ -104,11 +110,11 @@ public abstract class BaseSingleExpression extends BaseExpression {
         }
         return l.get(0);
     }
-    
+
     public Expression getChild() {
         return children.get(0);
     }
-    
+
     @Override
     public boolean requiresFinalEvaluation() {
         return children.get(0).requiresFinalEvaluation();

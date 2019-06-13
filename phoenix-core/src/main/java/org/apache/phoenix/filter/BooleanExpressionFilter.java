@@ -34,18 +34,17 @@ import org.apache.phoenix.util.ServerUtil;
 
 
 /**
- * 
  * Base class for filter that evaluates a WHERE clause expression.
- *
+ * <p>
  * Subclass is expected to implement filterRow() method
- * 
+ *
  * @since 0.1
  */
 abstract public class BooleanExpressionFilter extends FilterBase implements Writable {
 
     protected Expression expression;
     private ImmutableBytesWritable tempPtr = new ImmutableBytesWritable();
-    
+
     public BooleanExpressionFilter() {
     }
 
@@ -56,10 +55,10 @@ abstract public class BooleanExpressionFilter extends FilterBase implements Writ
     public Expression getExpression() {
         return expression;
     }
-    
+
     @Override
     public boolean hasFilterRow() {
-      return true;
+        return true;
     }
 
     @Override
@@ -72,11 +71,19 @@ abstract public class BooleanExpressionFilter extends FilterBase implements Writ
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        BooleanExpressionFilter other = (BooleanExpressionFilter)obj;
-        if (!expression.equals(other.expression)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BooleanExpressionFilter other = (BooleanExpressionFilter) obj;
+        if (!expression.equals(other.expression)) {
+            return false;
+        }
         return true;
     }
 
@@ -86,8 +93,8 @@ abstract public class BooleanExpressionFilter extends FilterBase implements Writ
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-            value="NP_BOOLEAN_RETURN_NULL",
-            justification="Returns null by design.")
+            value = "NP_BOOLEAN_RETURN_NULL",
+            justification = "Returns null by design.")
     protected Boolean evaluate(Tuple input) {
         try {
             if (!expression.evaluate(input, tempPtr)) {
@@ -96,7 +103,7 @@ abstract public class BooleanExpressionFilter extends FilterBase implements Writ
         } catch (IllegalDataException e) {
             return Boolean.FALSE;
         }
-        return (Boolean)expression.getDataType().toObject(tempPtr);
+        return (Boolean) expression.getDataType().toObject(tempPtr);
     }
 
     @Override

@@ -48,22 +48,22 @@ import org.junit.runners.Parameterized.Parameters;
 import com.google.common.collect.Lists;
 
 public class NullIT extends BaseQueryIT {
-    
-    @Parameters(name="NullIT_{index},columnEncoded={1}")
+
+    @Parameters(name = "NullIT_{index},columnEncoded={1}")
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
         for (String indexDDL : INDEX_DDLS) {
-            for (boolean columnEncoded : new boolean[]{false,true}) {
-                testCases.add(new Object[] { indexDDL, columnEncoded });
+            for (boolean columnEncoded : new boolean[] {false, true}) {
+                testCases.add(new Object[] {indexDDL, columnEncoded});
             }
         }
         return testCases;
     }
-    
+
     public NullIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
+
     private void testNoStringValue(String value) throws Exception {
         String url = getUrl();
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -77,18 +77,18 @@ public class NullIT extends BaseQueryIT {
         stmt.setString(3, value);
         stmt.execute(); // should commit too
         upsertConn.close();
-        
+
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         TestUtil.analyzeTable(conn1, tableName);
         conn1.close();
-        
+
         String query = "SELECT a_string, b_string FROM " + tableName + " WHERE organization_id=? and a_integer = 5";
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(null, rs.getString(1));
             assertTrue(rs.wasNull());
             assertEquals(C_VALUE, rs.getString("B_string"));
@@ -102,12 +102,12 @@ public class NullIT extends BaseQueryIT {
     public void testNullStringValue() throws Exception {
         testNoStringValue(null);
     }
-    
+
     @Test
     public void testEmptyStringValue() throws Exception {
         testNoStringValue("");
     }
-    
+
     @Test
     public void testIsNull() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE X_DECIMAL is null";
@@ -116,17 +116,17 @@ public class NullIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW3);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW4);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
             assertFalse(rs.next());
         } finally {
@@ -142,16 +142,16 @@ public class NullIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
 }

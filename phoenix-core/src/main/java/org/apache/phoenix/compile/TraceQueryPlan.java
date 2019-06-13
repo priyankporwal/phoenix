@@ -75,6 +75,7 @@ public class TraceQueryPlan implements QueryPlan {
     private boolean first = true;
 
     private static final RowProjector TRACE_PROJECTOR;
+
     static {
         List<ExpressionProjector> projectedColumns = new ArrayList<ExpressionProjector>();
         PName colName = PNameFactory.newName(MetricInfo.TRACE.columnName);
@@ -92,17 +93,17 @@ public class TraceQueryPlan implements QueryPlan {
         TRACE_PROJECTOR = new RowProjector(projectedColumns, estimatedByteSize, false);
     }
 
-    public TraceQueryPlan(TraceStatement traceStatement, PhoenixStatement stmt ) {
+    public TraceQueryPlan(TraceStatement traceStatement, PhoenixStatement stmt) {
         this.traceStatement = traceStatement;
         this.stmt = stmt;
         this.context = new StatementContext(stmt);
     }
 
-	@Override
-	public Operation getOperation() {
-		return traceStatement.getOperation();
-	}
-	
+    @Override
+    public Operation getOperation() {
+        return traceStatement.getOperation();
+    }
+
     @Override
     public StatementContext getContext() {
         return this.context;
@@ -112,17 +113,17 @@ public class TraceQueryPlan implements QueryPlan {
     public ParameterMetaData getParameterMetaData() {
         return context.getBindManager().getParameterMetaData();
     }
-    
+
     @Override
     public ResultIterator iterator() throws SQLException {
-    	return iterator(DefaultParallelScanGrouper.getInstance());
+        return iterator(DefaultParallelScanGrouper.getInstance());
     }
 
     @Override
     public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
         return iterator(scanGrouper);
     }
-        
+
     @Override
     public ResultIterator iterator(ParallelScanGrouper scanGrouper) throws SQLException {
         final PhoenixConnection conn = stmt.getConnection();
@@ -137,7 +138,9 @@ public class TraceQueryPlan implements QueryPlan {
 
             @Override
             public Tuple next() throws SQLException {
-                if(!first) return null;
+                if (!first) {
+                    return null;
+                }
                 TraceScope traceScope = conn.getTraceScope();
                 if (traceStatement.isTraceOn()) {
                     conn.setSampler(Tracing.getConfiguredSampler(traceStatement));
@@ -156,7 +159,9 @@ public class TraceQueryPlan implements QueryPlan {
                     closeTraceScope(conn);
                     conn.setSampler(Sampler.NEVER);
                 }
-                if (traceScope == null || traceScope.getSpan() == null) return null;
+                if (traceScope == null || traceScope.getSpan() == null) {
+                    return null;
+                }
                 first = false;
                 ImmutableBytesWritable ptr = new ImmutableBytesWritable();
                 ParseNodeFactory factory = new ParseNodeFactory();
@@ -164,22 +169,22 @@ public class TraceQueryPlan implements QueryPlan {
                         factory.literal(traceScope.getSpan().getTraceId());
                 LiteralExpression expression =
                         LiteralExpression.newConstant(literal.getValue(), PLong.INSTANCE,
-                            Determinism.ALWAYS);
+                                Determinism.ALWAYS);
                 expression.evaluate(null, ptr);
                 byte[] rowKey = ByteUtil.copyKeyBytesIfNecessary(ptr);
                 Cell cell =
                         PhoenixKeyValueUtil
                                 .newKeyValue(rowKey, HConstants.EMPTY_BYTE_ARRAY,
-                                    HConstants.EMPTY_BYTE_ARRAY,
-                                    EnvironmentEdgeManager.currentTimeMillis(),
-                                    HConstants.EMPTY_BYTE_ARRAY);
+                                        HConstants.EMPTY_BYTE_ARRAY,
+                                        EnvironmentEdgeManager.currentTimeMillis(),
+                                        HConstants.EMPTY_BYTE_ARRAY);
                 List<Cell> cells = new ArrayList<Cell>(1);
                 cells.add(cell);
                 return new ResultTuple(Result.create(cells));
             }
 
             private void closeTraceScope(final PhoenixConnection conn) {
-                if(conn.getTraceScope()!=null) {
+                if (conn.getTraceScope() != null) {
                     conn.getTraceScope().close();
                     conn.setTraceScope(null);
                 }
@@ -265,7 +270,7 @@ public class TraceQueryPlan implements QueryPlan {
     public ExplainPlan getExplainPlan() throws SQLException {
         return ExplainPlan.EMPTY_PLAN;
     }
-    
+
     @Override
     public boolean useRoundRobinIterator() {
         return false;
@@ -293,6 +298,6 @@ public class TraceQueryPlan implements QueryPlan {
 
     @Override
     public List<OrderBy> getOutputOrderBys() {
-        return Collections.<OrderBy> emptyList();
+        return Collections.<OrderBy>emptyList();
     }
 }

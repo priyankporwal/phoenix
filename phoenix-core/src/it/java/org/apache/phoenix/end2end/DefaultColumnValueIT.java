@@ -64,7 +64,7 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
 
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute(ddl);
-        conn.createStatement().execute("ALTER TABLE " + sharedTable1 + 
+        conn.createStatement().execute("ALTER TABLE " + sharedTable1 +
                 " ADD test2 INTEGER DEFAULT 5, est3 INTEGER");
 
         String dml = "UPSERT INTO " + sharedTable1 + " VALUES (1, 2)";
@@ -115,7 +115,7 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
 
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute(ddl);
-        conn.createStatement().execute("CREATE VIEW " + sharedTable2 + 
+        conn.createStatement().execute("CREATE VIEW " + sharedTable2 +
                 "(pk4 INTEGER NOT NULL DEFAULT 20 PRIMARY KEY, test4 VARCHAR DEFAULT 'foo') " +
                 "AS SELECT * FROM " + sharedTable1 + " WHERE pk1 = 1");
 
@@ -667,7 +667,7 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(2, rs.getInt(1));
 
-        rs =conn.createStatement().executeQuery("SELECT * FROM " + table);
+        rs = conn.createStatement().executeQuery("SELECT * FROM " + table);
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
         assertEquals(1, rs.getInt(2));
@@ -784,61 +784,61 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
                 .executeQuery("SELECT * FROM " + table + " WHERE pk = 1");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
-        assertArrayEquals(new int[]{-100, 50}, (int[])(rs.getArray(2).getArray()));
-        assertArrayEquals(new int[]{100, 50}, (int[])(rs.getArray(3).getArray()));
-        assertArrayEquals(new long[]{-200, 100}, (long[])(rs.getArray(4).getArray()));
-        assertArrayEquals(new long[]{200, 100}, (long[])(rs.getArray(5).getArray()));
-        assertArrayEquals(new byte[]{-50, 25}, (byte[])(rs.getArray(6).getArray()));
-        assertArrayEquals(new byte[]{50, 25}, (byte[])(rs.getArray(7).getArray()));
-        assertArrayEquals(new short[]{-10, 5}, (short[])(rs.getArray(8).getArray()));
-        assertArrayEquals(new short[]{10, 5}, (short[])(rs.getArray(9).getArray()));
+        assertArrayEquals(new int[] {-100, 50}, (int[]) (rs.getArray(2).getArray()));
+        assertArrayEquals(new int[] {100, 50}, (int[]) (rs.getArray(3).getArray()));
+        assertArrayEquals(new long[] {-200, 100}, (long[]) (rs.getArray(4).getArray()));
+        assertArrayEquals(new long[] {200, 100}, (long[]) (rs.getArray(5).getArray()));
+        assertArrayEquals(new byte[] {-50, 25}, (byte[]) (rs.getArray(6).getArray()));
+        assertArrayEquals(new byte[] {50, 25}, (byte[]) (rs.getArray(7).getArray()));
+        assertArrayEquals(new short[] {-10, 5}, (short[]) (rs.getArray(8).getArray()));
+        assertArrayEquals(new short[] {10, 5}, (short[]) (rs.getArray(9).getArray()));
         assertArrayEquals(
-                new float[]{new Float(-100.8), new Float(50.4)},
-                (float[])(rs.getArray(10).getArray()), 0);
+                new float[] {new Float(-100.8), new Float(50.4)},
+                (float[]) (rs.getArray(10).getArray()), 0);
         assertArrayEquals(
-                new float[]{new Float(100.9), new Float(50.45)},
-                (float[])(rs.getArray(11).getArray()), 0);
-        assertArrayEquals(new double[]{-200.5, 100.25}, (double[])(rs.getArray(12).getArray()), 0);
-        assertArrayEquals(new double[]{200.8, 100.4}, (double[])(rs.getArray(13).getArray()), 0);
+                new float[] {new Float(100.9), new Float(50.45)},
+                (float[]) (rs.getArray(11).getArray()), 0);
+        assertArrayEquals(new double[] {-200.5, 100.25}, (double[]) (rs.getArray(12).getArray()), 0);
+        assertArrayEquals(new double[] {200.8, 100.4}, (double[]) (rs.getArray(13).getArray()), 0);
         assertArrayEquals(
-                new BigDecimal[]{
+                new BigDecimal[] {
                         new BigDecimal("-654624562.3462642362"),
                         new BigDecimal("3462642362.654624562")},
-                (BigDecimal[])(rs.getArray(14).getArray()));
-        assertArrayEquals(new boolean[]{true, false}, (boolean[])(rs.getArray(15).getArray()));
+                (BigDecimal[]) (rs.getArray(14).getArray()));
+        assertArrayEquals(new boolean[] {true, false}, (boolean[]) (rs.getArray(15).getArray()));
         assertArrayEquals(
-                new Time[]{
+                new Time[] {
                         DateUtil.parseTime("1900-10-01 14:03:22.559"),
                         DateUtil.parseTime("1990-10-01 14:03:22.559")},
-                (Time[])(rs.getArray(16).getArray()));
+                (Time[]) (rs.getArray(16).getArray()));
         assertArrayEquals(
-                new Date[]{
+                new Date[] {
                         DateUtil.parseDate("1900-10-01 14:03:22.559"),
                         DateUtil.parseDate("1990-10-01 14:03:22.559")},
-                (Date[])(rs.getArray(17).getArray()));
+                (Date[]) (rs.getArray(17).getArray()));
         assertArrayEquals(
-                new Timestamp[]{
+                new Timestamp[] {
                         DateUtil.parseTimestamp("1900-10-01 14:03:22.559"),
                         DateUtil.parseTimestamp("1990-10-01 14:03:22.559")},
-                (Timestamp[])(rs.getArray(18).getArray()));
+                (Timestamp[]) (rs.getArray(18).getArray()));
         assertArrayEquals(
-                new Time[]{
+                new Time[] {
                         DateUtil.parseTime("2005-10-01 14:03:22.559"),
                         DateUtil.parseTime("2006-10-01 14:03:22.559")},
-                (Time[])(rs.getArray(19).getArray()));
+                (Time[]) (rs.getArray(19).getArray()));
         assertArrayEquals(
-                new Date[]{
+                new Date[] {
                         DateUtil.parseDate("2005-10-01 14:03:22.559"),
                         DateUtil.parseDate("2006-10-01 14:03:22.559")},
-                (Date[])(rs.getArray(20).getArray()));
+                (Date[]) (rs.getArray(20).getArray()));
         assertArrayEquals(
-                new Timestamp[]{
+                new Timestamp[] {
                         DateUtil.parseTimestamp("2005-10-01 14:03:22.559"),
                         DateUtil.parseTimestamp("2006-10-01 14:03:22.559")},
-                (Timestamp[])(rs.getArray(21).getArray()));
-        assertArrayEquals(new String[]{"ABCD", "XY"}, (String[])(rs.getArray(22).getArray()));
+                (Timestamp[]) (rs.getArray(21).getArray()));
+        assertArrayEquals(new String[] {"ABCD", "XY"}, (String[]) (rs.getArray(22).getArray()));
 
-        String[] expected = new String[] {"EF","Z"};
+        String[] expected = new String[] {"EF", "Z"};
         Array array = conn.createArrayOf("CHAR", expected);
         assertTrue(rs.getArray(23).equals(array));
 
@@ -846,7 +846,7 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
                 ByteUtil.fillKey(new byte[] {'M', 'N', 'O', 'P'}, 5),
                 ByteUtil.fillKey(new byte[] {'m', 'n', 'o', 'p'}, 5)
         };
-        assertArrayEquals(expectedByteArray, (byte[][])rs.getArray(24).getArray());
+        assertArrayEquals(expectedByteArray, (byte[][]) rs.getArray(24).getArray());
     }
 
     @Test
@@ -869,9 +869,9 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
                 .executeQuery("SELECT * FROM " + table + " WHERE pk = 1");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
-        assertArrayEquals(new String[]{null, "ABCD", "XY"}, (String[])(rs.getArray(2).getArray()));
-        assertArrayEquals(new String[]{"ABCD", null, "XY"}, (String[])(rs.getArray(3).getArray()));
-        assertArrayEquals(new String[]{"ABCD", "XY", null}, (String[])(rs.getArray(4).getArray()));
+        assertArrayEquals(new String[] {null, "ABCD", "XY"}, (String[]) (rs.getArray(2).getArray()));
+        assertArrayEquals(new String[] {"ABCD", null, "XY"}, (String[]) (rs.getArray(3).getArray()));
+        assertArrayEquals(new String[] {"ABCD", "XY", null}, (String[]) (rs.getArray(4).getArray()));
         assertFalse(rs.next());
     }
 
@@ -895,9 +895,9 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
                 .executeQuery("SELECT * FROM " + table + " WHERE pk = 1");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
-        assertArrayEquals(new int[]{0, 2, 3}, (int[])(rs.getArray(2).getArray()));
-        assertArrayEquals(new int[]{1, 0, 3}, (int[])(rs.getArray(3).getArray()));
-        assertArrayEquals(new int[]{1, 2, 0}, (int[])(rs.getArray(4).getArray()));
+        assertArrayEquals(new int[] {0, 2, 3}, (int[]) (rs.getArray(2).getArray()));
+        assertArrayEquals(new int[] {1, 0, 3}, (int[]) (rs.getArray(3).getArray()));
+        assertArrayEquals(new int[] {1, 2, 0}, (int[]) (rs.getArray(4).getArray()));
         assertFalse(rs.next());
     }
 

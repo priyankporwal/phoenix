@@ -66,11 +66,11 @@ public class MultiCfQueryExecIT extends ParallelStatsEnabledIT {
     private void initTableValues(Connection conn) throws Exception {
         // Insert all rows at ts
         PreparedStatement stmt = conn.prepareStatement(
-"upsert into " + fullTableName + "(" + "    ID, "
-                + "    TRANSACTION_COUNT, " + "    CPU_UTILIZATION, " + "    DB_CPU_UTILIZATION,"
-                + "    UNIQUE_USER_COUNT," + "    F.RESPONSE_TIME," + "    G.RESPONSE_TIME)"
-                +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)");
+                "upsert into " + fullTableName + "(" + "    ID, "
+                        + "    TRANSACTION_COUNT, " + "    CPU_UTILIZATION, " + "    DB_CPU_UTILIZATION,"
+                        + "    UNIQUE_USER_COUNT," + "    F.RESPONSE_TIME," + "    G.RESPONSE_TIME)"
+                        +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, "000000000000001");
         stmt.setInt(2, 100);
         stmt.setBigDecimal(3, BigDecimal.valueOf(0.5));
@@ -184,17 +184,17 @@ public class MultiCfQueryExecIT extends ParallelStatsEnabledIT {
 
         conn.createStatement().execute(
                 "CREATE TABLE " + fullTableName + " (K1 CHAR(1) NOT NULL, "
- + "K2 VARCHAR NOT NULL, " + "CF1.A INTEGER, "
+                        + "K2 VARCHAR NOT NULL, " + "CF1.A INTEGER, "
                         + "CF2.B INTEGER, " + "CF3.C INTEGER, " + "CF4.D INTEGER, " + "CF5.E INTEGER, "
                         + "CF6.F INTEGER " + "CONSTRAINT PK PRIMARY KEY (K1,K2)) SPLIT ON ('B','C','D')");
 
         for (int i = 0; i < 100; i++) {
-            String upsert = "UPSERT INTO " + fullTableName + "(K1,K2,A) VALUES('" + Character.toString((char)('A' + i % 10))
+            String upsert = "UPSERT INTO " + fullTableName + "(K1,K2,A) VALUES('" + Character.toString((char) ('A' + i % 10))
                     + "','" + (i * 10) + "'," + i + ")";
             conn.createStatement().execute(upsert);
             if (i % 10 == 0) {
                 conn.createStatement().execute(
-                        "UPSERT INTO " + fullTableName + "(K1,K2,F) VALUES('" + Character.toString((char)('A' + i % 10))
+                        "UPSERT INTO " + fullTableName + "(K1,K2,F) VALUES('" + Character.toString((char) ('A' + i % 10))
                                 + "','" + (i * 10) + "'," + (i * 10) + ")");
             }
         }
@@ -412,21 +412,21 @@ public class MultiCfQueryExecIT extends ParallelStatsEnabledIT {
     @Test
     public void testBug4658() throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl());
-          Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             String tableName = generateUniqueName();
 
             stmt.execute("CREATE TABLE " + tableName + " ("
-                + "COL1 VARCHAR NOT NULL,"
-                + "COL2 VARCHAR NOT NULL,"
-                + "COL3 VARCHAR,"
-                + "FAM.COL4 VARCHAR,"
-                + "CONSTRAINT TRADE_EVENT_PK PRIMARY KEY (COL1, COL2))");
+                    + "COL1 VARCHAR NOT NULL,"
+                    + "COL2 VARCHAR NOT NULL,"
+                    + "COL3 VARCHAR,"
+                    + "FAM.COL4 VARCHAR,"
+                    + "CONSTRAINT TRADE_EVENT_PK PRIMARY KEY (COL1, COL2))");
             stmt.execute("UPSERT INTO " + tableName + " (COL1, COL2) values ('111', 'AAA')");
             stmt.execute("UPSERT INTO " + tableName + " (COL1, COL2) values ('222', 'AAA')");
             conn.commit();
 
             try (ResultSet rs = stmt.executeQuery(
-              "SELECT * FROM " + tableName + " WHERE COL2 = 'AAA' ORDER BY COL1 DESC")) {
+                    "SELECT * FROM " + tableName + " WHERE COL2 = 'AAA' ORDER BY COL1 DESC")) {
                 assertTrue(rs.next());
                 assertEquals(rs.getString("COL1"), "222");
                 assertEquals(rs.getString("COL2"), "AAA");

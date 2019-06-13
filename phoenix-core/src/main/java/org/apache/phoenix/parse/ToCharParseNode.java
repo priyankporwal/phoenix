@@ -40,7 +40,7 @@ public class ToCharParseNode extends FunctionParseNode {
     @Override
     public FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException {
         PDataType dataType = children.get(0).getDataType();
-        String formatString = (String)((LiteralExpression)children.get(1)).getValue(); // either date or number format string
+        String formatString = (String) ((LiteralExpression) children.get(1)).getValue(); // either date or number format string
         Format formatter;
         FunctionArgumentType type;
         if (dataType.isCoercibleTo(PTimestamp.INSTANCE)) {
@@ -51,14 +51,13 @@ public class ToCharParseNode extends FunctionParseNode {
                 formatter = FunctionArgumentType.TEMPORAL.getFormatter(formatString);
             }
             type = FunctionArgumentType.TEMPORAL;
-        }
-        else if (dataType.isCoercibleTo(PDecimal.INSTANCE)) {
-            if (formatString == null)
+        } else if (dataType.isCoercibleTo(PDecimal.INSTANCE)) {
+            if (formatString == null) {
                 formatString = context.getNumberFormat();
+            }
             formatter = FunctionArgumentType.NUMERIC.getFormatter(formatString);
             type = FunctionArgumentType.NUMERIC;
-        }
-        else {
+        } else {
             throw new SQLException(dataType + " type is unsupported for TO_CHAR().  Numeric and temporal types are supported.");
         }
         return new ToCharFunction(children, type, formatString, formatter);

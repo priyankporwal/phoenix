@@ -22,18 +22,16 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * Aggregator that sums long values
  *
- * 
  * @since 0.1
  */
 public class LongSumAggregator extends NumberSumAggregator {
-    
+
     public LongSumAggregator() {
         super(SortOrder.getDefault());
     }
-    
+
     @Override
     protected PDataType getInputDataType() {
         return PLong.INSTANCE;

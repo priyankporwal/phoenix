@@ -49,9 +49,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class QueryWithOffsetIT extends ParallelStatsDisabledIT {
-    
-    private static final String[] STRINGS = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
-            "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+
+    private static final String[] STRINGS = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+            "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     private final boolean isSalted;
     private final String preSplit;
     private String ddl;
@@ -70,9 +70,9 @@ public class QueryWithOffsetIT extends ParallelStatsDisabledIT {
                 + "CONSTRAINT pk PRIMARY KEY (t_id, k1, k2)) " + preSplit;
     }
 
-    @Parameters(name="preSplit = {0}")
+    @Parameters(name = "preSplit = {0}")
     public static Collection<String> data() {
-        return Arrays.asList(new String[] { " SPLIT ON ('e','i','o')", " SALT_BUCKETS=10" });
+        return Arrays.asList(new String[] {" SPLIT ON ('e','i','o')", " SALT_BUCKETS=10"});
     }
 
     @Test
@@ -108,8 +108,8 @@ public class QueryWithOffsetIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             assertEquals(STRINGS[i - 1], rs.getString(1));
         }
-        limit =1;
-        offset=1;
+        limit = 1;
+        offset = 1;
         rs = conn.createStatement()
                 .executeQuery("SELECT k2 from " + tableName + " order by k2 desc limit " + limit + " offset " + offset);
         assertTrue(rs.next());
@@ -129,11 +129,11 @@ public class QueryWithOffsetIT extends ParallelStatsDisabledIT {
         updateStatistics(conn);
         String query = "SELECT t_id from " + tableName + " offset " + offset;
         ResultSet rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-        if(!isSalted){
+        if (!isSalted) {
             assertEquals("CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName + "\n"
                     + "    SERVER FILTER BY FIRST KEY ONLY\n"
                     + "    SERVER OFFSET " + offset, QueryUtil.getExplainPlan(rs));
-        }else{
+        } else {
             assertEquals("CLIENT PARALLEL 10-WAY FULL SCAN OVER " + tableName + "\n"
                     + "    SERVER FILTER BY FIRST KEY ONLY\n"
                     + "CLIENT MERGE SORT\n" + "CLIENT OFFSET " + offset, QueryUtil.getExplainPlan(rs));
@@ -169,7 +169,7 @@ public class QueryWithOffsetIT extends ParallelStatsDisabledIT {
         int i = 0;
         rs =
                 conn.createStatement().executeQuery(
-                    "SELECT t_id from " + tableName + " order by t_id offset " + offset + " row");
+                        "SELECT t_id from " + tableName + " order by t_id offset " + offset + " row");
         while (i++ < STRINGS.length - offset) {
             assertTrue(rs.next());
             assertEquals(STRINGS[offset + i - 1], rs.getString(1));
@@ -215,7 +215,7 @@ public class QueryWithOffsetIT extends ParallelStatsDisabledIT {
         ResultSetMetaData md = rs.getMetaData();
         assertEquals(5, md.getColumnCount());
     }
-    
+
     private void initTableValues(Connection conn) throws SQLException {
         for (int i = 0; i < 26; i++) {
             conn.createStatement().execute("UPSERT INTO " + tableName + " values('" + STRINGS[i] + "'," + i + ","

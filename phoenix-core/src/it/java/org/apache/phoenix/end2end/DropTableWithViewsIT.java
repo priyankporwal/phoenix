@@ -74,11 +74,12 @@ public class DropTableWithViewsIT extends SplitSystemCatalogIT {
         this.columnEncoded = columnEncoded;
     }
 
-    @Parameters(name="DropTableWithViewsIT_multiTenant={0}, columnEncoded={1}") // name is used by failsafe as file name in reports
+    @Parameters(name = "DropTableWithViewsIT_multiTenant={0}, columnEncoded={1}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean[]> data() {
         return Arrays.asList(new Boolean[][] {
-                { false, false }, { false, true },
-                { true, false }, { true, true } });
+                {false, false}, {false, true},
+                {true, false}, {true, true}});
     }
 
     private String generateDDL(String format) {
@@ -88,25 +89,27 @@ public class DropTableWithViewsIT extends SplitSystemCatalogIT {
     private String generateDDL(String options, String format) {
         StringBuilder optionsBuilder = new StringBuilder(options);
         if (!columnEncoded) {
-            if (optionsBuilder.length() != 0)
+            if (optionsBuilder.length() != 0) {
                 optionsBuilder.append(",");
+            }
             optionsBuilder.append("COLUMN_ENCODED_BYTES=0");
         }
         if (isMultiTenant) {
-            if (optionsBuilder.length() !=0 )
+            if (optionsBuilder.length() != 0) {
                 optionsBuilder.append(",");
+            }
             optionsBuilder.append("MULTI_TENANT=true");
         }
         return String.format(format, isMultiTenant ? "TENANT_ID VARCHAR NOT NULL, " : "",
-            isMultiTenant ? "TENANT_ID, " : "", optionsBuilder.toString());
+                isMultiTenant ? "TENANT_ID, " : "", optionsBuilder.toString());
     }
 
     @Test
     public void testDropTableWithChildViews() throws Exception {
         String baseTable = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection viewConn =
-                        isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1) : conn) {
+             Connection viewConn =
+                     isMultiTenant ? DriverManager.getConnection(TENANT_SPECIFIC_URL1) : conn) {
             // Empty the task table first.
             conn.createStatement().execute("DELETE " + " FROM " + PhoenixDatabaseMetaData.SYSTEM_TASK_NAME);
 
@@ -117,7 +120,7 @@ public class DropTableWithViewsIT extends SplitSystemCatalogIT {
             conn.createStatement().execute(generateDDL(ddlFormat));
             conn.commit();
             // Create a view tree (i.e., tree of views) with depth of 2 and fanout factor of 4
-            for (int  i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++) {
                 String childView = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
                 String childViewDDL = "CREATE VIEW " + childView + " AS SELECT * FROM " + baseTable;
                 viewConn.createStatement().execute(childViewDDL);
@@ -153,7 +156,7 @@ public class DropTableWithViewsIT extends SplitSystemCatalogIT {
             assertTrue(childViewsResult.getLinks().size() == 0);
             // There should not be any orphan views
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME +
-                    " WHERE " + PhoenixDatabaseMetaData.TABLE_SCHEM + " = '" + SCHEMA2 +"'");
+                    " WHERE " + PhoenixDatabaseMetaData.TABLE_SCHEM + " = '" + SCHEMA2 + "'");
             assertFalse(rs.next());
         }
     }

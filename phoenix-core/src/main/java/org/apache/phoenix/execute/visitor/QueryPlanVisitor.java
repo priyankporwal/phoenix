@@ -23,24 +23,36 @@ import org.apache.phoenix.compile.TraceQueryPlan;
 import org.apache.phoenix.execute.*;
 
 /**
- *
  * Visitor for a QueryPlan (which may contain other nested query-plans)
- *
  */
 public interface QueryPlanVisitor<E> {
     E defaultReturn(QueryPlan plan);
+
     E visit(AggregatePlan plan);
+
     E visit(ScanPlan plan);
+
     E visit(ClientAggregatePlan plan);
+
     E visit(ClientScanPlan plan);
+
     E visit(LiteralResultIterationPlan plan);
+
     E visit(TupleProjectionPlan plan);
+
     E visit(HashJoinPlan plan);
+
     E visit(SortMergeJoinPlan plan);
+
     E visit(UnionPlan plan);
+
     E visit(UnnestArrayPlan plan);
+
     E visit(CorrelatePlan plan);
+
     E visit(CursorFetchPlan plan);
+
     E visit(ListJarsQueryPlan plan);
+
     E visit(TraceQueryPlan plan);
 }

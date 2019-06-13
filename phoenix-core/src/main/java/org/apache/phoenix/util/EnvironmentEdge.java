@@ -25,11 +25,11 @@ package org.apache.phoenix.util;
  * @see EnvironmentEdgeManager
  */
 public abstract class EnvironmentEdge implements org.apache.hadoop.hbase.util.EnvironmentEdge {
-  /**
-   * Returns the currentTime.
-   *
-   * @return Current time.
-   */
-  @Override
-  abstract public long currentTime();
+    /**
+     * Returns the currentTime.
+     *
+     * @return Current time.
+     */
+    @Override
+    abstract public long currentTime();
 }

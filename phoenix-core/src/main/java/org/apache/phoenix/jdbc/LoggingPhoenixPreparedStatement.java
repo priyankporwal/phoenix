@@ -25,11 +25,11 @@ import java.sql.Connection;
 
 
 public class LoggingPhoenixPreparedStatement extends DelegatePreparedStatement {
-    
+
     private PhoenixMetricsLog phoenixMetricsLog;
     private String sql;
     private Connection conn;
-    
+
     public LoggingPhoenixPreparedStatement(PreparedStatement stmt,
                                            PhoenixMetricsLog phoenixMetricsLog, String sql, Connection conn) {
         super(stmt);
@@ -37,7 +37,7 @@ public class LoggingPhoenixPreparedStatement extends DelegatePreparedStatement {
         this.sql = sql;
         this.conn = conn;
     }
-    
+
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -64,15 +64,15 @@ public class LoggingPhoenixPreparedStatement extends DelegatePreparedStatement {
         this.loggingAutoCommitHelper();
         return res;
     }
-    
+
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
         return new LoggingPhoenixResultSet(super.getGeneratedKeys(), phoenixMetricsLog, sql);
     }
 
     private void loggingAutoCommitHelper() throws SQLException {
-        if(conn.getAutoCommit() && (conn instanceof LoggingPhoenixConnection)) {
-            ((LoggingPhoenixConnection)conn).loggingMetricsHelper();
+        if (conn.getAutoCommit() && (conn instanceof LoggingPhoenixConnection)) {
+            ((LoggingPhoenixConnection) conn).loggingMetricsHelper();
         }
     }
 }

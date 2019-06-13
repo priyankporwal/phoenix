@@ -34,9 +34,9 @@ class NonAtomicMetric implements Metric {
     }
 
     @Override
-	public MetricType getMetricType() {
-		return type;
-	}
+    public MetricType getMetricType() {
+        return type;
+    }
 
     @Override
     public long getValue() {

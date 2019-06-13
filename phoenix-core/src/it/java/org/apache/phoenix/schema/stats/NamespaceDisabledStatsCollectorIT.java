@@ -34,9 +34,9 @@ public class NamespaceDisabledStatsCollectorIT extends BaseStatsCollectorIT {
         return Arrays.asList(
                 new Object[][] {
                         // Collect stats on snapshots using UpdateStatisticsTool
-                        { false, true },
+                        {false, true},
                         // Collect stats via `UPDATE STATISTICS` SQL
-                        { false, false }
+                        {false, false}
                 }
         );
     }

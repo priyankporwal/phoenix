@@ -36,7 +36,7 @@ import java.util.UUID;
 
 /**
  * This class abstracts a SpillFile It is a accessible on a per page basis
- * For every SpillFile object a single spill file is always created. 
+ * For every SpillFile object a single spill file is always created.
  * Additional overflow files are dynamically created in case the page index requested is not covered by
  * the spillFiles allocated so far
  */
@@ -81,10 +81,10 @@ public class SpillFile implements Closeable {
     }
 
     private SpillFile(File spillFilesDirectory) throws IOException {
-      this.spillFilesDirectory = spillFilesDirectory;
-      this.tempFiles = Maps.newHashMap();
-      // Init the first pre-allocated spillFile
-      tempFiles.put(0, createTempFile());
+        this.spillFilesDirectory = spillFilesDirectory;
+        this.tempFiles = Maps.newHashMap();
+        // Init the first pre-allocated spillFile
+        tempFiles.put(0, createTempFile());
     }
 
     /**
@@ -92,29 +92,30 @@ public class SpillFile implements Closeable {
      * pages.
      */
     public static SpillFile createSpillFile(File spillFilesDir) {
-    	try {
-    		return new SpillFile(spillFilesDir);
-    	} catch (IOException ioe) {
-        	throw new RuntimeException("Could not create Spillfile " + ioe);
+        try {
+            return new SpillFile(spillFilesDir);
+        } catch (IOException ioe) {
+            throw new RuntimeException("Could not create Spillfile " + ioe);
         }
     }
-    
-    
+
+
     private TempFile createTempFile() throws IOException {
         // Create temp file in temp dir or custom dir if provided
         File tempFile = File.createTempFile(UUID.randomUUID().toString(),
-          null, spillFilesDirectory);
+                null, spillFilesDirectory);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Creating new SpillFile: " + tempFile.getAbsolutePath());
         }
         RandomAccessFile file = new RandomAccessFile(tempFile, "rw");
         file.setLength(SPILL_FILE_SIZE);
-        
+
         return new TempFile(tempFile, file);
     }
 
     /**
      * Random access to a page of the current spill file
+     *
      * @param index
      * @return a file seeked to the correct page
      */
@@ -152,9 +153,9 @@ public class SpillFile implements Closeable {
 
     @Override
     public void close() {
-    	for(TempFile file : tempFiles.values()) {
+        for (TempFile file : tempFiles.values()) {
             // Swallow IOExceptions
             Closeables.closeQuietly(file);
-    	}
+        }
     }
 }

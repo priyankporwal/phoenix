@@ -25,10 +25,8 @@ import org.apache.phoenix.query.QueryConstants;
 
 
 /**
- * 
  * Subtract expression implementation
  *
- * 
  * @since 0.1
  */
 public abstract class SubtractExpression extends BaseAddSubtractExpression {
@@ -50,7 +48,7 @@ public abstract class SubtractExpression extends BaseAddSubtractExpression {
         }
         return t;
     }
-    
+
     @Override
     public String getOperatorString() {
         return " - ";

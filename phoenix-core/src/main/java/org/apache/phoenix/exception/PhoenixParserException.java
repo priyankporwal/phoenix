@@ -32,10 +32,10 @@ public class PhoenixParserException extends SQLSyntaxErrorException {
     public static final PhoenixParserException newException(Throwable cause, String[] tokens) {
         return new PhoenixParserException(getErrorMessage(cause, tokens), cause);
     }
-    
+
     public PhoenixParserException(String msg, Throwable throwable) {
         super(new SQLExceptionInfo.Builder(getErrorCode(throwable)).setRootCause(throwable)
-                .setMessage(msg).build().toString(),
+                        .setMessage(msg).build().toString(),
                 getErrorCode(throwable).getSQLState(), getErrorCode(throwable).getErrorCode(), throwable);
     }
 
@@ -54,35 +54,35 @@ public class PhoenixParserException extends SQLSyntaxErrorException {
     public static String getErrorMessage(Throwable e, String[] tokenNames) {
         String msg;
         if (e instanceof MissingTokenException) {
-            MissingTokenException mte = (MissingTokenException)e;
+            MissingTokenException mte = (MissingTokenException) e;
             String tokenName;
-            if (mte.expecting== Token.EOF) {
+            if (mte.expecting == Token.EOF) {
                 tokenName = "EOF";
             } else {
                 tokenName = tokenNames[mte.expecting];
             }
-            msg = "Missing \""+ tokenName +"\" at "+ getTokenLocation(mte);
+            msg = "Missing \"" + tokenName + "\" at " + getTokenLocation(mte);
         } else if (e instanceof UnwantedTokenException) {
-            UnwantedTokenException ute = (UnwantedTokenException)e;
+            UnwantedTokenException ute = (UnwantedTokenException) e;
             String tokenName;
-            if (ute.expecting== Token.EOF) {
+            if (ute.expecting == Token.EOF) {
                 tokenName = "EOF";
             } else {
                 tokenName = tokenNames[ute.expecting];
             }
-            msg = "Unexpected input. Expecting \"" + tokenName + "\", got \"" + ute.getUnexpectedToken().getText() 
+            msg = "Unexpected input. Expecting \"" + tokenName + "\", got \"" + ute.getUnexpectedToken().getText()
                     + "\" at " + getTokenLocation(ute);
         } else if (e instanceof MismatchedTokenException) {
-            MismatchedTokenException mte = (MismatchedTokenException)e;
+            MismatchedTokenException mte = (MismatchedTokenException) e;
             String tokenName;
-            if (mte.expecting== Token.EOF) {
+            if (mte.expecting == Token.EOF) {
                 tokenName = "EOF";
             } else {
                 tokenName = tokenNames[mte.expecting];
             }
             msg = "Mismatched input. Expecting \"" + tokenName + "\", got \"" + mte.token.getText()
                     + "\" at " + getTokenLocation(mte);
-        } else if (e instanceof RecognitionException){
+        } else if (e instanceof RecognitionException) {
             RecognitionException re = (RecognitionException) e;
             msg = "Encountered \"" + re.token.getText() + "\" at " + getTokenLocation(re);
         } else if (e instanceof UnknownFunctionException) {

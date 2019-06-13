@@ -31,7 +31,7 @@ public class GuidePostsCacheWrapper {
 
     private final GuidePostsCache guidePostsCache;
 
-    GuidePostsCacheWrapper(GuidePostsCache guidePostsCache){
+    GuidePostsCacheWrapper(GuidePostsCache guidePostsCache) {
         this.guidePostsCache = guidePostsCache;
     }
 
@@ -39,15 +39,15 @@ public class GuidePostsCacheWrapper {
         return guidePostsCache.get(key);
     }
 
-    void put(GuidePostsKey key, GuidePostsInfo info){
-        guidePostsCache.put(key,info);
+    void put(GuidePostsKey key, GuidePostsInfo info) {
+        guidePostsCache.put(key, info);
     }
 
-    void invalidate(GuidePostsKey key){
+    void invalidate(GuidePostsKey key) {
         guidePostsCache.invalidate(key);
     }
 
-    void invalidateAll(){
+    void invalidateAll() {
         guidePostsCache.invalidateAll();
     }
 

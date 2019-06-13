@@ -36,15 +36,15 @@ public abstract class BaseCompoundExpression extends BaseExpression {
     private Determinism determinism;
     private boolean requiresFinalEvaluation;
     private boolean cloneExpression;
-   
+
     public BaseCompoundExpression() {
         init(Collections.<Expression>emptyList());
     }
-    
+
     public BaseCompoundExpression(List<Expression> children) {
         init(children);
     }
-    
+
     private void init(List<Expression> children) {
         this.children = ImmutableList.copyOf(children);
         boolean isStateless = true;
@@ -65,13 +65,13 @@ public abstract class BaseCompoundExpression extends BaseExpression {
         this.requiresFinalEvaluation = requiresFinalEvaluation;
         this.cloneExpression = cloneExpression;
     }
-    
+
     @Override
     public List<Expression> getChildren() {
         return children;
     }
-    
-    
+
+
     @Override
     public Determinism getDeterminism() {
         return determinism;
@@ -102,18 +102,26 @@ public abstract class BaseCompoundExpression extends BaseExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        BaseCompoundExpression other = (BaseCompoundExpression)obj;
-        if (!children.equals(other.children)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BaseCompoundExpression other = (BaseCompoundExpression) obj;
+        if (!children.equals(other.children)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public void readFields(DataInput input) throws IOException {
         int len = WritableUtils.readVInt(input);
-        List<Expression>children = new ArrayList<Expression>(len);
+        List<Expression> children = new ArrayList<Expression>(len);
         for (int i = 0; i < len; i++) {
             Expression child = ExpressionType.values()[WritableUtils.readVInt(input)].newInstance();
             child.readFields(input);
@@ -138,12 +146,12 @@ public abstract class BaseCompoundExpression extends BaseExpression {
             children.get(i).reset();
         }
     }
-    
+
     @Override
     public String toString() {
         return this.getClass().getName() + " [children=" + children + "]";
     }
-    
+
     @Override
     public boolean requiresFinalEvaluation() {
         return requiresFinalEvaluation;

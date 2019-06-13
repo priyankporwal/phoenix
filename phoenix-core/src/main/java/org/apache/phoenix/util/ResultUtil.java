@@ -30,54 +30,57 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * Static class for various methods that would be nice to have added to {@link org.apache.hadoop.hbase.client.Result}.
  * These methods work off of the raw bytes preventing the explosion of Result into object form.
- * 
- * 
+ *
  * @since 0.1
  */
 public class ResultUtil {
     public static final Result EMPTY_RESULT = new Result() {
         @Override
-        public final boolean isEmpty() { return true; }
+        public final boolean isEmpty() {
+            return true;
+        }
     };
-    
+
     private ResultUtil() {
     }
-    
+
     public static Result toResult(ImmutableBytesWritable bytes) {
-        byte [] buf = bytes.get();
+        byte[] buf = bytes.get();
         int offset = bytes.getOffset();
         int finalOffset = bytes.getLength() + offset;
         List<Cell> kvs = new ArrayList<Cell>();
-        while(offset < finalOffset) {
-          int keyLength = Bytes.toInt(buf, offset);
-          offset += Bytes.SIZEOF_INT;
-          kvs.add(new KeyValue(buf, offset, keyLength));
-          offset += keyLength;
+        while (offset < finalOffset) {
+            int keyLength = Bytes.toInt(buf, offset);
+            offset += Bytes.SIZEOF_INT;
+            kvs.add(new KeyValue(buf, offset, keyLength));
+            offset += keyLength;
         }
         return Result.create(kvs);
     }
-    
+
     /**
      * Return a pointer into a potentially much bigger byte buffer that points to the key of a Result.
+     *
      * @param r
      */
     public static ImmutableBytesWritable getKey(Result r) {
         return getKey(r, 0);
     }
-    
+
     public static void getKey(Result r, ImmutableBytesWritable key) {
         key.set(r.getRow());
         //key.set(getRawBytes(r), getKeyOffset(r), getKeyLength(r));
     }
-    
+
     public static void getKey(Cell value, ImmutableBytesWritable key) {
         key.set(value.getRowArray(), value.getRowOffset(), value.getRowLength());
     }
-    
+
     /**
      * Return a pointer into a potentially much bigger byte buffer that points to the key of a Result.
      * Use offset to return a subset of the key bytes, for example to skip the organization ID embedded
      * in all of our keys.
+     *
      * @param r
      * @param offset offset added to start of key and subtracted from key length (to select subset of key bytes)
      */
@@ -100,23 +103,24 @@ public class ResultUtil {
             byte[] r2Bytes = getRawBytes(r2);
             return Bytes.compareTo(r1Bytes, getKeyOffset(r1), getKeyLength(r1), r2Bytes, getKeyOffset(r2), getKeyLength(r2));
         }
-        
+
     };
-    
+
     /**
      * Get the offset into the Result byte array to the key.
+     *
      * @param r
      */
     static int getKeyOffset(Result r) {
         KeyValue firstKV = PhoenixKeyValueUtil.maybeCopyCell(r.rawCells()[0]);
         return firstKV.getOffset();
     }
-    
+
     static int getKeyLength(Result r) {
         // Key length stored right before key as a short
         return Bytes.toShort(getRawBytes(r), getKeyOffset(r) - Bytes.SIZEOF_SHORT);
     }
-    
+
     static byte[] getRawBytes(Result r) {
         KeyValue firstKV = PhoenixKeyValueUtil.maybeCopyCell(r.rawCells()[0]);
         return firstKV.getBuffer();

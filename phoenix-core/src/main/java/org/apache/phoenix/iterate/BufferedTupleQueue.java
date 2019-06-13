@@ -62,6 +62,7 @@ public class BufferedTupleQueue extends BufferedQueue<Tuple> {
         return new Iterator<Tuple>() {
             private Iterator<BufferedSegmentQueue<Tuple>> queueIter;
             private Iterator<Tuple> currentIter;
+
             {
                 this.queueIter = getSegmentQueues().iterator();
                 this.currentIter = queueIter.hasNext() ? queueIter.next().iterator() : null;
@@ -74,7 +75,9 @@ public class BufferedTupleQueue extends BufferedQueue<Tuple> {
 
             @Override
             public Tuple next() {
-                if (!hasNext()) return null;
+                if (!hasNext()) {
+                    return null;
+                }
 
                 Tuple ret = currentIter.next();
                 if (!currentIter.hasNext()) {
@@ -122,7 +125,9 @@ public class BufferedTupleQueue extends BufferedQueue<Tuple> {
         @Override
         protected Tuple readFromStream(DataInputStream in) throws IOException {
             int length = in.readInt();
-            if (length < 0) return null;
+            if (length < 0) {
+                return null;
+            }
 
             byte[] b = new byte[length];
             in.readFully(b);

@@ -74,7 +74,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- *
  * A lot of tests in this class test HBase level properties. As a result,
  * tests need to have non-overlapping table names. The option of
  * disabling and dropping underlying HBase tables at the end of each test
@@ -82,7 +81,6 @@ import org.junit.runners.Parameterized.Parameters;
  * test class run in its own cluster and having non overlapping table names
  * we don't need to worry about dropping the tables between each test
  * or at the end of test class.
- *
  */
 @RunWith(Parameterized.class)
 public class AlterTableIT extends ParallelStatsDisabledIT {
@@ -93,15 +91,16 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
     private String indexTableFullName;
     private String tableDDLOptions;
     private final boolean columnEncoded;
-    
+
     public AlterTableIT(boolean columnEncoded) {
         this.columnEncoded = columnEncoded;
         this.tableDDLOptions = columnEncoded ? "" : "COLUMN_ENCODED_BYTES=0";
     }
-    
-    @Parameters(name="AlterTableIT_columnEncoded={0}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "AlterTableIT_columnEncoded={0}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean> data() {
-        return Arrays.asList( false, true);
+        return Arrays.asList(false, true);
     }
 
     @Before
@@ -123,7 +122,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
                 "  (a_string varchar not null, a_binary varbinary not null, col1 integer" +
                 "  CONSTRAINT pk PRIMARY KEY (a_string, a_binary)) " + tableDDLOptions;
         createTestTable(getUrl(), ddl);
-        
+
         conn.createStatement().execute("ALTER TABLE " + dataTableFullName + " SET DISABLE_WAL = true");
 
         try {
@@ -179,9 +178,9 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             String query = "SELECT * FROM " + dataTableFullName;
             ResultSet rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
+            assertEquals("b", rs.getString(1));
             assertFalse(rs.next());
 
             ddl = "ALTER TABLE " + dataTableFullName + " ADD  b_string VARCHAR  NULL PRIMARY KEY  ";
@@ -190,7 +189,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             query = "SELECT * FROM " + dataTableFullName + " WHERE a_string = 'a' AND b_string IS NULL";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             assertFalse(rs.next());
 
             dml = "UPSERT INTO " + dataTableFullName + " VALUES(?)";
@@ -202,7 +201,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             query = "SELECT * FROM " + dataTableFullName + " WHERE a_string = 'c' AND b_string IS NULL";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1));
+            assertEquals("c", rs.getString(1));
             assertFalse(rs.next());
 
             dml = "UPSERT INTO " + dataTableFullName + "(a_string,col1) VALUES(?,?)";
@@ -215,15 +214,14 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             query = "SELECT a_string,col1 FROM " + dataTableFullName + " WHERE a_string = 'a' AND b_string IS NULL";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(5,rs.getInt(2)); // TODO: figure out why this flaps
+            assertEquals("a", rs.getString(1));
+            assertEquals(5, rs.getInt(2)); // TODO: figure out why this flaps
             assertFalse(rs.next());
 
         } finally {
             conn.close();
         }
     }
-
 
 
     @Test
@@ -255,13 +253,14 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             sb.append(options);
         }
         if (!tableDDLOptions.isEmpty()) {
-            if (sb.length()!=0)
+            if (sb.length() != 0) {
                 sb.append(",");
+            }
             sb.append(tableDDLOptions);
         }
         return sb.toString();
     }
-    
+
 
     @Test
     public void testSetSaltedTableAsImmutable() throws Exception {
@@ -271,19 +270,19 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
 
         try {
             String ddl = "CREATE TABLE " + dataTableFullName + "(\n" +
-            		"        SENDER_ID UNSIGNED_LONG NOT NULL,\n" +
-            		"        RECIPIENT_ID UNSIGNED_LONG NOT NULL,\n" +
-            		"        M_TIMESTAMP DATE  NOT NULL,\n" +
-            		"        ROW_ID UNSIGNED_LONG NOT NULL,\n" +
-            		"        IS_READ TINYINT,\n" +
-            		"        IS_DELETED TINYINT,\n" +
-            		"        VISIBILITY TINYINT,\n" +
-            		"        B.SENDER_IP VARCHAR,\n" +
-            		"        B.JSON VARCHAR,\n" +
-            		"        B.M_TEXT VARCHAR\n" +
-            		"        CONSTRAINT ROWKEY PRIMARY KEY\n" +
-            		"(SENDER_ID,RECIPIENT_ID,M_TIMESTAMP DESC,ROW_ID))\n" +
-            		generateDDLOptions("SALT_BUCKETS=4");
+                    "        SENDER_ID UNSIGNED_LONG NOT NULL,\n" +
+                    "        RECIPIENT_ID UNSIGNED_LONG NOT NULL,\n" +
+                    "        M_TIMESTAMP DATE  NOT NULL,\n" +
+                    "        ROW_ID UNSIGNED_LONG NOT NULL,\n" +
+                    "        IS_READ TINYINT,\n" +
+                    "        IS_DELETED TINYINT,\n" +
+                    "        VISIBILITY TINYINT,\n" +
+                    "        B.SENDER_IP VARCHAR,\n" +
+                    "        B.JSON VARCHAR,\n" +
+                    "        B.M_TEXT VARCHAR\n" +
+                    "        CONSTRAINT ROWKEY PRIMARY KEY\n" +
+                    "(SENDER_ID,RECIPIENT_ID,M_TIMESTAMP DESC,ROW_ID))\n" +
+                    generateDDLOptions("SALT_BUCKETS=4");
             conn.createStatement().execute(ddl);
 
             ddl = "ALTER TABLE " + dataTableFullName + " SET IMMUTABLE_ROWS=true";
@@ -337,8 +336,8 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn.setAutoCommit(false);
 
             String ddl = "CREATE TABLE " + dataTableFullName +
-              "  (a_string varchar not null, col1 integer" +
-              "  CONSTRAINT pk PRIMARY KEY (a_string)) " + tableDDLOptions;
+                    "  (a_string varchar not null, col1 integer" +
+                    "  CONSTRAINT pk PRIMARY KEY (a_string)) " + tableDDLOptions;
             conn.createStatement().execute(ddl);
 
             String dml = "UPSERT INTO " + dataTableFullName + " VALUES(?)";
@@ -352,18 +351,18 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             String query = "SELECT * FROM " + dataTableFullName;
             ResultSet rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
+            assertEquals("b", rs.getString(1));
             assertFalse(rs.next());
 
             query = "SELECT * FROM " + dataTableFullName + " WHERE a_string = 'a' ";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
 
             ddl = "ALTER TABLE " + dataTableFullName + " ADD c1.col2 VARCHAR, c1.col3 integer, "
-              + "c2.col4 integer";
+                    + "c2.col4 integer";
             conn.createStatement().execute(ddl);
 
             // If we are adding two columns but one of them already exists, the other one should
@@ -380,7 +379,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             try {
                 conn.createStatement().executeQuery(query);
                 fail();
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 assertTrue(e.getMessage(), e.getMessage().contains("ERROR 504 (42703): Undefined column."));
             }
 
@@ -397,24 +396,24 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             query = "SELECT * FROM " + dataTableFullName + " WHERE a_string = 'c' ";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1));
-            assertEquals(100,rs.getInt(2));
-            assertEquals("d",rs.getString(3));
-            assertEquals(101,rs.getInt(4));
-            assertEquals(102,rs.getInt(5));
+            assertEquals("c", rs.getString(1));
+            assertEquals(100, rs.getInt(2));
+            assertEquals("d", rs.getString(3));
+            assertEquals(101, rs.getInt(4));
+            assertEquals(102, rs.getInt(5));
             assertFalse(rs.next());
 
             query = "SELECT c1.* FROM " + dataTableFullName + " WHERE a_string = 'c' ";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("d",rs.getString(1));
-            assertEquals(101,rs.getInt(2));
+            assertEquals("d", rs.getString(1));
+            assertEquals(101, rs.getInt(2));
             assertFalse(rs.next());
 
             // If we are adding two columns with "IF NOT EXISTS" and one of them already exists,
             // the other one should be added
             ddl = "ALTER TABLE " + dataTableFullName + " ADD IF NOT EXISTS col5 integer, "
-              + "c1.col2 VARCHAR";
+                    + "c1.col2 VARCHAR";
             conn.createStatement().execute(ddl);
 
             query = "SELECT col5 FROM " + dataTableFullName;
@@ -429,12 +428,12 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn.commit();
 
             query = "SELECT a_string, col1, col5 FROM " + dataTableFullName
-              + " WHERE a_string = 'e' ";
+                    + " WHERE a_string = 'e' ";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("e",rs.getString(1));
-            assertEquals(200,rs.getInt(2));
-            assertEquals(201,rs.getInt(3));
+            assertEquals("e", rs.getString(1));
+            assertEquals(200, rs.getInt(2));
+            assertEquals(201, rs.getInt(3));
             assertFalse(rs.next());
         }
     }
@@ -469,7 +468,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn.setAutoCommit(false);
             try {
                 String ddl = "CREATE TABLE " + dataTableFullName + " " + "  (a_string varchar not null, col1 integer, cf1.col2 integer"
-                        + "  CONSTRAINT pk PRIMARY KEY (a_string)) " +  tableDDLOptions;
+                        + "  CONSTRAINT pk PRIMARY KEY (a_string)) " + tableDDLOptions;
                 conn.createStatement().execute(ddl);
             } finally {
                 closeStatement(stmt);
@@ -511,23 +510,23 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             String query = "SELECT * FROM " + dataTableFullName;
             ResultSet rs = conn2.createStatement().executeQuery(query);
             assertFalse(rs.next());
-            asssertIsWALDisabled(conn2,dataTableFullName, true);
+            asssertIsWALDisabled(conn2, dataTableFullName, true);
             conn2.close();
-            asssertIsWALDisabled(conn,dataTableFullName, true);
+            asssertIsWALDisabled(conn, dataTableFullName, true);
 
             conn.createStatement().execute("CREATE INDEX " + indexTableName + " ON " + dataTableFullName + " (col1) include (cf1.col2) SALT_BUCKETS=4");
             conn2 = DriverManager.getConnection(getUrl(), props);
             query = "SELECT * FROM " + indexTableFullName;
             rs = conn2.createStatement().executeQuery(query);
-            asssertIsWALDisabled(conn2,indexTableFullName, false);
+            asssertIsWALDisabled(conn2, indexTableFullName, false);
             assertFalse(rs.next());
             conn2.close();
-            asssertIsWALDisabled(conn,indexTableFullName, false);
+            asssertIsWALDisabled(conn, indexTableFullName, false);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDisableWAL2() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -537,7 +536,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
                     .execute(
                             "CREATE TABLE " + dataTableFullName
                                     + "  (a_string varchar not null, col1 integer, cf1.col2 integer, col3 integer , cf2.col4 integer "
-                                    + "  CONSTRAINT pk PRIMARY KEY (a_string))" 
+                                    + "  CONSTRAINT pk PRIMARY KEY (a_string))"
                                     + generateDDLOptions("immutable_rows=true"
                                     + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));
 
@@ -545,23 +544,23 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             String query = "SELECT * FROM " + dataTableFullName;
             ResultSet rs = conn2.createStatement().executeQuery(query);
             assertFalse(rs.next());
-            asssertIsWALDisabled(conn,dataTableFullName, false);
+            asssertIsWALDisabled(conn, dataTableFullName, false);
             conn2.close();
-            asssertIsWALDisabled(conn,dataTableFullName, false);
+            asssertIsWALDisabled(conn, dataTableFullName, false);
 
             conn.createStatement().execute("CREATE INDEX " + indexTableName + " ON " + dataTableFullName + " (col1) include (cf1.col2) SALT_BUCKETS=4");
             conn2 = DriverManager.getConnection(getUrl(), props);
             query = "SELECT * FROM " + indexTableFullName;
             rs = conn2.createStatement().executeQuery(query);
-            asssertIsWALDisabled(conn2,indexTableFullName, false);
+            asssertIsWALDisabled(conn2, indexTableFullName, false);
             assertFalse(rs.next());
             conn2.close();
-            asssertIsWALDisabled(conn,indexTableFullName, false);
+            asssertIsWALDisabled(conn, indexTableFullName, false);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDisableWAL3() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -578,9 +577,9 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             String query = "SELECT * FROM " + dataTableFullName;
             ResultSet rs = conn2.createStatement().executeQuery(query);
             assertFalse(rs.next());
-            asssertIsWALDisabled(conn2,dataTableFullName, false);
+            asssertIsWALDisabled(conn2, dataTableFullName, false);
             conn2.close();
-            asssertIsWALDisabled(conn,dataTableFullName, false);
+            asssertIsWALDisabled(conn, dataTableFullName, false);
 
             conn.createStatement().execute(
                     "CREATE INDEX " + indexTableName + " ON " + dataTableFullName
@@ -588,10 +587,10 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn2 = DriverManager.getConnection(getUrl(), props);
             query = "SELECT * FROM " + indexTableFullName;
             rs = conn2.createStatement().executeQuery(query);
-            asssertIsWALDisabled(conn2,indexTableFullName, false);
+            asssertIsWALDisabled(conn2, indexTableFullName, false);
             assertFalse(rs.next());
             conn2.close();
-            asssertIsWALDisabled(conn,indexTableFullName, false);
+            asssertIsWALDisabled(conn, indexTableFullName, false);
 
         } finally {
             conn.close();
@@ -610,7 +609,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
                     .execute(
                             "CREATE TABLE " + dataTableFullName
                                     + "  (a_string varchar not null, col1 integer, cf1.col2 integer, col3 integer , cf2.col4 integer "
-                                    + "  CONSTRAINT pk PRIMARY KEY (a_string)) " 
+                                    + "  CONSTRAINT pk PRIMARY KEY (a_string)) "
                                     + generateDDLOptions("immutable_rows=true , SALT_BUCKETS=3 "
                                     + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));
 
@@ -651,7 +650,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn.createStatement().execute(ddl);
 
             ddl = "ALTER TABLE " + dataTableFullName + " DROP COLUMN a_string,col1";
-            try{
+            try {
                 conn.createStatement().execute(ddl);
                 fail();
             } catch (SQLException e) {
@@ -664,7 +663,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
                 fail();
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.COLUMN_NOT_FOUND.getErrorCode(), e.getErrorCode());
-                assertTrue(e.getMessage(), e.getMessage().contains("ERROR 504 (42703): Undefined column. columnName="+dataTableFullName+".COL5"));
+                assertTrue(e.getMessage(), e.getMessage().contains("ERROR 504 (42703): Undefined column. columnName=" + dataTableFullName + ".COL5"));
             }
 
             ddl = "ALTER TABLE " + dataTableFullName + " DROP COLUMN IF EXISTS col1";
@@ -674,7 +673,8 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             try {
                 rs = conn.createStatement().executeQuery(query);
                 fail();
-            } catch (TableNotFoundException e) {}
+            } catch (TableNotFoundException e) {
+            }
 
             query = "select col4 FROM " + dataTableFullName;
             rs = conn.createStatement().executeQuery(query);
@@ -727,12 +727,12 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
     public void testAddColumnsUsingNewConnection() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID1 VARCHAR(15) NOT NULL,\n"
-                +"ID2 VARCHAR(15) NOT NULL,\n"
-                +"CREATED_DATE DATE,\n"
-                +"CREATION_TIME BIGINT,\n"
-                +"LAST_USED DATE,\n"
-                +"CONSTRAINT PK PRIMARY KEY (ID1, ID2)) "  + tableDDLOptions;
+                + "ID1 VARCHAR(15) NOT NULL,\n"
+                + "ID2 VARCHAR(15) NOT NULL,\n"
+                + "CREATED_DATE DATE,\n"
+                + "CREATION_TIME BIGINT,\n"
+                + "LAST_USED DATE,\n"
+                + "CONSTRAINT PK PRIMARY KEY (ID1, ID2)) " + tableDDLOptions;
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         ddl = "ALTER TABLE " + dataTableFullName + " ADD STRING VARCHAR, STRING_DATA_TYPES VARCHAR";
@@ -748,52 +748,52 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
     public void testAddMultipleColumns() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String ddl = "CREATE TABLE " + dataTableFullName + " (\n"
-                +"ID VARCHAR(15) PRIMARY KEY,\n"
-                +"COL1 BIGINT) " + tableDDLOptions;
+                + "ID VARCHAR(15) PRIMARY KEY,\n"
+                + "COL1 BIGINT) " + tableDDLOptions;
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         conn1.createStatement().execute("CREATE INDEX " + indexTableName + " ON " + dataTableFullName + "(COL1)");
-        
+
         ddl = "ALTER TABLE " + dataTableFullName + " ADD COL2 VARCHAR PRIMARY KEY, COL3 VARCHAR PRIMARY KEY";
         conn1.createStatement().execute(ddl);
         ResultSet rs = conn1.getMetaData().getColumns("", "", dataTableFullName, null);
         assertTrue(rs.next());
-        assertEquals("ID",rs.getString(4));
+        assertEquals("ID", rs.getString(4));
         assertTrue(rs.next());
-        assertEquals("COL1",rs.getString(4));
+        assertEquals("COL1", rs.getString(4));
         assertTrue(rs.next());
-        assertEquals("COL2",rs.getString(4));
+        assertEquals("COL2", rs.getString(4));
         assertTrue(rs.next());
-        assertEquals("COL3",rs.getString(4));
-        assertFalse(rs.next());
-        
-        rs = conn1.createStatement().executeQuery("SELECT COLUMN_COUNT FROM \"SYSTEM\".\"CATALOG\"\n"
-                + "WHERE TENANT_ID IS NULL AND\n"
-                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','"+ dataTableName + "') AND\n"
-                + "COLUMN_FAMILY IS NULL AND COLUMN_NAME IS NULL");
-        assertTrue(rs.next());
-        assertEquals(4,rs.getInt(1));
+        assertEquals("COL3", rs.getString(4));
         assertFalse(rs.next());
 
         rs = conn1.createStatement().executeQuery("SELECT COLUMN_COUNT FROM \"SYSTEM\".\"CATALOG\"\n"
                 + "WHERE TENANT_ID IS NULL AND\n"
-                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','"+ indexTableName + "') AND\n"
+                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','" + dataTableName + "') AND\n"
                 + "COLUMN_FAMILY IS NULL AND COLUMN_NAME IS NULL");
         assertTrue(rs.next());
-        assertEquals(4,rs.getInt(1));
+        assertEquals(4, rs.getInt(1));
         assertFalse(rs.next());
-        
+
+        rs = conn1.createStatement().executeQuery("SELECT COLUMN_COUNT FROM \"SYSTEM\".\"CATALOG\"\n"
+                + "WHERE TENANT_ID IS NULL AND\n"
+                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','" + indexTableName + "') AND\n"
+                + "COLUMN_FAMILY IS NULL AND COLUMN_NAME IS NULL");
+        assertTrue(rs.next());
+        assertEquals(4, rs.getInt(1));
+        assertFalse(rs.next());
+
         conn1.createStatement().execute("UPSERT INTO " + dataTableFullName + " VALUES ('a',2,'a','b')");
         conn1.createStatement().execute("UPSERT INTO " + dataTableFullName + " VALUES ('b',3,'b','c')");
         conn1.createStatement().execute("UPSERT INTO " + dataTableFullName + " VALUES ('c',4,'c','c')");
         conn1.commit();
-        
+
         rs = conn1.createStatement().executeQuery("SELECT ID,COL1 FROM " + dataTableFullName + " WHERE COL1=3");
         assertTrue(rs.next());
-        assertEquals("b",rs.getString(1));
-        assertEquals(3,rs.getLong(2));
+        assertEquals("b", rs.getString(1));
+        assertEquals(3, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn1.close();
     }
 
@@ -810,46 +810,46 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
         Connection conn1 = DriverManager.getConnection(getUrl(), props);
         conn1.createStatement().execute(ddl);
         conn1.createStatement().execute("CREATE INDEX " + indexTableName + " ON " + dataTableFullName + "(COL1) INCLUDE (COL2,COL3,COL4)");
-        
+
         ddl = "ALTER TABLE " + dataTableFullName + " DROP COLUMN COL2, COL3";
-         conn1.createStatement().execute(ddl);
+        conn1.createStatement().execute(ddl);
         ResultSet rs = conn1.getMetaData().getColumns("", "", dataTableFullName, null);
         assertTrue(rs.next());
-        assertEquals("ID",rs.getString(4));
+        assertEquals("ID", rs.getString(4));
         assertTrue(rs.next());
-        assertEquals("COL1",rs.getString(4));
+        assertEquals("COL1", rs.getString(4));
         assertTrue(rs.next());
-        assertEquals("COL4",rs.getString(4));
-        assertFalse(rs.next());
-        
-        rs = conn1.createStatement().executeQuery("SELECT COLUMN_COUNT FROM \"SYSTEM\".\"CATALOG\"\n"
-                + "WHERE TENANT_ID IS NULL AND\n"
-                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','"+ dataTableName + "') AND\n"
-                + "COLUMN_FAMILY IS NULL AND COLUMN_NAME IS NULL");
-        assertTrue(rs.next());
-        assertEquals(3,rs.getInt(1));
+        assertEquals("COL4", rs.getString(4));
         assertFalse(rs.next());
 
         rs = conn1.createStatement().executeQuery("SELECT COLUMN_COUNT FROM \"SYSTEM\".\"CATALOG\"\n"
                 + "WHERE TENANT_ID IS NULL AND\n"
-                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','"+ indexTableName + "') AND\n"
+                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','" + dataTableName + "') AND\n"
                 + "COLUMN_FAMILY IS NULL AND COLUMN_NAME IS NULL");
         assertTrue(rs.next());
-        assertEquals(3,rs.getInt(1));
+        assertEquals(3, rs.getInt(1));
         assertFalse(rs.next());
-        
+
+        rs = conn1.createStatement().executeQuery("SELECT COLUMN_COUNT FROM \"SYSTEM\".\"CATALOG\"\n"
+                + "WHERE TENANT_ID IS NULL AND\n"
+                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','" + indexTableName + "') AND\n"
+                + "COLUMN_FAMILY IS NULL AND COLUMN_NAME IS NULL");
+        assertTrue(rs.next());
+        assertEquals(3, rs.getInt(1));
+        assertFalse(rs.next());
+
         conn1.createStatement().execute("UPSERT INTO " + dataTableFullName + " VALUES ('a',2, 20)");
         conn1.createStatement().execute("UPSERT INTO " + dataTableFullName + " VALUES ('b',3, 30)");
         conn1.createStatement().execute("UPSERT INTO " + dataTableFullName + " VALUES ('c',4, 40)");
         conn1.commit();
-        
+
         rs = conn1.createStatement().executeQuery("SELECT ID,COL1,COL4 FROM " + dataTableFullName + " WHERE COL1=3");
         assertTrue(rs.next());
-        assertEquals("b",rs.getString(1));
-        assertEquals(3,rs.getLong(2));
-        assertEquals(30,rs.getLong(3));
+        assertEquals("b", rs.getString(1));
+        assertEquals(3, rs.getLong(2));
+        assertEquals(30, rs.getLong(3));
         assertFalse(rs.next());
-        
+
         conn1.close();
     }
 
@@ -860,10 +860,10 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
 
         Statement stmt = conn.createStatement();
-        stmt.execute("CREATE TABLE " + dataTableFullName + " (id SMALLINT PRIMARY KEY, name VARCHAR) "+tableDDLOptions);
+        stmt.execute("CREATE TABLE " + dataTableFullName + " (id SMALLINT PRIMARY KEY, name VARCHAR) " + tableDDLOptions);
 
         ResultSet rs = stmt.executeQuery("SELECT STORE_NULLS FROM \"SYSTEM\".\"CATALOG\" " +
- "WHERE table_name = '"
+                "WHERE table_name = '"
                 + dataTableFullName + "' AND STORE_NULLS IS NOT NULL");
         assertTrue(rs.next());
         assertFalse(rs.getBoolean(1));
@@ -873,7 +873,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
         stmt.execute("ALTER TABLE " + dataTableFullName + " SET STORE_NULLS = true");
 
         rs = stmt.executeQuery("SELECT STORE_NULLS FROM \"SYSTEM\".\"CATALOG\" " +
- "WHERE table_name = '" + dataTableFullName
+                "WHERE table_name = '" + dataTableFullName
                 + "' AND STORE_NULLS IS NOT NULL");
         assertTrue(rs.next());
         assertTrue(rs.getBoolean(1));
@@ -882,17 +882,17 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
         stmt.close();
 
     }
-    
+
     @Test
     public void testAddingPkColAndSettingProperties() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        try {       
+        try {
             String ddl = "create table " + dataTableFullName + " ("
                     + " k1 char(1) NOT NULL,"
                     + " k2 integer NOT NULL,"
                     + " col1 bigint,"
                     + " CONSTRAINT NAME_PK PRIMARY KEY (k1, k2)"
-                    + " ) "+tableDDLOptions;
+                    + " ) " + tableDDLOptions;
             conn.createStatement().execute(ddl);
 
             // set HTableProperty when adding a pk column should fail
@@ -930,13 +930,13 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             // assert that k3 was added as new pk
             ResultSet rs = conn.getMetaData().getPrimaryKeys("", schemaName, dataTableName);
             assertTrue(rs.next());
-            assertEquals("K1",rs.getString("COLUMN_NAME"));
+            assertEquals("K1", rs.getString("COLUMN_NAME"));
             assertEquals(1, rs.getShort("KEY_SEQ"));
             assertTrue(rs.next());
-            assertEquals("K2",rs.getString("COLUMN_NAME"));
+            assertEquals("K2", rs.getString("COLUMN_NAME"));
             assertEquals(2, rs.getShort("KEY_SEQ"));
             assertTrue(rs.next());
-            assertEquals("K3",rs.getString("COLUMN_NAME"));
+            assertEquals("K3", rs.getString("COLUMN_NAME"));
             assertEquals(3, rs.getShort("KEY_SEQ"));
             assertFalse(rs.next());
 
@@ -956,40 +956,40 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testClientCacheUpdatedOnChangingPhoenixTableProperties() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        try {       
+        try {
             String ddl = "create table " + dataTableFullName + " ("
                     + " id char(1) NOT NULL,"
                     + " col1 integer NOT NULL,"
                     + " col2 bigint NOT NULL,"
                     + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)"
-                    + " ) "+tableDDLOptions;
+                    + " ) " + tableDDLOptions;
             conn.createStatement().execute(ddl);
             asssertIsWALDisabled(conn, dataTableFullName, false);
-            
+
             ddl = "ALTER TABLE " + dataTableFullName + " SET DISABLE_WAL = true";
             conn.createStatement().execute(ddl);
             // check metadata cache is updated with DISABLE_WAL = true
             asssertIsWALDisabled(conn, dataTableFullName, true);
-            
+
             ddl = "ALTER TABLE " + dataTableFullName + " SET DISABLE_WAL = false";
             conn.createStatement().execute(ddl);
             // check metadata cache is updated with DISABLE_WAL = false
             asssertIsWALDisabled(conn, dataTableFullName, false);
-            
+
             ddl = "ALTER TABLE " + dataTableFullName + " SET MULTI_TENANT = true";
             conn.createStatement().execute(ddl);
             // check metadata cache is updated with MULTI_TENANT = true
             PTable t = conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, dataTableFullName));
             assertTrue(t.isMultiTenant());
-            
+
             // check table metadata updated server side
             ResultSet rs = conn.createStatement().executeQuery("SELECT DISABLE_WAL, MULTI_TENANT FROM \"SYSTEM\".\"CATALOG\""
-                            + "WHERE table_name = '"
-                            + dataTableFullName + "' AND DISABLE_WAL IS NOT NULL AND MULTI_TENANT IS NOT NULL");
+                    + "WHERE table_name = '"
+                    + dataTableFullName + "' AND DISABLE_WAL IS NOT NULL AND MULTI_TENANT IS NOT NULL");
             assertTrue(rs.next());
             assertFalse(rs.getBoolean(1));
             assertTrue(rs.getBoolean(2));
@@ -999,18 +999,18 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDeclaringColumnAsRowTimestamp() throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute("CREATE TABLE " + dataTableFullName + " (PK1 DATE NOT NULL, PK2 VARCHAR NOT NULL, KV1 VARCHAR CONSTRAINT PK PRIMARY KEY(PK1 ROW_TIMESTAMP, PK2)) " + tableDDLOptions);
-            PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class); 
+            PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
             PTable table = phxConn.getTable(new PTableKey(phxConn.getTenantId(), dataTableFullName));
             // Assert that the column shows up as row time stamp in the cache.
             assertTrue(table.getColumnForColumnName("PK1").isRowTimestamp());
             assertFalse(table.getColumnForColumnName("PK2").isRowTimestamp());
             assertIsRowTimestampSet(schemaName, dataTableName, "PK1");
-            
+
             String dataTableName2 = BaseTest.generateUniqueName();
             String dataTableFullName2 = SchemaUtil.getTableName(schemaName, dataTableName2);
             conn.createStatement().execute("CREATE IMMUTABLE TABLE " + dataTableFullName2 + " (PK1 VARCHAR, PK2 DATE PRIMARY KEY ROW_TIMESTAMP, KV1 VARCHAR, KV2 INTEGER)");
@@ -1019,7 +1019,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             assertFalse(table.getColumnForColumnName("PK1").isRowTimestamp());
             assertTrue(table.getColumnForColumnName("PK2").isRowTimestamp());
             assertIsRowTimestampSet(schemaName, dataTableName2, "PK2");
-            
+
             // Create an index on a table has a row time stamp pk column. The column should show up as a row time stamp column for the index too. 
             conn.createStatement().execute("CREATE INDEX " + indexTableName + "  ON " + dataTableFullName2 + " (KV1) include (KV2)");
             PTable indexTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), indexTableFullName));
@@ -1036,7 +1036,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.ROWTIMESTAMP_NOT_ALLOWED_ON_VIEW.getErrorCode(), e.getErrorCode());
             }
-            
+
             // Make sure that the base table column declared as row_timestamp is also row_timestamp for view
             conn.createStatement().execute("CREATE VIEW " + viewTableFullName2 + " (KV3 VARCHAR, KV4 VARCHAR, KV5 INTEGER, CONSTRAINT PK PRIMARY KEY (KV3, KV4) ) AS SELECT * FROM " + dataTableFullName2);
             PTable view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), viewTableFullName2));
@@ -1044,12 +1044,12 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             assertTrue(view.getPKColumn("PK2").isRowTimestamp());
         }
     }
-    
+
     private void assertIsRowTimestampSet(String schemaName, String tableName, String columnName) throws SQLException {
         String sql = "SELECT IS_ROW_TIMESTAMP FROM \"SYSTEM\".\"CATALOG\" WHERE "
-                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','"+ tableName + "') AND\n"
+                + "(TABLE_SCHEM, TABLE_NAME) = ('" + schemaName + "','" + tableName + "') AND\n"
                 + "COLUMN_FAMILY IS NULL AND COLUMN_NAME = ?";
-        try(Connection conn = DriverManager.getConnection(getUrl())) {
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, columnName);
             ResultSet rs = stmt.executeQuery();
@@ -1057,7 +1057,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             assertEquals(true, rs.getBoolean(1));
         }
     }
-    
+
     @Test
     public void testAddingRowTimestampColumnNotAllowedViaAlterTable() throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -1071,132 +1071,132 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
-	@Test
-	public void testCreatingTxnTableFailsIfTxnsDisabled() throws Exception {
-	    if (!TransactionFactory.Provider.getDefault().runTests()) {
-	        return;
-	    }
+
+    @Test
+    public void testCreatingTxnTableFailsIfTxnsDisabled() throws Exception {
+        if (!TransactionFactory.Provider.getDefault().runTests()) {
+            return;
+        }
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         props.setProperty(QueryServices.TRANSACTIONS_ENABLED, Boolean.toString(false));
-		try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-			// creating a transactional table should fail if transactions are disabled
-			try {
-				conn.createStatement().execute("CREATE TABLE " + dataTableFullName + "(k INTEGER PRIMARY KEY, v VARCHAR) " + generateDDLOptions("TRANSACTIONAL=true"));
-				fail();
-			} catch (SQLException e) {
-				assertEquals(SQLExceptionCode.CANNOT_CREATE_TXN_TABLE_IF_TXNS_DISABLED.getErrorCode(), e.getErrorCode());
-			}
-			// altering a table to be transactional should fail if transactions are disabled
-			conn.createStatement().execute("CREATE TABLE " + dataTableFullName + "(k INTEGER PRIMARY KEY, v VARCHAR)");
-			try {
-				conn.createStatement().execute("ALTER TABLE " + dataTableFullName + " SET TRANSACTIONAL=true");
-				fail();
-			} catch (SQLException e) {
-				assertEquals(SQLExceptionCode.CANNOT_ALTER_TO_BE_TXN_IF_TXNS_DISABLED.getErrorCode(), e.getErrorCode());
-			}
-		}
-	}
-	
-	@Test
-	public void testMetadataForImmutableTable() throws Exception {
-	    String schemaName = "XYZ";
-	    String baseTableName = generateUniqueName();
-	    String viewName = generateUniqueName();
-	    String fullTableName = schemaName + "." + baseTableName;
-	    String fullViewName = schemaName + "." + viewName;
-	    try (Connection conn = DriverManager.getConnection(getUrl())) {
-	        PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
-	        conn.createStatement().execute("CREATE TABLE IF NOT EXISTS " + fullTableName + " ("
-	                + " ID char(1) NOT NULL,"
-	                + " COL1 integer NOT NULL,"
-	                + " COL2 bigint NOT NULL,"
-	                + " KV1 VARCHAR"
-	                + " CONSTRAINT NAME_PK PRIMARY KEY (ID, COL1, COL2)"
-	                + " ) " + generateDDLOptions("IMMUTABLE_ROWS = true"
-	                + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME="+ PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));
-	        PTable baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
-	        long initBaseTableSeqNumber = baseTable.getSequenceNumber(); 
+        try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
+            // creating a transactional table should fail if transactions are disabled
+            try {
+                conn.createStatement().execute("CREATE TABLE " + dataTableFullName + "(k INTEGER PRIMARY KEY, v VARCHAR) " + generateDDLOptions("TRANSACTIONAL=true"));
+                fail();
+            } catch (SQLException e) {
+                assertEquals(SQLExceptionCode.CANNOT_CREATE_TXN_TABLE_IF_TXNS_DISABLED.getErrorCode(), e.getErrorCode());
+            }
+            // altering a table to be transactional should fail if transactions are disabled
+            conn.createStatement().execute("CREATE TABLE " + dataTableFullName + "(k INTEGER PRIMARY KEY, v VARCHAR)");
+            try {
+                conn.createStatement().execute("ALTER TABLE " + dataTableFullName + " SET TRANSACTIONAL=true");
+                fail();
+            } catch (SQLException e) {
+                assertEquals(SQLExceptionCode.CANNOT_ALTER_TO_BE_TXN_IF_TXNS_DISABLED.getErrorCode(), e.getErrorCode());
+            }
+        }
+    }
 
-	        // assert that the client side cache is updated.
-	        EncodedCQCounter cqCounter = baseTable.getEncodedCQCounter();
-	        assertEquals( columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 1) : null, cqCounter.getNextQualifier(QueryConstants.DEFAULT_COLUMN_FAMILY));
-	        
-	        // assert that the server side metadata is updated correctly.
-	        assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
-	        assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "KV1", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
-	        assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber);
+    @Test
+    public void testMetadataForImmutableTable() throws Exception {
+        String schemaName = "XYZ";
+        String baseTableName = generateUniqueName();
+        String viewName = generateUniqueName();
+        String fullTableName = schemaName + "." + baseTableName;
+        String fullViewName = schemaName + "." + viewName;
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
+            PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS " + fullTableName + " ("
+                    + " ID char(1) NOT NULL,"
+                    + " COL1 integer NOT NULL,"
+                    + " COL2 bigint NOT NULL,"
+                    + " KV1 VARCHAR"
+                    + " CONSTRAINT NAME_PK PRIMARY KEY (ID, COL1, COL2)"
+                    + " ) " + generateDDLOptions("IMMUTABLE_ROWS = true"
+                    + (!columnEncoded ? ",IMMUTABLE_STORAGE_SCHEME=" + PTable.ImmutableStorageScheme.ONE_CELL_PER_COLUMN : "")));
+            PTable baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
+            long initBaseTableSeqNumber = baseTable.getSequenceNumber();
 
-	        // now create a view and validate client and server side metadata
-	        String viewDDL = "CREATE VIEW " + fullViewName + " ( VIEW_COL1 INTEGER, A.VIEW_COL2 VARCHAR ) AS SELECT * FROM " + fullTableName;
-	        conn.createStatement().execute(viewDDL);
-	        baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
-	        PTable view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullViewName));
+            // assert that the client side cache is updated.
+            EncodedCQCounter cqCounter = baseTable.getEncodedCQCounter();
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 1) : null, cqCounter.getNextQualifier(QueryConstants.DEFAULT_COLUMN_FAMILY));
 
-	        // verify that the client side cache is updated. Base table's cq counters should be updated.
-	        assertEquals( columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 2) : null, baseTable.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
-	        assertEquals( columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 1) : null, baseTable.getEncodedCQCounter().getNextQualifier("A"));
-	        assertNull("A view should always have the null cq counter", view.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
-	        
-	        // assert that the server side metadata for the base table and the view is also updated correctly.
-	        assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 2);
-	        assertEncodedCQCounter("A", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
-	        assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "VIEW_COL1", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
-	        assertEncodedCQValue("A", "VIEW_COL2", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
-	        assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber + (columnEncoded ? 1 : 0));
-	        assertSequenceNumber(schemaName, viewName, PTable.INITIAL_SEQ_NUM);
-	    }
-	}
-	
-	@Test
-	public void testMetadataForMutableTable() throws Exception {
-	    String schemaName = "XYZ";
-	    String baseTableName = generateUniqueName();
-	    String viewName = generateUniqueName();
-	    String fullTableName = schemaName + "." + baseTableName;
-	    String fullViewName = schemaName + "." + viewName;
-	    try (Connection conn = DriverManager.getConnection(getUrl())) {
-	        PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
-	        conn.createStatement().execute("CREATE TABLE IF NOT EXISTS " + fullTableName + " ("
-	                + " ID char(1) NOT NULL,"
-	                + " COL1 integer NOT NULL,"
-	                + " COL2 bigint NOT NULL,"
-	                + " KV1 VARCHAR"
-	                + " CONSTRAINT NAME_PK PRIMARY KEY (ID, COL1, COL2)"
-	                + " ) " + tableDDLOptions);
-	        PTable baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
-	        long initBaseTableSeqNumber = baseTable.getSequenceNumber(); 
+            // assert that the server side metadata is updated correctly.
+            assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
+            assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "KV1", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
+            assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber);
 
-	        // assert that the client side cache is updated.
-	        EncodedCQCounter cqCounter = baseTable.getEncodedCQCounter();
-	        assertEquals( columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 1) : null, cqCounter.getNextQualifier(QueryConstants.DEFAULT_COLUMN_FAMILY));
+            // now create a view and validate client and server side metadata
+            String viewDDL = "CREATE VIEW " + fullViewName + " ( VIEW_COL1 INTEGER, A.VIEW_COL2 VARCHAR ) AS SELECT * FROM " + fullTableName;
+            conn.createStatement().execute(viewDDL);
+            baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
+            PTable view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullViewName));
+
+            // verify that the client side cache is updated. Base table's cq counters should be updated.
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 2) : null, baseTable.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 1) : null, baseTable.getEncodedCQCounter().getNextQualifier("A"));
+            assertNull("A view should always have the null cq counter", view.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
+
+            // assert that the server side metadata for the base table and the view is also updated correctly.
+            assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 2);
+            assertEncodedCQCounter("A", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
+            assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "VIEW_COL1", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
+            assertEncodedCQValue("A", "VIEW_COL2", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
+            assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber + (columnEncoded ? 1 : 0));
+            assertSequenceNumber(schemaName, viewName, PTable.INITIAL_SEQ_NUM);
+        }
+    }
+
+    @Test
+    public void testMetadataForMutableTable() throws Exception {
+        String schemaName = "XYZ";
+        String baseTableName = generateUniqueName();
+        String viewName = generateUniqueName();
+        String fullTableName = schemaName + "." + baseTableName;
+        String fullViewName = schemaName + "." + viewName;
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
+            PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS " + fullTableName + " ("
+                    + " ID char(1) NOT NULL,"
+                    + " COL1 integer NOT NULL,"
+                    + " COL2 bigint NOT NULL,"
+                    + " KV1 VARCHAR"
+                    + " CONSTRAINT NAME_PK PRIMARY KEY (ID, COL1, COL2)"
+                    + " ) " + tableDDLOptions);
+            PTable baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
+            long initBaseTableSeqNumber = baseTable.getSequenceNumber();
+
+            // assert that the client side cache is updated.
+            EncodedCQCounter cqCounter = baseTable.getEncodedCQCounter();
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 1) : null, cqCounter.getNextQualifier(QueryConstants.DEFAULT_COLUMN_FAMILY));
 
 
-	        // assert that the server side metadata is updated correctly.
-	        assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
-	        assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "KV1", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
-	        assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber);
+            // assert that the server side metadata is updated correctly.
+            assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
+            assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "KV1", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
+            assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber);
 
-	        // now create a view and validate client and server side metadata
-	        String viewDDL = "CREATE VIEW " + fullViewName + " ( VIEW_COL1 INTEGER, A.VIEW_COL2 VARCHAR ) AS SELECT * FROM " + fullTableName;
-	        conn.createStatement().execute(viewDDL);
-	        baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
-	        PTable view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullViewName));
+            // now create a view and validate client and server side metadata
+            String viewDDL = "CREATE VIEW " + fullViewName + " ( VIEW_COL1 INTEGER, A.VIEW_COL2 VARCHAR ) AS SELECT * FROM " + fullTableName;
+            conn.createStatement().execute(viewDDL);
+            baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
+            PTable view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullViewName));
 
-	        // verify that the client side cache is updated. Base table's cq counters should be updated.
-	        assertEquals(columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 3) : null, baseTable.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
-	        assertNull("A view should always have the null cq counter", view.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
+            // verify that the client side cache is updated. Base table's cq counters should be updated.
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 3) : null, baseTable.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
+            assertNull("A view should always have the null cq counter", view.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
 
-	        // assert that the server side metadata for the base table and the view is also updated correctly.
-	        assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 3);
-	        assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "VIEW_COL1", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
-	        assertEncodedCQValue("A", "VIEW_COL2", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 2);
-	        assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber + (columnEncoded ? 1 : 0));
-	        assertSequenceNumber(schemaName, viewName, PTable.INITIAL_SEQ_NUM);
-	    }
-	}
-	
-	@Test
+            // assert that the server side metadata for the base table and the view is also updated correctly.
+            assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 3);
+            assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "VIEW_COL1", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
+            assertEncodedCQValue("A", "VIEW_COL2", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 2);
+            assertSequenceNumber(schemaName, baseTableName, initBaseTableSeqNumber + (columnEncoded ? 1 : 0));
+            assertSequenceNumber(schemaName, viewName, PTable.INITIAL_SEQ_NUM);
+        }
+    }
+
+    @Test
     public void testAddingColumnsToTablesAndViews() throws Exception {
         String schemaName = generateUniqueName();
         String baseTableName = generateUniqueName();
@@ -1215,7 +1215,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
                     + " CONSTRAINT NAME_PK PRIMARY KEY (ID, COL1, COL2)"
                     + " ) " + tableDDLOptions);
             PTable baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
-            long initBaseTableSeqNumber = baseTable.getSequenceNumber(); 
+            long initBaseTableSeqNumber = baseTable.getSequenceNumber();
 
             // Add a column to the base table and see if the client and server metadata is updated correctly
             String alterDDL = "ALTER TABLE " + fullTableName + " ADD COL3 VARCHAR PRIMARY KEY, COL4 INTEGER, COL5 VARCHAR, B.COL6 DECIMAL (10, 2)";
@@ -1224,11 +1224,11 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             // assert that the client side cache is updated.
             baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
             EncodedCQCounter encodedCqCounter = baseTable.getEncodedCQCounter();
-            assertEquals( columnEncoded ?(Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 3) : null, encodedCqCounter.getNextQualifier(DEFAULT_COLUMN_FAMILY));
-            
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 3) : null, encodedCqCounter.getNextQualifier(DEFAULT_COLUMN_FAMILY));
+
             // assert that the server side metadata is updated correctly.
             assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 3);
-            
+
             // assert that the server side metadata for columns is updated correctly.
             assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "COL4", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE);
             assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "COL5", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 1);
@@ -1239,15 +1239,15 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             // Create a view
             String viewDDL = "CREATE VIEW " + fullViewName + " ( VIEW_COL1 INTEGER, A.VIEW_COL2 VARCHAR ) AS SELECT * FROM " + fullTableName;
             conn.createStatement().execute(viewDDL);
-            
+
             // assert that the server side metadata is updated correctly.
             assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 5);
-            
+
             // assert that the server side metadata for columns is updated correctly.
             assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "VIEW_COL1", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 3);
             assertEncodedCQValue("A", "VIEW_COL2", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 4);
             // for encoded columns creating a view that adds its own columns should increment the base table's sequence number too.
-            assertSequenceNumber(schemaName, baseTableName, columnEncoded ? initBaseTableSeqNumber + 2 : baseTableSeqNumBeforeAddingChildCols );
+            assertSequenceNumber(schemaName, baseTableName, columnEncoded ? initBaseTableSeqNumber + 2 : baseTableSeqNumBeforeAddingChildCols);
 
             // Add column to the view
             viewDDL = "ALTER VIEW " + fullViewName + " ADD VIEW_COL3 DECIMAL(10, 2), A.VIEW_COL4 VARCHAR, B.VIEW_COL5 INTEGER";
@@ -1256,13 +1256,13 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             // assert that the client cache for the base table is updated
             baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
             encodedCqCounter = baseTable.getEncodedCQCounter();
-            assertEquals( columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 8) : null, encodedCqCounter.getNextQualifier(DEFAULT_COLUMN_FAMILY));
-            
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 8) : null, encodedCqCounter.getNextQualifier(DEFAULT_COLUMN_FAMILY));
+
             // assert client cache for view
             PTable view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullViewName));
             encodedCqCounter = view.getEncodedCQCounter();
             assertNull("A view should always have the column qualifier counter as null", view.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
-            
+
             // assert that the server side metadata for the base table and the view is also updated correctly.
             assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 8);
             assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "VIEW_COL1", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 3);
@@ -1271,36 +1271,36 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             assertEncodedCQValue("A", "VIEW_COL4", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 6);
             assertEncodedCQValue("B", "VIEW_COL5", schemaName, viewName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 7);
             // adding a column to the should increment the base table's sequence number too since we update the cq counters for column families.
-            assertSequenceNumber(schemaName, baseTableName, columnEncoded ? initBaseTableSeqNumber + 3 : baseTableSeqNumBeforeAddingChildCols );
+            assertSequenceNumber(schemaName, baseTableName, columnEncoded ? initBaseTableSeqNumber + 3 : baseTableSeqNumBeforeAddingChildCols);
             assertSequenceNumber(schemaName, viewName, PTable.INITIAL_SEQ_NUM + 1);
-            
+
             // Add column to the base table which doesn't already exist in the view.
             alterDDL = "ALTER TABLE " + fullTableName + " ADD COL10 VARCHAR, A.COL11 INTEGER";
             conn.createStatement().execute(alterDDL);
             baseTable = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullTableName));
-            
+
             // assert that the client cache for the base table is updated 
             encodedCqCounter = baseTable.getEncodedCQCounter();
-            assertEquals( columnEncoded ? (Integer)(ENCODED_CQ_COUNTER_INITIAL_VALUE + 10) : null, encodedCqCounter.getNextQualifier(DEFAULT_COLUMN_FAMILY));
-            
+            assertEquals(columnEncoded ? (Integer) (ENCODED_CQ_COUNTER_INITIAL_VALUE + 10) : null, encodedCqCounter.getNextQualifier(DEFAULT_COLUMN_FAMILY));
+
             // assert client cache for view
             view = phxConn.getTable(new PTableKey(phxConn.getTenantId(), fullViewName));
             encodedCqCounter = view.getEncodedCQCounter();
             assertNull("A view should always have the column qualifier counter as null", view.getEncodedCQCounter().getNextQualifier(DEFAULT_COLUMN_FAMILY));
-            
+
             // assert that the server side metadata for the base table and the view is also updated correctly.
             assertEncodedCQCounter(DEFAULT_COLUMN_FAMILY, schemaName, baseTableName, (ENCODED_CQ_COUNTER_INITIAL_VALUE + 10));
             assertEncodedCQValue(DEFAULT_COLUMN_FAMILY, "COL10", schemaName, baseTableName, (ENCODED_CQ_COUNTER_INITIAL_VALUE + 8));
             assertEncodedCQValue("A", "COL11", schemaName, baseTableName, ENCODED_CQ_COUNTER_INITIAL_VALUE + 9);
-            assertSequenceNumber(schemaName, baseTableName, columnEncoded ? initBaseTableSeqNumber + 4 : initBaseTableSeqNumber + 2 );
+            assertSequenceNumber(schemaName, baseTableName, columnEncoded ? initBaseTableSeqNumber + 4 : initBaseTableSeqNumber + 2);
             // view sequence number does not change as base table column changes are not propagated to views
             assertSequenceNumber(schemaName, viewName, PTable.INITIAL_SEQ_NUM + 1);
         }
     }
-	
-	private void assertEncodedCQValue(String columnFamily, String columnName, String schemaName, String tableName, int expectedValue) throws Exception {
+
+    private void assertEncodedCQValue(String columnFamily, String columnName, String schemaName, String tableName, int expectedValue) throws Exception {
         String query = "SELECT " + COLUMN_QUALIFIER + " FROM \"SYSTEM\".CATALOG WHERE " + TABLE_SCHEM + " = ? AND " + TABLE_NAME
-                + " = ? " + " AND " + COLUMN_FAMILY + " = ?" + " AND " + COLUMN_NAME  + " = ?" + " AND " + COLUMN_QUALIFIER  + " IS NOT NULL";
+                + " = ? " + " AND " + COLUMN_FAMILY + " = ?" + " AND " + COLUMN_NAME + " = ?" + " AND " + COLUMN_QUALIFIER + " IS NOT NULL";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, schemaName);
@@ -1317,7 +1317,7 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     private void assertEncodedCQCounter(String columnFamily, String schemaName, String tableName, int expectedValue) throws Exception {
         String query = "SELECT " + COLUMN_QUALIFIER_COUNTER + " FROM \"SYSTEM\".CATALOG WHERE " + TABLE_SCHEM + " = ? AND " + TABLE_NAME
                 + " = ? " + " AND " + COLUMN_FAMILY + " = ? AND " + COLUMN_QUALIFIER_COUNTER + " IS NOT NULL";
@@ -1336,10 +1336,10 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     private void assertSequenceNumber(String schemaName, String tableName, long expectedSequenceNumber) throws Exception {
         String query = "SELECT " + TABLE_SEQ_NUM + " FROM \"SYSTEM\".CATALOG WHERE " + TABLE_SCHEM + " = ? AND " + TABLE_NAME
-                + " = ? AND " +  TABLE_SEQ_NUM + " IS NOT NULL AND " + COLUMN_NAME + " IS NULL AND "
+                + " = ? AND " + TABLE_SEQ_NUM + " IS NOT NULL AND " + COLUMN_NAME + " IS NULL AND "
                 + COLUMN_FAMILY + " IS NULL ";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -1351,41 +1351,41 @@ public class AlterTableIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
-	@Test
-	public void testAlterTableWithIndexesExtendPk() throws Exception {
-		Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
-		Connection conn = DriverManager.getConnection(getUrl(), props);
-		conn.setAutoCommit(false);
-		String tableName = generateUniqueName();
-		String indexName1 = "I_" + generateUniqueName();
-		String indexName2 = "I_" + generateUniqueName();
 
-		try {
-			String ddl = "CREATE TABLE " + tableName + " (ORG_ID CHAR(15) NOT NULL,"
-					+ " PARTITION_KEY CHAR(3) NOT NULL, " + " ACTIVITY_DATE DATE NOT NULL, "
-					+ " FK1_ID CHAR(15) NOT NULL, " + " FK2_ID CHAR(15) NOT NULL, " + " TYPE VARCHAR NOT NULL, "
-					+ " IS_OPEN BOOLEAN " + " CONSTRAINT PKVIEW PRIMARY KEY " + "("
-					+ "ORG_ID, PARTITION_KEY, ACTIVITY_DATE, FK1_ID, FK2_ID, TYPE" + "))";
-			createTestTable(getUrl(), ddl);
+    @Test
+    public void testAlterTableWithIndexesExtendPk() throws Exception {
+        Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
+        Connection conn = DriverManager.getConnection(getUrl(), props);
+        conn.setAutoCommit(false);
+        String tableName = generateUniqueName();
+        String indexName1 = "I_" + generateUniqueName();
+        String indexName2 = "I_" + generateUniqueName();
 
-			String idx1ddl = "CREATE INDEX " + indexName1 + " ON " + tableName
-					+ " (FK1_ID, ACTIVITY_DATE DESC) INCLUDE (IS_OPEN)";
-			PreparedStatement stmt1 = conn.prepareStatement(idx1ddl);
-			stmt1.execute();
+        try {
+            String ddl = "CREATE TABLE " + tableName + " (ORG_ID CHAR(15) NOT NULL,"
+                    + " PARTITION_KEY CHAR(3) NOT NULL, " + " ACTIVITY_DATE DATE NOT NULL, "
+                    + " FK1_ID CHAR(15) NOT NULL, " + " FK2_ID CHAR(15) NOT NULL, " + " TYPE VARCHAR NOT NULL, "
+                    + " IS_OPEN BOOLEAN " + " CONSTRAINT PKVIEW PRIMARY KEY " + "("
+                    + "ORG_ID, PARTITION_KEY, ACTIVITY_DATE, FK1_ID, FK2_ID, TYPE" + "))";
+            createTestTable(getUrl(), ddl);
 
-			String idx2ddl = "CREATE INDEX " + indexName2 + " ON " + tableName
-					+ " (FK2_ID, ACTIVITY_DATE DESC) INCLUDE (IS_OPEN)";
-			PreparedStatement stmt2 = conn.prepareStatement(idx2ddl);
-			stmt2.execute();
+            String idx1ddl = "CREATE INDEX " + indexName1 + " ON " + tableName
+                    + " (FK1_ID, ACTIVITY_DATE DESC) INCLUDE (IS_OPEN)";
+            PreparedStatement stmt1 = conn.prepareStatement(idx1ddl);
+            stmt1.execute();
 
-			ddl = "ALTER TABLE " + tableName + " ADD SOURCE VARCHAR(25) NULL PRIMARY KEY";
-			PreparedStatement stmt3 = conn.prepareStatement(ddl);
-			stmt3.execute();
-		} finally {
-			conn.close();
-		}
-	}
+            String idx2ddl = "CREATE INDEX " + indexName2 + " ON " + tableName
+                    + " (FK2_ID, ACTIVITY_DATE DESC) INCLUDE (IS_OPEN)";
+            PreparedStatement stmt2 = conn.prepareStatement(idx2ddl);
+            stmt2.execute();
+
+            ddl = "ALTER TABLE " + tableName + " ADD SOURCE VARCHAR(25) NULL PRIMARY KEY";
+            PreparedStatement stmt3 = conn.prepareStatement(ddl);
+            stmt3.execute();
+        } finally {
+            conn.close();
+        }
+    }
 
 }
  

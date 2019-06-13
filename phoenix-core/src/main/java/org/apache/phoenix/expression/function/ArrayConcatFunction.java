@@ -31,7 +31,7 @@ import org.apache.phoenix.schema.types.PBinaryArray;
 import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PVarbinaryArray;
 
-@FunctionParseNode.BuiltInFunction(name = ArrayConcatFunction.NAME, nodeClass=ArrayModifierParseNode.class, args = {
+@FunctionParseNode.BuiltInFunction(name = ArrayConcatFunction.NAME, nodeClass = ArrayModifierParseNode.class, args = {
         @FunctionParseNode.Argument(allowedTypes = {PBinaryArray.class, PVarbinaryArray.class}),
         @FunctionParseNode.Argument(allowedTypes = {PBinaryArray.class, PVarbinaryArray.class})})
 public class ArrayConcatFunction extends ArrayModifierFunction {
@@ -49,7 +49,7 @@ public class ArrayConcatFunction extends ArrayModifierFunction {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
 
-        if (!getLHSExpr().evaluate(tuple, ptr)){
+        if (!getLHSExpr().evaluate(tuple, ptr)) {
             return false;
         }
         boolean isLHSRowKeyOrderOptimized = PArrayDataType.isRowKeyOrderOptimized(getLHSExpr().getDataType(), getLHSExpr().getSortOrder(), ptr);
@@ -63,12 +63,12 @@ public class ArrayConcatFunction extends ArrayModifierFunction {
             return false;
         }
         // If second array is null, return first array
-        if (ptr.getLength() == 0){
+        if (ptr.getLength() == 0) {
             ptr.set(array1Bytes, offsetArray1, lengthArray1);
             return true;
         }
 
-        checkSizeCompatibility(ptr, sortOrder, getLHSExpr(), getLHSExpr().getDataType(), getRHSExpr(),getRHSExpr().getDataType());
+        checkSizeCompatibility(ptr, sortOrder, getLHSExpr(), getLHSExpr().getDataType(), getRHSExpr(), getRHSExpr().getDataType());
 
         // FIXME: calling version of coerceBytes that takes into account the separator used by LHS
         // If the RHS does not have the same separator, it'll be coerced to use it. It's unclear

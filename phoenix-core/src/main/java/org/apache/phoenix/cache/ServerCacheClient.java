@@ -79,28 +79,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * Client for sending cache to each region server
- * 
- * 
+ *
  * @since 0.1
  */
 public class ServerCacheClient {
     public static final int UUID_LENGTH = Bytes.SIZEOF_LONG;
-    public static final byte[] KEY_IN_FIRST_REGION = new byte[]{0};
+    public static final byte[] KEY_IN_FIRST_REGION = new byte[] {0};
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerCacheClient.class);
     private static final Random RANDOM = new Random();
-	public static final String HASH_JOIN_SERVER_CACHE_RESEND_PER_SERVER = "hash.join.server.cache.resend.per.server";
+    public static final String HASH_JOIN_SERVER_CACHE_RESEND_PER_SERVER = "hash.join.server.cache.resend.per.server";
     private final PhoenixConnection connection;
     private final Map<Integer, PTable> cacheUsingTableMap = new ConcurrentHashMap<Integer, PTable>();
 
     /**
      * Construct client used to create a serialized cached snapshot of a table and send it to each region server
      * for caching during hash join processing.
+     *
      * @param connection the client connection
-     * 
-     * TODO: instead of minMaxKeyRange, have an interface for iterating through ranges as we may be sending to
-     * servers when we don't have to if the min is in first region and max is in last region, especially for point queries.
+     *                   <p>
+     *                   TODO: instead of minMaxKeyRange, have an interface for iterating through ranges as we may be sending to
+     *                   servers when we don't have to if the min is in first region and max is in last region, especially for point queries.
      */
     public ServerCacheClient(PhoenixConnection connection) {
         this.connection = connection;
@@ -109,12 +108,11 @@ public class ServerCacheClient {
     public PhoenixConnection getConnection() {
         return connection;
     }
-    
+
     /**
      * Client-side representation of a server cache.  Call {@link #close()} when usage
      * is complete to free cache up on region server
      *
-     * 
      * @since 0.1
      */
     public class ServerCache implements SQLCloseable {
@@ -125,20 +123,20 @@ public class ServerCacheClient {
         private MemoryChunk chunk;
         private File outputFile;
         private long maxServerCacheTTL;
-        
-        
+
+
         public ServerCache(byte[] id, Set<HRegionLocation> servers, ImmutableBytesWritable cachePtr,
-                ConnectionQueryServices services, boolean storeCacheOnClient) throws IOException {
+                           ConnectionQueryServices services, boolean storeCacheOnClient) throws IOException {
             maxServerCacheTTL = services.getProps().getInt(
                     QueryServices.MAX_SERVER_CACHE_TIME_TO_LIVE_MS_ATTRIB,
                     QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_TIME_TO_LIVE_MS);
             this.id = id;
             this.servers = new HashMap();
             long currentTime = System.currentTimeMillis();
-            for(HRegionLocation loc : servers) {
+            for (HRegionLocation loc : servers) {
                 this.servers.put(loc, currentTime);
             }
-            this.size =  cachePtr.getLength();
+            this.size = cachePtr.getLength();
             if (storeCacheOnClient) {
                 try {
                     this.chunk = services.getMemoryManager().allocate(cachePtr.getLength());
@@ -151,11 +149,11 @@ public class ServerCacheClient {
                     }
                 }
             }
-            
+
         }
 
         public ImmutableBytesWritable getCachePtr() throws IOException {
-            if(this.outputFile!=null){
+            if (this.outputFile != null) {
                 try (InputStream fio = Files.newInputStream(outputFile.toPath())) {
                     byte[] b = new byte[this.size];
                     fio.read(b);
@@ -180,7 +178,7 @@ public class ServerCacheClient {
         }
 
         public boolean addServer(HRegionLocation loc) {
-            if(this.servers.containsKey(loc)) {
+            if (this.servers.containsKey(loc)) {
                 return false;
             } else {
                 this.servers.put(loc, System.currentTimeMillis());
@@ -189,10 +187,11 @@ public class ServerCacheClient {
         }
 
         public boolean isExpired(HRegionLocation loc) {
-            if(this.servers.containsKey(loc)) {
+            if (this.servers.containsKey(loc)) {
                 Long time = this.servers.get(loc);
-                if(System.currentTimeMillis() - time > maxServerCacheTTL)
+                if (System.currentTimeMillis() - time > maxServerCacheTTL) {
                     return true; // cache was send more than maxTTL ms ago, expecting that it's expired
+                }
             } else {
                 return false; // should be on server yet.
             }
@@ -200,15 +199,14 @@ public class ServerCacheClient {
         }
 
 
-        
         /**
          * Call to free up cache on region servers when no longer needed
          */
         @Override
         public void close() throws SQLException {
-            try{
+            try {
                 removeServerCache(this, servers.keySet());
-            }finally{
+            } finally {
                 cachePtr = null;
                 if (chunk != null) {
                     chunk.close();
@@ -230,7 +228,7 @@ public class ServerCacheClient {
         Set<HRegionLocation> servers = new HashSet<>(nRegions);
         cacheUsingTableMap.put(Bytes.mapKey(cacheId), cacheUsingTable);
         return new ServerCache(cacheId, servers, new ImmutableBytesWritable(
-                new byte[]{}), services, false);
+                new byte[] {}), services, false);
     }
 
     public ServerCache addServerCache(
@@ -276,20 +274,20 @@ public class ServerCacheClient {
                 // Keep track of servers we've sent to and only send once
                 byte[] regionStartKey = entry.getRegion().getStartKey();
                 byte[] regionEndKey = entry.getRegion().getEndKey();
-                if ( ! servers.contains(entry) && 
+                if (!servers.contains(entry) &&
                         keyRanges.intersectRegion(regionStartKey, regionEndKey,
                                 cacheUsingTable.getIndexType() == IndexType.LOCAL)) {
                     // Call RPC once per server
                     servers.add(entry);
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(addCustomAnnotations("Adding cache entry " +
-                            "to be sent for " + entry, connection));
+                                "to be sent for " + entry, connection));
                     }
                     final byte[] key = getKeyInRegion(entry.getRegionInfo().getStartKey());
                     final Table htable = services.getTable(cacheUsingTable.getPhysicalName().getBytes());
                     closeables.add(htable);
                     futures.add(executor.submit(new JobCallable<Boolean>() {
-                        
+
                         @Override
                         public Boolean call() throws Exception {
                             return addServerCache(htable, key, cacheUsingTable, cacheId, cachePtr, cacheFactory, txState, usePersistentCache);
@@ -304,7 +302,7 @@ public class ServerCacheClient {
                         public Object getJobId() {
                             return ServerCacheClient.this;
                         }
-                        
+
                         @Override
                         public TaskExecutionMetricsHolder getTaskExecutionMetric() {
                             return NO_OP_INSTANCE;
@@ -317,8 +315,8 @@ public class ServerCacheClient {
                     }
                 }
             }
-            
-            hashCacheSpec = new ServerCache(cacheId,servers,cachePtr, services, storeCacheOnClient);
+
+            hashCacheSpec = new ServerCache(cacheId, servers, cachePtr, services, storeCacheOnClient);
             // Execute in parallel
             int timeoutMs = services.getProps().getInt(QueryServices.THREAD_TIMEOUT_MS_ATTRIB, QueryServicesOptions.DEFAULT_THREAD_TIMEOUT_MS);
             for (Future<Boolean> future : futures) {
@@ -359,9 +357,10 @@ public class ServerCacheClient {
         }
         return hashCacheSpec;
     }
-    
+
     /**
      * Remove the cached table from all region servers
+     *
      * @throws SQLException
      * @throws IllegalStateException if hashed table cannot be removed on any region server on which it was added
      */
@@ -387,8 +386,8 @@ public class ServerCacheClient {
                         "Removing Cache " + cacheId + " from servers.", connection));
             }
             for (HRegionLocation entry : locations) {
-             // Call once per server
-                if (remainingOnServers.contains(entry)) { 
+                // Call once per server
+                if (remainingOnServers.contains(entry)) {
                     try {
                         byte[] key = getKeyInRegion(entry.getRegion().getStartKey());
                         iterateOverTable.coprocessorService(ServerCachingService.class, key, key,
@@ -405,9 +404,9 @@ public class ServerCacheClient {
                                             try {
                                                 tenantIdBytes = connection.getTenantId() == null ? null
                                                         : ScanUtil.getTenantIdBytes(cacheUsingTable.getRowKeySchema(),
-                                                                cacheUsingTable.getBucketNum() != null,
-                                                                connection.getTenantId(),
-                                                                cacheUsingTable.getViewIndexId() != null);
+                                                        cacheUsingTable.getBucketNum() != null,
+                                                        connection.getTenantId(),
+                                                        cacheUsingTable.getViewIndexId() != null);
                                             } catch (SQLException e) {
                                                 throw new IOException(e);
                                             }
@@ -420,7 +419,9 @@ public class ServerCacheClient {
                                         }
                                         builder.setCacheId(ByteStringer.wrap(cacheId));
                                         instance.removeServerCache(controller, builder.build(), rpcCallback);
-                                        if (controller.getFailedOn() != null) { throw controller.getFailedOn(); }
+                                        if (controller.getFailedOn() != null) {
+                                            throw controller.getFailedOn();
+                                        }
                                         return rpcCallback.get();
                                     }
                                 });
@@ -445,20 +446,20 @@ public class ServerCacheClient {
     /**
      * Create an ID to keep the cached information across other operations independent.
      * Using simple long random number, since the length of time we need this to be unique
-     * is very limited. 
+     * is very limited.
      */
     public static byte[] generateId() {
         long rand = RANDOM.nextLong();
         return Bytes.toBytes(rand);
     }
-    
+
     public static String idToString(byte[] uuid) {
         assert(uuid.length == Bytes.SIZEOF_LONG);
         return Long.toString(Bytes.toLong(uuid));
     }
 
     private static byte[] getKeyInRegion(byte[] regionStartKey) {
-        assert (regionStartKey != null);
+        assert(regionStartKey != null);
         if (Bytes.equals(regionStartKey, HConstants.EMPTY_START_ROW)) {
             return KEY_IN_FIRST_REGION;
         }
@@ -466,31 +467,31 @@ public class ServerCacheClient {
     }
 
     public boolean addServerCache(byte[] startkeyOfRegion, ServerCache cache, HashCacheFactory cacheFactory,
-             byte[] txState, PTable pTable) throws Exception {
+                                  byte[] txState, PTable pTable) throws Exception {
         Table table = null;
         boolean success = true;
         byte[] cacheId = cache.getId();
         try {
             ConnectionQueryServices services = connection.getQueryServices();
-            
+
             byte[] tableName = pTable.getPhysicalName().getBytes();
             table = services.getTable(tableName);
             HRegionLocation tableRegionLocation = services.getTableRegionLocation(tableName, startkeyOfRegion);
-            if(cache.isExpired(tableRegionLocation)) {
+            if (cache.isExpired(tableRegionLocation)) {
                 return false;
             }
-			if (cache.addServer(tableRegionLocation) || services.getProps().getBoolean(HASH_JOIN_SERVER_CACHE_RESEND_PER_SERVER,false)) {
-				success = addServerCache(table, startkeyOfRegion, pTable, cacheId, cache.getCachePtr(), cacheFactory,
-						txState, false);
-			}
-			return success;
+            if (cache.addServer(tableRegionLocation) || services.getProps().getBoolean(HASH_JOIN_SERVER_CACHE_RESEND_PER_SERVER, false)) {
+                success = addServerCache(table, startkeyOfRegion, pTable, cacheId, cache.getCachePtr(), cacheFactory,
+                        txState, false);
+            }
+            return success;
         } finally {
             Closeables.closeQuietly(table);
         }
     }
-    
+
     public boolean addServerCache(Table htable, byte[] key, final PTable cacheUsingTable, final byte[] cacheId,
-            final ImmutableBytesWritable cachePtr, final ServerCacheFactory cacheFactory, final byte[] txState, final boolean usePersistentCache)
+                                  final ImmutableBytesWritable cachePtr, final ServerCacheFactory cacheFactory, final byte[] txState, final boolean usePersistentCache)
             throws Exception {
         byte[] keyInRegion = getKeyInRegion(key);
         final Map<byte[], AddServerCacheResponse> results;
@@ -533,15 +534,19 @@ public class ServerCacheClient {
                             ServerRpcController controller = new ServerRpcController();
                             BlockingRpcCallback<AddServerCacheResponse> rpcCallback = new BlockingRpcCallback<AddServerCacheResponse>();
                             instance.addServerCache(controller, request, rpcCallback);
-                            if (controller.getFailedOn() != null) { throw controller.getFailedOn(); }
+                            if (controller.getFailedOn() != null) {
+                                throw controller.getFailedOn();
+                            }
                             return rpcCallback.get();
                         }
                     });
         } catch (Throwable t) {
             throw new Exception(t);
         }
-        if (results != null && results.size() == 1) { return results.values().iterator().next().getReturn(); }
+        if (results != null && results.size() == 1) {
+            return results.values().iterator().next().getReturn();
+        }
         return false;
     }
-    
+
 }

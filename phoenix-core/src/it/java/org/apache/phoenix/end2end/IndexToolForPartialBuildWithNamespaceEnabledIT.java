@@ -35,13 +35,13 @@ import com.google.common.collect.Maps;
  */
 @RunWith(Parameterized.class)
 public class IndexToolForPartialBuildWithNamespaceEnabledIT extends IndexToolForPartialBuildIT {
-    
+
 
     public IndexToolForPartialBuildWithNamespaceEnabledIT(boolean isNamespaceEnabled) {
         super();
-        this.isNamespaceEnabled=isNamespaceEnabled;
+        this.isNamespaceEnabled = isNamespaceEnabled;
     }
-    
+
     @BeforeClass
     @Shadower(classBeingShadowed = IndexToolForPartialBuildIT.class)
     public static void doSetup() throws Exception {
@@ -51,12 +51,12 @@ public class IndexToolForPartialBuildWithNamespaceEnabledIT extends IndexToolFor
         clientProps.put(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, "true");
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
-    
-    @Parameters(name="isNamespaceEnabled = {0}")
+
+    @Parameters(name = "isNamespaceEnabled = {0}")
     public static Collection<Boolean[]> data() {
-        return Arrays.asList(new Boolean[][] {     
-                 { true },{ false }
-           });
+        return Arrays.asList(new Boolean[][] {
+                {true}, {false}
+        });
     }
-    
+
 }

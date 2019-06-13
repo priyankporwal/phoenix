@@ -49,15 +49,15 @@ public class TopNIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW4);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
 
             assertFalse(rs.next());
@@ -65,7 +65,7 @@ public class TopNIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
 
     @Test
     public void testDescMultiOrderByExpr() throws Exception {
@@ -76,15 +76,15 @@ public class TopNIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW3);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
 
             assertFalse(rs.next());
@@ -92,23 +92,23 @@ public class TopNIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
 
     @Test
     public void testTopNDeleteAutoCommitOn() throws Exception {
         testTopNDelete(true);
     }
-    
+
     @Test
     public void testTopNDeleteAutoCommitOff() throws Exception {
         testTopNDelete(false);
     }
-    
+
     private void testTopNDelete(boolean autoCommit) throws Exception {
         String tenantId = getOrganizationId();
         String tableName =
                 initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(),
-                    null);
+                        null);
         String query = "DELETE FROM  " + tableName + "  ORDER BY b_string, entity_id LIMIT 5";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.setAutoCommit(autoCommit);
@@ -133,6 +133,6 @@ public class TopNIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
 
 }

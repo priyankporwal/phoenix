@@ -33,7 +33,7 @@ public class TableInfo {
         this.schema = schema;
         this.name = name;
     }
-    
+
     public byte[] getRowKeyPrefix() {
         return SchemaUtil.getTableKey(tenantId, schema, name);
     }
@@ -42,7 +42,7 @@ public class TableInfo {
     public String toString() {
         return Bytes.toStringBinary(getRowKeyPrefix());
     }
-    
+
     public byte[] getTenantId() {
         return tenantId;
     }
@@ -54,7 +54,7 @@ public class TableInfo {
     public byte[] getTableName() {
         return name;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -67,13 +67,25 @@ public class TableInfo {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         TableInfo other = (TableInfo) obj;
-        if (!Arrays.equals(name, other.name)) return false;
-        if (!Arrays.equals(schema, other.schema)) return false;
-        if (!Arrays.equals(tenantId, other.tenantId)) return false;
+        if (!Arrays.equals(name, other.name)) {
+            return false;
+        }
+        if (!Arrays.equals(schema, other.schema)) {
+            return false;
+        }
+        if (!Arrays.equals(tenantId, other.tenantId)) {
+            return false;
+        }
         return true;
     }
 }

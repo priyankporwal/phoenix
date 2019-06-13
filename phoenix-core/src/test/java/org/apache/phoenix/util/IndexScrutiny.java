@@ -65,7 +65,7 @@ public class IndexScrutiny {
             indexQueryBuf.append("CAST(\"" + IndexUtil.getIndexColumnName(dcol) + "\" AS " + dcol.getDataType().getSqlTypeName() + ")");
             indexQueryBuf.append(",");
         }
-        for (PColumn icol :indexColumns) {
+        for (PColumn icol : indexColumns) {
             PColumn dcol = IndexUtil.getDataColumn(ptable, icol.getName().getString());
             if (SchemaUtil.isPKColumn(icol) && !SchemaUtil.isPKColumn(dcol)) {
                 indexQueryBuf.append("CAST (\"" + icol.getName().getString() + "\" AS " + dcol.getDataType().getSqlTypeName() + ")");
@@ -79,9 +79,9 @@ public class IndexScrutiny {
                 indexQueryBuf.append(",");
             }
         }
-        indexQueryBuf.setLength(indexQueryBuf.length()-1);
+        indexQueryBuf.setLength(indexQueryBuf.length() - 1);
         indexQueryBuf.append("\nFROM " + fullIndexName);
-        
+
         StringBuilder tableQueryBuf = new StringBuilder("SELECT ");
         for (PColumn dcol : tablePKColumns) {
             tableQueryBuf.append("\"" + dcol.getName().getString() + "\"");
@@ -109,24 +109,24 @@ public class IndexScrutiny {
                 tableQueryBuf.append(",");
             }
         }
-        tableQueryBuf.setLength(tableQueryBuf.length()-1);
+        tableQueryBuf.setLength(tableQueryBuf.length() - 1);
         tableQueryBuf.append("\nFROM " + fullTableName + "\nWHERE (");
         for (PColumn dcol : tablePKColumns) {
             tableQueryBuf.append("\"" + dcol.getName().getString() + "\"");
             tableQueryBuf.append(",");
         }
-        tableQueryBuf.setLength(tableQueryBuf.length()-1);
+        tableQueryBuf.setLength(tableQueryBuf.length() - 1);
         tableQueryBuf.append(") = ((");
         for (int i = 0; i < tablePKColumns.size(); i++) {
             tableQueryBuf.append("?");
             tableQueryBuf.append(",");
         }
-        tableQueryBuf.setLength(tableQueryBuf.length()-1);
+        tableQueryBuf.setLength(tableQueryBuf.length() - 1);
         tableQueryBuf.append("))");
-        
+
         String tableQuery = tableQueryBuf.toString();
         PreparedStatement istmt = conn.prepareStatement(tableQuery);
-        
+
         String indexQuery = indexQueryBuf.toString();
         ResultSet irs = conn.createStatement().executeQuery(indexQuery);
         ResultSetMetaData irsmd = irs.getMetaData();
@@ -136,14 +136,14 @@ public class IndexScrutiny {
             StringBuilder pkBuf = new StringBuilder("(");
             for (int i = 0; i < tablePKColumns.size(); i++) {
                 PColumn dcol = tablePKColumns.get(i);
-                int offset = i+1;
+                int offset = i + 1;
                 Object pkVal = irs.getObject(offset);
                 PDataType pkType = PDataType.fromTypeId(irsmd.getColumnType(offset));
                 istmt.setObject(offset, pkVal, dcol.getDataType().getSqlType());
                 pkBuf.append(pkType.toStringLiteral(pkVal));
                 pkBuf.append(",");
             }
-            pkBuf.setLength(pkBuf.length()-1);
+            pkBuf.setLength(pkBuf.length() - 1);
             pkBuf.append(")");
             ResultSet drs = istmt.executeQuery();
             ResultSetMetaData drsmd = drs.getMetaData();
@@ -156,7 +156,7 @@ public class IndexScrutiny {
                 assertTrue("Expected equality for " + drsmd.getColumnName(i + 1) + ", but " + iType.toStringLiteral(iVal) + "!=" + dType.toStringLiteral(dVal), Objects.equal(iVal, dVal));
             }
         }
-        
+
         long dcount = TestUtil.getRowCount(conn, fullTableName);
         assertEquals("Expected data table row count to match", dcount, icount);
         return dcount;

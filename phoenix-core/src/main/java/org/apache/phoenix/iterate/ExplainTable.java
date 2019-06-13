@@ -61,13 +61,13 @@ public abstract class ExplainTable {
     protected final HintNode hint;
     protected final Integer limit;
     protected final Integer offset;
-   
+
     public ExplainTable(StatementContext context, TableRef table) {
         this(context, table, GroupBy.EMPTY_GROUP_BY, OrderBy.EMPTY_ORDER_BY, HintNode.EMPTY_HINT_NODE, null, null);
     }
 
     public ExplainTable(StatementContext context, TableRef table, GroupBy groupBy, OrderBy orderBy, HintNode hintNode,
-            Integer limit, Integer offset) {
+                        Integer limit, Integer offset) {
         this.context = context;
         this.tableRef = table;
         this.groupBy = groupBy;
@@ -103,13 +103,13 @@ public abstract class ExplainTable {
         }
         return scanRanges.useSkipScanFilter();
     }
-    
+
     protected void explain(String prefix, List<String> planSteps) {
         StringBuilder buf = new StringBuilder(prefix);
         ScanRanges scanRanges = context.getScanRanges();
         Scan scan = context.getScan();
 
-        if (scan.getConsistency() != Consistency.STRONG){
+        if (scan.getConsistency() != Consistency.STRONG) {
             buf.append("TIMELINE-CONSISTENCY ");
         }
         if (hint.hasHint(Hint.SMALL)) {
@@ -132,7 +132,7 @@ public abstract class ExplainTable {
             TimeRange range = context.getScan().getTimeRange();
             planSteps.add("    ROW TIMESTAMP FILTER [" + range.getMin() + ", " + range.getMax() + ")");
         }
-        
+
         PageFilter pageFilter = null;
         FirstKeyOnlyFilter firstKeyOnlyFilter = null;
         BooleanExpressionFilter whereFilter = null;
@@ -142,13 +142,13 @@ public abstract class ExplainTable {
             do {
                 Filter filter = filterIterator.next();
                 if (filter instanceof FirstKeyOnlyFilter) {
-                    firstKeyOnlyFilter = (FirstKeyOnlyFilter)filter;
+                    firstKeyOnlyFilter = (FirstKeyOnlyFilter) filter;
                 } else if (filter instanceof PageFilter) {
-                    pageFilter = (PageFilter)filter;
+                    pageFilter = (PageFilter) filter;
                 } else if (filter instanceof BooleanExpressionFilter) {
-                    whereFilter = (BooleanExpressionFilter)filter;
+                    whereFilter = (BooleanExpressionFilter) filter;
                 } else if (filter instanceof DistinctPrefixFilter) {
-                    distinctFilter = (DistinctPrefixFilter)filter;
+                    distinctFilter = (DistinctPrefixFilter) filter;
                 }
             } while (filterIterator.hasNext());
         }
@@ -158,7 +158,7 @@ public abstract class ExplainTable {
             planSteps.add("    SERVER FILTER BY FIRST KEY ONLY");
         }
         if (distinctFilter != null) {
-            planSteps.add("    SERVER DISTINCT PREFIX FILTER OVER "+groupBy.getExpressions().toString());
+            planSteps.add("    SERVER DISTINCT PREFIX FILTER OVER " + groupBy.getExpressions().toString());
         }
         if (!orderBy.getOrderByExpressions().isEmpty() && groupBy.isEmpty()) { // with GROUP BY, sort happens client-side
             planSteps.add("    SERVER" + (limit == null ? "" : " TOP " + limit + " ROW" + (limit == 1 ? "" : "S"))
@@ -224,13 +224,13 @@ public abstract class ExplainTable {
         private int position = 0;
         private final int maxOffset;
         private byte[] nextValue;
-       
+
         public RowKeyValueIterator(RowKeySchema schema, byte[] rowKey) {
             this.schema = schema;
             this.maxOffset = schema.iterator(rowKey, ptr);
             iterate();
         }
-        
+
         private void iterate() {
             if (schema.next(ptr, position++, maxOffset) == null) {
                 nextValue = null;
@@ -238,7 +238,7 @@ public abstract class ExplainTable {
                 nextValue = ptr.copyBytes();
             }
         }
-        
+
         @Override
         public boolean hasNext() {
             return nextValue != null;
@@ -258,9 +258,9 @@ public abstract class ExplainTable {
         public void remove() {
             throw new UnsupportedOperationException();
         }
-        
+
     }
-    
+
     private void appendScanRow(StringBuilder buf, Bound bound) {
         ScanRanges scanRanges = context.getScanRanges();
         Iterator<byte[]> minMaxIterator = Collections.emptyIterator();
@@ -268,8 +268,8 @@ public abstract class ExplainTable {
         boolean forceSkipScan = this.hint.hasHint(Hint.SKIP_SCAN);
         int nRanges = forceSkipScan ? scanRanges.getRanges().size() : scanRanges.getBoundSlotCount();
         for (int i = 0, minPos = 0; minPos < nRanges || minMaxIterator.hasNext(); i++) {
-            List<KeyRange> ranges = minPos >= nRanges ? EVERYTHING :  scanRanges.getRanges().get(minPos++);
-            KeyRange range = bound == Bound.LOWER ? ranges.get(0) : ranges.get(ranges.size()-1);
+            List<KeyRange> ranges = minPos >= nRanges ? EVERYTHING : scanRanges.getRanges().get(minPos++);
+            KeyRange range = bound == Bound.LOWER ? ranges.get(0) : ranges.get(ranges.size() - 1);
             byte[] b = range.getRange(bound);
             Boolean isNull = KeyRange.IS_NULL_RANGE == range ? Boolean.TRUE : KeyRange.IS_NOT_NULL_RANGE == range ? Boolean.FALSE : null;
             if (minMaxIterator.hasNext()) {
@@ -291,7 +291,7 @@ public abstract class ExplainTable {
             buf.append(',');
         }
     }
-    
+
     private void appendKeyRanges(StringBuilder buf) {
         ScanRanges scanRanges = context.getScanRanges();
         if (scanRanges.isDegenerate() || scanRanges.isEverything()) {
@@ -301,13 +301,13 @@ public abstract class ExplainTable {
         StringBuilder buf1 = new StringBuilder();
         appendScanRow(buf1, Bound.LOWER);
         buf.append(buf1);
-        buf.setCharAt(buf.length()-1, ']');
+        buf.setCharAt(buf.length() - 1, ']');
         StringBuilder buf2 = new StringBuilder();
         appendScanRow(buf2, Bound.UPPER);
         if (!StringUtil.equals(buf1, buf2)) {
-            buf.append( " - [");
+            buf.append(" - [");
             buf.append(buf2);
         }
-        buf.setCharAt(buf.length()-1, ']');
+        buf.setCharAt(buf.length() - 1, ']');
     }
 }

@@ -33,7 +33,7 @@ public class MathPIFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testGetMathPIValue() throws Exception {
-        Connection conn  = DriverManager.getConnection(getUrl());
+        Connection conn = DriverManager.getConnection(getUrl());
         ResultSet rs = conn.createStatement().executeQuery("SELECT PI()");
         assertTrue(rs.next());
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.PI));
@@ -42,7 +42,7 @@ public class MathPIFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMathPIRoundTwoDecimal() throws Exception {
-        Connection conn  = DriverManager.getConnection(getUrl());
+        Connection conn = DriverManager.getConnection(getUrl());
         ResultSet rs = conn.createStatement().executeQuery("SELECT ROUND(PI(), 2)");
         assertTrue(rs.next());
         assertTrue(twoDoubleEquals(rs.getDouble(1), 3.14));
@@ -51,7 +51,7 @@ public class MathPIFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMathPIFunctionWithIncorrectFormat() throws Exception {
-        Connection conn  = DriverManager.getConnection(getUrl());
+        Connection conn = DriverManager.getConnection(getUrl());
         try {
             conn.createStatement().executeQuery("SELECT PI(1)");
         } catch (SQLException e) {

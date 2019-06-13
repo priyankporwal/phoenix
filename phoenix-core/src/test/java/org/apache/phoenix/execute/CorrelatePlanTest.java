@@ -78,8 +78,9 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 public class CorrelatePlanTest {
-    
+
     private static final StatementContext CONTEXT;
+
     static {
         try {
             PhoenixConnection connection = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + CONNECTIONLESS).unwrap(PhoenixConnection.class);
@@ -90,7 +91,7 @@ public class CorrelatePlanTest {
             throw new RuntimeException(e);
         }
     }
-    
+
     private static final Object[][] LEFT_RELATION = new Object[][] {
             {1, "1"},
             {2, "2"},
@@ -98,7 +99,7 @@ public class CorrelatePlanTest {
             {4, "4"},
             {5, "5"},
     };
-    
+
     private static final Object[][] RIGHT_RELATION = new Object[][] {
             {"2", 20},
             {"2", 40},
@@ -107,8 +108,8 @@ public class CorrelatePlanTest {
             {"5", 100},
             {"1", 10},
             {"3", 30},
-    };        
-    
+    };
+
     @Test
     public void testCorrelatePlanWithInnerJoinType() throws SQLException {
         Object[][] expected = new Object[][] {
@@ -121,7 +122,7 @@ public class CorrelatePlanTest {
         };
         testCorrelatePlan(LEFT_RELATION, RIGHT_RELATION, 1, 0, JoinType.Inner, expected);
     }
-    
+
     @Test
     public void testCorrelatePlanWithLeftJoinType() throws SQLException {
         Object[][] expected = new Object[][] {
@@ -135,7 +136,7 @@ public class CorrelatePlanTest {
         };
         testCorrelatePlan(LEFT_RELATION, RIGHT_RELATION, 1, 0, JoinType.Left, expected);
     }
-    
+
     @Test
     public void testCorrelatePlanWithSemiJoinType() throws SQLException {
         Object[][] expected = new Object[][] {
@@ -146,7 +147,7 @@ public class CorrelatePlanTest {
         };
         testCorrelatePlan(LEFT_RELATION, RIGHT_RELATION, 1, 0, JoinType.Semi, expected);
     }
-    
+
     @Test
     public void testCorrelatePlanWithAntiJoinType() throws SQLException {
         Object[][] expected = new Object[][] {
@@ -154,7 +155,7 @@ public class CorrelatePlanTest {
         };
         testCorrelatePlan(LEFT_RELATION, RIGHT_RELATION, 1, 0, JoinType.Anti, expected);
     }
-    
+
     @Test
     public void testCorrelatePlanWithSingleValueOnly() throws SQLException {
         Object[][] expected = new Object[][] {
@@ -167,13 +168,13 @@ public class CorrelatePlanTest {
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.SINGLE_ROW_SUBQUERY_RETURNS_MULTIPLE_ROWS.getErrorCode(), e.getErrorCode());
         }
-        
+
         Object[][] rightRelation = new Object[][] {
                 {"2", 20},
                 {"6", 60},
                 {"5", 100},
                 {"1", 10},
-        };        
+        };
         expected = new Object[][] {
                 {1, "1", "1", 10},
                 {2, "2", "2", 20},
@@ -181,7 +182,7 @@ public class CorrelatePlanTest {
         };
         testCorrelatePlan(LEFT_RELATION, rightRelation, 1, 0, JoinType.Inner, expected);
     }
-    
+
     @Test
     public void testCorrelatePlanWithSingleValueOnlyAndOffset() throws SQLException {
         Integer offset = 1;
@@ -203,7 +204,7 @@ public class CorrelatePlanTest {
     }
 
     private void testCorrelatePlan(Object[][] leftRelation, Object[][] rightRelation, int leftCorrelColumn,
-            int rightCorrelColumn, JoinType type, Object[][] expectedResult, Integer offset) throws SQLException {
+                                   int rightCorrelColumn, JoinType type, Object[][] expectedResult, Integer offset) throws SQLException {
         TableRef leftTable = createProjectedTableFromLiterals(leftRelation[0]);
         TableRef rightTable = createProjectedTableFromLiterals(rightRelation[0]);
         String varName = "$cor0";
@@ -243,7 +244,7 @@ public class CorrelatePlanTest {
             TupleProjector projector = new TupleProjector(exprs);
             tuples.add(projector.projectResults(baseTuple));
         }
-        
+
         return new LiteralResultIterationPlan(tuples, CONTEXT, SelectStatement.SELECT_ONE, TableRef.EMPTY_TABLE_REF,
                 RowProjector.EMPTY_PROJECTOR, null, offset, OrderBy.EMPTY_ORDER_BY, null);
     }
@@ -260,7 +261,7 @@ public class CorrelatePlanTest {
                     i, expr.getSortOrder(), null, null, false, name, false, false, colName.getBytes(), HConstants.LATEST_TIMESTAMP));
         }
         try {
-            PTable pTable =  new PTableImpl.Builder()
+            PTable pTable = new PTableImpl.Builder()
                     .setType(PTableType.SUBQUERY)
                     .setTimeStamp(MetaDataProtocol.MIN_TABLE_TIMESTAMP)
                     .setIndexDisableTimestamp(0L)
@@ -286,14 +287,14 @@ public class CorrelatePlanTest {
                     .setColumns(columns)
                     .build();
             TableRef sourceTable = new TableRef(pTable);
-            List<ColumnRef> sourceColumnRefs = Lists.<ColumnRef> newArrayList();
+            List<ColumnRef> sourceColumnRefs = Lists.<ColumnRef>newArrayList();
             for (PColumn column : sourceTable.getTable().getColumns()) {
                 sourceColumnRefs.add(new ColumnRef(sourceTable, column.getPosition()));
             }
-        
+
             return new TableRef(TupleProjectionCompiler.createProjectedTable(sourceTable, sourceColumnRefs, false));
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }        
+        }
     }
 }

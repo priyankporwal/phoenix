@@ -65,8 +65,7 @@ public class PhoenixStatsCacheLoader extends CacheLoader<GuidePostsKey, GuidePos
     @Override
     public ListenableFuture<GuidePostsInfo> reload(
             final GuidePostsKey key,
-            GuidePostsInfo prevGuidepostInfo)
-    {
+            GuidePostsInfo prevGuidepostInfo) {
         if (statsLoader.needsLoad()) {
             // schedule asynchronous task
             ListenableFutureTask<GuidePostsInfo> task =
@@ -82,8 +81,7 @@ public class PhoenixStatsCacheLoader extends CacheLoader<GuidePostsKey, GuidePos
                     });
             executor.execute(task);
             return task;
-        }
-        else {
+        } else {
             return Futures.immediateFuture(prevGuidepostInfo);
         }
     }

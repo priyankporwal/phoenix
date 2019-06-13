@@ -39,9 +39,8 @@ import org.junit.Test;
 
 /**
  * Tests for the TO_NUMBER built-in function.
- * 
+ *
  * @see ToNumberFunction
- * 
  * @since 0.1
  */
 
@@ -288,15 +287,18 @@ public class ToNumberFunctionIT extends ParallelStatsDisabledIT {
     }
 
     private void runOneRowQueryTest(String oneRowQuery, boolean isIntegerColumn,
-            Integer expectedIntValue, BigDecimal expectedDecimalValue) throws Exception {
+                                    Integer expectedIntValue, BigDecimal expectedDecimalValue) throws Exception {
         try (Connection conn = DriverManager.getConnection(url)) {
             PreparedStatement statement = conn.prepareStatement(oneRowQuery);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            if (isIntegerColumn) assertEquals(expectedIntValue.intValue(), rs.getInt(1));
-            else assertTrue(
-                expectedDecimalValue == rs.getBigDecimal(1) || (expectedDecimalValue != null
-                        && expectedDecimalValue.compareTo(rs.getBigDecimal(1)) == 0));
+            if (isIntegerColumn) {
+                assertEquals(expectedIntValue.intValue(), rs.getInt(1));
+            } else {
+                assertTrue(
+                        expectedDecimalValue == rs.getBigDecimal(1) || (expectedDecimalValue != null
+                                && expectedDecimalValue.compareTo(rs.getBigDecimal(1)) == 0));
+            }
             assertFalse(rs.next());
         }
     }

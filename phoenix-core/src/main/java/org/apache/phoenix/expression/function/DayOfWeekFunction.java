@@ -31,7 +31,7 @@ import org.joda.time.DateTime;
 
 /**
  * Implementation of DayOfWeekFunction(Date/Timestamp)
- *
+ * <p>
  * Returns an integer from 1 to 7. Each represents a day of the week as follows :
  * MONDAY = 1;
  * TUESDAY = 2;
@@ -40,20 +40,20 @@ import org.joda.time.DateTime;
  * FRIDAY = 5;
  * SATURDAY = 6;
  * SUNDAY = 7;
- *
  */
-@BuiltInFunction(name=DayOfWeekFunction.NAME,
-        args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = DayOfWeekFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class DayOfWeekFunction extends DateScalarFunction {
     public static final String NAME = "DAYOFWEEK";
 
-    public DayOfWeekFunction(){
+    public DayOfWeekFunction() {
 
     }
 
-    public DayOfWeekFunction(List<Expression> children){
+    public DayOfWeekFunction(List<Expression> children) {
         super(children);
     }
+
     @Override
     public String getName() {
         return NAME;
@@ -62,7 +62,7 @@ public class DayOfWeekFunction extends DateScalarFunction {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Expression arg = getChildren().get(0);
-        if (!arg.evaluate(tuple,ptr)) {
+        if (!arg.evaluate(tuple, ptr)) {
             return false;
         }
         if (ptr.getLength() == 0) {
