@@ -25,14 +25,12 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 
 /**
  * Factory for creating {@link HConnection}
- *
- * 
  */
 public interface HConnectionFactory {
 
     /**
      * Creates HConnection to access HBase clusters.
-     * 
+     *
      * @param configuration object
      * @return A HConnection instance
      */

@@ -34,7 +34,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
     public void unsignedLong() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " \"DATE\" DATE, \"value\" UNSIGNED_LONG)";
         conn.createStatement().execute(ddl);
@@ -67,7 +67,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG, \"DATE\" INTEGER, \"value\" INTEGER)";
         conn.createStatement().execute(ddl);
 
@@ -92,7 +92,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " \"DATE\" UNSIGNED_INT, \"value\" UNSIGNED_INT)";
         conn.createStatement().execute(ddl);
@@ -117,7 +117,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " dates INTEGER, val INTEGER)";
         conn.createStatement().execute(ddl);
@@ -143,7 +143,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " dates INTEGER, val INTEGER)";
         conn.createStatement().execute(ddl);
@@ -169,7 +169,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG, "
                 + "\"DATE\" CHAR(3), \"value\" CHAR(3))";
         conn.createStatement().execute(ddl);
@@ -194,7 +194,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " \"DATE\" VARCHAR, \"value\" VARCHAR)";
         conn.createStatement().execute(ddl);
@@ -219,7 +219,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " \"DATE\" UNSIGNED_INT, \"value\" UNSIGNED_INT)";
         conn.createStatement().execute(ddl);
@@ -256,7 +256,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " \"DATE\" UNSIGNED_INT, \"value\" UNSIGNED_INT)";
         conn.createStatement().execute(ddl);
@@ -281,7 +281,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_LONG,"
                 + " \"DATE\" UNSIGNED_INT, \"value\" UNSIGNED_INT)";
         conn.createStatement().execute(ddl);
@@ -307,7 +307,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
 
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName 
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName
                 + "(id INTEGER NOT NULL PRIMARY KEY, page_id UNSIGNED_INT,"
                 + " \"DATE\" UNSIGNED_INT, \"value\" UNSIGNED_INT)";
         conn.createStatement().execute(ddl);
@@ -330,7 +330,7 @@ public class LastValueFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery(
                 "SELECT LAST_VALUE(\"value\") WITHIN GROUP (ORDER BY \"DATE\" ASC) AS val "
-                + "FROM " + tableName + " GROUP BY page_id ORDER BY val DESC");
+                        + "FROM " + tableName + " GROUP BY page_id ORDER BY val DESC");
 
         assertTrue(rs.next());
         assertEquals(rs.getInt(1), 5);

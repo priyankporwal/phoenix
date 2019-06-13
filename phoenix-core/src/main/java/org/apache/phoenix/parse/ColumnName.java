@@ -23,28 +23,28 @@ import org.apache.phoenix.util.SchemaUtil;
 public class ColumnName {
     private final NamedNode familyNode;
     private final NamedNode columnNode;
-    
+
     public static ColumnName caseSensitiveColumnName(String familyName, String columnName) {
         return new ColumnName(NamedNode.caseSensitiveNamedNode(familyName), NamedNode.caseSensitiveNamedNode(columnName));
     }
-    
+
     public static ColumnName caseSensitiveColumnName(String columnName) {
         return new ColumnName(null, NamedNode.caseSensitiveNamedNode(columnName));
     }
-    
+
     public static ColumnName newColumnName(NamedNode columnName) {
         return new ColumnName(null, columnName);
     }
-    
+
     public static ColumnName newColumnName(NamedNode familyName, NamedNode columnName) {
         return new ColumnName(familyName, columnName);
     }
-    
+
     private ColumnName(NamedNode familyNode, NamedNode columnNode) {
         this.familyNode = familyNode;
         this.columnNode = columnNode;
     }
-    
+
 
     ColumnName(String familyName, String columnName) {
         this.familyNode = familyName == null ? null : new NamedNode(familyName);
@@ -73,9 +73,9 @@ public class ColumnName {
 
     @Override
     public String toString() {
-		return SchemaUtil.getColumnName(getFamilyName(),getColumnName());
+        return SchemaUtil.getColumnName(getFamilyName(), getColumnName());
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -87,14 +87,26 @@ public class ColumnName {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ColumnName other = (ColumnName)obj;
-        if (!columnNode.equals(other.columnNode)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ColumnName other = (ColumnName) obj;
+        if (!columnNode.equals(other.columnNode)) {
+            return false;
+        }
         if (familyNode == null) {
-            if (other.familyNode != null) return false;
-        } else if (!familyNode.equals(other.familyNode)) return false;
+            if (other.familyNode != null) {
+                return false;
+            }
+        } else if (!familyNode.equals(other.familyNode)) {
+            return false;
+        }
         return true;
     }
 }

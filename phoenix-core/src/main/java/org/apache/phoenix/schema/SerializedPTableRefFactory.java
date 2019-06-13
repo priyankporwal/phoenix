@@ -23,14 +23,14 @@ class SerializedPTableRefFactory extends PTableRefFactory {
         byte[] serializedBytes = PTableImpl.toProto(table).toByteArray();
         return new SerializedPTableRef(serializedBytes, lastAccessTime, resolvedTime, table.getEstimatedSize());
     }
-    
+
     @Override
     public PTableRef makePTableRef(PTableRef tableRef) {
         return new SerializedPTableRef(tableRef);
     }
-    
+
     private static final SerializedPTableRefFactory INSTANCE = new SerializedPTableRefFactory();
-    
+
     public static PTableRefFactory getFactory() {
         return INSTANCE;
     }

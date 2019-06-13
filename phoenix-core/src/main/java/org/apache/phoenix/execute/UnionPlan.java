@@ -75,7 +75,7 @@ public class UnionPlan implements QueryPlan {
     private boolean getEstimatesCalled;
 
     public UnionPlan(StatementContext context, FilterableStatement statement, TableRef table, RowProjector projector,
-            Integer limit, Integer offset, OrderBy orderBy, GroupBy groupBy, List<QueryPlan> plans, ParameterMetaData paramMetaData) throws SQLException {
+                     Integer limit, Integer offset, OrderBy orderBy, GroupBy groupBy, List<QueryPlan> plans, ParameterMetaData paramMetaData) throws SQLException {
         this.parentContext = context;
         this.statement = statement;
         this.tableRef = table;
@@ -84,16 +84,16 @@ public class UnionPlan implements QueryPlan {
         this.orderBy = orderBy;
         this.groupBy = groupBy;
         this.plans = plans;
-        this.offset= offset;
+        this.offset = offset;
         this.paramMetaData = paramMetaData;
         boolean isDegen = true;
-        for (QueryPlan plan : plans) {           
+        for (QueryPlan plan : plans) {
             if (plan.getContext().getScanRanges() != ScanRanges.NOTHING) {
                 isDegen = false;
                 break;
             }
         }
-        this.isDegenerate = isDegen;     
+        this.isDegenerate = isDegen;
     }
 
     @Override
@@ -103,15 +103,17 @@ public class UnionPlan implements QueryPlan {
 
     @Override
     public List<KeyRange> getSplits() {
-        if (iterators == null)
+        if (iterators == null) {
             return null;
+        }
         return iterators.getSplits();
     }
 
     @Override
     public List<List<Scan>> getScans() {
-        if (iterators == null)
+        if (iterators == null) {
             return null;
+        }
         return iterators.getScans();
     }
 
@@ -148,7 +150,7 @@ public class UnionPlan implements QueryPlan {
     public RowProjector getProjector() {
         return projector;
     }
-    
+
     @Override
     public ResultIterator iterator() throws SQLException {
         return iterator(DefaultParallelScanGrouper.getInstance());
@@ -162,7 +164,7 @@ public class UnionPlan implements QueryPlan {
     @Override
     public final ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
         this.iterators = new UnionResultIterators(plans, parentContext);
-        ResultIterator scanner;      
+        ResultIterator scanner;
         boolean isOrdered = !orderBy.getOrderByExpressions().isEmpty();
 
         if (isOrdered) { // TopN
@@ -174,7 +176,7 @@ public class UnionPlan implements QueryPlan {
             }
             if (limit != null) {
                 scanner = new LimitingResultIterator(scanner, limit);
-            }          
+            }
         }
         return scanner;
     }
@@ -187,7 +189,7 @@ public class UnionPlan implements QueryPlan {
         iterator.explain(steps);
         // Indent plans steps nested under union, except last client-side merge/concat step (if there is one)
         int offset = !orderBy.getOrderByExpressions().isEmpty() && limit != null ? 2 : limit != null ? 1 : 0;
-        for (int i = 1 ; i < steps.size()-offset; i++) {
+        for (int i = 1; i < steps.size() - offset; i++) {
             steps.set(i, "    " + steps.get(i));
         }
         return new ExplainPlan(steps);
@@ -243,19 +245,19 @@ public class UnionPlan implements QueryPlan {
     }
 
     @Override
-	public Operation getOperation() {
-		return statement.getOperation();
-	}
+    public Operation getOperation() {
+        return statement.getOperation();
+    }
 
-	@Override
-	public Set<TableRef> getSourceRefs() {
-		// TODO is this correct?
-		Set<TableRef> sources = Sets.newHashSetWithExpectedSize(plans.size());
-		for (QueryPlan plan : plans) {
-			sources.addAll(plan.getSourceRefs());
-		}
-		return sources;
-	}
+    @Override
+    public Set<TableRef> getSourceRefs() {
+        // TODO is this correct?
+        Set<TableRef> sources = Sets.newHashSetWithExpectedSize(plans.size());
+        for (QueryPlan plan : plans) {
+            sources.addAll(plan.getSourceRefs());
+        }
+        return sources;
+    }
 
     @Override
     public Long getEstimatedRowsToScan() throws SQLException {
@@ -305,11 +307,12 @@ public class UnionPlan implements QueryPlan {
     @Override
     public List<OrderBy> getOutputOrderBys() {
         assert this.groupBy == GroupBy.EMPTY_GROUP_BY;
-        assert this.orderBy != OrderBy.FWD_ROW_KEY_ORDER_BY && this.orderBy != OrderBy.REV_ROW_KEY_ORDER_BY;
-        if(!this.orderBy.isEmpty()) {
-            return Collections.<OrderBy> singletonList(
+        assert
+        this.orderBy != OrderBy.FWD_ROW_KEY_ORDER_BY && this.orderBy != OrderBy.REV_ROW_KEY_ORDER_BY;
+        if (!this.orderBy.isEmpty()) {
+            return Collections.<OrderBy>singletonList(
                     OrderBy.convertCompiledOrderByToOutputOrderBy(this.orderBy));
         }
-        return Collections.<OrderBy> emptyList();
+        return Collections.<OrderBy>emptyList();
     }
 }

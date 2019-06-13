@@ -43,20 +43,20 @@ public class PhoenixRpcScheduler extends RpcScheduler {
     private RpcExecutor indexCallExecutor;
     private RpcExecutor metadataCallExecutor;
     private int port;
-    
+
 
     public PhoenixRpcScheduler(Configuration conf, RpcScheduler delegate, int indexPriority, int metadataPriority, PriorityFunction priorityFunction, Abortable abortable) {
         // copied from org.apache.hadoop.hbase.ipc.SimpleRpcScheduler in HBase 0.98.4
-    	int indexHandlerCount = conf.getInt(QueryServices.INDEX_HANDLER_COUNT_ATTRIB, QueryServicesOptions.DEFAULT_INDEX_HANDLER_COUNT);
-    	int metadataHandlerCount = conf.getInt(QueryServices.METADATA_HANDLER_COUNT_ATTRIB, QueryServicesOptions.DEFAULT_INDEX_HANDLER_COUNT);
-        int maxIndexQueueLength =  conf.getInt(CALLQUEUE_LENGTH_CONF_KEY, indexHandlerCount*DEFAULT_MAX_CALLQUEUE_LENGTH_PER_HANDLER);
-        int maxMetadataQueueLength =  conf.getInt(CALLQUEUE_LENGTH_CONF_KEY, metadataHandlerCount*DEFAULT_MAX_CALLQUEUE_LENGTH_PER_HANDLER);
+        int indexHandlerCount = conf.getInt(QueryServices.INDEX_HANDLER_COUNT_ATTRIB, QueryServicesOptions.DEFAULT_INDEX_HANDLER_COUNT);
+        int metadataHandlerCount = conf.getInt(QueryServices.METADATA_HANDLER_COUNT_ATTRIB, QueryServicesOptions.DEFAULT_INDEX_HANDLER_COUNT);
+        int maxIndexQueueLength = conf.getInt(CALLQUEUE_LENGTH_CONF_KEY, indexHandlerCount * DEFAULT_MAX_CALLQUEUE_LENGTH_PER_HANDLER);
+        int maxMetadataQueueLength = conf.getInt(CALLQUEUE_LENGTH_CONF_KEY, metadataHandlerCount * DEFAULT_MAX_CALLQUEUE_LENGTH_PER_HANDLER);
 
         this.indexPriority = indexPriority;
         this.metadataPriority = metadataPriority;
         this.delegate = delegate;
-        this.indexCallExecutor = new BalancedQueueRpcExecutor("Index", indexHandlerCount, maxIndexQueueLength, priorityFunction,conf,abortable);
-        this.metadataCallExecutor = new BalancedQueueRpcExecutor("Metadata", metadataHandlerCount, maxMetadataQueueLength, priorityFunction,conf,abortable);
+        this.indexCallExecutor = new BalancedQueueRpcExecutor("Index", indexHandlerCount, maxIndexQueueLength, priorityFunction, conf, abortable);
+        this.metadataCallExecutor = new BalancedQueueRpcExecutor("Metadata", metadataHandlerCount, maxMetadataQueueLength, priorityFunction, conf, abortable);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class PhoenixRpcScheduler extends RpcScheduler {
     public void setIndexExecutorForTesting(RpcExecutor executor) {
         this.indexCallExecutor = executor;
     }
-    
+
     @VisibleForTesting
     public void setMetadataExecutorForTesting(RpcExecutor executor) {
         this.metadataCallExecutor = executor;
@@ -168,6 +168,6 @@ public class PhoenixRpcScheduler extends RpcScheduler {
     public int getActiveScanRpcHandlerCount() {
         return delegate.getActiveScanRpcHandlerCount();
     }
-    
-    
+
+
 }

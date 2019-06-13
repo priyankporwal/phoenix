@@ -55,7 +55,7 @@ public class RecoveryIndexWriter extends IndexWriter {
     /**
      * Directly specify the {@link IndexCommitter} and {@link IndexFailurePolicy}. Both are expected to be fully setup
      * before calling.
-     * 
+     *
      * @param policy
      * @param env
      * @param name
@@ -95,16 +95,15 @@ public class RecoveryIndexWriter extends IndexWriter {
 
     /**
      * Convert the passed index updates to {@link HTableInterfaceReference}s.
-     * 
-     * @param indexUpdates
-     *            from the index builder
+     *
+     * @param indexUpdates from the index builder
      * @return pairs that can then be written by an {@link RecoveryIndexWriter}.
      */
     @Override
     protected Multimap<HTableInterfaceReference, Mutation> resolveTableReferences(
             Collection<Pair<Mutation, byte[]>> indexUpdates) {
         Multimap<HTableInterfaceReference, Mutation> updates = ArrayListMultimap
-                .<HTableInterfaceReference, Mutation> create();
+                .<HTableInterfaceReference, Mutation>create();
 
         // simple map to make lookups easy while we build the map of tables to create
         Map<ImmutableBytesPtr, HTableInterfaceReference> tables = new HashMap<ImmutableBytesPtr, HTableInterfaceReference>(
@@ -145,5 +144,5 @@ public class RecoveryIndexWriter extends IndexWriter {
             }
         }
     }
-  
+
 }

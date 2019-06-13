@@ -25,7 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(namespace = "org.apache.phoenix.pherf.result") public class DataModelResult
+@XmlRootElement(namespace = "org.apache.phoenix.pherf.result")
+public class DataModelResult
         extends DataModel {
     private List<ScenarioResult> scenarioResult = new ArrayList<ScenarioResult>();
     private String zookeeper;
@@ -34,7 +35,8 @@ import java.util.List;
         return scenarioResult;
     }
 
-    @SuppressWarnings("unused") public void setScenarioResult(List<ScenarioResult> scenarioResult) {
+    @SuppressWarnings("unused")
+    public void setScenarioResult(List<ScenarioResult> scenarioResult) {
         this.scenarioResult = scenarioResult;
     }
 
@@ -64,7 +66,8 @@ import java.util.List;
         this(dataModel, null);
     }
 
-    @XmlAttribute() public String getZookeeper() {
+    @XmlAttribute()
+    public String getZookeeper() {
         return zookeeper;
     }
 

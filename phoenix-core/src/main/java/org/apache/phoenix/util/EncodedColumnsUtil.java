@@ -45,35 +45,34 @@ public class EncodedColumnsUtil {
     public static boolean usesEncodedColumnNames(PTable table) {
         return usesEncodedColumnNames(table.getEncodingScheme());
     }
-    
+
     public static boolean usesEncodedColumnNames(QualifierEncodingScheme encodingScheme) {
         return encodingScheme != null && encodingScheme != QualifierEncodingScheme.NON_ENCODED_QUALIFIERS;
     }
-    
+
     public static void setColumns(PColumn column, PTable table, Scan scan) {
-    	if (table.getImmutableStorageScheme() == ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS) {
+        if (table.getImmutableStorageScheme() == ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS) {
             // if a table storage scheme is COLUMNS_STORED_IN_SINGLE_CELL set then all columns of a column family are stored in a single cell 
             // (with the qualifier name being same as the family name), just project the column family here
             // so that we can calculate estimatedByteSize correctly in ProjectionCompiler 
-    		scan.addFamily(column.getFamilyName().getBytes());
-    	}
-        else {
+            scan.addFamily(column.getFamilyName().getBytes());
+        } else {
             if (column.getColumnQualifierBytes() != null) {
                 scan.addColumn(column.getFamilyName().getBytes(), column.getColumnQualifierBytes());
             }
         }
     }
-    
+
     public static boolean useNewValueColumnQualifier(Scan s) {
         // null check for backward compatibility
         return s.getAttribute(BaseScannerRegionObserver.USE_NEW_VALUE_COLUMN_QUALIFIER) != null;
     }
-    
+
     public static QualifierEncodingScheme getQualifierEncodingScheme(Scan s) {
         // null check for backward compatibility
         return s.getAttribute(BaseScannerRegionObserver.QUALIFIER_ENCODING_SCHEME) == null ? QualifierEncodingScheme.NON_ENCODED_QUALIFIERS : QualifierEncodingScheme.fromSerializedValue(s.getAttribute(BaseScannerRegionObserver.QUALIFIER_ENCODING_SCHEME)[0]);
     }
-    
+
     public static ImmutableStorageScheme getImmutableStorageScheme(Scan s) {
         // null check for backward compatibility
         return s.getAttribute(BaseScannerRegionObserver.IMMUTABLE_STORAGE_ENCODING_SCHEME) == null ? ImmutableStorageScheme.ONE_CELL_PER_COLUMN : ImmutableStorageScheme.fromSerializedValue(s.getAttribute(BaseScannerRegionObserver.IMMUTABLE_STORAGE_ENCODING_SCHEME)[0]);
@@ -81,7 +80,7 @@ public class EncodedColumnsUtil {
 
     /**
      * @return pair of byte arrays. The first part of the pair is the empty key value's column qualifier, and the second
-     *         part is the value to use for it.
+     * part is the value to use for it.
      */
     public static Pair<byte[], byte[]> getEmptyKeyValueInfo(PTable table) {
         return usesEncodedColumnNames(table) ? new Pair<>(QueryConstants.ENCODED_EMPTY_COLUMN_BYTES,
@@ -91,17 +90,17 @@ public class EncodedColumnsUtil {
 
     /**
      * @return pair of byte arrays. The first part of the pair is the empty key value's column qualifier, and the second
-     *         part is the value to use for it.
+     * part is the value to use for it.
      */
     public static Pair<byte[], byte[]> getEmptyKeyValueInfo(boolean usesEncodedColumnNames) {
         return usesEncodedColumnNames ? new Pair<>(QueryConstants.ENCODED_EMPTY_COLUMN_BYTES,
                 QueryConstants.ENCODED_EMPTY_COLUMN_VALUE_BYTES) : new Pair<>(QueryConstants.EMPTY_COLUMN_BYTES,
                 QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
     }
-    
+
     /**
      * @return pair of byte arrays. The first part of the pair is the empty key value's column qualifier, and the second
-     *         part is the value to use for it.
+     * part is the value to use for it.
      */
     public static Pair<byte[], byte[]> getEmptyKeyValueInfo(QualifierEncodingScheme encodingScheme) {
         return usesEncodedColumnNames(encodingScheme) ? new Pair<>(QueryConstants.ENCODED_EMPTY_COLUMN_BYTES,
@@ -160,12 +159,12 @@ public class EncodedColumnsUtil {
         }
         return null;
     }
-    
+
     public static byte[] getColumnQualifierBytes(String columnName, Integer numberBasedQualifier, PTable table, boolean isPk) {
         QualifierEncodingScheme encodingScheme = table.getEncodingScheme();
         return getColumnQualifierBytes(columnName, numberBasedQualifier, encodingScheme, isPk);
     }
-    
+
     public static byte[] getColumnQualifierBytes(String columnName, Integer numberBasedQualifier, QualifierEncodingScheme encodingScheme, boolean isPk) {
         if (isPk) {
             return null;
@@ -175,19 +174,19 @@ public class EncodedColumnsUtil {
         }
         return encodingScheme.encode(numberBasedQualifier);
     }
-    
+
     public static Expression[] createColumnExpressionArray(int maxEncodedColumnQualifier) {
         // reserve the first position and offset maxEncodedColumnQualifier by ENCODED_CQ_COUNTER_INITIAL_VALUE (which is the minimum encoded column qualifier)
         int numElements = maxEncodedColumnQualifier - QueryConstants.ENCODED_CQ_COUNTER_INITIAL_VALUE + 2;
         Expression[] colValues = new Expression[numElements];
         Arrays.fill(colValues, new DelegateExpression(LiteralExpression.newConstant(null)) {
-                   @Override
-                   public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-                       return false;
-                   }
-               });
+            @Override
+            public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
+                return false;
+            }
+        });
         // 0 is a reserved position, set it to a non-null value so that we can represent absence of a value using a negative offset
-        colValues[0]=LiteralExpression.newConstant(QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
+        colValues[0] = LiteralExpression.newConstant(QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
         return colValues;
     }
 
@@ -197,9 +196,9 @@ public class EncodedColumnsUtil {
         }
         return number < QueryConstants.ENCODED_CQ_COUNTER_INITIAL_VALUE;
     }
-    
+
     public static boolean isPossibleToUseEncodedCQFilter(QualifierEncodingScheme encodingScheme,
-            ImmutableStorageScheme storageScheme) {
+                                                         ImmutableStorageScheme storageScheme) {
         return EncodedColumnsUtil.usesEncodedColumnNames(encodingScheme)
                 && storageScheme == ImmutableStorageScheme.ONE_CELL_PER_COLUMN;
     }

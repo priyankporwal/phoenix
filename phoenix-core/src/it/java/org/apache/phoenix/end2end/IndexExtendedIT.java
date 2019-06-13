@@ -61,8 +61,8 @@ public class IndexExtendedIT extends BaseTest {
     private final String tableDDLOptions;
     private final boolean mutable;
     private final boolean useSnapshot;
-    
-    public IndexExtendedIT( boolean mutable, boolean localIndex, boolean directApi, boolean useSnapshot) {
+
+    public IndexExtendedIT(boolean mutable, boolean localIndex, boolean directApi, boolean useSnapshot) {
         this.localIndex = localIndex;
         this.directApi = directApi;
         this.mutable = mutable;
@@ -74,7 +74,7 @@ public class IndexExtendedIT extends BaseTest {
         optionBuilder.append(" SPLIT ON(1,2)");
         this.tableDDLOptions = optionBuilder.toString();
     }
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(2);
@@ -85,26 +85,27 @@ public class IndexExtendedIT extends BaseTest {
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet()
                 .iterator()));
     }
-    
-    @Parameters(name="mutable = {0} , localIndex = {1}, directApi = {2}, useSnapshot = {3}")
+
+    @Parameters(name = "mutable = {0} , localIndex = {1}, directApi = {2}, useSnapshot = {3}")
     public static Collection<Boolean[]> data() {
         List<Boolean[]> list = Lists.newArrayListWithExpectedSize(16);
-        boolean[] Booleans = new boolean[]{false, true};
-        for (boolean mutable : Booleans ) {
-            for (boolean localIndex : Booleans ) {
-                for (boolean directApi : Booleans ) {
-                    for (boolean useSnapshot : Booleans ) {
-                        list.add(new Boolean[]{ mutable, localIndex, directApi, useSnapshot});
+        boolean[] Booleans = new boolean[] {false, true};
+        for (boolean mutable : Booleans) {
+            for (boolean localIndex : Booleans) {
+                for (boolean directApi : Booleans) {
+                    for (boolean useSnapshot : Booleans) {
+                        list.add(new Boolean[] {mutable, localIndex, directApi, useSnapshot});
                     }
                 }
             }
         }
         return list;
     }
-    
+
     /**
      * This test is to assert that updates that happen to rows of a mutable table after an index is created in ASYNC mode and before
-     * the MR job runs, do show up in the index table . 
+     * the MR job runs, do show up in the index table .
+     *
      * @throws Exception
      */
     @Test
@@ -121,47 +122,47 @@ public class IndexExtendedIT extends BaseTest {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         Statement stmt = conn.createStatement();
         try {
-            stmt.execute(String.format("CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER) %s",dataTableFullName, tableDDLOptions));
-            String upsertQuery = String.format("UPSERT INTO %s VALUES(?, ?, ?)",dataTableFullName);
+            stmt.execute(String.format("CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER) %s", dataTableFullName, tableDDLOptions));
+            String upsertQuery = String.format("UPSERT INTO %s VALUES(?, ?, ?)", dataTableFullName);
             PreparedStatement stmt1 = conn.prepareStatement(upsertQuery);
-            
+
             int id = 1;
             // insert two rows
             IndexToolIT.upsertRow(stmt1, id++);
             IndexToolIT.upsertRow(stmt1, id++);
             conn.commit();
-            
-            stmt.execute(String.format("CREATE " + (localIndex ? "LOCAL" : "") + " INDEX %s ON %s (UPPER(NAME, 'en_US')) ASYNC ", indexTableName,dataTableFullName));
-            
+
+            stmt.execute(String.format("CREATE " + (localIndex ? "LOCAL" : "") + " INDEX %s ON %s (UPPER(NAME, 'en_US')) ASYNC ", indexTableName, dataTableFullName));
+
             //update a row 
             stmt1.setInt(1, 1);
             stmt1.setString(2, "uname" + String.valueOf(10));
             stmt1.setInt(3, 95050 + 1);
             stmt1.executeUpdate();
-            conn.commit();  
-            
+            conn.commit();
+
             //verify rows are fetched from data table.
-            String selectSql = String.format("SELECT ID FROM %s WHERE UPPER(NAME, 'en_US') ='UNAME2'",dataTableFullName);
+            String selectSql = String.format("SELECT ID FROM %s WHERE UPPER(NAME, 'en_US') ='UNAME2'", dataTableFullName);
             ResultSet rs = conn.createStatement().executeQuery("EXPLAIN " + selectSql);
             String actualExplainPlan = QueryUtil.getExplainPlan(rs);
-            
+
             //assert we are pulling from data table.
             assertEquals(String.format("CLIENT PARALLEL 1-WAY FULL SCAN OVER %s\n" +
-                    "    SERVER FILTER BY UPPER(NAME, 'en_US') = 'UNAME2'",dataTableFullName),actualExplainPlan);
-            
+                    "    SERVER FILTER BY UPPER(NAME, 'en_US') = 'UNAME2'", dataTableFullName), actualExplainPlan);
+
             rs = stmt1.executeQuery(selectSql);
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
             assertFalse(rs.next());
-           
+
             //run the index MR job.
             IndexToolIT.runIndexTool(directApi, useSnapshot, schemaName, dataTableName, indexTableName);
-            
+
             //assert we are pulling from index table.
             rs = conn.createStatement().executeQuery("EXPLAIN " + selectSql);
             actualExplainPlan = QueryUtil.getExplainPlan(rs);
             IndexToolIT.assertExplainPlan(localIndex, actualExplainPlan, dataTableFullName, indexTableFullName);
-            
+
             rs = stmt.executeQuery(selectSql);
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
@@ -170,7 +171,7 @@ public class IndexExtendedIT extends BaseTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDeleteFromImmutable() throws Exception {
         if (mutable) {
@@ -186,22 +187,22 @@ public class IndexExtendedIT extends BaseTest {
         String indexTableFullName = SchemaUtil.getTableName(schemaName, indexTableName);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE " + dataTableFullName + " (\n" + 
-                    "        pk1 VARCHAR NOT NULL,\n" + 
-                    "        pk2 VARCHAR NOT NULL,\n" + 
-                    "        pk3 VARCHAR\n" + 
-                    "        CONSTRAINT PK PRIMARY KEY \n" + 
-                    "        (\n" + 
-                    "        pk1,\n" + 
-                    "        pk2,\n" + 
-                    "        pk3\n" + 
-                    "        )\n" + 
+            conn.createStatement().execute("CREATE TABLE " + dataTableFullName + " (\n" +
+                    "        pk1 VARCHAR NOT NULL,\n" +
+                    "        pk2 VARCHAR NOT NULL,\n" +
+                    "        pk3 VARCHAR\n" +
+                    "        CONSTRAINT PK PRIMARY KEY \n" +
+                    "        (\n" +
+                    "        pk1,\n" +
+                    "        pk2,\n" +
+                    "        pk3\n" +
+                    "        )\n" +
                     "        ) " + tableDDLOptions);
             conn.createStatement().execute("upsert into " + dataTableFullName + " (pk1, pk2, pk3) values ('a', '1', '1')");
             conn.createStatement().execute("upsert into " + dataTableFullName + " (pk1, pk2, pk3) values ('b', '2', '2')");
             conn.commit();
             conn.createStatement().execute("CREATE " + (localIndex ? "LOCAL" : "") + " INDEX " + indexTableName + " ON " + dataTableFullName + " (pk3, pk2) ASYNC");
-            
+
             // this delete will be issued at a timestamp later than the above timestamp of the index table
             conn.createStatement().execute("delete from " + dataTableFullName + " where pk1 = 'a'");
             conn.commit();
@@ -211,9 +212,9 @@ public class IndexExtendedIT extends BaseTest {
 
             // upsert two more rows
             conn.createStatement().execute(
-                "upsert into " + dataTableFullName + " (pk1, pk2, pk3) values ('a', '3', '3')");
+                    "upsert into " + dataTableFullName + " (pk1, pk2, pk3) values ('a', '3', '3')");
             conn.createStatement().execute(
-                "upsert into " + dataTableFullName + " (pk1, pk2, pk3) values ('b', '4', '4')");
+                    "upsert into " + dataTableFullName + " (pk1, pk2, pk3) values ('b', '4', '4')");
             conn.commit();
 
             // validate that delete markers were issued correctly and only ('a', '1', 'value1') was
@@ -234,5 +235,5 @@ public class IndexExtendedIT extends BaseTest {
             assertFalse(rs.next());
         }
     }
-    
+
 }

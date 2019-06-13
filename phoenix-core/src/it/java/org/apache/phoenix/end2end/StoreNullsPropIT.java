@@ -47,5 +47,5 @@ public class StoreNullsPropIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertTrue(rs.getBoolean(1));
     }
-    
+
 }

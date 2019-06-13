@@ -52,24 +52,24 @@ public class PArrayDataTypeEncoder implements ColumnValueEncoder {
     public PArrayDataTypeEncoder(PDataType baseType, SortOrder sortOrder) {
         this(new TrustedByteArrayOutputStream(BYTE_ARRAY_DEFAULT_SIZE), new LinkedList<Integer>(), baseType, sortOrder, true);
     }
-    
+
     public PArrayDataTypeEncoder(TrustedByteArrayOutputStream byteStream, DataOutputStream oStream,
-            int numElements, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable, byte serializationVersion) {
+                                 int numElements, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable, byte serializationVersion) {
         this(byteStream, oStream, new ArrayList<Integer>(numElements), baseType, sortOrder, rowKeyOrderOptimizable, serializationVersion);
     }
-    
+
     public PArrayDataTypeEncoder(TrustedByteArrayOutputStream byteStream, DataOutputStream oStream,
-            int numElements, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable) {
+                                 int numElements, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable) {
         this(byteStream, oStream, new ArrayList<Integer>(numElements), baseType, sortOrder, rowKeyOrderOptimizable, PArrayDataType.SORTABLE_SERIALIZATION_VERSION);
     }
-    
-    public PArrayDataTypeEncoder(TrustedByteArrayOutputStream byteStream, 
-            List<Integer> offsetPos, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable) {
+
+    public PArrayDataTypeEncoder(TrustedByteArrayOutputStream byteStream,
+                                 List<Integer> offsetPos, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable) {
         this(byteStream, new DataOutputStream(byteStream), offsetPos, baseType, sortOrder, rowKeyOrderOptimizable, PArrayDataType.SORTABLE_SERIALIZATION_VERSION);
     }
-    
+
     public PArrayDataTypeEncoder(TrustedByteArrayOutputStream byteStream, DataOutputStream oStream,
-            List<Integer> offsetPos, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable, byte serializationVersion) {
+                                 List<Integer> offsetPos, PDataType baseType, SortOrder sortOrder, boolean rowKeyOrderOptimizable, byte serializationVersion) {
         this.baseType = baseType;
         this.sortOrder = sortOrder;
         this.offsetPos = offsetPos;
@@ -82,13 +82,18 @@ public class PArrayDataTypeEncoder implements ColumnValueEncoder {
 
     private void close() {
         try {
-            if (byteStream != null) byteStream.close();
-            if (oStream != null) oStream.close();
+            if (byteStream != null) {
+                byteStream.close();
+            }
+            if (oStream != null) {
+                oStream.close();
+            }
             byteStream = null;
             oStream = null;
-        } catch (IOException ioe) {}
+        } catch (IOException ioe) {
+        }
     }
-    
+
     // used to represent the absence of a value 
     @Override
     public void appendAbsentValue() {
@@ -97,8 +102,7 @@ public class PArrayDataTypeEncoder implements ColumnValueEncoder {
                 && !baseType.isFixedWidth()) {
             offsetPos.add(-byteStream.size());
             nulls++;
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Cannot represent an absent element");
         }
     }
@@ -150,7 +154,8 @@ public class PArrayDataTypeEncoder implements ColumnValueEncoder {
                 }
                 oStream.write(bytes, offset, len);
             }
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
 
     @Override
@@ -175,18 +180,19 @@ public class PArrayDataTypeEncoder implements ColumnValueEncoder {
             ImmutableBytesWritable ptr = new ImmutableBytesWritable();
             ptr.set(byteStream.getBuffer(), 0, byteStream.size());
             return ByteUtil.copyKeyBytesIfNecessary(ptr);
-        } catch (IOException e) {} finally {
+        } catch (IOException e) {
+        } finally {
             close();
         }
         return null;
     }
-    
+
     /**
      * @param colValueMap map from column to value
      * @return estimated encoded size
      */
     public static int getEstimatedByteSize(PTable table, int rowLength,
-            Map<PColumn, byte[]> colValueMap) {
+                                           Map<PColumn, byte[]> colValueMap) {
         // iterate over column familiies
         int rowSize = 0;
         for (PColumnFamily family : table.getColumnFamilies()) {
@@ -223,19 +229,19 @@ public class PArrayDataTypeEncoder implements ColumnValueEncoder {
             // count the bytes used for the offset array
             cellSize +=
                     PArrayDataType.useShortForOffsetArray(maxOffset,
-                        PArrayDataType.IMMUTABLE_SERIALIZATION_VERSION)
-                                ? numColumns * Bytes.SIZEOF_SHORT
-                                : numColumns * Bytes.SIZEOF_INT;
+                            PArrayDataType.IMMUTABLE_SERIALIZATION_VERSION)
+                            ? numColumns * Bytes.SIZEOF_SHORT
+                            : numColumns * Bytes.SIZEOF_INT;
             cellSize += 4;
             // count the bytes used for header information
             cellSize += 5;
             // add the size of the single cell containing all column values
             rowSize +=
                     KeyValue.getKeyValueDataStructureSize(rowLength,
-                        family.getName().getBytes().length,
-                        QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES.length, cellSize);
+                            family.getName().getBytes().length,
+                            QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES.length, cellSize);
         }
         return rowSize;
     }
-    
+
 }

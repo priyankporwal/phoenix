@@ -31,84 +31,85 @@ import java.util.List;
  */
 public class ColumnTracker implements IndexedColumnGroup {
 
-  public static final long NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP = Long.MAX_VALUE;
-  public static final long GUARANTEED_NEWER_UPDATES = Long.MIN_VALUE;
-  private final List<ColumnReference> columns;
-  private long ts = NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
-  private final int hashCode;
+    public static final long NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP = Long.MAX_VALUE;
+    public static final long GUARANTEED_NEWER_UPDATES = Long.MIN_VALUE;
+    private final List<ColumnReference> columns;
+    private long ts = NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
+    private final int hashCode;
 
-  private static int calcHashCode(List<ColumnReference> columns) {
-      return columns.hashCode();
+    private static int calcHashCode(List<ColumnReference> columns) {
+        return columns.hashCode();
     }
 
-  public ColumnTracker(Collection<? extends ColumnReference> columns) {
-    this.columns = new ArrayList<ColumnReference>(columns);
-    // sort the columns
-    // no need to do this: Collections.sort(this.columns);
-    this.hashCode = calcHashCode(this.columns);
-  }
-
-  /**
-   * Set the current timestamp, only if the passed timestamp is strictly less than the currently
-   * stored timestamp
-   * @param ts the timestmap to potentially store.
-   * @return the currently stored timestamp.
-   */
-  public long setTs(long ts) {
-    this.ts = this.ts > ts ? ts : this.ts;
-    return this.ts;
-  }
-
-  public long getTS() {
-    return this.ts;
-  }
-
-  @Override
-  public int hashCode() {
-    return hashCode;
-  }
-
-  @Override
-  public boolean equals(Object o){
-    if(!(o instanceof ColumnTracker)){
-      return false;
-    }
-    ColumnTracker other = (ColumnTracker)o;
-    if (hashCode != other.hashCode) {
-        return false;
-    }
-    if (other.columns.size() != columns.size()) {
-      return false;
+    public ColumnTracker(Collection<? extends ColumnReference> columns) {
+        this.columns = new ArrayList<ColumnReference>(columns);
+        // sort the columns
+        // no need to do this: Collections.sort(this.columns);
+        this.hashCode = calcHashCode(this.columns);
     }
 
-    // check each column to see if they match
-    for (int i = 0; i < columns.size(); i++) {
-      if (!columns.get(i).equals(other.columns.get(i))) {
-        return false;
-      }
+    /**
+     * Set the current timestamp, only if the passed timestamp is strictly less than the currently
+     * stored timestamp
+     *
+     * @param ts the timestmap to potentially store.
+     * @return the currently stored timestamp.
+     */
+    public long setTs(long ts) {
+        this.ts = this.ts > ts ? ts : this.ts;
+        return this.ts;
     }
 
-    return true;
-  }
+    public long getTS() {
+        return this.ts;
+    }
 
-  @Override
-  public List<ColumnReference> getColumns() {
-    return this.columns;
-  }
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
 
-  /**
-   * @return <tt>true</tt> if this set of columns has seen a column with a timestamp newer than the
-   *         requested timestamp, <tt>false</tt> otherwise.
-   */
-  public boolean hasNewerTimestamps() {
-    return !isNewestTime(this.ts);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ColumnTracker)) {
+            return false;
+        }
+        ColumnTracker other = (ColumnTracker) o;
+        if (hashCode != other.hashCode) {
+            return false;
+        }
+        if (other.columns.size() != columns.size()) {
+            return false;
+        }
 
-  /**
-   * @param ts timestamp to check
-   * @return <tt>true</tt> if the timestamp is at the most recent timestamp for a column
-   */
-  public static boolean isNewestTime(long ts) {
-    return ts == NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
-  }
+        // check each column to see if they match
+        for (int i = 0; i < columns.size(); i++) {
+            if (!columns.get(i).equals(other.columns.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public List<ColumnReference> getColumns() {
+        return this.columns;
+    }
+
+    /**
+     * @return <tt>true</tt> if this set of columns has seen a column with a timestamp newer than the
+     * requested timestamp, <tt>false</tt> otherwise.
+     */
+    public boolean hasNewerTimestamps() {
+        return !isNewestTime(this.ts);
+    }
+
+    /**
+     * @param ts timestamp to check
+     * @return <tt>true</tt> if the timestamp is at the most recent timestamp for a column
+     */
+    public static boolean isNewestTime(long ts) {
+        return ts == NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
+    }
 }

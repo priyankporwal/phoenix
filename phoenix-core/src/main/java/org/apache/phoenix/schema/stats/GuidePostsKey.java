@@ -26,15 +26,15 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.google.common.base.Preconditions;
 
 /**
- * 
  * Key for the client-side caching of the guideposts information
- *
  */
 public final class GuidePostsKey {
     private final int hashCode;
-    @Nonnull private final byte[] physicalName;
-    @Nonnull private final byte[] columnFamily;
-    
+    @Nonnull
+    private final byte[] physicalName;
+    @Nonnull
+    private final byte[] columnFamily;
+
     public GuidePostsKey(byte[] physicalName, byte[] columnFamily) {
         Preconditions.checkNotNull(physicalName);
         Preconditions.checkNotNull(columnFamily);
@@ -42,7 +42,7 @@ public final class GuidePostsKey {
         this.columnFamily = columnFamily;
         this.hashCode = computeHashCode();
     }
-    
+
     public byte[] getPhysicalName() {
         return physicalName;
     }
@@ -55,7 +55,7 @@ public final class GuidePostsKey {
     public int hashCode() {
         return hashCode;
     }
-    
+
     private int computeHashCode() {
         final int prime = 31;
         int result = 1;
@@ -66,19 +66,31 @@ public final class GuidePostsKey {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        GuidePostsKey other = (GuidePostsKey)obj;
-        if (other.hashCode != this.hashCode) return false;
-        if (!Arrays.equals(columnFamily, other.columnFamily)) return false;
-        if (!Arrays.equals(physicalName, other.physicalName)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        GuidePostsKey other = (GuidePostsKey) obj;
+        if (other.hashCode != this.hashCode) {
+            return false;
+        }
+        if (!Arrays.equals(columnFamily, other.columnFamily)) {
+            return false;
+        }
+        if (!Arrays.equals(physicalName, other.physicalName)) {
+            return false;
+        }
         return true;
     }
-    
+
     @Override
     public String toString() {
-        return "GuidePostsKey[physicalName=" + Bytes.toStringBinary(physicalName) 
+        return "GuidePostsKey[physicalName=" + Bytes.toStringBinary(physicalName)
                 + ",columnFamily=" + Bytes.toStringBinary(columnFamily) + "]";
     }
 }

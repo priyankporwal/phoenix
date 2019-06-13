@@ -63,9 +63,9 @@ public class PhoenixStatsCacheLoaderTest {
 
         @Override
         public GuidePostsInfo loadStats(GuidePostsKey statsKey) throws Exception {
-            return new GuidePostsInfo(Collections.<Long> emptyList(),
+            return new GuidePostsInfo(Collections.<Long>emptyList(),
                     new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY),
-                    Collections.<Long> emptyList(), maxLength++, 0, Collections.<Long> emptyList());
+                    Collections.<Long>emptyList(), maxLength++, 0, Collections.<Long>emptyList());
         }
 
         @Override
@@ -73,9 +73,9 @@ public class PhoenixStatsCacheLoaderTest {
             firstTimeRefreshedSignal.countDown();
             secondTimeRefreshedSignal.countDown();
 
-            return new GuidePostsInfo(Collections.<Long> emptyList(),
+            return new GuidePostsInfo(Collections.<Long>emptyList(),
                     new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY),
-                    Collections.<Long> emptyList(), maxLength++, 0, Collections.<Long> emptyList());
+                    Collections.<Long>emptyList(), maxLength++, 0, Collections.<Long>emptyList());
         }
     }
 
@@ -94,8 +94,7 @@ public class PhoenixStatsCacheLoaderTest {
     void sleep(int x) {
         try {
             Thread.sleep(x);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             assertFalse(true);
         }
     }
@@ -116,7 +115,8 @@ public class PhoenixStatsCacheLoaderTest {
                 .maximumWeight(QueryServicesOptions.DEFAULT_STATS_MAX_CACHE_SIZE)
                 // Defer actual size to the PTableStats.getEstimatedSize()
                 .weigher(new Weigher<GuidePostsKey, GuidePostsInfo>() {
-                    @Override public int weigh(GuidePostsKey key, GuidePostsInfo info) {
+                    @Override
+                    public int weigh(GuidePostsKey key, GuidePostsInfo info) {
                         return info.getEstimatedSize();
                     }
                 })
@@ -148,8 +148,7 @@ public class PhoenixStatsCacheLoaderTest {
             // and the cache entry has been updated for sure.
             assertTrue(guidePostsInfo.getMaxLength() >= 2);
             secondTimeRefreshedSignal.await();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             assertFalse(true);
         }
     }

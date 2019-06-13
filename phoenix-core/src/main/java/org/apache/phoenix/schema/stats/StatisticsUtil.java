@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 package org.apache.phoenix.schema.stats;
+
 import static org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ANALYZE_TABLE;
 import static org.apache.phoenix.schema.types.PDataType.TRUE_BYTES;
 import static org.apache.phoenix.util.SchemaUtil.getVarCharLength;
@@ -59,8 +60,9 @@ public class StatisticsUtil {
      * limits from the query.
      */
     public static final long NOT_STATS_BASED_TS = 0;
-    
+
     private static final Set<TableName> DISABLE_STATS = Sets.newHashSetWithExpectedSize(8);
+
     // TODO: make this declarative through new DISABLE_STATS column on SYSTEM.CATALOG table.
     // Also useful would be a USE_CURRENT_TIME_FOR_STATS column on SYSTEM.CATALOG table.
     static {
@@ -69,23 +71,25 @@ public class StatisticsUtil {
         DISABLE_STATS.add(TableName.valueOf(PhoenixDatabaseMetaData.SYSTEM_SEQUENCE_NAME));
         DISABLE_STATS.add(TableName.valueOf(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME));
         DISABLE_STATS.add(TableName.valueOf(PhoenixDatabaseMetaData.SYSTEM_TASK_NAME));
-        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES,true));
-        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_FUNCTION_NAME_BYTES,true));
-        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_SEQUENCE_NAME_BYTES,true));
-        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME_BYTES,true));
-        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_TASK_NAME_BYTES,true));
+        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES, true));
+        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_FUNCTION_NAME_BYTES, true));
+        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_SEQUENCE_NAME_BYTES, true));
+        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_STATS_NAME_BYTES, true));
+        DISABLE_STATS.add(SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_TASK_NAME_BYTES, true));
     }
-    
+
     private StatisticsUtil() {
         // private ctor for utility classes
     }
-    
 
-    /** Number of parts in our complex key */
+
+    /**
+     * Number of parts in our complex key
+     */
     protected static final int NUM_KEY_PARTS = 3;
-    
+
     public static byte[] getRowKey(byte[] table, ImmutableBytesWritable fam, byte[] guidePostStartKey) {
-        return getRowKey(table, fam, new ImmutableBytesWritable(guidePostStartKey,0,guidePostStartKey.length));
+        return getRowKey(table, fam, new ImmutableBytesWritable(guidePostStartKey, 0, guidePostStartKey.length));
     }
 
     public static byte[] getRowKey(byte[] table, ImmutableBytesWritable fam, ImmutableBytesWritable guidePostStartKey) {
@@ -109,13 +113,13 @@ public class StatisticsUtil {
     private static byte[] getStartKey(byte[] table, ImmutableBytesWritable fam) {
         return getKey(table, fam, false);
     }
-    
+
     private static byte[] getEndKey(byte[] table, ImmutableBytesWritable fam) {
         byte[] key = getKey(table, fam, true);
         ByteUtil.nextKey(key, key.length);
         return key;
     }
-    
+
     private static byte[] getKey(byte[] table, ImmutableBytesWritable fam, boolean terminateWithSeparator) {
         // always starts with the source table and column family
         byte[] rowKey = new byte[table.length + fam.getLength() + 1 + (terminateWithSeparator ? 1 : 0)];
@@ -133,7 +137,7 @@ public class StatisticsUtil {
 
     public static byte[] getAdjustedKey(byte[] key, byte[] tableNameBytes, ImmutableBytesWritable cf, boolean nextKey) {
         if (Bytes.compareTo(key, ByteUtil.EMPTY_BYTE_ARRAY) != 0) {
-            return getRowKey(tableNameBytes, cf, key); 
+            return getRowKey(tableNameBytes, cf, key);
         }
         key = getKey(tableNameBytes, cf, nextKey);
         if (nextKey) {
@@ -162,7 +166,7 @@ public class StatisticsUtil {
                 CellScanner cellScanner = result.cellScanner();
                 long rowCount = 0;
                 long byteCount = 0;
-                 while (cellScanner.advance()) {
+                while (cellScanner.advance()) {
                     current = cellScanner.current();
                     if (Bytes.equals(current.getQualifierArray(), current.getQualifierOffset(),
                             current.getQualifierLength(), PhoenixDatabaseMetaData.GUIDE_POSTS_ROW_COUNT_BYTES, 0,
@@ -193,8 +197,8 @@ public class StatisticsUtil {
                                 GuidePostsInfo.createEmptyGuidePost(byteCount, guidePostUpdateTime);
                     } else {
                         guidePostsInfoBuilder.trackGuidePost(
-                            new ImmutableBytesWritable(newGPStartKey), byteCount, rowCount,
-                            guidePostUpdateTime);
+                                new ImmutableBytesWritable(newGPStartKey), byteCount, rowCount,
+                                guidePostUpdateTime);
                     }
                 }
             }
@@ -218,16 +222,16 @@ public class StatisticsUtil {
             return guidepostWidth;
         }
     }
-    
+
     public static byte[] getGuidePostsInfoFromRowKey(byte[] tableNameBytes, byte[] fam, byte[] row) {
-	    if (row.length > tableNameBytes.length + 1 + fam.length) {
-    		ImmutableBytesWritable ptr = new ImmutableBytesWritable();
-    		int gpOffset = tableNameBytes.length + 1 + fam.length + 1;
-    		ptr.set(row, gpOffset, row.length - gpOffset);
-    		return ByteUtil.copyKeyBytesIfNecessary(ptr);
-	    }
-	    return ByteUtil.EMPTY_BYTE_ARRAY;
-	}
+        if (row.length > tableNameBytes.length + 1 + fam.length) {
+            ImmutableBytesWritable ptr = new ImmutableBytesWritable();
+            int gpOffset = tableNameBytes.length + 1 + fam.length + 1;
+            ptr.set(row, gpOffset, row.length - gpOffset);
+            return ByteUtil.copyKeyBytesIfNecessary(ptr);
+        }
+        return ByteUtil.EMPTY_BYTE_ARRAY;
+    }
 
     public static boolean isStatsEnabled(TableName tableName) {
         return !DISABLE_STATS.contains(tableName);
@@ -248,5 +252,5 @@ public class StatisticsUtil {
             }
         }
     }
-	
+
 }

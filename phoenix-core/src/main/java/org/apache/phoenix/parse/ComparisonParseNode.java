@@ -26,10 +26,8 @@ import org.apache.phoenix.compile.ColumnResolver;
 import org.apache.phoenix.util.QueryUtil;
 
 /**
- * 
  * Common base class for =, >, >=, <, <=, !=
  *
- * 
  * @since 0.1
  */
 public abstract class ComparisonParseNode extends BinaryParseNode {
@@ -51,12 +49,12 @@ public abstract class ComparisonParseNode extends BinaryParseNode {
      * Return the comparison operator associated with the given comparison expression node
      */
     public abstract CompareFilter.CompareOp getFilterOp();
-    
+
     /**
      * Return the inverted operator for the CompareOp
      */
     public abstract CompareFilter.CompareOp getInvertFilterOp();
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         List<ParseNode> children = getChildren();

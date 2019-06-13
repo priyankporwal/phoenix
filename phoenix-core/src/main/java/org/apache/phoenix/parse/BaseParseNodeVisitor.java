@@ -22,12 +22,9 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 
 
-
 /**
- * 
  * Base class for parse node visitors.
  *
- * 
  * @since 0.1
  */
 public abstract class BaseParseNodeVisitor<E> implements ParseNodeVisitor<E> {
@@ -56,12 +53,12 @@ public abstract class BaseParseNodeVisitor<E> implements ParseNodeVisitor<E> {
     public E visit(ParseNode expressionNode) throws SQLException {
         throw new SQLFeatureNotSupportedException(expressionNode.toString());
     }
-    
+
     @Override
     public List<E> newElementList(int size) {
         return null;
     }
-    
+
     @Override
     public void addElement(List<E> l, E element) {
     }

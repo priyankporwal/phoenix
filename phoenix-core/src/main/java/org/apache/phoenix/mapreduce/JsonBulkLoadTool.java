@@ -34,7 +34,7 @@ public class JsonBulkLoadTool extends AbstractBulkLoadTool {
 
     @Override
     protected void configureOptions(CommandLine cmdLine, List<ColumnInfo> importColumns,
-                                         Configuration conf) throws SQLException {
+                                    Configuration conf) throws SQLException {
         // noop
     }
 

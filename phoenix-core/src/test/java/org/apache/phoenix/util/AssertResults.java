@@ -28,26 +28,24 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Utility class to assert that a scan returns the expected results
  *
- * 
  * @since 0.1
  */
 public class AssertResults {
     public static final AssertingIterator NONE = new NoopAssertingIterator();
-    
-    private AssertResults() {    
+
+    private AssertResults() {
     }
-    
+
     public static void assertResults(ResultIterator scanner, Tuple[] results) throws Exception {
-        assertResults(scanner,new ResultAssertingIterator(Arrays.asList(results).iterator()));
+        assertResults(scanner, new ResultAssertingIterator(Arrays.asList(results).iterator()));
     }
-    
+
     public static void assertUnorderedResults(ResultIterator scanner, Tuple[] results) throws Exception {
-        assertResults(scanner,new UnorderedResultAssertingIterator(Arrays.asList(results)));
+        assertResults(scanner, new UnorderedResultAssertingIterator(Arrays.asList(results)));
     }
-    
+
     public static void assertResults(ResultIterator scanner, AssertingIterator iterator) throws Exception {
         try {
             for (Tuple result = scanner.next(); result != null; result = scanner.next()) {
@@ -58,17 +56,16 @@ public class AssertResults {
             scanner.close();
         }
     }
-    
+
     public static interface AssertingIterator {
         public void assertNext(Tuple result) throws Exception;
+
         public void assertDone() throws Exception;
     }
-    
+
     /**
-     * 
-     * Use to iterate through results without checking the values against 
+     * Use to iterate through results without checking the values against
      *
-     * 
      * @since 0.1
      */
     private static final class NoopAssertingIterator implements AssertingIterator {
@@ -80,14 +77,14 @@ public class AssertResults {
         public void assertNext(Tuple result) throws Exception {
         }
     }
-    
+
     public static class ResultAssertingIterator implements AssertingIterator {
         private final Iterator<Tuple> expectedResults;
-        
+
         public ResultAssertingIterator(Iterator<Tuple> expectedResults) {
             this.expectedResults = expectedResults;
         }
-        
+
         @Override
         public void assertDone() {
             assertTrue(!expectedResults.hasNext());
@@ -104,16 +101,16 @@ public class AssertResults {
     public static class UnorderedResultAssertingIterator implements AssertingIterator {
         private final ImmutableBytesWritable tempPtr = new ImmutableBytesWritable();
         private final Map<ImmutableBytesWritable, Tuple> expectedResults;
-        
+
         public UnorderedResultAssertingIterator(Collection<Tuple> expectedResults) {
-            this.expectedResults = new HashMap<ImmutableBytesWritable,Tuple>(expectedResults.size());
+            this.expectedResults = new HashMap<ImmutableBytesWritable, Tuple>(expectedResults.size());
             for (Tuple result : expectedResults) {
                 ImmutableBytesWritable ptr = new ImmutableBytesWritable();
                 result.getKey(ptr);
-                this.expectedResults.put(ptr,result);
+                this.expectedResults.put(ptr, result);
             }
         }
-        
+
         @Override
         public void assertDone() {
             assertTrue(expectedResults.isEmpty());
@@ -126,5 +123,5 @@ public class AssertResults {
             TestUtil.compareTuples(expected, result);
         }
     }
-    
+
 }

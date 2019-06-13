@@ -36,13 +36,13 @@ public class ReadOnlyIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testConnectionReadOnly() throws Exception {
-        
+
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-      String testTable = generateUniqueName();
-      String ddl = "CREATE TABLE " + testTable + " " +
-                        "  (r varchar not null, col1 integer" +
-                        "  CONSTRAINT pk PRIMARY KEY (r))\n"; 
+        String testTable = generateUniqueName();
+        String ddl = "CREATE TABLE " + testTable + " " +
+                "  (r varchar not null, col1 integer" +
+                "  CONSTRAINT pk PRIMARY KEY (r))\n";
         createTestTable(getUrl(), ddl);
 
         String query = "UPSERT INTO " + testTable + "(r, col1) VALUES('row1', 777)";
@@ -50,46 +50,46 @@ public class ReadOnlyIT extends ParallelStatsDisabledIT {
         statement.executeUpdate();
         conn.commit();
 
-	try{    
-		conn.setReadOnly(true);
-                assertTrue(conn.isReadOnly());
-		ddl = "CREATE TABLE " + testTable + "2 " +
-				"  (r varchar not null, col1 integer" +
-				"  CONSTRAINT pk PRIMARY KEY (r))\n";
-		statement = conn.prepareStatement(ddl);
-        	statement.executeUpdate();
-        	conn.commit();
-		fail();
-	} catch (SQLException e) {
-              assertTrue(e.getMessage(), e.getMessage().contains("ERROR 518 (25502): Mutations are not permitted for a read-only connection."));
-        }
-	  
-	try {
-                query = "UPSERT INTO " + testTable + "(r, col1) VALUES('row1', 888)";
-                statement = conn.prepareStatement(query);
-                statement.executeUpdate();
-                conn.commit();
-                fail();
-        } catch (SQLException e) {
-              assertTrue(e.getMessage(), e.getMessage().contains("ERROR 518 (25502): Mutations are not permitted for a read-only connection."));
-        }
-
-	conn.setReadOnly(false);
-        assertFalse(conn.isReadOnly());
-        ddl = "ALTER TABLE " + testTable + " ADD col2 VARCHAR";
-	statement = conn.prepareStatement(ddl);
-        statement.executeUpdate();
-	conn.commit();
-
-        try {   
-		conn.setReadOnly(true);
-                ddl = "ALTER TABLE " + testTable + " ADD col3 VARCHAR";
-		statement = conn.prepareStatement(ddl);
-        	statement.executeUpdate();
-                fail();
+        try {
+            conn.setReadOnly(true);
+            assertTrue(conn.isReadOnly());
+            ddl = "CREATE TABLE " + testTable + "2 " +
+                    "  (r varchar not null, col1 integer" +
+                    "  CONSTRAINT pk PRIMARY KEY (r))\n";
+            statement = conn.prepareStatement(ddl);
+            statement.executeUpdate();
+            conn.commit();
+            fail();
         } catch (SQLException e) {
             assertTrue(e.getMessage(), e.getMessage().contains("ERROR 518 (25502): Mutations are not permitted for a read-only connection."));
         }
 
-  }
+        try {
+            query = "UPSERT INTO " + testTable + "(r, col1) VALUES('row1', 888)";
+            statement = conn.prepareStatement(query);
+            statement.executeUpdate();
+            conn.commit();
+            fail();
+        } catch (SQLException e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("ERROR 518 (25502): Mutations are not permitted for a read-only connection."));
+        }
+
+        conn.setReadOnly(false);
+        assertFalse(conn.isReadOnly());
+        ddl = "ALTER TABLE " + testTable + " ADD col2 VARCHAR";
+        statement = conn.prepareStatement(ddl);
+        statement.executeUpdate();
+        conn.commit();
+
+        try {
+            conn.setReadOnly(true);
+            ddl = "ALTER TABLE " + testTable + " ADD col3 VARCHAR";
+            statement = conn.prepareStatement(ddl);
+            statement.executeUpdate();
+            fail();
+        } catch (SQLException e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("ERROR 518 (25502): Mutations are not permitted for a read-only connection."));
+        }
+
+    }
 }

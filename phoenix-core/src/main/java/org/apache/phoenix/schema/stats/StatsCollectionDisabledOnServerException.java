@@ -27,7 +27,7 @@ public class StatsCollectionDisabledOnServerException extends SQLException {
 
     public StatsCollectionDisabledOnServerException() {
         super(new SQLExceptionInfo.Builder(code)
-                .setMessage(code.getMessage()).build().toString(),
+                        .setMessage(code.getMessage()).build().toString(),
                 code.getSQLState(), code.getErrorCode());
     }
 }

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,21 +32,21 @@ public class PhoenixRpcSchedulerFactoryTest {
     public void ensureInstantiation() throws Exception {
         Configuration conf = new Configuration(false);
         conf.setClass(RSRpcServices.REGION_SERVER_RPC_SCHEDULER_FACTORY_CLASS,
-            PhoenixRpcSchedulerFactory.class, RpcSchedulerFactory.class);
+                PhoenixRpcSchedulerFactory.class, RpcSchedulerFactory.class);
         // kinda lame that we copy the copy from the regionserver to do this and can't use a static
         // method, but meh
         try {
             Class<?> rpcSchedulerFactoryClass =
                     conf.getClass(RSRpcServices.REGION_SERVER_RPC_SCHEDULER_FACTORY_CLASS,
-                        SimpleRpcSchedulerFactory.class);
+                            SimpleRpcSchedulerFactory.class);
             Object o = rpcSchedulerFactoryClass.newInstance();
             assertTrue(o instanceof PhoenixRpcSchedulerFactory);
         } catch (InstantiationException e) {
             assertTrue("Should not have got an exception when instantiing the rpc scheduler: " + e,
-                false);
+                    false);
         } catch (IllegalAccessException e) {
             assertTrue("Should not have got an exception when instantiing the rpc scheduler: " + e,
-                false);
+                    false);
         }
     }
 
@@ -84,7 +84,7 @@ public class PhoenixRpcSchedulerFactoryTest {
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         // test priorities in HBase range
         setPriorities(conf, 1001, HConstants.NORMAL_QOS);
         try {
@@ -100,7 +100,7 @@ public class PhoenixRpcSchedulerFactoryTest {
         } catch (IllegalArgumentException e) {
             // expected
         }
-        
+
         // test priorities in HBase range
         setPriorities(conf, 1001, HConstants.HIGH_QOS);
         try {

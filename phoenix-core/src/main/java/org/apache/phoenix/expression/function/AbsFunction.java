@@ -28,7 +28,7 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PNumericType;
 
-@BuiltInFunction(name = AbsFunction.NAME, args = { @Argument(allowedTypes = PDecimal.class) })
+@BuiltInFunction(name = AbsFunction.NAME, args = {@Argument(allowedTypes = PDecimal.class)})
 public class AbsFunction extends ScalarFunction {
 
     public static final String NAME = "ABS";

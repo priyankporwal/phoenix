@@ -109,7 +109,7 @@ public class TrackingParallelWriterIndexCommitter implements IndexCommitter {
      * Exposed for TESTING
      */
     void setup(HTableFactory factory, ExecutorService pool, Stoppable stop,
-            RegionCoprocessorEnvironment env) {
+               RegionCoprocessorEnvironment env) {
         this.pool = new WaitForCompletionTaskRunner(pool);
         this.retryingFactory = factory;
         this.noRetriesFactory = IndexWriterUtils.getNoRetriesHTableFactory(env);
@@ -125,16 +125,16 @@ public class TrackingParallelWriterIndexCommitter implements IndexCommitter {
         for (Entry<HTableInterfaceReference, Collection<Mutation>> entry : entries) {
             // get the mutations for each table. We leak the implementation here a little bit to save
             // doing a complete copy over of all the index update for each table.
-            final List<Mutation> mutations = kvBuilder.cloneIfNecessary((List<Mutation>)entry.getValue());
+            final List<Mutation> mutations = kvBuilder.cloneIfNecessary((List<Mutation>) entry.getValue());
             // track each reference so we can get at it easily later, when determing failures
             final HTableInterfaceReference tableReference = entry.getKey();
             final RegionCoprocessorEnvironment env = this.env;
-			if (env != null
-					&& !allowLocalUpdates
-					&& tableReference.getTableName().equals(
-							env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
-				continue;
-			}
+            if (env != null
+                    && !allowLocalUpdates
+                    && tableReference.getTableName().equals(
+                    env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
+                continue;
+            }
             tables.add(tableReference);
 
             /*
@@ -161,7 +161,7 @@ public class TrackingParallelWriterIndexCommitter implements IndexCommitter {
                         if (allowLocalUpdates
                                 && env != null
                                 && tableReference.getTableName().equals(
-                                    env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
+                                env.getRegion().getTableDescriptor().getTableName().getNameAsString())) {
                             try {
                                 throwFailureIfDone();
                                 IndexUtil.writeLocalUpdates(env.getRegion(), mutations, true);
@@ -183,8 +183,7 @@ public class TrackingParallelWriterIndexCommitter implements IndexCommitter {
                         HTableFactory factory;
                         if (disableIndexOnFailure) {
                             factory = clientVersion < MetaDataProtocol.MIN_CLIENT_RETRY_INDEX_WRITES ? retryingFactory : noRetriesFactory;
-                        }
-                        else {
+                        } else {
                             factory = retryingFactory;
                         }
                         table = factory.getTable(tableReference.get());
@@ -208,8 +207,10 @@ public class TrackingParallelWriterIndexCommitter implements IndexCommitter {
                     if (stopped.isStopped()
                             || (env != null && (env.getConnection() == null || env.getConnection().isClosed()
                             || env.getConnection().isAborted()))
-                            || Thread.currentThread().isInterrupted()) { throw new SingleIndexWriteFailureException(
-                                    "Pool closed, not attempting to write to the index!", null); }
+                            || Thread.currentThread().isInterrupted()) {
+                        throw new SingleIndexWriteFailureException(
+                                "Pool closed, not attempting to write to the index!", null);
+                    }
 
                 }
             });

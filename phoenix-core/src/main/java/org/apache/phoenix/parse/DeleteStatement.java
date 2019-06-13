@@ -28,7 +28,7 @@ public class DeleteStatement extends DMLStatement implements FilterableStatement
     private final List<OrderByNode> orderBy;
     private final LimitNode limit;
     private final HintNode hint;
-    
+
     public DeleteStatement(NamedTableNode table, HintNode hint, ParseNode whereNode, List<OrderByNode> orderBy, LimitNode limit, int bindCount, Map<String, UDFParseNode> udfParseNodes) {
         super(table, bindCount, udfParseNodes);
         this.whereNode = whereNode;
@@ -76,10 +76,10 @@ public class DeleteStatement extends DMLStatement implements FilterableStatement
     public OffsetNode getOffset() {
         return null;
     }
-    
+
     @Override
-    public Double getTableSamplingRate(){
-    	throw new UnsupportedOperationException("Table sampling is not allowd for Deletion");
+    public Double getTableSamplingRate() {
+        throw new UnsupportedOperationException("Table sampling is not allowd for Deletion");
     }
 
 }

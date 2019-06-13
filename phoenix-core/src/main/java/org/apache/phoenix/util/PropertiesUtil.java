@@ -33,9 +33,10 @@ public class PropertiesUtil {
 
     private PropertiesUtil() {
     }
-    
+
     /**
      * Use this to deep copy properties. The copy constructor in {@link java.util.Properties} does not do a deep copy.
+     *
      * @param properties
      * @return new mutable instance of Properties populated with values from the passed in Properties.
      */
@@ -46,14 +47,15 @@ public class PropertiesUtil {
         }
         return newProperties;
     }
-    
+
     /**
      * Add properties from the given Configuration to the provided Properties. Note that only those
      * configuration properties will be added to the provided properties whose values are already
      * not set. The method doesn't modify the passed in properties instead makes a clone of them
      * before combining.
+     *
      * @return properties object that is a combination of properties contained in props and
-     *         properties contained in conf
+     * properties contained in conf
      */
     public static Properties combineProperties(Properties props, final Configuration conf) {
         return combineProperties(props, conf, Collections.<String>emptySet());
@@ -74,13 +76,14 @@ public class PropertiesUtil {
         return copy;
     }
 
-   /**
+    /**
      * Utility to work around the limitation of the copy constructor
      * {@link Configuration#Configuration(Configuration)} provided by the {@link Configuration}
      * class. See https://issues.apache.org/jira/browse/HBASE-18378.
      * The copy constructor doesn't copy all the config settings, so we need to resort to
      * iterating through all the settings and setting it on the cloned config.
-     * @param toCopy  configuration to copy
+     *
+     * @param toCopy configuration to copy
      * @return
      */
     public static Configuration cloneConfig(Configuration toCopy) {

@@ -17,6 +17,6 @@
  */
 package org.apache.phoenix.log;
 
-public enum LogLevel {
-    OFF,INFO, DEBUG, TRACE
-}
+public enum LogLevel{
+        OFF,INFO,DEBUG,TRACE
+        }

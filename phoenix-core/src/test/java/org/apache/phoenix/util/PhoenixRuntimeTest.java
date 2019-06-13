@@ -59,7 +59,7 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
     @Test
     public void testParseArguments_MinimalCase() {
         PhoenixRuntime.ExecutionCommand execCmd = PhoenixRuntime.ExecutionCommand.parseArgs(
-                new String[] { "localhost", "test.csv" });
+                new String[] {"localhost", "test.csv"});
 
 
         assertEquals(
@@ -88,9 +88,9 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
     @Test
     public void testParseArguments_FullOption() {
         PhoenixRuntime.ExecutionCommand execCmd = PhoenixRuntime.ExecutionCommand.parseArgs(
-                new String[] { "-t", "mytable", "myzkhost:2181",  "--strict", "file1.sql",
+                new String[] {"-t", "mytable", "myzkhost:2181", "--strict", "file1.sql",
                         "test.csv", "file2.sql", "--header", "one, two,three", "-a", "!", "-d",
-                        ":", "-q", "3", "-e", "4" });
+                        ":", "-q", "3", "-e", "4"});
 
         assertEquals("myzkhost:2181", execCmd.getConnectionString());
 
@@ -107,38 +107,38 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         assertTrue(execCmd.isStrict());
         assertEquals("!", execCmd.getArrayElementSeparator());
     }
-    
+
     @Test
     public void testGetPkColsEncodeDecode() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String ddl = "CREATE TABLE t (\n" + 
+        String ddl = "CREATE TABLE t (\n" +
                 "TENANT_ID VARCHAR NOT NULL,\n" +
-                "PARENT_ID CHAR(15) NOT NULL,\n" + 
-                "CREATED_DATE DATE NOT NULL,\n" + 
-                "ENTITY_HISTORY_ID CHAR(15) NOT NULL,\n" + 
-                "DATA_TYPE VARCHAR,\n" + 
-                "OLDVAL_STRING VARCHAR,\n" + 
-                "NEWVAL_STRING VARCHAR\n" + 
+                "PARENT_ID CHAR(15) NOT NULL,\n" +
+                "CREATED_DATE DATE NOT NULL,\n" +
+                "ENTITY_HISTORY_ID CHAR(15) NOT NULL,\n" +
+                "DATA_TYPE VARCHAR,\n" +
+                "OLDVAL_STRING VARCHAR,\n" +
+                "NEWVAL_STRING VARCHAR\n" +
                 "CONSTRAINT PK PRIMARY KEY(TENANT_ID, PARENT_ID, CREATED_DATE DESC, ENTITY_HISTORY_ID))"
                 + " MULTI_TENANT = true, IMMUTABLE_ROWS = true";
         conn.createStatement().execute(ddl);
         String indexDDL = "CREATE INDEX i ON t (CREATED_DATE, PARENT_ID) INCLUDE (DATA_TYPE, OLDVAL_STRING, NEWVAL_STRING)";
         conn.createStatement().execute(indexDDL);
-        
+
         String tenantId = "111111111111111";
         String parentId = "222222222222222";
         Date createdDate = new Date(System.currentTimeMillis());
         String ehId = "333333333333333";
-        
+
         Object[] values = new Object[] {tenantId, createdDate, parentId, ehId};
         QueryPlan plan = conn.createStatement().unwrap(PhoenixStatement.class).optimizeQuery("SELECT PARENT_ID FROM T WHERE CREATED_DATE > CURRENT_DATE()-1 AND TENANT_ID = '111111111111111'");
-        List<Pair<String,String>> pkColumns = PhoenixRuntime.getPkColsForSql(conn, plan);
+        List<Pair<String, String>> pkColumns = PhoenixRuntime.getPkColsForSql(conn, plan);
         String fullTableName = plan.getTableRef().getTable().getName().getString();
         assertEquals("I", fullTableName);
         byte[] encodedValues = PhoenixRuntime.encodeColumnValues(conn, fullTableName, values, pkColumns);
         Object[] decodedValues = PhoenixRuntime.decodeColumnValues(conn, fullTableName, encodedValues, pkColumns);
         assertArrayEquals(values, decodedValues);
-        
+
         plan = conn.createStatement().unwrap(PhoenixStatement.class).optimizeQuery("SELECT /*+ NO_INDEX */ ENTITY_HISTORY_ID FROM T");
         pkColumns = PhoenixRuntime.getPkColsForSql(conn, plan);
         values = new Object[] {tenantId, parentId, createdDate, ehId};
@@ -148,7 +148,7 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         decodedValues = PhoenixRuntime.decodeColumnValues(conn, fullTableName, encodedValues, pkColumns);
         assertArrayEquals(values, decodedValues);
     }
-    
+
     @Test
     public void testGetPkColsDataTypes() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl(), new Properties());
@@ -157,7 +157,7 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         int size = pTypes.length;
         StringBuilder sb = null;
         try {
-            for (i = 0 ; i < size; i++) {
+            for (i = 0; i < size; i++) {
                 PDataType pType = pTypes[i];
                 String sqlTypeName = pType.getSqlTypeName();
                 if (sqlTypeName.equalsIgnoreCase("VARBINARY ARRAY")) {
@@ -175,16 +175,16 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
                 }
                 String columnName = "col" + i;
                 String tableName = "t" + i;
-                
+
                 sb = new StringBuilder(100);
-                
+
                 // create a table by using the type name as returned by PDataType
                 sb.append("CREATE TABLE " + tableName + " (");
                 sb.append(columnName + " " + sqlTypeName + " NOT NULL PRIMARY KEY, V1 VARCHAR)");
                 conn.createStatement().execute(sb.toString());
 
                 // generate the optimized query plan by going through the pk of the table.
-                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE " + columnName  + " = ?");
+                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM " + tableName + " WHERE " + columnName + " = ?");
                 Integer maxLength = pType.isFixedWidth() && pType.getByteSize() == null ? 15 : null;
                 stmt.setObject(1, pType.getSampleValue(maxLength));
                 QueryPlan plan = PhoenixRuntime.getOptimizedQueryPlan(stmt);
@@ -211,7 +211,7 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
             fail("Failed sql: " + sb.toString() + ExceptionUtils.getStackTrace(e));
         }
     }
-    
+
     @Test
     public void testGetTenantIdExpression() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -222,11 +222,11 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
 
         Expression e3 = PhoenixRuntime.getTenantIdExpression(conn, PhoenixDatabaseMetaData.SYSTEM_SEQUENCE_NAME);
         assertNotNull(e3);
-        
+
         conn.createStatement().execute("CREATE TABLE FOO (k VARCHAR PRIMARY KEY)");
         Expression e4 = PhoenixRuntime.getTenantIdExpression(conn, "FOO");
         assertNull(e4);
-        
+
         conn.createStatement().execute("CREATE TABLE A.BAR (k1 VARCHAR NOT NULL, k2 VARCHAR, CONSTRAINT PK PRIMARY KEY(K1,K2)) MULTI_TENANT=true");
         Expression e5 = PhoenixRuntime.getTenantIdExpression(conn, "A.BAR");
         assertNotNull(e5);
@@ -234,22 +234,22 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         conn.createStatement().execute("CREATE INDEX I1 ON A.BAR (K2)");
         Expression e5A = PhoenixRuntime.getTenantIdExpression(conn, "A.I1");
         assertNotNull(e5A);
-        
+
         conn.createStatement().execute("CREATE TABLE BAS (k1 VARCHAR NOT NULL, k2 VARCHAR, CONSTRAINT PK PRIMARY KEY(K1,K2)) MULTI_TENANT=true, SALT_BUCKETS=3");
         Expression e6 = PhoenixRuntime.getTenantIdExpression(conn, "BAS");
         assertNotNull(e6);
-        
+
         conn.createStatement().execute("CREATE INDEX I2 ON BAS (K2)");
         Expression e6A = PhoenixRuntime.getTenantIdExpression(conn, "I2");
         assertNotNull(e6A);
-        
+
         try {
             PhoenixRuntime.getTenantIdExpression(conn, "NOT.ATABLE");
             fail();
         } catch (TableNotFoundException e) {
             // Expected
         }
-        
+
         Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, "t1");
         Connection tsconn = DriverManager.getConnection(getUrl(), props);
@@ -264,12 +264,12 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
             // Expected
         }
     }
-    
+
     @Test
     public void testTableNameWithoutSchema() throws Exception {
         String tableName = "tableName";
-        String tableNameNormalized = tableName.toUpperCase(); 
-        
+        String tableNameNormalized = tableName.toUpperCase();
+
         getTableTester(tableNameNormalized, tableName);
     }
 
@@ -278,35 +278,35 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         String tableName = "tableName";
         String schemaName = "schemaName";
         String fullName = schemaName + "." + tableName;
-        String fullNameNormalized = fullName.toUpperCase(); 
-        
+        String fullNameNormalized = fullName.toUpperCase();
+
         getTableTester(fullNameNormalized, fullName);
     }
-    
+
     @Test
     public void testCaseSensitiveTableNameWithoutSchema() throws Exception {
-        String caseSensitiveTableName = "tableName"; 
-        
+        String caseSensitiveTableName = "tableName";
+
         getTableTester(caseSensitiveTableName, quoteString(caseSensitiveTableName));
     }
-    
+
     @Test
     public void testCaseSensitiveTableNameWithSchema() throws Exception {
-        String caseSensitiveTableName = "tableName"; 
+        String caseSensitiveTableName = "tableName";
         String schemaName = "schemaName";
         String fullNameNormalized = schemaName.toUpperCase() + "." + caseSensitiveTableName;
         String fullNameQuoted = schemaName + "." + quoteString(caseSensitiveTableName);
-        
+
         getTableTester(fullNameNormalized, fullNameQuoted);
     }
-    
+
     @Test
     public void testCaseSensitiveTableNameWithCaseSensitiveSchema() throws Exception {
         String caseSensitiveTableName = "tableName";
         String caseSensitiveSchemaName = "schemaName";
         String fullName = caseSensitiveSchemaName + "." + caseSensitiveTableName;
         String fullNameQuoted = quoteString(caseSensitiveSchemaName) + "." + quoteString(caseSensitiveTableName);
-        
+
         getTableTester(fullName, fullNameQuoted);
     }
 
@@ -316,10 +316,10 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         String caseSensitiveSchemaName = "schema.Name";
         String fullName = caseSensitiveSchemaName + "." + caseSensitiveTableName;
         String fullNameQuoted = quoteString(caseSensitiveSchemaName) + "." + quoteString(caseSensitiveTableName);
-        
+
         getTableTester(fullName, fullNameQuoted);
     }
-    
+
     private void getTableTester(String normalizedName, String sqlStatementName) throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
         try {
@@ -332,7 +332,7 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
             }
         }
     }
-    
+
     private String quoteString(String string) {
         return "\"" + string + "\"";
     }

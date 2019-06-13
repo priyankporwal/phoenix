@@ -39,22 +39,26 @@ public class ValueBitSetTest {
                     public boolean isNullable() {
                         return fieldIndex <= nNotNull;
                     }
+
                     @Override
                     public PDataType getDataType() {
                         return PDataType.values()[fieldIndex % PDataType.values().length];
                     }
+
                     @Override
                     public Integer getMaxLength() {
                         return null;
                     }
+
                     @Override
                     public Integer getScale() {
                         return null;
                     }
-					@Override
-					public SortOrder getSortOrder() {
-						return SortOrder.getDefault();
-					}
+
+                    @Override
+                    public SortOrder getSortOrder() {
+                        return SortOrder.getDefault();
+                    }
                 };
                 builder.addField(datum);
             }
@@ -62,7 +66,7 @@ public class ValueBitSetTest {
         KeyValueSchema schema = builder.build();
         return schema;
     }
-    
+
     private static void setValueBitSet(KeyValueSchema schema, ValueBitSet valueSet) {
         for (int i = 0; i < schema.getFieldCount() - schema.getMinNullable(); i++) {
             if ((i & 1) == 1) {
@@ -70,7 +74,7 @@ public class ValueBitSetTest {
             }
         }
     }
-    
+
     @Test
     public void testMinNullableIndex() {
         final int minNullableIndex = 4; // first 4 fields are not nullable.
@@ -112,7 +116,7 @@ public class ValueBitSetTest {
         assertTrue(kvSchema.getFields().get(minNullableIndex).isNullable());
         assertTrue(kvSchema.getFields().get(minNullableIndex + 1).isNullable());
     }
-    
+
     @Test
     public void testNullCount() {
         int nFields = 32;
@@ -121,7 +125,7 @@ public class ValueBitSetTest {
         KeyValueSchema schema = generateSchema(nFields, nRepeating, nNotNull);
         ValueBitSet valueSet = ValueBitSet.newInstance(schema);
         setValueBitSet(schema, valueSet);
-        
+
         // From beginning, not spanning longs
         assertEquals(5, valueSet.getNullCount(0, 10));
         // From middle, not spanning longs
@@ -129,11 +133,11 @@ public class ValueBitSetTest {
         // From middle, spanning to middle of next long
         assertEquals(10, valueSet.getNullCount(64 - 5, 20));
         // from end, not spanning longs
-        assertEquals(5, valueSet.getNullCount(nFields*nRepeating-nNotNull-10, 10));
+        assertEquals(5, valueSet.getNullCount(nFields * nRepeating - nNotNull - 10, 10));
         // from beginning, spanning long entirely into middle of next long
         assertEquals(64, valueSet.getNullCount(2, 128));
     }
-    
+
     @Test
     public void testSizing() {
         int nFields = 32;
@@ -145,7 +149,7 @@ public class ValueBitSetTest {
         assertEquals(Bytes.SIZEOF_SHORT, valueSet.getEstimatedLength());
         setValueBitSet(schema, valueSet);
         assertEquals(Bytes.SIZEOF_SHORT + Bytes.SIZEOF_LONG * 3, valueSet.getEstimatedLength());
-        
+
         nFields = 18;
         nRepeating = 1;
         nNotNull = 2;
@@ -154,7 +158,7 @@ public class ValueBitSetTest {
         assertEquals(Bytes.SIZEOF_SHORT, valueSet.getEstimatedLength());
         setValueBitSet(schema, valueSet);
         assertEquals(Bytes.SIZEOF_SHORT, valueSet.getEstimatedLength());
-        
+
         nFields = 19;
         nRepeating = 1;
         nNotNull = 2;
@@ -163,14 +167,14 @@ public class ValueBitSetTest {
         assertEquals(Bytes.SIZEOF_SHORT, valueSet.getEstimatedLength());
         setValueBitSet(schema, valueSet);
         assertEquals(Bytes.SIZEOF_SHORT + Bytes.SIZEOF_LONG, valueSet.getEstimatedLength());
-        
+
         nFields = 19;
         nRepeating = 1;
         nNotNull = 19;
         schema = generateSchema(nFields, nRepeating, nNotNull);
         valueSet = ValueBitSet.newInstance(schema);
         assertEquals(0, valueSet.getEstimatedLength());
-        
+
         nFields = 129;
         nRepeating = 1;
         nNotNull = 0;
@@ -182,9 +186,9 @@ public class ValueBitSetTest {
         valueSet.set(128);
         assertEquals(Bytes.SIZEOF_SHORT + Bytes.SIZEOF_LONG * 3, valueSet.getEstimatedLength());
     }
-    
+
     @Test
-    public void testMaxSetBit() {        
+    public void testMaxSetBit() {
         int nFields = 19;
         int nRepeating = 1;
         int nNotNull = 2;

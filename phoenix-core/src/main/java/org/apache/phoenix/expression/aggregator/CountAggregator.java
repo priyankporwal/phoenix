@@ -25,10 +25,8 @@ import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.util.SizedUtil;
 
 /**
- * 
  * Aggregator for COUNT aggregations
- * 
- * 
+ *
  * @since 0.1
  */
 public class CountAggregator extends BaseAggregator {

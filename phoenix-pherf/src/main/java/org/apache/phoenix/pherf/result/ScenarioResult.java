@@ -31,7 +31,8 @@ public class ScenarioResult extends Scenario {
         return querySetResult;
     }
 
-    @SuppressWarnings("unused") public void setQuerySetResult(List<QuerySetResult> querySetResult) {
+    @SuppressWarnings("unused")
+    public void setQuerySetResult(List<QuerySetResult> querySetResult) {
         this.querySetResult = querySetResult;
     }
 

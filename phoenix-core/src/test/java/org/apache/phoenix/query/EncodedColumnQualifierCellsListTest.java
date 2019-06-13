@@ -39,11 +39,11 @@ import org.apache.phoenix.schema.tuple.EncodedColumnQualiferCellsList;
 import org.junit.Test;
 
 public class EncodedColumnQualifierCellsListTest {
-    
+
     private static final byte[] row = Bytes.toBytes("row");
     private static final byte[] cf = Bytes.toBytes("cf");
 
-    
+
     @Test
     public void testIterator() {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -52,15 +52,15 @@ public class EncodedColumnQualifierCellsListTest {
         populateListAndArray(list, cells);
         Iterator itr = list.iterator();
         assertTrue(itr.hasNext());
-        
+
         // test itr.next()
         i = 0;
         while (itr.hasNext()) {
             assertEquals(cells[i++], itr.next());
         }
-        
+
         assertEquals(7, list.size());
-        
+
         // test itr.remove()
         itr = list.iterator();
         i = 0;
@@ -68,8 +68,9 @@ public class EncodedColumnQualifierCellsListTest {
         try {
             itr.remove();
             fail("Remove not allowed till next() is called");
-        } catch (IllegalStateException expected) {}
-        
+        } catch (IllegalStateException expected) {
+        }
+
         while (itr.hasNext()) {
             assertEquals(cells[i++], itr.next());
             itr.remove();
@@ -77,17 +78,17 @@ public class EncodedColumnQualifierCellsListTest {
         }
         assertEquals("Number of elements removed should have been the size of the list", 7, numRemoved);
     }
-    
+
     @Test
     public void testSize() {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
         assertEquals(0, list.size());
-        
+
         populateList(list);
-        
+
         assertEquals(7, list.size());
         int originalSize = list.size();
-        
+
         Iterator itr = list.iterator();
         while (itr.hasNext()) {
             itr.next();
@@ -95,7 +96,7 @@ public class EncodedColumnQualifierCellsListTest {
             assertEquals(--originalSize, list.size());
         }
     }
-    
+
     @Test
     public void testIsEmpty() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -112,19 +113,19 @@ public class EncodedColumnQualifierCellsListTest {
         }
         assertTrue(list.isEmpty());
     }
-    
+
     @Test
     public void testContains() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
         Cell[] cells = new Cell[7];
         populateListAndArray(list, cells);
-        
+
         for (Cell c : cells) {
             assertTrue(list.contains(c));
         }
         assertFalse(list.contains(KeyValueUtil.createFirstOnRow(row, cf, FOUR_BYTE_QUALIFIERS.encode(13))));
     }
-    
+
     @Test
     public void testToArrayWithParam() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -133,7 +134,7 @@ public class EncodedColumnQualifierCellsListTest {
         Cell[] array = list.toArray(new Cell[0]);
         assertTrue(Arrays.equals(cells, array));
     }
-    
+
     @Test
     public void testToArrayWithoutParam() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -142,7 +143,7 @@ public class EncodedColumnQualifierCellsListTest {
         Object[] array = list.toArray();
         assertTrue(Arrays.equals(cells, array));
     }
-    
+
     @Test
     public void testRemove() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -157,7 +158,7 @@ public class EncodedColumnQualifierCellsListTest {
         assertFalse(list.remove(KeyValueUtil.createFirstOnRow(row, cf, FOUR_BYTE_QUALIFIERS.encode(13))));
         assertEquals(4, list.size());
     }
-    
+
     @Test
     public void testContainsAll() throws Exception {
         EncodedColumnQualiferCellsList list1 = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -175,20 +176,20 @@ public class EncodedColumnQualifierCellsListTest {
         populateList(arrayList);
         assertTrue(list1.containsAll(arrayList));
     }
-    
+
     @Test
     public void testAddAll() throws Exception {
         EncodedColumnQualiferCellsList list1 = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
         populateList(list1);
         EncodedColumnQualiferCellsList list2 = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
         populateList(list2);
-        /* 
+        /*
          * Note that we don't care about equality of the element being added with the element already
          * present at the index.
          */
         assertTrue(list1.addAll(list2));
     }
-    
+
     @Test
     public void testAddAllAtIndexFails() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -198,7 +199,7 @@ public class EncodedColumnQualifierCellsListTest {
         } catch (UnsupportedOperationException expected) {
         }
     }
-    
+
     @Test
     public void testRemoveAll() throws Exception {
         EncodedColumnQualiferCellsList list1 = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -209,7 +210,7 @@ public class EncodedColumnQualifierCellsListTest {
         assertTrue(list1.isEmpty());
         assertFalse(list2.isEmpty());
     }
-    
+
     @Test
     public void testRetainAll() throws Exception {
         EncodedColumnQualiferCellsList list1 = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -225,7 +226,7 @@ public class EncodedColumnQualifierCellsListTest {
             assertTrue(list2.contains(c));
         }
     }
-    
+
     @Test
     public void testClear() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -234,7 +235,7 @@ public class EncodedColumnQualifierCellsListTest {
         assertTrue(list.isEmpty());
         assertEquals(0, list.size());
     }
-    
+
     @Test
     public void testGetIndex() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -244,7 +245,7 @@ public class EncodedColumnQualifierCellsListTest {
             assertEquals(cells[i], list.get(i));
         }
     }
-    
+
     @Test
     public void testIndexOf() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -254,7 +255,7 @@ public class EncodedColumnQualifierCellsListTest {
             assertEquals(i, list.indexOf(cells[i]));
         }
     }
-    
+
     @Test
     public void testLastIndexOf() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -264,7 +265,7 @@ public class EncodedColumnQualifierCellsListTest {
             assertEquals(i, list.lastIndexOf(cells[i]));
         }
     }
-    
+
     @Test
     public void testListIterator() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -273,15 +274,15 @@ public class EncodedColumnQualifierCellsListTest {
         populateListAndArray(list, cells);
         ListIterator<Cell> itr = list.listIterator();
         assertTrue(itr.hasNext());
-        
+
         // test itr.next()
         i = 0;
         while (itr.hasNext()) {
             assertEquals(cells[i++], itr.next());
         }
-        
+
         assertEquals(7, list.size());
-        
+
         // test itr.remove()
         itr = list.listIterator();
         i = 0;
@@ -289,8 +290,9 @@ public class EncodedColumnQualifierCellsListTest {
         try {
             itr.remove();
             fail("Remove not allowed till next() is called");
-        } catch (IllegalStateException expected) {}
-        
+        } catch (IllegalStateException expected) {
+        }
+
         while (itr.hasNext()) {
             assertEquals(cells[i++], itr.next());
             itr.remove();
@@ -299,7 +301,7 @@ public class EncodedColumnQualifierCellsListTest {
         assertEquals("Number of elements removed should have been the size of the list", 7, numRemoved);
         assertTrue(list.isEmpty());
     }
-    
+
     @Test
     public void testListIteratorSet() {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -343,9 +345,9 @@ public class EncodedColumnQualifierCellsListTest {
             i++;
         }
     }
-    
+
     @Test
-    public void testListIteratorNextAndPrevious()  throws Exception {
+    public void testListIteratorNextAndPrevious() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
         Cell[] array = new Cell[7];
         populateListAndArray(list, array);
@@ -354,7 +356,7 @@ public class EncodedColumnQualifierCellsListTest {
             itr.previous();
             fail("Call to itr.previous() should have failed since the iterator hasn't been moved forward yet");
         } catch (NoSuchElementException expected) {
-            
+
         }
         Cell c = itr.next();
         Cell d = itr.previous();
@@ -364,12 +366,12 @@ public class EncodedColumnQualifierCellsListTest {
         itr = list.listIterator();
         int i = 0;
         assertEquals(array[i++], itr.next());
-        assertEquals(array[i++], itr.next()); 
+        assertEquals(array[i++], itr.next());
         assertEquals(array[i++], itr.next());
         assertEquals(array[--i], itr.previous());
         assertEquals(array[--i], itr.previous());
         assertEquals(array[i++], itr.next());
-        
+
         // move itr forward till next() is exhausted
         while (itr.hasNext()) {
             itr.next();
@@ -386,7 +388,7 @@ public class EncodedColumnQualifierCellsListTest {
         }
         assertEquals("Not all elements navigated using next()", 7, i);
     }
-    
+
     @Test
     public void testSetNull() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -394,10 +396,10 @@ public class EncodedColumnQualifierCellsListTest {
             list.add(null);
             fail("Adding null elements to the list is not allowed");
         } catch (NullPointerException expected) {
-            
+
         }
     }
-    
+
     @Test
     public void testFailFastIterator() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -414,12 +416,12 @@ public class EncodedColumnQualifierCellsListTest {
                 }
             } catch (ConcurrentModificationException expected) {
                 assertEquals("Exception should have been thrown when getting the second element",
-                    2, i);
+                        2, i);
                 break;
             }
         }
     }
-    
+
     @Test
     public void testFailFastListIterator() throws Exception {
         EncodedColumnQualiferCellsList list = new EncodedColumnQualiferCellsList(11, 16, FOUR_BYTE_QUALIFIERS);
@@ -448,7 +450,7 @@ public class EncodedColumnQualifierCellsListTest {
 
         }
     }
-    
+
     private void populateListAndArray(List<Cell> list, Cell[] cells) {
         // add elements in reserved range
         list.add(cells[0] = KeyValueUtil.createFirstOnRow(row, cf, FOUR_BYTE_QUALIFIERS.encode(0)));
@@ -474,10 +476,11 @@ public class EncodedColumnQualifierCellsListTest {
         list.add(KeyValueUtil.createFirstOnRow(row, cf, FOUR_BYTE_QUALIFIERS.encode(14)));
         list.add(KeyValueUtil.createFirstOnRow(row, cf, FOUR_BYTE_QUALIFIERS.encode(11)));
     }
-    
+
     private class DelegateCell implements Cell {
         private final Cell delegate;
         private final String name;
+
         public DelegateCell(Cell delegate, String name) {
             this.delegate = delegate;
             this.name = name;

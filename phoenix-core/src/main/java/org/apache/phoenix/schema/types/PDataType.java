@@ -95,9 +95,11 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public int estimateByteSize(Object o) {
-        if (isFixedWidth()) { return getByteSize(); }
+        if (isFixedWidth()) {
+            return getByteSize();
+        }
         if (isArrayType()) {
-            PhoenixArray array = (PhoenixArray)o;
+            PhoenixArray array = (PhoenixArray) o;
             int noOfElements = array.numElements;
             int totalVarSize = 0;
             for (int i = 0; i < noOfElements; i++) {
@@ -122,8 +124,12 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
      * decimal, byte size would have no correlation with the length.
      */
     public Integer estimateByteSizeFromLength(Integer length) {
-        if (isFixedWidth()) { return getByteSize(); }
-        if (isArrayType()) { return null; }
+        if (isFixedWidth()) {
+            return getByteSize();
+        }
+        if (isArrayType()) {
+            return null;
+        }
         // If not fixed width, default to say the byte size is the same as length.
         return length;
     }
@@ -145,22 +151,22 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public final int compareTo(byte[] lhs, int lhsOffset, int lhsLength, SortOrder lhsSortOrder, byte[] rhs,
-            int rhsOffset, int rhsLength, SortOrder rhsSortOrder, PDataType rhsType) {
+                               int rhsOffset, int rhsLength, SortOrder rhsSortOrder, PDataType rhsType) {
         Preconditions.checkNotNull(lhsSortOrder);
         Preconditions.checkNotNull(rhsSortOrder);
         if (this.isBytesComparableWith(rhsType)) { // directly compare the bytes
             // Special case as we may be comparing two arrays that have different separator characters due to PHOENIX-2067
-            if (!this.isArrayType() || !rhsType.isArrayType() || 
+            if (!this.isArrayType() || !rhsType.isArrayType() ||
                     PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength) == PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength)) {
                 // Ignore trailing zero bytes if fixed byte length (for example TIMESTAMP compared to DATE)
                 if (lhsLength != rhsLength && this.isFixedWidth() && rhsType.isFixedWidth() && this.getByteSize() != null && rhsType.getByteSize() != null) {
                     if (lhsLength > rhsLength) {
                         int minOffset = lhsOffset + rhsLength;
-                        for (int i = lhsOffset + lhsLength - 1; i >= minOffset && lhsSortOrder.normalize(lhs[i]) == 0; i--,lhsLength--) {
+                        for (int i = lhsOffset + lhsLength - 1; i >= minOffset && lhsSortOrder.normalize(lhs[i]) == 0; i--, lhsLength--) {
                         }
                     } else {
                         int minOffset = rhsOffset + lhsLength;
-                        for (int i = rhsOffset + rhsLength - 1; i >= minOffset && rhsSortOrder.normalize(rhs[i]) == 0; i--,rhsLength--) {
+                        for (int i = rhsOffset + rhsLength - 1; i >= minOffset && rhsSortOrder.normalize(rhs[i]) == 0; i--, rhsLength--) {
                         }
                     }
                 }
@@ -168,14 +174,14 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
             }
         }
         PDataCodec lhsCodec = this.getCodec();
-        if ( lhsCodec == null ) {
+        if (lhsCodec == null) {
             byte[] rhsConverted;
             Object o = this.toObject(rhs, rhsOffset, rhsLength, rhsType, rhsSortOrder);
-            
+
             // No lhs native type representation, so convert rhsType to bytes representation of lhs type
             // Due to PHOENIX-2067, favor the array that is already in the new format so we don't have to convert both.
-            if ( this.isArrayType() && PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength) == PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength)) {
-                rhsConverted = ((PArrayDataType)this).toBytes(o, PArrayDataType.arrayBaseType(this), lhsSortOrder, PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength));
+            if (this.isArrayType() && PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength) == PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength)) {
+                rhsConverted = ((PArrayDataType) this).toBytes(o, PArrayDataType.arrayBaseType(this), lhsSortOrder, PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength));
             } else {
                 rhsConverted = this.toBytes(o);
                 if (rhsSortOrder == SortOrder.DESC) {
@@ -192,11 +198,11 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
         if (rhsCodec == null) {
             byte[] lhsConverted;
             Object o = rhsType.toObject(lhs, lhsOffset, lhsLength, this, lhsSortOrder);
-            
+
             // No rhs native type representation, so convert lhsType to bytes representation of rhs type
             // Due to PHOENIX-2067, favor the array that is already in the new format so we don't have to convert both.
-            if ( rhsType.isArrayType() && PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength) == PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength)) {
-                lhsConverted = ((PArrayDataType)rhsType).toBytes(o, PArrayDataType.arrayBaseType(rhsType), rhsSortOrder, PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength));
+            if (rhsType.isArrayType() && PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength) == PArrayDataType.isRowKeyOrderOptimized(this, lhsSortOrder, lhs, lhsOffset, lhsLength)) {
+                lhsConverted = ((PArrayDataType) rhsType).toBytes(o, PArrayDataType.arrayBaseType(rhsType), rhsSortOrder, PArrayDataType.isRowKeyOrderOptimized(rhsType, rhsSortOrder, rhs, rhsOffset, rhsLength));
             } else {
                 lhsConverted = rhsType.toBytes(o);
                 if (lhsSortOrder == SortOrder.DESC) {
@@ -209,8 +215,8 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
             return Bytes.compareTo(lhsConverted, 0, lhsConverted.length, rhs, rhsOffset, rhsLength);
         }
         // convert to native and compare
-        if ( (this.isCoercibleTo(PLong.INSTANCE) || this.isCoercibleTo(PDate.INSTANCE)) && 
-             (rhsType.isCoercibleTo(PLong.INSTANCE) || rhsType.isCoercibleTo(PDate.INSTANCE)) ) {
+        if ((this.isCoercibleTo(PLong.INSTANCE) || this.isCoercibleTo(PDate.INSTANCE)) &&
+                (rhsType.isCoercibleTo(PLong.INSTANCE) || rhsType.isCoercibleTo(PDate.INSTANCE))) {
             return Longs.compare(this.getCodec().decodeLong(lhs, lhsOffset, lhsSortOrder), rhsType.getCodec()
                     .decodeLong(rhs, rhsOffset, rhsSortOrder));
         } else if (isDoubleOrFloat(this) && isDoubleOrFloat(rhsType)) { // native double to double comparison
@@ -255,39 +261,43 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
      * Compares a float against a long. Behaves better than {@link #compareDoubleToLong(double, long)} for float values
      * outside of Integer.MAX_VALUE and Integer.MIN_VALUE.
      *
-     * @param f
-     *            a float value
-     * @param l
-     *            a long value
+     * @param f a float value
+     * @param l a long value
      * @return -1 if f is less than l, 1 if f is greater than l, and 0 if f is equal to l
      */
     private static int compareFloatToLong(float f, long l) {
-        if (f > Integer.MAX_VALUE || f < Integer.MIN_VALUE) { return f < l ? -1 : f > l ? 1 : 0; }
-        long diff = (long)f - l;
+        if (f > Integer.MAX_VALUE || f < Integer.MIN_VALUE) {
+            return f < l ? -1 : f > l ? 1 : 0;
+        }
+        long diff = (long) f - l;
         return Long.signum(diff);
     }
 
     /**
      * Compares a double against a long.
      *
-     * @param d
-     *            a double value
-     * @param l
-     *            a long value
+     * @param d a double value
+     * @param l a long value
      * @return -1 if d is less than l, 1 if d is greater than l, and 0 if d is equal to l
      */
     private static int compareDoubleToLong(double d, long l) {
-        if (d > Long.MAX_VALUE) { return 1; }
-        if (d < Long.MIN_VALUE) { return -1; }
-        long diff = (long)d - l;
+        if (d > Long.MAX_VALUE) {
+            return 1;
+        }
+        if (d < Long.MIN_VALUE) {
+            return -1;
+        }
+        long diff = (long) d - l;
         return Long.signum(diff);
     }
 
     protected static void checkForSufficientLength(byte[] b, int offset, int requiredLength) {
-        if (b.length < offset + requiredLength) { throw new RuntimeException(new SQLExceptionInfo.Builder(
-                SQLExceptionCode.ILLEGAL_DATA)
-                .setMessage("Expected length of at least " + requiredLength + " bytes, but had " + (b.length - offset))
-                .build().buildException()); }
+        if (b.length < offset + requiredLength) {
+            throw new RuntimeException(new SQLExceptionInfo.Builder(
+                    SQLExceptionCode.ILLEGAL_DATA)
+                    .setMessage("Expected length of at least " + requiredLength + " bytes, but had " + (b.length - offset))
+                    .build().buildException());
+        }
     }
 
     protected static Void throwConstraintViolationException(PDataType source, PDataType target) {
@@ -314,7 +324,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     public boolean equals(Object o) {
         // PDataType's are expected to be singletons.
         // TODO: this doesn't jive with HBase's DataType
-        if (o == null) return false;
+        if (o == null) {
+            return false;
+        }
         return getClass() == o.getClass();
     }
 
@@ -323,7 +335,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
      */
     public static boolean equalsAny(PDataType lhs, PDataType... rhs) {
         for (int i = 0; i < rhs.length; i++) {
-            if (lhs.equals(rhs[i])) return true;
+            if (lhs.equals(rhs[i])) {
+                return true;
+            }
         }
         return false;
     }
@@ -491,8 +505,8 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     protected static final Integer MAX_BIG_DECIMAL_BYTES = 21;
     protected static final Integer MAX_TIMESTAMP_BYTES = Bytes.SIZEOF_LONG + Bytes.SIZEOF_INT;
 
-    protected static final byte ZERO_BYTE = (byte)0x80;
-    protected static final byte NEG_TERMINAL_BYTE = (byte)102;
+    protected static final byte ZERO_BYTE = (byte) 0x80;
+    protected static final byte NEG_TERMINAL_BYTE = (byte) 102;
     protected static final int EXP_BYTE_OFFSET = 65;
     protected static final int POS_DIGIT_OFFSET = 1;
     protected static final int NEG_DIGIT_OFFSET = 101;
@@ -503,8 +517,8 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
 
     protected static final byte FALSE_BYTE = 0;
     protected static final byte TRUE_BYTE = 1;
-    public static final byte[] FALSE_BYTES = new byte[] { FALSE_BYTE };
-    public static final byte[] TRUE_BYTES = new byte[] { TRUE_BYTE };
+    public static final byte[] FALSE_BYTES = new byte[] {FALSE_BYTE};
+    public static final byte[] TRUE_BYTES = new byte[] {TRUE_BYTE};
     public static final byte[] NULL_BYTES = ByteUtil.EMPTY_BYTE_ARRAY;
     protected static final Integer BOOLEAN_LENGTH = 1;
 
@@ -528,13 +542,10 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     /**
      * Serialize a BigDecimal into a variable length byte array in such a way that it is binary comparable.
      *
-     * @param v
-     *            the BigDecimal
-     * @param result
-     *            the byte array to contain the serialized bytes. Max size necessary would be 21 bytes.
-     * @param length
-     *            the number of bytes required to store the big decimal. May be adjusted down if it exceeds
-     *            {@link #MAX_BIG_DECIMAL_BYTES}
+     * @param v      the BigDecimal
+     * @param result the byte array to contain the serialized bytes. Max size necessary would be 21 bytes.
+     * @param length the number of bytes required to store the big decimal. May be adjusted down if it exceeds
+     *               {@link #MAX_BIG_DECIMAL_BYTES}
      * @return the number of bytes that make up the serialized BigDecimal
      */
     protected static int toBytes(BigDecimal v, byte[] result, final int offset, int length) {
@@ -573,13 +584,13 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
             digitOffset = POS_DIGIT_OFFSET;
             compareAgainst = MAX_LONG;
             scale -= (length - 2) * 2;
-            result[offset] = (byte)((-(scale + expOffset) / 2 + EXP_BYTE_OFFSET) | 0x80);
+            result[offset] = (byte) ((-(scale + expOffset) / 2 + EXP_BYTE_OFFSET) | 0x80);
         } else {
             digitOffset = NEG_DIGIT_OFFSET;
             compareAgainst = MIN_LONG;
             // Scale adjustment shouldn't include terminal byte in length
             scale -= (length - 2 - 1) * 2;
-            result[offset] = (byte)(~(-(scale + expOffset) / 2 + EXP_BYTE_OFFSET + 128) & 0x7F);
+            result[offset] = (byte) (~(-(scale + expOffset) / 2 + EXP_BYTE_OFFSET + 128) & 0x7F);
             if (length <= MAX_BIG_DECIMAL_BYTES) {
                 result[--index] = NEG_TERMINAL_BYTE;
             } else {
@@ -594,7 +605,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
             BigInteger[] dandr = bi.divideAndRemainder(divideBy);
             bi = dandr[0];
             int digit = dandr[1].intValue();
-            result[--index] = (byte)(digit * multiplyBy + digitOffset);
+            result[--index] = (byte) (digit * multiplyBy + digitOffset);
             multiplyBy = 1;
             divideBy = ONE_HUNDRED;
         }
@@ -603,7 +614,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
             long divBy = 100 / multiplyBy;
             long digit = l % divBy;
             l /= divBy;
-            result[--index] = (byte)(digit * multiplyBy + digitOffset);
+            result[--index] = (byte) (digit * multiplyBy + digitOffset);
             multiplyBy = 1;
         } while (l != 0);
 
@@ -615,12 +626,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
      * to the scale, if you roundtrip a BigDecimal, it may not be equal before and after. However, the before and after
      * number will always compare to be equal (i.e. <nBefore>.compareTo(<nAfter>) == 0)
      *
-     * @param bytes
-     *            the bytes containing the number
-     * @param offset
-     *            the offset into the byte array
-     * @param length
-     *            the length of the serialized BigDecimal
+     * @param bytes  the bytes containing the number
+     * @param offset the offset into the byte array
+     * @param length the length of the serialized BigDecimal
      * @return the BigDecimal value.
      */
     protected static BigDecimal toBigDecimal(byte[] bytes, int offset, int length) {
@@ -632,7 +640,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
         // (byte)((~61 - 65 - 128) * 2) = 2, so scale is -2
         // Potentially, when switching back, the scale can be added by one and the trailing zero dropped
         // For digits, just do a mod 100 on the BigInteger. Use long if BigInteger fits
-        if (length == 1 && bytes[offset] == ZERO_BYTE) { return BigDecimal.ZERO; }
+        if (length == 1 && bytes[offset] == ZERO_BYTE) {
+            return BigDecimal.ZERO;
+        }
         int signum = ((bytes[offset] & 0x80) == 0) ? -1 : 1;
         int scale;
         int index;
@@ -640,11 +650,11 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
         long multiplier = 100L;
         int begIndex = offset + 1;
         if (signum == 1) {
-            scale = (byte)(((bytes[offset] & 0x7F) - 65) * -2);
+            scale = (byte) (((bytes[offset] & 0x7F) - 65) * -2);
             index = offset + length;
             digitOffset = POS_DIGIT_OFFSET;
         } else {
-            scale = (byte)((~bytes[offset] - 65 - 128) * -2);
+            scale = (byte) ((~bytes[offset] - 65 - 128) * -2);
             index = offset + length - (bytes[offset + length - 1] == NEG_TERMINAL_BYTE ? 1 : 0);
             digitOffset = -NEG_DIGIT_OFFSET;
         }
@@ -693,17 +703,19 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     // Default scope for testing
     protected static int[] getDecimalPrecisionAndScale(byte[] bytes, int offset, int length, SortOrder sortOrder) {
         // 0, which should have no precision nor scale.
-        if (length == 1 && sortOrder.normalize(bytes[offset])  == ZERO_BYTE) { return new int[] { 0, 0 }; }
+        if (length == 1 && sortOrder.normalize(bytes[offset]) == ZERO_BYTE) {
+            return new int[] {0, 0};
+        }
         int signum = ((sortOrder.normalize(bytes[offset]) & 0x80) == 0) ? -1 : 1;
         int scale;
         int index;
         int digitOffset;
         if (signum == 1) {
-            scale = (byte)(((sortOrder.normalize(bytes[offset]) & 0x7F) - 65) * -2);
+            scale = (byte) (((sortOrder.normalize(bytes[offset]) & 0x7F) - 65) * -2);
             index = offset + length;
             digitOffset = POS_DIGIT_OFFSET;
         } else {
-            scale = (byte)((~sortOrder.normalize(bytes[offset]) - 65 - 128) * -2);
+            scale = (byte) ((~sortOrder.normalize(bytes[offset]) - 65 - 128) * -2);
             index = offset + length - (sortOrder.normalize(bytes[offset + length - 1]) == NEG_TERMINAL_BYTE ? 1 : 0);
             digitOffset = -NEG_DIGIT_OFFSET;
         }
@@ -727,7 +739,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
             precision = precision - scale;
             scale = 0;
         }
-        return new int[] { precision, scale };
+        return new int[] {precision, scale};
     }
 
     public boolean isCoercibleTo(PDataType targetType) {
@@ -746,18 +758,19 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     /**
      * Checks whether or not the value represented by value (or ptr if value is null) is compatible in terms
      * of size with the desired max length and scale. The srcType must be coercible to this type.
-     * @param ptr bytes pointer for the value
-     * @param value object representation of the value. May be null in which case ptr will be used
-     * @param srcType the type of the value
-     * @param sortOrder the sort order of the value
-     * @param maxLength the max length of the source value or null if not applicable
-     * @param scale the scale of the source value or null if not applicable
+     *
+     * @param ptr              bytes pointer for the value
+     * @param value            object representation of the value. May be null in which case ptr will be used
+     * @param srcType          the type of the value
+     * @param sortOrder        the sort order of the value
+     * @param maxLength        the max length of the source value or null if not applicable
+     * @param scale            the scale of the source value or null if not applicable
      * @param desiredMaxLength the desired max length for the value to be coerced
-     * @param desiredScale the desired scale for the value to be coerced 
+     * @param desiredScale     the desired scale for the value to be coerced
      * @return true if the value may be coerced without losing precision and false otherwise.
      */
     public boolean isSizeCompatible(ImmutableBytesWritable ptr, Object value, PDataType srcType, SortOrder sortOrder,
-            Integer maxLength, Integer scale, Integer desiredMaxLength, Integer desiredScale) {
+                                    Integer maxLength, Integer scale, Integer desiredMaxLength, Integer desiredScale) {
         return true;
     }
 
@@ -771,7 +784,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public final int compareTo(byte[] ba1, int offset1, int length1, SortOrder so1, byte[] ba2, int offset2,
-            int length2, SortOrder so2) {
+                               int length2, SortOrder so2) {
         Preconditions.checkNotNull(so1);
         Preconditions.checkNotNull(so2);
         if (so1 != so2) {
@@ -785,7 +798,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
                     b2 = SortOrder.invert(b2);
                 }
                 int c = b1 - b2;
-                if (c != 0) { return c; }
+                if (c != 0) {
+                    return c;
+                }
             }
             return (length1 - length2);
         }
@@ -793,7 +808,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public final int compareTo(ImmutableBytesWritable ptr1, SortOrder ptr1SortOrder, ImmutableBytesWritable ptr2,
-            SortOrder ptr2SortOrder, PDataType type2) {
+                               SortOrder ptr2SortOrder, PDataType type2) {
         return compareTo(ptr1.get(), ptr1.getOffset(), ptr1.getLength(), ptr1SortOrder, ptr2.get(), ptr2.getOffset(),
                 ptr2.getLength(), ptr2SortOrder, type2);
     }
@@ -819,20 +834,24 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public void coerceBytes(ImmutableBytesWritable ptr, Object o, PDataType actualType, Integer actualMaxLength,
-            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier, boolean expectedRowKeyOrderOptimizable) {
+                            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier, boolean expectedRowKeyOrderOptimizable) {
         coerceBytes(ptr, o, actualType, actualMaxLength, actualScale, actualModifier, desiredMaxLength, desiredScale,
                 expectedModifier);
     }
 
     public void coerceBytes(ImmutableBytesWritable ptr, Object o, PDataType actualType, Integer actualMaxLength,
-            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier) {
+                            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier) {
         Preconditions.checkNotNull(actualModifier);
         Preconditions.checkNotNull(expectedModifier);
-        if (ptr.getLength() == 0) { return; }
+        if (ptr.getLength() == 0) {
+            return;
+        }
         if (this.isBytesComparableWith(actualType)) { // No coerce necessary
-            if (actualModifier == expectedModifier) { return; }
+            if (actualModifier == expectedModifier) {
+                return;
+            }
             byte[] b = ptr.copyBytes();
             SortOrder.invert(b, 0, b, 0, b.length);
             ptr.set(b);
@@ -850,12 +869,12 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public final void coerceBytes(ImmutableBytesWritable ptr, PDataType actualType, SortOrder actualModifier,
-            SortOrder expectedModifier) {
+                                  SortOrder expectedModifier) {
         coerceBytes(ptr, null, actualType, null, null, actualModifier, null, null, expectedModifier);
     }
 
     public final void coerceBytes(ImmutableBytesWritable ptr, PDataType actualType, SortOrder actualModifier,
-            SortOrder expectedModifier, Integer desiredMaxLength) {
+                                  SortOrder expectedModifier, Integer desiredMaxLength) {
         coerceBytes(ptr, null, actualType, null, null, actualModifier, desiredMaxLength, null, expectedModifier);
     }
 
@@ -864,7 +883,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     protected static void throwIfNonNegativeDate(java.util.Date date) {
-        if (!isNonNegativeDate(date)) { throw newIllegalDataException("Value may not be negative(" + date + ")"); }
+        if (!isNonNegativeDate(date)) {
+            throw newIllegalDataException("Value may not be negative(" + date + ")");
+        }
     }
 
     protected static boolean isNonNegativeNumber(Number v) {
@@ -872,7 +893,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     protected static void throwIfNonNegativeNumber(Number v) {
-        if (!isNonNegativeNumber(v)) { throw newIllegalDataException("Value may not be negative(" + v + ")"); }
+        if (!isNonNegativeNumber(v)) {
+            throw newIllegalDataException("Value may not be negative(" + v + ")");
+        }
     }
 
     @Override
@@ -923,12 +946,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     /**
      * Convert from the object representation of a data type value into the serialized byte form.
      *
-     * @param object
-     *            the object to convert
-     * @param bytes
-     *            the byte array into which to put the serialized form of object
-     * @param offset
-     *            the offset from which to start writing the serialized form
+     * @param object the object to convert
+     * @param bytes  the byte array into which to put the serialized form of object
+     * @param offset the offset from which to start writing the serialized form
      * @return the byte length of the serialized object
      */
     public abstract int toBytes(Object object, byte[] bytes, int offset);
@@ -951,8 +971,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     /**
      * Convert from a string to the object representation of a given type
      *
-     * @param value
-     *            a stringified value
+     * @param value a stringified value
      * @return the object representation of a string value
      */
     public abstract Object toObject(String value);
@@ -966,7 +985,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
      * Each enum must override this to define the set of objects it may create
      */
     public abstract Object toObject(byte[] bytes, int offset, int length, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale);
+                                    Integer maxLength, Integer scale);
 
     @SuppressWarnings("unchecked")
     @Override
@@ -974,7 +993,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
         // default implementation based on existing PDataType methods.
         byte[] b = new byte[getByteSize()];
         pbr.get(b);
-        return (T)toObject(b, 0, b.length, this, SortOrder.ASC, getMaxLength(null), getScale(null));
+        return (T) toObject(b, 0, b.length, this, SortOrder.ASC, getMaxLength(null), getScale(null));
     }
 
     /*
@@ -1007,7 +1026,7 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public final Object toObject(ImmutableBytesWritable ptr, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                                 Integer maxLength, Integer scale) {
         return this.toObject(ptr.get(), ptr.getOffset(), ptr.getLength(), actualType, sortOrder, maxLength, scale);
     }
 
@@ -1041,7 +1060,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
 
     public static PDataType fromSqlTypeName(String sqlTypeName) {
         for (PDataType t : PDataTypeFactory.getInstance().getTypes()) {
-            if (t.getSqlTypeName().equalsIgnoreCase(sqlTypeName)) return t;
+            if (t.getSqlTypeName().equalsIgnoreCase(sqlTypeName)) {
+                return t;
+            }
         }
         throw newIllegalDataException("Unsupported sql type: " + sqlTypeName);
     }
@@ -1057,7 +1078,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
 
     public static PDataType fromTypeId(int typeId) {
         for (PDataType t : PDataTypeFactory.getInstance().getTypes()) {
-            if (t.getSqlType() == typeId) return t;
+            if (t.getSqlType() == typeId) {
+                return t;
+            }
         }
         throw newIllegalDataException("Unsupported sql type: " + typeId);
     }
@@ -1124,10 +1147,11 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     };
 
     public PhoenixArrayFactory getArrayFactory() {
-        if (getCodec() != null)
+        if (getCodec() != null) {
             return getCodec().getPhoenixArrayFactory();
-        else
+        } else {
             return DEFAULT_ARRAY_FACTORY;
+        }
     }
 
     public static PhoenixArray instantiatePhoenixArray(PDataType actualType, Object[] elements) {
@@ -1154,13 +1178,17 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
     }
 
     public static PDataType fromLiteral(Object value) {
-        if (value == null) { return null; }
+        if (value == null) {
+            return null;
+        }
         for (PDataType type : PDataType.values()) {
             if (type.isArrayType()) {
                 if (value instanceof PhoenixArray) {
-                    PhoenixArray arr = (PhoenixArray)value;
+                    PhoenixArray arr = (PhoenixArray) value;
                     if ((type.getSqlType() == arr.baseType.sqlType + PDataType.ARRAY_TYPE_BASE)
-                            && type.getJavaClass().isInstance(value)) { return type; }
+                            && type.getJavaClass().isInstance(value)) {
+                        return type;
+                    }
                 } else {
                     Array arr = (Array) value;
                     try {
@@ -1171,7 +1199,9 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
                     } catch (SQLException e) { /* Passthrough to fail */ }
                 }
             } else {
-                if (type.getJavaClass().isInstance(value)) { return type; }
+                if (type.getJavaClass().isInstance(value)) {
+                    return type;
+                }
             }
         }
         throw new UnsupportedOperationException("Unsupported literal value [" + value + "] of type "
@@ -1190,8 +1220,12 @@ public abstract class PDataType<T> implements DataType<T>, Comparable<PDataType<
         return object;
     }
 
-    public void pad(ImmutableBytesWritable ptr, Integer maxLength, SortOrder sortOrder) {}
-    public byte[] pad(byte[] b, Integer maxLength, SortOrder sortOrder) { return b; }
+    public void pad(ImmutableBytesWritable ptr, Integer maxLength, SortOrder sortOrder) {
+    }
+
+    public byte[] pad(byte[] b, Integer maxLength, SortOrder sortOrder) {
+        return b;
+    }
 
     public static PDataType arrayBaseType(PDataType arrayType) {
         Preconditions.checkArgument(arrayType.isArrayType(), "Not a phoenix array type");

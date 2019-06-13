@@ -23,5 +23,5 @@ public class UndecodableByteException extends RuntimeException {
     public UndecodableByteException(Byte b) {
         super("Undecodable byte: " + b);
     }
-    
+
 }

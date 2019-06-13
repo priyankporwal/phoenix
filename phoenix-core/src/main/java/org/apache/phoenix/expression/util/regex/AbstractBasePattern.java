@@ -24,7 +24,7 @@ public abstract class AbstractBasePattern {
     public abstract void matches(ImmutableBytesWritable srcPtr);
 
     public abstract void replaceAll(ImmutableBytesWritable srcPtr, byte[] rStrBytes,
-            int rStrOffset, int rStrLen);
+                                    int rStrOffset, int rStrLen);
 
     public abstract void substr(ImmutableBytesWritable srcPtr, int offsetInStr);
 

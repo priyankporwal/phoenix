@@ -18,7 +18,6 @@
 package org.apache.phoenix.monitoring;
 
 
-
 /**
  * Interface for representing a metric that could be published and possibly combined with a metric of the same
  * type.
@@ -28,7 +27,7 @@ public interface CombinableMetric extends Metric {
     String getPublishString();
 
     CombinableMetric combine(CombinableMetric metric);
-    
+
     CombinableMetric clone();
 
     public class NoOpRequestMetric implements CombinableMetric {
@@ -37,9 +36,9 @@ public interface CombinableMetric extends Metric {
         private static final String EMPTY_STRING = "";
 
         @Override
-		public MetricType getMetricType() {
-			return MetricType.NO_OP_METRIC;
-		}
+        public MetricType getMetricType() {
+            return MetricType.NO_OP_METRIC;
+        }
 
         @Override
         public long getValue() {
@@ -47,10 +46,12 @@ public interface CombinableMetric extends Metric {
         }
 
         @Override
-        public void change(long delta) {}
+        public void change(long delta) {
+        }
 
         @Override
-        public void increment() {}
+        public void increment() {
+        }
 
         @Override
         public String getCurrentMetricState() {
@@ -58,7 +59,8 @@ public interface CombinableMetric extends Metric {
         }
 
         @Override
-        public void reset() {}
+        public void reset() {
+        }
 
         @Override
         public String getPublishString() {
@@ -71,15 +73,15 @@ public interface CombinableMetric extends Metric {
         }
 
         @Override
-        public void decrement() {}
-        
+        public void decrement() {
+        }
+
         @Override
-        public CombinableMetric clone(){
+        public CombinableMetric clone() {
             return INSTANCE;
         }
 
     }
 
-    
 
 }

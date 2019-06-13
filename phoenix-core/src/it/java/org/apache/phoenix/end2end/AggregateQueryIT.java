@@ -50,11 +50,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 public class AggregateQueryIT extends BaseQueryIT {
 
-    @Parameters(name="AggregateQueryIT_{index}") // name is used by failsafe as file name in reports
+    @Parameters(name = "AggregateQueryIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
-    
+
     public AggregateQueryIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
@@ -68,14 +69,14 @@ public class AggregateQueryIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(6, rs.getInt(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSplitWithCachedMeta() throws Exception {
         // Tests that you don't get an ambiguous column exception when using the same alias as the column name
@@ -101,12 +102,12 @@ public class AggregateQueryIT extends BaseQueryIT {
             assertEquals(E_VALUE, rs.getString(2));
             assertEquals(1, rs.getLong(3));
             assertFalse(rs.next());
-            
-            TableName tn =TableName.valueOf(tableName);
+
+            TableName tn = TableName.valueOf(tableName);
             admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();
             Configuration configuration = conn.unwrap(PhoenixConnection.class).getQueryServices().getConfiguration();
             org.apache.hadoop.hbase.client.Connection hbaseConn = ConnectionFactory.createConnection(configuration);
-            ((ClusterConnection)hbaseConn).clearRegionCache(TableName.valueOf(tableName));
+            ((ClusterConnection) hbaseConn).clearRegionCache(TableName.valueOf(tableName));
             RegionLocator regionLocator = hbaseConn.getRegionLocator(TableName.valueOf(tableName));
             int nRegions = regionLocator.getAllRegionLocations().size();
             admin.split(tn, ByteUtil.concat(Bytes.toBytes(tenantId), Bytes.toBytes("00A3")));
@@ -115,9 +116,10 @@ public class AggregateQueryIT extends BaseQueryIT {
                 Thread.sleep(2000);
                 retryCount++;
                 //htable.clearRegionCache();
-            } while (retryCount < 10 && regionLocator.getAllRegionLocations().size() == nRegions);
+            }
+            while (retryCount < 10 && regionLocator.getAllRegionLocations().size() == nRegions);
             assertNotEquals(nRegions, regionLocator.getAllRegionLocations().size());
-            
+
             statement.setString(1, tenantId);
             rs = statement.executeQuery();
             assertTrue(rs.next());
@@ -131,16 +133,16 @@ public class AggregateQueryIT extends BaseQueryIT {
             assertTrue(rs.next());
             assertEquals(A_VALUE, rs.getString(1));
             assertEquals(E_VALUE, rs.getString(2));
-           assertEquals(1, rs.getLong(3));
+            assertEquals(1, rs.getLong(3));
             assertFalse(rs.next());
         } finally {
             if (admin != null) {
-            admin.close();
+                admin.close();
             }
             conn.close();
         }
-    }    
-    
+    }
+
     @Test
     public void testCountIsNull() throws Exception {
         String query = "SELECT count(1) FROM " + tableName + " WHERE X_DECIMAL is null";
@@ -149,48 +151,48 @@ public class AggregateQueryIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(6, rs.getLong(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
-    
+
+
     @Test
     public void testCountWithNoScanRanges() throws Exception {
         String query = "SELECT count(1) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id'";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-		try {
-			PreparedStatement statement = conn.prepareStatement(query);
-			ResultSet rs = statement.executeQuery();
-			assertTrue(rs.next());
-			assertEquals(0, rs.getLong(1));
-			assertFalse(rs.next());
-			query = "SELECT count(1) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id' having count(*)>0";
-			rs = conn.prepareStatement(query).executeQuery();
-			assertFalse(rs.next());
-			query = "SELECT count(1) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id' limit 1 offset 1";
-			rs = conn.prepareStatement(query).executeQuery();
-			assertFalse(rs.next());
-			query = "SELECT count(1),123 FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id'";
-			rs = conn.prepareStatement(query).executeQuery();
-			assertTrue(rs.next());
-			assertEquals(0, rs.getLong(1));
-			assertEquals("123", rs.getString(2));
-			assertFalse(rs.next());
-			query = "SELECT count(1),sum(x_decimal) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id'";
-			rs = conn.prepareStatement(query).executeQuery();
-			assertTrue(rs.next());
-			assertEquals(0, rs.getLong(1));
-			assertEquals(null, rs.getBigDecimal(2));
-			assertFalse(rs.next());
-		} finally {
-			conn.close();
-		}
-	}
+        try {
+            PreparedStatement statement = conn.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(0, rs.getLong(1));
+            assertFalse(rs.next());
+            query = "SELECT count(1) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id' having count(*)>0";
+            rs = conn.prepareStatement(query).executeQuery();
+            assertFalse(rs.next());
+            query = "SELECT count(1) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id' limit 1 offset 1";
+            rs = conn.prepareStatement(query).executeQuery();
+            assertFalse(rs.next());
+            query = "SELECT count(1),123 FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id'";
+            rs = conn.prepareStatement(query).executeQuery();
+            assertTrue(rs.next());
+            assertEquals(0, rs.getLong(1));
+            assertEquals("123", rs.getString(2));
+            assertFalse(rs.next());
+            query = "SELECT count(1),sum(x_decimal) FROM " + tableName + " WHERE organization_id = 'not_existing_organization_id'";
+            rs = conn.prepareStatement(query).executeQuery();
+            assertTrue(rs.next());
+            assertEquals(0, rs.getLong(1));
+            assertEquals(null, rs.getBigDecimal(2));
+            assertFalse(rs.next());
+        } finally {
+            conn.close();
+        }
+    }
 
     @Test
     public void testCountIsNotNull() throws Exception {
@@ -200,7 +202,7 @@ public class AggregateQueryIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(3, rs.getLong(1));
             assertFalse(rs.next());
         } finally {
@@ -229,5 +231,5 @@ public class AggregateQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
 }

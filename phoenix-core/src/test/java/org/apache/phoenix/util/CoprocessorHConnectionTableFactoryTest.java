@@ -38,77 +38,79 @@ import org.slf4j.LoggerFactory;
  * close should not close the shared connections
  */
 public class CoprocessorHConnectionTableFactoryTest extends BaseUniqueNamesOwnClusterIT {
-  private static String ORG_PREFIX = "ORG";
-  private static final Logger LOGGER =
-          LoggerFactory.getLogger(CoprocessorHConnectionTableFactoryTest.class);
+    private static String ORG_PREFIX = "ORG";
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(CoprocessorHConnectionTableFactoryTest.class);
 
-  @BeforeClass
-  public static final void doSetup() throws Exception {
+    @BeforeClass
+    public static final void doSetup() throws Exception {
 
-    setUpTestDriver(ReadOnlyProps.EMPTY_PROPS);
+        setUpTestDriver(ReadOnlyProps.EMPTY_PROPS);
 
-  }
-
-  static String getOrgId(long id) {
-    return ORG_PREFIX + "-" + id;
-  }
-
-  static String getRandomOrgId(int maxOrgId) {
-    return getOrgId(Math.round(Math.random() * maxOrgId));
-  }
-
-  static void writeToTable(String tableName, Connection conn, int maxOrgId) throws SQLException {
-    try {
-
-      String orgId = getRandomOrgId(maxOrgId);
-      Statement stmt = conn.createStatement();
-      for (int i = 0; i < 10; i++) {
-        stmt.executeUpdate("UPSERT INTO " + tableName + " VALUES('" + orgId + "'," + i + ","
-            + (i + 1) + "," + (i + 2) + ")");
-
-      }
-      conn.commit();
-    } catch (Exception e) {
-      LOGGER.error("Client side exception:" + e);
     }
 
-  }
+    static String getOrgId(long id) {
+        return ORG_PREFIX + "-" + id;
+    }
 
-  static int getActiveConnections(HRegionServer regionServer, Configuration conf) throws Exception {
-    return ServerUtil.ConnectionFactory.getConnectionsCount();
-  }
+    static String getRandomOrgId(int maxOrgId) {
+        return getOrgId(Math.round(Math.random() * maxOrgId));
+    }
 
-  @Test
-  public void testCachedConnections() throws Exception {
-    final String tableName = generateUniqueName();
-    final String index1Name = generateUniqueName();
-    final Connection conn = DriverManager.getConnection(getUrl());
+    static void writeToTable(String tableName, Connection conn, int maxOrgId) throws SQLException {
+        try {
 
-    final HBaseAdmin admin = getUtility().getHBaseAdmin();
-    final MiniHBaseCluster cluster = getUtility().getHBaseCluster();
-    final HRegionServer regionServer = cluster.getRegionServer(0);
-    Configuration conf = admin.getConfiguration();
-    final int noOfOrgs = 20;
-    final AtomicBoolean flag = new AtomicBoolean();
-    flag.set(false);
-    // create table and indices
-    String createTableSql = "CREATE TABLE " + tableName
-        + "(org_id VARCHAR NOT NULL PRIMARY KEY, v1 INTEGER, v2 INTEGER, v3 INTEGER) VERSIONS=1 SPLIT ON ('"
-        + ORG_PREFIX + "-" + noOfOrgs / 2 + "')";
-    conn.createStatement().execute(createTableSql);
-    conn.createStatement().execute("CREATE INDEX " + index1Name + " ON " + tableName + "(v1)");
-    List<HRegionInfo> regions = admin.getTableRegions(TableName.valueOf(tableName));
-    final HRegionInfo regionInfo = regions.get(0);
+            String orgId = getRandomOrgId(maxOrgId);
+            Statement stmt = conn.createStatement();
+            for (int i = 0; i < 10; i++) {
+                stmt.executeUpdate("UPSERT INTO " + tableName + " VALUES('" + orgId + "'," + i + ","
+                        + (i + 1) + "," + (i + 2) + ")");
 
-    writeToTable(tableName, conn, noOfOrgs);
-    int beforeRegionCloseCount = getActiveConnections(regionServer, conf);
-    int regionsCount = admin.getOnlineRegions(regionServer.getServerName()).size();
-    admin.unassign(regionInfo.getEncodedNameAsBytes(), true);
-    while(!(admin.getOnlineRegions(regionServer.getServerName()).size() < regionsCount));
-    int afterRegionCloseCount = getActiveConnections(regionServer, conf);
-    assertTrue("Cached connections not closed when region closes: ",
-    afterRegionCloseCount == beforeRegionCloseCount && afterRegionCloseCount > 0);
+            }
+            conn.commit();
+        } catch (Exception e) {
+            LOGGER.error("Client side exception:" + e);
+        }
 
-  }
+    }
+
+    static int getActiveConnections(HRegionServer regionServer, Configuration conf) throws Exception {
+        return ServerUtil.ConnectionFactory.getConnectionsCount();
+    }
+
+    @Test
+    public void testCachedConnections() throws Exception {
+        final String tableName = generateUniqueName();
+        final String index1Name = generateUniqueName();
+        final Connection conn = DriverManager.getConnection(getUrl());
+
+        final HBaseAdmin admin = getUtility().getHBaseAdmin();
+        final MiniHBaseCluster cluster = getUtility().getHBaseCluster();
+        final HRegionServer regionServer = cluster.getRegionServer(0);
+        Configuration conf = admin.getConfiguration();
+        final int noOfOrgs = 20;
+        final AtomicBoolean flag = new AtomicBoolean();
+        flag.set(false);
+        // create table and indices
+        String createTableSql = "CREATE TABLE " + tableName
+                + "(org_id VARCHAR NOT NULL PRIMARY KEY, v1 INTEGER, v2 INTEGER, v3 INTEGER) VERSIONS=1 SPLIT ON ('"
+                + ORG_PREFIX + "-" + noOfOrgs / 2 + "')";
+        conn.createStatement().execute(createTableSql);
+        conn.createStatement().execute("CREATE INDEX " + index1Name + " ON " + tableName + "(v1)");
+        List<HRegionInfo> regions = admin.getTableRegions(TableName.valueOf(tableName));
+        final HRegionInfo regionInfo = regions.get(0);
+
+        writeToTable(tableName, conn, noOfOrgs);
+        int beforeRegionCloseCount = getActiveConnections(regionServer, conf);
+        int regionsCount = admin.getOnlineRegions(regionServer.getServerName()).size();
+        admin.unassign(regionInfo.getEncodedNameAsBytes(), true);
+        while (!(admin.getOnlineRegions(regionServer.getServerName()).size() < regionsCount)) {
+            ;
+        }
+        int afterRegionCloseCount = getActiveConnections(regionServer, conf);
+        assertTrue("Cached connections not closed when region closes: ",
+                afterRegionCloseCount == beforeRegionCloseCount && afterRegionCloseCount > 0);
+
+    }
 
 }

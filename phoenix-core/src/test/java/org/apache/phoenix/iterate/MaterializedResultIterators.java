@@ -25,9 +25,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.phoenix.query.KeyRange;
 
 /**
- * 
  * ResultIteraors implementation backed by in-memory list of PeekingResultIterator
- *
  */
 public class MaterializedResultIterators implements ResultIterators {
     private final List<PeekingResultIterator> results;
@@ -52,12 +50,12 @@ public class MaterializedResultIterators implements ResultIterators {
 
     @Override
     public List<KeyRange> getSplits() {
-    	return Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @Override
     public List<List<Scan>> getScans() {
-    	return Collections.emptyList();
+        return Collections.emptyList();
     }
 
     @Override

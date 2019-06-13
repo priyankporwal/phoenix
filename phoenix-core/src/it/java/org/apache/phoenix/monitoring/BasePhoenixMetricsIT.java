@@ -44,11 +44,11 @@ public class BasePhoenixMetricsIT extends BaseUniqueNamesOwnClusterIT {
     static final int MAX_RETRIES = 5;
 
     static final List<MetricType> mutationMetricsToSkip =
-    Lists.newArrayList(MetricType.MUTATION_COMMIT_TIME);
+            Lists.newArrayList(MetricType.MUTATION_COMMIT_TIME);
     static final List<MetricType> readMetricsToSkip =
-    Lists.newArrayList(MetricType.TASK_QUEUE_WAIT_TIME,
-            MetricType.TASK_EXECUTION_TIME, MetricType.TASK_END_TO_END_TIME,
-            MetricType.COUNT_MILLS_BETWEEN_NEXTS);
+            Lists.newArrayList(MetricType.TASK_QUEUE_WAIT_TIME,
+                    MetricType.TASK_EXECUTION_TIME, MetricType.TASK_END_TO_END_TIME,
+                    MetricType.COUNT_MILLS_BETWEEN_NEXTS);
     static final String CUSTOM_URL_STRING = "SESSION";
     static final AtomicInteger numConnections = new AtomicInteger(0);
 
@@ -82,7 +82,7 @@ public class BasePhoenixMetricsIT extends BaseUniqueNamesOwnClusterIT {
     }
 
     void assertReadMetricsForMutatingSql(String tableName, long tableSaltBuckets,
-                                                 Map<String, Map<MetricType, Long>> readMetrics) {
+                                         Map<String, Map<MetricType, Long>> readMetrics) {
         assertTrue("No read metrics present when there should have been!", readMetrics.size() > 0);
         int numTables = 0;
         for (Map.Entry<String, Map<MetricType, Long>> entry : readMetrics.entrySet()) {

@@ -31,10 +31,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * 
  * Base class for visitors that rewrite the expression node hierarchy
  *
- * 
  * @since 0.1
  */
 public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
@@ -52,12 +50,13 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
     /**
      * Rewrite the select statement by switching any constants to the right hand side
      * of the expression.
+     *
      * @param statement the select statement
      * @return new select statement
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static SelectStatement rewrite(SelectStatement statement, ParseNodeRewriter rewriter) throws SQLException {
-        Map<String,ParseNode> aliasMap = rewriter.getAliasMap();
+        Map<String, ParseNode> aliasMap = rewriter.getAliasMap();
         TableNode from = statement.getFrom();
         TableNode normFrom = from == null ? null : from.accept(new TableNodeRewriter(rewriter));
         ParseNode where = statement.getWhere();
@@ -67,7 +66,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
             normWhere = where.accept(rewriter);
         }
         ParseNode having = statement.getHaving();
-        ParseNode normHaving= having;
+        ParseNode normHaving = having;
         if (having != null) {
             rewriter.reset();
             normHaving = having.accept(rewriter);
@@ -141,10 +140,10 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         }
 
         // Return new SELECT statement with updated WHERE clause
-        if (normFrom == from && 
-        		normWhere == where && 
-                normHaving == having && 
-                selectNodes == normSelectNodes && 
+        if (normFrom == from &&
+                normWhere == where &&
+                normHaving == having &&
+                selectNodes == normSelectNodes &&
                 groupByNodes == normGroupByNodes &&
                 orderByNodes == normOrderByNodes) {
             return statement;
@@ -201,7 +200,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
             return factory.createNode(children);
         }
     }
-    
+
     @Override
     protected void enterParseNode(ParseNode node) {
     }
@@ -281,7 +280,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
             @Override
             public ParseNode createNode(List<ParseNode> children) {
-                return NODE_FACTORY.function(node.getName(),children);
+                return NODE_FACTORY.function(node.getName(), children);
             }
         });
     }
@@ -301,7 +300,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
             @Override
             public ParseNode createNode(List<ParseNode> children) {
-                return NODE_FACTORY.like(children.get(0),children.get(1),node.isNegate(), node.getLikeType());
+                return NODE_FACTORY.like(children.get(0), children.get(1), node.isNegate(), node.getLikeType());
             }
         });
     }
@@ -357,7 +356,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         });
         return normNode;
     }
-    
+
     @Override
     public ParseNode visitLeave(final IsNullParseNode node, List<ParseNode> nodes) throws SQLException {
         return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
@@ -384,7 +383,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
             @Override
             public ParseNode createNode(List<ParseNode> children) {
-                if(node.isNegate()) {
+                if (node.isNegate()) {
                     return NODE_FACTORY.not(NODE_FACTORY.and(children));
                 } else {
                     return NODE_FACTORY.and(children);
@@ -452,7 +451,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
     public ParseNode visit(SubqueryParseNode node) throws SQLException {
         return node;
     }
-    
+
     @Override
     public List<ParseNode> newElementList(int size) {
         nodeCount += size;
@@ -480,11 +479,12 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
     @Override
     public ParseNode visitLeave(RowValueConstructorParseNode node, List<ParseNode> children) throws SQLException {
         // Strip trailing nulls from rvc as they have no meaning
-        if (children.get(children.size()-1) == null) {
+        if (children.get(children.size() - 1) == null) {
             children = Lists.newArrayList(children);
             do {
-                children.remove(children.size()-1);
-            } while (children.size() > 0 && children.get(children.size()-1) == null);
+                children.remove(children.size() - 1);
+            }
+            while (children.size() > 0 && children.get(children.size() - 1) == null);
             // If we're down to a single child, it's not a rvc anymore
             if (children.size() == 0) {
                 return null;
@@ -514,27 +514,27 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         });
     }
 
-	@Override
-	public ParseNode visit(SequenceValueParseNode node) throws SQLException {		
-		return node;
-	}
+    @Override
+    public ParseNode visit(SequenceValueParseNode node) throws SQLException {
+        return node;
+    }
 
-	@Override
-	public ParseNode visitLeave(ArrayConstructorNode node, List<ParseNode> nodes) throws SQLException {
-	    return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
+    @Override
+    public ParseNode visitLeave(ArrayConstructorNode node, List<ParseNode> nodes) throws SQLException {
+        return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
             @Override
             public ParseNode createNode(List<ParseNode> children) {
                 return NODE_FACTORY.upsertStmtArrayNode(children);
             }
         });
-	}
-	
-	private static class TableNodeRewriter implements TableNodeVisitor<TableNode> {
-	    private final ParseNodeRewriter parseNodeRewriter;
+    }
 
-	    public TableNodeRewriter(ParseNodeRewriter parseNodeRewriter) {
-	        this.parseNodeRewriter = parseNodeRewriter;
-	    }
+    private static class TableNodeRewriter implements TableNodeVisitor<TableNode> {
+        private final ParseNodeRewriter parseNodeRewriter;
+
+        public TableNodeRewriter(ParseNodeRewriter parseNodeRewriter) {
+            this.parseNodeRewriter = parseNodeRewriter;
+        }
 
         @Override
         public TableNode visit(BindTableNode boundTableNode) throws SQLException {
@@ -550,8 +550,9 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
             TableNode normRhsNode = rhsNode.accept(this);
             parseNodeRewriter.reset();
             ParseNode normOnNode = onNode == null ? null : onNode.accept(parseNodeRewriter);
-            if (lhsNode == normLhsNode && rhsNode == normRhsNode && onNode == normOnNode)
+            if (lhsNode == normLhsNode && rhsNode == normRhsNode && onNode == normOnNode) {
                 return joinNode;
+            }
 
             return NODE_FACTORY.join(joinNode.getType(), normLhsNode, normRhsNode, normOnNode, joinNode.isSingleValueOnly());
         }
@@ -565,9 +566,9 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         public TableNode visit(DerivedTableNode subselectNode) throws SQLException {
             return subselectNode;
         }
-	}
+    }
 
-	@Override
+    @Override
     public ParseNode visitLeave(ArrayAnyComparisonNode node, final List<ParseNode> nodes) throws SQLException {
         ParseNode normNode = leaveCompoundNode(node, nodes, new CompoundNodeFactory() {
             @Override
@@ -588,7 +589,7 @@ public class ParseNodeRewriter extends TraverseAllParseNodeVisitor<ParseNode> {
         });
         return normNode;
     }
- 
+
     @Override
     public ParseNode visitLeave(ArrayElemRefNode node, List<ParseNode> nodes) throws SQLException {
         return leaveCompoundNode(node, nodes, new CompoundNodeFactory() {

@@ -27,10 +27,8 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PTimestamp;
 
 /**
- * 
  * Node representing literal expressions such as 1,2.5,'foo', and NULL in SQL
  *
- * 
  * @since 0.1
  */
 public class LiteralParseNode extends TerminalParseNode {
@@ -44,10 +42,10 @@ public class LiteralParseNode extends TerminalParseNode {
     public static final ParseNode MIN_LONG_AS_BIG_DECIMAL = new LiteralParseNode(BigDecimal.valueOf(Long.MIN_VALUE).abs());
     // See ParseNodeFactory.negate(), as MIN_LONG_AS_BIG_DECIMAL will be converted MIN_LONG if negated.
     public static final ParseNode MIN_LONG = new LiteralParseNode(Long.MIN_VALUE);
-    
+
     private final Object value;
     private final PDataType type;
-    
+
     public LiteralParseNode(Object value) {
         this.type = PDataType.fromLiteral(value);
         // This will make the value null if the value passed through represents null for the given type.
@@ -65,7 +63,7 @@ public class LiteralParseNode extends TerminalParseNode {
     public PDataType getType() {
         return type;
     }
-    
+
     public Object getValue() {
         return value;
     }
@@ -74,7 +72,7 @@ public class LiteralParseNode extends TerminalParseNode {
     public boolean isStateless() {
         return true;
     }
-    
+
     @Override
     public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
         return visitor.visit(this);
@@ -83,29 +81,36 @@ public class LiteralParseNode extends TerminalParseNode {
     public byte[] getBytes() {
         return type == null ? null : type.toBytes(value);
     }
-    
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
-	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		LiteralParseNode other = (LiteralParseNode) obj;
-		if (value == other.value) return true;
-		if (type == null) return false;
-		return type.isComparableTo(other.type) && type.compareTo(value, other.value, other.type) == 0;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        LiteralParseNode other = (LiteralParseNode) obj;
+        if (value == other.value) {
+            return true;
+        }
+        if (type == null) {
+            return false;
+        }
+        return type.isComparableTo(other.type) && type.compareTo(value, other.value, other.type) == 0;
+    }
 
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {

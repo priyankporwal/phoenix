@@ -39,7 +39,9 @@ public class OffsetResultIterator extends DelegateResultIterator {
     @Override
     public Tuple next() throws SQLException {
         while (rowCount < offset) {
-            if (super.next() == null) { return null; }
+            if (super.next() == null) {
+                return null;
+            }
             rowCount++;
         }
         return super.next();

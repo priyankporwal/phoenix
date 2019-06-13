@@ -65,6 +65,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
 
     /**
      * Simple test that we can correctly write spans to the phoenix table
+     *
      * @throws Exception on failure
      */
     @Test
@@ -129,6 +130,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
     /**
      * Test that span will actually go into the this sink and be written on both side of the wire,
      * through the indexing code.
+     *
      * @throws Exception
      */
     @Test
@@ -252,7 +254,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
 
         assertTrue("Get expected updates to trace table", latch.await(200, TimeUnit.SECONDS));
         // don't trace reads either
-        boolean tracingComplete = checkStoredTraces(conn, new TraceChecker(){
+        boolean tracingComplete = checkStoredTraces(conn, new TraceChecker() {
 
             @Override
             public boolean foundTrace(TraceHolder currentTrace) {
@@ -320,9 +322,9 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
 
         LOGGER.info("testCustomAnnotationTracing TableName: " + tracingTableName);
 
-    	final String customAnnotationKey = "myannot";
-    	final String customAnnotationValue = "a1";
-    	final String tenantId = "tenant1";
+        final String customAnnotationKey = "myannot";
+        final String customAnnotationValue = "a1";
+        final String tenantId = "tenant1";
         // separate connections to minimize amount of traces that are generated
         Connection traceable = getTracingConnection(ImmutableMap.of(customAnnotationKey, customAnnotationValue), tenantId);
         Connection conn = getConnectionWithoutTracing();
@@ -368,9 +370,9 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
     @Test
     public void testTraceOnOrOff() throws Exception {
         Connection conn1 = getConnectionWithoutTracing(); //DriverManager.getConnection(getUrl());
-        try{
+        try {
             Statement statement = conn1.createStatement();
-            ResultSet  rs = statement.executeQuery("TRACE ON");
+            ResultSet rs = statement.executeQuery("TRACE ON");
             assertTrue(rs.next());
             PhoenixConnection pconn = (PhoenixConnection) conn1;
             long traceId = pconn.getTraceScope().getSpan().getTraceId();
@@ -396,7 +398,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
             rs = statement.executeQuery("TRACE ON  WITH SAMPLING 1.0");
             assertTrue(rs.next());
             traceId = pconn.getTraceScope().getSpan()
-            .getTraceId();
+                    .getTraceId();
             assertEquals(traceId, rs.getLong(1));
             assertEquals(traceId, rs.getLong("trace_id"));
             assertFalse(rs.next());
@@ -413,7 +415,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
             rs = statement.executeQuery("TRACE OFF");
             assertFalse(rs.next());
 
-       } finally {
+        } finally {
             conn1.close();
         }
     }
@@ -442,6 +444,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
     /**
      * Test multiple spans, within the same trace. Some spans are independent of the parent span,
      * some are child spans
+     *
      * @throws Exception on failure
      */
     @Test
@@ -480,8 +483,9 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
                         "third child");
         spans.add(span);
 
-        for(Span span1 : spans)
+        for (Span span1 : spans) {
             Tracer.getInstance().deliver(span1);
+        }
 
         assertTrue("Updates not written in table", latch.await(100, TimeUnit.SECONDS));
 
@@ -514,7 +518,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
             LOGGER.info("Checking span:\n" + spanInfo);
 
             long parentId = span.getParentId();
-            if(parentId == Span.ROOT_SPAN_ID) {
+            if (parentId == Span.ROOT_SPAN_ID) {
                 assertNull("Got a parent, but it was a root span!", spanInfo.parent);
             } else {
                 assertEquals("Got an unexpected parent span id", parentId, spanInfo.parent.id);
@@ -524,7 +528,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
             assertEquals("Got an unexpected end time", span.getStopTimeMillis(), spanInfo.end);
 
             int annotationCount = 0;
-            for(Map.Entry<byte[], byte[]> entry : span.getKVAnnotations().entrySet()) {
+            for (Map.Entry<byte[], byte[]> entry : span.getKVAnnotations().entrySet()) {
                 int count = annotationCount++;
                 assertEquals("Didn't get expected annotation", count + " - " + Bytes.toString(entry.getValue()),
                         spanInfo.annotations.get(count));
@@ -535,7 +539,7 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
     }
 
     private void assertAnnotationPresent(final String annotationKey, final String annotationValue, Connection conn) throws Exception {
-        boolean tracingComplete = checkStoredTraces(conn, new TraceChecker(){
+        boolean tracingComplete = checkStoredTraces(conn, new TraceChecker() {
             @Override
             public boolean foundTrace(TraceHolder currentTrace) {
                 return currentTrace.toString().contains(annotationKey + " - " + annotationValue);
@@ -549,7 +553,8 @@ public class PhoenixTracingEndToEndIT extends BaseTracingTestIT {
         TraceReader reader = new TraceReader(conn, tracingTableName);
         int retries = 0;
         boolean found = false;
-        outer: while (retries < MAX_RETRIES) {
+        outer:
+        while (retries < MAX_RETRIES) {
             Collection<TraceHolder> traces = reader.readAll(100);
             for (TraceHolder trace : traces) {
                 LOGGER.info("Got trace: " + trace);

@@ -73,7 +73,7 @@ public class WriteWorkload implements Workload {
     public WriteWorkload(XMLConfigParser parser) throws Exception {
         this(PhoenixUtil.create(), parser, GeneratePhoenixStats.NO);
     }
-    
+
     public WriteWorkload(XMLConfigParser parser, GeneratePhoenixStats generateStatistics) throws Exception {
         this(PhoenixUtil.create(), parser, generateStatistics);
     }
@@ -103,27 +103,26 @@ public class WriteWorkload implements Workload {
      * @throws Exception
      */
     public WriteWorkload(PhoenixUtil phoenixUtil, Properties properties, XMLConfigParser parser,
-            Scenario scenario, GeneratePhoenixStats generateStatistics) throws Exception {
+                         Scenario scenario, GeneratePhoenixStats generateStatistics) throws Exception {
         this.pUtil = phoenixUtil;
         this.parser = parser;
         this.rulesApplier = new RulesApplier(parser);
         this.resultUtil = new ResultUtil();
         this.generateStatistics = generateStatistics;
         int size = Integer.parseInt(properties.getProperty("pherf.default.dataloader.threadpool"));
-        
+
         // Overwrite defaults properties with those given in the configuration. This indicates the
         // scenario is a R/W mixed workload.
         if (scenario != null) {
             this.scenario = scenario;
             writeParams = scenario.getWriteParams();
             if (writeParams != null) {
-            	threadSleepDuration = writeParams.getThreadSleepDuration();
-            	size = writeParams.getWriterThreadCount();
+                threadSleepDuration = writeParams.getThreadSleepDuration();
+                size = writeParams.getWriterThreadCount();
+            } else {
+                threadSleepDuration = 0;
             }
-            else {
-            	threadSleepDuration = 0;
-            }
-            	
+
         } else {
             writeParams = null;
             this.scenario = null;
@@ -147,13 +146,15 @@ public class WriteWorkload implements Workload {
                 (bSize == null) ? PherfConstants.DEFAULT_BATCH_SIZE : Integer.parseInt(bSize);
     }
 
-    @Override public void complete() {
+    @Override
+    public void complete() {
         pool.shutdownNow();
     }
 
     public Callable<Void> execute() throws Exception {
         return new Callable<Void>() {
-            @Override public Void call() throws Exception {
+            @Override
+            public Void call() throws Exception {
                 try {
                     DataLoadTimeSummary dataLoadTimeSummary = new DataLoadTimeSummary();
                     DataLoadThreadTime dataLoadThreadTime = new DataLoadThreadTime();
@@ -178,9 +179,9 @@ public class WriteWorkload implements Workload {
     }
 
     private synchronized void exec(DataLoadTimeSummary dataLoadTimeSummary,
-            DataLoadThreadTime dataLoadThreadTime, Scenario scenario) throws Exception {
+                                   DataLoadThreadTime dataLoadThreadTime, Scenario scenario) throws Exception {
         LOGGER.info("\nLoading " + scenario.getRowCount() + " rows for " + scenario.getTableName());
-        
+
         // Execute any pre dataload scenario DDLs
         pUtil.executeScenarioDdl(scenario.getPreScenarioDdls(), scenario.getTenantId(), dataLoadTimeSummary);
 
@@ -191,12 +192,12 @@ public class WriteWorkload implements Workload {
         // Update Phoenix Statistics
         if (this.generateStatistics == GeneratePhoenixStats.YES) {
             LOGGER.info("Updating Phoenix table statistics...");
-        	pUtil.updatePhoenixStats(scenario.getTableName(), scenario);
+            pUtil.updatePhoenixStats(scenario.getTableName(), scenario);
             LOGGER.info("Stats update done!");
         } else {
             LOGGER.info("Phoenix table stats update not requested.");
         }
-        
+
         // Execute any post data load scenario DDLs before starting query workload
         pUtil.executeScenarioDdl(scenario.getPostScenarioDdls(), scenario.getTenantId(), dataLoadTimeSummary);
     }
@@ -231,7 +232,7 @@ public class WriteWorkload implements Workload {
     }
 
     private void waitForBatches(DataLoadTimeSummary dataLoadTimeSummary, Scenario scenario,
-            long start, List<Future<Info>> writeBatches)
+                                long start, List<Future<Info>> writeBatches)
             throws InterruptedException, java.util.concurrent.ExecutionException {
         int sumRows = 0, sumDuration = 0;
         // Wait for all the batch threads to complete
@@ -251,10 +252,11 @@ public class WriteWorkload implements Workload {
     }
 
     public Future<Info> upsertData(final Scenario scenario, final List<Column> columns,
-            final String tableName, final int rowCount,
-            final DataLoadThreadTime dataLoadThreadTime, final boolean useBatchApi) {
+                                   final String tableName, final int rowCount,
+                                   final DataLoadThreadTime dataLoadThreadTime, final boolean useBatchApi) {
         Future<Info> future = pool.submit(new Callable<Info>() {
-            @Override public Info call() throws Exception {
+            @Override
+            public Info call() throws Exception {
                 int rowsCreated = 0;
                 long start = 0, last = 0, duration, totalDuration;
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -287,8 +289,8 @@ public class WriteWorkload implements Workload {
                                     int result = results[x];
                                     if (result < 1) {
                                         final String msg =
-                                            "Failed to write update in batch (update count="
-                                                + result + ")";
+                                                "Failed to write update in batch (update count="
+                                                        + result + ")";
                                         throw new RuntimeException(msg);
                                     }
                                     rowsCreated += result;
@@ -303,8 +305,8 @@ public class WriteWorkload implements Workload {
 
                             if (i % PherfConstants.LOG_PER_NROWS == 0 && i != 0) {
                                 dataLoadThreadTime.add(tableName,
-                                    Thread.currentThread().getName(), i,
-                                    System.currentTimeMillis() - logStartTime);
+                                        Thread.currentThread().getName(), i,
+                                        System.currentTimeMillis() - logStartTime);
                             }
 
                             logStartTime = System.currentTimeMillis();
@@ -320,7 +322,7 @@ public class WriteWorkload implements Workload {
                 } finally {
                     // Need to keep the statement open to send the remaining batch of updates
                     if (!useBatchApi && stmt != null) {
-                      stmt.close();
+                        stmt.close();
                     }
                     if (connection != null) {
                         if (useBatchApi && stmt != null) {
@@ -329,8 +331,8 @@ public class WriteWorkload implements Workload {
                                 int result = results[x];
                                 if (result < 1) {
                                     final String msg =
-                                        "Failed to write update in batch (update count="
-                                            + result + ")";
+                                            "Failed to write update in batch (update count="
+                                                    + result + ")";
                                     throw new RuntimeException(msg);
                                 }
                                 rowsCreated += result;
@@ -359,100 +361,100 @@ public class WriteWorkload implements Workload {
     }
 
     private PreparedStatement buildStatement(Scenario scenario, List<Column> columns,
-            PreparedStatement statement, SimpleDateFormat simpleDateFormat) throws Exception {
+                                             PreparedStatement statement, SimpleDateFormat simpleDateFormat) throws Exception {
         int count = 1;
         for (Column column : columns) {
 
             DataValue dataValue = getRulesApplier().getDataForRule(scenario, column);
             switch (column.getType()) {
-            case VARCHAR:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.VARCHAR);
-                } else {
-                    statement.setString(count, dataValue.getValue());
-                }
-                break;
-            case CHAR:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.CHAR);
-                } else {
-                    statement.setString(count, dataValue.getValue());
-                }
-                break;
-            case DECIMAL:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.DECIMAL);
-                } else {
-                    statement.setBigDecimal(count, new BigDecimal(dataValue.getValue()));
-                }
-                break;
-            case INTEGER:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.INTEGER);
-                } else {
-                    statement.setInt(count, Integer.parseInt(dataValue.getValue()));
-                }
-                break;
-            case UNSIGNED_LONG:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.OTHER);
-                } else {
-                    statement.setLong(count, Long.parseLong(dataValue.getValue()));
-                }
-                break;
-            case BIGINT:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.BIGINT);
-                } else {
-                    statement.setLong(count, Long.parseLong(dataValue.getValue()));
-                }
-                break;
-            case TINYINT:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.TINYINT);
-                } else {
-                    statement.setLong(count, Integer.parseInt(dataValue.getValue()));
-                }
-                break;
-            case DATE:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.DATE);
-                } else {
-                    Date
-                            date =
-                            new java.sql.Date(simpleDateFormat.parse(dataValue.getValue()).getTime());
-                    statement.setDate(count, date);
-                }
-                break;
-            case VARCHAR_ARRAY:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.ARRAY);
-                } else {
-                    Array
-                            arr =
-                            statement.getConnection().createArrayOf("VARCHAR", dataValue.getValue().split(","));
-                    statement.setArray(count, arr);
-                }
-            	break;
-            case VARBINARY:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.VARBINARY);
-                } else {
-                    statement.setBytes(count, dataValue.getValue().getBytes());
-                }
-                break;
-            case TIMESTAMP:
-                if (dataValue.getValue().equals("")) {
-                    statement.setNull(count, Types.TIMESTAMP);
-                } else {
-                    java.sql.Timestamp
-                            ts =
-                            new java.sql.Timestamp(simpleDateFormat.parse(dataValue.getValue()).getTime());
-                    statement.setTimestamp(count, ts);
-                }
-                break;
-            default:
-                break;
+                case VARCHAR:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.VARCHAR);
+                    } else {
+                        statement.setString(count, dataValue.getValue());
+                    }
+                    break;
+                case CHAR:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.CHAR);
+                    } else {
+                        statement.setString(count, dataValue.getValue());
+                    }
+                    break;
+                case DECIMAL:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.DECIMAL);
+                    } else {
+                        statement.setBigDecimal(count, new BigDecimal(dataValue.getValue()));
+                    }
+                    break;
+                case INTEGER:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.INTEGER);
+                    } else {
+                        statement.setInt(count, Integer.parseInt(dataValue.getValue()));
+                    }
+                    break;
+                case UNSIGNED_LONG:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.OTHER);
+                    } else {
+                        statement.setLong(count, Long.parseLong(dataValue.getValue()));
+                    }
+                    break;
+                case BIGINT:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.BIGINT);
+                    } else {
+                        statement.setLong(count, Long.parseLong(dataValue.getValue()));
+                    }
+                    break;
+                case TINYINT:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.TINYINT);
+                    } else {
+                        statement.setLong(count, Integer.parseInt(dataValue.getValue()));
+                    }
+                    break;
+                case DATE:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.DATE);
+                    } else {
+                        Date
+                                date =
+                                new java.sql.Date(simpleDateFormat.parse(dataValue.getValue()).getTime());
+                        statement.setDate(count, date);
+                    }
+                    break;
+                case VARCHAR_ARRAY:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.ARRAY);
+                    } else {
+                        Array
+                                arr =
+                                statement.getConnection().createArrayOf("VARCHAR", dataValue.getValue().split(","));
+                        statement.setArray(count, arr);
+                    }
+                    break;
+                case VARBINARY:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.VARBINARY);
+                    } else {
+                        statement.setBytes(count, dataValue.getValue().getBytes());
+                    }
+                    break;
+                case TIMESTAMP:
+                    if (dataValue.getValue().equals("")) {
+                        statement.setNull(count, Types.TIMESTAMP);
+                    } else {
+                        java.sql.Timestamp
+                                ts =
+                                new java.sql.Timestamp(simpleDateFormat.parse(dataValue.getValue()).getTime());
+                        statement.setTimestamp(count, ts);
+                    }
+                    break;
+                default:
+                    break;
             }
             count++;
         }

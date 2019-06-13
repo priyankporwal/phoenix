@@ -33,20 +33,18 @@ import org.apache.phoenix.util.EnvironmentEdgeManager;
 
 
 /**
- * 
  * Function that returns the current date accurate to the millisecond. Note that this
  * function is never evaluated on the server-side, instead the server side date is
  * retrieved (piggy-backed on the call to check that the metadata is up-to-date) and
  * passed into this function at create time.
  *
- * 
  * @since 0.1
  */
-@BuiltInFunction(name=CurrentDateFunction.NAME, nodeClass=CurrentDateParseNode.class, args= {} )
+@BuiltInFunction(name = CurrentDateFunction.NAME, nodeClass = CurrentDateParseNode.class, args = {})
 public class CurrentDateFunction extends CurrentDateTimeFunction {
     public static final String NAME = "CURRENT_DATE";
     private final ImmutableBytesWritable currentDate = new ImmutableBytesWritable(new byte[PDate.INSTANCE.getByteSize()]);
-    
+
     public CurrentDateFunction() {
         this(EnvironmentEdgeManager.currentTimeMillis());
     }

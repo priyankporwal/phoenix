@@ -120,12 +120,12 @@ public class StatelessTraverseAllExpressionVisitor<E> extends TraverseAllExpress
     public E visit(KeyValueColumnExpression node) {
         return null;
     }
-    
+
     @Override
     public E visit(SingleCellColumnExpression node) {
         return null;
     }
-    
+
     @Override
     public E visit(ProjectedColumnExpression node) {
         return null;
@@ -150,17 +150,17 @@ public class StatelessTraverseAllExpressionVisitor<E> extends TraverseAllExpress
     public E visitLeave(DivideExpression node, List<E> l) {
         return null;
     }
-    
+
     @Override
     public E visitLeave(StringConcatExpression node, List<E> l) {
         return null;
     }
-    
+
     @Override
     public E visitLeave(RowValueConstructorExpression node, List<E> l) {
         return null;
     }
-    
+
     @Override
     public E visitLeave(CoerceExpression node, List<E> l) {
         return null;
@@ -170,7 +170,7 @@ public class StatelessTraverseAllExpressionVisitor<E> extends TraverseAllExpress
     public E visitLeave(ArrayConstructorExpression node, List<E> l) {
         return null;
     }
-    
+
     @Override
     public E visitLeave(SingleCellConstructorExpression node, List<E> l) {
         return null;

@@ -53,14 +53,14 @@ import com.google.common.collect.Maps;
 public class SpillableGroupByIT extends BaseOwnClusterIT {
 
     private static final int NUM_ROWS_INSERTED = 1000;
-    
+
     // covers: COUNT, SUM, AVG, MIN, MAX 
     private static String GROUPBY1 = "select "
             + "count(*), sum(appcpu), avg(appcpu), uri, min(id), max(id) from %s "
             + "group by uri";
-    
+
     private static String GROUPBY2 = "select count(distinct uri) from %s";
-    
+
     private int id;
 
     @BeforeClass
@@ -74,7 +74,7 @@ public class SpillableGroupByIT extends BaseOwnClusterIT {
                 Integer.toString(1));
         // Large enough to not run out of memory, but small enough to spill
         props.put(QueryServices.MAX_MEMORY_SIZE_ATTRIB, Integer.toString(40000));
-        
+
         // Set guidepost width, but disable stats
         props.put(QueryServices.STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB, Long.toString(20));
         props.put(QueryServices.STATS_COLLECTION_ENABLED, Boolean.toString(false));
@@ -122,7 +122,7 @@ public class SpillableGroupByIT extends BaseOwnClusterIT {
         id++;
     }
 
-    
+
     @Test
     public void testScanUri() throws Exception {
         String tableName = generateUniqueName();
@@ -147,14 +147,14 @@ public class SpillableGroupByIT extends BaseOwnClusterIT {
             count++;
         }
         assertEquals(NUM_ROWS_INSERTED / 2, count);
-        
+
         conn.createStatement();
         rs = stmt.executeQuery("SELECT appcpu FROM " + tableName + " group by appcpu limit 1");
 
         assertTrue(rs.next());
-        assertEquals(10,rs.getInt(1));
+        assertEquals(10, rs.getInt(1));
         assertFalse(rs.next());
-        
+
         stmt = conn.createStatement();
         rs = stmt.executeQuery("SELECT to_number(uri) FROM " + tableName + " group by to_number(uri) limit 100");
         count = 0;
@@ -193,9 +193,9 @@ public class SpillableGroupByIT extends BaseOwnClusterIT {
         assertEquals(
                 "CLIENT 1-CHUNK PARALLEL 1-WAY FULL SCAN OVER " + tableName,
                 explainPlan);
-       conn.close();
+        conn.close();
     }
-    
+
     @Test
     public void testDistinctCountFails() throws Exception {
         String tableName = generateUniqueName();
@@ -210,7 +210,7 @@ public class SpillableGroupByIT extends BaseOwnClusterIT {
             rs.next();
             fail();
         } catch (SQLException e) {
-            assertEquals(SQLExceptionCode.INSUFFICIENT_MEMORY.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.INSUFFICIENT_MEMORY.getErrorCode(), e.getErrorCode());
         }
 
     }

@@ -41,6 +41,7 @@ public class SchemaReader {
 
     /**
      * Used for testing search Pattern
+     *
      * @param searchPattern {@link java.util.regex.Pattern} that matches a resource on the CP
      * @throws Exception
      */

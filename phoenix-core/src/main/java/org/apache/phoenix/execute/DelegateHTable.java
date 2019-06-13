@@ -89,7 +89,7 @@ public class DelegateHTable implements Table {
 
     @Override
     public <R> void batchCallback(List<? extends Row> actions, Object[] results,
-            Callback<R> callback) throws IOException, InterruptedException {
+                                  Callback<R> callback) throws IOException, InterruptedException {
         delegate.batchCallback(actions, results, callback);
     }
 
@@ -136,7 +136,7 @@ public class DelegateHTable implements Table {
 
     @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, CompareOp compareOp,
-            byte[] value, Put put) throws IOException {
+                               byte[] value, Put put) throws IOException {
         return delegate.checkAndPut(row, family, qualifier, compareOp, value, put);
     }
 
@@ -152,13 +152,13 @@ public class DelegateHTable implements Table {
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, byte[] value,
-            Delete delete) throws IOException {
+                                  Delete delete) throws IOException {
         return delegate.checkAndDelete(row, family, qualifier, value, delete);
     }
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, CompareOp compareOp,
-            byte[] value, Delete delete) throws IOException {
+                                  byte[] value, Delete delete) throws IOException {
         return delegate.checkAndDelete(row, family, qualifier, compareOp, value, delete);
     }
 
@@ -185,7 +185,7 @@ public class DelegateHTable implements Table {
 
     @Override
     public long incrementColumnValue(byte[] row, byte[] family, byte[] qualifier, long amount,
-            Durability durability) throws IOException {
+                                     Durability durability) throws IOException {
         return delegate.incrementColumnValue(row, family, qualifier, amount, durability);
     }
 
@@ -201,16 +201,16 @@ public class DelegateHTable implements Table {
 
     @Override
     public <T extends Service, R> Map<byte[], R> coprocessorService(Class<T> service,
-            byte[] startKey, byte[] endKey, Call<T, R> callable) throws ServiceException, Throwable {
+                                                                    byte[] startKey, byte[] endKey, Call<T, R> callable) throws ServiceException, Throwable {
         return delegate.coprocessorService(service, startKey, endKey, callable);
     }
 
     @Override
     public <T extends Service, R> void coprocessorService(Class<T> service, byte[] startKey,
-            byte[] endKey, Call<T, R> callable, Callback<R> callback) throws ServiceException,
+                                                          byte[] endKey, Call<T, R> callable, Callback<R> callback) throws ServiceException,
             Throwable {
         delegate.coprocessorService(service, startKey, endKey, callable, callback);
-        
+
     }
 
     @Override
@@ -222,14 +222,14 @@ public class DelegateHTable implements Table {
 
     @Override
     public <R extends Message> void batchCoprocessorService(MethodDescriptor methodDescriptor,
-            Message request, byte[] startKey, byte[] endKey, R responsePrototype,
-            Callback<R> callback) throws ServiceException, Throwable {
+                                                            Message request, byte[] startKey, byte[] endKey, R responsePrototype,
+                                                            Callback<R> callback) throws ServiceException, Throwable {
         delegate.batchCoprocessorService(methodDescriptor, request, startKey, endKey, responsePrototype);
     }
 
     @Override
     public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareOp compareOp,
-            byte[] value, RowMutations mutation) throws IOException {
+                                  byte[] value, RowMutations mutation) throws IOException {
         return delegate.checkAndMutate(row, family, qualifier, compareOp, value, mutation);
     }
 
@@ -260,13 +260,13 @@ public class DelegateHTable implements Table {
 
     @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, CompareOperator op,
-            byte[] value, Put put) throws IOException {
+                               byte[] value, Put put) throws IOException {
         return delegate.checkAndPut(row, family, qualifier, op, value, put);
     }
 
     @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, CompareOperator op,
-            byte[] value, Delete delete) throws IOException {
+                                  byte[] value, Delete delete) throws IOException {
         return delegate.checkAndDelete(row, family, qualifier, op, value, delete);
     }
 
@@ -277,7 +277,7 @@ public class DelegateHTable implements Table {
 
     @Override
     public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareOperator op,
-            byte[] value, RowMutations mutation) throws IOException {
+                                  byte[] value, RowMutations mutation) throws IOException {
         return delegate.checkAndMutate(row, family, qualifier, op, value, mutation);
     }
 

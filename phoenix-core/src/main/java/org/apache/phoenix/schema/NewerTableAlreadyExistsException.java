@@ -18,8 +18,8 @@
 package org.apache.phoenix.schema;
 
 public class NewerTableAlreadyExistsException extends TableAlreadyExistsException {
-	private static final long serialVersionUID = 1L;
-	private final PTable table;
+    private static final long serialVersionUID = 1L;
+    private final PTable table;
 
     public NewerTableAlreadyExistsException(String schemaName, String tableName) {
         this(schemaName, tableName, null);

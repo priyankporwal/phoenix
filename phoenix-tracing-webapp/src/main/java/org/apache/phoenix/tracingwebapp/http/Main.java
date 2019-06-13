@@ -37,10 +37,10 @@ public final class Main extends Configured implements Tool {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     public static final String PHONIX_DBSERVER_PORT_KEY =
-        "phoenix.dbserver.port";
+            "phoenix.dbserver.port";
     public static final int DEFAULT_DBSERVER_PORT = 2181;
     public static final String PHONIX_DBSERVER_HOST_KEY =
-        "phoenix.dbserver.host";
+            "phoenix.dbserver.host";
     public static final String DEFAULT_DBSERVER_HOST = "localhost";
     public static final String TRACE_SERVER_HTTP_PORT_KEY =
             "phoenix.traceserver.http.port";

@@ -22,24 +22,21 @@ import java.sql.SQLException;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Node representing a bind variable in a SQL expression
  *
- * 
  * @since 0.1
  */
 public class BindParseNode extends NamedParseNode {
     private final int index;
-    
+
     BindParseNode(String name) {
         super(name);
         index = Integer.parseInt(name);
     }
-    
+
     public int getIndex() {
-        return index-1;
+        return index - 1;
     }
 
     @Override
@@ -47,33 +44,37 @@ public class BindParseNode extends NamedParseNode {
         return visitor.visit(this);
     }
 
-    
+
     @Override
     public boolean isStateless() {
         return true;
     }
-    
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + index;
-		return result;
-	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BindParseNode other = (BindParseNode) obj;
-		if (index != other.index)
-			return false;
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + index;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BindParseNode other = (BindParseNode) obj;
+        if (index != other.index) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {

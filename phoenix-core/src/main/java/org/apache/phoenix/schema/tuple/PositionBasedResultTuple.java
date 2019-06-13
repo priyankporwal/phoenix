@@ -30,12 +30,12 @@ import org.apache.phoenix.util.EncodedColumnsUtil;
 
 public class PositionBasedResultTuple extends BaseTuple {
     private final EncodedColumnQualiferCellsList cells;
-    
+
     public PositionBasedResultTuple(List<Cell> list) {
         checkArgument(list instanceof EncodedColumnQualiferCellsList, "Invalid list type");
-        this.cells = (EncodedColumnQualiferCellsList)list;
+        this.cells = (EncodedColumnQualiferCellsList) list;
     }
-    
+
     @Override
     public void getKey(ImmutableBytesWritable ptr) {
         Cell value = cells.getFirstCell();
@@ -54,25 +54,25 @@ public class PositionBasedResultTuple extends BaseTuple {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("keyvalues=");
-      if(this.cells == null || this.cells.isEmpty()) {
-        sb.append("NONE");
-        return sb.toString();
-      }
-      sb.append("{");
-      boolean moreThanOne = false;
-      for(Cell kv : this.cells) {
-        if(moreThanOne) {
-          sb.append(", \n");
-        } else {
-          moreThanOne = true;
+        StringBuilder sb = new StringBuilder();
+        sb.append("keyvalues=");
+        if (this.cells == null || this.cells.isEmpty()) {
+            sb.append("NONE");
+            return sb.toString();
         }
-        sb.append(kv.toString()+"/value="+Bytes.toString(kv.getValueArray(), 
-          kv.getValueOffset(), kv.getValueLength()));
-      }
-      sb.append("}\n");
-      return sb.toString();
+        sb.append("{");
+        boolean moreThanOne = false;
+        for (Cell kv : this.cells) {
+            if (moreThanOne) {
+                sb.append(", \n");
+            } else {
+                moreThanOne = true;
+            }
+            sb.append(kv.toString() + "/value=" + Bytes.toString(kv.getValueArray(),
+                    kv.getValueOffset(), kv.getValueLength()));
+        }
+        sb.append("}\n");
+        return sb.toString();
     }
 
     @Override
@@ -87,25 +87,27 @@ public class PositionBasedResultTuple extends BaseTuple {
 
     @Override
     public boolean getValue(byte[] family, byte[] qualifier,
-            ImmutableBytesWritable ptr) {
+                            ImmutableBytesWritable ptr) {
         Cell kv = getValue(family, qualifier);
-        if (kv == null)
+        if (kv == null) {
             return false;
+        }
         ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
         return true;
     }
-    
+
     public Iterator<Cell> getTupleIterator() {
         return new TupleIterator(cells.iterator());
     }
-    
+
     private static class TupleIterator implements Iterator<Cell> {
-        
+
         private final Iterator<Cell> delegate;
+
         private TupleIterator(Iterator<Cell> delegate) {
             this.delegate = delegate;
         }
-        
+
         @Override
         public boolean hasNext() {
             return delegate.hasNext();
@@ -120,6 +122,6 @@ public class PositionBasedResultTuple extends BaseTuple {
         public void remove() {
             delegate.remove();
         }
-        
+
     }
 }

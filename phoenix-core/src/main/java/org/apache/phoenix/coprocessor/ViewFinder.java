@@ -41,28 +41,28 @@ import com.google.common.collect.Lists;
 
 public class ViewFinder {
 
-	// The PHYSICAL_TABLE link from view to the base table overwrites the PARENT_TABLE link (when namespace mapping is disabled)
+    // The PHYSICAL_TABLE link from view to the base table overwrites the PARENT_TABLE link (when namespace mapping is disabled)
     static TableViewFinderResult findBaseTable(Table systemCatalog, byte[] tenantId, byte[] schema, byte[] table)
-        throws IOException {
+            throws IOException {
         return findRelatedViews(systemCatalog, tenantId, schema, table, PTable.LinkType.PHYSICAL_TABLE,
-            HConstants.LATEST_TIMESTAMP);
+                HConstants.LATEST_TIMESTAMP);
     }
-    
+
     static TableViewFinderResult findParentViewofIndex(Table systemCatalog, byte[] tenantId, byte[] schema, byte[] table)
             throws IOException {
-            return findRelatedViews(systemCatalog, tenantId, schema, table, PTable.LinkType.VIEW_INDEX_PARENT_TABLE,
+        return findRelatedViews(systemCatalog, tenantId, schema, table, PTable.LinkType.VIEW_INDEX_PARENT_TABLE,
                 HConstants.LATEST_TIMESTAMP);
-        }
+    }
 
     public static void findAllRelatives(Table systemTable, byte[] tenantId, byte[] schema, byte[] table,
-        PTable.LinkType linkType, TableViewFinderResult result) throws IOException {
+                                        PTable.LinkType linkType, TableViewFinderResult result) throws IOException {
         findAllRelatives(systemTable, tenantId, schema, table, linkType, HConstants.LATEST_TIMESTAMP, result);
     }
 
     static void findAllRelatives(Table systemCatalog, byte[] tenantId, byte[] schema, byte[] table,
-        PTable.LinkType linkType, long timestamp, TableViewFinderResult result) throws IOException {
+                                 PTable.LinkType linkType, long timestamp, TableViewFinderResult result) throws IOException {
         TableViewFinderResult currentResult =
-            findRelatedViews(systemCatalog, tenantId, schema, table, linkType, timestamp);
+                findRelatedViews(systemCatalog, tenantId, schema, table, linkType, timestamp);
         result.addResult(currentResult);
         for (TableInfo viewInfo : currentResult.getLinks()) {
             findAllRelatives(systemCatalog, viewInfo.getTenantId(), viewInfo.getSchemaName(), viewInfo.getTableName(), linkType, timestamp, result);
@@ -73,36 +73,37 @@ public class ViewFinder {
      * Runs a scan on SYSTEM.CATALOG or SYSTEM.CHILD_LINK to get the related tables/views
      */
     static TableViewFinderResult findRelatedViews(Table systemCatalog, byte[] tenantId, byte[] schema, byte[] table,
-        PTable.LinkType linkType, long timestamp) throws IOException {
-        if (linkType==PTable.LinkType.INDEX_TABLE || linkType==PTable.LinkType.EXCLUDED_COLUMN) {
-            throw new IllegalArgumentException("findAllRelatives does not support link type "+linkType);
+                                                  PTable.LinkType linkType, long timestamp) throws IOException {
+        if (linkType == PTable.LinkType.INDEX_TABLE || linkType == PTable.LinkType.EXCLUDED_COLUMN) {
+            throw new IllegalArgumentException("findAllRelatives does not support link type " + linkType);
         }
         byte[] key = SchemaUtil.getTableKey(tenantId, schema, table);
-		Scan scan = MetaDataUtil.newTableRowsScan(key, MetaDataProtocol.MIN_TABLE_TIMESTAMP, timestamp);
+        Scan scan = MetaDataUtil.newTableRowsScan(key, MetaDataProtocol.MIN_TABLE_TIMESTAMP, timestamp);
         SingleColumnValueFilter linkFilter =
-            new SingleColumnValueFilter(TABLE_FAMILY_BYTES, LINK_TYPE_BYTES, CompareFilter.CompareOp.EQUAL,
-                linkType.getSerializedValueAsByteArray());
+                new SingleColumnValueFilter(TABLE_FAMILY_BYTES, LINK_TYPE_BYTES, CompareFilter.CompareOp.EQUAL,
+                        linkType.getSerializedValueAsByteArray());
         linkFilter.setFilterIfMissing(true);
         scan.setFilter(linkFilter);
         scan.addColumn(TABLE_FAMILY_BYTES, LINK_TYPE_BYTES);
-        if (linkType==PTable.LinkType.PARENT_TABLE)
+        if (linkType == PTable.LinkType.PARENT_TABLE) {
             scan.addColumn(TABLE_FAMILY_BYTES, PARENT_TENANT_ID_BYTES);
-        if (linkType==PTable.LinkType.PHYSICAL_TABLE)
+        }
+        if (linkType == PTable.LinkType.PHYSICAL_TABLE) {
             scan.addColumn(TABLE_FAMILY_BYTES, TABLE_TYPE_BYTES);
+        }
         List<TableInfo> tableInfoList = Lists.newArrayList();
-        try (ResultScanner scanner = systemCatalog.getScanner(scan))  {
+        try (ResultScanner scanner = systemCatalog.getScanner(scan)) {
             for (Result result = scanner.next(); (result != null); result = scanner.next()) {
                 byte[][] rowKeyMetaData = new byte[5][];
                 byte[] viewTenantId = null;
                 getVarChars(result.getRow(), 5, rowKeyMetaData);
-                if (linkType==PTable.LinkType.PARENT_TABLE) {
+                if (linkType == PTable.LinkType.PARENT_TABLE) {
                     viewTenantId = result.getValue(TABLE_FAMILY_BYTES, PARENT_TENANT_ID_BYTES);
-                } else if (linkType==PTable.LinkType.CHILD_TABLE) {
+                } else if (linkType == PTable.LinkType.CHILD_TABLE) {
                     viewTenantId = rowKeyMetaData[PhoenixDatabaseMetaData.COLUMN_NAME_INDEX];
-                } else if (linkType==PTable.LinkType.VIEW_INDEX_PARENT_TABLE) {
+                } else if (linkType == PTable.LinkType.VIEW_INDEX_PARENT_TABLE) {
                     viewTenantId = rowKeyMetaData[PhoenixDatabaseMetaData.TENANT_ID_INDEX];
-                } 
-                else if (linkType==PTable.LinkType.PHYSICAL_TABLE && result.getValue(TABLE_FAMILY_BYTES, TABLE_TYPE_BYTES)!=null) {
+                } else if (linkType == PTable.LinkType.PHYSICAL_TABLE && result.getValue(TABLE_FAMILY_BYTES, TABLE_TYPE_BYTES) != null) {
                     // do not links from indexes to their physical table
                     continue;
                 }
@@ -111,12 +112,12 @@ public class ViewFinder {
                 tableInfoList.add(new TableInfo(viewTenantId, viewSchemaName, viewName));
             }
             return new TableViewFinderResult(tableInfoList);
-        } 
+        }
     }
-    
+
     /**
      * @return true if the given table has at least one child view
-     * @throws IOException 
+     * @throws IOException
      */
     public static boolean hasChildViews(Table systemCatalog, byte[] tenantId, byte[] schemaName, byte[] tableName, long timestamp) throws IOException {
         byte[] key = SchemaUtil.getTableKey(tenantId, schemaName, tableName);
@@ -137,7 +138,7 @@ public class ViewFinder {
         scan.addColumn(TABLE_FAMILY_BYTES, LINK_TYPE_BYTES);
         try (ResultScanner scanner = systemCatalog.getScanner(scan)) {
             Result result = scanner.next();
-            return result!=null; 
+            return result != null;
         }
     }
 

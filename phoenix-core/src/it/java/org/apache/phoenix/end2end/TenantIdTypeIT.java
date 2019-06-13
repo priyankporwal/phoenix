@@ -75,35 +75,36 @@ public class TenantIdTypeIT extends ParallelStatsDisabledIT {
         this.tenantId = tenantId;
         this.otherTenantId = otherTenantId;
         String tbl = generateUniqueName();
-        if(tbl.contains("(")){
+        if (tbl.contains("(")) {
             tbl = tbl.substring(0, tbl.indexOf("("));
         }
         this.table = tbl;
         this.view = tbl + "view";
         this.sequence = tbl + "sequence";
-        this.ddl = "create table " + table + " (" + "tid "+ dataType + " NOT NULL," + "id INTEGER NOT NULL, \n"
+        this.ddl = "create table " + table + " (" + "tid " + dataType + " NOT NULL," + "id INTEGER NOT NULL, \n"
                 + "val VARCHAR " + "CONSTRAINT pk PRIMARY KEY(tid, id)) \n"
                 + "MULTI_TENANT=true";
     }
 
-    @Parameters( name = "TenantIdTypeIT_datatype={0}" ) // name is used by failsafe as file name in reports
+    @Parameters(name = "TenantIdTypeIT_datatype={0}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
         List<Object[]> testCases = Lists.newArrayList();
-        testCases.add(new Object[] { "INTEGER", "2147483647", "2147483646" });
-        testCases.add(new Object[] { "UNSIGNED_INT", "2147483647", "2147483646" });
-        testCases.add(new Object[] { "BIGINT", "9223372036854775807", "9223372036854775806" });
-        testCases.add(new Object[] { "UNSIGNED_LONG", "9223372036854775807", "9223372036854775806" });
-        testCases.add(new Object[] { "TINYINT", "127", "126" });
-        testCases.add(new Object[] { "UNSIGNED_TINYINT", "85", "84" });
-        testCases.add(new Object[] { "SMALLINT", "32767", "32766" });
-        testCases.add(new Object[] { "UNSIGNED_SMALLINT", "32767", "32766" });
-        testCases.add(new Object[] { "FLOAT", "3.4028234", "3.4028232" });
-        testCases.add(new Object[] { "UNSIGNED_FLOAT", "3.4028234", "3.4028232" });
-        testCases.add(new Object[] { "DOUBLE", "1.7976931348623157", "1.7976931348623156" });
-        testCases.add(new Object[] { "UNSIGNED_DOUBLE", "1.7976931348623157", "1.7976931348623156" });
-        testCases.add(new Object[] { "DECIMAL", "3.402823466", "3.402823465" });
-        testCases.add(new Object[] { "VARCHAR", "\'NameOfTenant\'", "\'Nemesis\'" });
-        testCases.add(new Object[] { "CHAR(10)", "\'1234567890\'", "\'Nemesis\'" });
+        testCases.add(new Object[] {"INTEGER", "2147483647", "2147483646"});
+        testCases.add(new Object[] {"UNSIGNED_INT", "2147483647", "2147483646"});
+        testCases.add(new Object[] {"BIGINT", "9223372036854775807", "9223372036854775806"});
+        testCases.add(new Object[] {"UNSIGNED_LONG", "9223372036854775807", "9223372036854775806"});
+        testCases.add(new Object[] {"TINYINT", "127", "126"});
+        testCases.add(new Object[] {"UNSIGNED_TINYINT", "85", "84"});
+        testCases.add(new Object[] {"SMALLINT", "32767", "32766"});
+        testCases.add(new Object[] {"UNSIGNED_SMALLINT", "32767", "32766"});
+        testCases.add(new Object[] {"FLOAT", "3.4028234", "3.4028232"});
+        testCases.add(new Object[] {"UNSIGNED_FLOAT", "3.4028234", "3.4028232"});
+        testCases.add(new Object[] {"DOUBLE", "1.7976931348623157", "1.7976931348623156"});
+        testCases.add(new Object[] {"UNSIGNED_DOUBLE", "1.7976931348623157", "1.7976931348623156"});
+        testCases.add(new Object[] {"DECIMAL", "3.402823466", "3.402823465"});
+        testCases.add(new Object[] {"VARCHAR", "\'NameOfTenant\'", "\'Nemesis\'"});
+        testCases.add(new Object[] {"CHAR(10)", "\'1234567890\'", "\'Nemesis\'"});
 
         return testCases;
     }
@@ -180,7 +181,8 @@ public class TenantIdTypeIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute("upsert into " + table +
                         " values (" + tenantId + ", next value for " + sequence + ", 'valid')");
                 fail();
-            } catch (SequenceNotFoundException ex) {}
+            } catch (SequenceNotFoundException ex) {
+            }
 
             try {
                 ResultSet rs = conn.createStatement().executeQuery("select * from " + view);
@@ -191,7 +193,7 @@ public class TenantIdTypeIT extends ParallelStatsDisabledIT {
 
         }
 
-        if(dataType != "VARCHAR" && dataType != "CHAR(10)") {
+        if (dataType != "VARCHAR" && dataType != "CHAR(10)") {
             //Try setting up an invalid tenant-specific view
             try (Connection conn = inconvertibleConnection(getUrl())) {
                 conn.setAutoCommit(true);

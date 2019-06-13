@@ -23,10 +23,13 @@ import java.util.List;
 public abstract class BooleanParseNodeVisitor<T> extends BaseParseNodeVisitor<T> {
 
     protected abstract boolean enterBooleanNode(ParseNode node) throws SQLException;
+
     protected abstract T leaveBooleanNode(ParseNode node, List<T> l) throws SQLException;
+
     protected abstract boolean enterNonBooleanNode(ParseNode node) throws SQLException;
+
     protected abstract T leaveNonBooleanNode(ParseNode node, List<T> l) throws SQLException;
-    
+
     @Override
     public boolean visitEnter(LikeParseNode node) throws SQLException {
         return enterBooleanNode(node);

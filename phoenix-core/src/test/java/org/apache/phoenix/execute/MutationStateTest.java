@@ -50,33 +50,33 @@ public class MutationStateTest {
         int[] a = new int[] {1};
         int[] b = new int[] {2};
         int[] result = joinSortedIntArrays(a, b);
-        
+
         assertEquals(2, result.length);
-        assertArrayEquals(new int[] {1,2}, result);
-        
+        assertArrayEquals(new int[] {1, 2}, result);
+
         // empty arrays
         a = new int[0];
         b = new int[0];
         result = joinSortedIntArrays(a, b);
-        
+
         assertEquals(0, result.length);
         assertArrayEquals(new int[] {}, result);
-        
+
         // dupes between arrays
-        a = new int[] {1,2,3};
-        b = new int[] {1,2,4};
+        a = new int[] {1, 2, 3};
+        b = new int[] {1, 2, 4};
         result = joinSortedIntArrays(a, b);
-        
+
         assertEquals(4, result.length);
-        assertArrayEquals(new int[] {1,2,3,4}, result);
-        
+        assertArrayEquals(new int[] {1, 2, 3, 4}, result);
+
         // dupes within arrays
-        a = new int[] {1,2,2,3};
-        b = new int[] {1,2,4};
+        a = new int[] {1, 2, 2, 3};
+        b = new int[] {1, 2, 4};
         result = joinSortedIntArrays(a, b);
-        
+
         assertEquals(4, result.length);
-        assertArrayEquals(new int[] {1,2,3,4}, result);
+        assertArrayEquals(new int[] {1, 2, 3, 4}, result);
     }
 
     private static String getUrl() {
@@ -87,56 +87,54 @@ public class MutationStateTest {
     public void testToMutationsOverMultipleTables() throws Exception {
         Connection conn = null;
         try {
-            conn=DriverManager.getConnection(getUrl());
+            conn = DriverManager.getConnection(getUrl());
             conn.createStatement().execute(
-                    "create table MUTATION_TEST1"+
-                            "( id1 UNSIGNED_INT not null primary key,"+
-                    "appId1 VARCHAR)");
+                    "create table MUTATION_TEST1" +
+                            "( id1 UNSIGNED_INT not null primary key," +
+                            "appId1 VARCHAR)");
             conn.createStatement().execute(
-                    "create table MUTATION_TEST2"+
-                            "( id2 UNSIGNED_INT not null primary key,"+
-                    "appId2 VARCHAR)");
+                    "create table MUTATION_TEST2" +
+                            "( id2 UNSIGNED_INT not null primary key," +
+                            "appId2 VARCHAR)");
 
             conn.createStatement().execute("upsert into MUTATION_TEST1(id1,appId1) values(111,'app1')");
             conn.createStatement().execute("upsert into MUTATION_TEST2(id2,appId2) values(222,'app2')");
 
 
-            Iterator<Pair<byte[],List<Cell>>> dataTableNameAndMutationKeyValuesIter =
+            Iterator<Pair<byte[], List<Cell>>> dataTableNameAndMutationKeyValuesIter =
                     PhoenixRuntime.getUncommittedDataIterator(conn);
 
 
             assertTrue(dataTableNameAndMutationKeyValuesIter.hasNext());
-            Pair<byte[],List<Cell>> pair=dataTableNameAndMutationKeyValuesIter.next();
-            String tableName1=Bytes.toString(pair.getFirst());
-            List<Cell> keyValues1=pair.getSecond();
+            Pair<byte[], List<Cell>> pair = dataTableNameAndMutationKeyValuesIter.next();
+            String tableName1 = Bytes.toString(pair.getFirst());
+            List<Cell> keyValues1 = pair.getSecond();
 
             assertTrue(dataTableNameAndMutationKeyValuesIter.hasNext());
-            pair=dataTableNameAndMutationKeyValuesIter.next();
-            String tableName2=Bytes.toString(pair.getFirst());
-            List<Cell> keyValues2=pair.getSecond();
+            pair = dataTableNameAndMutationKeyValuesIter.next();
+            String tableName2 = Bytes.toString(pair.getFirst());
+            List<Cell> keyValues2 = pair.getSecond();
 
-            if("MUTATION_TEST1".equals(tableName1)) {
+            if ("MUTATION_TEST1".equals(tableName1)) {
                 assertTable(tableName1, keyValues1, tableName2, keyValues2);
-            }
-            else {
+            } else {
                 assertTable(tableName2, keyValues2, tableName1, keyValues1);
             }
             assertTrue(!dataTableNameAndMutationKeyValuesIter.hasNext());
-        }
-        finally {
-            if(conn!=null) {
+        } finally {
+            if (conn != null) {
                 conn.close();
             }
         }
     }
 
-    private void assertTable(String tableName1,List<Cell> keyValues1,String tableName2,List<Cell> keyValues2) {
+    private void assertTable(String tableName1, List<Cell> keyValues1, String tableName2, List<Cell> keyValues2) {
         assertTrue("MUTATION_TEST1".equals(tableName1));
-        assertTrue(Bytes.equals(PUnsignedInt.INSTANCE.toBytes(111),CellUtil.cloneRow(keyValues1.get(0))));
+        assertTrue(Bytes.equals(PUnsignedInt.INSTANCE.toBytes(111), CellUtil.cloneRow(keyValues1.get(0))));
         assertTrue("app1".equals(PVarchar.INSTANCE.toObject(CellUtil.cloneValue(keyValues1.get(1)))));
 
         assertTrue("MUTATION_TEST2".equals(tableName2));
-        assertTrue(Bytes.equals(PUnsignedInt.INSTANCE.toBytes(222),CellUtil.cloneRow(keyValues2.get(0))));
+        assertTrue(Bytes.equals(PUnsignedInt.INSTANCE.toBytes(222), CellUtil.cloneRow(keyValues2.get(0))));
         assertTrue("app2".equals(PVarchar.INSTANCE.toObject(CellUtil.cloneValue(keyValues2.get(1)))));
 
     }

@@ -33,25 +33,22 @@ import org.apache.phoenix.query.QueryServicesTestImpl;
 import org.apache.phoenix.util.ReadOnlyProps;
 
 
-
 /**
- * 
  * JDBC Driver implementation of Phoenix for testing.
  * To use this driver, specify test=true in url.
- * 
- * 
+ *
  * @since 0.1
  */
 @ThreadSafe
 public class PhoenixTestDriver extends PhoenixEmbeddedDriver {
-    
+
     @GuardedBy("this")
     private ConnectionQueryServices connectionQueryServices;
     private final ReadOnlyProps overrideProps;
-    
+
     @GuardedBy("this")
     private final QueryServices queryServices;
-    
+
     @GuardedBy("this")
     private boolean closed = false;
 
@@ -76,17 +73,19 @@ public class PhoenixTestDriver extends PhoenixEmbeddedDriver {
         // Accept the url only if test=true attribute set
         return super.acceptsURL(url) && isTestUrl(url);
     }
-    
+
     @Override
     public synchronized Connection connect(String url, Properties info) throws SQLException {
         checkClosed();
         return super.connect(url, info);
     }
-    
+
     @Override // public for testing
     public synchronized ConnectionQueryServices getConnectionQueryServices(String url, Properties info) throws SQLException {
         checkClosed();
-        if (connectionQueryServices != null) { return connectionQueryServices; }
+        if (connectionQueryServices != null) {
+            return connectionQueryServices;
+        }
         ConnectionInfo connInfo = ConnectionInfo.create(url);
         if (connInfo.isConnectionless()) {
             connectionQueryServices = new ConnectionlessQueryServicesImpl(queryServices, connInfo, info);
@@ -96,13 +95,13 @@ public class PhoenixTestDriver extends PhoenixEmbeddedDriver {
         connectionQueryServices.init(url, info);
         return connectionQueryServices;
     }
-    
+
     private synchronized void checkClosed() {
         if (closed) {
             throw new IllegalStateException("The Phoenix jdbc test driver has been closed.");
         }
     }
-    
+
     @Override
     public synchronized void close() throws SQLException {
         if (closed) {
@@ -110,13 +109,17 @@ public class PhoenixTestDriver extends PhoenixEmbeddedDriver {
         }
         closed = true;
         try {
-            if (connectionQueryServices != null) connectionQueryServices.close();
+            if (connectionQueryServices != null) {
+                connectionQueryServices.close();
+            }
         } finally {
             ThreadPoolExecutor executor = queryServices.getExecutor();
             try {
                 queryServices.close();
             } finally {
-                if (executor != null) executor.shutdownNow();
+                if (executor != null) {
+                    executor.shutdownNow();
+                }
                 connectionQueryServices = null;
             }
         }

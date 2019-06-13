@@ -43,29 +43,29 @@ import org.junit.Test;
 import com.google.common.collect.Maps;
 
 public class RoundRobinResultIteratorWithStatsIT extends BaseUniqueNamesOwnClusterIT {
-    
+
     private String tableName;
-    
+
     @Before
     public void generateTableName() {
         tableName = generateUniqueName();
     }
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
-        Map<String,String> props = Maps.newHashMapWithExpectedSize(3);
+        Map<String, String> props = Maps.newHashMapWithExpectedSize(3);
         // Must update config before starting server
         props.put(QueryServices.STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB, Long.toString(70000));
         props.put(QueryServices.QUEUE_SIZE_ATTRIB, Integer.toString(10000));
         props.put(QueryServices.EXPLAIN_CHUNK_COUNT_ATTRIB, Boolean.TRUE.toString());
-        /*  
+        /*
          * Don't force row key order. This causes RoundRobinResultIterator to be used if there was no order by specified
          * on the query.
          */
         props.put(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, Boolean.toString(false));
         setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
     }
-    
+
     @Test
     public void testRoundRobinBehavior() throws Exception {
         int nRows = 30000;
@@ -107,5 +107,5 @@ public class RoundRobinResultIteratorWithStatsIT extends BaseUniqueNamesOwnClust
             }
         }
     }
-    
+
 }

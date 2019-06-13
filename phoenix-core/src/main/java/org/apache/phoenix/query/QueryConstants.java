@@ -42,9 +42,7 @@ import org.apache.phoenix.schema.TableProperty;
 
 
 /**
- *
  * Constants used during querying
- *
  *
  * @since 0.1
  */
@@ -61,7 +59,12 @@ public interface QueryConstants {
     public static final String NULL_DISPLAY_TEXT = "<null>";
     public static final long UNSET_TIMESTAMP = -1;
 
-    public enum JoinType {INNER, LEFT_OUTER}
+    public enum JoinType
+
+    {
+        INNER, LEFT_OUTER
+    }
+
     public final static String SYSTEM_SCHEMA_NAME = "SYSTEM";
     public final static byte[] SYSTEM_SCHEMA_NAME_BYTES = Bytes.toBytes(SYSTEM_SCHEMA_NAME);
     public final static String HBASE_DEFAULT_SCHEMA_NAME = "default";
@@ -75,27 +78,31 @@ public interface QueryConstants {
      * Key used for a single row aggregation where there is no group by
      */
     public final static byte[] UNGROUPED_AGG_ROW_KEY = Bytes.toBytes("a");
-    
-    /** BEGIN Set of reserved column qualifiers **/
-    
+
+    /**
+     * BEGIN Set of reserved column qualifiers
+     **/
+
     public static final String RESERVED_COLUMN_FAMILY = "_v";
     public static final byte[] RESERVED_COLUMN_FAMILY_BYTES = Bytes.toBytes(RESERVED_COLUMN_FAMILY);
-    
+
     public static final byte[] VALUE_COLUMN_FAMILY = RESERVED_COLUMN_FAMILY_BYTES;
     public static final byte[] VALUE_COLUMN_QUALIFIER = QualifierEncodingScheme.FOUR_BYTE_QUALIFIERS.encode(1);
-    
+
     public static final byte[] ARRAY_VALUE_COLUMN_FAMILY = RESERVED_COLUMN_FAMILY_BYTES;
     public static final byte[] ARRAY_VALUE_COLUMN_QUALIFIER = QualifierEncodingScheme.FOUR_BYTE_QUALIFIERS.encode(2);
-    
+
     public final static PName SINGLE_COLUMN_NAME = PNameFactory.newNormalizedName("s");
     public final static PName SINGLE_COLUMN_FAMILY_NAME = PNameFactory.newNormalizedName("s");
     public final static byte[] SINGLE_COLUMN = SINGLE_COLUMN_NAME.getBytes();
     public final static byte[] SINGLE_COLUMN_FAMILY = SINGLE_COLUMN_FAMILY_NAME.getBytes();
 
-    /** END Set of reserved column qualifiers **/
-    
+    /**
+     * END Set of reserved column qualifiers
+     **/
+
     public static final byte[] TRUE = new byte[] {1};
-    
+
     /**
      * The priority property for an hbase table. This is already in HTD, but older versions of
      * HBase do not have this, so we re-defined it here. Once Phoenix is HBase-1.3+, we can remote.
@@ -113,7 +120,7 @@ public interface QueryConstants {
 
     public static final String DEFAULT_COPROCESS_PATH = "phoenix.jar";
     public static final String DEFAULT_COPROCESS_JAR_NAME = "phoenix-[version]-server.jar";
-    
+
     public final static int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
     public static final String EMPTY_COLUMN_NAME = "_0";
@@ -145,16 +152,16 @@ public interface QueryConstants {
     public static final String LOCAL_INDEX_COLUMN_FAMILY_PREFIX = "L#";
     public static final byte[] LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES = Bytes.toBytes(LOCAL_INDEX_COLUMN_FAMILY_PREFIX);
     public static final ImmutableBytesPtr LOCAL_INDEX_COLUMN_FAMILY_PREFIX_PTR = new ImmutableBytesPtr(
-        LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES);
-    
+            LOCAL_INDEX_COLUMN_FAMILY_PREFIX_BYTES);
+
     public static final String DEFAULT_LOCAL_INDEX_COLUMN_FAMILY = LOCAL_INDEX_COLUMN_FAMILY_PREFIX + DEFAULT_COLUMN_FAMILY;
     public static final byte[] DEFAULT_LOCAL_INDEX_COLUMN_FAMILY_BYTES = Bytes.toBytes(DEFAULT_LOCAL_INDEX_COLUMN_FAMILY);
     public static final ImmutableBytesPtr DEFAULT_LOCAL_INDEX_COLUMN_FAMILY_BYTES_PTR = new ImmutableBytesPtr(
-               DEFAULT_LOCAL_INDEX_COLUMN_FAMILY_BYTES);
+            DEFAULT_LOCAL_INDEX_COLUMN_FAMILY_BYTES);
 
     public static final String GLOBAL_INDEX_VERIFIED_COLUMN_QUALIFIER = EMPTY_COLUMN_NAME;
     public static final byte[] GLOBAL_INDEX_VERIFIED_COLUMN_NAME_BYTES = Bytes.toBytes(GLOBAL_INDEX_VERIFIED_COLUMN_QUALIFIER);
-            ;
+    ;
     public static final String ALL_FAMILY_PROPERTIES_KEY = "";
     public static final String SYSTEM_TABLE_PK_NAME = "pk";
 
@@ -177,185 +184,185 @@ public interface QueryConstants {
             // Do not use IF NOT EXISTS as we sometimes catch the TableAlreadyExists
             // exception and add columns to the SYSTEM.TABLE dynamically.
             "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_CATALOG_TABLE + "\"(\n" +
-            // PK columns
-            TENANT_ID + " VARCHAR NULL," +
-            TABLE_SCHEM + " VARCHAR NULL," +
-            TABLE_NAME + " VARCHAR NOT NULL," +
-            COLUMN_NAME + " VARCHAR NULL," + // null for table row
-            COLUMN_FAMILY + " VARCHAR NULL," + // using for CF to uniqueness for columns
-            // Table metadata (will be null for column rows)
-            TABLE_SEQ_NUM + " BIGINT," +
-            TABLE_TYPE + " CHAR(1)," +
-            PK_NAME + " VARCHAR," +
-            COLUMN_COUNT + " INTEGER," +
-            SALT_BUCKETS + " INTEGER," +
-            DATA_TABLE_NAME + " VARCHAR," +
-            INDEX_STATE + " CHAR(1),\n" +
-            IMMUTABLE_ROWS + " BOOLEAN,\n" +
-            VIEW_STATEMENT + " VARCHAR,\n" +
-            DEFAULT_COLUMN_FAMILY_NAME + " VARCHAR,\n" +
-            DISABLE_WAL + " BOOLEAN,\n" +
-            MULTI_TENANT + " BOOLEAN,\n" +
-            VIEW_TYPE + " UNSIGNED_TINYINT,\n" +
-            VIEW_INDEX_ID + " BIGINT,\n" +
-            VIEW_INDEX_ID_DATA_TYPE + " INTEGER,\n" +
-            // Column metadata (will be null for table row)
-            DATA_TYPE + " INTEGER," +
-            COLUMN_SIZE + " INTEGER," +
-            DECIMAL_DIGITS + " INTEGER," +
-            NULLABLE + " INTEGER," +
-            ORDINAL_POSITION + " INTEGER," +
-            SORT_ORDER + " INTEGER," +
-            ARRAY_SIZE + " INTEGER,\n" +
-            VIEW_CONSTANT + " VARBINARY,\n" +
-            IS_VIEW_REFERENCED + " BOOLEAN,\n" +
-            KEY_SEQ + " SMALLINT,\n" +
-            // Link metadata (only set on rows linking table to index or view)
-            LINK_TYPE + " UNSIGNED_TINYINT,\n" +
-            // Unused
-            TYPE_NAME + " VARCHAR," +
-            REMARKS + " VARCHAR," +
-            SELF_REFERENCING_COL_NAME + " VARCHAR," +
-            REF_GENERATION + " VARCHAR," +
-            BUFFER_LENGTH + " INTEGER," +
-            NUM_PREC_RADIX + " INTEGER," +
-            COLUMN_DEF + " VARCHAR," +
-            SQL_DATA_TYPE + " INTEGER," +
-            SQL_DATETIME_SUB + " INTEGER," +
-            CHAR_OCTET_LENGTH + " INTEGER," +
-            IS_NULLABLE + " VARCHAR," +
-            SCOPE_CATALOG + " VARCHAR," +
-            SCOPE_SCHEMA + " VARCHAR," +
-            SCOPE_TABLE + " VARCHAR," +
-            SOURCE_DATA_TYPE + " SMALLINT," +
-            IS_AUTOINCREMENT + " VARCHAR," +
-            INDEX_TYPE + " UNSIGNED_TINYINT," +
-            INDEX_DISABLE_TIMESTAMP + " BIGINT," +
-            STORE_NULLS + " BOOLEAN," +
-            BASE_COLUMN_COUNT + " INTEGER," +
-            // Column metadata (will be null for table row)
-            IS_ROW_TIMESTAMP + " BOOLEAN, " +
-            TRANSACTIONAL + " BOOLEAN," +
-            UPDATE_CACHE_FREQUENCY + " BIGINT," +
-            IS_NAMESPACE_MAPPED + " BOOLEAN," +
-            AUTO_PARTITION_SEQ + " VARCHAR," +
-            APPEND_ONLY_SCHEMA + " BOOLEAN," +
-            GUIDE_POSTS_WIDTH + " BIGINT," +
-            COLUMN_QUALIFIER + " VARBINARY," +
-            IMMUTABLE_STORAGE_SCHEME + " TINYINT, " +
-            ENCODING_SCHEME + " TINYINT, " +
-            COLUMN_QUALIFIER_COUNTER + " INTEGER, " +
-            USE_STATS_FOR_PARALLELIZATION + " BOOLEAN, " +
-            TRANSACTION_PROVIDER + " TINYINT, " +
-            "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + ","
-            + TABLE_SCHEM + "," + TABLE_NAME + "," + COLUMN_NAME + "," + COLUMN_FAMILY + "))\n" +
-            HConstants.VERSIONS + "=%s,\n" +
-            ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
-            TableDescriptorBuilder.SPLIT_POLICY + "='" + MetaDataSplitPolicy.class.getName() + "',\n" + 
-            PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
+                    // PK columns
+                    TENANT_ID + " VARCHAR NULL," +
+                    TABLE_SCHEM + " VARCHAR NULL," +
+                    TABLE_NAME + " VARCHAR NOT NULL," +
+                    COLUMN_NAME + " VARCHAR NULL," + // null for table row
+                    COLUMN_FAMILY + " VARCHAR NULL," + // using for CF to uniqueness for columns
+                    // Table metadata (will be null for column rows)
+                    TABLE_SEQ_NUM + " BIGINT," +
+                    TABLE_TYPE + " CHAR(1)," +
+                    PK_NAME + " VARCHAR," +
+                    COLUMN_COUNT + " INTEGER," +
+                    SALT_BUCKETS + " INTEGER," +
+                    DATA_TABLE_NAME + " VARCHAR," +
+                    INDEX_STATE + " CHAR(1),\n" +
+                    IMMUTABLE_ROWS + " BOOLEAN,\n" +
+                    VIEW_STATEMENT + " VARCHAR,\n" +
+                    DEFAULT_COLUMN_FAMILY_NAME + " VARCHAR,\n" +
+                    DISABLE_WAL + " BOOLEAN,\n" +
+                    MULTI_TENANT + " BOOLEAN,\n" +
+                    VIEW_TYPE + " UNSIGNED_TINYINT,\n" +
+                    VIEW_INDEX_ID + " BIGINT,\n" +
+                    VIEW_INDEX_ID_DATA_TYPE + " INTEGER,\n" +
+                    // Column metadata (will be null for table row)
+                    DATA_TYPE + " INTEGER," +
+                    COLUMN_SIZE + " INTEGER," +
+                    DECIMAL_DIGITS + " INTEGER," +
+                    NULLABLE + " INTEGER," +
+                    ORDINAL_POSITION + " INTEGER," +
+                    SORT_ORDER + " INTEGER," +
+                    ARRAY_SIZE + " INTEGER,\n" +
+                    VIEW_CONSTANT + " VARBINARY,\n" +
+                    IS_VIEW_REFERENCED + " BOOLEAN,\n" +
+                    KEY_SEQ + " SMALLINT,\n" +
+                    // Link metadata (only set on rows linking table to index or view)
+                    LINK_TYPE + " UNSIGNED_TINYINT,\n" +
+                    // Unused
+                    TYPE_NAME + " VARCHAR," +
+                    REMARKS + " VARCHAR," +
+                    SELF_REFERENCING_COL_NAME + " VARCHAR," +
+                    REF_GENERATION + " VARCHAR," +
+                    BUFFER_LENGTH + " INTEGER," +
+                    NUM_PREC_RADIX + " INTEGER," +
+                    COLUMN_DEF + " VARCHAR," +
+                    SQL_DATA_TYPE + " INTEGER," +
+                    SQL_DATETIME_SUB + " INTEGER," +
+                    CHAR_OCTET_LENGTH + " INTEGER," +
+                    IS_NULLABLE + " VARCHAR," +
+                    SCOPE_CATALOG + " VARCHAR," +
+                    SCOPE_SCHEMA + " VARCHAR," +
+                    SCOPE_TABLE + " VARCHAR," +
+                    SOURCE_DATA_TYPE + " SMALLINT," +
+                    IS_AUTOINCREMENT + " VARCHAR," +
+                    INDEX_TYPE + " UNSIGNED_TINYINT," +
+                    INDEX_DISABLE_TIMESTAMP + " BIGINT," +
+                    STORE_NULLS + " BOOLEAN," +
+                    BASE_COLUMN_COUNT + " INTEGER," +
+                    // Column metadata (will be null for table row)
+                    IS_ROW_TIMESTAMP + " BOOLEAN, " +
+                    TRANSACTIONAL + " BOOLEAN," +
+                    UPDATE_CACHE_FREQUENCY + " BIGINT," +
+                    IS_NAMESPACE_MAPPED + " BOOLEAN," +
+                    AUTO_PARTITION_SEQ + " VARCHAR," +
+                    APPEND_ONLY_SCHEMA + " BOOLEAN," +
+                    GUIDE_POSTS_WIDTH + " BIGINT," +
+                    COLUMN_QUALIFIER + " VARBINARY," +
+                    IMMUTABLE_STORAGE_SCHEME + " TINYINT, " +
+                    ENCODING_SCHEME + " TINYINT, " +
+                    COLUMN_QUALIFIER_COUNTER + " INTEGER, " +
+                    USE_STATS_FOR_PARALLELIZATION + " BOOLEAN, " +
+                    TRANSACTION_PROVIDER + " TINYINT, " +
+                    "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + ","
+                    + TABLE_SCHEM + "," + TABLE_NAME + "," + COLUMN_NAME + "," + COLUMN_FAMILY + "))\n" +
+                    HConstants.VERSIONS + "=%s,\n" +
+                    ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
+                    TableDescriptorBuilder.SPLIT_POLICY + "='" + MetaDataSplitPolicy.class.getName() + "',\n" +
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
 
     public static final String CREATE_STATS_TABLE_METADATA =
             "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_STATS_TABLE + "\"(\n" +
-            // PK columns
-            PHYSICAL_NAME  + " VARCHAR NOT NULL," +
-            COLUMN_FAMILY + " VARCHAR," +
-            GUIDE_POST_KEY  + " VARBINARY," +
-            GUIDE_POSTS_WIDTH + " BIGINT," +
-            LAST_STATS_UPDATE_TIME+ " DATE, "+
-            GUIDE_POSTS_ROW_COUNT+ " BIGINT, "+
-            "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY ("
-            + PHYSICAL_NAME + ","
-            + COLUMN_FAMILY + ","+ GUIDE_POST_KEY+"))\n" +
-            // Install split policy to prevent a physical table's stats from being split across regions.
-            TableDescriptorBuilder.SPLIT_POLICY + "='" + SystemStatsSplitPolicy.class.getName() + "',\n" + 
-            PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
+                    // PK columns
+                    PHYSICAL_NAME + " VARCHAR NOT NULL," +
+                    COLUMN_FAMILY + " VARCHAR," +
+                    GUIDE_POST_KEY + " VARBINARY," +
+                    GUIDE_POSTS_WIDTH + " BIGINT," +
+                    LAST_STATS_UPDATE_TIME + " DATE, " +
+                    GUIDE_POSTS_ROW_COUNT + " BIGINT, " +
+                    "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY ("
+                    + PHYSICAL_NAME + ","
+                    + COLUMN_FAMILY + "," + GUIDE_POST_KEY + "))\n" +
+                    // Install split policy to prevent a physical table's stats from being split across regions.
+                    TableDescriptorBuilder.SPLIT_POLICY + "='" + SystemStatsSplitPolicy.class.getName() + "',\n" +
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
 
     public static final String CREATE_SEQUENCE_METADATA =
             "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + TYPE_SEQUENCE + "\"(\n" +
-            TENANT_ID + " VARCHAR NULL," +
-            SEQUENCE_SCHEMA + " VARCHAR NULL, \n" +
-            SEQUENCE_NAME +  " VARCHAR NOT NULL, \n" +
-            START_WITH + " BIGINT, \n" +
-            CURRENT_VALUE + " BIGINT, \n" +
-            INCREMENT_BY  + " BIGINT, \n" +
-            CACHE_SIZE  + " BIGINT, \n" +
-            //  the following three columns were added in 3.1/4.1
-            MIN_VALUE + " BIGINT, \n" +
-            MAX_VALUE + " BIGINT, \n" +
-            CYCLE_FLAG + " BOOLEAN, \n" +
-            LIMIT_REACHED_FLAG + " BOOLEAN \n" +
-            " CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + "," + SEQUENCE_SCHEMA + "," + SEQUENCE_NAME + "))\n" +
-            HConstants.VERSIONS + "=%s,\n" +
-            ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n"+
-            PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
+                    TENANT_ID + " VARCHAR NULL," +
+                    SEQUENCE_SCHEMA + " VARCHAR NULL, \n" +
+                    SEQUENCE_NAME + " VARCHAR NOT NULL, \n" +
+                    START_WITH + " BIGINT, \n" +
+                    CURRENT_VALUE + " BIGINT, \n" +
+                    INCREMENT_BY + " BIGINT, \n" +
+                    CACHE_SIZE + " BIGINT, \n" +
+                    //  the following three columns were added in 3.1/4.1
+                    MIN_VALUE + " BIGINT, \n" +
+                    MAX_VALUE + " BIGINT, \n" +
+                    CYCLE_FLAG + " BOOLEAN, \n" +
+                    LIMIT_REACHED_FLAG + " BOOLEAN \n" +
+                    " CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + "," + SEQUENCE_SCHEMA + "," + SEQUENCE_NAME + "))\n" +
+                    HConstants.VERSIONS + "=%s,\n" +
+                    ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
     public static final String CREATE_SYSTEM_SCHEMA = "CREATE SCHEMA " + SYSTEM_CATALOG_SCHEMA;
     public static final String UPGRADE_TABLE_SNAPSHOT_PREFIX = "_UPGRADING_TABLE_";
 
     public static final String CREATE_FUNCTION_METADATA =
             "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_FUNCTION_TABLE + "\"(\n" +
-             // Pk columns
-            TENANT_ID + " VARCHAR NULL," +
-            FUNCTION_NAME + " VARCHAR NOT NULL, \n" +
-            NUM_ARGS + " INTEGER, \n" +
-            // Function metadata (will be null for argument row)
-            CLASS_NAME +  " VARCHAR, \n" +
-            JAR_PATH + "  VARCHAR, \n" +
-            RETURN_TYPE + " VARCHAR, \n" +
-            // Argument metadata (will be null for function row)
-            TYPE + " VARCHAR, \n" +
-            ARG_POSITION + " VARBINARY, \n" +
-            IS_ARRAY + " BOOLEAN, \n" +
-            IS_CONSTANT + " BOOLEAN, \n" +
-            DEFAULT_VALUE + " VARCHAR, \n" +
-            MIN_VALUE + " VARCHAR, \n" +
-            MAX_VALUE + " VARCHAR, \n" +
-            " CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + ", " + FUNCTION_NAME + ", " + TYPE + ", " + ARG_POSITION + "))\n" +
-            HConstants.VERSIONS + "=%s,\n" +
-            ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n"+
-            // Install split policy to prevent a tenant's metadata from being split across regions.
-            TableDescriptorBuilder.SPLIT_POLICY + "='" + SystemFunctionSplitPolicy.class.getName() + "',\n" + 
-            PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
-    
+                    // Pk columns
+                    TENANT_ID + " VARCHAR NULL," +
+                    FUNCTION_NAME + " VARCHAR NOT NULL, \n" +
+                    NUM_ARGS + " INTEGER, \n" +
+                    // Function metadata (will be null for argument row)
+                    CLASS_NAME + " VARCHAR, \n" +
+                    JAR_PATH + "  VARCHAR, \n" +
+                    RETURN_TYPE + " VARCHAR, \n" +
+                    // Argument metadata (will be null for function row)
+                    TYPE + " VARCHAR, \n" +
+                    ARG_POSITION + " VARBINARY, \n" +
+                    IS_ARRAY + " BOOLEAN, \n" +
+                    IS_CONSTANT + " BOOLEAN, \n" +
+                    DEFAULT_VALUE + " VARCHAR, \n" +
+                    MIN_VALUE + " VARCHAR, \n" +
+                    MAX_VALUE + " VARCHAR, \n" +
+                    " CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + ", " + FUNCTION_NAME + ", " + TYPE + ", " + ARG_POSITION + "))\n" +
+                    HConstants.VERSIONS + "=%s,\n" +
+                    ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
+                    // Install split policy to prevent a tenant's metadata from being split across regions.
+                    TableDescriptorBuilder.SPLIT_POLICY + "='" + SystemFunctionSplitPolicy.class.getName() + "',\n" +
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
+
     public static final String CREATE_LOG_METADATA =
             "CREATE IMMUTABLE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_LOG_TABLE + "\"(\n" +
-             // Pk columns
-            START_TIME + " DECIMAL, \n" +
-            TABLE_NAME + " VARCHAR, \n" +
-            QUERY_ID + " VARCHAR NOT NULL,\n" +
-            TENANT_ID + " VARCHAR ," +
-            USER + " VARCHAR , \n" +
-            CLIENT_IP + " VARCHAR, \n" +
-            // Function metadata (will be null for argument row)
-            QUERY +  " VARCHAR, \n" +
-            EXPLAIN_PLAN + " VARCHAR, \n" +
-            // Argument metadata (will be null for function row)
-            NO_OF_RESULTS_ITERATED + " BIGINT, \n" +
-            QUERY_STATUS + " VARCHAR, \n" +
-            EXCEPTION_TRACE + " VARCHAR, \n" +
-            GLOBAL_SCAN_DETAILS + " VARCHAR, \n" +
-            BIND_PARAMETERS + " VARCHAR, \n" +
-            SCAN_METRICS_JSON + " VARCHAR, \n" +
-            MetricType.getMetricColumnsDetails()+"\n"+
-            " CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (START_TIME, TABLE_NAME, QUERY_ID))\n" +
-            PhoenixDatabaseMetaData.SALT_BUCKETS + "=%s,\n"+
-            PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE+ ",\n" +
-            ColumnFamilyDescriptorBuilder.TTL + "=" + MetaDataProtocol.DEFAULT_LOG_TTL+",\n"+
-            TableProperty.IMMUTABLE_STORAGE_SCHEME.toString() + " = " + ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS.name() + ",\n" +
-            TableProperty.COLUMN_ENCODED_BYTES.toString()+" = 1";
-    
+                    // Pk columns
+                    START_TIME + " DECIMAL, \n" +
+                    TABLE_NAME + " VARCHAR, \n" +
+                    QUERY_ID + " VARCHAR NOT NULL,\n" +
+                    TENANT_ID + " VARCHAR ," +
+                    USER + " VARCHAR , \n" +
+                    CLIENT_IP + " VARCHAR, \n" +
+                    // Function metadata (will be null for argument row)
+                    QUERY + " VARCHAR, \n" +
+                    EXPLAIN_PLAN + " VARCHAR, \n" +
+                    // Argument metadata (will be null for function row)
+                    NO_OF_RESULTS_ITERATED + " BIGINT, \n" +
+                    QUERY_STATUS + " VARCHAR, \n" +
+                    EXCEPTION_TRACE + " VARCHAR, \n" +
+                    GLOBAL_SCAN_DETAILS + " VARCHAR, \n" +
+                    BIND_PARAMETERS + " VARCHAR, \n" +
+                    SCAN_METRICS_JSON + " VARCHAR, \n" +
+                    MetricType.getMetricColumnsDetails() + "\n" +
+                    " CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (START_TIME, TABLE_NAME, QUERY_ID))\n" +
+                    PhoenixDatabaseMetaData.SALT_BUCKETS + "=%s,\n" +
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE + ",\n" +
+                    ColumnFamilyDescriptorBuilder.TTL + "=" + MetaDataProtocol.DEFAULT_LOG_TTL + ",\n" +
+                    TableProperty.IMMUTABLE_STORAGE_SCHEME.toString() + " = " + ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS.name() + ",\n" +
+                    TableProperty.COLUMN_ENCODED_BYTES.toString() + " = 1";
+
     public static final byte[] OFFSET_FAMILY = "f_offset".getBytes();
     public static final byte[] OFFSET_COLUMN = "c_offset".getBytes();
     public static final String LAST_SCAN = "LAST_SCAN";
     public static final byte[] UPGRADE_MUTEX = "UPGRADE_MUTEX".getBytes();
     public static final String HASH_JOIN_CACHE_RETRIES = "hashjoin.client.retries.number";
     public static final int DEFAULT_HASH_JOIN_CACHE_RETRIES = 5;
-    
-	// Links from parent to child views are stored in a separate table for
-	// scalability
-	public static final String CREATE_CHILD_LINK_METADATA = "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" +
+
+    // Links from parent to child views are stored in a separate table for
+    // scalability
+    public static final String CREATE_CHILD_LINK_METADATA = "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" +
             SYSTEM_CHILD_LINK_TABLE + "\"(\n" +
-			// PK columns
-			TENANT_ID + " VARCHAR NULL," +
+            // PK columns
+            TENANT_ID + " VARCHAR NULL," +
             TABLE_SCHEM + " VARCHAR NULL," +
             TABLE_NAME + " VARCHAR NOT NULL," +
             COLUMN_NAME + " VARCHAR NULL," +
@@ -366,38 +373,38 @@ public interface QueryConstants {
             HConstants.VERSIONS + "=%s,\n" +
             ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
             PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
-	
-	public static final String CREATE_MUTEX_METADTA =
-            "CREATE IMMUTABLE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_MUTEX_TABLE_NAME + "\"(\n" +
-             // Pk columns
-            TENANT_ID + " VARCHAR NULL," +
-            TABLE_SCHEM + " VARCHAR NULL," +
-	        TABLE_NAME + " VARCHAR NOT NULL," +
-	        COLUMN_NAME + " VARCHAR NULL," + // null for table row
-	        COLUMN_FAMILY + " VARCHAR NULL " + // using for CF to uniqueness for columns
-	        "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + ","
-	        + TABLE_SCHEM + "," + TABLE_NAME + "," + COLUMN_NAME + "," + COLUMN_FAMILY + "))\n" +
-	        HConstants.VERSIONS + "=%s,\n" +
-	        ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
-	        PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
 
-	public static final String CREATE_TASK_METADATA =
+    public static final String CREATE_MUTEX_METADTA =
+            "CREATE IMMUTABLE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_MUTEX_TABLE_NAME + "\"(\n" +
+                    // Pk columns
+                    TENANT_ID + " VARCHAR NULL," +
+                    TABLE_SCHEM + " VARCHAR NULL," +
+                    TABLE_NAME + " VARCHAR NOT NULL," +
+                    COLUMN_NAME + " VARCHAR NULL," + // null for table row
+                    COLUMN_FAMILY + " VARCHAR NULL " + // using for CF to uniqueness for columns
+                    "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TENANT_ID + ","
+                    + TABLE_SCHEM + "," + TABLE_NAME + "," + COLUMN_NAME + "," + COLUMN_FAMILY + "))\n" +
+                    HConstants.VERSIONS + "=%s,\n" +
+                    ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
+
+    public static final String CREATE_TASK_METADATA =
             "CREATE TABLE " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_TASK_TABLE + "\"(\n" +
-            // PK columns
-            TASK_TYPE + " UNSIGNED_TINYINT NOT NULL," +
-            TASK_TS + " TIMESTAMP NOT NULL," +
-            TENANT_ID + " VARCHAR NULL," +
-            TABLE_SCHEM + " VARCHAR NULL," +
-            TABLE_NAME + " VARCHAR NOT NULL,\n" +
-            // Non-PK columns
-            TASK_STATUS + " VARCHAR NULL," +
-            TASK_END_TS + " TIMESTAMP NULL," +
-            TASK_PRIORITY + " UNSIGNED_TINYINT NULL," +
-            TASK_DATA + " VARCHAR NULL,\n" +
-            "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TASK_TYPE + "," + TASK_TS + " ROW_TIMESTAMP," + TENANT_ID + "," + TABLE_SCHEM + "," +
-            TABLE_NAME + "))\n" +
-            HConstants.VERSIONS + "=%s,\n" +
-            ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
-            ColumnFamilyDescriptorBuilder.TTL + "=" + TASK_TABLE_TTL + ",\n" +     // 10 days
-            PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
+                    // PK columns
+                    TASK_TYPE + " UNSIGNED_TINYINT NOT NULL," +
+                    TASK_TS + " TIMESTAMP NOT NULL," +
+                    TENANT_ID + " VARCHAR NULL," +
+                    TABLE_SCHEM + " VARCHAR NULL," +
+                    TABLE_NAME + " VARCHAR NOT NULL,\n" +
+                    // Non-PK columns
+                    TASK_STATUS + " VARCHAR NULL," +
+                    TASK_END_TS + " TIMESTAMP NULL," +
+                    TASK_PRIORITY + " UNSIGNED_TINYINT NULL," +
+                    TASK_DATA + " VARCHAR NULL,\n" +
+                    "CONSTRAINT " + SYSTEM_TABLE_PK_NAME + " PRIMARY KEY (" + TASK_TYPE + "," + TASK_TS + " ROW_TIMESTAMP," + TENANT_ID + "," + TABLE_SCHEM + "," +
+                    TABLE_NAME + "))\n" +
+                    HConstants.VERSIONS + "=%s,\n" +
+                    ColumnFamilyDescriptorBuilder.KEEP_DELETED_CELLS + "=%s,\n" +
+                    ColumnFamilyDescriptorBuilder.TTL + "=" + TASK_TABLE_TTL + ",\n" +     // 10 days
+                    PhoenixDatabaseMetaData.TRANSACTIONAL + "=" + Boolean.FALSE;
 }

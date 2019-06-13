@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 public class ParseContext {
     private boolean isAggregate;
     private boolean hasSequences;
-    
+
     public ParseContext() {
     }
 
@@ -46,22 +46,22 @@ public class ParseContext {
 
     public static class Stack {
         private final List<ParseContext> stack = Lists.newArrayListWithExpectedSize(5);
-        
+
         public void push(ParseContext context) {
             stack.add(context);
         }
-        
+
         public ParseContext pop() {
-            return stack.remove(stack.size()-1);
+            return stack.remove(stack.size() - 1);
         }
-        
+
         public ParseContext peek() {
-            return stack.get(stack.size()-1);
+            return stack.get(stack.size() - 1);
         }
-        
+
         public boolean isEmpty() {
             return stack.isEmpty();
         }
     }
-    
+
 }

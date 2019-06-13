@@ -47,15 +47,15 @@ import com.google.common.primitives.Floats;
 
 public class NumericArithmeticIT extends ParallelStatsDisabledIT {
     private String tableName;
-    
+
     @Before
     public void setup() throws Exception {
         String tenantId = getOrganizationId();
         this.tableName =
                 initATableValues(generateUniqueName(), tenantId, getDefaultSplits(tenantId),
-                    new Date(System.currentTimeMillis()), null, getUrl(), "COLUMN_ENCODED_BYTES=0");
+                        new Date(System.currentTimeMillis()), null, getUrl(), "COLUMN_ENCODED_BYTES=0");
     }
-    
+
     @Test
     public void testDecimalAddExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER + X_DECIMAL > 11";
@@ -64,16 +64,16 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW8, rs.getString(1));
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-   
+
     @Test
     public void testDecimalSubtraction1Expression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_INTEGER - 3.5  <= 0";
@@ -87,7 +87,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDecimalSubtraction2Expression() throws Exception {// check if decimal part makes a difference
         String query = "SELECT entity_id FROM " + tableName + " where X_DECIMAL - 3.5  > 0";
@@ -96,7 +96,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
             assertFalse(rs.next());
         } finally {
@@ -126,9 +126,9 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW7);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
             assertFalse(rs.next());
         } finally {
@@ -144,7 +144,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
             assertFalse(rs.next());
         } finally {
@@ -160,14 +160,14 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW8, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testLongMultiplyExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where X_LONG * 2 * 2 = 20";
@@ -176,7 +176,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW7, rs.getString(1));
             assertFalse(rs.next());
         } finally {
@@ -192,14 +192,14 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDoubleAddExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where a_double + a_float > 0.08";
@@ -208,16 +208,16 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW8, rs.getString(1));
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testUnsignedDoubleAddExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where a_unsigned_double + a_unsigned_float > 0.08";
@@ -226,16 +226,16 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW8, rs.getString(1));
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDoubleSubtractionExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where a_double - CAST(0.0002 AS DOUBLE)  < 0";
@@ -244,14 +244,14 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW1);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDoubleDivideExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where a_double / CAST(3.0 AS DOUBLE) = 0.0003";
@@ -260,14 +260,14 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDoubleMultiplyExpression() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " where A_DOUBLE * CAST(2.0 AS DOUBLE) = 0.0002";
@@ -276,13 +276,14 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW1, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
+
     @Test
     public void testScanByByteValue() throws Exception {
         String query = "SELECT a_string, b_string, a_byte FROM " + tableName + " WHERE ?=organization_id and 1=a_byte";
@@ -292,7 +293,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, getOrganizationId());
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getString("B_string"), B_VALUE);
             assertEquals(rs.getByte(3), 1);
@@ -301,7 +302,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScanByShortValue() throws Exception {
         String query = "SELECT a_string, b_string, a_short FROM " + tableName + " WHERE ?=organization_id and 128=a_short";
@@ -311,7 +312,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, getOrganizationId());
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getString("B_string"), B_VALUE);
             assertEquals(rs.getShort("a_short"), 128);
@@ -320,7 +321,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScanByFloatValue() throws Exception {
         String query = "SELECT a_string, b_string, a_float FROM " + tableName + " WHERE ?=organization_id and ?=a_float";
@@ -331,7 +332,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             statement.setString(1, getOrganizationId());
             statement.setFloat(2, 0.01f);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getString("B_string"), B_VALUE);
             assertTrue(Floats.compare(rs.getFloat(3), 0.01f) == 0);
@@ -340,7 +341,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScanByUnsignedFloatValue() throws Exception {
         String query = "SELECT a_string, b_string, a_unsigned_float FROM " + tableName + " WHERE ?=organization_id and ?=a_unsigned_float";
@@ -351,7 +352,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             statement.setString(1, getOrganizationId());
             statement.setFloat(2, 0.01f);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getString("B_string"), B_VALUE);
             assertTrue(Floats.compare(rs.getFloat(3), 0.01f) == 0);
@@ -360,7 +361,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScanByDoubleValue() throws Exception {
         String query = "SELECT a_string, b_string, a_double FROM " + tableName + " WHERE ?=organization_id and ?=a_double";
@@ -371,7 +372,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             statement.setString(1, getOrganizationId());
             statement.setDouble(2, 0.0001);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getString("B_string"), B_VALUE);
             assertTrue(Doubles.compare(rs.getDouble(3), 0.0001) == 0);
@@ -380,7 +381,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScanByUnsignedDoubleValue() throws Exception {
         String query = "SELECT a_string, b_string, a_unsigned_double FROM " + tableName + " WHERE ?=organization_id and ?=a_unsigned_double";
@@ -391,7 +392,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             statement.setString(1, getOrganizationId());
             statement.setDouble(2, 0.0001);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getString("B_string"), B_VALUE);
             assertTrue(Doubles.compare(rs.getDouble(3), 0.0001) == 0);
@@ -400,7 +401,7 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScanWithNoWhereClause() throws Exception {
         String query = "SELECT y_integer FROM " + tableName;
@@ -409,18 +410,18 @@ public class NumericArithmeticIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            for (int i =0; i < 8; i++) {
-                assertTrue (rs.next());
+            for (int i = 0; i < 8; i++) {
+                assertTrue(rs.next());
                 assertEquals(0, rs.getInt(1));
                 assertTrue(rs.wasNull());
             }
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(300, rs.getInt(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
-   
+
+
 }

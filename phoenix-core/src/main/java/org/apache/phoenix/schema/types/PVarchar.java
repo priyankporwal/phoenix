@@ -58,7 +58,7 @@ public class PVarchar extends PDataType<String> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType,
-            SortOrder sortOrder, Integer maxLength, Integer scale) {
+                           SortOrder sortOrder, Integer maxLength, Integer scale) {
         if (length == 0) {
             return null;
         }
@@ -99,17 +99,17 @@ public class PVarchar extends PDataType<String> {
 
     @Override
     public boolean isSizeCompatible(ImmutableBytesWritable ptr, Object value, PDataType srcType,
-            SortOrder sortOrder, Integer maxLength, Integer scale,
-            Integer desiredMaxLength, Integer desiredScale) {
+                                    SortOrder sortOrder, Integer maxLength, Integer scale,
+                                    Integer desiredMaxLength, Integer desiredScale) {
         if (ptr.getLength() != 0 && desiredMaxLength != null) {
             if (maxLength == null || maxLength > desiredMaxLength) {
                 if (value != null) { // Use value if provided
                     maxLength = value.toString().length();
                 } else {
                     coerceBytes(ptr, value, srcType, maxLength, scale, sortOrder, desiredMaxLength,
-                        desiredScale, sortOrder, true);
+                            desiredScale, sortOrder, true);
                     maxLength = StringUtil
-                        .calculateUTF8Length(ptr.get(), ptr.getOffset(), ptr.getLength(), sortOrder);
+                            .calculateUTF8Length(ptr.get(), ptr.getOffset(), ptr.getLength(), sortOrder);
                 }
                 return maxLength <= desiredMaxLength;
             }

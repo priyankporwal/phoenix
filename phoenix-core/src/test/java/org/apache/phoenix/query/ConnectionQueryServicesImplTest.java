@@ -52,13 +52,13 @@ public class ConnectionQueryServicesImplTest {
         doNothing().when(cqs).createSysMutexTableIfNotExists(any(Admin.class));
 
         // Spoof out this call so that ensureSystemTablesUpgrade() will return-fast.
-        when(cqs.getSystemTableNamesInDefaultNamespace(any(Admin.class))).thenReturn(Collections.<TableName> emptyList());
+        when(cqs.getSystemTableNamesInDefaultNamespace(any(Admin.class))).thenReturn(Collections.<TableName>emptyList());
 
         // Throw a special exception to check on later
         doThrow(PHOENIX_IO_EXCEPTION).when(cqs).ensureNamespaceCreated(anyString());
 
         // Make sure that ensureSystemTablesMigratedToSystemNamespace will try to migrate the system tables.
-        Map<String,String> props = new HashMap<>();
+        Map<String, String> props = new HashMap<>();
         props.put(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, "true");
         when(cqs.getProps()).thenReturn(new ReadOnlyProps(props));
         cqs.ensureSystemTablesMigratedToSystemNamespace();
@@ -69,7 +69,7 @@ public class ConnectionQueryServicesImplTest {
 
         try {
             // Verifies that the exception is propagated back to the caller
-            cqs.createSchema(Collections.<Mutation> emptyList(), "");
+            cqs.createSchema(Collections.<Mutation>emptyList(), "");
         } catch (PhoenixIOException e) {
             assertEquals(PHOENIX_IO_EXCEPTION, e);
         }

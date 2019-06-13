@@ -38,39 +38,42 @@ import org.apache.phoenix.hbase.index.covered.update.IndexedColumnGroup;
  */
 public interface TableState {
 
-  /**
-   * @return the current timestamp up-to-which we are releasing table state.
-   */
-  public long getCurrentTimestamp();
+    /**
+     * @return the current timestamp up-to-which we are releasing table state.
+     */
+    public long getCurrentTimestamp();
 
-  /**
-   * Get a getter interface for the state of the index row
-   * @param indexedColumns list of indexed columns.
- * @param ignoreNewerMutations ignore mutations newer than m when determining current state. Useful
-   *        when replaying mutation state for partial index rebuild where writes succeeded to the data
-   *        table, but not to the index table.
- * @param indexMetaData TODO
-   */
-  Pair<ValueGetter, IndexUpdate> getIndexUpdateState(
-      Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean returnNullScannerIfRowNotFound, IndexMetaData indexMetaData) throws IOException;
+    /**
+     * Get a getter interface for the state of the index row
+     *
+     * @param indexedColumns       list of indexed columns.
+     * @param ignoreNewerMutations ignore mutations newer than m when determining current state. Useful
+     *                             when replaying mutation state for partial index rebuild where writes succeeded to the data
+     *                             table, but not to the index table.
+     * @param indexMetaData        TODO
+     */
+    Pair<ValueGetter, IndexUpdate> getIndexUpdateState(
+            Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean returnNullScannerIfRowNotFound, IndexMetaData indexMetaData) throws IOException;
 
-  /**
-   * @return the row key for the current row for which we are building an index update.
-   */
-  byte[] getCurrentRowKey();
+    /**
+     * @return the row key for the current row for which we are building an index update.
+     */
+    byte[] getCurrentRowKey();
 
-  /**
-   * Get the 'hint' for the columns that were indexed last time for the same set of keyvalues.
-   * Generally, this will only be used when fixing up a 'back in time' put or delete as we need to
-   * fix up all the indexes that reference the changed columns.
-   * @return the hint the index columns that were queried on the last iteration for the changed
-   *         column
-   */
-  List<? extends IndexedColumnGroup> getIndexColumnHints();
+    /**
+     * Get the 'hint' for the columns that were indexed last time for the same set of keyvalues.
+     * Generally, this will only be used when fixing up a 'back in time' put or delete as we need to
+     * fix up all the indexes that reference the changed columns.
+     *
+     * @return the hint the index columns that were queried on the last iteration for the changed
+     * column
+     */
+    List<? extends IndexedColumnGroup> getIndexColumnHints();
 
-  /**
-   * Can be used to help the codec to determine which columns it should attempt to index.
-   * @return the keyvalues in the pending update to the table.
-   */
-  Collection<Cell> getPendingUpdate();
+    /**
+     * Can be used to help the codec to determine which columns it should attempt to index.
+     *
+     * @return the keyvalues in the pending update to the table.
+     */
+    Collection<Cell> getPendingUpdate();
 }

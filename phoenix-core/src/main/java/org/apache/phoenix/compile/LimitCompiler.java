@@ -32,30 +32,34 @@ import org.apache.phoenix.schema.SortOrder;
 
 public class LimitCompiler {
     private static final ParseNodeFactory NODE_FACTORY = new ParseNodeFactory();
-    
+
     public static final PDatum LIMIT_DATUM = new PDatum() {
         @Override
         public boolean isNullable() {
             return false;
         }
+
         @Override
         public PDataType getDataType() {
             return PInteger.INSTANCE;
         }
+
         @Override
         public Integer getMaxLength() {
             return null;
         }
+
         @Override
         public Integer getScale() {
             return null;
         }
-		@Override
-		public SortOrder getSortOrder() {
-			return SortOrder.getDefault();
-		}
+
+        @Override
+        public SortOrder getSortOrder() {
+            return SortOrder.getDefault();
+        }
     };
-    
+
     private LimitCompiler() {
     }
 
@@ -68,19 +72,19 @@ public class LimitCompiler {
         limitNode.getLimitParseNode().accept(visitor);
         return visitor.getLimit();
     }
-    
+
     private static class LimitParseNodeVisitor extends TraverseNoParseNodeVisitor<Void> {
         private final StatementContext context;
         private Integer limit;
-        
+
         private LimitParseNodeVisitor(StatementContext context) {
             this.context = context;
         }
-        
+
         public Integer getLimit() {
             return limit;
         }
-        
+
         @Override
         public Void visit(LiteralParseNode node) throws SQLException {
             Object limitValue = node.getValue();
@@ -88,20 +92,21 @@ public class LimitCompiler {
             // This means that we've bound limit to null for the purpose of
             // collecting parameter metadata.
             if (limitValue != null) {
-                Integer limit = (Integer)LIMIT_DATUM.getDataType().toObject(limitValue, node.getType());
+                Integer limit = (Integer) LIMIT_DATUM.getDataType().toObject(limitValue, node.getType());
                 if (limit.intValue() >= 0) { // TODO: handle LIMIT 0
                     this.limit = limit;
                 }
             }
             return null;
         }
-    
+
         @Override
         public Void visit(BindParseNode node) throws SQLException {
             // This is for static evaluation in SubselectRewriter.
-            if (context == null)
+            if (context == null) {
                 return null;
-                        
+            }
+
             Object value = context.getBindManager().getBindValue(node);
             context.getBindManager().addParamMetaData(node, LIMIT_DATUM);
             // Resolve the bind value, create a LiteralParseNode, and call the visit method for it.
@@ -109,7 +114,7 @@ public class LimitCompiler {
             visit(NODE_FACTORY.literal(value, LIMIT_DATUM.getDataType()));
             return null;
         }
-		
+
     }
 
 }

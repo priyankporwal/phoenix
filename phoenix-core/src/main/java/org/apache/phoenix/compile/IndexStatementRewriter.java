@@ -40,49 +40,52 @@ import org.apache.phoenix.util.IndexUtil;
 
 public class IndexStatementRewriter extends ParseNodeRewriter {
     private static final ParseNodeFactory FACTORY = new ParseNodeFactory();
-    
+
     private Map<TableRef, TableRef> multiTableRewriteMap;
     private final ImmutableBytesWritable ptr = new ImmutableBytesWritable();
     private final boolean setTableAlias;
-    
+
     public IndexStatementRewriter(ColumnResolver dataResolver, Map<TableRef, TableRef> multiTableRewriteMap, boolean setTableAlias) {
         super(dataResolver);
         this.multiTableRewriteMap = multiTableRewriteMap;
         this.setTableAlias = setTableAlias;
     }
-    
+
     /**
      * Rewrite the parse node by translating all data table column references to
      * references to the corresponding index column.
-     * @param node the parse node
+     *
+     * @param node         the parse node
      * @param dataResolver the column resolver
      * @return new parse node or the same one if nothing was rewritten.
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static ParseNode translate(ParseNode node, ColumnResolver dataResolver) throws SQLException {
         return rewrite(node, new IndexStatementRewriter(dataResolver, null, false));
     }
-    
+
     /**
      * Rewrite the select statement by translating all data table column references to
      * references to the corresponding index column.
-     * @param statement the select statement
+     *
+     * @param statement    the select statement
      * @param dataResolver the column resolver
      * @return new select statement or the same one if nothing was rewritten.
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static SelectStatement translate(SelectStatement statement, ColumnResolver dataResolver) throws SQLException {
         return translate(statement, dataResolver, null);
     }
-    
+
     /**
-     * Rewrite the select statement containing multiple tables by translating all 
+     * Rewrite the select statement containing multiple tables by translating all
      * data table column references to references to the corresponding index column.
-     * @param statement the select statement
-     * @param dataResolver the column resolver
+     *
+     * @param statement            the select statement
+     * @param dataResolver         the column resolver
      * @param multiTableRewriteMap the data table to index table map
      * @return new select statement or the same one if nothing was rewritten.
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static SelectStatement translate(SelectStatement statement, ColumnResolver dataResolver, Map<TableRef, TableRef> multiTableRewriteMap) throws SQLException {
         return rewrite(statement, new IndexStatementRewriter(dataResolver, multiTableRewriteMap, false));
@@ -100,13 +103,14 @@ public class IndexStatementRewriter extends ParseNodeRewriter {
             byte[] viewConstant = dataCol.getViewConstant();
             // Ignore last byte, as it's only there so we can have a way to differentiate null
             // from the absence of a value.
-            ptr.set(viewConstant, 0, viewConstant.length-1);
+            ptr.set(viewConstant, 0, viewConstant.length - 1);
             Object literal = dataCol.getDataType().toObject(ptr);
             return new LiteralParseNode(literal, dataCol.getDataType());
         }
         TableName tName = getReplacedTableName(dataTableRef);
-        if (multiTableRewriteMap != null && tName == null)
+        if (multiTableRewriteMap != null && tName == null) {
             return node;
+        }
 
         String indexColName = IndexUtil.getIndexColumnName(dataCol);
         ParseNode indexColNode = new ColumnParseNode(tName, '"' + indexColName + '"', node.getAlias());
@@ -142,25 +146,29 @@ public class IndexStatementRewriter extends ParseNodeRewriter {
     public ParseNode visit(FamilyWildcardParseNode node) throws SQLException {
         return multiTableRewriteMap != null ? node : new FamilyWildcardParseNode(node, true);
     }
-    
+
     private TableName getReplacedTableName(TableRef origRef) {
         // if the setTableAlias flag is true and the original table has an alias we use that as the table name
-        if (setTableAlias && origRef.getTableAlias() != null) 
+        if (setTableAlias && origRef.getTableAlias() != null) {
             return TableName.create(null, origRef.getTableAlias());
-        
-        if (multiTableRewriteMap == null)
+        }
+
+        if (multiTableRewriteMap == null) {
             return null;
-        
+        }
+
         TableRef tableRef = multiTableRewriteMap.get(origRef);
-        if (tableRef == null)
+        if (tableRef == null) {
             return null;
-        
-        if (origRef.getTableAlias() != null)
+        }
+
+        if (origRef.getTableAlias() != null) {
             return TableName.create(null, origRef.getTableAlias());
-            
+        }
+
         String schemaName = tableRef.getTable().getSchemaName().getString();
         return TableName.create(schemaName.length() == 0 ? null : schemaName, tableRef.getTable().getTableName().getString());
     }
-    
+
 }
 

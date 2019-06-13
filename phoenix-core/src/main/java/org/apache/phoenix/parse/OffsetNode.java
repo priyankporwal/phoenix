@@ -21,21 +21,21 @@ package org.apache.phoenix.parse;
 public class OffsetNode {
     private final BindParseNode bindNode;
     private final LiteralParseNode offsetNode;
-    
+
     OffsetNode(BindParseNode bindNode) {
         this.bindNode = bindNode;
         offsetNode = null;
     }
-    
+
     OffsetNode(LiteralParseNode limitNode) {
         this.offsetNode = limitNode;
         this.bindNode = null;
     }
-    
+
     public ParseNode getOffsetParseNode() {
         return bindNode == null ? offsetNode : bindNode;
     }
-    
+
     @Override
     public String toString() {
         return bindNode == null ? offsetNode.toString() : bindNode.toString();
@@ -52,16 +52,30 @@ public class OffsetNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        OffsetNode other = (OffsetNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        OffsetNode other = (OffsetNode) obj;
         if (bindNode == null) {
-            if (other.bindNode != null) return false;
-        } else if (!bindNode.equals(other.bindNode)) return false;
+            if (other.bindNode != null) {
+                return false;
+            }
+        } else if (!bindNode.equals(other.bindNode)) {
+            return false;
+        }
         if (offsetNode == null) {
-            if (other.offsetNode != null) return false;
-        } else if (!offsetNode.equals(other.offsetNode)) return false;
+            if (other.offsetNode != null) {
+                return false;
+            }
+        } else if (!offsetNode.equals(other.offsetNode)) {
+            return false;
+        }
         return true;
     }
 }

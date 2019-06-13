@@ -36,21 +36,20 @@ import com.google.common.base.Preconditions;
 import com.sun.istack.NotNull;
 
 
-
 /**
  * Utilities for JDBC
- *
  */
 public class JDBCUtil {
-    
+
     private JDBCUtil() {
     }
 
     /**
      * Find the propName by first looking in the url string and if not found,
      * next in the info properties. If not found, null is returned.
-     * @param url JDBC connection URL
-     * @param info JDBC connection properties
+     *
+     * @param url      JDBC connection URL
+     * @param info     JDBC connection properties
      * @param propName the name of the property to find
      * @return the property value or null if not found
      */
@@ -96,36 +95,36 @@ public class JDBCUtil {
      * Returns a map that contains connection properties from both <code>info</code> and <code>url</code>.
      */
     private static Map<String, String> getCombinedConnectionProperties(String url, Properties info) {
-		Map<String, String> result = newHashMapWithExpectedSize(info.size());
-		for (String propName : info.stringPropertyNames()) {
-			result.put(propName, info.getProperty(propName));
-		}
-		String[] urlPropNameValues = url.split(Character.toString(PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR));
-		if (urlPropNameValues.length > 1) {
-			for (int i = 1; i < urlPropNameValues.length; i++) {
-				String[] urlPropNameValue = urlPropNameValues[i].split("=");
-				if (urlPropNameValue.length == 2) {
-					result.put(urlPropNameValue[0], urlPropNameValue[1]);
-				}
-			}
-		}
-		
-		return result;
+        Map<String, String> result = newHashMapWithExpectedSize(info.size());
+        for (String propName : info.stringPropertyNames()) {
+            result.put(propName, info.getProperty(propName));
+        }
+        String[] urlPropNameValues = url.split(Character.toString(PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR));
+        if (urlPropNameValues.length > 1) {
+            for (int i = 1; i < urlPropNameValues.length; i++) {
+                String[] urlPropNameValue = urlPropNameValues[i].split("=");
+                if (urlPropNameValue.length == 2) {
+                    result.put(urlPropNameValue[0], urlPropNameValue[1]);
+                }
+            }
+        }
+
+        return result;
     }
-    
+
     public static Map<String, String> getAnnotations(@NotNull String url, @NotNull Properties info) {
         Preconditions.checkNotNull(url);
         Preconditions.checkNotNull(info);
-        
-    	Map<String, String> combinedProperties = getCombinedConnectionProperties(url, info);
-    	Map<String, String> result = newHashMapWithExpectedSize(combinedProperties.size());
-    	for (Map.Entry<String, String> prop : combinedProperties.entrySet()) {
-    		if (prop.getKey().startsWith(ANNOTATION_ATTRIB_PREFIX) &&
-    				prop.getKey().length() > ANNOTATION_ATTRIB_PREFIX.length()) {
-    			result.put(prop.getKey().substring(ANNOTATION_ATTRIB_PREFIX.length()), prop.getValue());
-    		}
-    	}
-    	return result;
+
+        Map<String, String> combinedProperties = getCombinedConnectionProperties(url, info);
+        Map<String, String> result = newHashMapWithExpectedSize(combinedProperties.size());
+        for (Map.Entry<String, String> prop : combinedProperties.entrySet()) {
+            if (prop.getKey().startsWith(ANNOTATION_ATTRIB_PREFIX) &&
+                    prop.getKey().length() > ANNOTATION_ATTRIB_PREFIX.length()) {
+                result.put(prop.getKey().substring(ANNOTATION_ATTRIB_PREFIX.length()), prop.getValue());
+            }
+        }
+        return result;
     }
 
     public static Long getCurrentSCN(String url, Properties info) throws SQLException {
@@ -148,7 +147,8 @@ public class JDBCUtil {
         return (batchSizeStr == null ? props.getLong(QueryServices.MUTATE_BATCH_SIZE_BYTES_ATTRIB, QueryServicesOptions.DEFAULT_MUTATE_BATCH_SIZE_BYTES) : Long.parseLong(batchSizeStr));
     }
 
-    public static @Nullable PName getTenantId(String url, Properties info) throws SQLException {
+    public static @Nullable
+    PName getTenantId(String url, Properties info) throws SQLException {
         String tenantId = findProperty(url, info, PhoenixRuntime.TENANT_ID_ATTRIB);
         return (tenantId == null ? null : PNameFactory.newName(tenantId));
     }
@@ -157,8 +157,8 @@ public class JDBCUtil {
      * Retrieve the value of the optional auto-commit setting from JDBC url or connection
      * properties.
      *
-     * @param url JDBC url used for connecting to Phoenix
-     * @param info connection properties
+     * @param url          JDBC url used for connecting to Phoenix
+     * @param info         connection properties
      * @param defaultValue default to return if the auto-commit property is not set in the url
      *                     or connection properties
      * @return the boolean value supplied for the AutoCommit in the connection URL or properties,
@@ -171,12 +171,13 @@ public class JDBCUtil {
         }
         return Boolean.valueOf(autoCommit);
     }
+
     /**
      * Retrieve the value of the optional consistency read setting from JDBC url or connection
      * properties.
      *
-     * @param url JDBC url used for connecting to Phoenix
-     * @param info connection properties
+     * @param url          JDBC url used for connecting to Phoenix
+     * @param info         connection properties
      * @param defaultValue default to return if ReadConsistency property is not set in the url
      *                     or connection properties
      * @return the boolean value supplied for the AutoCommit in the connection URL or properties,
@@ -185,13 +186,13 @@ public class JDBCUtil {
     public static Consistency getConsistencyLevel(String url, Properties info, String defaultValue) {
         String consistency = findProperty(url, info, PhoenixRuntime.CONSISTENCY_ATTRIB);
 
-        if(consistency != null && consistency.equalsIgnoreCase(Consistency.TIMELINE.toString())){
+        if (consistency != null && consistency.equalsIgnoreCase(Consistency.TIMELINE.toString())) {
             return Consistency.TIMELINE;
         }
 
         return Consistency.STRONG;
     }
-    
+
     public static boolean isCollectingRequestLevelMetricsEnabled(String url, Properties overrideProps, ReadOnlyProps queryServicesProps) throws SQLException {
         String batchSizeStr = findProperty(url, overrideProps, PhoenixRuntime.REQUEST_METRIC_ATTRIB);
         return (batchSizeStr == null ? queryServicesProps.getBoolean(QueryServices.COLLECT_REQUEST_LEVEL_METRICS, QueryServicesOptions.DEFAULT_REQUEST_LEVEL_METRICS_ENABLED) : Boolean.parseBoolean(batchSizeStr));

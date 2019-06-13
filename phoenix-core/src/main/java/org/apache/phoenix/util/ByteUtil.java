@@ -42,10 +42,8 @@ import com.google.common.base.Preconditions;
 
 
 /**
- * 
  * Byte utilities
  *
- * 
  * @since 0.1
  */
 public class ByteUtil {
@@ -54,14 +52,14 @@ public class ByteUtil {
             EMPTY_BYTE_ARRAY);
     public static final ImmutableBytesWritable EMPTY_IMMUTABLE_BYTE_ARRAY = new ImmutableBytesWritable(
             EMPTY_BYTE_ARRAY);
-    
+
     public static final Comparator<ImmutableBytesPtr> BYTES_PTR_COMPARATOR = new Comparator<ImmutableBytesPtr>() {
 
         @Override
         public int compare(ImmutableBytesPtr o1, ImmutableBytesPtr o2) {
             return Bytes.compareTo(o1.get(), o1.getOffset(), o1.getLength(), o2.get(), o2.getOffset(), o2.getLength());
         }
-        
+
     };
 
     /**
@@ -69,6 +67,7 @@ public class ByteUtil {
      * to pass through a set of bytes arrays as an attribute of a Scan.
      * Use {@link #toByteArrays(byte[], int)} to convert the serialized
      * byte array back to the array of byte arrays.
+     *
      * @param byteArrays the array of byte arrays to serialize
      * @return the byte array
      */
@@ -109,7 +108,8 @@ public class ByteUtil {
      * Deserialize a byte array into a set of byte arrays.  Used in
      * coprocessor to reconstruct byte arrays from attribute value
      * passed through the Scan.
-     * @param b byte array containing serialized byte arrays (created by {@link #toBytes(byte[][])}).
+     *
+     * @param b      byte array containing serialized byte arrays (created by {@link #toBytes(byte[][])}).
      * @param length number of byte arrays that were serialized
      * @return array of now deserialized byte arrays
      * @throws IllegalStateException if there are more than length number of byte arrays that were serialized
@@ -130,7 +130,7 @@ public class ByteUtil {
                 } else {
                     byteArrays[i] = new byte[bLength];
                     int rLength = in.read(byteArrays[i], 0, bLength);
-                    assert (rLength == bLength); // For find bugs
+                    assert(rLength == bLength); // For find bugs
                 }
             }
             if (in.read() != -1) {
@@ -149,7 +149,7 @@ public class ByteUtil {
     }
 
     public static byte[] serializeVIntArray(int[] intArray) {
-        return serializeVIntArray(intArray,intArray.length);
+        return serializeVIntArray(intArray, intArray.length);
     }
 
     public static byte[] serializeVIntArray(int[] intArray, int encodedLength) {
@@ -172,6 +172,7 @@ public class ByteUtil {
 
     /**
      * Allows additional stuff to be encoded in length
+     *
      * @param output
      * @param intArray
      * @param encodedLength
@@ -199,7 +200,8 @@ public class ByteUtil {
     }
 
     /**
-     * Deserialize a byte array into a int array.  
+     * Deserialize a byte array into a int array.
+     *
      * @param b byte array storing serialized vints
      * @return int array
      */
@@ -234,8 +236,9 @@ public class ByteUtil {
     }
 
     /**
-     * Deserialize a byte array into a int array.  
-     * @param b byte array storing serialized vints
+     * Deserialize a byte array into a int array.
+     *
+     * @param b      byte array storing serialized vints
      * @param length number of serialized vints
      * @return int array
      */
@@ -243,7 +246,7 @@ public class ByteUtil {
         ByteArrayInputStream bytesIn = new ByteArrayInputStream(b);
         DataInputStream in = new DataInputStream(bytesIn);
         try {
-            return deserializeVIntArray(in,length);
+            return deserializeVIntArray(in, length);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -251,8 +254,9 @@ public class ByteUtil {
 
     /**
      * Concatenate together one or more byte arrays
+     *
      * @param first first byte array
-     * @param rest rest of byte arrays
+     * @param rest  rest of byte arrays
      * @return newly allocated byte array that is a concatenation of all the byte arrays passed in
      */
     public static byte[] concat(byte[] first, byte[]... rest) {
@@ -272,7 +276,7 @@ public class ByteUtil {
     public static <T> T[] concat(T[] first, T[]... rest) {
         int totalLength = first.length;
         for (T[] array : rest) {
-          totalLength += array.length;
+            totalLength += array.length;
         }
         T[] result = Arrays.copyOf(first, totalLength);
         int offset = first.length;
@@ -306,7 +310,7 @@ public class ByteUtil {
 
     public static int vintFromBytes(byte[] buffer, int offset) {
         try {
-            return (int)Bytes.readVLong(buffer, offset);
+            return (int) Bytes.readVLong(buffer, offset);
         } catch (IOException e) { // Impossible
             throw new RuntimeException(e);
         }
@@ -316,6 +320,7 @@ public class ByteUtil {
      * Decode a vint from the buffer pointed at to by ptr and
      * increment the offset of the ptr by the length of the
      * vint.
+     *
      * @param ptr a pointer to a byte array buffer
      * @return the decoded vint value as an int
      */
@@ -327,72 +332,75 @@ public class ByteUtil {
      * Decode a vint from the buffer pointed at to by ptr and
      * increment the offset of the ptr by the length of the
      * vint.
+     *
      * @param ptr a pointer to a byte array buffer
      * @return the decoded vint value as a long
      */
     public static long vlongFromBytes(ImmutableBytesWritable ptr) {
-        final byte [] buffer = ptr.get();
+        final byte[] buffer = ptr.get();
         final int offset = ptr.getOffset();
         byte firstByte = buffer[offset];
         int len = WritableUtils.decodeVIntSize(firstByte);
         if (len == 1) {
-            ptr.set(buffer, offset+1, ptr.getLength());
+            ptr.set(buffer, offset + 1, ptr.getLength());
             return firstByte;
         }
         long i = 0;
-        for (int idx = 0; idx < len-1; idx++) {
+        for (int idx = 0; idx < len - 1; idx++) {
             byte b = buffer[offset + 1 + idx];
             i = i << 8;
             i = i | (b & 0xFF);
         }
-        ptr.set(buffer, offset+len, ptr.getLength());
+        ptr.set(buffer, offset + len, ptr.getLength());
         return (WritableUtils.isNegativeVInt(firstByte) ? ~i : i);
     }
 
-    
+
     /**
      * Put long as variable length encoded number at the offset in the result byte array
-     * @param vint Integer to make a vint of.
+     *
+     * @param vint   Integer to make a vint of.
      * @param result buffer to put vint into
      * @return Vint length in bytes of vint
      */
     public static int vintToBytes(byte[] result, int offset, final long vint) {
-      long i = vint;
-      if (i >= -112 && i <= 127) {
-        result[offset] = (byte) i;
-        return 1;
-      }
+        long i = vint;
+        if (i >= -112 && i <= 127) {
+            result[offset] = (byte) i;
+            return 1;
+        }
 
-      int len = -112;
-      if (i < 0) {
-        i ^= -1L; // take one's complement'
-        len = -120;
-      }
+        int len = -112;
+        if (i < 0) {
+            i ^= -1L; // take one's complement'
+            len = -120;
+        }
 
-      long tmp = i;
-      while (tmp != 0) {
-        tmp = tmp >> 8;
-        len--;
-      }
+        long tmp = i;
+        while (tmp != 0) {
+            tmp = tmp >> 8;
+            len--;
+        }
 
-      result[offset++] = (byte) len;
+        result[offset++] = (byte) len;
 
-      len = (len < -120) ? -(len + 120) : -(len + 112);
+        len = (len < -120) ? -(len + 120) : -(len + 112);
 
-      for (int idx = len; idx != 0; idx--) {
-        int shiftbits = (idx - 1) * 8;
-        long mask = 0xFFL << shiftbits;
-        result[offset++] = (byte)((i & mask) >> shiftbits);
-      }
-      return len + 1;
+        for (int idx = len; idx != 0; idx--) {
+            int shiftbits = (idx - 1) * 8;
+            long mask = 0xFFL << shiftbits;
+            result[offset++] = (byte) ((i & mask) >> shiftbits);
+        }
+        return len + 1;
     }
 
     /**
      * Increment the key to the next key
+     *
      * @param key the key to increment
      * @return a new byte array with the next key or null
-     *  if the key could not be incremented because it's
-     *  already at its max value.
+     * if the key could not be incremented because it's
+     * already at its max value.
      */
     public static byte[] nextKey(byte[] key) {
         byte[] nextStartRow = new byte[key.length];
@@ -405,16 +413,17 @@ public class ByteUtil {
 
     /**
      * Increment the key in-place to the next key
-     * @param key the key to increment
+     *
+     * @param key    the key to increment
      * @param length the length of the key
      * @return true if the key can be incremented and
-     *  false otherwise if the key is at its max
-     *  value.
+     * false otherwise if the key is at its max
+     * value.
      */
     public static boolean nextKey(byte[] key, int length) {
         return nextKey(key, 0, length);
     }
-    
+
     public static boolean nextKey(byte[] key, int offset, int length) {
         if (length == 0) {
             return false;
@@ -430,8 +439,8 @@ public class ByteUtil {
                 } while (i < offset + length - 1);
                 return false;
             }
-         }
-        key[i] = (byte)(key[i] + 1);
+        }
+        key[i] = (byte) (key[i] + 1);
         return true;
     }
 
@@ -447,7 +456,7 @@ public class ByteUtil {
     public static boolean previousKey(byte[] key, int length) {
         return previousKey(key, 0, length);
     }
-    
+
     public static boolean previousKey(byte[] key, int offset, int length) {
         if (length == 0) {
             return false;
@@ -463,8 +472,8 @@ public class ByteUtil {
                 } while (i < offset + length - 1);
                 return false;
             }
-         }
-        key[i] = (byte)(key[i] - 1);
+        }
+        key[i] = (byte) (key[i] - 1);
         return true;
     }
 
@@ -472,7 +481,7 @@ public class ByteUtil {
      * Expand the key to length bytes using a null byte.
      */
     public static byte[] fillKey(byte[] key, int length) {
-        if(key.length > length) {
+        if (key.length > length) {
             throw new IllegalStateException();
         }
         if (key.length == length) {
@@ -488,7 +497,7 @@ public class ByteUtil {
      * bytes beyond the current key length.
      */
     public static void nullPad(ImmutableBytesWritable ptr, int length) {
-        if(ptr.getLength() > length) {
+        if (ptr.getLength() > length) {
             throw new IllegalStateException();
         }
         if (ptr.getLength() == length) {
@@ -501,22 +510,23 @@ public class ByteUtil {
 
     /**
      * Get the size in bytes of the UTF-8 encoded CharSequence
+     *
      * @param sequence the CharSequence
      */
     public static int getSize(CharSequence sequence) {
         int count = 0;
         for (int i = 0, len = sequence.length(); i < len; i++) {
-          char ch = sequence.charAt(i);
-          if (ch <= 0x7F) {
-            count++;
-          } else if (ch <= 0x7FF) {
-            count += 2;
-          } else if (Character.isHighSurrogate(ch)) {
-            count += 4;
-            ++i;
-          } else {
-            count += 3;
-          }
+            char ch = sequence.charAt(i);
+            if (ch <= 0x7F) {
+                count++;
+            } else if (ch <= 0x7FF) {
+                count += 2;
+            } else if (Character.isHighSurrogate(ch)) {
+                count += 4;
+                ++i;
+            } else {
+                count += 3;
+            }
         }
         return count;
     }
@@ -532,30 +542,31 @@ public class ByteUtil {
             case GREATER_OR_EQUAL:
                 return true;
             default:
-              throw new RuntimeException("Unknown Compare op " + op.name());
+                throw new RuntimeException("Unknown Compare op " + op.name());
         }
     }
+
     public static boolean compare(CompareOp op, int compareResult) {
         switch (op) {
             case LESS:
-              return compareResult < 0;
+                return compareResult < 0;
             case LESS_OR_EQUAL:
-              return compareResult <= 0;
+                return compareResult <= 0;
             case EQUAL:
-              return compareResult == 0;
+                return compareResult == 0;
             case NOT_EQUAL:
-              return compareResult != 0;
+                return compareResult != 0;
             case GREATER_OR_EQUAL:
-              return compareResult >= 0;
+                return compareResult >= 0;
             case GREATER:
-              return compareResult > 0;
+                return compareResult > 0;
             default:
-              throw new RuntimeException("Unknown Compare op " + op.name());
+                throw new RuntimeException("Unknown Compare op " + op.name());
         }
     }
 
     /**
-     * Given an ImmutableBytesWritable, returns the payload part of the argument as an byte array. 
+     * Given an ImmutableBytesWritable, returns the payload part of the argument as an byte array.
      */
     public static byte[] copyKeyBytesIfNecessary(ImmutableBytesWritable ptr) {
         if (ptr.getOffset() == 0 && ptr.getLength() == ptr.get().length) {
@@ -563,46 +574,58 @@ public class ByteUtil {
         }
         return ptr.copyBytes();
     }
-    
+
     public static KeyRange getKeyRange(byte[] key, CompareOp op, PDataType type) {
         switch (op) {
-        case EQUAL:
-            return type.getKeyRange(key, true, key, true);
-        case GREATER:
-            return type.getKeyRange(key, false, KeyRange.UNBOUND, false);
-        case GREATER_OR_EQUAL:
-            return type.getKeyRange(key, true, KeyRange.UNBOUND, false);
-        case LESS:
-            return type.getKeyRange(KeyRange.UNBOUND, false, key, false);
-        case LESS_OR_EQUAL:
-            return type.getKeyRange(KeyRange.UNBOUND, false, key, true);
-        default:
-            throw new IllegalArgumentException("Unknown operator " + op);
+            case EQUAL:
+                return type.getKeyRange(key, true, key, true);
+            case GREATER:
+                return type.getKeyRange(key, false, KeyRange.UNBOUND, false);
+            case GREATER_OR_EQUAL:
+                return type.getKeyRange(key, true, KeyRange.UNBOUND, false);
+            case LESS:
+                return type.getKeyRange(KeyRange.UNBOUND, false, key, false);
+            case LESS_OR_EQUAL:
+                return type.getKeyRange(KeyRange.UNBOUND, false, key, true);
+            default:
+                throw new IllegalArgumentException("Unknown operator " + op);
         }
     }
-    
+
     public static boolean contains(Collection<byte[]> keys, byte[] key) {
         for (byte[] k : keys) {
-            if (Arrays.equals(k, key)) { return true; }
+            if (Arrays.equals(k, key)) {
+                return true;
+            }
         }
         return false;
     }
 
     public static boolean contains(List<ImmutableBytesPtr> keys, ImmutableBytesPtr key) {
         for (ImmutableBytesPtr k : keys) {
-            if (key.compareTo(k) == 0) { return true; }
+            if (key.compareTo(k) == 0) {
+                return true;
+            }
         }
         return false;
     }
 
     public static boolean match(Set<byte[]> keys, Set<byte[]> keys2) {
-        if (keys == keys2) return true;
-        if (keys == null || keys2 == null) return false;
+        if (keys == keys2) {
+            return true;
+        }
+        if (keys == null || keys2 == null) {
+            return false;
+        }
 
         int size = keys.size();
-        if (keys2.size() != size) return false;
+        if (keys2.size() != size) {
+            return false;
+        }
         for (byte[] k : keys) {
-            if (!contains(keys2, k)) { return false; }
+            if (!contains(keys2, k)) {
+                return false;
+            }
         }
         return true;
     }

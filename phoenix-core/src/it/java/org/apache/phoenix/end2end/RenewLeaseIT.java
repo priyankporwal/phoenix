@@ -47,17 +47,17 @@ public class RenewLeaseIT extends BaseUniqueNamesOwnClusterIT {
     private static final long SCANNER_LEASE_TIMEOUT = 12000;
     private static volatile boolean SLEEP_NOW = false;
     private final static String TABLE_NAME = generateUniqueName();
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(1);
         serverProps.put("hbase.coprocessor.region.classes", SleepingRegionObserver.class.getName());
-        Map<String,String> clientProps = Maps.newHashMapWithExpectedSize(1);
+        Map<String, String> clientProps = Maps.newHashMapWithExpectedSize(1);
         // Must update config before starting server
         serverProps.put(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, Long.toString(SCANNER_LEASE_TIMEOUT));
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
-    
+
     @Test
     public void testLeaseDoesNotTimeout() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -72,14 +72,15 @@ public class RenewLeaseIT extends BaseUniqueNamesOwnClusterIT {
             SLEEP_NOW = false;
         }
     }
-    
+
     public static class SleepingRegionObserver extends SimpleRegionObserver {
-        public SleepingRegionObserver() {}
-        
+        public SleepingRegionObserver() {
+        }
+
         @Override
         public boolean preScannerNext(final ObserverContext<RegionCoprocessorEnvironment> c,
-                final InternalScanner s, final List<Result> results,
-                final int limit, final boolean hasMore) throws IOException {
+                                      final InternalScanner s, final List<Result> results,
+                                      final int limit, final boolean hasMore) throws IOException {
             try {
                 if (SLEEP_NOW && c.getEnvironment().getRegion().getRegionInfo().getTable().getNameAsString().equals(TABLE_NAME)) {
                     Thread.sleep(2 * SCANNER_LEASE_TIMEOUT);

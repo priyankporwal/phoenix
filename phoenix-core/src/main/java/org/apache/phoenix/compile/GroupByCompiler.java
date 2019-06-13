@@ -48,11 +48,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 /**
- * 
  * Validates GROUP BY clause and builds a {@link GroupBy} instance to encapsulate the
  * group by expressions.
  *
- * 
  * @since 0.1
  */
 public class GroupByCompiler {
@@ -69,11 +67,11 @@ public class GroupByCompiler {
             public GroupBy compile(StatementContext context, QueryPlan innerQueryPlan, Expression whereExpression) throws SQLException {
                 return this;
             }
-            
+
             @Override
             public void explain(List<String> planSteps, Integer limit) {
             }
-            
+
             @Override
             public String getScanAttribName() {
                 return null;
@@ -89,32 +87,32 @@ public class GroupByCompiler {
             public void explain(List<String> planSteps, Integer limit) {
                 planSteps.add("    SERVER AGGREGATE INTO SINGLE ROW");
             }
-            
+
             @Override
             public String getScanAttribName() {
                 return BaseScannerRegionObserver.UNGROUPED_AGG;
             }
         };
-        
+
         private GroupBy(GroupByBuilder builder) {
             this.expressions = ImmutableList.copyOf(builder.expressions);
-            this.keyExpressions = builder.expressions == builder.keyExpressions ? 
+            this.keyExpressions = builder.expressions == builder.keyExpressions ?
                     this.expressions : builder.keyExpressions == null ? null :
-                        ImmutableList.copyOf(builder.keyExpressions);
+                    ImmutableList.copyOf(builder.keyExpressions);
             this.isOrderPreserving = builder.isOrderPreserving;
             this.orderPreservingColumnCount = builder.orderPreservingColumnCount;
             this.isUngroupedAggregate = builder.isUngroupedAggregate;
             this.orderPreservingTrackInfos = builder.orderPreservingTrackInfos;
         }
-        
+
         public List<Expression> getExpressions() {
             return expressions;
         }
-        
+
         public List<Expression> getKeyExpressions() {
             return keyExpressions;
         }
-        
+
         public String getScanAttribName() {
             if (isUngroupedAggregate) {
                 return BaseScannerRegionObserver.UNGROUPED_AGG;
@@ -124,15 +122,15 @@ public class GroupByCompiler {
                 return BaseScannerRegionObserver.UNORDERED_GROUP_BY_EXPRESSIONS;
             }
         }
-        
+
         public boolean isEmpty() {
             return expressions.isEmpty();
         }
-        
+
         public boolean isOrderPreserving() {
             return isOrderPreserving;
         }
-        
+
         public boolean isUngroupedAggregate() {
             return isUngroupedAggregate;
         }
@@ -161,39 +159,39 @@ public class GroupByCompiler {
                     Expression expression = expressions.get(i);
                     tracker.track(expression);
                 }
-                
+
                 // This is true if the GROUP BY is composed of only PK columns. We further check here that
                 // there are no "gaps" in the PK columns positions used (i.e. we start with the first PK
                 // column and use each subsequent one in PK order).
                 isOrderPreserving = tracker.isOrderPreserving();
                 orderPreservingColumnCount = tracker.getOrderPreservingColumnCount();
-                if(isOrderPreserving) {
+                if (isOrderPreserving) {
                     //reorder the groupby expressions following pk columns
                     List<Info> orderPreservingTrackInfos = tracker.getOrderPreservingTrackInfos();
                     List<Expression> newExpressions = Info.extractExpressions(orderPreservingTrackInfos);
                     assert newExpressions.size() == expressions.size();
                     return new GroupBy.GroupByBuilder(this)
-                               .setIsOrderPreserving(isOrderPreserving)
-                               .setOrderPreservingColumnCount(orderPreservingColumnCount)
-                               .setExpressions(newExpressions)
-                               .setKeyExpressions(newExpressions)
-                               .setOrderPreservingTrackInfos(orderPreservingTrackInfos)
-                               .build();
+                            .setIsOrderPreserving(isOrderPreserving)
+                            .setOrderPreservingColumnCount(orderPreservingColumnCount)
+                            .setExpressions(newExpressions)
+                            .setKeyExpressions(newExpressions)
+                            .setOrderPreservingTrackInfos(orderPreservingTrackInfos)
+                            .build();
                 }
             }
 
             if (isUngroupedAggregate) {
                 return new GroupBy.GroupByBuilder(this)
-                           .setIsOrderPreserving(isOrderPreserving)
-                           .setOrderPreservingColumnCount(orderPreservingColumnCount)
-                           .build();
+                        .setIsOrderPreserving(isOrderPreserving)
+                        .setOrderPreservingColumnCount(orderPreservingColumnCount)
+                        .build();
             }
             List<Expression> expressions = Lists.newArrayListWithExpectedSize(this.expressions.size());
             List<Expression> keyExpressions = expressions;
-            List<Pair<Integer,Expression>> groupBys = Lists.newArrayListWithExpectedSize(this.expressions.size());
+            List<Pair<Integer, Expression>> groupBys = Lists.newArrayListWithExpectedSize(this.expressions.size());
             for (int i = 0; i < this.expressions.size(); i++) {
                 Expression expression = this.expressions.get(i);
-                groupBys.add(new Pair<Integer,Expression>(i,expression));
+                groupBys.add(new Pair<Integer, Expression>(i, expression));
             }
             /*
              * If we're not ordered along the PK axis, our coprocessor needs to collect all distinct groups within
@@ -203,7 +201,7 @@ public class GroupByCompiler {
              * into a Decimal so that we can use an empty byte array as our representation for null (which correctly
              * maintains the sort order). We convert the Decimal back to the appropriate type (Integer or Long) when
              * it's retrieved from the result set.
-             * 
+             *
              * More specifically, order into the following buckets:
              *   1) non nullable fixed width
              *   2) variable width
@@ -211,16 +209,16 @@ public class GroupByCompiler {
              * Within each bucket, order based on the column position in the schema. Putting the fixed width values
              * in the beginning optimizes access to subsequent values.
              */
-            Collections.sort(groupBys, new Comparator<Pair<Integer,Expression>>() {
+            Collections.sort(groupBys, new Comparator<Pair<Integer, Expression>>() {
                 @Override
-                public int compare(Pair<Integer,Expression> gb1, Pair<Integer,Expression> gb2) {
+                public int compare(Pair<Integer, Expression> gb1, Pair<Integer, Expression> gb2) {
                     Expression e1 = gb1.getSecond();
                     Expression e2 = gb2.getSecond();
                     PDataType t1 = e1.getDataType();
                     PDataType t2 = e2.getDataType();
                     boolean isFixed1 = t1.isFixedWidth();
                     boolean isFixed2 = t2.isFixedWidth();
-                    boolean isFixedNullable1 = e1.isNullable() &&isFixed1;
+                    boolean isFixedNullable1 = e1.isNullable() && isFixed1;
                     boolean isFixedNullable2 = e2.isNullable() && isFixed2;
                     boolean oae1 = onlyAtEndType(e1);
                     boolean oae2 = onlyAtEndType(e2);
@@ -249,18 +247,18 @@ public class GroupByCompiler {
                 }
             });
             boolean foundOnlyAtEndType = false;
-            for (Pair<Integer,Expression> groupBy : groupBys) {
+            for (Pair<Integer, Expression> groupBy : groupBys) {
                 Expression e = groupBy.getSecond();
                 if (onlyAtEndType(e)) {
                     if (foundOnlyAtEndType) {
                         throw new SQLExceptionInfo.Builder(SQLExceptionCode.UNSUPPORTED_GROUP_BY_EXPRESSIONS)
-                        .setMessage(e.toString()).build().buildException();
+                                .setMessage(e.toString()).build().buildException();
                     }
-                    foundOnlyAtEndType  = true;
+                    foundOnlyAtEndType = true;
                 }
                 expressions.add(e);
             }
-            for (int i = expressions.size()-2; i >= 0; i--) {
+            for (int i = expressions.size() - 2; i >= 0; i--) {
                 Expression expression = expressions.get(i);
                 PDataType keyType = getGroupByDataType(expression);
                 if (keyType == expression.getDataType()) {
@@ -279,7 +277,7 @@ public class GroupByCompiler {
             GroupBy groupBy = new GroupBy.GroupByBuilder().setIsOrderPreserving(isOrderPreserving).setExpressions(expressions).setKeyExpressions(keyExpressions).build();
             return groupBy;
         }
-        
+
         public static class GroupByBuilder {
             private boolean isOrderPreserving;
             private int orderPreservingColumnCount;
@@ -290,7 +288,7 @@ public class GroupByCompiler {
 
             public GroupByBuilder() {
             }
-            
+
             public GroupByBuilder(GroupBy groupBy) {
                 this.isOrderPreserving = groupBy.isOrderPreserving;
                 this.orderPreservingColumnCount = groupBy.orderPreservingColumnCount;
@@ -298,17 +296,17 @@ public class GroupByCompiler {
                 this.keyExpressions = groupBy.keyExpressions;
                 this.isUngroupedAggregate = groupBy.isUngroupedAggregate;
             }
-            
+
             public GroupByBuilder setExpressions(List<Expression> expressions) {
                 this.expressions = expressions;
                 return this;
             }
-            
+
             public GroupByBuilder setKeyExpressions(List<Expression> keyExpressions) {
                 this.keyExpressions = keyExpressions;
                 return this;
             }
-            
+
             public GroupByBuilder setIsOrderPreserving(boolean isOrderPreserving) {
                 this.isOrderPreserving = isOrderPreserving;
                 return this;
@@ -338,19 +336,20 @@ public class GroupByCompiler {
             if (isUngroupedAggregate) {
                 planSteps.add("    SERVER AGGREGATE INTO SINGLE ROW");
             } else if (isOrderPreserving) {
-                planSteps.add("    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY " + getExpressions() + (limit == null ? "" : " LIMIT " + limit + " GROUP" + (limit.intValue() == 1 ? "" : "S")));                    
+                planSteps.add("    SERVER AGGREGATE INTO ORDERED DISTINCT ROWS BY " + getExpressions() + (limit == null ? "" : " LIMIT " + limit + " GROUP" + (limit.intValue() == 1 ? "" : "S")));
             } else {
-                planSteps.add("    SERVER AGGREGATE INTO DISTINCT ROWS BY " + getExpressions() + (limit == null ? "" : " LIMIT " + limit + " GROUP" + (limit.intValue() == 1 ? "" : "S")));                    
+                planSteps.add("    SERVER AGGREGATE INTO DISTINCT ROWS BY " + getExpressions() + (limit == null ? "" : " LIMIT " + limit + " GROUP" + (limit.intValue() == 1 ? "" : "S")));
             }
         }
     }
 
     /**
      * Get list of columns in the GROUP BY clause.
-     * @param context query context kept between compilation of different query clauses
+     *
+     * @param context   query context kept between compilation of different query clauses
      * @param statement SQL statement being compiled
      * @return the {@link GroupBy} instance encapsulating the group by clause
-     * @throws ColumnNotFoundException if column name could not be resolved
+     * @throws ColumnNotFoundException  if column name could not be resolved
      * @throws AmbiguousColumnException if an unaliased column name is ambiguous across multiple tables
      */
     public static GroupBy compile(StatementContext context, SelectStatement statement) throws SQLException {
@@ -393,7 +392,7 @@ public class GroupByCompiler {
             }
         }
 
-       // Accumulate expressions in GROUP BY
+        // Accumulate expressions in GROUP BY
         ExpressionCompiler compiler =
                 new ExpressionCompiler(context, GroupBy.EMPTY_GROUP_BY);
         List<Expression> expressions = Lists.newArrayListWithExpectedSize(groupByNodes.size());
@@ -403,13 +402,13 @@ public class GroupByCompiler {
             if (!expression.isStateless()) {
                 if (compiler.isAggregate()) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.AGGREGATE_IN_GROUP_BY)
-                        .setMessage(expression.toString()).build().buildException();
+                            .setMessage(expression.toString()).build().buildException();
                 }
                 expressions.add(expression);
             }
             compiler.reset();
         }
-        
+
         if (expressions.isEmpty()) {
             return GroupBy.EMPTY_GROUP_BY;
         }
@@ -419,7 +418,7 @@ public class GroupByCompiler {
                 .setIsUngroupedAggregate(isUngroupedAggregate).build();
         return groupBy;
     }
-    
+
     private static boolean onlyAtEndType(Expression expression) {
         // Due to the encoding schema of these types, they may only be
         // used once in a group by and are located at the end of the
@@ -427,11 +426,11 @@ public class GroupByCompiler {
         PDataType type = getGroupByDataType(expression);
         return type.isArrayType() || type == PVarbinary.INSTANCE;
     }
-    
+
     private static PDataType getGroupByDataType(Expression expression) {
         return IndexUtil.getIndexColumnDataType(expression.isNullable(), expression.getDataType());
     }
-    
+
     private GroupByCompiler() {
     }
 }

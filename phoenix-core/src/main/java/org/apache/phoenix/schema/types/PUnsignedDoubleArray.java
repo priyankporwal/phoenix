@@ -60,8 +60,8 @@ public class PUnsignedDoubleArray extends PArrayDataType<double[]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length,
-            PDataType actualType, SortOrder sortOrder, Integer maxLength,
-            Integer scale) {
+                           PDataType actualType, SortOrder sortOrder, Integer maxLength,
+                           Integer scale) {
         return toObject(bytes, offset, length, PUnsignedDouble.INSTANCE, sortOrder, maxLength,
                 scale, PUnsignedDouble.INSTANCE);
     }
@@ -82,7 +82,7 @@ public class PUnsignedDoubleArray extends PArrayDataType<double[]> {
             if (!super.isCoercibleTo(PUnsignedDouble.INSTANCE, i) && (!super.isCoercibleTo(
                     PUnsignedTimestamp.INSTANCE, i))
                     && (!super.isCoercibleTo(PUnsignedTime.INSTANCE, i)) && (!super
-                            .isCoercibleTo(PUnsignedDate.INSTANCE, i))) {
+                    .isCoercibleTo(PUnsignedDate.INSTANCE, i))) {
                 return false;
             }
         }

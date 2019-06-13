@@ -53,10 +53,10 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
                     "  (pk VARCHAR NOT NULL PRIMARY KEY, " +
                     "col1 DECIMAL(31,0), col2 DECIMAL(5), col3 DECIMAL(5,2), col4 DECIMAL)";
             createTestTable(getUrl(), ddl);
-            
+
             // Test upsert correct values 
             String query = "UPSERT INTO " + testDecimalArithmetic
-                + "(pk, col1, col2, col3, col4) VALUES(?,?,?,?,?)";
+                    + "(pk, col1, col2, col3, col4) VALUES(?,?,?,?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "valueOne");
             stmt.setBigDecimal(2, new BigDecimal("123456789123456789"));
@@ -65,9 +65,9 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(5, new BigDecimal("12345.6789"));
             stmt.execute();
             conn.commit();
-            
+
             query = "SELECT col1, col2, col3, col4 FROM " + testDecimalArithmetic
-                + " WHERE pk = 'valueOne'";
+                    + " WHERE pk = 'valueOne'";
             stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
             assertTrue(rs.next());
@@ -76,9 +76,9 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertEquals(new BigDecimal("12.34"), rs.getBigDecimal(3));
             assertEquals(new BigDecimal("12345.6789"), rs.getBigDecimal(4));
             assertFalse(rs.next());
-            
+
             query =
-                "UPSERT INTO " + testDecimalArithmetic + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
+                    "UPSERT INTO " + testDecimalArithmetic + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, "valueTwo");
             stmt.setBigDecimal(2, new BigDecimal("1234567890123456789012345678901.12345"));
@@ -86,9 +86,9 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(4, new BigDecimal("123.45678"));
             stmt.execute();
             conn.commit();
-            
+
             query =
-                "SELECT col1, col2, col3 FROM " + testDecimalArithmetic + " WHERE pk = 'valueTwo'";
+                    "SELECT col1, col2, col3 FROM " + testDecimalArithmetic + " WHERE pk = 'valueTwo'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
@@ -96,26 +96,26 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertEquals(new BigDecimal("12345"), rs.getBigDecimal(2));
             assertEquals(new BigDecimal("123.45"), rs.getBigDecimal(3));
             assertFalse(rs.next());
-            
+
             // Test upsert incorrect values and confirm exceptions would be thrown.
             try {
                 query = "UPSERT INTO " + testDecimalArithmetic
-                    + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
+                        + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
                 stmt = conn.prepareStatement(query);
                 stmt.setString(1, "badValues");
                 // one more than max_precision
                 stmt.setBigDecimal(2, new BigDecimal("12345678901234567890123456789012"));
-                stmt.setBigDecimal(3, new BigDecimal("12345")); 
+                stmt.setBigDecimal(3, new BigDecimal("12345"));
                 stmt.setBigDecimal(4, new BigDecimal("123.45"));
                 stmt.execute();
                 conn.commit();
                 fail("Should have caught bad values.");
             } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(),e.getErrorCode());
+                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
             }
             try {
                 query = "UPSERT INTO " + testDecimalArithmetic
-                    + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
+                        + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
                 stmt = conn.prepareStatement(query);
                 stmt.setString(1, "badValues");
                 stmt.setBigDecimal(2, new BigDecimal("123456"));
@@ -126,7 +126,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
                 conn.commit();
                 fail("Should have caught bad values.");
             } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(),e.getErrorCode());
+                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
             }
         } finally {
             conn.close();
@@ -147,7 +147,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             ddl = "CREATE TABLE " + target +
                     " (pk VARCHAR NOT NULL PRIMARY KEY, col1 DECIMAL(5,1), col2 DECIMAL(5,2), col3 DECIMAL(4,4))";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + source + "(pk, col1) VALUES(?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
@@ -158,7 +158,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(2, new BigDecimal("100.34"));
             stmt.execute();
             conn.commit();
-            
+
             // Evaluated on client side.
             // source and target in different tables, values scheme compatible.
             query = "UPSERT INTO " + target + "(pk, col2) SELECT pk, col1 from " + source;
@@ -194,9 +194,9 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
                 conn.commit();
                 fail("Should have caught bad upsert.");
             } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(),e.getErrorCode());
+                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
             }
-            
+
             // Evaluate on server side.
             conn.setAutoCommit(true);
             // source and target in same table, values scheme compatible.
@@ -258,9 +258,9 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             String ddl = "CREATE TABLE " + testDecimalArithmetic +
                     "  (pk VARCHAR NOT NULL PRIMARY KEY, col1 DECIMAL(31, 11), col2 DECIMAL(31,1), col3 DECIMAL(38,1))";
             createTestTable(getUrl(), ddl);
-            
+
             String query =
-                "UPSERT INTO " + testDecimalArithmetic + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
+                    "UPSERT INTO " + testDecimalArithmetic + "(pk, col1, col2, col3) VALUES(?,?,?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
             stmt.setBigDecimal(2, new BigDecimal("99999999999999999999.1"));
@@ -280,7 +280,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(4, new BigDecimal("0"));
             stmt.execute();
             conn.commit();
-            
+
             // Averaging
             // result scale should be: max(max(ls, rs), 4).
             // We are not imposing restriction on precisioin.
@@ -290,14 +290,14 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("33333333333333333333.03333333333"), result);
-            
+
             query = "SELECT avg(col2) FROM " + testDecimalArithmetic;
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("33333333333333333333.0333"), result);
-            
+
             // We cap our decimal to a precision of 38.
             query = "SELECT avg(col3) FROM " + testDecimalArithmetic;
             stmt = conn.prepareStatement(query);
@@ -318,7 +318,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         try {
             String testRandomFunction = generateUniqueName();
             String ddl =
-                "CREATE TABLE " + testRandomFunction + " (pk VARCHAR NOT NULL PRIMARY KEY)";
+                    "CREATE TABLE " + testRandomFunction + " (pk VARCHAR NOT NULL PRIMARY KEY)";
             createTestTable(getUrl(), ddl);
             conn.createStatement().execute("upsert into " + testRandomFunction + " values ('x')");
             conn.createStatement().execute("upsert into " + testRandomFunction + " values ('y')");
@@ -326,7 +326,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             conn.commit();
 
             ResultSet rs = conn.createStatement().executeQuery(
-                "select rand(), rand(), rand(1), rand(2), rand(1) from " + testRandomFunction);
+                    "select rand(), rand(), rand(1), rand(2), rand(1) from " + testRandomFunction);
             assertTrue(rs.next());
             double rand0 = rs.getDouble(1);
             double rand1 = rs.getDouble(3);
@@ -357,7 +357,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             double rand12 = rs.getDouble(3);
 
             rs = conn.createStatement().executeQuery(
-                "select rand(), rand(), rand(1), rand(2), rand(1) from " + testRandomFunction);
+                    "select rand(), rand(), rand(1), rand(2), rand(1) from " + testRandomFunction);
             assertTrue(rs.next());
             assertTrue(rs.getDouble(1) != rs.getDouble(2));
             assertTrue(rs.getDouble(2) != rs.getDouble(3));
@@ -375,50 +375,50 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
 
             String testRandomFunction1 = generateUniqueName();
             ddl = "CREATE TABLE " + testRandomFunction1
-                + " (pk VARCHAR NOT NULL PRIMARY KEY, v1 UNSIGNED_DOUBLE)";
+                    + " (pk VARCHAR NOT NULL PRIMARY KEY, v1 UNSIGNED_DOUBLE)";
             createTestTable(getUrl(), ddl);
             conn.createStatement().execute(
-                "upsert into " + testRandomFunction1 + " select pk, rand(1) from " + testRandomFunction);
+                    "upsert into " + testRandomFunction1 + " select pk, rand(1) from " + testRandomFunction);
             conn.commit();
 
             rs = conn.createStatement().executeQuery(
-                "select count(*) from " + testRandomFunction1 + " where v1 = rand(1)");
+                    "select count(*) from " + testRandomFunction1 + " where v1 = rand(1)");
             assertTrue(rs.next());
             assertEquals(3, rs.getInt(1));
 
             rs = conn.createStatement().executeQuery(
-                "select count(*) from " + testRandomFunction1 + " where v1 = rand(2)");
+                    "select count(*) from " + testRandomFunction1 + " where v1 = rand(2)");
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
 
             conn.createStatement().execute(
-                "delete from " + testRandomFunction1 + " where v1 = rand(2)");
+                    "delete from " + testRandomFunction1 + " where v1 = rand(2)");
             conn.commit();
 
             rs = conn.createStatement().executeQuery(
-                "select count(*) from " + testRandomFunction1 + " where v1 = rand(1)");
+                    "select count(*) from " + testRandomFunction1 + " where v1 = rand(1)");
             assertTrue(rs.next());
             assertEquals(3, rs.getInt(1));
 
             conn.setAutoCommit(true);
             conn.createStatement().execute("upsert into " + testRandomFunction1
-                + " select pk, rand(2) from " + testRandomFunction1);
+                    + " select pk, rand(2) from " + testRandomFunction1);
 
             rs = conn.createStatement().executeQuery(
-                "select count(*) from " + testRandomFunction1 + " where v1 = rand(1)");
+                    "select count(*) from " + testRandomFunction1 + " where v1 = rand(1)");
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
 
             rs = conn.createStatement().executeQuery(
-                "select count(*) from " + testRandomFunction1 + " where v1 = rand(2)");
+                    "select count(*) from " + testRandomFunction1 + " where v1 = rand(2)");
             assertTrue(rs.next());
             assertEquals(3, rs.getInt(1));
 
             conn.createStatement().execute(
-                "delete from " + testRandomFunction1 + " where v1 = rand(2)");
+                    "delete from " + testRandomFunction1 + " where v1 = rand(2)");
 
             rs = conn.createStatement().executeQuery(
-                "select count(*) from " + testRandomFunction1 + " where v1 = rand(2)");
+                    "select count(*) from " + testRandomFunction1 + " where v1 = rand(2)");
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
         } finally {
@@ -437,9 +437,9 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
                     "  (pk VARCHAR NOT NULL PRIMARY KEY, " +
                     "col1 DECIMAL(38,0), col2 DECIMAL(5, 2), col3 INTEGER, col4 BIGINT, col5 DECIMAL)";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + testDecimalArithmetic
-                + "(pk, col1, col2, col3, col4, col5) VALUES(?,?,?,?,?,?)";
+                    + "(pk, col1, col2, col3, col4, col5) VALUES(?,?,?,?,?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "testValueOne");
             stmt.setBigDecimal(2, new BigDecimal("1234567890123456789012345678901"));
@@ -458,7 +458,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(6, new BigDecimal("123456789.0123456789"));
             stmt.execute();
             conn.commit();
-            
+
             // INT has a default precision and scale of (10, 0)
             // LONG has a default precision and scale of (19, 0)
             query = "SELECT col1 + col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
@@ -467,91 +467,91 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1234567890123456789012345678911"), result);
-            
+
             query = "SELECT col1 + col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1234567890123456789012345678911"), result);
-            
+
             query = "SELECT col2 + col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("133.45"), result);
-            
+
             query = "SELECT col2 + col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("133.45"), result);
-            
+
             query = "SELECT col5 + col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("121.111"), result);
-            
+
             query = "SELECT col5 + col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("121.111"), result);
-            
+
             query = "SELECT col1 - col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1234567890123456789012345678891"), result);
-            
+
             query = "SELECT col1 - col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1234567890123456789012345678891"), result);
-            
+
             query = "SELECT col2 - col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("113.45"), result);
-            
+
             query = "SELECT col2 - col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("113.45"), result);
-            
+
             query = "SELECT col5 - col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("101.111"), result);
-            
+
             query = "SELECT col5 - col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("101.111"), result);
-            
+
             query = "SELECT col1 * col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1.234567890123456789012345678901E+31"), result);
-            
+
             query = "SELECT col1 * col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
@@ -565,31 +565,31 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1.234567890123456789012345678901E+31"), result);
-            
+
             try {
-            	query =
-                  "SELECT col1 * col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueTwo'";
-            	stmt = conn.prepareStatement(query);
-            	rs = stmt.executeQuery();
-            	assertTrue(rs.next());
-            	result = rs.getBigDecimal(1);
-            	fail("Should have caught error.");
+                query =
+                        "SELECT col1 * col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueTwo'";
+                stmt = conn.prepareStatement(query);
+                rs = stmt.executeQuery();
+                assertTrue(rs.next());
+                result = rs.getBigDecimal(1);
+                fail("Should have caught error.");
             } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(),e.getErrorCode());
+                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
             }
-            
+
             try {
-            	query =
-                  "SELECT col1 * col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueTwo'";
-            	stmt = conn.prepareStatement(query);
-            	rs = stmt.executeQuery();
-            	assertTrue(rs.next());
-            	result = rs.getBigDecimal(1);
-            	fail("Should have caught error.");
+                query =
+                        "SELECT col1 * col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueTwo'";
+                stmt = conn.prepareStatement(query);
+                rs = stmt.executeQuery();
+                assertTrue(rs.next());
+                result = rs.getBigDecimal(1);
+                fail("Should have caught error.");
             } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(),e.getErrorCode());
+                assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
             }
-            
+
             query = "SELECT col4 * col5 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
@@ -603,14 +603,14 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(0, result.compareTo(new BigDecimal("1111.11")));
-            
+
             query = "SELECT col2 * col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1234.5"), result);
-            
+
             // Result scale has value of 0
             query = "SELECT col1 / col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
@@ -618,14 +618,14 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1.2345678901234567890123456789E+29"), result);
-            
+
             query = "SELECT col1 / col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("1.2345678901234567890123456789E+29"), result);
-            
+
             // Result scale is 2.
             query = "SELECT col2 / col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
@@ -633,14 +633,14 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("12.34"), result);
-            
+
             query = "SELECT col2 / col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("12.34"), result);
-            
+
             // col5 has NO_SCALE, so the result's scale is not expected to be truncated to col5 value's scale of 4
             query = "SELECT col5 / col3 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
@@ -648,7 +648,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             result = rs.getBigDecimal(1);
             assertEquals(new BigDecimal("11.1111"), result);
-            
+
             query = "SELECT col5 / col4 FROM " + testDecimalArithmetic + " WHERE pk='testValueOne'";
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
@@ -659,60 +659,61 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
+
     @Test
     public void testSumDouble() throws Exception {
         String tableName = "TBL_" + generateUniqueName();
         initSumDoubleValues(tableName, null, getUrl());
-        String query = "SELECT SUM(d) FROM " + tableName ;
+        String query = "SELECT SUM(d) FROM " + tableName;
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.015)==0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.015) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSumUnsignedDouble() throws Exception {
         String tableName = "TBL_" + generateUniqueName();
         initSumDoubleValues(tableName, null, getUrl());
-        String query = "SELECT SUM(ud) FROM " + tableName ;
+        String query = "SELECT SUM(ud) FROM " + tableName;
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.015)==0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.015) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSumFloat() throws Exception {
         String tableName = "TBL_" + generateUniqueName();
         initSumDoubleValues(tableName, null, getUrl());
-        String query = "SELECT SUM(f) FROM " + tableName ;
+        String query = "SELECT SUM(f) FROM " + tableName;
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue(Floats.compare(rs.getFloat(1), 0.15f)==0);
+            assertTrue(rs.next());
+            assertTrue(Floats.compare(rs.getFloat(1), 0.15f) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSumUnsignedFloat() throws Exception {
         String tableName = "TBL_" + generateUniqueName();
@@ -723,31 +724,31 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue(Floats.compare(rs.getFloat(1), 0.15f)==0);
+            assertTrue(rs.next());
+            assertTrue(Floats.compare(rs.getFloat(1), 0.15f) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     private String initIntegerTable(Connection conn) throws SQLException {
         String arithmetic_test = generateUniqueName();
         String ddl = "CREATE TABLE " + arithmetic_test
-            + " (six INTEGER PRIMARY KEY, four INTEGER, three INTEGER)";
+                + " (six INTEGER PRIMARY KEY, four INTEGER, three INTEGER)";
         conn.createStatement().execute(ddl);
         String dml = "UPSERT INTO " + arithmetic_test + " VALUES(6, 4, 3)";
         conn.createStatement().execute(dml);
         conn.commit();
         return arithmetic_test;
     }
-    
+
     @Test
     public void testOrderOfOperationsAdditionSubtraction() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 + 4 - 3
         // 10 - 3
         // 7
@@ -755,7 +756,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(7, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 - 3 + 6
         // 1 + 6
         // 7
@@ -764,13 +765,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(7, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsAdditionMultiplication() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 + 4 * 3
         // 6 + 12
         // 18
@@ -778,7 +779,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(18, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 * 3 + 6
         // 12 * 6     
         // 18
@@ -787,13 +788,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(18, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsAdditionDivision() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 + 4 / 3
         // 6 + 1
         // 7
@@ -801,7 +802,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(7, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 / 3 + 6
         // 1 + 6     
         // 7
@@ -810,13 +811,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(7, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsAdditionModulus() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 + 4 % 3
         // 6 + 1
         // 7
@@ -824,7 +825,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(7, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 % 3 + 6
         // 1 + 6
         // 7
@@ -833,13 +834,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(7, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsSubtrationMultiplication() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 - 4 * 3
         // 6 - 12
         // -6
@@ -847,7 +848,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(-6, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 * 3 - 6
         // 12 - 6     
         // 6
@@ -856,13 +857,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(6, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsSubtractionDivision() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 - 4 / 3
         // 6 - 1     (integer division)
         // 5
@@ -870,7 +871,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(5, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 / 3 - 6
         // 1 - 6     (integer division)
         // -5
@@ -879,13 +880,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(-5, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsSubtractionModulus() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 - 4 % 3
         // 6 - 1
         // 5
@@ -893,7 +894,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(5, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 % 3 - 6
         // 1 - 6
         // -5
@@ -902,13 +903,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(-5, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsMultiplicationDivision() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 * 4 / 3
         // 24 / 3
         // 8
@@ -916,7 +917,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(8, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 / 3 * 6
         // 1 * 6     (integer division)
         // 6
@@ -925,13 +926,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(6, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsMultiplicationModulus() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 * 4 % 3
         // 24 % 3
         // 0
@@ -939,7 +940,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(0, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 % 3 * 6
         // 1 * 6
         // 6
@@ -948,13 +949,13 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(6, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testOrderOfOperationsDivisionModulus() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = initIntegerTable(conn);
         ResultSet rs;
-        
+
         // 6 / 4 % 3
         // 1 % 3     (integer division)
         // 1
@@ -962,7 +963,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(1, rs.getLong(1));
         assertFalse(rs.next());
-        
+
         // 4 % 3 / 6
         // 1 / 6
         // 0         (integer division)
@@ -971,20 +972,20 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertEquals(0, rs.getLong(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testCastingOnConstantAddInArithmeticEvaluation() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String testTable = generateUniqueName();
         String ddl = "CREATE TABLE IF NOT EXISTS " + testTable
-            + " (k1 INTEGER NOT NULL, v1 INTEGER CONSTRAINT pk PRIMARY KEY (k1))";
+                + " (k1 INTEGER NOT NULL, v1 INTEGER CONSTRAINT pk PRIMARY KEY (k1))";
         conn.createStatement().execute(ddl);
         String dml = "UPSERT INTO " + testTable + " (k1, v1) VALUES (2, 2)";
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT k1 / (v1 + 0.5) FROM " + testTable);
+                "SELECT k1 / (v1 + 0.5) FROM " + testTable);
         assertTrue(rs.next());
         double d = rs.getDouble(1);
         assertEquals(0.8, d, 0.01);
@@ -995,14 +996,14 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String testTable = generateUniqueName();
         String ddl = "CREATE TABLE IF NOT EXISTS " + testTable
-            + " (k1 INTEGER NOT NULL, v1 INTEGER CONSTRAINT pk PRIMARY KEY (k1))";
+                + " (k1 INTEGER NOT NULL, v1 INTEGER CONSTRAINT pk PRIMARY KEY (k1))";
         conn.createStatement().execute(ddl);
         String dml = "UPSERT INTO " + testTable + " (k1, v1) VALUES (2, 2)";
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT k1 / (v1 - 0.5) FROM " + testTable);
+                "SELECT k1 / (v1 - 0.5) FROM " + testTable);
         assertTrue(rs.next());
         assertEquals(1.333333333, rs.getDouble(1), 0.001);
     }
@@ -1012,7 +1013,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String test = generateUniqueName();
         String ddl =
-            "CREATE TABLE " + test + " (id VARCHAR not null primary key, name VARCHAR, lat FLOAT)";
+                "CREATE TABLE " + test + " (id VARCHAR not null primary key, name VARCHAR, lat FLOAT)";
         conn.createStatement().execute(ddl);
         String dml = "UPSERT INTO " + test + "(id,name,lat) VALUES ('testid', 'testname', -1.00)";
         conn.createStatement().execute(dml);
@@ -1028,10 +1029,10 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String test = generateUniqueName();
         String ddl =
-            "CREATE TABLE " + test + " (id VARCHAR not null primary key, name VARCHAR, lat FLOAT)";
+                "CREATE TABLE " + test + " (id VARCHAR not null primary key, name VARCHAR, lat FLOAT)";
         conn.createStatement().execute(ddl);
         String dml =
-            "UPSERT INTO " + test + "(id,name,lat) VALUES ('testid', 'testname', -1.00 * 1)";
+                "UPSERT INTO " + test + "(id,name,lat) VALUES ('testid', 'testname', -1.00 * 1)";
         conn.createStatement().execute(dml);
         conn.commit();
 
@@ -1039,7 +1040,7 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertEquals(-1.0f, rs.getFloat(1), 0.001);
     }
-    
+
     @Test
     public void testSystemTableHasDoubleForExponentialNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1054,45 +1055,45 @@ public class ArithmeticQueryIT extends ParallelStatsDisabledIT {
         assertTrue(rs.next());
         assertTrue(rs.getObject(1) instanceof Double);
     }
-    
+
     @Test
     public void testFloatingPointWithExponentialNotation() throws Exception {
-    	Float[] expected = {1.5E7f, 1.5E-7f, -1.5E-7f, 12E-5f, -.12E+34f};
-    	String[] values = {"1.5e7", "1.5e-7", "-1.5e-7", "12E-5", "-.12E+34"};
+        Float[] expected = {1.5E7f, 1.5E-7f, -1.5E-7f, 12E-5f, -.12E+34f};
+        String[] values = {"1.5e7", "1.5e-7", "-1.5e-7", "12E-5", "-.12E+34"};
         ResultSet rs = createTableWithValues(values, "FLOAT");
         for (int i = 0; i < expected.length; i++) {
-        	assertEquals(expected[i], rs.getFloat(i+1), 0.001);
+            assertEquals(expected[i], rs.getFloat(i + 1), 0.001);
         }
     }
-    
+
     @Test
     public void testDoubleWithExponentialNotation() throws Exception {
-    	Double[] expected = {1.5E7d, 1.5E-7d, -1.5E-7d, 12E-5d, -.654E-321d, .1234E+56d};
-    	String[] values = {"1.5e7", "1.5e-7", "-1.5e-7", "12E-5", "-.654E-321", ".1234E+56"};
-    	ResultSet rs = createTableWithValues(values, "DOUBLE");
+        Double[] expected = {1.5E7d, 1.5E-7d, -1.5E-7d, 12E-5d, -.654E-321d, .1234E+56d};
+        String[] values = {"1.5e7", "1.5e-7", "-1.5e-7", "12E-5", "-.654E-321", ".1234E+56"};
+        ResultSet rs = createTableWithValues(values, "DOUBLE");
         for (int i = 0; i < expected.length; i++) {
-        	assertEquals(expected[i], rs.getDouble(i+1), 0.001);
+            assertEquals(expected[i], rs.getDouble(i + 1), 0.001);
         }
     }
-    
+
     private ResultSet createTableWithValues(String[] values, String valueType) throws SQLException {
-    	Connection conn = DriverManager.getConnection(getUrl());
+        Connection conn = DriverManager.getConnection(getUrl());
         String test = generateUniqueName();
         StringBuilder ddl = new StringBuilder(
-            "CREATE TABLE " + test + " (id VARCHAR not null primary key");
+                "CREATE TABLE " + test + " (id VARCHAR not null primary key");
         StringBuilder dmll = new StringBuilder("UPSERT INTO " + test + "(id,");
         StringBuilder dmlr = new StringBuilder(") VALUES ('testid'");
         StringBuilder select = new StringBuilder("SELECT");
-        for(int i = 0; i < values.length; i++) {
-        	ddl.append(", num").append(i).append(" ").append(valueType);
-        	dmll.append("num").append(i).append(",");
-        	dmlr.append(", ").append(values[i]);
-        	select.append(" num").append(i).append(",");
+        for (int i = 0; i < values.length; i++) {
+            ddl.append(", num").append(i).append(" ").append(valueType);
+            dmll.append("num").append(i).append(",");
+            dmlr.append(", ").append(values[i]);
+            select.append(" num").append(i).append(",");
         }
         ddl.append(")");
         dmlr.append(")");
-        dmll.deleteCharAt(dmll.length()-1);
-        select.deleteCharAt(select.length()-1);
+        dmll.deleteCharAt(dmll.length() - 1);
+        select.deleteCharAt(select.length() - 1);
         select.append(" FROM " + test);
         conn.createStatement().execute(ddl.toString());
         conn.createStatement().execute(dmll.toString() + dmlr.toString());

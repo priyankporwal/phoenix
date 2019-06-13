@@ -24,7 +24,7 @@ import org.apache.phoenix.util.ByteUtil;
 import org.junit.Test;
 
 public class DescVarLengthFastByteComparisonsTest {
-    
+
     @Test
     public void testNullIsSmallest() {
         byte[] b1 = ByteUtil.EMPTY_BYTE_ARRAY;
@@ -34,7 +34,7 @@ public class DescVarLengthFastByteComparisonsTest {
         cmp = DescVarLengthFastByteComparisons.compareTo(b2, 0, b2.length, b1, 0, b1.length);
         assertTrue(cmp > 0);
     }
-    
+
     @Test
     public void testShorterSubstringIsBigger() {
         byte[] b1 = Bytes.toBytes("ab");

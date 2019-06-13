@@ -38,7 +38,6 @@ import org.apache.phoenix.util.FirstLastNthValueDataContainer;
 
 /**
  * Base client aggregator for (FIRST|LAST|NTH)_VALUE and (FIRST|LAST)_VALUES functions
- *
  */
 public class FirstLastValueBaseClientAggregator extends BaseAggregator {
 
@@ -92,14 +91,14 @@ public class FirstLastValueBaseClientAggregator extends BaseAggregator {
                     if (isArrayReturnType) {
                         ImmutableBytesWritable newArrPtr = new ImmutableBytesWritable(it.next());
                         PArrayDataType.appendItemToArray(
-                            newArrPtr,
-                            arrPtr.getLength(),
-                            arrPtr.getOffset(),
-                            arrPtr.get(),
-                            PDataType.fromTypeId(dataType.getSqlType() - PDataType.ARRAY_TYPE_BASE),
-                            counter,
-                            null,
-                            sortOrder);
+                                newArrPtr,
+                                arrPtr.getLength(),
+                                arrPtr.getOffset(),
+                                arrPtr.get(),
+                                PDataType.fromTypeId(dataType.getSqlType() - PDataType.ARRAY_TYPE_BASE),
+                                counter,
+                                null,
+                                sortOrder);
                         arrPtr = newArrPtr;
 
                         if (++counter == offset) {

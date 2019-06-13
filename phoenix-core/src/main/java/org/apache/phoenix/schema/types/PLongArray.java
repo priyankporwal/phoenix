@@ -60,8 +60,8 @@ public class PLongArray extends PArrayDataType<long[]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length,
-            PDataType actualType, SortOrder sortOrder, Integer maxLength,
-            Integer scale) {
+                           PDataType actualType, SortOrder sortOrder, Integer maxLength,
+                           Integer scale) {
         return toObject(bytes, offset, length, PLong.INSTANCE, sortOrder, maxLength, scale,
                 PLong.INSTANCE);
     }

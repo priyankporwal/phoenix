@@ -48,7 +48,7 @@ public class DisableLocalIndexIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(true);
         String baseName = generateUniqueName();
-        String tableName = baseName+ "_TABLE";
+        String tableName = baseName + "_TABLE";
         String viewName = baseName + "_VIEW";
         String indexName1 = baseName + "_INDEX1";
         String indexName2 = baseName + "_INDEX2";
@@ -67,12 +67,12 @@ public class DisableLocalIndexIT extends ParallelStatsDisabledIT {
         } finally {
             admin.close();
         }
-        
+
         Properties tsconnProps = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         tsconnProps.setProperty(QueryServices.ALLOW_LOCAL_INDEX_ATTRIB, Boolean.FALSE.toString());
         tsconnProps.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, "t1");
         Connection tsconn = DriverManager.getConnection(getUrl(), tsconnProps);
-        
+
         tsconn.createStatement().execute("CREATE VIEW " + viewName + "(V1 VARCHAR) AS SELECT * FROM " + tableName);
         tsconn.createStatement().execute("CREATE INDEX " + indexName1 + " ON " + viewName + "(V1)");
         tsconn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(MetaDataUtil.VIEW_INDEX_TABLE_PREFIX + tableName));

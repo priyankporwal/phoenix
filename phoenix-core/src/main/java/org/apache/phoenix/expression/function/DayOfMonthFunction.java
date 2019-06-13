@@ -31,13 +31,11 @@ import org.apache.phoenix.schema.types.PTimestamp;
 import org.joda.time.DateTime;
 
 /**
- * 
  * Implementation of the DayOfMonth() buildin. Input Date/Timestamp.
  * An integer from 1 to 31 representing the day of the month in date
- * 
  */
-@BuiltInFunction(name=DayOfMonthFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = DayOfMonthFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class DayOfMonthFunction extends DateScalarFunction {
     public static final String NAME = "DAYOFMONTH";
 
@@ -54,7 +52,7 @@ public class DayOfMonthFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());

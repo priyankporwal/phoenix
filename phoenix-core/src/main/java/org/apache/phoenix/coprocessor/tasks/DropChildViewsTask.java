@@ -17,7 +17,6 @@ import java.util.Properties;
 
 /**
  * Task runs periodically to clean up task of child views whose parent is dropped
- *
  */
 public class DropChildViewsTask extends BaseTask {
     public static final Logger LOGGER = LoggerFactory.getLogger(DropChildViewsTask.class);
@@ -31,8 +30,7 @@ public class DropChildViewsTask extends BaseTask {
                 Properties tenantProps = new Properties();
                 tenantProps.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
                 pconn = QueryUtil.getConnectionOnServer(tenantProps, env.getConfiguration()).unwrap(PhoenixConnection.class);
-            }
-            else {
+            } else {
                 pconn = QueryUtil.getConnectionOnServer(env.getConfiguration()).unwrap(PhoenixConnection.class);
             }
 
@@ -49,18 +47,16 @@ public class DropChildViewsTask extends BaseTask {
                         " with tenant id " + (tenantId == null ? " IS NULL" : tenantId) +
                         " and timestamp " + timestamp.toString());
                 return new TaskRegionObserver.TaskResult(TaskRegionObserver.TaskResultCode.SKIPPED, "");
-            }
-            else {
+            } else {
                 LOGGER.warn(" A drop child view task has expired and will be marked as failed : " +
                         taskRecord.getSchemaName() + "." + taskRecord.getTableName() +
                         " with tenant id " + (tenantId == null ? " IS NULL" : tenantId) +
                         " and timestamp " + timestamp.toString());
                 return new TaskRegionObserver.TaskResult(TaskRegionObserver.TaskResultCode.FAIL, "Expired");
             }
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             LOGGER.warn("Exception while dropping a child view task. " +
-                    taskRecord.getSchemaName()  + "." + taskRecord.getTableName() +
+                    taskRecord.getSchemaName() + "." + taskRecord.getTableName() +
                     " with tenant id " + (taskRecord.getTenantId() == null ? " IS NULL" : taskRecord.getTenantId()) +
                     " and timestamp " + timestamp.toString(), t);
             return new TaskRegionObserver.TaskResult(TaskRegionObserver.TaskResultCode.FAIL, t.toString());

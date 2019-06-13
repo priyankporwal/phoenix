@@ -37,8 +37,8 @@ public class TaskExecutionMetricsHolder {
     private final CombinableMetric taskExecutionTime;
     private final CombinableMetric numTasks;
     private final CombinableMetric numRejectedTasks;
-    public static final TaskExecutionMetricsHolder NO_OP_INSTANCE = new TaskExecutionMetricsHolder(new ReadMetricQueue(false,LogLevel.OFF), "");
-    
+    public static final TaskExecutionMetricsHolder NO_OP_INSTANCE = new TaskExecutionMetricsHolder(new ReadMetricQueue(false, LogLevel.OFF), "");
+
     public TaskExecutionMetricsHolder(ReadMetricQueue readMetrics, String tableName) {
         taskQueueWaitTime = readMetrics.allotMetric(TASK_QUEUE_WAIT_TIME, tableName);
         taskEndToEndTime = readMetrics.allotMetric(TASK_END_TO_END_TIME, tableName);

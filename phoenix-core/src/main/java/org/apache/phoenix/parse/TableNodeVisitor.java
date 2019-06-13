@@ -21,15 +21,16 @@ import java.sql.SQLException;
 
 
 /**
- * 
  * Visitor for nodes in the FROM clause
  *
- * 
  * @since 0.1
  */
 public interface TableNodeVisitor<E> {
     E visit(BindTableNode boundTableNode) throws SQLException;
+
     E visit(JoinTableNode joinNode) throws SQLException;
+
     E visit(NamedTableNode namedTableNode) throws SQLException;
+
     E visit(DerivedTableNode subselectNode) throws SQLException;
 }

@@ -33,11 +33,12 @@ import org.apache.phoenix.schema.SortOrder;
 import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.schema.types.PDataType;
 
-@BuiltInFunction(name = InvertFunction.NAME, args = { @Argument() })
+@BuiltInFunction(name = InvertFunction.NAME, args = {@Argument()})
 public class InvertFunction extends ScalarFunction {
     public static final String NAME = "INVERT";
 
-    public InvertFunction() throws SQLException {}
+    public InvertFunction() throws SQLException {
+    }
 
     public InvertFunction(List<Expression> children) throws SQLException {
         super(children);
@@ -45,8 +46,12 @@ public class InvertFunction extends ScalarFunction {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        if (!getChildExpression().evaluate(tuple, ptr)) { return false; }
-        if (ptr.getLength() == 0) { return true; }
+        if (!getChildExpression().evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         PDataType type = getDataType();
         // FIXME: losing rowKeyOrderOptimizable here
         type.coerceBytes(ptr, type, getChildExpression().getSortOrder(), getSortOrder());

@@ -36,13 +36,13 @@ public class DropSequenceCompiler {
         this.statement = statement;
         this.operation = operation;
     }
-    
+
 
     public MutationPlan compile(final DropSequenceStatement sequence) throws SQLException {
         final PhoenixConnection connection = statement.getConnection();
-        final MetaDataClient client = new MetaDataClient(connection);        
+        final MetaDataClient client = new MetaDataClient(connection);
         final StatementContext context = new StatementContext(statement);
-        return new BaseMutationPlan(context, operation) {           
+        return new BaseMutationPlan(context, operation) {
 
             @Override
             public MutationState execute() throws SQLException {

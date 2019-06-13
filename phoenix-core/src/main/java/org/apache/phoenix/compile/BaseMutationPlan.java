@@ -28,17 +28,17 @@ import org.apache.phoenix.schema.TableRef;
 public abstract class BaseMutationPlan implements MutationPlan {
     private final StatementContext context;
     private final Operation operation;
-    
+
     public BaseMutationPlan(StatementContext context, Operation operation) {
         this.context = context;
         this.operation = operation;
     }
-    
+
     @Override
     public Operation getOperation() {
         return operation;
     }
-    
+
     @Override
     public StatementContext getContext() {
         return context;
@@ -58,7 +58,7 @@ public abstract class BaseMutationPlan implements MutationPlan {
     public TableRef getTargetRef() {
         return context.getCurrentTable();
     }
-    
+
     @Override
     public Set<TableRef> getSourceRefs() {
         return Collections.emptySet();

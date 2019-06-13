@@ -26,11 +26,9 @@ import org.apache.phoenix.expression.Expression;
 
 
 /**
- * 
  * SingleKeyValueComparisonFilter that needs to compare both the column family and
  * column qualifier parts of the key value to disambiguate with another similarly
  * named column qualifier in a different column family.
- *
  */
 public class SingleCFCQKeyValueComparisonFilter extends SingleKeyValueComparisonFilter {
     public SingleCFCQKeyValueComparisonFilter() {
@@ -43,13 +41,15 @@ public class SingleCFCQKeyValueComparisonFilter extends SingleKeyValueComparison
     @Override
     protected final int compare(byte[] cfBuf, int cfOffset, int cfLength, byte[] cqBuf, int cqOffset, int cqLength) {
         int c = Bytes.compareTo(cf, 0, cf.length, cfBuf, cfOffset, cfLength);
-        if (c != 0) return c;
+        if (c != 0) {
+            return c;
+        }
         return Bytes.compareTo(cq, 0, cq.length, cqBuf, cqOffset, cqLength);
     }
-    
-    public static SingleCFCQKeyValueComparisonFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+
+    public static SingleCFCQKeyValueComparisonFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (SingleCFCQKeyValueComparisonFilter)Writables.getWritable(pbBytes, new SingleCFCQKeyValueComparisonFilter());
+            return (SingleCFCQKeyValueComparisonFilter) Writables.getWritable(pbBytes, new SingleCFCQKeyValueComparisonFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }

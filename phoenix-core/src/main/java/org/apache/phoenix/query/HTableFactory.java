@@ -27,16 +27,15 @@ import org.apache.hadoop.hbase.client.Table;
 /**
  * Creates clients to access HBase tables.
  *
- * 
  * @since 0.2
  */
 public interface HTableFactory {
     /**
      * Creates an HBase client using an externally managed HConnection and Thread pool.
      *
-     * @param tableName Name of the table.
+     * @param tableName  Name of the table.
      * @param connection HConnection to use.
-     * @param pool ExecutorService to use.
+     * @param pool       ExecutorService to use.
      * @return An client to access an HBase table.
      * @throws IOException if a server or network exception occurs
      */

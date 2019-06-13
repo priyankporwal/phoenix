@@ -45,7 +45,7 @@ public class RegexpSplitParseNode extends FunctionParseNode {
         QueryServices services = context.getConnection().getQueryServices();
         boolean useByteBasedRegex =
                 services.getProps().getBoolean(QueryServices.USE_BYTE_BASED_REGEX_ATTRIB,
-                    QueryServicesOptions.DEFAULT_USE_BYTE_BASED_REGEX);
+                        QueryServicesOptions.DEFAULT_USE_BYTE_BASED_REGEX);
         if (useByteBasedRegex) {
             return new ByteBasedRegexpSplitFunction(children);
         } else {

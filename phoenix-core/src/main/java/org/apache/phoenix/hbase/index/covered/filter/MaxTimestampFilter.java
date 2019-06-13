@@ -30,33 +30,33 @@ import org.apache.phoenix.util.PhoenixKeyValueUtil;
  */
 public class MaxTimestampFilter extends FilterBase {
 
-  private long ts;
+    private long ts;
 
-  public MaxTimestampFilter(long maxTime) {
-    this.ts = maxTime;
-  }
-
-  @Override
-  public Cell getNextCellHint(Cell currentKV) {
-    // this might be a little excessive right now - better safe than sorry though, so we don't mess
-    // with other filters too much.
-    KeyValue kv = null;
-    try {
-        kv = PhoenixKeyValueUtil.maybeCopyCell(currentKV).clone();
-    } catch (CloneNotSupportedException e) {
-        // the exception should not happen at all
-        throw new IllegalArgumentException(e);
+    public MaxTimestampFilter(long maxTime) {
+        this.ts = maxTime;
     }
-    kv.setTimestamp(ts);
-    return kv;
-  }
 
-  @Override
-  public ReturnCode filterKeyValue(Cell v) {
-    long timestamp = v.getTimestamp();
-    if (timestamp > ts) {
-      return ReturnCode.SEEK_NEXT_USING_HINT;
+    @Override
+    public Cell getNextCellHint(Cell currentKV) {
+        // this might be a little excessive right now - better safe than sorry though, so we don't mess
+        // with other filters too much.
+        KeyValue kv = null;
+        try {
+            kv = PhoenixKeyValueUtil.maybeCopyCell(currentKV).clone();
+        } catch (CloneNotSupportedException e) {
+            // the exception should not happen at all
+            throw new IllegalArgumentException(e);
+        }
+        kv.setTimestamp(ts);
+        return kv;
     }
-    return ReturnCode.INCLUDE;
-  }
+
+    @Override
+    public ReturnCode filterKeyValue(Cell v) {
+        long timestamp = v.getTimestamp();
+        if (timestamp > ts) {
+            return ReturnCode.SEEK_NEXT_USING_HINT;
+        }
+        return ReturnCode.INCLUDE;
+    }
 }

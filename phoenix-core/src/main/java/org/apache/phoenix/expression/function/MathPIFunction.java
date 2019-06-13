@@ -29,18 +29,17 @@ import org.apache.phoenix.schema.types.PDouble;
 
 
 /**
- *
  * Function used to represent PI()
  * The function returns a {@link org.apache.phoenix.schema.types.PDouble}
- *
  */
-@BuiltInFunction(name = MathPIFunction.NAME, args= {}
+@BuiltInFunction(name = MathPIFunction.NAME, args = {}
 )
 public class MathPIFunction extends ScalarFunction {
 
     public static final String NAME = "PI";
 
-    public MathPIFunction() {}
+    public MathPIFunction() {
+    }
 
     public MathPIFunction(List<Expression> children) throws SQLException {
         super(children);

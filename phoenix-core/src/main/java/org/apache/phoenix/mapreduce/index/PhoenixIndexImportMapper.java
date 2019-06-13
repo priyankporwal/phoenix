@@ -54,24 +54,23 @@ import com.google.common.collect.Lists;
 
 /**
  * Mapper that hands over rows from data table to the index table.
- *
  */
 public class PhoenixIndexImportMapper extends Mapper<NullWritable, PhoenixIndexDBWritable, ImmutableBytesWritable, KeyValue> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixIndexImportMapper.class);
-    
+
     private final PhoenixIndexDBWritable indxWritable = new PhoenixIndexDBWritable();
-    
-    private List<ColumnInfo> indxTblColumnMetadata ;
-    
+
+    private List<ColumnInfo> indxTblColumnMetadata;
+
     private Connection connection;
-    
+
     private String indexTableName;
-    
+
     private ImportPreUpsertKeyValueProcessor preUpdateProcessor;
-    
+
     private PreparedStatement pStatement;
-    
+
     @Override
     protected void setup(final Context context) throws IOException, InterruptedException {
         super.setup(context);
@@ -79,32 +78,32 @@ public class PhoenixIndexImportMapper extends Mapper<NullWritable, PhoenixIndexD
         try {
             indxTblColumnMetadata = PhoenixConfigurationUtil.getUpsertColumnMetadataList(context.getConfiguration());
             indxWritable.setColumnMetadata(indxTblColumnMetadata);
-            
+
             preUpdateProcessor = PhoenixConfigurationUtil.loadPreUpsertProcessor(configuration);
             indexTableName = PhoenixConfigurationUtil.getPhysicalTableName(configuration);
-            final Properties overrideProps = new Properties ();
+            final Properties overrideProps = new Properties();
             String scn = configuration.get(PhoenixConfigurationUtil.CURRENT_SCN_VALUE);
             String txScnValue = configuration.get(PhoenixConfigurationUtil.TX_SCN_VALUE);
-            if(txScnValue==null) {
+            if (txScnValue == null) {
                 overrideProps.put(PhoenixRuntime.BUILD_INDEX_AT_ATTRIB, scn);
             }
-            connection = ConnectionUtil.getOutputConnection(configuration,overrideProps);
+            connection = ConnectionUtil.getOutputConnection(configuration, overrideProps);
             connection.setAutoCommit(false);
             final String upsertQuery = PhoenixConfigurationUtil.getUpsertStatement(configuration);
             this.pStatement = connection.prepareStatement(upsertQuery);
-            
+
         } catch (SQLException e) {
             tryClosingConnection();
             throw new RuntimeException(e.getMessage());
-        } 
+        }
     }
-    
+
     @Override
     protected void map(NullWritable key, PhoenixIndexDBWritable record, Context context)
             throws IOException, InterruptedException {
-       
+
         context.getCounter(PhoenixJobCounters.INPUT_RECORDS).increment(1);
-        
+
         PhoenixTransactionProvider provider = null;
         Configuration conf = context.getConfiguration();
         long ts = HConstants.LATEST_TIMESTAMP;
@@ -118,15 +117,15 @@ public class PhoenixIndexImportMapper extends Mapper<NullWritable, PhoenixIndexD
             }
         }
         try {
-           final ImmutableBytesWritable outputKey = new ImmutableBytesWritable();
-           final List<Object> values = record.getValues();
-           indxWritable.setValues(values);
-           indxWritable.write(this.pStatement);
-           this.pStatement.execute();
-            
-           PhoenixConnection pconn = connection.unwrap(PhoenixConnection.class);
-           final Iterator<Pair<byte[],List<Mutation>>> iterator = pconn.getMutationState().toMutations(true);
-           while (iterator.hasNext()) {
+            final ImmutableBytesWritable outputKey = new ImmutableBytesWritable();
+            final List<Object> values = record.getValues();
+            indxWritable.setValues(values);
+            indxWritable.write(this.pStatement);
+            this.pStatement.execute();
+
+            PhoenixConnection pconn = connection.unwrap(PhoenixConnection.class);
+            final Iterator<Pair<byte[], List<Mutation>>> iterator = pconn.getMutationState().toMutations(true);
+            while (iterator.hasNext()) {
                 Pair<byte[], List<Mutation>> pair = iterator.next();
                 if (Bytes.compareTo(Bytes.toBytes(indexTableName), pair.getFirst()) != 0) {
                     // skip edits for other tables
@@ -136,10 +135,10 @@ public class PhoenixIndexImportMapper extends Mapper<NullWritable, PhoenixIndexD
                 for (Mutation mutation : pair.getSecond()) {
                     if (mutation instanceof Put) {
                         if (provider != null) {
-                            mutation = provider.markPutAsCommitted((Put)mutation, ts, ts);
+                            mutation = provider.markPutAsCommitted((Put) mutation, ts, ts);
                         }
                         for (List<Cell> cellList : mutation.getFamilyCellMap().values()) {
-                            List<Cell>keyValueList = preUpdateProcessor.preUpsert(mutation.getRow(), cellList);
+                            List<Cell> keyValueList = preUpdateProcessor.preUpsert(mutation.getRow(), cellList);
                             for (Cell keyValue : keyValueList) {
                                 keyValues.add(keyValue);
                             }
@@ -154,11 +153,11 @@ public class PhoenixIndexImportMapper extends Mapper<NullWritable, PhoenixIndexD
                 context.getCounter(PhoenixJobCounters.OUTPUT_RECORDS).increment(1);
             }
             connection.rollback();
-       } catch (SQLException e) {
-           LOGGER.error("Error {}  while read/write of a record ",e.getMessage());
-           context.getCounter(PhoenixJobCounters.FAILED_RECORDS).increment(1);
-           throw new RuntimeException(e);
-        } 
+        } catch (SQLException e) {
+            LOGGER.error("Error {}  while read/write of a record ", e.getMessage());
+            context.getCounter(PhoenixJobCounters.FAILED_RECORDS).increment(1);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

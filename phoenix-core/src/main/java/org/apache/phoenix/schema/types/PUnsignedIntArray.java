@@ -60,8 +60,8 @@ public class PUnsignedIntArray extends PArrayDataType<int[]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length,
-            PDataType actualType, SortOrder sortOrder, Integer maxLength,
-            Integer scale) {
+                           PDataType actualType, SortOrder sortOrder, Integer maxLength,
+                           Integer scale) {
         return toObject(bytes, offset, length, PUnsignedInt.INSTANCE, sortOrder, maxLength,
                 scale, PUnsignedInt.INSTANCE);
     }

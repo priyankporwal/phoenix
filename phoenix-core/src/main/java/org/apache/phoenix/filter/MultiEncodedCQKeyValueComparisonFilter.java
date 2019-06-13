@@ -52,7 +52,7 @@ import org.apache.phoenix.util.ServerUtil;
  * number based column qualifier. See {@link EncodedCQIncrementalResultTuple}. Using this filter helps us to directly
  * seek to the next row when the column qualifier that we have encountered is greater than the maxQualifier that we
  * expect. This helps in speeding up the queries filtering on key value columns.
- * 
+ * <p>
  * TODO: derived this from MultiKeyValueComparisonFilter to reduce the copy/paste from that class.
  */
 public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFilter {
@@ -71,7 +71,7 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
     private int whereExpressionMaxQualifier;
 
     private FilteredKeyValueHolder filteredKeyValues;
-    
+
     // BitSet to track the qualifiers in where expression that we expect to find while filtering a row
     private BitSet whereExpressionQualifiers;
 
@@ -83,16 +83,17 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
 
     // Tuple used to store the relevant key values found while filtering a row
     private EncodedCQIncrementalResultTuple inputTuple = new EncodedCQIncrementalResultTuple();
-    
+
     // Member variable to cache the size of whereExpressionQualifiers
     private int expectedCardinality;
-    
+
     private byte[] essentialCF = ByteUtil.EMPTY_BYTE_ARRAY;
     private boolean allCFs;
 
     private static final byte[] UNITIALIZED_KEY_BUFFER = new byte[0];
-    
-    public MultiEncodedCQKeyValueComparisonFilter() {}
+
+    public MultiEncodedCQKeyValueComparisonFilter() {
+    }
 
     public MultiEncodedCQKeyValueComparisonFilter(Expression expression, QualifierEncodingScheme scheme, boolean allCFs, byte[] essentialCF) {
         super(expression);
@@ -102,18 +103,18 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         this.essentialCF = essentialCF == null ? ByteUtil.EMPTY_BYTE_ARRAY : essentialCF;
         initFilter(expression);
     }
-    
+
     private final class FilteredKeyValueHolder {
         // Cell values corresponding to columns in where expression that were found while filtering a row.
         private Cell[] filteredCells;
 
         // BitSet to track whether qualifiers in where expression were found when filtering a row
         private BitSet filteredQualifiers;
-        
+
         // Using an explicit counter instead of relying on the cardinality of the bitset as computing the 
         // cardinality could be slightly more expensive than just incrementing an integer
         private int numKeyValues;
-        
+
         private FilteredKeyValueHolder(int size) {
             filteredCells = new Cell[size];
             filteredQualifiers = new BitSet(size);
@@ -137,7 +138,7 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
             filteredQualifiers.clear();
             numKeyValues = 0;
         }
-        
+
         /**
          * This method really shouldn't be the way for getting hold of cells. It was
          * just added to keep the tuple.get(index) method happy.
@@ -148,7 +149,9 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
                     .nextSetBit(bitIndex + 1)) {
                 index--;
             }
-            if (bitIndex < 0) { throw new NoSuchElementException(); }
+            if (bitIndex < 0) {
+                throw new NoSuchElementException();
+            }
             return filteredCells[bitIndex];
         }
 
@@ -161,17 +164,17 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
             }
             return sb.toString();
         }
-        
+
         private boolean allColumnsFound() {
             return numKeyValues == expectedCardinality;
         }
-        
+
         private int numKeyValues() {
             return numKeyValues;
         }
 
     }
-    
+
     private void initFilter(Expression expression) {
         cfSet = new TreeSet<byte[]>(Bytes.BYTES_COMPARATOR);
         final BitSet expressionQualifiers = new BitSet(20);
@@ -197,10 +200,10 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         // Set min and max qualifiers for columns in the where expression
         whereExpressionMinQualifier = range.getFirst();
         whereExpressionMaxQualifier = range.getSecond();
-        
+
         int size = whereExpressionMaxQualifier - whereExpressionMinQualifier + 1;
         filteredKeyValues = new FilteredKeyValueHolder(size);
-        
+
         // Initialize the bitset and mark the qualifiers for columns in where expression
         whereExpressionQualifiers = new BitSet(size);
         for (int i = whereExpressionMinQualifier; i <= whereExpressionMaxQualifier; i++) {
@@ -210,20 +213,20 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         }
         expectedCardinality = whereExpressionQualifiers.cardinality();
     }
-    
+
     private boolean isQualifierForColumnInWhereExpression(int qualifier) {
         return qualifier >= whereExpressionMinQualifier ? whereExpressionQualifiers.get(qualifier - whereExpressionMinQualifier) : false;
     }
-    
+
     @Override
     public ReturnCode filterKeyValue(Cell cell) {
         if (Boolean.TRUE.equals(this.matchedColumn)) {
-          // We already found and matched the single column, all keys now pass
-          return ReturnCode.INCLUDE_AND_NEXT_COL;
+            // We already found and matched the single column, all keys now pass
+            return ReturnCode.INCLUDE_AND_NEXT_COL;
         }
         if (Boolean.FALSE.equals(this.matchedColumn)) {
-          // We found all the columns, but did not match the expression, so skip to next row
-          return ReturnCode.NEXT_ROW;
+            // We found all the columns, but did not match the expression, so skip to next row
+            return ReturnCode.NEXT_ROW;
         }
         inputTuple.setKey(cell);
         int qualifier = encodingScheme.decode(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
@@ -249,8 +252,8 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         // TODO: I don't think we would ever hit this case of encountering a greater than what we expect.
         // Leaving the code commented out here for future reference.
         // if (qualifier > maxQualifier) {
-            // Qualifier is larger than the max expected qualifier. We are done looking at columns in this row.
-            // return ReturnCode.NEXT_ROW;
+        // Qualifier is larger than the max expected qualifier. We are done looking at columns in this row.
+        // return ReturnCode.NEXT_ROW;
         // }
         return ReturnCode.INCLUDE_AND_NEXT_COL;
     }
@@ -261,37 +264,37 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
             inputTuple.setImmutable();
             this.matchedColumn = this.evaluate(inputTuple);
         }
-        return ! (Boolean.TRUE.equals(this.matchedColumn));
+        return !(Boolean.TRUE.equals(this.matchedColumn));
     }
 
     final class EncodedCQIncrementalResultTuple extends BaseTuple {
         private final ImmutableBytesWritable keyPtr = new ImmutableBytesWritable(UNITIALIZED_KEY_BUFFER);
         private boolean isImmutable;
-        
+
         @Override
         public boolean isImmutable() {
             return isImmutable || filteredKeyValues.allColumnsFound();
         }
-        
+
         public void setImmutable() {
             this.isImmutable = true;
         }
-        
+
         private void setKey(Cell value) {
             keyPtr.set(value.getRowArray(), value.getRowOffset(), value.getRowLength());
         }
-        
+
         @Override
         public void getKey(ImmutableBytesWritable ptr) {
-            ptr.set(keyPtr.get(),keyPtr.getOffset(),keyPtr.getLength());
+            ptr.set(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength());
         }
-        
+
         @Override
         public Cell getValue(byte[] cf, byte[] cq) {
             int qualifier = encodingScheme.decode(cq);
             return filteredKeyValues.getCell(qualifier);
         }
-        
+
         @Override
         public String toString() {
             return filteredKeyValues.toString();
@@ -313,20 +316,21 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
 
         @Override
         public boolean getValue(byte[] family, byte[] qualifier,
-                ImmutableBytesWritable ptr) {
+                                ImmutableBytesWritable ptr) {
             Cell cell = getValue(family, qualifier);
-            if (cell == null)
+            if (cell == null) {
                 return false;
+            }
             ptr.set(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             return true;
         }
-        
+
         void reset() {
             isImmutable = false;
             keyPtr.set(UNITIALIZED_KEY_BUFFER);
         }
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         try {
@@ -350,7 +354,7 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         }
         initFilter(expression);
     }
-    
+
     @Override
     public void write(DataOutput output) throws IOException {
         try {
@@ -370,7 +374,7 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
             ServerUtil.throwIOException("MultiEncodedCQKeyValueComparisonFilter failed during writing", t);
         }
     }
-    
+
     public void setMinMaxQualifierRange(Pair<Integer, Integer> minMaxQualifiers) {
         this.minQualifier = minMaxQualifiers.getFirst();
         this.maxQualifier = minMaxQualifiers.getSecond();
@@ -380,14 +384,14 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         this.minQualifier = minQualifier;
     }
 
-    public static MultiEncodedCQKeyValueComparisonFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+    public static MultiEncodedCQKeyValueComparisonFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (MultiEncodedCQKeyValueComparisonFilter)Writables.getWritable(pbBytes, new MultiEncodedCQKeyValueComparisonFilter());
+            return (MultiEncodedCQKeyValueComparisonFilter) Writables.getWritable(pbBytes, new MultiEncodedCQKeyValueComparisonFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }
     }
-    
+
     @Override
     public void reset() {
         filteredKeyValues.clear();
@@ -405,6 +409,6 @@ public class MultiEncodedCQKeyValueComparisonFilter extends BooleanExpressionFil
         // view (where we don't have an empty key value).
         return allCFs || Bytes.compareTo(name, essentialCF) == 0 || cfSet.contains(name);
     }
-    
-    
+
+
 }

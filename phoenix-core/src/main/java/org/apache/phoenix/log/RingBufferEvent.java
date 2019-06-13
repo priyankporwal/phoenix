@@ -24,15 +24,15 @@ import org.apache.phoenix.monitoring.MetricType;
 import com.google.common.collect.ImmutableMap;
 import com.lmax.disruptor.EventFactory;
 
- class RingBufferEvent {
+class RingBufferEvent {
     private String queryId;
     private LogLevel connectionLogLevel;
     private ImmutableMap<QueryLogInfo, Object> queryInfo;
     private Map<String, Map<MetricType, Long>> readMetrics;
     private Map<MetricType, Long> overAllMetrics;
-    
+
     public static final Factory FACTORY = new Factory();
-    
+
     /**
      * Creates the events that will be put in the RingBuffer.
      */
@@ -45,11 +45,11 @@ import com.lmax.disruptor.EventFactory;
     }
 
     public void clear() {
-        this.queryInfo=null;
-        this.queryId=null;
+        this.queryInfo = null;
+        this.queryId = null;
     }
 
-   
+
     public String getQueryId() {
         return queryId;
     }
@@ -59,18 +59,18 @@ import com.lmax.disruptor.EventFactory;
     }
 
     public void setQueryInfo(ImmutableMap<QueryLogInfo, Object> queryInfo) {
-        this.queryInfo=queryInfo;
-        
+        this.queryInfo = queryInfo;
+
     }
 
     public void setQueryId(String queryId) {
-        this.queryId=queryId;
-        
+        this.queryId = queryId;
+
     }
 
     public ImmutableMap<QueryLogInfo, Object> getQueryInfo() {
         return queryInfo;
-        
+
     }
 
     public LogLevel getConnectionLogLevel() {
@@ -102,6 +102,5 @@ import com.lmax.disruptor.EventFactory;
         this.overAllMetrics = overAllMetrics;
     }
 
-    
 
 }

@@ -106,20 +106,17 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 
-
 /**
- * 
  * Tests for compiling a query
  * The compilation stage finds additional errors that can't be found at parse
  * time so this is a good place for negative tests (since the mini-cluster
  * is not necessary enabling the tests to run faster).
  *
- * 
  * @since 0.1
  */
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-        value="RV_RETURN_VALUE_IGNORED",
-        justification="Test code.")
+        value = "RV_RETURN_VALUE_IGNORED",
+        justification = "Test code.")
 public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
@@ -434,7 +431,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         Properties props = new Properties();
         DriverManager.getConnection(getUrl(), props);
     }
-    
+
 
     @Test
     public void testPercentileWrongQueryWithMixOfAggrAndNonAggrExps() throws Exception {
@@ -491,13 +488,13 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         QueryPlan plan = getQueryPlan(query, binds);
         return plan.getContext().getScan();
     }
-    
+
     private Scan projectQuery(String query) throws SQLException {
         QueryPlan plan = getQueryPlan(query, Collections.emptyList());
         plan.iterator(); // Forces projection
         return plan.getContext().getScan();
     }
-    
+
     private QueryPlan getOptimizedQueryPlan(String query) throws SQLException {
         return getOptimizedQueryPlan(query, Collections.emptyList());
     }
@@ -516,7 +513,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     private QueryPlan getQueryPlan(String query, List<Object> binds) throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -531,17 +528,17 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testKeyOrderedGroupByOptimization() throws Exception {
         // Select columns in PK
         String[] queries = new String[] {
-            "SELECT count(1) FROM atable GROUP BY organization_id,entity_id",
-            "SELECT count(1) FROM atable GROUP BY organization_id,substr(entity_id,1,3),entity_id",
-            "SELECT count(1) FROM atable GROUP BY entity_id,organization_id",
-            "SELECT count(1) FROM atable GROUP BY substr(entity_id,1,3),organization_id",
-            "SELECT count(1) FROM ptsdb GROUP BY host,inst,round(\"DATE\",'HOUR')",
-            "SELECT count(1) FROM atable GROUP BY organization_id",
+                "SELECT count(1) FROM atable GROUP BY organization_id,entity_id",
+                "SELECT count(1) FROM atable GROUP BY organization_id,substr(entity_id,1,3),entity_id",
+                "SELECT count(1) FROM atable GROUP BY entity_id,organization_id",
+                "SELECT count(1) FROM atable GROUP BY substr(entity_id,1,3),organization_id",
+                "SELECT count(1) FROM ptsdb GROUP BY host,inst,round(\"DATE\",'HOUR')",
+                "SELECT count(1) FROM atable GROUP BY organization_id",
         };
         List<Object> binds = Collections.emptyList();
         for (String query : queries) {
@@ -558,7 +555,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         Scan scan = compileQuery(query, binds);
         // Projects column family with not null column
         assertNull(scan.getFilter());
-        assertEquals(1,scan.getFamilyMap().keySet().size());
+        assertEquals(1, scan.getFamilyMap().keySet().size());
         assertArrayEquals(Bytes.toBytes(SchemaUtil.normalizeIdentifier(QueryConstants.DEFAULT_COLUMN_FAMILY)), scan.getFamilyMap().keySet().iterator().next());
     }
 
@@ -569,7 +566,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         List<Object> binds = Collections.emptyList();
         Scan scan = compileQuery(query, binds);
         // Projects column family with not null column
-        assertEquals(1,scan.getFamilyMap().keySet().size());
+        assertEquals(1, scan.getFamilyMap().keySet().size());
         assertArrayEquals(Bytes.toBytes(SchemaUtil.normalizeIdentifier(QueryConstants.DEFAULT_COLUMN_FAMILY)), scan.getFamilyMap().keySet().iterator().next());
     }
 
@@ -718,12 +715,12 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testNotKeyOrderedGroupByOptimization() throws Exception {
         // Select columns in PK
         String[] queries = new String[] {
-            "SELECT count(1) FROM atable GROUP BY entity_id",
-            "SELECT count(1) FROM atable GROUP BY substr(organization_id,2,3)",
-            "SELECT count(1) FROM atable GROUP BY substr(entity_id,1,3)",
-            "SELECT count(1) FROM atable GROUP BY to_date(organization_id)",
-            "SELECT count(1) FROM atable GROUP BY regexp_substr(organization_id, '.*foo.*'),entity_id",
-            "SELECT count(1) FROM atable GROUP BY substr(organization_id,1),entity_id",
+                "SELECT count(1) FROM atable GROUP BY entity_id",
+                "SELECT count(1) FROM atable GROUP BY substr(organization_id,2,3)",
+                "SELECT count(1) FROM atable GROUP BY substr(entity_id,1,3)",
+                "SELECT count(1) FROM atable GROUP BY to_date(organization_id)",
+                "SELECT count(1) FROM atable GROUP BY regexp_substr(organization_id, '.*foo.*'),entity_id",
+                "SELECT count(1) FROM atable GROUP BY substr(organization_id,1),entity_id",
         };
         List<Object> binds = Collections.emptyList();
         for (String query : queries) {
@@ -731,33 +728,33 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(plan.getGroupBy().getScanAttribName(), BaseScannerRegionObserver.UNORDERED_GROUP_BY_EXPRESSIONS);
         }
     }
-    
+
     @Test
     public void testFunkyColumnNames() throws Exception {
         // Select columns in PK
         String[] queries = new String[] {
-            "SELECT \"foo!\",\"foo.bar-bas\",\"#@$\",\"_blah^\" FROM FUNKY_NAMES",
-            "SELECT count(\"foo!\"),\"_blah^\" FROM FUNKY_NAMES WHERE \"foo.bar-bas\"='x' GROUP BY \"#@$\",\"_blah^\"",
+                "SELECT \"foo!\",\"foo.bar-bas\",\"#@$\",\"_blah^\" FROM FUNKY_NAMES",
+                "SELECT count(\"foo!\"),\"_blah^\" FROM FUNKY_NAMES WHERE \"foo.bar-bas\"='x' GROUP BY \"#@$\",\"_blah^\"",
         };
         List<Object> binds = Collections.emptyList();
         for (String query : queries) {
             compileQuery(query, binds);
         }
     }
-    
+
     @Test
     public void testCountAggregatorFirst() throws Exception {
         String[] queries = new String[] {
-            "SELECT sum(2.5),organization_id FROM atable GROUP BY organization_id,entity_id",
-            "SELECT avg(a_integer) FROM atable GROUP BY organization_id,substr(entity_id,1,3),entity_id",
-            "SELECT count(a_string) FROM atable GROUP BY substr(organization_id,1),entity_id",
-            "SELECT min('foo') FROM atable GROUP BY entity_id,organization_id",
-            "SELECT min('foo'),sum(a_integer),avg(2.5),4.5,max(b_string) FROM atable GROUP BY substr(organization_id,1),entity_id",
-            "SELECT sum(2.5) FROM atable",
-            "SELECT avg(a_integer) FROM atable",
-            "SELECT count(a_string) FROM atable",
-            "SELECT min('foo') FROM atable LIMIT 5",
-            "SELECT min('foo'),sum(a_integer),avg(2.5),4.5,max(b_string) FROM atable",
+                "SELECT sum(2.5),organization_id FROM atable GROUP BY organization_id,entity_id",
+                "SELECT avg(a_integer) FROM atable GROUP BY organization_id,substr(entity_id,1,3),entity_id",
+                "SELECT count(a_string) FROM atable GROUP BY substr(organization_id,1),entity_id",
+                "SELECT min('foo') FROM atable GROUP BY entity_id,organization_id",
+                "SELECT min('foo'),sum(a_integer),avg(2.5),4.5,max(b_string) FROM atable GROUP BY substr(organization_id,1),entity_id",
+                "SELECT sum(2.5) FROM atable",
+                "SELECT avg(a_integer) FROM atable",
+                "SELECT count(a_string) FROM atable",
+                "SELECT min('foo') FROM atable LIMIT 5",
+                "SELECT min('foo'),sum(a_integer),avg(2.5),4.5,max(b_string) FROM atable",
         };
         List<Object> binds = Collections.emptyList();
         String query = null;
@@ -776,7 +773,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testInvalidArithmetic() throws Exception {
-        String[] queries = new String[] { 
+        String[] queries = new String[] {
                 "SELECT entity_id,organization_id FROM atable where A_STRING - 5.5 < 0",
                 "SELECT entity_id,organization_id FROM atable where A_DATE - 'transaction' < 0",
                 "SELECT entity_id,organization_id FROM atable where A_DATE * 45 < 0",
@@ -792,7 +789,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT entity_id,organization_id FROM atable where A_STRING * 45 < 0",
                 "SELECT entity_id,organization_id FROM atable where A_STRING + 45 < 0",
                 "SELECT entity_id,organization_id FROM atable where A_STRING - 45 < 0",
-                "SELECT entity_id,organization_id FROM atable where A_STRING - 'transaction' < 0", };
+                "SELECT entity_id,organization_id FROM atable where A_STRING - 'transaction' < 0",};
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -809,8 +806,8 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             }
         }
     }
-    
-    
+
+
     @Test
     public void testAmbiguousColumn() throws Exception {
         String query = "SELECT * from multi_cf G where RESPONSE_TIME = 2222";
@@ -963,14 +960,14 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
     }
 
-    @Test 
+    @Test
     public void testRegexpSubstrSetScanKeys() throws Exception {
-        // First test scan keys are set when the offset is 0 or 1. 
+        // First test scan keys are set when the offset is 0 or 1.
         String query = "SELECT host FROM ptsdb WHERE regexp_substr(inst, '[a-zA-Z]+') = 'abc'";
         List<Object> binds = Collections.emptyList();
         Scan scan = compileQuery(query, binds);
         assertArrayEquals(Bytes.toBytes("abc"), scan.getStartRow());
-        assertArrayEquals(ByteUtil.nextKey(Bytes.toBytes("abc")),scan.getStopRow());
+        assertArrayEquals(ByteUtil.nextKey(Bytes.toBytes("abc")), scan.getStopRow());
         assertTrue(scan.getFilter() != null);
 
         query = "SELECT host FROM ptsdb WHERE regexp_substr(inst, '[a-zA-Z]+', 0) = 'abc'";
@@ -988,13 +985,13 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         assertTrue(scan.getStopRow().length == 0);
         assertTrue(scan.getFilter() != null);
     }
-    
+
     @Test
     public void testStringConcatExpression() throws Exception {
         String query = "SELECT entity_id,a_string FROM atable where 2 || a_integer || ? like '2%'";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-        byte []x=new byte[]{127,127,0,0};//Binary data
+        byte[] x = new byte[] {127, 127, 0, 0};//Binary data
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setBytes(1, x);
@@ -1006,7 +1003,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDivideByBigDecimalZero() throws Exception {
         String query = "SELECT a_integer/x_integer/0.0 FROM atable";
@@ -1105,7 +1102,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         assertArrayEquals(ByteUtil.nextKey(Bytes.toBytes("abc ")), scan.getStopRow());
         assertNotNull(scan.getFilter());
     }
-    
+
     @Test
     public void testCastingIntegerToDecimalInSelect() throws Exception {
         String query = "SELECT CAST (a_integer AS DECIMAL)/2 FROM aTable WHERE 5=a_integer";
@@ -1119,7 +1116,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         List<Object> binds = Collections.emptyList();
         compileQuery(query, binds);
     }
-    
+
     @Test
     public void testCastingStringToDecimalInSelect() throws Exception {
         String query = "SELECT CAST (b_string AS DECIMAL)/2 FROM aTable WHERE 5=a_integer";
@@ -1131,7 +1128,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
         }
     }
-    
+
     @Test
     public void testCastingStringToDecimalInWhere() throws Exception {
         String query = "SELECT a_integer FROM aTable WHERE 2.5=CAST (b_string AS DECIMAL)/2 ";
@@ -1141,7 +1138,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             fail("Compilation should have failed since casting a string to decimal isn't supported");
         } catch (SQLException e) {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
-        }  
+        }
     }
 
     @Test
@@ -1176,7 +1173,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
         }
     }
-    
+
     @Test
     public void testUsingNonComparableDataTypesOfColumnRefOnLHSAndRowValueConstructorFails() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE a_integer > ('abc', 2)";
@@ -1188,7 +1185,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
         }
     }
-    
+
     @Test
     public void testUsingNonComparableDataTypesOfLiteralOnLHSAndRowValueConstructorFails() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE 'abc' > (a_integer, x_integer)";
@@ -1200,7 +1197,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
         }
     }
-    
+
     @Test
     public void testUsingNonComparableDataTypesOfColumnRefOnRHSAndRowValueConstructorFails() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE ('abc', 2) < a_integer ";
@@ -1212,7 +1209,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
         }
     }
-    
+
     @Test
     public void testUsingNonComparableDataTypesOfLiteralOnRHSAndRowValueConstructorFails() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (a_integer, x_integer) < 'abc'";
@@ -1224,7 +1221,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.TYPE_MISMATCH.getErrorCode());
         }
     }
-    
+
     @Test
     public void testNonConstantInList() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE a_integer IN (x_integer)";
@@ -1236,7 +1233,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.VALUE_IN_LIST_NOT_CONSTANT.getErrorCode());
         }
     }
-    
+
     @Test
     public void testKeyValueColumnInPKConstraint() throws Exception {
         String ddl = "CREATE TABLE t (a.k VARCHAR, b.v VARCHAR CONSTRAINT pk PRIMARY KEY(k))";
@@ -1248,7 +1245,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getErrorCode() == SQLExceptionCode.PRIMARY_KEY_WITH_FAMILY_NAME.getErrorCode());
         }
     }
-    
+
     @Test
     public void testUnknownColumnInPKConstraint() throws Exception {
         String ddl = "CREATE TABLE t (k1 VARCHAR, b.v VARCHAR CONSTRAINT pk PRIMARY KEY(k1, k2))";
@@ -1257,10 +1254,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().execute(ddl);
             fail();
         } catch (ColumnNotFoundException e) {
-            assertEquals("K2",e.getColumnName());
+            assertEquals("K2", e.getColumnName());
         }
     }
-    
+
 
     @Test
     public void testDuplicatePKColumn() throws Exception {
@@ -1270,11 +1267,11 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().execute(ddl);
             fail();
         } catch (ColumnAlreadyExistsException e) {
-            assertEquals("K1",e.getColumnName());
+            assertEquals("K1", e.getColumnName());
         }
     }
-    
-    
+
+
     @Test
     public void testDuplicateKVColumn() throws Exception {
         String ddl = "CREATE TABLE t (k1 VARCHAR, v1 VARCHAR, v2 VARCHAR, v1 INTEGER CONSTRAINT pk PRIMARY KEY(k1))";
@@ -1283,15 +1280,15 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().execute(ddl);
             fail();
         } catch (ColumnAlreadyExistsException e) {
-            assertEquals("V1",e.getColumnName());
+            assertEquals("V1", e.getColumnName());
         }
     }
-    
+
     private void assertImmutableRows(Connection conn, String fullTableName, boolean expectedValue) throws SQLException {
         PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
         assertEquals(expectedValue, pconn.getTable(new PTableKey(pconn.getTenantId(), fullTableName)).isImmutableRows());
     }
-    
+
     @Test
     public void testInvalidNegativeArrayIndex() throws Exception {
         String query = "SELECT a_double_array[-20] FROM table_with_array";
@@ -1300,9 +1297,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().execute(query);
             fail();
         } catch (Exception e) {
-            
+
         }
     }
+
     @Test
     public void testWrongDataTypeInRoundFunction() throws Exception {
         String query = "SELECT ROUND(a_string, 'day', 1) FROM aTable";
@@ -1314,7 +1312,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testNonArrayColumnWithIndex() throws Exception {
         String query = "SELECT a_float[1] FROM table_with_array";
@@ -1336,7 +1334,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(e.getMessage().contains(TimeUnit.VALID_VALUES));
         }
     }
-    
+
     @Test
     public void testWrongMultiplierInRoundDateFunction() throws Exception {
         String query = "SELECT ROUND(a_date, 'days', 1.23) FROM aTable";
@@ -1348,7 +1346,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testTypeMismatchForArrayElem() throws Exception {
         String query = "SELECT (a_string,a_date)[1] FROM aTable";
@@ -1360,7 +1358,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testTypeMismatch2ForArrayElem() throws Exception {
         String query = "SELECT ROUND(a_date, 'days', 1.23)[1] FROM aTable";
@@ -1372,7 +1370,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testInvalidArraySize() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1382,9 +1380,9 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             statement.execute();
             fail();
         } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.MISMATCHED_TOKEN.getErrorCode(), e.getErrorCode());
+            assertEquals(SQLExceptionCode.MISMATCHED_TOKEN.getErrorCode(), e.getErrorCode());
         } finally {
-                conn.close();
+            conn.close();
         }
     }
 
@@ -1485,7 +1483,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
         conn.close();
     }
-    
+
     @Test
     public void testInvalidPrimaryKeyDecl() throws Exception {
         String[] queries = {
@@ -1502,7 +1500,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             }
         }
     }
-    
+
     @Test
     public void testInvalidNullCompositePrimaryKey() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1518,7 +1516,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
     }
 
-    
+
     @Test
     public void testGroupByLimitOptimization() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1531,7 +1529,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT max(v) FROM T GROUP BY k1,k2 LIMIT 3",
                 "SELECT k1,k2 FROM T GROUP BY k1,k2 LIMIT 3",
                 "SELECT max(v) FROM T GROUP BY k2,k1 HAVING k1 > 'a' LIMIT 3", // Having optimized out, order of GROUP BY key not important
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1539,7 +1537,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected to find GROUP BY limit optimization in: " + query, QueryUtil.getExplainPlan(rs).contains(" LIMIT 3 GROUPS"));
         }
     }
-    
+
     @Test
     public void testNoGroupByLimitOptimization() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1552,7 +1550,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT count(1) FROM T GROUP BY v,k1 LIMIT 3",
                 "SELECT max(v) FROM T GROUP BY k1,k2 HAVING count(k1) > 1 LIMIT 3",
                 "SELECT count(v) FROM T GROUP BY to_date(k2),k1 LIMIT 3",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1561,11 +1559,11 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertFalse("Did not expected to find GROUP BY limit optimization in: " + query, explainPlan.contains(" LIMIT 3 GROUPS"));
         }
     }
-    
+
     @Test
     public void testLocalIndexCreationWithDefaultFamilyOption() throws Exception {
         Connection conn1 = DriverManager.getConnection(getUrl());
-        try{
+        try {
             Statement statement = conn1.createStatement();
             statement.execute("create table example (id integer not null,fn varchar,"
                     + "\"ln\" varchar constraint pk primary key(id)) DEFAULT_COLUMN_FAMILY='F'");
@@ -1573,10 +1571,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 statement.execute("create local index my_idx on example (fn) DEFAULT_COLUMN_FAMILY='F'");
                 fail();
             } catch (SQLException e) {
-                assertEquals(SQLExceptionCode.DEFAULT_COLUMN_FAMILY_ON_SHARED_TABLE.getErrorCode(),e.getErrorCode());
+                assertEquals(SQLExceptionCode.DEFAULT_COLUMN_FAMILY_ON_SHARED_TABLE.getErrorCode(), e.getErrorCode());
             }
             statement.execute("create local index my_idx on example (fn)");
-       } finally {
+        } finally {
             conn1.close();
         }
     }
@@ -1587,14 +1585,14 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         String ddl = "CREATE TABLE multiCF (k integer primary key, a.a varchar, b.b varchar)";
         conn.createStatement().execute(ddl);
         String query = "SELECT COUNT(*) FROM multiCF";
-        QueryPlan plan = getQueryPlan(query,Collections.emptyList());
+        QueryPlan plan = getQueryPlan(query, Collections.emptyList());
         plan.iterator();
         Scan scan = plan.getContext().getScan();
         assertTrue(scan.getFilter() instanceof FirstKeyOnlyFilter);
         assertEquals(1, scan.getFamilyMap().size());
     }
-    
-    @Test 
+
+    @Test
     public void testNonDeterministicExpressionIndex() throws Exception {
         String ddl = "CREATE TABLE t (k1 INTEGER PRIMARY KEY)";
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1606,13 +1604,12 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.NON_DETERMINISTIC_EXPRESSION_NOT_ALLOWED_IN_INDEX.getErrorCode(), e.getErrorCode());
-        }
-        finally {
+        } finally {
             stmt.close();
         }
     }
-    
-    @Test 
+
+    @Test
     public void testStatelessExpressionIndex() throws Exception {
         String ddl = "CREATE TABLE t (k1 INTEGER PRIMARY KEY)";
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1624,13 +1621,12 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.STATELESS_EXPRESSION_NOT_ALLOWED_IN_INDEX.getErrorCode(), e.getErrorCode());
-        }
-        finally {
+        } finally {
             stmt.close();
         }
     }
-    
-    @Test 
+
+    @Test
     public void testAggregateExpressionIndex() throws Exception {
         String ddl = "CREATE TABLE t (k1 INTEGER PRIMARY KEY)";
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1642,13 +1638,12 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.AGGREGATE_EXPRESSION_NOT_ALLOWED_IN_INDEX.getErrorCode(), e.getErrorCode());
-        }
-        finally {
+        } finally {
             stmt.close();
         }
     }
-    
-    @Test 
+
+    @Test
     public void testDescVarbinaryNotSupported() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         try {
@@ -1672,8 +1667,8 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
         conn.close();
     }
-    
-    @Test 
+
+    @Test
     public void testDivideByZeroExpressionIndex() throws Exception {
         String ddl = "CREATE TABLE t (k1 INTEGER PRIMARY KEY)";
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1685,18 +1680,17 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.DIVIDE_BY_ZERO.getErrorCode(), e.getErrorCode());
-        }
-        finally {
+        } finally {
             stmt.close();
         }
     }
-    
+
     @Test
     public void testRegex() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE t (k1 INTEGER PRIMARY KEY, v VARCHAR)");
-        
+
         //character classes
         stmt.executeQuery("select * from T where REGEXP_SUBSTR(v, '[abc]') = 'val'");
         stmt.executeQuery("select * from T where REGEXP_SUBSTR(v, '[^abc]') = 'val'");
@@ -1705,42 +1699,42 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         stmt.executeQuery("select * from T where REGEXP_SUBSTR(v, '[a-z&&[def]]') = 'val'");
         stmt.executeQuery("select * from T where REGEXP_SUBSTR(v, '[a-z&&[^bc]]') = 'val'");
         stmt.executeQuery("select * from T where REGEXP_SUBSTR(v, '[a-z&&[^m-p]]') = 'val'");
-        
+
         // predefined character classes
         stmt.executeQuery("select * from T where REGEXP_SUBSTR(v, '.\\\\d\\\\D\\\\s\\\\S\\\\w\\\\W') = 'val'");
     }
-    
+
     private static void assertLiteralEquals(Object o, RowProjector p, int i) {
         assertTrue(i < p.getColumnCount());
         Expression e = p.getColumnProjector(i).getExpression();
         assertTrue(e instanceof LiteralExpression);
-        LiteralExpression l = (LiteralExpression)e;
+        LiteralExpression l = (LiteralExpression) e;
         Object lo = l.getValue();
         assertEquals(o, lo);
     }
-    
+
     @Test
     public void testIntAndLongMinValue() throws Exception {
         BigDecimal oneLessThanMinLong = BigDecimal.valueOf(Long.MIN_VALUE).subtract(BigDecimal.ONE);
         BigDecimal oneMoreThanMaxLong = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
-        String query = "SELECT " + 
-            Integer.MIN_VALUE + "," + Long.MIN_VALUE + "," + 
-            (Integer.MIN_VALUE+1) + "," + (Long.MIN_VALUE+1) + "," + 
-            ((long)Integer.MIN_VALUE - 1) + "," + oneLessThanMinLong + "," +
-            Integer.MAX_VALUE + "," + Long.MAX_VALUE + "," +
-            (Integer.MAX_VALUE - 1) + "," + (Long.MAX_VALUE - 1) + "," +
-            ((long)Integer.MAX_VALUE + 1) + "," + oneMoreThanMaxLong +
-        " FROM " + "\""+ SYSTEM_CATALOG_SCHEMA + "\".\"" + SYSTEM_STATS_TABLE + "\"" + " LIMIT 1";
+        String query = "SELECT " +
+                Integer.MIN_VALUE + "," + Long.MIN_VALUE + "," +
+                (Integer.MIN_VALUE + 1) + "," + (Long.MIN_VALUE + 1) + "," +
+                ((long) Integer.MIN_VALUE - 1) + "," + oneLessThanMinLong + "," +
+                Integer.MAX_VALUE + "," + Long.MAX_VALUE + "," +
+                (Integer.MAX_VALUE - 1) + "," + (Long.MAX_VALUE - 1) + "," +
+                ((long) Integer.MAX_VALUE + 1) + "," + oneMoreThanMaxLong +
+                " FROM " + "\"" + SYSTEM_CATALOG_SCHEMA + "\".\"" + SYSTEM_STATS_TABLE + "\"" + " LIMIT 1";
         List<Object> binds = Collections.emptyList();
         QueryPlan plan = getQueryPlan(query, binds);
         RowProjector p = plan.getProjector();
         // Negative integers end up as longs once the * -1 occurs
-        assertLiteralEquals((long)Integer.MIN_VALUE, p, 0);
+        assertLiteralEquals((long) Integer.MIN_VALUE, p, 0);
         // Min long still stays as long
         assertLiteralEquals(Long.MIN_VALUE, p, 1);
-        assertLiteralEquals((long)Integer.MIN_VALUE + 1, p, 2);
+        assertLiteralEquals((long) Integer.MIN_VALUE + 1, p, 2);
         assertLiteralEquals(Long.MIN_VALUE + 1, p, 3);
-        assertLiteralEquals((long)Integer.MIN_VALUE - 1, p, 4);
+        assertLiteralEquals((long) Integer.MIN_VALUE - 1, p, 4);
         // Can't fit into long, so becomes BigDecimal
         assertLiteralEquals(oneLessThanMinLong, p, 5);
         // Positive integers stay as ints
@@ -1748,7 +1742,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         assertLiteralEquals(Long.MAX_VALUE, p, 7);
         assertLiteralEquals(Integer.MAX_VALUE - 1, p, 8);
         assertLiteralEquals(Long.MAX_VALUE - 1, p, 9);
-        assertLiteralEquals((long)Integer.MAX_VALUE + 1, p, 10);
+        assertLiteralEquals((long) Integer.MAX_VALUE + 1, p, 10);
         assertLiteralEquals(oneMoreThanMaxLong, p, 11);
     }
 
@@ -1763,7 +1757,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
          */
         List<String> queryList = new ArrayList<String>();
         queryList.add("SELECT * FROM T ORDER BY k1, k2");
-        for (String sub : new String[] { "SIGN", "CBRT", "LN", "LOG", "EXP" }) {
+        for (String sub : new String[] {"SIGN", "CBRT", "LN", "LOG", "EXP"}) {
             queryList.add(String.format("SELECT * FROM T ORDER BY k1, %s(k2)", sub));
             queryList.add(String.format("SELECT * FROM T ORDER BY %s(k1), k2", sub));
         }
@@ -1775,7 +1769,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
         // Negative test
         queryList.clear();
-        for (String sub : new String[] { "SIGN", "CBRT", "LN", "LOG", "EXP" }) {
+        for (String sub : new String[] {"SIGN", "CBRT", "LN", "LOG", "EXP"}) {
             queryList.add(String.format("SELECT * FROM T WHERE %s(k2)=2.0", sub));
         }
         for (String query : queryList.toArray(new String[queryList.size()])) {
@@ -1795,7 +1789,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         queryList.add("SELECT * FROM T ORDER BY k1 DESC");
         queryList.add("SELECT * FROM T ORDER BY k1 DESC, k2");
         queryList.add("SELECT * FROM T ORDER BY k1 DESC, k2, k3 DESC");
-        for (String sub : new String[] { "SIGN", "CBRT", "LN", "LOG", "EXP" }) {
+        for (String sub : new String[] {"SIGN", "CBRT", "LN", "LOG", "EXP"}) {
             queryList.add(String.format("SELECT * FROM T ORDER BY k1 DESC, %s(k2) DESC, k3 DESC", sub));
         }
         String[] queries = queryList.toArray(new String[queryList.size()]);
@@ -1807,7 +1801,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
         // Negative test
         queryList.clear();
-        for (String sub : new String[] { "SIGN", "CBRT", "LN", "LOG", "EXP" }) {
+        for (String sub : new String[] {"SIGN", "CBRT", "LN", "LOG", "EXP"}) {
             queryList.add(String.format("SELECT * FROM T WHERE %s(k2)=2.0", sub));
         }
         for (String query : queryList.toArray(new String[queryList.size()])) {
@@ -1834,7 +1828,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT * FROM T ORDER BY TRUNC(k1, 'DAY'), CEIL(k2, 'HOUR')",
                 "SELECT * FROM T ORDER BY INVERT(k1) DESC",
                 "SELECT * FROM T WHERE k1=CURRENT_DATE() ORDER BY k2",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1842,7 +1836,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected order by to be compiled out: " + query, plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
         }
     }
-    
+
     @Test
     public void testOrderByOrderPreservingRev() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1851,9 +1845,9 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT * FROM T ORDER BY INVERT(k1),k2,k3 nulls last",
                 "SELECT * FROM T ORDER BY INVERT(k1),k2",
                 "SELECT * FROM T ORDER BY INVERT(k1)",
-                 "SELECT * FROM T ORDER BY TRUNC(k1, 'DAY') DESC, CEIL(k2, 'HOUR') DESC",
+                "SELECT * FROM T ORDER BY TRUNC(k1, 'DAY') DESC, CEIL(k2, 'HOUR') DESC",
                 "SELECT * FROM T ORDER BY k1 DESC",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1861,7 +1855,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected order by to be compiled out: " + query, plan.getOrderBy() == OrderBy.REV_ROW_KEY_ORDER_BY);
         }
     }
-    
+
     @Test
     public void testNotOrderByOrderPreserving() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1875,7 +1869,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT * FROM T ORDER BY INVERT(k1),k3",
                 "SELECT * FROM T ORDER BY CASE WHEN k1 = CURRENT_DATE() THEN 0 ELSE 1 END",
                 "SELECT * FROM T ORDER BY TO_CHAR(k1)",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1883,14 +1877,14 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertFalse("Expected order by not to be compiled out: " + query, plan.getOrderBy().getOrderByExpressions().isEmpty());
         }
     }
-    
+
     @Test
     public void testNotOrderByOrderPreservingForAggregation() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute("CREATE TABLE IF NOT EXISTS VA_TEST(ID VARCHAR NOT NULL PRIMARY KEY, VAL1 VARCHAR, VAL2 INTEGER)");
         String[] queries = {
                 "select distinct ID, VAL1, VAL2 from VA_TEST where \"ID\" in ('ABC','ABD','ABE','ABF','ABG','ABH','AAA', 'AAB', 'AAC','AAD','AAE','AAF') order by VAL1 ASC"
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1898,7 +1892,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertFalse("Expected order by not to be compiled out: " + query, plan.getOrderBy().getOrderByExpressions().isEmpty());
         }
     }
-    
+
     @Test
     public void testGroupByOrderPreserving() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1911,7 +1905,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT 1 FROM T GROUP BY CAST(k1 AS TIMESTAMP)",
                 "SELECT 1 FROM T GROUP BY (k1,k2,k3)",
                 "SELECT 1 FROM T GROUP BY TRUNC(k2, 'DAY'), CEIL(k1, 'HOUR')",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1919,32 +1913,32 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected group by to be order preserving: " + query, plan.getGroupBy().isOrderPreserving());
         }
     }
-    
+
     @Test
     public void testGroupByOrderPreserving2() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        conn.createStatement().execute("CREATE TABLE T (ORGANIZATION_ID char(15) not null, \n" + 
-                "JOURNEY_ID char(15) not null, \n" + 
-                "DATASOURCE SMALLINT not null, \n" + 
-                "MATCH_STATUS TINYINT not null, \n" + 
-                "EXTERNAL_DATASOURCE_KEY varchar(30), \n" + 
-                "ENTITY_ID char(15) not null, \n" + 
-                "CONSTRAINT PK PRIMARY KEY (\n" + 
-                "    ORGANIZATION_ID, \n" + 
-                "    JOURNEY_ID, \n" + 
-                "    DATASOURCE, \n" + 
-                "    MATCH_STATUS,\n" + 
-                "    EXTERNAL_DATASOURCE_KEY,\n" + 
+        conn.createStatement().execute("CREATE TABLE T (ORGANIZATION_ID char(15) not null, \n" +
+                "JOURNEY_ID char(15) not null, \n" +
+                "DATASOURCE SMALLINT not null, \n" +
+                "MATCH_STATUS TINYINT not null, \n" +
+                "EXTERNAL_DATASOURCE_KEY varchar(30), \n" +
+                "ENTITY_ID char(15) not null, \n" +
+                "CONSTRAINT PK PRIMARY KEY (\n" +
+                "    ORGANIZATION_ID, \n" +
+                "    JOURNEY_ID, \n" +
+                "    DATASOURCE, \n" +
+                "    MATCH_STATUS,\n" +
+                "    EXTERNAL_DATASOURCE_KEY,\n" +
                 "    ENTITY_ID))");
         String[] queries = {
-                "SELECT COUNT(1) As DUP_COUNT\n" + 
-                "    FROM T \n" + 
-                "   WHERE JOURNEY_ID='07ixx000000004J' AND \n" + 
-                "                 DATASOURCE=0 AND MATCH_STATUS <= 1 and \n" + 
-                "                 ORGANIZATION_ID='07ixx000000004J' \n" + 
-                "    GROUP BY MATCH_STATUS, EXTERNAL_DATASOURCE_KEY \n" + 
-                "    HAVING COUNT(1) > 1",
-                };
+                "SELECT COUNT(1) As DUP_COUNT\n" +
+                        "    FROM T \n" +
+                        "   WHERE JOURNEY_ID='07ixx000000004J' AND \n" +
+                        "                 DATASOURCE=0 AND MATCH_STATUS <= 1 and \n" +
+                        "                 ORGANIZATION_ID='07ixx000000004J' \n" +
+                        "    GROUP BY MATCH_STATUS, EXTERNAL_DATASOURCE_KEY \n" +
+                        "    HAVING COUNT(1) > 1",
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1952,7 +1946,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected group by to be order preserving: " + query, plan.getGroupBy().isOrderPreserving());
         }
     }
-    
+
     @Test
     public void testNotGroupByOrderPreserving() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -1963,7 +1957,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT 1 FROM T GROUP BY INVERT(k1),k3",
                 "SELECT 1 FROM T GROUP BY CASE WHEN k1 = CURRENT_DATE() THEN 0 ELSE 1 END",
                 "SELECT 1 FROM T GROUP BY TO_CHAR(k1)",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1971,7 +1965,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertFalse("Expected group by not to be order preserving: " + query, plan.getGroupBy().isOrderPreserving());
         }
     }
-    
+
     @Test
     public void testUseRoundRobinIterator() throws Exception {
         Properties props = new Properties();
@@ -1982,7 +1976,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT 1 FROM T ",
                 "SELECT 1 FROM T WHERE V = 'c'",
                 "SELECT 1 FROM T WHERE (k1,k2, k3) > ('a', 'ab', 1)",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -1990,7 +1984,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected plan to use round robin iterator " + query, plan.useRoundRobinIterator());
         }
     }
-    
+
     @Test
     public void testForcingRowKeyOrderNotUseRoundRobinIterator() throws Exception {
         Properties props = new Properties();
@@ -2004,10 +1998,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         String tableName = "tablename" + (isSalted ? "_salt" : "");
         conn.createStatement().execute("CREATE TABLE " + tableName + " (k1 char(2) not null, k2 varchar not null, k3 integer not null, v varchar, constraint pk primary key(k1,k2,k3))");
         String[] queries = {
-                "SELECT 1 FROM  " + tableName ,
+                "SELECT 1 FROM  " + tableName,
                 "SELECT 1 FROM  " + tableName + "  WHERE V = 'c'",
                 "SELECT 1 FROM  " + tableName + "  WHERE (k1, k2, k3) > ('a', 'ab', 1)",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -2015,7 +2009,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertFalse("Expected plan to not use round robin iterator " + query, plan.useRoundRobinIterator());
         }
     }
-    
+
     @Test
     public void testPlanForOrderByOrGroupByNotUseRoundRobin() throws Exception {
         Properties props = new Properties();
@@ -2026,7 +2020,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     }
 
     private void testOrderByOrGroupByDoesntUseRoundRobin(Connection conn, boolean salted) throws SQLException {
-        String tableName = "orderbygroupbytable" + (salted ? "_salt" : ""); 
+        String tableName = "orderbygroupbytable" + (salted ? "_salt" : "");
         conn.createStatement().execute("CREATE TABLE " + tableName + " (k1 char(2) not null, k2 varchar not null, k3 integer not null, v varchar, constraint pk primary key(k1,k2,k3))");
         String[] queries = {
                 "SELECT 1 FROM  " + tableName + "  ORDER BY K1",
@@ -2036,7 +2030,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "SELECT 1 FROM  " + tableName + "  WHERE (k1,k2, k3) > ('a', 'ab', 1) ORDER BY V",
                 "SELECT 1 FROM  " + tableName + "  GROUP BY V",
                 "SELECT 1 FROM  " + tableName + "  GROUP BY K1, V, K2 ORDER BY V",
-                };
+        };
         String query;
         for (int i = 0; i < queries.length; i++) {
             query = queries[i];
@@ -2044,7 +2038,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertFalse("Expected plan to not use round robin iterator " + query, plan.useRoundRobinIterator());
         }
     }
-    
+
     @Test
     public void testSelectColumnsInOneFamily() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2084,69 +2078,69 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-     
-     @Test
-     public void testNoFromClauseSelect() throws Exception {
-         Connection conn = DriverManager.getConnection(getUrl());
-         ResultSet rs = conn.createStatement().executeQuery("SELECT 2 * 3 * 4, 5 + 1");
-         assertTrue(rs.next());
-         assertEquals(24, rs.getInt(1));
-         assertEquals(6, rs.getInt(2));
-         assertFalse(rs.next());
-         
-         String query = 
-                 "SELECT 'a' AS col\n" +
-                 "UNION ALL\n" +
-                 "SELECT 'b' AS col\n" +
-                 "UNION ALL\n" +
-                 "SELECT 'c' AS col";
-         rs = conn.createStatement().executeQuery(query);
-         assertTrue(rs.next());
-         assertEquals("a", rs.getString(1));
-         assertTrue(rs.next());
-         assertEquals("b", rs.getString(1));
-         assertTrue(rs.next());
-         assertEquals("c", rs.getString(1));
-         assertFalse(rs.next());
- 
-         rs = conn.createStatement().executeQuery("SELECT * FROM (" + query + ")");
-         assertTrue(rs.next());
-         assertEquals("a", rs.getString(1));
-         assertTrue(rs.next());
-         assertEquals("b", rs.getString(1));
-         assertTrue(rs.next());
-         assertEquals("c", rs.getString(1));
-         assertFalse(rs.next());
-     }
-     
-     
-     @Test
-     public void testFailNoFromClauseSelect() throws Exception {
-         Connection conn = DriverManager.getConnection(getUrl());
-         try {
-             try {
-                 conn.createStatement().executeQuery("SELECT foo, bar");
-                 fail("Should have got ColumnNotFoundException");
-             } catch (ColumnNotFoundException e) {            
-             }
-             
-             try {
-                 conn.createStatement().executeQuery("SELECT *");
-                 fail("Should have got SQLException");
-             } catch (SQLException e) {
-                 assertEquals(SQLExceptionCode.NO_TABLE_SPECIFIED_FOR_WILDCARD_SELECT.getErrorCode(), e.getErrorCode());
-             }
-             
-             try {
-                 conn.createStatement().executeQuery("SELECT A.*");
-                 fail("Should have got SQLException");
-             } catch (SQLException e) {
-                 assertEquals(SQLExceptionCode.NO_TABLE_SPECIFIED_FOR_WILDCARD_SELECT.getErrorCode(), e.getErrorCode());
-             }
-         } finally {
-             conn.close();
-         }
-     }
+
+    @Test
+    public void testNoFromClauseSelect() throws Exception {
+        Connection conn = DriverManager.getConnection(getUrl());
+        ResultSet rs = conn.createStatement().executeQuery("SELECT 2 * 3 * 4, 5 + 1");
+        assertTrue(rs.next());
+        assertEquals(24, rs.getInt(1));
+        assertEquals(6, rs.getInt(2));
+        assertFalse(rs.next());
+
+        String query =
+                "SELECT 'a' AS col\n" +
+                        "UNION ALL\n" +
+                        "SELECT 'b' AS col\n" +
+                        "UNION ALL\n" +
+                        "SELECT 'c' AS col";
+        rs = conn.createStatement().executeQuery(query);
+        assertTrue(rs.next());
+        assertEquals("a", rs.getString(1));
+        assertTrue(rs.next());
+        assertEquals("b", rs.getString(1));
+        assertTrue(rs.next());
+        assertEquals("c", rs.getString(1));
+        assertFalse(rs.next());
+
+        rs = conn.createStatement().executeQuery("SELECT * FROM (" + query + ")");
+        assertTrue(rs.next());
+        assertEquals("a", rs.getString(1));
+        assertTrue(rs.next());
+        assertEquals("b", rs.getString(1));
+        assertTrue(rs.next());
+        assertEquals("c", rs.getString(1));
+        assertFalse(rs.next());
+    }
+
+
+    @Test
+    public void testFailNoFromClauseSelect() throws Exception {
+        Connection conn = DriverManager.getConnection(getUrl());
+        try {
+            try {
+                conn.createStatement().executeQuery("SELECT foo, bar");
+                fail("Should have got ColumnNotFoundException");
+            } catch (ColumnNotFoundException e) {
+            }
+
+            try {
+                conn.createStatement().executeQuery("SELECT *");
+                fail("Should have got SQLException");
+            } catch (SQLException e) {
+                assertEquals(SQLExceptionCode.NO_TABLE_SPECIFIED_FOR_WILDCARD_SELECT.getErrorCode(), e.getErrorCode());
+            }
+
+            try {
+                conn.createStatement().executeQuery("SELECT A.*");
+                fail("Should have got SQLException");
+            } catch (SQLException e) {
+                assertEquals(SQLExceptionCode.NO_TABLE_SPECIFIED_FOR_WILDCARD_SELECT.getErrorCode(), e.getErrorCode());
+            }
+        } finally {
+            conn.close();
+        }
+    }
 
     @Test
     public void testServerArrayElementProjection1() throws SQLException {
@@ -2208,7 +2202,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().executeQuery("SELECT ARRAY_APPEND(arr2) from t");
             fail();
         } catch (SQLException e) {
-            assertEquals(SQLExceptionCode.FUNCTION_UNDEFINED.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.FUNCTION_UNDEFINED.getErrorCode(), e.getErrorCode());
         } finally {
             conn.close();
         }
@@ -2222,7 +2216,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(arr2) from t");
             fail();
         } catch (SQLException e) {
-            assertEquals(SQLExceptionCode.FUNCTION_UNDEFINED.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.FUNCTION_UNDEFINED.getErrorCode(), e.getErrorCode());
         } finally {
             conn.close();
         }
@@ -2236,7 +2230,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().executeQuery("SELECT ARRAY_CAT(arr2) from t");
             fail();
         } catch (SQLException e) {
-            assertEquals(SQLExceptionCode.FUNCTION_UNDEFINED.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.FUNCTION_UNDEFINED.getErrorCode(), e.getErrorCode());
         } finally {
             conn.close();
         }
@@ -2267,7 +2261,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testAddingRowTimestampColumn() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2275,21 +2269,21 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn.createStatement().execute("CREATE TABLE T1 (PK1 VARCHAR NOT NULL, PK2 VARCHAR NOT NULL, KV1 VARCHAR CONSTRAINT PK PRIMARY KEY(PK1, PK2 ROW_TIMESTAMP)) ");
             fail("Varchar column cannot be added as row_timestamp");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.ROWTIMESTAMP_COL_INVALID_TYPE.getErrorCode(), e.getErrorCode());
         }
         // Column of type INTEGER cannot be declared as ROW_TIMESTAMP
         try {
             conn.createStatement().execute("CREATE TABLE T1 (PK1 VARCHAR NOT NULL, PK2 INTEGER NOT NULL, KV1 VARCHAR CONSTRAINT PK PRIMARY KEY(PK1, PK2 ROW_TIMESTAMP)) ");
             fail("Integer column cannot be added as row_timestamp");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.ROWTIMESTAMP_COL_INVALID_TYPE.getErrorCode(), e.getErrorCode());
         }
         // Column of type DOUBLE cannot be declared as ROW_TIMESTAMP
         try {
             conn.createStatement().execute("CREATE TABLE T1 (PK1 VARCHAR NOT NULL, PK2 DOUBLE NOT NULL, KV1 VARCHAR CONSTRAINT PK PRIMARY KEY(PK1, PK2 ROW_TIMESTAMP)) ");
             fail("Double column cannot be added as row_timestamp");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.ROWTIMESTAMP_COL_INVALID_TYPE.getErrorCode(), e.getErrorCode());
         }
         // Invalid - two columns declared as row_timestamp in pk constraint
@@ -2299,7 +2293,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.ROWTIMESTAMP_ONE_PK_COL_ONLY.getErrorCode(), e.getErrorCode());
         }
-        
+
         // Invalid because only (unsigned)date, time, long, (unsigned)timestamp are valid data types for column to be declared as row_timestamp
         try {
             conn.createStatement().execute("CREATE TABLE T5 (PK1 VARCHAR PRIMARY KEY ROW_TIMESTAMP, PK2 VARCHAR, KV1 VARCHAR)");
@@ -2316,35 +2310,35 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn.createStatement().executeQuery("SELECT c1 FROM t1 GROUP BY c1,c2,c3");
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.UNSUPPORTED_GROUP_BY_EXPRESSIONS.getErrorCode(), e.getErrorCode());
         }
         try {
             conn.createStatement().executeQuery("SELECT c1 FROM t1 GROUP BY c1,c3,c2");
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.UNSUPPORTED_GROUP_BY_EXPRESSIONS.getErrorCode(), e.getErrorCode());
         }
         try {
             conn.createStatement().executeQuery("SELECT c1 FROM t1 GROUP BY c1,c2,c4");
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.UNSUPPORTED_GROUP_BY_EXPRESSIONS.getErrorCode(), e.getErrorCode());
         }
         try {
             conn.createStatement().executeQuery("SELECT c1 FROM t1 GROUP BY c1,c3,c5");
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.UNSUPPORTED_GROUP_BY_EXPRESSIONS.getErrorCode(), e.getErrorCode());
         }
         try {
             conn.createStatement().executeQuery("SELECT c1 FROM t1 GROUP BY c1,c6,c5");
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.UNSUPPORTED_GROUP_BY_EXPRESSIONS.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testDMLOfNonIndexWithBuildIndexAt() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -2352,10 +2346,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().execute(
                     "CREATE TABLE t (k VARCHAR NOT NULL PRIMARY KEY, v1 VARCHAR)");
         }
-        props.put(PhoenixRuntime.BUILD_INDEX_AT_ATTRIB, Long.toString(EnvironmentEdgeManager.currentTimeMillis()+1));
+        props.put(PhoenixRuntime.BUILD_INDEX_AT_ATTRIB, Long.toString(EnvironmentEdgeManager.currentTimeMillis() + 1));
         try (Connection conn = DriverManager.getConnection(getUrl(), props);) {
             try {
-            	conn.createStatement().execute("UPSERT INTO T (k,v1) SELECT k,v1 FROM T");
+                conn.createStatement().execute("UPSERT INTO T (k,v1) SELECT k,v1 FROM T");
                 fail();
             } catch (SQLException e) {
                 assertEquals("Unexpected Exception",
@@ -2388,7 +2382,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue("Expected to contain " + fam, s.getFamilyMap().containsKey(cf));
         }
     }
-    
+
     @Test
     public void testProjection() throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2404,7 +2398,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     private static boolean hasColumnProjectionFilter(Scan scan) {
         Iterator<Filter> iterator = ScanUtil.getFilterIterator(scan);
         while (iterator.hasNext()) {
@@ -2415,7 +2409,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         }
         return false;
     }
-    
+
     @Test
     public void testColumnProjectionOptimized() throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2430,6 +2424,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
+
     @Test
     public void testOrderByWithNoProjection() throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2440,7 +2435,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                     "desc");
             ServerAggregators aggregators = ServerAggregators.deserialize(scan.getAttribute
                     (BaseScannerRegionObserver.AGGREGATORS), null, null);
-            assertEquals(2,aggregators.getAggregatorCount());
+            assertEquals(2, aggregators.getAggregatorCount());
         } finally {
             conn.close();
         }
@@ -2450,34 +2445,34 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testColumnProjectionUnionAll() throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
         try {
-            conn.createStatement().execute("CREATE TABLE t1(k INTEGER PRIMARY KEY,"+
+            conn.createStatement().execute("CREATE TABLE t1(k INTEGER PRIMARY KEY," +
                     " col1 CHAR(8), col2 VARCHAR(10), col3 decimal(10,2))");
             conn.createStatement().execute("CREATE TABLE t2(k TINYINT PRIMARY KEY," +
                     " col1 CHAR(20), col2 CHAR(30), col3 double)");
             QueryPlan plan = getQueryPlan("SELECT * from t1 union all select * from t2",
-                Collections.emptyList());
+                    Collections.emptyList());
             RowProjector rowProj = plan.getProjector();
             assertTrue(rowProj.getColumnProjector(0).getExpression().getDataType()
-                instanceof PInteger);
+                    instanceof PInteger);
             assertTrue(rowProj.getColumnProjector(1).getExpression().getDataType()
-                instanceof PChar);
+                    instanceof PChar);
             assertTrue(rowProj.getColumnProjector(1).getExpression().getMaxLength() == 20);
             assertTrue(rowProj.getColumnProjector(2).getExpression().getDataType()
-                instanceof PVarchar);
+                    instanceof PVarchar);
             assertTrue(rowProj.getColumnProjector(2).getExpression().getMaxLength() == 30);
             assertTrue(rowProj.getColumnProjector(3).getExpression().getDataType()
-                instanceof PDecimal);
+                    instanceof PDecimal);
             assertTrue(rowProj.getColumnProjector(3).getExpression().getScale() == 2);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testFuncIndexUsage() throws SQLException {
         Connection conn = DriverManager.getConnection(getUrl());
         try {
-            conn.createStatement().execute("CREATE TABLE t1(k INTEGER PRIMARY KEY,"+
+            conn.createStatement().execute("CREATE TABLE t1(k INTEGER PRIMARY KEY," +
                     " col1 VARCHAR, col2 VARCHAR)");
             conn.createStatement().execute("CREATE TABLE t2(k INTEGER PRIMARY KEY," +
                     " col1 VARCHAR, col2 VARCHAR)");
@@ -2485,73 +2480,72 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                     " col3 VARCHAR, col4 VARCHAR)");
             conn.createStatement().execute("CREATE INDEX idx ON t1 (col1 || col2)");
             String query = "SELECT a.k from t1 a where a.col1 || a.col2 = 'foobar'";
-            ResultSet rs = conn.createStatement().executeQuery("EXPLAIN "+query);
+            ResultSet rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             String explainPlan = QueryUtil.getExplainPlan(rs);
-            assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER IDX ['foobar']\n" + 
-                    "    SERVER FILTER BY FIRST KEY ONLY",explainPlan);
+            assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER IDX ['foobar']\n" +
+                    "    SERVER FILTER BY FIRST KEY ONLY", explainPlan);
             query = "SELECT k,j from t3 b join t1 a ON k = j where a.col1 || a.col2 = 'foobar'";
-            rs = conn.createStatement().executeQuery("EXPLAIN "+query);
+            rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             explainPlan = QueryUtil.getExplainPlan(rs);
-            assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER T3\n" + 
-                    "    SERVER FILTER BY FIRST KEY ONLY\n" + 
-                    "    PARALLEL INNER-JOIN TABLE 0\n" + 
-                    "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER IDX ['foobar']\n" + 
-                    "            SERVER FILTER BY FIRST KEY ONLY\n" + 
-                    "    DYNAMIC SERVER FILTER BY B.J IN (\"A.:K\")",explainPlan);
+            assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER T3\n" +
+                    "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                    "    PARALLEL INNER-JOIN TABLE 0\n" +
+                    "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER IDX ['foobar']\n" +
+                    "            SERVER FILTER BY FIRST KEY ONLY\n" +
+                    "    DYNAMIC SERVER FILTER BY B.J IN (\"A.:K\")", explainPlan);
             query = "SELECT a.k,b.k from t2 b join t1 a ON a.k = b.k where a.col1 || a.col2 = 'foobar'";
-            rs = conn.createStatement().executeQuery("EXPLAIN "+query);
+            rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             explainPlan = QueryUtil.getExplainPlan(rs);
-            assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER T2\n" + 
-                    "    SERVER FILTER BY FIRST KEY ONLY\n" + 
-                    "    PARALLEL INNER-JOIN TABLE 0\n" + 
-                    "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER IDX ['foobar']\n" + 
-                    "            SERVER FILTER BY FIRST KEY ONLY\n" + 
-                    "    DYNAMIC SERVER FILTER BY B.K IN (\"A.:K\")",explainPlan);
+            assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER T2\n" +
+                    "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                    "    PARALLEL INNER-JOIN TABLE 0\n" +
+                    "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER IDX ['foobar']\n" +
+                    "            SERVER FILTER BY FIRST KEY ONLY\n" +
+                    "    DYNAMIC SERVER FILTER BY B.K IN (\"A.:K\")", explainPlan);
         } finally {
             conn.close();
         }
     }
-    
-    @Test
-    public void testSaltTableJoin() throws Exception{
 
-        PhoenixConnection conn = (PhoenixConnection)DriverManager.getConnection(getUrl());
+    @Test
+    public void testSaltTableJoin() throws Exception {
+
+        PhoenixConnection conn = (PhoenixConnection) DriverManager.getConnection(getUrl());
         try {
             conn.createStatement().execute("drop table if exists SALT_TEST2900");
 
             conn.createStatement().execute(
-                "create table SALT_TEST2900"+
-                        "("+
-                        "id UNSIGNED_INT not null primary key,"+
-                        "appId VARCHAR"+
-                    ")SALT_BUCKETS=2");
-
+                    "create table SALT_TEST2900" +
+                            "(" +
+                            "id UNSIGNED_INT not null primary key," +
+                            "appId VARCHAR" +
+                            ")SALT_BUCKETS=2");
 
 
             conn.createStatement().execute("drop table if exists RIGHT_TEST2900 ");
             conn.createStatement().execute(
-                "create table RIGHT_TEST2900"+
-                        "("+
-                        "appId VARCHAR not null primary key,"+
-                        "createTime VARCHAR"+
-                    ")");
+                    "create table RIGHT_TEST2900" +
+                            "(" +
+                            "appId VARCHAR not null primary key," +
+                            "createTime VARCHAR" +
+                            ")");
 
-            
-            String sql="select * from SALT_TEST2900 a inner join RIGHT_TEST2900 b on a.appId=b.appId where a.id>=3 and a.id<=5";
-            HashJoinPlan plan = (HashJoinPlan)getQueryPlan(sql, Collections.emptyList());
-            ScanRanges ranges=plan.getContext().getScanRanges();
 
-            List<HRegionLocation> regionLocations=
+            String sql = "select * from SALT_TEST2900 a inner join RIGHT_TEST2900 b on a.appId=b.appId where a.id>=3 and a.id<=5";
+            HashJoinPlan plan = (HashJoinPlan) getQueryPlan(sql, Collections.emptyList());
+            ScanRanges ranges = plan.getContext().getScanRanges();
+
+            List<HRegionLocation> regionLocations =
                     conn.getQueryServices().getAllTableRegions(Bytes.toBytes("SALT_TEST2900"));
             for (HRegionLocation regionLocation : regionLocations) {
                 assertTrue(ranges.intersectRegion(regionLocation.getRegion().getStartKey(),
-                    regionLocation.getRegion().getEndKey(), false));
+                        regionLocation.getRegion().getEndKey(), false));
             }
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testStatefulDefault() throws Exception {
         String ddl = "CREATE TABLE table_with_default (" +
@@ -2583,7 +2577,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.CANNOT_CREATE_DEFAULT.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testDefaultTypeMismatch() throws Exception {
         String ddl = "CREATE TABLE table_with_default (" +
@@ -2615,7 +2609,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.TYPE_MISMATCH.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testDefaultTypeMismatchInView() throws Exception {
         String ddl1 = "CREATE TABLE table_with_default (" +
@@ -2683,7 +2677,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testAlterTableDefaultSizeMismatch() throws Exception {
         String ddl = "CREATE TABLE table_with_default (" +
@@ -2700,7 +2694,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertEquals(SQLExceptionCode.DATA_EXCEEDS_MAX_CAPACITY.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testNullDefaultRemoved() throws Exception {
         String ddl = "CREATE TABLE table_with_default (" +
@@ -2710,7 +2704,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute(ddl);
         PTable table = conn.unwrap(PhoenixConnection.class).getMetaDataCache()
-                .getTableRef(new PTableKey(null,"TABLE_WITH_DEFAULT")).getTable();
+                .getTableRef(new PTableKey(null, "TABLE_WITH_DEFAULT")).getTable();
         assertNull(table.getColumnForColumnName("V").getExpressionStr());
     }
 
@@ -2725,36 +2719,36 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         conn.createStatement().execute(ddl);
         conn.createStatement().execute(ddl2);
         PTable table = conn.unwrap(PhoenixConnection.class).getMetaDataCache()
-                .getTableRef(new PTableKey(null,"TABLE_WITH_DEFAULT")).getTable();
+                .getTableRef(new PTableKey(null, "TABLE_WITH_DEFAULT")).getTable();
         assertNull(table.getColumnForColumnName("V").getExpressionStr());
     }
 
     @Test
     public void testIndexOnViewWithChildView() throws SQLException {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
-            conn.createStatement().execute("CREATE TABLE PLATFORM_ENTITY.GLOBAL_TABLE (\n" + 
-                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" + 
-                    "    KEY_PREFIX CHAR(3) NOT NULL,\n" + 
-                    "    CREATED_DATE DATE,\n" + 
-                    "    CREATED_BY CHAR(15),\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        ORGANIZATION_ID,\n" + 
-                    "        KEY_PREFIX\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE PLATFORM_ENTITY.GLOBAL_TABLE (\n" +
+                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" +
+                    "    KEY_PREFIX CHAR(3) NOT NULL,\n" +
+                    "    CREATED_DATE DATE,\n" +
+                    "    CREATED_BY CHAR(15),\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        ORGANIZATION_ID,\n" +
+                    "        KEY_PREFIX\n" +
+                    "    )\n" +
                     ") VERSIONS=1, IMMUTABLE_ROWS=true, MULTI_TENANT=true");
-            conn.createStatement().execute("CREATE VIEW PLATFORM_ENTITY.GLOBAL_VIEW  (\n" + 
-                    "    INT1 BIGINT NOT NULL,\n" + 
-                    "    DOUBLE1 DECIMAL(12, 3),\n" + 
-                    "    IS_BOOLEAN BOOLEAN,\n" + 
-                    "    TEXT1 VARCHAR,\n" + 
-                    "    CONSTRAINT PKVIEW PRIMARY KEY\n" + 
-                    "    (\n" + 
-                    "        INT1\n" + 
-                    "    )\n" + 
-                    ")\n" + 
+            conn.createStatement().execute("CREATE VIEW PLATFORM_ENTITY.GLOBAL_VIEW  (\n" +
+                    "    INT1 BIGINT NOT NULL,\n" +
+                    "    DOUBLE1 DECIMAL(12, 3),\n" +
+                    "    IS_BOOLEAN BOOLEAN,\n" +
+                    "    TEXT1 VARCHAR,\n" +
+                    "    CONSTRAINT PKVIEW PRIMARY KEY\n" +
+                    "    (\n" +
+                    "        INT1\n" +
+                    "    )\n" +
+                    ")\n" +
                     "AS SELECT * FROM PLATFORM_ENTITY.GLOBAL_TABLE WHERE KEY_PREFIX = '123'");
-            conn.createStatement().execute("CREATE INDEX GLOBAL_INDEX\n" + 
-                    "ON PLATFORM_ENTITY.GLOBAL_VIEW (TEXT1 DESC, INT1)\n" + 
+            conn.createStatement().execute("CREATE INDEX GLOBAL_INDEX\n" +
+                    "ON PLATFORM_ENTITY.GLOBAL_VIEW (TEXT1 DESC, INT1)\n" +
                     "INCLUDE (CREATED_BY, DOUBLE1, IS_BOOLEAN, CREATED_DATE)");
             String query = "SELECT DOUBLE1 FROM PLATFORM_ENTITY.GLOBAL_VIEW\n"
                     + "WHERE ORGANIZATION_ID = '00Dxx0000002Col' AND TEXT1='Test' AND INT1=1";
@@ -2772,37 +2766,38 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testNotNullKeyValueColumnSalted() throws Exception {
         testNotNullKeyValueColumn(3);
     }
+
     @Test
     public void testNotNullKeyValueColumnUnsalted() throws Exception {
         testNotNullKeyValueColumn(0);
     }
-    
+
     private void testNotNullKeyValueColumn(int saltBuckets) throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         try {
-            conn.createStatement().execute("CREATE TABLE t1 (k integer not null primary key, v bigint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS="+saltBuckets)));
+            conn.createStatement().execute("CREATE TABLE t1 (k integer not null primary key, v bigint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS=" + saltBuckets)));
             conn.createStatement().execute("UPSERT INTO t1 VALUES(0)");
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.CONSTRAINT_VIOLATION.getErrorCode(), e.getErrorCode());
         }
         try {
-            conn.createStatement().execute("CREATE TABLE t2 (k integer not null primary key, v1 bigint not null, v2 varchar, v3 tinyint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS="+saltBuckets)));
+            conn.createStatement().execute("CREATE TABLE t2 (k integer not null primary key, v1 bigint not null, v2 varchar, v3 tinyint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS=" + saltBuckets)));
             conn.createStatement().execute("UPSERT INTO t2(k, v3) VALUES(0,0)");
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.CONSTRAINT_VIOLATION.getErrorCode(), e.getErrorCode());
         }
         try {
-            conn.createStatement().execute("CREATE TABLE t3 (k integer not null primary key, v1 bigint not null, v2 varchar, v3 tinyint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS="+saltBuckets)));
+            conn.createStatement().execute("CREATE TABLE t3 (k integer not null primary key, v1 bigint not null, v2 varchar, v3 tinyint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS=" + saltBuckets)));
             conn.createStatement().execute("UPSERT INTO t3(k, v1) VALUES(0,0)");
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.CONSTRAINT_VIOLATION.getErrorCode(), e.getErrorCode());
         }
-        conn.createStatement().execute("CREATE TABLE t4 (k integer not null primary key, v1 bigint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS="+saltBuckets)));
+        conn.createStatement().execute("CREATE TABLE t4 (k integer not null primary key, v1 bigint not null) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS=" + saltBuckets)));
         conn.createStatement().execute("UPSERT INTO t4 VALUES(0,0)");
-        conn.createStatement().execute("CREATE TABLE t5 (k integer not null primary key, v1 bigint not null default 0) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS="+saltBuckets)));
+        conn.createStatement().execute("CREATE TABLE t5 (k integer not null primary key, v1 bigint not null default 0) IMMUTABLE_ROWS=true" + (saltBuckets == 0 ? "" : (",SALT_BUCKETS=" + saltBuckets)));
         conn.createStatement().execute("UPSERT INTO t5 VALUES(0)");
         conn.close();
     }
@@ -2827,7 +2822,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         conn.createStatement().execute("UPSERT INTO t1 VALUES(0,0,0)");
         conn.createStatement().execute("UPSERT INTO t1(v1,k,v2) VALUES(0,0,0)");
     }
-    
+
     @Test
     public void testOnDupKeyForImmutableTable() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2884,7 +2879,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDuplicateColumnOnDupKeyUpdate() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2898,7 +2893,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testAggregationInOnDupKey() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2912,7 +2907,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSequenceInOnDupKey() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -2927,23 +2922,23 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testOrderPreservingGroupBy() throws Exception {
-        try (Connection conn= DriverManager.getConnection(getUrl())) {
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
 
-            conn.createStatement().execute("CREATE TABLE test (\n" + 
-                    "            pk1 INTEGER NOT NULL,\n" + 
-                    "            pk2 INTEGER NOT NULL,\n" + 
-                    "            pk3 INTEGER NOT NULL,\n" + 
-                    "            pk4 INTEGER NOT NULL,\n" + 
-                    "            v1 INTEGER,\n" + 
-                    "            CONSTRAINT pk PRIMARY KEY (\n" + 
-                    "               pk1,\n" + 
-                    "               pk2,\n" + 
-                    "               pk3,\n" + 
-                    "               pk4\n" + 
-                    "             )\n" + 
+            conn.createStatement().execute("CREATE TABLE test (\n" +
+                    "            pk1 INTEGER NOT NULL,\n" +
+                    "            pk2 INTEGER NOT NULL,\n" +
+                    "            pk3 INTEGER NOT NULL,\n" +
+                    "            pk4 INTEGER NOT NULL,\n" +
+                    "            v1 INTEGER,\n" +
+                    "            CONSTRAINT pk PRIMARY KEY (\n" +
+                    "               pk1,\n" +
+                    "               pk2,\n" +
+                    "               pk3,\n" +
+                    "               pk4\n" +
+                    "             )\n" +
                     "         )");
             String[] queries = new String[] {
                     "SELECT pk3 FROM test WHERE pk2 = 1 GROUP BY pk2+1,pk3 ORDER BY pk3",
@@ -2962,8 +2957,8 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testOrderPreservingGroupByForNotPkColumns() throws Exception {
-         try (Connection conn= DriverManager.getConnection(getUrl())) {
-             conn.createStatement().execute("CREATE TABLE test (\n" +
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
+            conn.createStatement().execute("CREATE TABLE test (\n" +
                     "            pk1 varchar, \n" +
                     "            pk2 varchar, \n" +
                     "            pk3 varchar, \n" +
@@ -2998,107 +2993,106 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     @Test
     public void testOrderPreservingGroupByForClientAggregatePlan() throws Exception {
         Connection conn = null;
-         try {
-             conn = DriverManager.getConnection(getUrl());
-             String tableName = "test_table";
-             String sql = "create table " + tableName + "( "+
-                     " pk1 varchar not null , " +
-                     " pk2 varchar not null, " +
-                     " pk3 varchar not null," +
-                     " v1 varchar, " +
-                     " v2 varchar, " +
-                     " CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                        "pk1,"+
-                        "pk2,"+
-                        "pk3 ))";
-             conn.createStatement().execute(sql);
+        try {
+            conn = DriverManager.getConnection(getUrl());
+            String tableName = "test_table";
+            String sql = "create table " + tableName + "( " +
+                    " pk1 varchar not null , " +
+                    " pk2 varchar not null, " +
+                    " pk3 varchar not null," +
+                    " v1 varchar, " +
+                    " v2 varchar, " +
+                    " CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "pk1," +
+                    "pk2," +
+                    "pk3 ))";
+            conn.createStatement().execute(sql);
 
-             String[] queries = new String[] {
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "group by a.ak3,a.av1 order by a.ak3,a.av1",
+            String[] queries = new String[] {
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "group by a.ak3,a.av1 order by a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av2 = 'a' GROUP BY substr(a.av2,0,1),ak3 ORDER BY ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av2 = 'a' GROUP BY substr(a.av2,0,1),ak3 ORDER BY ak3",
 
-                   //for InListExpression
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av2 in('a') GROUP BY substr(a.av2,0,1),ak3 ORDER BY ak3",
+                    //for InListExpression
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av2 in('a') GROUP BY substr(a.av2,0,1),ak3 ORDER BY ak3",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 'c' and a.av2 = substr('abc',1,1) GROUP BY a.av2,a.ak3 ORDER BY a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 'c' and a.av2 = substr('abc',1,1) GROUP BY a.av2,a.ak3 ORDER BY a.ak3",
 
-                   //for RVC
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where (a.ak1,a.av2) = ('c', substr('abc',1,1)) GROUP BY a.av2,a.ak3 ORDER BY a.ak3",
+                    //for RVC
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where (a.ak1,a.av2) = ('c', substr('abc',1,1)) GROUP BY a.av2,a.ak3 ORDER BY a.ak3",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av1 = 'a' and a.av2 = 'b' GROUP BY length(a.av1)+length(a.av2),a.ak3 ORDER BY a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' and a.av2 = 'b' GROUP BY length(a.av1)+length(a.av2),a.ak3 ORDER BY a.ak3",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 'a' and a.av2 = 'b' GROUP BY length(a.ak1)+length(a.av2),a.ak3 ORDER BY a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 'a' and a.av2 = 'b' GROUP BY length(a.ak1)+length(a.av2),a.ak3 ORDER BY a.ak3",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3, coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av1 = 'a' and a.av2 = substr('abc',2,1) GROUP BY a.ak4,CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3 ORDER BY a.ak4,a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3, coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' and a.av2 = substr('abc',2,1) GROUP BY a.ak4,CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3 ORDER BY a.ak4,a.ak3",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 0.0 and a.av2 = (5+3*2) GROUP BY a.ak3,CASE WHEN a.ak1 > a.av2 THEN a.ak1 ELSE a.av2 END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 0.0 and a.av2 = (5+3*2) GROUP BY a.ak3,CASE WHEN a.ak1 > a.av2 THEN a.ak1 ELSE a.av2 END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 0.0 and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN a.ak1 > a.av2 THEN a.ak1 ELSE a.av2 END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 0.0 and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN a.ak1 > a.av2 THEN a.ak1 ELSE a.av2 END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 0.0 and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 0.0 and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   //for IS NULL
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 is null and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+                    //for IS NULL
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 is null and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 0.0 and a.av2 is null GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
-             };
-              int index = 0;
-             for (String query : queries) {
-                 QueryPlan plan =  TestUtil.getOptimizeQueryPlan(conn, query);
-                 assertTrue((index + 1) + ") " + queries[index], plan.getOrderBy()== OrderBy.FWD_ROW_KEY_ORDER_BY);
-                 index++;
-             }
-         }
-         finally {
-             if(conn != null) {
-                 conn.close();
-             }
-         }
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 0.0 and a.av2 is null GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+            };
+            int index = 0;
+            for (String query : queries) {
+                QueryPlan plan = TestUtil.getOptimizeQueryPlan(conn, query);
+                assertTrue((index + 1) + ") " + queries[index], plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
+                index++;
+            }
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
     }
-    
+
     @Test
     public void testNotOrderPreservingGroupBy() throws Exception {
-        try (Connection conn= DriverManager.getConnection(getUrl())) {
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
 
-            conn.createStatement().execute("CREATE TABLE test (\n" + 
-                    "            pk1 INTEGER NOT NULL,\n" + 
-                    "            pk2 INTEGER NOT NULL,\n" + 
-                    "            pk3 INTEGER NOT NULL,\n" + 
-                    "            pk4 INTEGER NOT NULL,\n" + 
-                    "            v1 INTEGER,\n" + 
-                    "            CONSTRAINT pk PRIMARY KEY (\n" + 
-                    "               pk1,\n" + 
-                    "               pk2,\n" + 
-                    "               pk3,\n" + 
-                    "               pk4\n" + 
-                    "             )\n" + 
+            conn.createStatement().execute("CREATE TABLE test (\n" +
+                    "            pk1 INTEGER NOT NULL,\n" +
+                    "            pk2 INTEGER NOT NULL,\n" +
+                    "            pk3 INTEGER NOT NULL,\n" +
+                    "            pk4 INTEGER NOT NULL,\n" +
+                    "            v1 INTEGER,\n" +
+                    "            CONSTRAINT pk PRIMARY KEY (\n" +
+                    "               pk1,\n" +
+                    "               pk2,\n" +
+                    "               pk3,\n" +
+                    "               pk4\n" +
+                    "             )\n" +
                     "         )");
             String[] queries = new String[] {
                     "SELECT pk3 FROM test WHERE pk1 = 1 and pk2 = 2 GROUP BY pk4,CASE WHEN pk1 > pk2 THEN coalesce(v1,1) ELSE pk2 END,pk3 ORDER BY pk4,pk3",
@@ -3117,10 +3111,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             }
         }
     }
-    
+
     @Test
     public void testNotOrderPreservingGroupByForNotPkColumns() throws Exception {
-        try (Connection conn= DriverManager.getConnection(getUrl())) {
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute("CREATE TABLE test (\n" +
                     "            pk1 varchar,\n" +
                     "            pk2 varchar,\n" +
@@ -3135,16 +3129,16 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                     "               pk4\n" +
                     "             )\n" +
                     "         )");
-             String[] queries = new String[] {
-                     "SELECT pk3 FROM test WHERE (pk1 = 'a' and pk2 = 'b') or v1 ='c' GROUP BY pk4,CASE WHEN pk1 > pk2 THEN coalesce(v1,'1') ELSE pk2 END,pk3 ORDER BY pk4,pk3",
-                     "SELECT pk3 FROM test WHERE pk1 = 'a' or pk2 = 'b' GROUP BY CASE WHEN pk1 > pk2 THEN v1 WHEN pk1 = pk2 THEN pk1 ELSE pk2 END,pk3 ORDER BY pk3",
-                     "SELECT pk3 FROM test WHERE pk1 = 'a' and (pk2 = 'b' or v1 = 'c') GROUP BY CASE WHEN pk1 > pk2 THEN v1 WHEN pk1 = pk2 THEN pk1 ELSE pk2 END,pk3 ORDER BY pk3",
-                     "SELECT v2 FROM test GROUP BY v1,v2 ORDER BY v2",
-                     "SELECT pk3 FROM test WHERE v1 = 'a' GROUP BY v1,v2,pk3 ORDER BY pk3",
-                     "SELECT length(pk3) FROM test WHERE v1 = 'a' GROUP BY RAND()+length(v1),length(v2),length(pk3) ORDER BY length(v2),length(pk3)",
-                     "SELECT length(pk3) FROM test WHERE v1 = 'a' and v2 = 'b' GROUP BY CASE WHEN v1 > v2 THEN length(v1) ELSE RAND(1) END,length(pk3) ORDER BY length(pk3)",
-             };
-             int index = 0;
+            String[] queries = new String[] {
+                    "SELECT pk3 FROM test WHERE (pk1 = 'a' and pk2 = 'b') or v1 ='c' GROUP BY pk4,CASE WHEN pk1 > pk2 THEN coalesce(v1,'1') ELSE pk2 END,pk3 ORDER BY pk4,pk3",
+                    "SELECT pk3 FROM test WHERE pk1 = 'a' or pk2 = 'b' GROUP BY CASE WHEN pk1 > pk2 THEN v1 WHEN pk1 = pk2 THEN pk1 ELSE pk2 END,pk3 ORDER BY pk3",
+                    "SELECT pk3 FROM test WHERE pk1 = 'a' and (pk2 = 'b' or v1 = 'c') GROUP BY CASE WHEN pk1 > pk2 THEN v1 WHEN pk1 = pk2 THEN pk1 ELSE pk2 END,pk3 ORDER BY pk3",
+                    "SELECT v2 FROM test GROUP BY v1,v2 ORDER BY v2",
+                    "SELECT pk3 FROM test WHERE v1 = 'a' GROUP BY v1,v2,pk3 ORDER BY pk3",
+                    "SELECT length(pk3) FROM test WHERE v1 = 'a' GROUP BY RAND()+length(v1),length(v2),length(pk3) ORDER BY length(v2),length(pk3)",
+                    "SELECT length(pk3) FROM test WHERE v1 = 'a' and v2 = 'b' GROUP BY CASE WHEN v1 > v2 THEN length(v1) ELSE RAND(1) END,length(pk3) ORDER BY length(pk3)",
+            };
+            int index = 0;
             for (String query : queries) {
                 QueryPlan plan = getQueryPlan(conn, query);
                 assertFalse((index + 1) + ") " + queries[index], plan.getOrderBy().getOrderByExpressions().isEmpty());
@@ -3159,91 +3153,90 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn = DriverManager.getConnection(getUrl());
             String tableName = "table_test";
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 varchar not null , " +
                     " pk2 varchar not null, " +
                     " pk3 varchar not null," +
                     " v1 varchar, " +
                     " v2 varchar, " +
-                    " CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                    "pk1,"+
-                    "pk2,"+
+                    " CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "pk1," +
+                    "pk2," +
                     "pk3 ))";
             conn.createStatement().execute(sql);
 
             String[] queries = new String[] {
-                  "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where (a.ak1 = 'a' and a.ak2 = 'b') or a.av1 ='c' GROUP BY a.ak4,CASE WHEN a.ak1 > a.ak2 THEN coalesce(a.av1,'1') ELSE a.ak2 END,a.ak3 ORDER BY a.ak4,a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where (a.ak1 = 'a' and a.ak2 = 'b') or a.av1 ='c' GROUP BY a.ak4,CASE WHEN a.ak1 > a.ak2 THEN coalesce(a.av1,'1') ELSE a.ak2 END,a.ak3 ORDER BY a.ak4,a.ak3",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 'a' or a.ak2 = 'b' GROUP BY CASE WHEN a.ak1 > a.ak2 THEN a.av1 WHEN a.ak1 = a.ak2 THEN a.ak1 ELSE a.ak2 END,a.ak3 ORDER BY a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 'a' or a.ak2 = 'b' GROUP BY CASE WHEN a.ak1 > a.ak2 THEN a.av1 WHEN a.ak1 = a.ak2 THEN a.ak1 ELSE a.ak2 END,a.ak3 ORDER BY a.ak3",
 
-                   //for in
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 in ( 'a','b') GROUP BY CASE WHEN a.ak1 > a.ak2 THEN a.av1 WHEN a.ak1 = a.ak2 THEN a.ak1 ELSE a.ak2 END,a.ak3 ORDER BY a.ak3",
+                    //for in
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 in ( 'a','b') GROUP BY CASE WHEN a.ak1 > a.ak2 THEN a.av1 WHEN a.ak1 = a.ak2 THEN a.ak1 ELSE a.ak2 END,a.ak3 ORDER BY a.ak3",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 'a' and (a.ak2 = 'b' or a.av1 = 'c') GROUP BY CASE WHEN a.ak1 > a.ak2 THEN a.av1 WHEN a.ak1 = a.ak2 THEN a.ak1 ELSE a.ak2 END,a.ak3 ORDER BY a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 'a' and (a.ak2 = 'b' or a.av1 = 'c') GROUP BY CASE WHEN a.ak1 > a.ak2 THEN a.av1 WHEN a.ak1 = a.ak2 THEN a.ak1 ELSE a.ak2 END,a.ak3 ORDER BY a.ak3",
 
-                   "select a.av2 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "GROUP BY a.av1,a.av2 ORDER BY a.av2",
+                    "select a.av2 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "GROUP BY a.av1,a.av2 ORDER BY a.av2",
 
-                   "select a.ak3 "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av1 = 'a' GROUP BY a.av1,a.av2,a.ak3 ORDER BY a.ak3",
+                    "select a.ak3 " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' GROUP BY a.av1,a.av2,a.ak3 ORDER BY a.ak3",
 
-                   "select length(a.ak3) "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av1 = 'a' GROUP BY RAND()+length(a.av1),length(a.av2),length(a.ak3) ORDER BY length(a.av2),length(a.ak3)",
+                    "select length(a.ak3) " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' GROUP BY RAND()+length(a.av1),length(a.av2),length(a.ak3) ORDER BY length(a.av2),length(a.ak3)",
 
-                   "select length(a.ak3) "+
-                   "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.av1 = 'a' and a.av2 = 'b' GROUP BY CASE WHEN a.av1 > a.av2 THEN length(a.av1) ELSE RAND(1) END,length(a.ak3) ORDER BY length(a.ak3)",
+                    "select length(a.ak3) " +
+                            "from (select substr(pk1,1,1) ak1,substr(pk2,1,1) ak2,substr(pk3,1,1) ak3,coalesce(pk3,'1') ak4, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' and a.av2 = 'b' GROUP BY CASE WHEN a.av1 > a.av2 THEN length(a.av1) ELSE RAND(1) END,length(a.ak3) ORDER BY length(a.ak3)",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 > 0.0 and a.av2 = (5+3*2) GROUP BY a.ak3,CASE WHEN a.ak1 > a.av2 THEN a.ak1 ELSE a.av2 END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 > 0.0 and a.av2 = (5+3*2) GROUP BY a.ak3,CASE WHEN a.ak1 > a.av2 THEN a.ak1 ELSE a.av2 END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   //for CoerceExpression
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where CAST(a.ak1 AS INTEGER) = 0 and a.av2 = (5+3*2) GROUP BY a.ak3,a.ak1,a.av1 ORDER BY a.ak3,a.av1",
+                    //for CoerceExpression
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where CAST(a.ak1 AS INTEGER) = 0 and a.av2 = (5+3*2) GROUP BY a.ak3,a.ak1,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 = 0.0 or a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 = 0.0 or a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   //for IS NULL
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 is not null and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+                    //for IS NULL
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 is not null and a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 is null or a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 is null or a.av2 = length(substr('abc',1,1)) GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 is null and a.av2 = length(substr('abc',1,1)) and a.ak1 = 0.0 GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 is null and a.av2 = length(substr('abc',1,1)) and a.ak1 = 0.0 GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
 
-                   "select a.ak3 "+
-                   "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                   "where a.ak1 is null and a.av2 = length(substr('abc',1,1)) or a.ak1 = 0.0 GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
-             };
+                    "select a.ak3 " +
+                            "from (select rand() ak1,length(pk2) ak2,length(pk3) ak3,length(v1) av1,length(v2) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.ak1 is null and a.av2 = length(substr('abc',1,1)) or a.ak1 = 0.0 GROUP BY a.ak3,CASE WHEN coalesce(a.ak1,1) > coalesce(a.av2,2) THEN coalesce(a.ak1,1) ELSE coalesce(a.av2,2) END,a.av1 ORDER BY a.ak3,a.av1",
+            };
             int index = 0;
             for (String query : queries) {
                 QueryPlan plan = TestUtil.getOptimizeQueryPlan(conn, query);
                 assertTrue((index + 1) + ") " + queries[index], plan.getOrderBy().getOrderByExpressions().size() > 0);
                 index++;
             }
-        }
-        finally {
-            if(conn != null) {
+        } finally {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -3255,55 +3248,55 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn = DriverManager.getConnection(getUrl());
             String tableName = "test_table";
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 varchar not null, " +
                     " pk2 varchar not null, " +
                     " pk3 varchar not null, " +
                     " v1 varchar, " +
                     " v2 varchar, " +
-                    " CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                    "pk1 desc,"+
-                    "pk2 desc,"+
+                    " CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "pk1 desc," +
+                    "pk2 desc," +
                     "pk3 desc))";
             conn.createStatement().execute(sql);
 
             String[] queries = new String[] {
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3, substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "group by a.ak3,a.av1 order by a.ak3 desc,a.av1",
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3, substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "group by a.ak3,a.av1 order by a.ak3 desc,a.av1",
 
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "where a.av1 = 'a' group by a.av1,a.ak3 order by a.ak3 desc",
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' group by a.av1,a.ak3 order by a.ak3 desc",
 
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "where a.av1 = 'a' and a.av2= 'b' group by CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3,a.ak2 order by a.ak3 desc,a.ak2 desc"
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' and a.av2= 'b' group by CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3,a.ak2 order by a.ak3 desc,a.ak2 desc"
             };
 
             int index = 0;
             for (String query : queries) {
-                QueryPlan plan =  TestUtil.getOptimizeQueryPlan(conn, query);
-                assertTrue((index + 1) + ") " + queries[index], plan.getOrderBy()== OrderBy.FWD_ROW_KEY_ORDER_BY);
+                QueryPlan plan = TestUtil.getOptimizeQueryPlan(conn, query);
+                assertTrue((index + 1) + ") " + queries[index], plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
                 index++;
             }
 
             queries = new String[] {
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "group by a.ak3,a.av1 order by a.ak3,a.av1",
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "group by a.ak3,a.av1 order by a.ak3,a.av1",
 
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "where a.av1 = 'a' group by a.av1,a.ak3 order by a.ak3",
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' group by a.av1,a.ak3 order by a.ak3",
 
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "where a.av1 = 'a' and a.av2= 'b' group by CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3,a.ak2 order by a.ak3,a.ak2",
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' and a.av2= 'b' group by CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3,a.ak2 order by a.ak3,a.ak2",
 
-                     "select a.ak3 "+
-                     "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from "+tableName+" order by pk2,pk3 limit 10) a "+
-                     "where a.av1 = 'a' and a.av2= 'b' group by CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3,a.ak2 order by a.ak3 asc,a.ak2 desc"
+                    "select a.ak3 " +
+                            "from (select pk1 ak1,pk2 ak2,pk3 ak3,substr(v1,1,1) av1,substr(v2,1,1) av2 from " + tableName + " order by pk2,pk3 limit 10) a " +
+                            "where a.av1 = 'a' and a.av2= 'b' group by CASE WHEN a.av1 > a.av2 THEN a.av1 ELSE a.av2 END,a.ak3,a.ak2 order by a.ak3 asc,a.ak2 desc"
             };
             index = 0;
             for (String query : queries) {
@@ -3311,9 +3304,8 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 assertTrue((index + 1) + ") " + queries[index], plan.getOrderBy().getOrderByExpressions().size() > 0);
                 index++;
             }
-        }
-        finally {
-            if(conn != null) {
+        } finally {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -3322,32 +3314,32 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     @Test
     public void testGroupByDescColumnBug3451() throws Exception {
 
-        try (Connection conn= DriverManager.getConnection(getUrl())) {
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
 
-            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS GROUPBYTEST (\n" + 
-                    "            ORGANIZATION_ID CHAR(15) NOT NULL,\n" + 
-                    "            CONTAINER_ID CHAR(15) NOT NULL,\n" + 
-                    "            ENTITY_ID CHAR(15) NOT NULL,\n" + 
-                    "            SCORE DOUBLE,\n" + 
-                    "            CONSTRAINT TEST_PK PRIMARY KEY (\n" + 
-                    "               ORGANIZATION_ID,\n" + 
-                    "               CONTAINER_ID,\n" + 
-                    "               ENTITY_ID\n" + 
-                    "             )\n" + 
+            conn.createStatement().execute("CREATE TABLE IF NOT EXISTS GROUPBYTEST (\n" +
+                    "            ORGANIZATION_ID CHAR(15) NOT NULL,\n" +
+                    "            CONTAINER_ID CHAR(15) NOT NULL,\n" +
+                    "            ENTITY_ID CHAR(15) NOT NULL,\n" +
+                    "            SCORE DOUBLE,\n" +
+                    "            CONSTRAINT TEST_PK PRIMARY KEY (\n" +
+                    "               ORGANIZATION_ID,\n" +
+                    "               CONTAINER_ID,\n" +
+                    "               ENTITY_ID\n" +
+                    "             )\n" +
                     "         )");
             conn.createStatement().execute("CREATE INDEX SCORE_IDX ON GROUPBYTEST (ORGANIZATION_ID,CONTAINER_ID, SCORE DESC, ENTITY_ID DESC)");
-            QueryPlan plan = getQueryPlan(conn, "SELECT DISTINCT entity_id, score\n" + 
-                    "    FROM GROUPBYTEST\n" + 
-                    "    WHERE organization_id = 'org2'\n" + 
-                    "    AND container_id IN ( 'container1','container2','container3' )\n" + 
-                    "    ORDER BY score DESC\n" + 
+            QueryPlan plan = getQueryPlan(conn, "SELECT DISTINCT entity_id, score\n" +
+                    "    FROM GROUPBYTEST\n" +
+                    "    WHERE organization_id = 'org2'\n" +
+                    "    AND container_id IN ( 'container1','container2','container3' )\n" +
+                    "    ORDER BY score DESC\n" +
                     "    LIMIT 2");
             assertFalse(plan.getOrderBy().getOrderByExpressions().isEmpty());
-            plan = getQueryPlan(conn, "SELECT DISTINCT entity_id, score\n" + 
-                    "    FROM GROUPBYTEST\n" + 
-                    "    WHERE entity_id = 'entity1'\n" + 
-                    "    AND container_id IN ( 'container1','container2','container3' )\n" + 
-                    "    ORDER BY score DESC\n" + 
+            plan = getQueryPlan(conn, "SELECT DISTINCT entity_id, score\n" +
+                    "    FROM GROUPBYTEST\n" +
+                    "    WHERE entity_id = 'entity1'\n" +
+                    "    AND container_id IN ( 'container1','container2','container3' )\n" +
+                    "    ORDER BY score DESC\n" +
                     "    LIMIT 2");
             assertTrue(plan.getOrderBy().getOrderByExpressions().isEmpty());
         }
@@ -3356,309 +3348,309 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     @Test
     public void testGroupByDescColumnBug3452() throws Exception {
 
-       Connection conn=null;
+        Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
+            conn = DriverManager.getConnection(getUrl());
 
-            String sql="CREATE TABLE GROUPBYDESC3452 ( "+
-                "ORGANIZATION_ID VARCHAR,"+
-                "CONTAINER_ID VARCHAR,"+
-                "ENTITY_ID VARCHAR NOT NULL,"+
-                "CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                "ORGANIZATION_ID DESC,"+
-                "CONTAINER_ID DESC,"+
-                "ENTITY_ID"+
-                "))";
+            String sql = "CREATE TABLE GROUPBYDESC3452 ( " +
+                    "ORGANIZATION_ID VARCHAR," +
+                    "CONTAINER_ID VARCHAR," +
+                    "ENTITY_ID VARCHAR NOT NULL," +
+                    "CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "ORGANIZATION_ID DESC," +
+                    "CONTAINER_ID DESC," +
+                    "ENTITY_ID" +
+                    "))";
             conn.createStatement().execute(sql);
 
             //-----ORGANIZATION_ID
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS FIRST";
-            QueryPlan queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS FIRST";
+            QueryPlan queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy()== OrderBy.REV_ROW_KEY_ORDER_BY);
+            assertTrue(queryPlan.getOrderBy() == OrderBy.REV_ROW_KEY_ORDER_BY);
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy()== OrderBy.FWD_ROW_KEY_ORDER_BY);
+            assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
             //----CONTAINER_ID
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
             //-----ORGANIZATION_ID ASC  CONTAINER_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == OrderBy.REV_ROW_KEY_ORDER_BY);
 
             //-----ORGANIZATION_ID ASC  CONTAINER_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
             //-----ORGANIZATION_ID DESC  CONTAINER_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID NULLS LAST"));
 
             //-----ORGANIZATION_ID DESC  CONTAINER_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
             //-----CONTAINER_ID ASC  ORGANIZATION_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
             //-----CONTAINER_ID ASC  ORGANIZATION_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
             //-----CONTAINER_ID DESC  ORGANIZATION_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
             //-----CONTAINER_ID DESC  ORGANIZATION_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID,CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID,CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM GROUPBYDESC3452 group by ORGANIZATION_ID, CONTAINER_ID order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -3666,268 +3658,268 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testOrderByDescWithNullsLastBug3469() throws Exception {
-        Connection conn=null;
+        Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
+            conn = DriverManager.getConnection(getUrl());
 
-            String sql="CREATE TABLE DESCNULLSLAST3469 ( "+
-                "ORGANIZATION_ID VARCHAR,"+
-                "CONTAINER_ID VARCHAR,"+
-                "ENTITY_ID VARCHAR NOT NULL,"+
-                "CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                "ORGANIZATION_ID DESC,"+
-                "CONTAINER_ID DESC,"+
-                "ENTITY_ID"+
-                "))";
+            String sql = "CREATE TABLE DESCNULLSLAST3469 ( " +
+                    "ORGANIZATION_ID VARCHAR," +
+                    "CONTAINER_ID VARCHAR," +
+                    "ENTITY_ID VARCHAR NOT NULL," +
+                    "CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "ORGANIZATION_ID DESC," +
+                    "CONTAINER_ID DESC," +
+                    "ENTITY_ID" +
+                    "))";
             conn.createStatement().execute(sql);
 
             //-----ORGANIZATION_ID
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS FIRST";
-            QueryPlan queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS FIRST";
+            QueryPlan queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy()== OrderBy.REV_ROW_KEY_ORDER_BY);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy() == OrderBy.REV_ROW_KEY_ORDER_BY);
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy()== OrderBy.FWD_ROW_KEY_ORDER_BY);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
             //----CONTAINER_ID
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==1);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 1);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
             //-----ORGANIZATION_ID ASC  CONTAINER_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS FIRST,CONTAINER_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID NULLS LAST,CONTAINER_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy() == OrderBy.REV_ROW_KEY_ORDER_BY);
 
             //-----ORGANIZATION_ID ASC  CONTAINER_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID ASC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
             //-----ORGANIZATION_ID DESC  CONTAINER_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID NULLS LAST"));
 
             //-----ORGANIZATION_ID DESC  CONTAINER_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS FIRST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by ORGANIZATION_ID DESC NULLS LAST,CONTAINER_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("CONTAINER_ID DESC NULLS LAST"));
 
             //-----CONTAINER_ID ASC  ORGANIZATION_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS FIRST,ORGANIZATION_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID NULLS LAST,ORGANIZATION_ID NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
             //-----CONTAINER_ID ASC  ORGANIZATION_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID ASC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
             //-----CONTAINER_ID DESC  ORGANIZATION_ID ASC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID ASC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID NULLS LAST"));
 
             //-----CONTAINER_ID DESC  ORGANIZATION_ID DESC
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS FIRST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS FIRST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC"));
 
-            sql="SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
-            queryPlan =getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size()==2);
+            sql = "SELECT CONTAINER_ID,ORGANIZATION_ID FROM DESCNULLSLAST3469 order by CONTAINER_ID DESC NULLS LAST,ORGANIZATION_ID DESC NULLS LAST";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("CONTAINER_ID DESC NULLS LAST"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("ORGANIZATION_ID DESC NULLS LAST"));
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -3935,112 +3927,111 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testOrderByReverseOptimizationBug3491() throws Exception {
-        for(boolean salted: new boolean[]{true,false}) {
-            boolean[] groupBys=new boolean[]{true,true,true,true,false,false,false,false};
-            doTestOrderByReverseOptimizationBug3491(salted,true,true,true,
+        for (boolean salted : new boolean[] {true, false}) {
+            boolean[] groupBys = new boolean[] {true, true, true, true, false, false, false, false};
+            doTestOrderByReverseOptimizationBug3491(salted, true, true, true,
                     groupBys,
-                    new OrderBy[]{
-                    OrderBy.REV_ROW_KEY_ORDER_BY,null,null,OrderBy.FWD_ROW_KEY_ORDER_BY,
-                    OrderBy.REV_ROW_KEY_ORDER_BY,null,null,OrderBy.FWD_ROW_KEY_ORDER_BY});
+                    new OrderBy[] {
+                            OrderBy.REV_ROW_KEY_ORDER_BY, null, null, OrderBy.FWD_ROW_KEY_ORDER_BY,
+                            OrderBy.REV_ROW_KEY_ORDER_BY, null, null, OrderBy.FWD_ROW_KEY_ORDER_BY});
 
-            doTestOrderByReverseOptimizationBug3491(salted,true,true,false,
+            doTestOrderByReverseOptimizationBug3491(salted, true, true, false,
                     groupBys,
-                    new OrderBy[]{
-                    OrderBy.REV_ROW_KEY_ORDER_BY,null,null,OrderBy.FWD_ROW_KEY_ORDER_BY,
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null});
+                    new OrderBy[] {
+                            OrderBy.REV_ROW_KEY_ORDER_BY, null, null, OrderBy.FWD_ROW_KEY_ORDER_BY,
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationBug3491(salted,true,false,true,
+            doTestOrderByReverseOptimizationBug3491(salted, true, false, true,
                     groupBys,
-                    new OrderBy[]{
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null,
-                    OrderBy.REV_ROW_KEY_ORDER_BY,null,null,OrderBy.FWD_ROW_KEY_ORDER_BY});
+                    new OrderBy[] {
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null,
+                            OrderBy.REV_ROW_KEY_ORDER_BY, null, null, OrderBy.FWD_ROW_KEY_ORDER_BY});
 
-            doTestOrderByReverseOptimizationBug3491(salted,true,false,false,
+            doTestOrderByReverseOptimizationBug3491(salted, true, false, false,
                     groupBys,
-                    new OrderBy[]{
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null,
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null});
+                    new OrderBy[] {
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null,
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationBug3491(salted,false,true,true,
+            doTestOrderByReverseOptimizationBug3491(salted, false, true, true,
                     groupBys,
-                    new OrderBy[]{
-                    null,OrderBy.FWD_ROW_KEY_ORDER_BY,OrderBy.REV_ROW_KEY_ORDER_BY,null,
-                    null,OrderBy.FWD_ROW_KEY_ORDER_BY,OrderBy.REV_ROW_KEY_ORDER_BY,null});
+                    new OrderBy[] {
+                            null, OrderBy.FWD_ROW_KEY_ORDER_BY, OrderBy.REV_ROW_KEY_ORDER_BY, null,
+                            null, OrderBy.FWD_ROW_KEY_ORDER_BY, OrderBy.REV_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationBug3491(salted,false,true,false,
+            doTestOrderByReverseOptimizationBug3491(salted, false, true, false,
                     groupBys,
-                    new OrderBy[]{
-                    null,OrderBy.FWD_ROW_KEY_ORDER_BY,OrderBy.REV_ROW_KEY_ORDER_BY,null,
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY});
+                    new OrderBy[] {
+                            null, OrderBy.FWD_ROW_KEY_ORDER_BY, OrderBy.REV_ROW_KEY_ORDER_BY, null,
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY});
 
-            doTestOrderByReverseOptimizationBug3491(salted,false,false,true,
+            doTestOrderByReverseOptimizationBug3491(salted, false, false, true,
                     groupBys,
-                    new OrderBy[]{
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    null,OrderBy.FWD_ROW_KEY_ORDER_BY,OrderBy.REV_ROW_KEY_ORDER_BY,null});
+                    new OrderBy[] {
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            null, OrderBy.FWD_ROW_KEY_ORDER_BY, OrderBy.REV_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationBug3491(salted,false,false,false,
+            doTestOrderByReverseOptimizationBug3491(salted, false, false, false,
                     groupBys,
-                    new OrderBy[]{
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY});
+                    new OrderBy[] {
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY});
         }
     }
 
-    private void doTestOrderByReverseOptimizationBug3491(boolean salted,boolean desc1,boolean desc2,boolean desc3,boolean[] groupBys,OrderBy[] orderBys) throws Exception {
+    private void doTestOrderByReverseOptimizationBug3491(boolean salted, boolean desc1, boolean desc2, boolean desc3, boolean[] groupBys, OrderBy[] orderBys) throws Exception {
         Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
-            String tableName="ORDERBY3491_TEST";
-            conn.createStatement().execute("DROP TABLE if exists "+tableName);
-            String sql="CREATE TABLE "+tableName+" ( "+
-                    "ORGANIZATION_ID INTEGER NOT NULL,"+
-                    "CONTAINER_ID INTEGER NOT NULL,"+
-                    "SCORE INTEGER NOT NULL,"+
-                    "ENTITY_ID INTEGER NOT NULL,"+
-                    "CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                    "ORGANIZATION_ID" +(desc1 ? " DESC" : "" )+","+
-                    "CONTAINER_ID"+(desc2 ? " DESC" : "" )+","+
-                    "SCORE"+(desc3 ? " DESC" : "" )+","+
-                    "ENTITY_ID"+
-                    ")) "+(salted ? "SALT_BUCKETS =4" : "");
+            conn = DriverManager.getConnection(getUrl());
+            String tableName = "ORDERBY3491_TEST";
+            conn.createStatement().execute("DROP TABLE if exists " + tableName);
+            String sql = "CREATE TABLE " + tableName + " ( " +
+                    "ORGANIZATION_ID INTEGER NOT NULL," +
+                    "CONTAINER_ID INTEGER NOT NULL," +
+                    "SCORE INTEGER NOT NULL," +
+                    "ENTITY_ID INTEGER NOT NULL," +
+                    "CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "ORGANIZATION_ID" + (desc1 ? " DESC" : "") + "," +
+                    "CONTAINER_ID" + (desc2 ? " DESC" : "") + "," +
+                    "SCORE" + (desc3 ? " DESC" : "") + "," +
+                    "ENTITY_ID" +
+                    ")) " + (salted ? "SALT_BUCKETS =4" : "");
             conn.createStatement().execute(sql);
 
 
-            String[] sqls={
+            String[] sqls = {
                     //groupBy orderPreserving orderBy asc asc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC, CONTAINER_ID ASC",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC, CONTAINER_ID ASC",
                     //groupBy orderPreserving orderBy asc desc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC, CONTAINER_ID DESC",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC, CONTAINER_ID DESC",
                     //groupBy orderPreserving orderBy desc asc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC, CONTAINER_ID ASC",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC, CONTAINER_ID ASC",
                     //groupBy orderPreserving orderBy desc desc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC, CONTAINER_ID DESC",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC, CONTAINER_ID DESC",
 
                     //groupBy not orderPreserving orderBy asc asc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC, SCORE ASC",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC, SCORE ASC",
                     //groupBy not orderPreserving orderBy asc desc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC, SCORE DESC",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC, SCORE DESC",
                     //groupBy not orderPreserving orderBy desc asc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC, SCORE ASC",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC, SCORE ASC",
                     //groupBy not orderPreserving orderBy desc desc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC, SCORE DESC"
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC, SCORE DESC"
             };
 
-            for(int i=0;i< sqls.length;i++) {
-                sql=sqls[i];
-                QueryPlan queryPlan=getQueryPlan(conn, sql);
-                assertTrue((i+1) + ") " + sql,queryPlan.getGroupBy().isOrderPreserving()== groupBys[i]);
-                OrderBy orderBy=queryPlan.getOrderBy();
-                if(orderBys[i]!=null) {
-                    assertTrue((i+1) + ") " + sql,orderBy == orderBys[i]);
-                }
-                else {
-                    assertTrue((i+1) + ") " + sql,orderBy.getOrderByExpressions().size() > 0);
+            for (int i = 0; i < sqls.length; i++) {
+                sql = sqls[i];
+                QueryPlan queryPlan = getQueryPlan(conn, sql);
+                assertTrue((i + 1) + ") " + sql, queryPlan.getGroupBy().isOrderPreserving() == groupBys[i]);
+                OrderBy orderBy = queryPlan.getOrderBy();
+                if (orderBys[i] != null) {
+                    assertTrue((i + 1) + ") " + sql, orderBy == orderBys[i]);
+                } else {
+                    assertTrue((i + 1) + ") " + sql, orderBy.getOrderByExpressions().size() > 0);
                 }
             }
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -4048,304 +4039,303 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testOrderByReverseOptimizationWithNUllsLastBug3491() throws Exception {
-        for(boolean salted: new boolean[]{true,false}) {
-            boolean[] groupBys=new boolean[]{
+        for (boolean salted : new boolean[] {true, false}) {
+            boolean[] groupBys = new boolean[] {
                     //groupBy orderPreserving orderBy asc asc
-                    true,true,true,true,
+                    true, true, true, true,
                     //groupBy orderPreserving orderBy asc desc
-                    true,true,true,true,
+                    true, true, true, true,
                     //groupBy orderPreserving orderBy desc asc
-                    true,true,true,true,
+                    true, true, true, true,
                     //groupBy orderPreserving orderBy desc desc
-                    true,true,true,true,
+                    true, true, true, true,
 
                     //groupBy not orderPreserving orderBy asc asc
-                    false,false,false,false,
+                    false, false, false, false,
                     //groupBy not orderPreserving orderBy asc desc
-                    false,false,false,false,
+                    false, false, false, false,
                     //groupBy not orderPreserving orderBy desc asc
-                    false,false,false,false,
+                    false, false, false, false,
                     //groupBy not orderPreserving orderBy desc desc
-                    false,false,false,false,
+                    false, false, false, false,
 
-                    false,false,false,false};
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,true,true,true,
+                    false, false, false, false};
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, true, true, true,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy not orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
+                            //groupBy not orderPreserving orderBy asc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
 
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null});
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,true,true,false,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, true, true, false,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy asc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy not orderPreserving orderBy desc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy not orderPreserving orderBy desc desc
-                    null,null,null,null,
+                            //groupBy not orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy asc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy desc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy not orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY});
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY});
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,true,false,true,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, true, false, true,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy asc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy orderPreserving orderBy desc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy orderPreserving orderBy desc desc
-                    null,null,null,null,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy asc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy orderPreserving orderBy desc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy not orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null});
+                            //groupBy not orderPreserving orderBy asc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,true,false,false,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, true, false, false,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy asc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy orderPreserving orderBy desc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy orderPreserving orderBy desc desc
-                    null,null,null,null,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy asc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy orderPreserving orderBy desc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy asc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy not orderPreserving orderBy desc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy not orderPreserving orderBy desc desc
-                    null,null,null,null,
+                            //groupBy not orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy asc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy desc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy not orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY});
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY});
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,false,true,true,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, false, true, true,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy asc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy orderPreserving orderBy desc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy orderPreserving orderBy desc desc
-                    null,null,null,null,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy asc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy orderPreserving orderBy desc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy asc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy not orderPreserving orderBy desc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy not orderPreserving orderBy desc desc
-                    null,null,null,null,
+                            //groupBy not orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy asc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy not orderPreserving orderBy desc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null});
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null});
 
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,false,true,false,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, false, true, false,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy asc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy orderPreserving orderBy desc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy orderPreserving orderBy desc desc
-                    null,null,null,null,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy asc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy orderPreserving orderBy desc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy not orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy asc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy not orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
 
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY});
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY});
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,false,false,true,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, false, false, true,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy asc desc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy not orderPreserving orderBy desc asc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
-                    //groupBy not orderPreserving orderBy desc desc
-                    null,null,null,null,
+                            //groupBy not orderPreserving orderBy asc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy asc desc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy not orderPreserving orderBy desc asc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy desc desc
+                            null, null, null, null,
 
-                    null,OrderBy.REV_ROW_KEY_ORDER_BY,OrderBy.FWD_ROW_KEY_ORDER_BY,null});
+                            null, OrderBy.REV_ROW_KEY_ORDER_BY, OrderBy.FWD_ROW_KEY_ORDER_BY, null});
 
-            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted,false,false,false,
+            doTestOrderByReverseOptimizationWithNUllsLastBug3491(salted, false, false, false,
                     groupBys,
-                    new OrderBy[]{
-                    //groupBy orderPreserving orderBy asc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy orderPreserving orderBy desc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
+                    new OrderBy[] {
+                            //groupBy orderPreserving orderBy asc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy orderPreserving orderBy desc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
 
-                    //groupBy not orderPreserving orderBy asc asc
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,null,
-                    //groupBy not orderPreserving orderBy asc desc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc asc
-                    null,null,null,null,
-                    //groupBy not orderPreserving orderBy desc desc
-                    null,null,null,OrderBy.REV_ROW_KEY_ORDER_BY,
+                            //groupBy not orderPreserving orderBy asc asc
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, null,
+                            //groupBy not orderPreserving orderBy asc desc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc asc
+                            null, null, null, null,
+                            //groupBy not orderPreserving orderBy desc desc
+                            null, null, null, OrderBy.REV_ROW_KEY_ORDER_BY,
 
-                    OrderBy.FWD_ROW_KEY_ORDER_BY,null,null,OrderBy.REV_ROW_KEY_ORDER_BY});
+                            OrderBy.FWD_ROW_KEY_ORDER_BY, null, null, OrderBy.REV_ROW_KEY_ORDER_BY});
         }
     }
 
-    private void doTestOrderByReverseOptimizationWithNUllsLastBug3491(boolean salted,boolean desc1,boolean desc2,boolean desc3,boolean[] groupBys,OrderBy[] orderBys) throws Exception {
+    private void doTestOrderByReverseOptimizationWithNUllsLastBug3491(boolean salted, boolean desc1, boolean desc2, boolean desc3, boolean[] groupBys, OrderBy[] orderBys) throws Exception {
         Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
-            String tableName="ORDERBY3491_TEST";
-            conn.createStatement().execute("DROP TABLE if exists "+tableName);
-            String sql="CREATE TABLE "+tableName+" ( "+
-                    "ORGANIZATION_ID VARCHAR,"+
-                    "CONTAINER_ID VARCHAR,"+
-                    "SCORE VARCHAR,"+
-                    "ENTITY_ID VARCHAR NOT NULL,"+
-                    "CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                    "ORGANIZATION_ID" +(desc1 ? " DESC" : "" )+","+
-                    "CONTAINER_ID"+(desc2 ? " DESC" : "" )+","+
-                    "SCORE"+(desc3 ? " DESC" : "" )+","+
-                    "ENTITY_ID"+
-                    ")) "+(salted ? "SALT_BUCKETS =4" : "");
+            conn = DriverManager.getConnection(getUrl());
+            String tableName = "ORDERBY3491_TEST";
+            conn.createStatement().execute("DROP TABLE if exists " + tableName);
+            String sql = "CREATE TABLE " + tableName + " ( " +
+                    "ORGANIZATION_ID VARCHAR," +
+                    "CONTAINER_ID VARCHAR," +
+                    "SCORE VARCHAR," +
+                    "ENTITY_ID VARCHAR NOT NULL," +
+                    "CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "ORGANIZATION_ID" + (desc1 ? " DESC" : "") + "," +
+                    "CONTAINER_ID" + (desc2 ? " DESC" : "") + "," +
+                    "SCORE" + (desc3 ? " DESC" : "") + "," +
+                    "ENTITY_ID" +
+                    ")) " + (salted ? "SALT_BUCKETS =4" : "");
             conn.createStatement().execute(sql);
 
-            String[] sqls={
+            String[] sqls = {
                     //groupBy orderPreserving orderBy asc asc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID ASC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID ASC NULLS LAST",
 
                     //groupBy orderPreserving orderBy asc desc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID DESC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS FIRST, CONTAINER_ID DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID ASC NULLS LAST, CONTAINER_ID DESC NULLS LAST",
 
                     //groupBy orderPreserving orderBy desc asc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID ASC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID ASC NULLS LAST",
 
                     //groupBy orderPreserving orderBy desc desc
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID DESC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM "+tableName+" group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS FIRST, CONTAINER_ID DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,CONTAINER_ID FROM " + tableName + " group by ORGANIZATION_ID, CONTAINER_ID ORDER BY ORGANIZATION_ID DESC NULLS LAST, CONTAINER_ID DESC NULLS LAST",
 
                     //-----groupBy not orderPreserving
 
                     //groupBy not orderPreserving orderBy asc asc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE ASC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE ASC NULLS LAST",
 
                     //groupBy not orderPreserving orderBy asc desc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE DESC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS FIRST, SCORE DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID ASC NULLS LAST, SCORE DESC NULLS LAST",
 
                     //groupBy not orderPreserving orderBy desc asc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE ASC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE ASC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE ASC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE ASC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE ASC NULLS LAST",
 
                     //groupBy not orderPreserving orderBy desc desc
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE DESC NULLS LAST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE DESC NULLS FIRST",
-                    "SELECT ORGANIZATION_ID,SCORE FROM "+tableName+" group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS FIRST, SCORE DESC NULLS LAST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE DESC NULLS FIRST",
+                    "SELECT ORGANIZATION_ID,SCORE FROM " + tableName + " group by ORGANIZATION_ID, SCORE ORDER BY ORGANIZATION_ID DESC NULLS LAST, SCORE DESC NULLS LAST",
 
                     //-------only one return column----------------------------------
-                    "SELECT SCORE FROM "+tableName+" group by SCORE ORDER BY SCORE ASC NULLS FIRST",
-                    "SELECT SCORE FROM "+tableName+" group by SCORE ORDER BY SCORE ASC NULLS LAST",
-                    "SELECT SCORE FROM "+tableName+" group by SCORE ORDER BY SCORE DESC NULLS FIRST",
-                    "SELECT SCORE FROM "+tableName+" group by SCORE ORDER BY SCORE DESC NULLS LAST"
+                    "SELECT SCORE FROM " + tableName + " group by SCORE ORDER BY SCORE ASC NULLS FIRST",
+                    "SELECT SCORE FROM " + tableName + " group by SCORE ORDER BY SCORE ASC NULLS LAST",
+                    "SELECT SCORE FROM " + tableName + " group by SCORE ORDER BY SCORE DESC NULLS FIRST",
+                    "SELECT SCORE FROM " + tableName + " group by SCORE ORDER BY SCORE DESC NULLS LAST"
             };
 
-            for(int i=0;i< sqls.length;i++) {
-                sql=sqls[i];
-                QueryPlan queryPlan=getQueryPlan(conn, sql);
-                assertTrue((i+1) + ") " + sql,queryPlan.getGroupBy().isOrderPreserving()== groupBys[i]);
-                OrderBy orderBy=queryPlan.getOrderBy();
-                if(orderBys[i]!=null) {
-                    assertTrue((i+1) + ") " + sql,orderBy == orderBys[i]);
-                }
-                else {
-                    assertTrue((i+1) + ") " + sql,orderBy.getOrderByExpressions().size() > 0);
+            for (int i = 0; i < sqls.length; i++) {
+                sql = sqls[i];
+                QueryPlan queryPlan = getQueryPlan(conn, sql);
+                assertTrue((i + 1) + ") " + sql, queryPlan.getGroupBy().isOrderPreserving() == groupBys[i]);
+                OrderBy orderBy = queryPlan.getOrderBy();
+                if (orderBys[i] != null) {
+                    assertTrue((i + 1) + ") " + sql, orderBy == orderBys[i]);
+                } else {
+                    assertTrue((i + 1) + ") " + sql, orderBy.getOrderByExpressions().size() > 0);
                 }
             }
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -4355,44 +4345,44 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testGroupByCoerceExpressionBug3453() throws Exception {
         Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
-            String tableName="GROUPBY3453_INT";
-            String sql="CREATE TABLE "+ tableName +"("+
-                    "ENTITY_ID INTEGER NOT NULL,"+
-                    "CONTAINER_ID INTEGER NOT NULL,"+
-                    "SCORE INTEGER NOT NULL,"+
+            conn = DriverManager.getConnection(getUrl());
+            String tableName = "GROUPBY3453_INT";
+            String sql = "CREATE TABLE " + tableName + "(" +
+                    "ENTITY_ID INTEGER NOT NULL," +
+                    "CONTAINER_ID INTEGER NOT NULL," +
+                    "SCORE INTEGER NOT NULL," +
                     "CONSTRAINT TEST_PK PRIMARY KEY (ENTITY_ID DESC,CONTAINER_ID DESC,SCORE DESC))";
             conn.createStatement().execute(sql);
-            sql="select DISTINCT entity_id, score from ( select entity_id, score from "+tableName+" limit 1)";
-            QueryPlan queryPlan=getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getGroupBy().getExpressions().get(0).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getExpressions().get(1).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(0).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(1).getSortOrder()==SortOrder.DESC);
+            sql = "select DISTINCT entity_id, score from ( select entity_id, score from " + tableName + " limit 1)";
+            QueryPlan queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getGroupBy().getExpressions().get(0).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getExpressions().get(1).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(0).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(1).getSortOrder() == SortOrder.DESC);
 
-            sql="select DISTINCT entity_id, score from ( select entity_id, score from "+tableName+" limit 3) order by entity_id";
-            queryPlan=getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getGroupBy().getExpressions().get(0).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getExpressions().get(1).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(0).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(1).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).getExpression().getSortOrder()==SortOrder.DESC);
+            sql = "select DISTINCT entity_id, score from ( select entity_id, score from " + tableName + " limit 3) order by entity_id";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getGroupBy().getExpressions().get(0).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getExpressions().get(1).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(0).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(1).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).getExpression().getSortOrder() == SortOrder.DESC);
 
-            sql="select DISTINCT entity_id, score from ( select entity_id, score from "+tableName+" limit 3) order by entity_id desc";
-            queryPlan=getQueryPlan(conn, sql);
-            assertTrue(queryPlan.getGroupBy().getExpressions().get(0).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getExpressions().get(1).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(0).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(1).getSortOrder()==SortOrder.DESC);
-            assertTrue(queryPlan.getOrderBy()==OrderBy.FWD_ROW_KEY_ORDER_BY);
+            sql = "select DISTINCT entity_id, score from ( select entity_id, score from " + tableName + " limit 3) order by entity_id desc";
+            queryPlan = getQueryPlan(conn, sql);
+            assertTrue(queryPlan.getGroupBy().getExpressions().get(0).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getExpressions().get(1).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(0).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getGroupBy().getKeyExpressions().get(1).getSortOrder() == SortOrder.DESC);
+            assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
     }
 
-    private static QueryPlan getQueryPlan(Connection conn,String sql) throws SQLException {
+    private static QueryPlan getQueryPlan(Connection conn, String sql) throws SQLException {
         PhoenixPreparedStatement statement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
         QueryPlan queryPlan = statement.optimizeQuery(sql);
         queryPlan.iterator();
@@ -4403,179 +4393,179 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testSortMergeJoinSubQueryOrderByOverrideBug3745() throws Exception {
         Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
+            conn = DriverManager.getConnection(getUrl());
 
-            String tableName1="MERGE1";
-            String tableName2="MERGE2";
+            String tableName1 = "MERGE1";
+            String tableName2 = "MERGE2";
 
-            conn.createStatement().execute("DROP TABLE if exists "+tableName1);
+            conn.createStatement().execute("DROP TABLE if exists " + tableName1);
 
-            String sql="CREATE TABLE IF NOT EXISTS "+tableName1+" ( "+
-                    "AID INTEGER PRIMARY KEY,"+
-                    "AGE INTEGER"+
+            String sql = "CREATE TABLE IF NOT EXISTS " + tableName1 + " ( " +
+                    "AID INTEGER PRIMARY KEY," +
+                    "AGE INTEGER" +
                     ")";
             conn.createStatement().execute(sql);
 
-            conn.createStatement().execute("DROP TABLE if exists "+tableName2);
-            sql="CREATE TABLE IF NOT EXISTS "+tableName2+" ( "+
-                    "BID INTEGER PRIMARY KEY,"+
-                    "CODE INTEGER"+
+            conn.createStatement().execute("DROP TABLE if exists " + tableName2);
+            sql = "CREATE TABLE IF NOT EXISTS " + tableName2 + " ( " +
+                    "BID INTEGER PRIMARY KEY," +
+                    "CODE INTEGER" +
                     ")";
             conn.createStatement().execute(sql);
 
             //test for simple scan
-            sql="select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid ";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid ";
 
-            QueryPlan queryPlan=getQueryPlan(conn, sql);
-            SortMergeJoinPlan sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            QueryPlan queryPlan = getQueryPlan(conn, sql);
+            SortMergeJoinPlan sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            ClientScanPlan lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
-            OrderBy orderBy=lhsOuterPlan.getOrderBy();
+            ClientScanPlan lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            OrderBy orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            ScanPlan innerScanPlan=(ScanPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            ScanPlan innerScanPlan = (ScanPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AGE"));
             assertTrue(innerScanPlan.getLimit().intValue() == 3);
 
-            ClientScanPlan rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
-            orderBy=rhsOuterPlan.getOrderBy();
+            ClientScanPlan rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("BID"));
-            innerScanPlan=(ScanPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            innerScanPlan = (ScanPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("CODE"));
             assertTrue(innerScanPlan.getLimit().intValue() == 1);
 
             //test for aggregate
-            sql="select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.codesum from (select aid,sum(age) agesum from "+tableName1+" where age >=11 and age<=33 group by aid order by agesum limit 3) a inner join "+
-                    "(select bid,sum(code) codesum from "+tableName2+" group by bid order by codesum limit 1) b on a.aid=b.bid ";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.codesum from (select aid,sum(age) agesum from " + tableName1 + " where age >=11 and age<=33 group by aid order by agesum limit 3) a inner join " +
+                    "(select bid,sum(code) codesum from " + tableName2 + " group by bid order by codesum limit 1) b on a.aid=b.bid ";
 
 
-            queryPlan=getQueryPlan(conn, sql);
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            queryPlan = getQueryPlan(conn, sql);
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
-            orderBy=lhsOuterPlan.getOrderBy();
+            lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            AggregatePlan innerAggregatePlan=(AggregatePlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            AggregatePlan innerAggregatePlan = (AggregatePlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(AGE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
-            orderBy=rhsOuterPlan.getOrderBy();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("BID"));
-            innerAggregatePlan=(AggregatePlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(CODE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 1);
 
-            String tableName3="merge3";
-            conn.createStatement().execute("DROP TABLE if exists "+tableName3);
-            sql="CREATE TABLE IF NOT EXISTS "+tableName3+" ( "+
-                    "CID INTEGER PRIMARY KEY,"+
-                    "REGION INTEGER"+
+            String tableName3 = "merge3";
+            conn.createStatement().execute("DROP TABLE if exists " + tableName3);
+            sql = "CREATE TABLE IF NOT EXISTS " + tableName3 + " ( " +
+                    "CID INTEGER PRIMARY KEY," +
+                    "REGION INTEGER" +
                     ")";
             conn.createStatement().execute(sql);
 
             //test for join
-            sql="select t1.aid,t1.code,t2.region from "+
-                "(select a.aid,b.code from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid where b.code >=44 and b.code<=66 order by b.code limit 3) t1 inner join "+
-                "(select a.aid,c.region from "+tableName1+" a inner join "+tableName3+" c on a.aid=c.cid where c.region>=77 and c.region<=99 order by c.region desc limit 1) t2 on t1.aid=t2.aid";
+            sql = "select t1.aid,t1.code,t2.region from " +
+                    "(select a.aid,b.code from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid where b.code >=44 and b.code<=66 order by b.code limit 3) t1 inner join " +
+                    "(select a.aid,c.region from " + tableName1 + " a inner join " + tableName3 + " c on a.aid=c.cid where c.region>=77 and c.region<=99 order by c.region desc limit 1) t2 on t1.aid=t2.aid";
 
             PhoenixPreparedStatement phoenixPreparedStatement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
             queryPlan = phoenixPreparedStatement.optimizeQuery(sql);
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
-            orderBy=lhsOuterPlan.getOrderBy();
+            lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerScanPlan=(ScanPlan)((HashJoinPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            innerScanPlan = (ScanPlan) ((HashJoinPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("B.CODE"));
             assertTrue(innerScanPlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
-            orderBy=rhsOuterPlan.getOrderBy();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerScanPlan=(ScanPlan)((HashJoinPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            innerScanPlan = (ScanPlan) ((HashJoinPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("C.REGION DESC"));
             assertTrue(innerScanPlan.getLimit().intValue() == 1);
 
             //test for join and aggregate
-            sql="select t1.aid,t1.codesum,t2.regionsum from "+
-                "(select a.aid,sum(b.code) codesum from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by codesum limit 3) t1 inner join "+
-                "(select a.aid,sum(c.region) regionsum from "+tableName1+" a inner join "+tableName3+" c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by regionsum desc limit 2) t2 on t1.aid=t2.aid";
+            sql = "select t1.aid,t1.codesum,t2.regionsum from " +
+                    "(select a.aid,sum(b.code) codesum from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by codesum limit 3) t1 inner join " +
+                    "(select a.aid,sum(c.region) regionsum from " + tableName1 + " a inner join " + tableName3 + " c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by regionsum desc limit 2) t2 on t1.aid=t2.aid";
 
             phoenixPreparedStatement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
             queryPlan = phoenixPreparedStatement.optimizeQuery(sql);
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
-            orderBy=lhsOuterPlan.getOrderBy();
+            lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(B.CODE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
-            orderBy=rhsOuterPlan.getOrderBy();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(C.REGION) DESC"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 2);
 
             //test for if SubselectRewriter.isOrderByPrefix had take effect
-            sql="select t1.aid,t1.codesum,t2.regionsum from "+
-                "(select a.aid,sum(b.code) codesum from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by a.aid,codesum limit 3) t1 inner join "+
-                "(select a.aid,sum(c.region) regionsum from "+tableName1+" a inner join "+tableName3+" c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by a.aid desc,regionsum desc limit 2) t2 on t1.aid=t2.aid "+
-                 "order by t1.aid desc";
+            sql = "select t1.aid,t1.codesum,t2.regionsum from " +
+                    "(select a.aid,sum(b.code) codesum from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by a.aid,codesum limit 3) t1 inner join " +
+                    "(select a.aid,sum(c.region) regionsum from " + tableName1 + " a inner join " + tableName3 + " c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by a.aid desc,regionsum desc limit 2) t2 on t1.aid=t2.aid " +
+                    "order by t1.aid desc";
 
             phoenixPreparedStatement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
             queryPlan = phoenixPreparedStatement.optimizeQuery(sql);
-            orderBy=queryPlan.getOrderBy();
+            orderBy = queryPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("T1.AID DESC"));
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)(((TupleProjectionPlan)sortMergeJoinPlan.getLhsPlan()).getDelegate())).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) (((TupleProjectionPlan) sortMergeJoinPlan.getLhsPlan()).getDelegate())).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 2);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("A.AID"));
             assertTrue(orderBy.getOrderByExpressions().get(1).toString().equals("SUM(B.CODE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
-            orderBy=rhsOuterPlan.getOrderBy();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 2);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("A.AID DESC"));
             assertTrue(orderBy.getOrderByExpressions().get(1).toString().equals("SUM(C.REGION) DESC"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 2);
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -4627,7 +4617,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCannotCreateStatementOnClosedConnection() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -4650,15 +4640,15 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testSingleColLocalIndexPruning() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B CHAR(1) NOT NULL,\n" + 
-                    "    C CHAR(1) NOT NULL,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B CHAR(1) NOT NULL,\n" +
+                    "    C CHAR(1) NOT NULL,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(A,C)");
             String query = "SELECT * FROM T WHERE A = 'B' and C='C'";
@@ -4680,17 +4670,17 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testMultiColLocalIndexPruning() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B CHAR(1) NOT NULL,\n" + 
-                    "    C CHAR(1) NOT NULL,\n" + 
-                    "    D CHAR(1) NOT NULL,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C,\n" + 
-                    "        D\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B CHAR(1) NOT NULL,\n" +
+                    "    C CHAR(1) NOT NULL,\n" +
+                    "    D CHAR(1) NOT NULL,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C,\n" +
+                    "        D\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(A,B,D)");
             String query = "SELECT * FROM T WHERE A = 'C' and B = 'X' and D='C'";
@@ -4712,17 +4702,17 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testSkipScanLocalIndexPruning() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B CHAR(1) NOT NULL,\n" + 
-                    "    C CHAR(1) NOT NULL,\n" + 
-                    "    D CHAR(1) NOT NULL,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C,\n" + 
-                    "        D\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B CHAR(1) NOT NULL,\n" +
+                    "    C CHAR(1) NOT NULL,\n" +
+                    "    D CHAR(1) NOT NULL,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C,\n" +
+                    "        D\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(A,B,D)");
             String query = "SELECT * FROM T WHERE A IN ('A','G') and B = 'A' and D = 'D'";
@@ -4749,17 +4739,17 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testRVCLocalIndexPruning() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B CHAR(1) NOT NULL,\n" + 
-                    "    C CHAR(1) NOT NULL,\n" + 
-                    "    D CHAR(1) NOT NULL,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C,\n" + 
-                    "        D\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B CHAR(1) NOT NULL,\n" +
+                    "    C CHAR(1) NOT NULL,\n" +
+                    "    D CHAR(1) NOT NULL,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C,\n" +
+                    "        D\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(A,B,D)");
             String query = "SELECT * FROM T WHERE A='I' and (B,D) IN (('A','D'),('B','I'))";
@@ -4781,23 +4771,23 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testRVCLocalIndexPruning2() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B VARCHAR,\n" + 
-                    "    C VARCHAR,\n" + 
-                    "    D VARCHAR,\n" + 
-                    "    E VARCHAR,\n" + 
-                    "    F VARCHAR,\n" + 
-                    "    G VARCHAR,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C,\n" + 
-                    "        D,\n" + 
-                    "        E,\n" + 
-                    "        F,\n" + 
-                    "        G\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B VARCHAR,\n" +
+                    "    C VARCHAR,\n" +
+                    "    D VARCHAR,\n" +
+                    "    E VARCHAR,\n" +
+                    "    F VARCHAR,\n" +
+                    "    G VARCHAR,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C,\n" +
+                    "        D,\n" +
+                    "        E,\n" +
+                    "        F,\n" +
+                    "        G\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(A,B,C,F,G)");
             String query = "SELECT * FROM T WHERE (A,B,C,D) IN (('I','D','F','X'),('I','I','G','Y')) and F='X' and G='Y'";
@@ -4819,17 +4809,17 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testMinMaxRangeLocalIndexPruning() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B CHAR(1) NOT NULL,\n" + 
-                    "    C CHAR(1) NOT NULL,\n" + 
-                    "    D CHAR(1) NOT NULL,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C,\n" + 
-                    "        D\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B CHAR(1) NOT NULL,\n" +
+                    "    C CHAR(1) NOT NULL,\n" +
+                    "    D CHAR(1) NOT NULL,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C,\n" +
+                    "        D\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(A,B,D)");
             String query = "SELECT * FROM T WHERE A = 'C' and (A,B,D) > ('C','B','X') and B < 'Z' and D='C'";
@@ -4851,15 +4841,15 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testNoLocalIndexPruning() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            conn.createStatement().execute("CREATE TABLE T (\n" + 
-                    "    A CHAR(1) NOT NULL,\n" + 
-                    "    B CHAR(1) NOT NULL,\n" + 
-                    "    C CHAR(1) NOT NULL,\n" + 
-                    "    CONSTRAINT PK PRIMARY KEY (\n" + 
-                    "        A,\n" + 
-                    "        B,\n" + 
-                    "        C\n" + 
-                    "    )\n" + 
+            conn.createStatement().execute("CREATE TABLE T (\n" +
+                    "    A CHAR(1) NOT NULL,\n" +
+                    "    B CHAR(1) NOT NULL,\n" +
+                    "    C CHAR(1) NOT NULL,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY (\n" +
+                    "        A,\n" +
+                    "        B,\n" +
+                    "        C\n" +
+                    "    )\n" +
                     ") SPLIT ON ('A','C','E','G','I')");
             conn.createStatement().execute("CREATE LOCAL INDEX IDX ON T(C)");
             String query = "SELECT * FROM T WHERE C='C'";
@@ -4876,11 +4866,11 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testSmallScanForPointLookups() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(new Properties());
         createTestTable(getUrl(), "CREATE TABLE FOO(\n" +
-                      "                a VARCHAR NOT NULL,\n" +
-                      "                b VARCHAR NOT NULL,\n" +
-                      "                c VARCHAR,\n" +
-                      "                CONSTRAINT pk PRIMARY KEY (a, b DESC, c)\n" +
-                      "              )");
+                "                a VARCHAR NOT NULL,\n" +
+                "                b VARCHAR NOT NULL,\n" +
+                "                c VARCHAR,\n" +
+                "                CONSTRAINT pk PRIMARY KEY (a, b DESC, c)\n" +
+                "              )");
 
         props.put(QueryServices.SMALL_SCAN_THRESHOLD_ATTRIB, "2");
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -5185,36 +5175,36 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     }
 
     @Test
-    public void testGroupByOrderMatchPkColumnOrder4690() throws Exception{
+    public void testGroupByOrderMatchPkColumnOrder4690() throws Exception {
         this.doTestGroupByOrderMatchPkColumnOrderBug4690(false, false);
         this.doTestGroupByOrderMatchPkColumnOrderBug4690(false, true);
         this.doTestGroupByOrderMatchPkColumnOrderBug4690(true, false);
         this.doTestGroupByOrderMatchPkColumnOrderBug4690(true, true);
     }
 
-    private void doTestGroupByOrderMatchPkColumnOrderBug4690(boolean desc ,boolean salted) throws Exception {
+    private void doTestGroupByOrderMatchPkColumnOrderBug4690(boolean desc, boolean salted) throws Exception {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(getUrl());
             String tableName = generateUniqueName();
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 integer not null , " +
                     " pk2 integer not null, " +
                     " pk3 integer not null," +
-                    " pk4 integer not null,"+
+                    " pk4 integer not null," +
                     " v integer, " +
-                    " CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                       "pk1 "+(desc ? "desc" : "")+", "+
-                       "pk2 "+(desc ? "desc" : "")+", "+
-                       "pk3 "+(desc ? "desc" : "")+", "+
-                       "pk4 "+(desc ? "desc" : "")+
-                    " )) "+(salted ? "SALT_BUCKETS =4" : "split on(2)");
+                    " CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "pk1 " + (desc ? "desc" : "") + ", " +
+                    "pk2 " + (desc ? "desc" : "") + ", " +
+                    "pk3 " + (desc ? "desc" : "") + ", " +
+                    "pk4 " + (desc ? "desc" : "") +
+                    " )) " + (salted ? "SALT_BUCKETS =4" : "split on(2)");
             conn.createStatement().execute(sql);
 
             sql = "select pk2,pk1,count(v) from " + tableName + " group by pk2,pk1 order by pk2,pk1";
             QueryPlan queryPlan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() ==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("PK2"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("PK1"));
 
@@ -5226,7 +5216,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             sql = "select pk2,pk1,count(v) from " + tableName + " group by pk2,pk1 order by pk2 desc,pk1 desc";
             queryPlan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
-            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() ==2);
+            assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() == 2);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(0).toString().equals("PK2 DESC"));
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().get(1).toString().equals("PK1 DESC"));
 
@@ -5287,7 +5277,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == (!desc ? OrderBy.REV_ROW_KEY_ORDER_BY : OrderBy.FWD_ROW_KEY_ORDER_BY));
         } finally {
-            if(conn != null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -5297,215 +5287,215 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
     public void testSortMergeJoinPushFilterThroughSortBug5105() throws Exception {
         Connection conn = null;
         try {
-            conn= DriverManager.getConnection(getUrl());
+            conn = DriverManager.getConnection(getUrl());
 
-            String tableName1="MERGE1";
-            String tableName2="MERGE2";
+            String tableName1 = "MERGE1";
+            String tableName2 = "MERGE2";
 
-            conn.createStatement().execute("DROP TABLE if exists "+tableName1);
+            conn.createStatement().execute("DROP TABLE if exists " + tableName1);
 
-            String sql="CREATE TABLE IF NOT EXISTS "+tableName1+" ( "+
-                    "AID INTEGER PRIMARY KEY,"+
-                    "AGE INTEGER"+
+            String sql = "CREATE TABLE IF NOT EXISTS " + tableName1 + " ( " +
+                    "AID INTEGER PRIMARY KEY," +
+                    "AGE INTEGER" +
                     ")";
             conn.createStatement().execute(sql);
 
-            conn.createStatement().execute("DROP TABLE if exists "+tableName2);
-            sql="CREATE TABLE IF NOT EXISTS "+tableName2+" ( "+
-                    "BID INTEGER PRIMARY KEY,"+
-                    "CODE INTEGER"+
+            conn.createStatement().execute("DROP TABLE if exists " + tableName2);
+            sql = "CREATE TABLE IF NOT EXISTS " + tableName2 + " ( " +
+                    "BID INTEGER PRIMARY KEY," +
+                    "CODE INTEGER" +
                     ")";
             conn.createStatement().execute(sql);
 
             //test for simple scan
-            sql="select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid where b.code > 50";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid where b.code > 50";
 
-            QueryPlan queryPlan=getQueryPlan(conn, sql);
-            SortMergeJoinPlan sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            QueryPlan queryPlan = getQueryPlan(conn, sql);
+            SortMergeJoinPlan sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            ClientScanPlan lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
-            OrderBy orderBy=lhsOuterPlan.getOrderBy();
+            ClientScanPlan lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            OrderBy orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            ScanPlan innerScanPlan=(ScanPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            ScanPlan innerScanPlan = (ScanPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AGE"));
             assertTrue(innerScanPlan.getLimit().intValue() == 3);
 
-            ClientScanPlan rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            ClientScanPlan rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
             String tableAlias = rhsOuterPlan.getTableRef().getTableAlias();
-            String rewrittenSql = "SELECT "+tableAlias+".BID,"+tableAlias+".CODE FROM (SELECT BID,CODE FROM MERGE2  ORDER BY CODE LIMIT 1) "+tableAlias+" WHERE "+tableAlias+".CODE > 50 ORDER BY "+tableAlias+".BID";
+            String rewrittenSql = "SELECT " + tableAlias + ".BID," + tableAlias + ".CODE FROM (SELECT BID,CODE FROM MERGE2  ORDER BY CODE LIMIT 1) " + tableAlias + " WHERE " + tableAlias + ".CODE > 50 ORDER BY " + tableAlias + ".BID";
             assertTrue(rhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            orderBy=rhsOuterPlan.getOrderBy();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("BID"));
-            innerScanPlan=(ScanPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            innerScanPlan = (ScanPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("CODE"));
             assertTrue(innerScanPlan.getLimit().intValue() == 1);
 
             //test for aggregate
-            sql="select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.codesum from (select aid,sum(age) agesum from "+tableName1+" where age >=11 and age<=33 group by aid order by agesum limit 3) a inner join "+
-                "(select bid,sum(code) codesum from "+tableName2+" group by bid order by codesum limit 1) b on a.aid=b.bid where b.codesum > 50";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.codesum from (select aid,sum(age) agesum from " + tableName1 + " where age >=11 and age<=33 group by aid order by agesum limit 3) a inner join " +
+                    "(select bid,sum(code) codesum from " + tableName2 + " group by bid order by codesum limit 1) b on a.aid=b.bid where b.codesum > 50";
 
 
-            queryPlan=getQueryPlan(conn, sql);
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            queryPlan = getQueryPlan(conn, sql);
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
-            orderBy=lhsOuterPlan.getOrderBy();
+            lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            AggregatePlan innerAggregatePlan=(AggregatePlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            AggregatePlan innerAggregatePlan = (AggregatePlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(AGE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
             tableAlias = rhsOuterPlan.getTableRef().getTableAlias();
-            rewrittenSql = "SELECT "+tableAlias+".BID,"+tableAlias+".CODESUM FROM (SELECT BID, SUM(CODE) CODESUM FROM MERGE2  GROUP BY BID ORDER BY CODESUM LIMIT 1) "+tableAlias+" WHERE "+tableAlias+".CODESUM > 50 ORDER BY "+tableAlias+".BID";
+            rewrittenSql = "SELECT " + tableAlias + ".BID," + tableAlias + ".CODESUM FROM (SELECT BID, SUM(CODE) CODESUM FROM MERGE2  GROUP BY BID ORDER BY CODESUM LIMIT 1) " + tableAlias + " WHERE " + tableAlias + ".CODESUM > 50 ORDER BY " + tableAlias + ".BID";
             assertTrue(rhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            orderBy=rhsOuterPlan.getOrderBy();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("BID"));
-            innerAggregatePlan=(AggregatePlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(CODE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 1);
 
-            String tableName3="merge3";
-            conn.createStatement().execute("DROP TABLE if exists "+tableName3);
-            sql="CREATE TABLE IF NOT EXISTS "+tableName3+" ( "+
-                    "CID INTEGER PRIMARY KEY,"+
-                    "REGION INTEGER"+
+            String tableName3 = "merge3";
+            conn.createStatement().execute("DROP TABLE if exists " + tableName3);
+            sql = "CREATE TABLE IF NOT EXISTS " + tableName3 + " ( " +
+                    "CID INTEGER PRIMARY KEY," +
+                    "REGION INTEGER" +
                     ")";
             conn.createStatement().execute(sql);
 
             //test for join
-            sql="select t1.aid,t1.code,t2.region from "+
-                "(select a.aid,b.code from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid where b.code >=44 and b.code<=66 order by b.code limit 3) t1 inner join "+
-                "(select a.aid,c.region from "+tableName1+" a inner join "+tableName3+" c on a.aid=c.cid where c.region>=77 and c.region<=99 order by c.region desc limit 1) t2 on t1.aid=t2.aid "+
-                "where t1.code > 50";
+            sql = "select t1.aid,t1.code,t2.region from " +
+                    "(select a.aid,b.code from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid where b.code >=44 and b.code<=66 order by b.code limit 3) t1 inner join " +
+                    "(select a.aid,c.region from " + tableName1 + " a inner join " + tableName3 + " c on a.aid=c.cid where c.region>=77 and c.region<=99 order by c.region desc limit 1) t2 on t1.aid=t2.aid " +
+                    "where t1.code > 50";
 
             PhoenixPreparedStatement phoenixPreparedStatement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
             queryPlan = phoenixPreparedStatement.optimizeQuery(sql);
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
             tableAlias = lhsOuterPlan.getTableRef().getTableAlias();
-            rewrittenSql = "SELECT "+tableAlias+".AID,"+tableAlias+".CODE FROM (SELECT A.AID,B.CODE FROM MERGE1 A  Inner JOIN MERGE2 B  ON (A.AID = B.BID) WHERE (B.CODE >= 44 AND B.CODE <= 66) ORDER BY B.CODE LIMIT 3) "+
-                           tableAlias+" WHERE "+tableAlias+".CODE > 50 ORDER BY "+tableAlias+".AID";
+            rewrittenSql = "SELECT " + tableAlias + ".AID," + tableAlias + ".CODE FROM (SELECT A.AID,B.CODE FROM MERGE1 A  Inner JOIN MERGE2 B  ON (A.AID = B.BID) WHERE (B.CODE >= 44 AND B.CODE <= 66) ORDER BY B.CODE LIMIT 3) " +
+                    tableAlias + " WHERE " + tableAlias + ".CODE > 50 ORDER BY " + tableAlias + ".AID";
             assertTrue(lhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            orderBy=lhsOuterPlan.getOrderBy();
+            orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerScanPlan=(ScanPlan)((HashJoinPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            innerScanPlan = (ScanPlan) ((HashJoinPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("B.CODE"));
             assertTrue(innerScanPlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
-            orderBy=rhsOuterPlan.getOrderBy();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerScanPlan=(ScanPlan)((HashJoinPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerScanPlan.getOrderBy();
+            innerScanPlan = (ScanPlan) ((HashJoinPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerScanPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("C.REGION DESC"));
             assertTrue(innerScanPlan.getLimit().intValue() == 1);
 
             //test for join and aggregate
-            sql="select t1.aid,t1.codesum,t2.regionsum from "+
-                "(select a.aid,sum(b.code) codesum from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by codesum limit 3) t1 inner join "+
-                "(select a.aid,sum(c.region) regionsum from "+tableName1+" a inner join "+tableName3+" c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by regionsum desc limit 2) t2 on t1.aid=t2.aid "+
-                "where t1.codesum >=40 and t2.regionsum >= 90";
+            sql = "select t1.aid,t1.codesum,t2.regionsum from " +
+                    "(select a.aid,sum(b.code) codesum from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by codesum limit 3) t1 inner join " +
+                    "(select a.aid,sum(c.region) regionsum from " + tableName1 + " a inner join " + tableName3 + " c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by regionsum desc limit 2) t2 on t1.aid=t2.aid " +
+                    "where t1.codesum >=40 and t2.regionsum >= 90";
 
             phoenixPreparedStatement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
             queryPlan = phoenixPreparedStatement.optimizeQuery(sql);
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getLhsPlan())).getDelegate();
+            lhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getLhsPlan())).getDelegate();
             tableAlias = lhsOuterPlan.getTableRef().getTableAlias();
-            rewrittenSql = "SELECT "+tableAlias+".AID,"+tableAlias+".CODESUM FROM (SELECT A.AID, SUM(B.CODE) CODESUM FROM MERGE1 A  Inner JOIN MERGE2 B  ON (A.AID = B.BID) WHERE (B.CODE >= 44 AND B.CODE <= 66) GROUP BY A.AID ORDER BY CODESUM LIMIT 3) "+tableAlias+
-                           " WHERE "+tableAlias+".CODESUM >= 40 ORDER BY "+tableAlias+".AID";
+            rewrittenSql = "SELECT " + tableAlias + ".AID," + tableAlias + ".CODESUM FROM (SELECT A.AID, SUM(B.CODE) CODESUM FROM MERGE1 A  Inner JOIN MERGE2 B  ON (A.AID = B.BID) WHERE (B.CODE >= 44 AND B.CODE <= 66) GROUP BY A.AID ORDER BY CODESUM LIMIT 3) " + tableAlias +
+                    " WHERE " + tableAlias + ".CODESUM >= 40 ORDER BY " + tableAlias + ".AID";
             assertTrue(lhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            orderBy=lhsOuterPlan.getOrderBy();
+            orderBy = lhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(B.CODE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
             tableAlias = rhsOuterPlan.getTableRef().getTableAlias();
-            rewrittenSql = "SELECT "+tableAlias+".AID,"+tableAlias+".REGIONSUM FROM (SELECT A.AID, SUM(C.REGION) REGIONSUM FROM MERGE1 A  Inner JOIN MERGE3 C  ON (A.AID = C.CID) WHERE (C.REGION >= 77 AND C.REGION <= 99) GROUP BY A.AID ORDER BY REGIONSUM DESC LIMIT 2) "+tableAlias+
-                           " WHERE "+tableAlias+".REGIONSUM >= 90 ORDER BY "+tableAlias+".AID";
+            rewrittenSql = "SELECT " + tableAlias + ".AID," + tableAlias + ".REGIONSUM FROM (SELECT A.AID, SUM(C.REGION) REGIONSUM FROM MERGE1 A  Inner JOIN MERGE3 C  ON (A.AID = C.CID) WHERE (C.REGION >= 77 AND C.REGION <= 99) GROUP BY A.AID ORDER BY REGIONSUM DESC LIMIT 2) " + tableAlias +
+                    " WHERE " + tableAlias + ".REGIONSUM >= 90 ORDER BY " + tableAlias + ".AID";
             assertTrue(rhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            orderBy=rhsOuterPlan.getOrderBy();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("SUM(C.REGION) DESC"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 2);
 
             //test for if SubselectRewriter.isOrderByPrefix had take effect
-            sql="select t1.aid,t1.codesum,t2.regionsum from "+
-                "(select a.aid,sum(b.code) codesum from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by a.aid,codesum limit 3) t1 inner join "+
-                "(select a.aid,sum(c.region) regionsum from "+tableName1+" a inner join "+tableName3+" c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by a.aid desc,regionsum desc limit 2) t2 on t1.aid=t2.aid "+
-                 "where t1.codesum >=40 and t2.regionsum >= 90 order by t1.aid desc";
+            sql = "select t1.aid,t1.codesum,t2.regionsum from " +
+                    "(select a.aid,sum(b.code) codesum from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid where b.code >=44 and b.code<=66 group by a.aid order by a.aid,codesum limit 3) t1 inner join " +
+                    "(select a.aid,sum(c.region) regionsum from " + tableName1 + " a inner join " + tableName3 + " c on a.aid=c.cid where c.region>=77 and c.region<=99 group by a.aid order by a.aid desc,regionsum desc limit 2) t2 on t1.aid=t2.aid " +
+                    "where t1.codesum >=40 and t2.regionsum >= 90 order by t1.aid desc";
 
             phoenixPreparedStatement = conn.prepareStatement(sql).unwrap(PhoenixPreparedStatement.class);
             queryPlan = phoenixPreparedStatement.optimizeQuery(sql);
-            orderBy=queryPlan.getOrderBy();
+            orderBy = queryPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("T1.AID DESC"));
-            sortMergeJoinPlan=(SortMergeJoinPlan)((ClientScanPlan)queryPlan).getDelegate();
+            sortMergeJoinPlan = (SortMergeJoinPlan) ((ClientScanPlan) queryPlan).getDelegate();
 
-            lhsOuterPlan = (ClientScanPlan)(((TupleProjectionPlan)sortMergeJoinPlan.getLhsPlan()).getDelegate());
+            lhsOuterPlan = (ClientScanPlan) (((TupleProjectionPlan) sortMergeJoinPlan.getLhsPlan()).getDelegate());
             tableAlias = lhsOuterPlan.getTableRef().getTableAlias();
-            rewrittenSql = "SELECT "+tableAlias+".AID,"+tableAlias+".CODESUM FROM (SELECT A.AID, SUM(B.CODE) CODESUM FROM MERGE1 A  Inner JOIN MERGE2 B  ON (A.AID = B.BID) WHERE (B.CODE >= 44 AND B.CODE <= 66) GROUP BY A.AID ORDER BY A.AID,CODESUM LIMIT 3) "+tableAlias+
-                           " WHERE "+tableAlias+".CODESUM >= 40";
+            rewrittenSql = "SELECT " + tableAlias + ".AID," + tableAlias + ".CODESUM FROM (SELECT A.AID, SUM(B.CODE) CODESUM FROM MERGE1 A  Inner JOIN MERGE2 B  ON (A.AID = B.BID) WHERE (B.CODE >= 44 AND B.CODE <= 66) GROUP BY A.AID ORDER BY A.AID,CODESUM LIMIT 3) " + tableAlias +
+                    " WHERE " + tableAlias + ".CODESUM >= 40";
             assertTrue(lhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) lhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 2);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("A.AID"));
             assertTrue(orderBy.getOrderByExpressions().get(1).toString().equals("SUM(B.CODE)"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 3);
 
-            rhsOuterPlan=(ClientScanPlan)((TupleProjectionPlan)(sortMergeJoinPlan.getRhsPlan())).getDelegate();
+            rhsOuterPlan = (ClientScanPlan) ((TupleProjectionPlan) (sortMergeJoinPlan.getRhsPlan())).getDelegate();
             tableAlias = rhsOuterPlan.getTableRef().getTableAlias();
-            rewrittenSql = "SELECT "+tableAlias+".AID,"+tableAlias+".REGIONSUM FROM (SELECT A.AID, SUM(C.REGION) REGIONSUM FROM MERGE1 A  Inner JOIN MERGE3 C  ON (A.AID = C.CID) WHERE (C.REGION >= 77 AND C.REGION <= 99) GROUP BY A.AID ORDER BY A.AID DESC,REGIONSUM DESC LIMIT 2) "+tableAlias+
-                           " WHERE "+tableAlias+".REGIONSUM >= 90 ORDER BY "+tableAlias+".AID";
+            rewrittenSql = "SELECT " + tableAlias + ".AID," + tableAlias + ".REGIONSUM FROM (SELECT A.AID, SUM(C.REGION) REGIONSUM FROM MERGE1 A  Inner JOIN MERGE3 C  ON (A.AID = C.CID) WHERE (C.REGION >= 77 AND C.REGION <= 99) GROUP BY A.AID ORDER BY A.AID DESC,REGIONSUM DESC LIMIT 2) " + tableAlias +
+                    " WHERE " + tableAlias + ".REGIONSUM >= 90 ORDER BY " + tableAlias + ".AID";
             assertTrue(rhsOuterPlan.getStatement().toString().equals(rewrittenSql));
 
-            orderBy=rhsOuterPlan.getOrderBy();
+            orderBy = rhsOuterPlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 1);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("AID"));
-            innerAggregatePlan=(AggregatePlan)((HashJoinPlan)((TupleProjectionPlan)rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
-            orderBy=innerAggregatePlan.getOrderBy();
+            innerAggregatePlan = (AggregatePlan) ((HashJoinPlan) ((TupleProjectionPlan) rhsOuterPlan.getDelegate()).getDelegate()).getDelegate();
+            orderBy = innerAggregatePlan.getOrderBy();
             assertTrue(orderBy.getOrderByExpressions().size() == 2);
             assertTrue(orderBy.getOrderByExpressions().get(0).toString().equals("A.AID DESC"));
             assertTrue(orderBy.getOrderByExpressions().get(1).toString().equals("SUM(C.REGION) DESC"));
             assertTrue(innerAggregatePlan.getLimit().intValue() == 2);
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -5513,8 +5503,8 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testOrderPreservingForClientScanPlanBug5148() throws Exception {
-        doTestOrderPreservingForClientScanPlanBug5148(false,false);
-        doTestOrderPreservingForClientScanPlanBug5148(false,true);
+        doTestOrderPreservingForClientScanPlanBug5148(false, false);
+        doTestOrderPreservingForClientScanPlanBug5148(false, true);
         doTestOrderPreservingForClientScanPlanBug5148(true, false);
         doTestOrderPreservingForClientScanPlanBug5148(true, true);
     }
@@ -5524,97 +5514,97 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn = DriverManager.getConnection(getUrl());
             String tableName = generateUniqueName();
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 char(20) not null , " +
                     " pk2 char(20) not null, " +
                     " pk3 char(20) not null," +
                     " v1 varchar, " +
                     " v2 varchar, " +
-                    " CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                    "pk1 "+(desc ? "desc" : "")+", "+
-                    "pk2 "+(desc ? "desc" : "")+", "+
-                    "pk3 "+(desc ? "desc" : "")+
-                    " )) "+(salted ? "SALT_BUCKETS =4" : "");
+                    " CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "pk1 " + (desc ? "desc" : "") + ", " +
+                    "pk2 " + (desc ? "desc" : "") + ", " +
+                    "pk3 " + (desc ? "desc" : "") +
+                    " )) " + (salted ? "SALT_BUCKETS =4" : "");
             conn.createStatement().execute(sql);
 
-            sql = "select v1 from (select v1,v2,pk3 from "+tableName+" t where pk1 = '6' order by t.v2,t.pk3,t.v1 limit 10) a order by v2,pk3";
-            QueryPlan plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,v2,pk3 from " + tableName + " t where pk1 = '6' order by t.v2,t.pk3,t.v1 limit 10) a order by v2,pk3";
+            QueryPlan plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select v1 from (select v1,v2,pk3 from "+tableName+" t where pk1 = '6' order by t.v2,t.pk3,t.v1 limit 10) a where pk3 = '8' order by v2,v1";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,v2,pk3 from " + tableName + " t where pk1 = '6' order by t.v2,t.pk3,t.v1 limit 10) a where pk3 = '8' order by v2,v1";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select v1 from (select v1,v2,pk3 from "+tableName+" t where pk1 = '6' order by t.v2 desc,t.pk3 desc,t.v1 desc limit 10) a order by v2 desc ,pk3 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,v2,pk3 from " + tableName + " t where pk1 = '6' order by t.v2 desc,t.pk3 desc,t.v1 desc limit 10) a order by v2 desc ,pk3 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v2,0,2) sub,cast (count(pk3) as bigint) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by count(pk3),t.v2 limit 10) a order by cnt,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,cast (count(pk3) as bigint) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by count(pk3),t.v2 limit 10) a order by cnt,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by count(pk3),t.v2 limit 10) a order by cast(cnt as bigint),substr(sub,0,1)";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by count(pk3),t.v2 limit 10) a order by cast(cnt as bigint),substr(sub,0,1)";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v2,0,2) sub,cast (count(pk3) as bigint) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by count(pk3) desc,t.v2 desc limit 10) a order by cnt desc ,sub desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,cast (count(pk3) as bigint) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by count(pk3) desc,t.v2 desc limit 10) a order by cnt desc ,sub desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v2,0,2) sub,pk2 from "+tableName+" t where pk1 = '6' group by pk2,v2 limit 10) a order by pk2,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
-            if(desc) {
+            sql = "select sub from (select substr(v2,0,2) sub,pk2 from " + tableName + " t where pk1 = '6' group by pk2,v2 limit 10) a order by pk2,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
+            if (desc) {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             } else {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             }
 
-            sql = "select sub from (select substr(v2,0,2) sub,pk2 from "+tableName+" t where pk1 = '6' group by pk2,v2 limit 10) a order by pk2 desc,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
-            if(desc) {
+            sql = "select sub from (select substr(v2,0,2) sub,pk2 from " + tableName + " t where pk1 = '6' group by pk2,v2 limit 10) a order by pk2 desc,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
+            if (desc) {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             } else {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             }
 
-            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by t.v2 ,count(pk3) limit 10) a order by sub ,cnt";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by t.v2 ,count(pk3) limit 10) a order by sub ,cnt";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by t.v2 ,count(pk3) limit 10) a order by substr(sub,0,1) ,cast(cnt as bigint)";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by t.v2 ,count(pk3) limit 10) a order by substr(sub,0,1) ,cast(cnt as bigint)";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by t.v2 ,count(pk3) limit 10) a order by sub ,cnt";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by t.v2 ,count(pk3) limit 10) a order by sub ,cnt";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select v1 from (select v1,v2,pk3  from "+tableName+" t where pk1 = '6' order by t.v2 desc,t.pk3 desc,t.v1 desc limit 10) a order by v2 ,pk3";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,v2,pk3  from " + tableName + " t where pk1 = '6' order by t.v2 desc,t.pk3 desc,t.v1 desc limit 10) a order by v2 ,pk3";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select v1 from (select v1,v2,pk3 from "+tableName+" t where pk1 = '6' order by t.v2,t.pk3,t.v1 limit 10) a where pk3 = '8' or (v2 < 'abc' and pk3 > '11') order by v2,v1";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,v2,pk3 from " + tableName + " t where pk1 = '6' order by t.v2,t.pk3,t.v1 limit 10) a where pk3 = '8' or (v2 < 'abc' and pk3 > '11') order by v2,v1";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
 
             //test innerQueryPlan is ordered by rowKey
-            sql = "select pk1 from (select pk3,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where pk3 > '8' order by pk1,pk2,pk3";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select pk3,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where pk3 > '8' order by pk1,pk2,pk3";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where sub > '8' order by pk1,pk2,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where sub > '8' order by pk1,pk2,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select pk1 from (select pk3,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where pk3 > '8' order by pk1 desc ,pk2 desc ,pk3 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select pk3,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where pk3 > '8' order by pk1 desc ,pk2 desc ,pk3 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where sub > '8' order by pk1 desc,pk2 desc,sub desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where sub > '8' order by pk1 desc,pk2 desc,sub desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
         } finally {
-            if(conn != null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -5633,136 +5623,136 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn = DriverManager.getConnection(getUrl());
             String tableName = generateUniqueName();
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 varchar not null , " +
                     " pk2 varchar not null, " +
                     " pk3 varchar not null," +
                     " v1 varchar, " +
                     " v2 varchar, " +
-                    " CONSTRAINT TEST_PK PRIMARY KEY ( "+
-                    "pk1 "+(desc ? "desc" : "")+", "+
-                    "pk2 "+(desc ? "desc" : "")+", "+
-                    "pk3 "+(desc ? "desc" : "")+
-                    " )) "+(salted ? "SALT_BUCKETS =4" : "");
+                    " CONSTRAINT TEST_PK PRIMARY KEY ( " +
+                    "pk1 " + (desc ? "desc" : "") + ", " +
+                    "pk2 " + (desc ? "desc" : "") + ", " +
+                    "pk3 " + (desc ? "desc" : "") +
+                    " )) " + (salted ? "SALT_BUCKETS =4" : "");
             conn.createStatement().execute(sql);
 
-            sql = "select v1 from (select v1,pk2,pk1 from "+tableName+" t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a group by pk2,v1 order by pk2,v1";
-            QueryPlan plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,pk2,pk1 from " + tableName + " t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a group by pk2,v1 order by pk2,v1";
+            QueryPlan plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select v1 from (select v1,pk2,pk1 from "+tableName+" t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by v1, pk1 order by v1,pk1";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,pk2,pk1 from " + tableName + " t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by v1, pk1 order by v1,pk1";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select v1 from (select v1,pk2,pk1 from "+tableName+" t where pk1 = '6' order by t.pk2 desc,t.v1 desc,t.pk1 limit 10) a group by pk2, v1 order by pk2 desc,v1 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,pk2,pk1 from " + tableName + " t where pk1 = '6' order by t.pk2 desc,t.v1 desc,t.pk1 limit 10) a group by pk2, v1 order by pk2 desc,v1 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select v1 from (select v1,pk2,pk1 from "+tableName+" t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' or (v1 < 'abc' and pk2 > '11') group by v1, pk1 order by v1,pk1";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,pk2,pk1 from " + tableName + " t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' or (v1 < 'abc' and pk2 > '11') group by v1, pk1 order by v1,pk1";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(!plan.getGroupBy().isOrderPreserving());
-            if(desc) {
+            if (desc) {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             } else {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             }
 
-            sql = "select v1 from (select v1,pk2,pk1 from "+tableName+" t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' or (v1 < 'abc' and pk2 > '11') group by v1, pk1 order by v1,pk1 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select v1 from (select v1,pk2,pk1 from " + tableName + " t where pk1 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' or (v1 < 'abc' and pk2 > '11') group by v1, pk1 order by v1,pk1 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(!plan.getGroupBy().isOrderPreserving());
-            if(desc) {
+            if (desc) {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             } else {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             }
 
-            sql = "select sub from (select v1,pk2,substr(pk1,0,1) sub from "+tableName+" t where v2 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by v1,sub order by v1,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select v1,pk2,substr(pk1,0,1) sub from " + tableName + " t where v2 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by v1,sub order by v1,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v1,0,1) sub,pk2,pk1 from "+tableName+" t where v2 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by sub,pk1 order by sub,pk1";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v1,0,1) sub,pk2,pk1 from " + tableName + " t where v2 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by sub,pk1 order by sub,pk1";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(!plan.getGroupBy().isOrderPreserving());
-            if(desc) {
+            if (desc) {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             } else {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             }
 
-            sql = "select sub from (select substr(v1,0,1) sub,pk2,pk1 from "+tableName+" t where v2 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by sub,pk1 order by sub,pk1 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v1,0,1) sub,pk2,pk1 from " + tableName + " t where v2 = '6' order by t.pk2,t.v1,t.pk1 limit 10) a where pk2 = '8' group by sub,pk1 order by sub,pk1 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(!plan.getGroupBy().isOrderPreserving());
-            if(desc) {
+            if (desc) {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             } else {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             }
 
-            sql = "select sub from (select substr(v2,0,2) sub,cast (count(pk3) as bigint) cnt from "+tableName+" t where pk1 = '6' group by v1,v2 order by count(pk3),t.v2 limit 10) a group by cnt,sub order by cnt,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,cast (count(pk3) as bigint) cnt from " + tableName + " t where pk1 = '6' group by v1,v2 order by count(pk3),t.v2 limit 10) a group by cnt,sub order by cnt,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select substr(sub,0,1) from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by count(pk3),t.v2 limit 10) a "+
-                  "group by cast(cnt as bigint),substr(sub,0,1) order by cast(cnt as bigint),substr(sub,0,1)";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select substr(sub,0,1) from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by count(pk3),t.v2 limit 10) a " +
+                    "group by cast(cnt as bigint),substr(sub,0,1) order by cast(cnt as bigint),substr(sub,0,1)";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by count(pk3) desc,t.v2 desc limit 10) a group by cnt,sub order by cnt desc ,sub desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by count(pk3) desc,t.v2 desc limit 10) a group by cnt,sub order by cnt desc ,sub desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select substr(sub,0,1) from (select substr(v2,0,2) sub,count(pk3) cnt from "+tableName+" t where pk1 = '6' group by v1 ,v2 order by count(pk3) desc,t.v2 desc limit 10) a "+
-                  "group by cast(cnt as bigint),substr(sub,0,1) order by cast(cnt as bigint) desc,substr(sub,0,1) desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select substr(sub,0,1) from (select substr(v2,0,2) sub,count(pk3) cnt from " + tableName + " t where pk1 = '6' group by v1 ,v2 order by count(pk3) desc,t.v2 desc limit 10) a " +
+                    "group by cast(cnt as bigint),substr(sub,0,1) order by cast(cnt as bigint) desc,substr(sub,0,1) desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select sub from (select substr(v2,0,2) sub,pk2 from "+tableName+" t where pk1 = '6' group by pk2,v2 limit 10) a group by pk2,sub order by pk2,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select sub from (select substr(v2,0,2) sub,pk2 from " + tableName + " t where pk1 = '6' group by pk2,v2 limit 10) a group by pk2,sub order by pk2,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
-            if(desc) {
+            if (desc) {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             } else {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             }
 
-            sql = "select sub from (select substr(v2,0,2) sub,pk2 from "+tableName+" t where pk1 = '6' group by pk2,v2 limit 10) a group by pk2,sub order by pk2 desc,sub";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
-            if(desc) {
+            sql = "select sub from (select substr(v2,0,2) sub,pk2 from " + tableName + " t where pk1 = '6' group by pk2,v2 limit 10) a group by pk2,sub order by pk2 desc,sub";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
+            if (desc) {
                 assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
             } else {
                 assertTrue(plan.getOrderBy().getOrderByExpressions().size() > 0);
             }
 
             //test innerQueryPlan is ordered by rowKey
-            sql = "select pk1 from (select pk3,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where pk3 > '8' group by pk1,pk2,pk3 order by pk1,pk2,pk3";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select pk3,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where pk3 > '8' group by pk1,pk2,pk3 order by pk1,pk2,pk3";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where sub > '8' group by pk1,pk2,sub order by pk1,pk2";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1,t.pk2 limit 10) a where sub > '8' group by pk1,pk2,sub order by pk1,pk2";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select pk1 from (select pk3,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where pk3 > '8' group by pk1, pk2, pk3 order by pk1 desc ,pk2 desc ,pk3 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select pk3,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where pk3 > '8' group by pk1, pk2, pk3 order by pk1 desc ,pk2 desc ,pk3 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from "+tableName+" t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where sub > '8' group by pk1,pk2,sub order by pk1 desc,pk2 desc";
-            plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            sql = "select pk1 from (select substr(pk3,0,3) sub,pk2,pk1 from " + tableName + " t where v1 = '6' order by t.pk1 desc,t.pk2 desc limit 10) a where sub > '8' group by pk1,pk2,sub order by pk1 desc,pk2 desc";
+            plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             assertTrue(plan.getGroupBy().isOrderPreserving());
             assertTrue(plan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
         } finally {
-            if(conn != null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -5784,107 +5774,107 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             String tableName1 = generateUniqueName();
             String tableName2 = generateUniqueName();
 
-            String sql = "CREATE TABLE IF NOT EXISTS "+tableName1+" ( "+
-                    "AID INTEGER PRIMARY KEY "+(desc ? "desc" : "")+","+
-                    "AGE INTEGER"+
-                    ") "+(salted ? "SALT_BUCKETS =4" : "");
+            String sql = "CREATE TABLE IF NOT EXISTS " + tableName1 + " ( " +
+                    "AID INTEGER PRIMARY KEY " + (desc ? "desc" : "") + "," +
+                    "AGE INTEGER" +
+                    ") " + (salted ? "SALT_BUCKETS =4" : "");
             conn.createStatement().execute(sql);
 
-            sql = "CREATE TABLE IF NOT EXISTS "+tableName2+" ( "+
-                    "BID INTEGER PRIMARY KEY "+(desc ? "desc" : "")+","+
-                    "CODE INTEGER"+
-                    ")"+(salted ? "SALT_BUCKETS =4" : "");
+            sql = "CREATE TABLE IF NOT EXISTS " + tableName2 + " ( " +
+                    "BID INTEGER PRIMARY KEY " + (desc ? "desc" : "") + "," +
+                    "CODE INTEGER" +
+                    ")" + (salted ? "SALT_BUCKETS =4" : "");
             conn.createStatement().execute(sql);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code order by a.aid ,a.age";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code order by a.aid ,a.age";
             QueryPlan queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code order by a.aid desc,a.age desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code order by a.aid desc,a.age desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,a.age from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code group by a.aid,a.age order by a.aid ,a.age";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,a.age from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code group by a.aid,a.age order by a.aid ,a.age";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,a.age from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code group by a.aid,a.age order by a.aid desc,a.age desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,a.age from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code group by a.aid,a.age order by a.aid desc,a.age desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code order by b.bid ,b.code";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code order by b.bid ,b.code";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code order by b.bid desc ,b.code desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code order by b.bid desc ,b.code desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code group by b.bid, b.code order by b.bid ,b.code";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code group by b.bid, b.code order by b.bid ,b.code";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.code from (select aid,age from "+tableName1+" where age >=11 and age<=33 order by age limit 3) a inner join "+
-                    "(select bid,code from "+tableName2+" order by code limit 1) b on a.aid=b.bid and a.age = b.code group by b.bid, b.code order by b.bid desc,b.code desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.code from (select aid,age from " + tableName1 + " where age >=11 and age<=33 order by age limit 3) a inner join " +
+                    "(select bid,code from " + tableName2 + " order by code limit 1) b on a.aid=b.bid and a.age = b.code group by b.bid, b.code order by b.bid desc,b.code desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
             //test part column
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code order by a.aid";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code order by a.aid";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code order by a.aid desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code order by a.aid desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code group by a.aid order by a.aid";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code group by a.aid order by a.aid";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code group by a.aid order by a.aid desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code group by a.aid order by a.aid desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code order by a.age";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ a.aid,b.code from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code order by a.age";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid,a.age from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code order by b.bid";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid,a.age from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code order by b.bid";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid,a.age from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code order by b.bid desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid,a.age from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code order by b.bid desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code group by b.bid order by b.bid";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code group by b.bid order by b.bid";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy() == OrderBy.FWD_ROW_KEY_ORDER_BY);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code group by b.bid order by b.bid desc";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code group by b.bid order by b.bid desc";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getGroupBy().isOrderPreserving());
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
 
-            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid,a.age from "+tableName1+" a inner join "+tableName2+" b on a.aid=b.bid and a.age = b.code order by b.code";
+            sql = "select /*+ USE_SORT_MERGE_JOIN */ b.bid,a.age from " + tableName1 + " a inner join " + tableName2 + " b on a.aid=b.bid and a.age = b.code order by b.code";
             queryPlan = getQueryPlan(conn, sql);
             assertTrue(queryPlan.getOrderBy().getOrderByExpressions().size() > 0);
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }
@@ -5935,10 +5925,10 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                     "SALT_BUCKETS = 3, MULTI_TENANT=true");
             verifyQueryPlanForSortMergeBug4508(conn010, peopleTable2, myTable2);
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
-            if(conn010 != null) {
+            if (conn010 != null) {
                 conn010.close();
             }
         }
@@ -5954,7 +5944,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
                 "WHERE EID IS NULL AND DSID = 'PEOPLE' AND HAS_CANDIDATES = FALSE) l\n" +
                 "JOIN " + peopleTable + " ds ON ds.PERSON_ID = l.LOCALID";
 
-        for (String q : new String[]{query1, query2}) {
+        for (String q : new String[] {query1, query2}) {
             ResultSet rs = conn.createStatement().executeQuery("explain " + q);
             String plan = QueryUtil.getExplainPlan(rs);
             assertFalse("Tables should not require sort over their PKs:\n" + plan,
@@ -5968,7 +5958,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         try {
             conn = DriverManager.getConnection(getUrl());
             String tableName = generateUniqueName();
-            String sql = "create table " + tableName + "( "+
+            String sql = "create table " + tableName + "( " +
                     " pk1 integer not null , " +
                     " pk2 integer not null, " +
                     " v integer, " +
@@ -5976,11 +5966,11 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             conn.createStatement().execute(sql);
 
             sql = "select count(distinct pk1) from " + tableName + " limit 1";
-            QueryPlan plan =  TestUtil.getOptimizeQueryPlan(conn, sql);
+            QueryPlan plan = TestUtil.getOptimizeQueryPlan(conn, sql);
             Scan scan = plan.getContext().getScan();
             assertFalse(TestUtil.hasFilter(scan, PageFilter.class));
         } finally {
-            if(conn!=null) {
+            if (conn != null) {
                 conn.close();
             }
         }

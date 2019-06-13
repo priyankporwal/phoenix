@@ -33,13 +33,11 @@ import org.apache.phoenix.schema.types.PTimestamp;
 import org.apache.phoenix.schema.TypeMismatchException;
 
 /**
- * 
- * Parse node corresponding to {@link RoundFunction}. 
+ * Parse node corresponding to {@link RoundFunction}.
  * It also acts as a factory for creating the right kind of
- * round expression according to the data type of the 
+ * round expression according to the data type of the
  * first child.
  *
- * 
  * @since 3.0.0
  */
 public class RoundParseNode extends FunctionParseNode {
@@ -56,22 +54,22 @@ public class RoundParseNode extends FunctionParseNode {
     public static Expression getRoundExpression(List<Expression> children) throws SQLException {
         final Expression firstChild = children.get(0);
         final PDataType firstChildDataType = firstChild.getDataType();
-        
-        if(firstChildDataType.isCoercibleTo(PDate.INSTANCE)) {
+
+        if (firstChildDataType.isCoercibleTo(PDate.INSTANCE)) {
             return RoundDateExpression.create(children);
         } else if (firstChildDataType.isCoercibleTo(PTimestamp.INSTANCE)) {
             return RoundTimestampExpression.create(children);
-        } else if(firstChildDataType.isCoercibleTo(PDecimal.INSTANCE)) {
+        } else if (firstChildDataType.isCoercibleTo(PDecimal.INSTANCE)) {
             return RoundDecimalExpression.create(children);
         } else {
             throw TypeMismatchException.newException(firstChildDataType, "1");
         }
     }
-    
+
     /**
-     * When rounding off decimals, user need not specify the scale. In such cases, 
+     * When rounding off decimals, user need not specify the scale. In such cases,
      * we need to prevent the function from getting evaluated as null. This is really
-     * a hack. A better way would have been if {@link org.apache.phoenix.parse.FunctionParseNode.BuiltInFunctionInfo} provided a 
+     * a hack. A better way would have been if {@link org.apache.phoenix.parse.FunctionParseNode.BuiltInFunctionInfo} provided a
      * way of associating default values for each permissible data type.
      * Something like: @ Argument(allowedTypes={PDataType.VARCHAR, PDataType.INTEGER}, defaultValues = {"null", "1"} isConstant=true)
      * Till then, this will have to do.

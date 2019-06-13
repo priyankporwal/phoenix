@@ -60,7 +60,7 @@ public class ArrayFillFunctionTest {
         Object element = 5;
         Object length = 3;
         PDataType baseType = PInteger.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveIntPhoenixArray(baseType, new Object[]{5, 5, 5});
+        PhoenixArray e = new PhoenixArray.PrimitiveIntPhoenixArray(baseType, new Object[] {5, 5, 5});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -72,7 +72,7 @@ public class ArrayFillFunctionTest {
         Object element = false;
         Object length = 3;
         PDataType baseType = PBoolean.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveBooleanPhoenixArray(baseType, new Object[]{false, false, false});
+        PhoenixArray e = new PhoenixArray.PrimitiveBooleanPhoenixArray(baseType, new Object[] {false, false, false});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -84,7 +84,7 @@ public class ArrayFillFunctionTest {
         Object element = "foo";
         Object length = 3;
         PDataType baseType = PVarchar.INSTANCE;
-        PhoenixArray e = new PhoenixArray(baseType, new Object[]{"foo", "foo", "foo"});
+        PhoenixArray e = new PhoenixArray(baseType, new Object[] {"foo", "foo", "foo"});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -96,7 +96,7 @@ public class ArrayFillFunctionTest {
         Object element = "foo";
         Object length = 3;
         PDataType baseType = PChar.INSTANCE;
-        PhoenixArray e = new PhoenixArray(baseType, new Object[]{"foo", "foo", "foo"});
+        PhoenixArray e = new PhoenixArray(baseType, new Object[] {"foo", "foo", "foo"});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -108,7 +108,7 @@ public class ArrayFillFunctionTest {
         Object element = 34.67;
         Object length = 3;
         PDataType baseType = PDouble.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveDoublePhoenixArray(baseType, new Object[]{34.67, 34.67, 34.67});
+        PhoenixArray e = new PhoenixArray.PrimitiveDoublePhoenixArray(baseType, new Object[] {34.67, 34.67, 34.67});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
     }
@@ -118,7 +118,7 @@ public class ArrayFillFunctionTest {
         Object element = 5.6;
         Object length = 3;
         PDataType baseType = PFloat.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveFloatPhoenixArray(baseType, new Object[]{(float) 5.6, (float) 5.6, (float) 5.6});
+        PhoenixArray e = new PhoenixArray.PrimitiveFloatPhoenixArray(baseType, new Object[] {(float) 5.6, (float) 5.6, (float) 5.6});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
     }
@@ -128,7 +128,7 @@ public class ArrayFillFunctionTest {
         Object element = 5;
         Object length = 3;
         PDataType baseType = PSmallint.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveShortPhoenixArray(baseType, new Object[]{(short) 5, (short) 5, (short) 5});
+        PhoenixArray e = new PhoenixArray.PrimitiveShortPhoenixArray(baseType, new Object[] {(short) 5, (short) 5, (short) 5});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -140,7 +140,7 @@ public class ArrayFillFunctionTest {
         Object element = 6;
         Object length = 3;
         PDataType baseType = PTinyint.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveBytePhoenixArray(baseType, new Object[]{(byte) 6, (byte) 6, (byte) 6});
+        PhoenixArray e = new PhoenixArray.PrimitiveBytePhoenixArray(baseType, new Object[] {(byte) 6, (byte) 6, (byte) 6});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -152,7 +152,7 @@ public class ArrayFillFunctionTest {
         Object element = 34567l;
         Object length = 3;
         PDataType baseType = PLong.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveLongPhoenixArray(baseType, new Object[]{34567l, 34567l, 34567l});
+        PhoenixArray e = new PhoenixArray.PrimitiveLongPhoenixArray(baseType, new Object[] {34567l, 34567l, 34567l});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -164,7 +164,7 @@ public class ArrayFillFunctionTest {
         Object element = BigDecimal.valueOf(345.67);
         Object length = 3;
         PDataType baseType = PDecimal.INSTANCE;
-        PhoenixArray e = new PhoenixArray(baseType, new Object[]{BigDecimal.valueOf(345.67), BigDecimal.valueOf(345.67), BigDecimal.valueOf(345.67)});
+        PhoenixArray e = new PhoenixArray(baseType, new Object[] {BigDecimal.valueOf(345.67), BigDecimal.valueOf(345.67), BigDecimal.valueOf(345.67)});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -176,7 +176,7 @@ public class ArrayFillFunctionTest {
         Object element = new Date(23);
         Object length = 3;
         PDataType baseType = PDate.INSTANCE;
-        PhoenixArray e = new PhoenixArray(baseType, new Object[]{new Date(23), new Date(23), new Date(23)});
+        PhoenixArray e = new PhoenixArray(baseType, new Object[] {new Date(23), new Date(23), new Date(23)});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -188,7 +188,7 @@ public class ArrayFillFunctionTest {
         Object element = new Time(23);
         Object length = 3;
         PDataType baseType = PTime.INSTANCE;
-        PhoenixArray e = new PhoenixArray(baseType, new Object[]{new Time(23), new Time(23), new Time(23)});
+        PhoenixArray e = new PhoenixArray(baseType, new Object[] {new Time(23), new Time(23), new Time(23)});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -200,7 +200,7 @@ public class ArrayFillFunctionTest {
         Object element = null;
         Object length = 3;
         PDataType baseType = PInteger.INSTANCE;
-        PhoenixArray e = new PhoenixArray.PrimitiveIntPhoenixArray(baseType, new Object[]{0, 0, 0});
+        PhoenixArray e = new PhoenixArray.PrimitiveIntPhoenixArray(baseType, new Object[] {0, 0, 0});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);
@@ -212,7 +212,7 @@ public class ArrayFillFunctionTest {
         Object element = null;
         Object length = 3;
         PDataType baseType = PVarchar.INSTANCE;
-        PhoenixArray e = new PhoenixArray(baseType, new Object[]{null, null, null});
+        PhoenixArray e = new PhoenixArray(baseType, new Object[] {null, null, null});
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.ASC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.ASC, SortOrder.DESC);
         test(element, length, baseType, null, null, PInteger.INSTANCE, null, null, e, SortOrder.DESC, SortOrder.DESC);

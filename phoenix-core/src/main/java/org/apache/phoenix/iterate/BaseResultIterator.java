@@ -21,15 +21,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * 
  * Abstract base class for ResultIterator implementations that
  * do nothing on close and have no explain plan steps
  *
- * 
  * @since 1.2
  */
 public abstract class BaseResultIterator implements ResultIterator {
-    
+
     @Override
     public void close() throws SQLException {
     }

@@ -31,9 +31,9 @@ public class DistinctCountHyperLogLogAggregateParseNode extends DelegateConstant
     public DistinctCountHyperLogLogAggregateParseNode(String name, List<ParseNode> children, BuiltInFunctionInfo info) {
         super(name, children, info);
     }
-    
+
     @Override
     public FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException {
-        return new DistinctCountHyperLogLogAggregateFunction(children, getDelegateFunction(children,context));
+        return new DistinctCountHyperLogLogAggregateFunction(children, getDelegateFunction(children, context));
     }
 }

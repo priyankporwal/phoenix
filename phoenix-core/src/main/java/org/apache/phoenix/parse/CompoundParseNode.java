@@ -22,19 +22,16 @@ import java.util.Collections;
 import java.util.List;
 
 
-
 /**
- * 
  * Abstract node representing an expression node that has children
  *
- * 
  * @since 0.1
  */
 public abstract class CompoundParseNode extends ParseNode {
 
-	private final List<ParseNode> children;
+    private final List<ParseNode> children;
     private final boolean isStateless;
-    
+
     CompoundParseNode(List<ParseNode> children) {
         this.children = Collections.unmodifiableList(children);
         boolean isStateless = true;
@@ -46,12 +43,12 @@ public abstract class CompoundParseNode extends ParseNode {
         }
         this.isStateless = isStateless;
     }
-    
+
     @Override
     public boolean isStateless() {
         return isStateless;
     }
-    
+
     @Override
     public final List<ParseNode> getChildren() {
         return children;
@@ -59,7 +56,7 @@ public abstract class CompoundParseNode extends ParseNode {
 
 
     final <T> List<T> acceptChildren(ParseNodeVisitor<T> visitor) throws SQLException {
-        List<T> l = visitor.newElementList(children.size());        
+        List<T> l = visitor.newElementList(children.size());
         for (int i = 0; i < children.size(); i++) {
             T e = children.get(i).accept(visitor);
             visitor.addElement(l, e);
@@ -68,31 +65,37 @@ public abstract class CompoundParseNode extends ParseNode {
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((children == null) ? 0 : children.hashCode());
-		result = prime * result + (isStateless ? 1231 : 1237);
-		return result;
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((children == null) ? 0 : children.hashCode());
+        result = prime * result + (isStateless ? 1231 : 1237);
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CompoundParseNode other = (CompoundParseNode) obj;
-		if (children == null) {
-			if (other.children != null)
-				return false;
-		} else if (!children.equals(other.children))
-			return false;
-		if (isStateless != other.isStateless)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CompoundParseNode other = (CompoundParseNode) obj;
+        if (children == null) {
+            if (other.children != null) {
+                return false;
+            }
+        } else if (!children.equals(other.children)) {
+            return false;
+        }
+        if (isStateless != other.isStateless) {
+            return false;
+        }
+        return true;
+    }
 }

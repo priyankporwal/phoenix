@@ -44,7 +44,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
-	
+
     protected static final String JOIN_SCHEMA = "Join";
     protected static final String JOIN_ORDER_TABLE = "OrderTable";
     protected static final String JOIN_CUSTOMER_TABLE = "CustomerTable";
@@ -57,10 +57,10 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
     protected static final String JOIN_SUPPLIER_TABLE_FULL_NAME = '"' + JOIN_SCHEMA + "\".\"" + JOIN_SUPPLIER_TABLE + '"';
     protected static final String JOIN_COITEM_TABLE_FULL_NAME = '"' + JOIN_SCHEMA + "\".\"" + JOIN_COITEM_TABLE + '"';
 
-    private static final Map<String,String> tableDDLMap;
-    
+    private static final Map<String, String> tableDDLMap;
+
     static {
-        ImmutableMap.Builder<String,String> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         builder.put(JOIN_ORDER_TABLE_FULL_NAME, "create table " + JOIN_ORDER_TABLE_FULL_NAME +
                 "   (\"order_id\" varchar(15) not null primary key, " +
                 "    \"customer_id\" varchar(10), " +
@@ -98,19 +98,19 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
                 "   SALT_BUCKETS=4");
         tableDDLMap = builder.build();
     }
-    
+
     protected String seqName;
     protected String schemaName;
     protected final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     protected final String[] plans;
     private final String[] indexDDL;
-    private final Map<String,String> virtualNameToRealNameMap = Maps.newHashMap();
-    
+    private final Map<String, String> virtualNameToRealNameMap = Maps.newHashMap();
+
     public BaseJoinIT(String[] indexDDL, String[] plans) {
         this.indexDDL = indexDDL;
         this.plans = plans;
     }
-    
+
     public BaseJoinIT() {
         this.indexDDL = new String[0];
         this.plans = new String[0];
@@ -127,7 +127,7 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
         }
         return realName;
     }
-    
+
     protected String getDisplayTableName(Connection conn, String virtualName) throws Exception {
         return getTableName(conn, virtualName);
     }
@@ -137,7 +137,7 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
         if (ddl == null) {
             throw new IllegalStateException("Expected to find " + virtualName + " in " + tableDDLMap);
         }
-        ddl =  ddl.replace(virtualName, realName);
+        ddl = ddl.replace(virtualName, realName);
         conn.createStatement().execute(ddl);
     }
 
@@ -152,46 +152,46 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     private String translateToVirtualPlan(String actualPlan) {
         int size = virtualNameToRealNameMap.size();
-        String[] virtualNames = new String[size+1];
-        String[] realNames = new String[size+1];
+        String[] virtualNames = new String[size + 1];
+        String[] realNames = new String[size + 1];
         int count = 0;
-        for (Map.Entry<String, String>entry : virtualNameToRealNameMap.entrySet()) {
+        for (Map.Entry<String, String> entry : virtualNameToRealNameMap.entrySet()) {
             virtualNames[count] = entry.getKey();
             realNames[count] = entry.getValue();
             count++;
         }
         realNames[count] = schemaName;
-        virtualNames[count]= JOIN_SCHEMA;
-        String convertedPlan =  StringUtil.replace(actualPlan, realNames, virtualNames);
+        virtualNames[count] = JOIN_SCHEMA;
+        String convertedPlan = StringUtil.replace(actualPlan, realNames, virtualNames);
         return convertedPlan;
     }
-    
+
     protected void assertPlansMatch(String virtualPlanRegEx, String actualPlan) {
         String convertedPlan = translateToVirtualPlan(actualPlan);
         assertTrue("\"" + convertedPlan + "\" does not match \"" + virtualPlanRegEx + "\"", Pattern.matches(virtualPlanRegEx, convertedPlan));
     }
-    
+
     protected void assertPlansEqual(String virtualPlan, String actualPlan) {
         String convertedPlan = translateToVirtualPlan(actualPlan);
         assertEquals(virtualPlan, convertedPlan);
     }
-    
+
     private static void initValues(Connection conn, String virtualName, String realName) throws Exception {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (virtualName.equals(JOIN_CUSTOMER_TABLE_FULL_NAME)) {
             // Insert into customer table
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + realName +
-                    "   (\"customer_id\", " +
-                    "    NAME, " +
-                    "    PHONE, " +
-                    "    ADDRESS, " +
-                    "    LOC_ID, " +
-                    "    DATE) " +
-                    "values (?, ?, ?, ?, ?, ?)");
+                            "   (\"customer_id\", " +
+                            "    NAME, " +
+                            "    PHONE, " +
+                            "    ADDRESS, " +
+                            "    LOC_ID, " +
+                            "    DATE) " +
+                            "values (?, ?, ?, ?, ?, ?)");
             stmt.setString(1, "0000000001");
             stmt.setString(2, "C1");
             stmt.setString(3, "999-999-1111");
@@ -199,7 +199,7 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
             stmt.setString(5, "10001");
             stmt.setDate(6, new Date(format.parse("2013-11-01 10:20:36").getTime()));
             stmt.execute();
-                
+
             stmt.setString(1, "0000000002");
             stmt.setString(2, "C2");
             stmt.setString(3, "999-999-2222");
@@ -240,18 +240,18 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
             stmt.setDate(6, new Date(format.parse("2013-11-01 10:20:36").getTime()));
             stmt.execute();
         } else if (virtualName.equals(JOIN_ITEM_TABLE_FULL_NAME)) {
-        
+
             // Insert into item table
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + realName +
-                    "   (\"item_id\", " +
-                    "    NAME, " +
-                    "    PRICE, " +
-                    "    DISCOUNT1, " +
-                    "    DISCOUNT2, " +
-                    "    \"supplier_id\", " +
-                    "    DESCRIPTION) " +
-                    "values (?, ?, ?, ?, ?, ?, ?)");
+                            "   (\"item_id\", " +
+                            "    NAME, " +
+                            "    PRICE, " +
+                            "    DISCOUNT1, " +
+                            "    DISCOUNT2, " +
+                            "    \"supplier_id\", " +
+                            "    DESCRIPTION) " +
+                            "values (?, ?, ?, ?, ?, ?, ?)");
             stmt.setString(1, "0000000001");
             stmt.setString(2, "T1");
             stmt.setInt(3, 100);
@@ -305,7 +305,7 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
             stmt.setString(6, "0000000006");
             stmt.setString(7, "Item T6");
             stmt.execute();
-            
+
             stmt.setString(1, "invalid001");
             stmt.setString(2, "INVALID-1");
             stmt.setInt(3, 0);
@@ -319,19 +319,19 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
             // Insert into supplier table
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + realName +
-                    "   (\"supplier_id\", " +
-                    "    NAME, " +
-                    "    PHONE, " +
-                    "    ADDRESS, " +
-                    "    LOC_ID) " +
-                    "values (?, ?, ?, ?, ?)");
+                            "   (\"supplier_id\", " +
+                            "    NAME, " +
+                            "    PHONE, " +
+                            "    ADDRESS, " +
+                            "    LOC_ID) " +
+                            "values (?, ?, ?, ?, ?)");
             stmt.setString(1, "0000000001");
             stmt.setString(2, "S1");
             stmt.setString(3, "888-888-1111");
             stmt.setString(4, "101 YYY Street");
             stmt.setString(5, "10001");
             stmt.execute();
-                
+
             stmt.setString(1, "0000000002");
             stmt.setString(2, "S2");
             stmt.setString(3, "888-888-2222");
@@ -371,13 +371,13 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
             // Insert into order table
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + realName +
-                    "   (\"order_id\", " +
-                    "    \"customer_id\", " +
-                    "    \"item_id\", " +
-                    "    PRICE, " +
-                    "    QUANTITY," +
-                    "    DATE) " +
-                    "values (?, ?, ?, ?, ?, ?)");
+                            "   (\"order_id\", " +
+                            "    \"customer_id\", " +
+                            "    \"item_id\", " +
+                            "    PRICE, " +
+                            "    QUANTITY," +
+                            "    DATE) " +
+                            "values (?, ?, ?, ?, ?, ?)");
             stmt.setString(1, "000000000000001");
             stmt.setString(2, "0000000004");
             stmt.setString(3, "0000000001");
@@ -420,30 +420,30 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
         } else if (virtualName.equals(JOIN_COITEM_TABLE_FULL_NAME)) {
             // Insert into coitem table
             PreparedStatement stmt = conn.prepareStatement(
-                    "upsert into " + realName + 
-                    "   (item_id, " + 
-                    "    item_name, " + 
-                    "    co_item_id, " + 
-                    "    co_item_name) " + 
-                    "values (?, ?, ?, ?)");
+                    "upsert into " + realName +
+                            "   (item_id, " +
+                            "    item_name, " +
+                            "    co_item_id, " +
+                            "    co_item_name) " +
+                            "values (?, ?, ?, ?)");
             stmt.setString(1, "0000000001");
             stmt.setString(2, "T1");
             stmt.setString(3, "0000000002");
             stmt.setString(4, "T3");
             stmt.execute();
-            
+
             stmt.setString(1, "0000000004");
             stmt.setString(2, "T4");
             stmt.setString(3, "0000000003");
             stmt.setString(4, "T3");
             stmt.execute();
-            
+
             stmt.setString(1, "0000000003");
             stmt.setString(2, "T4");
             stmt.setString(3, "0000000005");
             stmt.setString(4, "T5");
             stmt.execute();
-            
+
             stmt.setString(1, "0000000006");
             stmt.setString(2, "T6");
             stmt.setString(3, "0000000001");
@@ -454,22 +454,22 @@ public abstract class BaseJoinIT extends ParallelStatsDisabledIT {
         conn.commit();
     }
 
-	protected Connection getConnection() throws SQLException {
-		Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-		props.put(ServerCacheClient.HASH_JOIN_SERVER_CACHE_RESEND_PER_SERVER, "true");
+    protected Connection getConnection() throws SQLException {
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        props.put(ServerCacheClient.HASH_JOIN_SERVER_CACHE_RESEND_PER_SERVER, "true");
         props.put(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, "true");
-		return DriverManager.getConnection(getUrl(), props);
-	}
-	
+        return DriverManager.getConnection(getUrl(), props);
+    }
+
     protected void createIndexes(Connection conn, String virtualName, String realName) throws Exception {
         if (indexDDL != null && indexDDL.length > 0) {
             for (String ddl : indexDDL) {
-                String newDDL =  ddl.replace(virtualName, realName);
+                String newDDL = ddl.replace(virtualName, realName);
                 if (!newDDL.equals(ddl)) {
                     conn.createStatement().execute(newDDL);
                 }
             }
         }
     }
-    
+
 }

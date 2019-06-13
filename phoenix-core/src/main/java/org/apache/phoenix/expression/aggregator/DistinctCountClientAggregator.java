@@ -26,8 +26,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
  * Client side Aggregator for DISTINCT COUNT aggregations
- * 
- * 
+ *
  * @since 1.2.1
  */
 public class DistinctCountClientAggregator extends DistinctValueWithCountClientAggregator {

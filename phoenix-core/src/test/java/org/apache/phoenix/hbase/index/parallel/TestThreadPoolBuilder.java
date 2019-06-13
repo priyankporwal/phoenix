@@ -26,37 +26,37 @@ import org.junit.Test;
 
 public class TestThreadPoolBuilder {
 
-  @Rule
-  public IndexTableName name = new IndexTableName();
+    @Rule
+    public IndexTableName name = new IndexTableName();
 
-  @Test
-  public void testCoreThreadTimeoutNonZero() {
-    Configuration conf = new Configuration(false);
-    String key = name.getTableNameString()+"-key";
-    ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), conf);
-    assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
-    // set an negative value
-    builder.setCoreTimeout(key, -1);
-    assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
-    // set a positive value
-    builder.setCoreTimeout(key, 1234);
-    assertEquals("core threads not set, but failed return", 1234, builder.getKeepAliveTime());
-    // set an empty value
-    builder.setCoreTimeout(key);
-    assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
-  }
-  
-  @Test
-  public void testMaxThreadsNonZero() {
-    Configuration conf = new Configuration(false);
-    String key = name.getTableNameString()+"-key";
-    ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), conf);
-    assertTrue("core threads not set, but failed return", builder.getMaxThreads() > 0);
-    // set an negative value
-    builder.setMaxThread(key, -1);
-    assertTrue("core threads not set, but failed return", builder.getMaxThreads() > 0);
-    // set a positive value
-    builder.setMaxThread(key, 1234);
-    assertEquals("core threads not set, but failed return", 1234, builder.getMaxThreads());
-  }
+    @Test
+    public void testCoreThreadTimeoutNonZero() {
+        Configuration conf = new Configuration(false);
+        String key = name.getTableNameString() + "-key";
+        ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), conf);
+        assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
+        // set an negative value
+        builder.setCoreTimeout(key, -1);
+        assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
+        // set a positive value
+        builder.setCoreTimeout(key, 1234);
+        assertEquals("core threads not set, but failed return", 1234, builder.getKeepAliveTime());
+        // set an empty value
+        builder.setCoreTimeout(key);
+        assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
+    }
+
+    @Test
+    public void testMaxThreadsNonZero() {
+        Configuration conf = new Configuration(false);
+        String key = name.getTableNameString() + "-key";
+        ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), conf);
+        assertTrue("core threads not set, but failed return", builder.getMaxThreads() > 0);
+        // set an negative value
+        builder.setMaxThread(key, -1);
+        assertTrue("core threads not set, but failed return", builder.getMaxThreads() > 0);
+        // set a positive value
+        builder.setMaxThread(key, 1234);
+        assertEquals("core threads not set, but failed return", 1234, builder.getMaxThreads());
+    }
 }

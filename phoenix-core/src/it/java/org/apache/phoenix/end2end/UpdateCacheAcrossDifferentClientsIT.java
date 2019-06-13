@@ -65,7 +65,7 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         // Create connections 1 and 2
         Properties longRunningProps = new Properties(); // Must update config before starting server
         longRunningProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         longRunningProps.put(QueryServices.DROP_METADATA_ATTRIB, Boolean.TRUE.toString());
         Connection conn1 = DriverManager.getConnection(url, longRunningProps);
         String url2 = url + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + "LongRunningQueries";
@@ -74,42 +74,42 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         conn2.setAutoCommit(true);
         String tableName = generateUniqueName();
         String tableCreateQuery =
-                "create table "+tableName+" (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
-                + " UPDATE_CACHE_FREQUENCY=1000000000";
-        String dropTableQuery = "DROP table "+tableName;
+                "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
+                        + " UPDATE_CACHE_FREQUENCY=1000000000";
+        String dropTableQuery = "DROP table " + tableName;
         try {
             conn1.createStatement().execute(tableCreateQuery);
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row1', 'value1', 'key1')");
+                    .execute("upsert into " + tableName + " values ('row1', 'value1', 'key1')");
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row2', 'value2', 'key2')");
+                    .execute("upsert into " + tableName + " values ('row2', 'value2', 'key2')");
             conn1.commit();
-            ResultSet rs =conn1.createStatement()
-                            .executeQuery("select * from "+tableName);
+            ResultSet rs = conn1.createStatement()
+                    .executeQuery("select * from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
             assertFalse(rs.next());
-            rs = conn2.createStatement().executeQuery("select * from "+tableName);
+            rs = conn2.createStatement().executeQuery("select * from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
             assertFalse(rs.next());
             //Drop table from conn1
             conn1.createStatement().execute(dropTableQuery);
             try {
-                rs = conn1.createStatement().executeQuery("select * from "+tableName);
+                rs = conn1.createStatement().executeQuery("select * from " + tableName);
                 fail("Should throw TableNotFoundException after dropping table");
             } catch (TableNotFoundException e) {
                 //Expected
             }
-            rs = conn2.createStatement().executeQuery("select * from "+tableName);
+            rs = conn2.createStatement().executeQuery("select * from " + tableName);
             try {
                 rs.next();
                 fail("Should throw org.apache.hadoop.hbase.TableNotFoundException since the latest metadata " +
                         "wasn't fetched");
             } catch (PhoenixIOException ex) {
                 boolean foundHBaseTableNotFound = false;
-                for(Throwable throwable : Throwables.getCausalChain(ex)) {
-                    if(org.apache.hadoop.hbase.TableNotFoundException.class.equals(throwable.getClass())) {
+                for (Throwable throwable : Throwables.getCausalChain(ex)) {
+                    if (org.apache.hadoop.hbase.TableNotFoundException.class.equals(throwable.getClass())) {
                         foundHBaseTableNotFound = true;
                         break;
                     }
@@ -128,7 +128,7 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         // Create connections 1 and 2
         Properties longRunningProps = new Properties(); // Must update config before starting server
         longRunningProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         longRunningProps.put(QueryServices.DROP_METADATA_ATTRIB, Boolean.TRUE.toString());
         Connection conn1 = DriverManager.getConnection(url, longRunningProps);
         String url2 = url + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + "LongRunningQueries";
@@ -149,7 +149,7 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
             conn2.commit();
             conn1.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES(4,5,6)");
             conn1.commit();
-            PTableKey key = new PTableKey(null,fullTableName);
+            PTableKey key = new PTableKey(null, fullTableName);
             PMetaData metaCache = conn1.unwrap(PhoenixConnection.class).getMetaDataCache();
             PTable table = metaCache.getTableRef(key).getTable();
             for (PTable index : table.getIndexes()) {
@@ -171,33 +171,33 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         conn2.setAutoCommit(true);
         String tableName = generateUniqueName();
         String createTableQuery =
-                "create table "+tableName+" (k UNSIGNED_DOUBLE not null primary key, "
-                + "v1 UNSIGNED_DOUBLE, v2 UNSIGNED_DOUBLE, v3 UNSIGNED_DOUBLE, "
-                + "v4 UNSIGNED_DOUBLE) UPDATE_CACHE_FREQUENCY=1000000000";
+                "create table " + tableName + " (k UNSIGNED_DOUBLE not null primary key, "
+                        + "v1 UNSIGNED_DOUBLE, v2 UNSIGNED_DOUBLE, v3 UNSIGNED_DOUBLE, "
+                        + "v4 UNSIGNED_DOUBLE) UPDATE_CACHE_FREQUENCY=1000000000";
         try {
             conn1.createStatement().execute(createTableQuery);
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values (1, 2, 3, 4, 5)");
+                    .execute("upsert into " + tableName + " values (1, 2, 3, 4, 5)");
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values (6, 7, 8, 9, 10)");
+                    .execute("upsert into " + tableName + " values (6, 7, 8, 9, 10)");
             conn1.commit();
             ResultSet rs = conn1.createStatement()
-                            .executeQuery("select k,v1,v2,v3 from "+tableName);
+                    .executeQuery("select k,v1,v2,v3 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
             rs = conn2.createStatement()
-                            .executeQuery("select k,v1,v2,v3 from "+tableName);
+                    .executeQuery("select k,v1,v2,v3 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
             PreparedStatement alterStatement = conn1.prepareStatement(
-                        "ALTER TABLE "+tableName+" ADD v9 UNSIGNED_DOUBLE");
+                    "ALTER TABLE " + tableName + " ADD v9 UNSIGNED_DOUBLE");
             alterStatement.execute();
-            rs =  conn1.createStatement()
-                            .executeQuery("select k,v1,v2,v3,v9 from "+tableName);
+            rs = conn1.createStatement()
+                    .executeQuery("select k,v1,v2,v3,v9 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
             rs = conn2.createStatement()
-                            .executeQuery("select k,v1,v2,v3,V9 from "+tableName);
+                    .executeQuery("select k,v1,v2,v3,V9 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
         } finally {
@@ -211,35 +211,35 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         // Create connections 1 and 2
         Properties longRunningProps = new Properties();
         longRunningProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         Connection conn1 = DriverManager.getConnection(url, longRunningProps);
         String url2 = url + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + "LongRunningQueries";
         Connection conn2 = DriverManager.getConnection(url2, longRunningProps);
         conn1.setAutoCommit(true);
         conn2.setAutoCommit(true);
         String tableName = generateUniqueName();
-        String indexName = "I_"+tableName;
+        String indexName = "I_" + tableName;
         String tableCreateQuery =
-                "create table "+tableName+" (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
-                + " UPDATE_CACHE_FREQUENCY=1000000000";
-        String value1SelQuery = "SELECT v2 FROM "+tableName+" WHERE v1 = 'value1'";
-        String indexCreateQuery = "CREATE INDEX "+indexName+" ON "+tableName+" (v1) INCLUDE (v2)";
-        String indexDropQuery = "DROP INDEX "+indexName+" ON "+tableName;
+                "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
+                        + " UPDATE_CACHE_FREQUENCY=1000000000";
+        String value1SelQuery = "SELECT v2 FROM " + tableName + " WHERE v1 = 'value1'";
+        String indexCreateQuery = "CREATE INDEX " + indexName + " ON " + tableName + " (v1) INCLUDE (v2)";
+        String indexDropQuery = "DROP INDEX " + indexName + " ON " + tableName;
         try {
             conn1.createStatement().execute(tableCreateQuery);
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row1', 'value1', 'key1')");
+                    .execute("upsert into " + tableName + " values ('row1', 'value1', 'key1')");
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row2', 'value2', 'key2')");
+                    .execute("upsert into " + tableName + " values ('row2', 'value2', 'key2')");
             conn1.commit();
-            ResultSet rs =conn1.createStatement()
-                            .executeQuery("select k,v1,v2 from "+tableName);
+            ResultSet rs = conn1.createStatement()
+                    .executeQuery("select k,v1,v2 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
-            rs = conn2.createStatement().executeQuery("select k,v1,v2 from "+tableName);
+            rs = conn2.createStatement().executeQuery("select k,v1,v2 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
-            PreparedStatement createIndexStatement =conn1.prepareStatement(indexCreateQuery);
+            PreparedStatement createIndexStatement = conn1.prepareStatement(indexCreateQuery);
             createIndexStatement.execute();
             rs = conn1.createStatement().executeQuery(value1SelQuery);
             assertTrue(rs.next());
@@ -262,30 +262,30 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         // Create connections 1 and 2
         Properties longRunningProps = new Properties();
         longRunningProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         Connection conn1 = DriverManager.getConnection(url, longRunningProps);
         String url2 = url + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + "LongRunningQueries";
         Connection conn2 = DriverManager.getConnection(url2, longRunningProps);
         conn1.setAutoCommit(true);
         conn2.setAutoCommit(true);
         String tableName = generateUniqueName();
-        String viewName = "V_"+tableName;
-        String createQry = "create table "+tableName+" (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
+        String viewName = "V_" + tableName;
+        String createQry = "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
                 + " UPDATE_CACHE_FREQUENCY=1000000000";
-        String valueSelQuery = "SELECT * FROM "+tableName+" WHERE v1 = 'value1'";
+        String valueSelQuery = "SELECT * FROM " + tableName + " WHERE v1 = 'value1'";
         String viewCreateQuery =
-                "CREATE VIEW "+viewName+" (v43 VARCHAR) AS SELECT * FROM "+tableName+" WHERE v1 = 'value1'";
+                "CREATE VIEW " + viewName + " (v43 VARCHAR) AS SELECT * FROM " + tableName + " WHERE v1 = 'value1'";
         try {
             conn1.createStatement().execute(createQry);
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row1', 'value1', 'key1')");
+                    .execute("upsert into " + tableName + " values ('row1', 'value1', 'key1')");
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row2', 'value2', 'key2')");
+                    .execute("upsert into " + tableName + " values ('row2', 'value2', 'key2')");
             conn1.commit();
-            ResultSet rs = conn1.createStatement().executeQuery("select k,v1,v2 from "+tableName);
+            ResultSet rs = conn1.createStatement().executeQuery("select k,v1,v2 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
-            rs = conn2.createStatement().executeQuery("select k,v1,v2 from "+tableName);
+            rs = conn2.createStatement().executeQuery("select k,v1,v2 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
             conn1.createStatement().execute(viewCreateQuery);
@@ -293,7 +293,7 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
             assertTrue(rs.next());
             rs = conn1.createStatement().executeQuery(valueSelQuery);
             assertTrue(rs.next());
-            conn1.createStatement().execute("DROP VIEW "+viewName);
+            conn1.createStatement().execute("DROP VIEW " + viewName);
             rs = conn2.createStatement().executeQuery(valueSelQuery);
             assertTrue(rs.next());
             rs = conn1.createStatement().executeQuery(valueSelQuery);
@@ -309,33 +309,33 @@ public class UpdateCacheAcrossDifferentClientsIT extends BaseUniqueNamesOwnClust
         // Create connections 1 and 2
         Properties longRunningProps = new Properties();
         longRunningProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         Connection conn1 = DriverManager.getConnection(url, longRunningProps);
         String url2 = url + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + "LongRunningQueries";
         Connection conn2 = DriverManager.getConnection(url2, longRunningProps);
         conn1.setAutoCommit(true);
         conn2.setAutoCommit(true);
         String tableName = generateUniqueName();
-        String viewName = "V1_"+tableName;
-        String valueSelQuery = "SELECT * FROM "+tableName+" WHERE v1 = 'value1'";
+        String viewName = "V1_" + tableName;
+        String valueSelQuery = "SELECT * FROM " + tableName + " WHERE v1 = 'value1'";
         try {
             //Create table on conn1
-            String createQry = "create table "+tableName+" (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
-              + " UPDATE_CACHE_FREQUENCY=1000000000";
+            String createQry = "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"
+                    + " UPDATE_CACHE_FREQUENCY=1000000000";
             conn1.createStatement().execute(createQry);
             //Load few rows
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row1', 'value1', 'key1')");
+                    .execute("upsert into " + tableName + " values ('row1', 'value1', 'key1')");
             conn1.createStatement()
-                    .execute("upsert into "+tableName+" values ('row2', 'value2', 'key2')");
+                    .execute("upsert into " + tableName + " values ('row2', 'value2', 'key2')");
             conn1.commit();
-            ResultSet rs = conn1.createStatement().executeQuery("select k,v1,v2 from "+tableName);
+            ResultSet rs = conn1.createStatement().executeQuery("select k,v1,v2 from " + tableName);
             assertTrue(rs.next());
             assertTrue(rs.next());
 
             //Create View on conn2
             String viewCreateQuery =
-                "CREATE VIEW "+viewName+" (v43 VARCHAR) AS SELECT * FROM "+tableName+" WHERE v1 = 'value1'";
+                    "CREATE VIEW " + viewName + " (v43 VARCHAR) AS SELECT * FROM " + tableName + " WHERE v1 = 'value1'";
             conn2.createStatement().execute(viewCreateQuery);
 
             //Read from view on conn2

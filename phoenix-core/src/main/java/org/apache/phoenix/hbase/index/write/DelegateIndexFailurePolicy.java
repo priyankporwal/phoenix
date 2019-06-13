@@ -29,7 +29,7 @@ import com.google.common.collect.Multimap;
 public class DelegateIndexFailurePolicy implements IndexFailurePolicy {
 
     private IndexFailurePolicy delegate;
-    
+
     public DelegateIndexFailurePolicy(IndexFailurePolicy delegate) {
         this.delegate = delegate;
     }

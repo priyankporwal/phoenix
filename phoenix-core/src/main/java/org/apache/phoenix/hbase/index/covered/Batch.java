@@ -28,34 +28,34 @@ import org.apache.hadoop.hbase.KeyValue;
  */
 public class Batch {
 
-  private static final long pointDeleteCode = KeyValue.Type.Delete.getCode();
-  private final long timestamp;
-  private List<Cell> batch = new ArrayList<Cell>();
-  private boolean allPointDeletes = true;
+    private static final long pointDeleteCode = KeyValue.Type.Delete.getCode();
+    private final long timestamp;
+    private List<Cell> batch = new ArrayList<Cell>();
+    private boolean allPointDeletes = true;
 
-  /**
-   * @param ts
-   */
-  public Batch(long ts) {
-    this.timestamp = ts;
-  }
-
-  public void add(Cell kv){
-    if (pointDeleteCode != kv.getTypeByte()) {
-      allPointDeletes = false;
+    /**
+     * @param ts
+     */
+    public Batch(long ts) {
+        this.timestamp = ts;
     }
-    batch.add(kv);
-  }
 
-  public boolean isAllPointDeletes() {
-    return allPointDeletes;
-  }
+    public void add(Cell kv) {
+        if (pointDeleteCode != kv.getTypeByte()) {
+            allPointDeletes = false;
+        }
+        batch.add(kv);
+    }
 
-  public long getTimestamp() {
-    return this.timestamp;
-  }
+    public boolean isAllPointDeletes() {
+        return allPointDeletes;
+    }
 
-  public List<Cell> getKvs() {
-    return this.batch;
-  }
+    public long getTimestamp() {
+        return this.timestamp;
+    }
+
+    public List<Cell> getKvs() {
+        return this.batch;
+    }
 }

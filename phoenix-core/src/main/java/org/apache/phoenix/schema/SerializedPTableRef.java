@@ -32,7 +32,7 @@ public class SerializedPTableRef extends PTableRef {
 
     public SerializedPTableRef(PTableRef tableRef) {
         super(tableRef.getLastAccessTime(), tableRef.getResolvedTimeStamp(), tableRef.getEstimatedSize());
-        this.tableBytes = ((SerializedPTableRef)tableRef).tableBytes;
+        this.tableBytes = ((SerializedPTableRef) tableRef).tableBytes;
     }
 
     @Override

@@ -129,6 +129,6 @@ public class DelegateRegionCoprocessorEnvironment implements RegionCoprocessorEn
     public RawCellBuilder getCellBuilder() {
         return delegate.getCellBuilder();
     }
-   
-    
+
+
 }

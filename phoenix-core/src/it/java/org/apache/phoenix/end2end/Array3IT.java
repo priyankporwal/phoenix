@@ -58,17 +58,17 @@ public class Array3IT extends ArrayIT {
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT ARRAY_APPEND(ARRAY[a,b], 'oo') from   " + table);
         assertTrue(rs.next());
-        Array arr = conn.createArrayOf("VARCHAR", new Object[]{"foo", "abc", "oo"});
+        Array arr = conn.createArrayOf("VARCHAR", new Object[] {"foo", "abc", "oo"});
         assertEquals(arr, rs.getArray(1));
         rs.next();
-        arr = conn.createArrayOf("VARCHAR", new Object[]{"abc", "dfg", "oo"});
+        arr = conn.createArrayOf("VARCHAR", new Object[] {"abc", "dfg", "oo"});
         assertEquals(arr, rs.getArray(1));
         rs.next();
-        arr = conn.createArrayOf("VARCHAR", new Object[]{"foo", "abc", "oo"});
+        arr = conn.createArrayOf("VARCHAR", new Object[] {"foo", "abc", "oo"});
         assertEquals(arr, rs.getArray(1));
         rs.next();
     }
-    
+
     @Test
     public void testPKWithDescArray() throws Exception {
         Connection conn;
@@ -82,13 +82,13 @@ public class Array3IT extends ArrayIT {
                 .execute(
                         "CREATE TABLE   " + table + "  ( a VARCHAR ARRAY PRIMARY KEY DESC)\n");
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO   " + table + "  VALUES(?)");
-        Array a1 = conn.createArrayOf("VARCHAR", new String[] { "a", "ba" });
+        Array a1 = conn.createArrayOf("VARCHAR", new String[] {"a", "ba"});
         stmt.setArray(1, a1);
         stmt.execute();
-        Array a2 = conn.createArrayOf("VARCHAR", new String[] { "a", "c" });
+        Array a2 = conn.createArrayOf("VARCHAR", new String[] {"a", "c"});
         stmt.setArray(1, a2);
         stmt.execute();
         conn.commit();
@@ -102,10 +102,10 @@ public class Array3IT extends ArrayIT {
         assertEquals(a1, rs.getArray(1));
         assertFalse(rs.next());
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO   " + table + "  VALUES(?)");
-        Array a3 = conn.createArrayOf("VARCHAR", new String[] { "a", "b" });
+        Array a3 = conn.createArrayOf("VARCHAR", new String[] {"a", "b"});
         stmt.setArray(1, a3);
         stmt.execute();
         conn.commit();
@@ -124,7 +124,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc1()throws Exception{
+    public void testComparisonOperatorsForDesc1() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -147,7 +147,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc2()throws Exception{
+    public void testComparisonOperatorsForDesc2() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -170,7 +170,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc3()throws Exception{
+    public void testComparisonOperatorsForDesc3() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -193,7 +193,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc4()throws Exception{
+    public void testComparisonOperatorsForDesc4() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -216,7 +216,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc5()throws Exception{
+    public void testComparisonOperatorsForDesc5() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -239,7 +239,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc6()throws Exception{
+    public void testComparisonOperatorsForDesc6() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -262,7 +262,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc7()throws Exception{
+    public void testComparisonOperatorsForDesc7() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -285,7 +285,7 @@ public class Array3IT extends ArrayIT {
     }
 
     @Test
-    public void testComparisonOperatorsForDesc8()throws Exception{
+    public void testComparisonOperatorsForDesc8() throws Exception {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -328,7 +328,7 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], arr2[1] FROM   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
         assertEquals("a", rs.getString(3));
     }
@@ -354,7 +354,7 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], arr2[1], arr3[1] from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
         assertEquals("a", rs.getString(3));
         assertEquals(2, rs.getInt(4));
@@ -381,10 +381,10 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], arr2[1], arr3, arr3[1] from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
         assertEquals("a", rs.getString(3));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{2, 3}), rs.getArray(4));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {2, 3}), rs.getArray(4));
         assertEquals(2, rs.getInt(5));
     }
 
@@ -409,10 +409,10 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], arr2[1], ARRAY_APPEND(arr3, 4), arr3[1] from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
         assertEquals("a", rs.getString(3));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{2, 3, 4}), rs.getArray(4));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {2, 3, 4}), rs.getArray(4));
         assertEquals(2, rs.getInt(5));
     }
 
@@ -437,9 +437,9 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], ARRAY_APPEND(arr1, arr3[1]) from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 2}), rs.getArray(3));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 2}), rs.getArray(3));
     }
 
     @Test
@@ -463,9 +463,9 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], ARRAY_APPEND(arr1, arr2[1]), p from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 2}), rs.getArray(3));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 2}), rs.getArray(3));
         assertEquals(1, rs.getInt(4));
     }
 
@@ -490,9 +490,9 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], ARRAY_APPEND(ARRAY_APPEND(arr1, arr2[2]), arr2[1]), p from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 3, 2}), rs.getArray(3));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 3, 2}), rs.getArray(3));
         assertEquals(1, rs.getInt(4));
     }
 
@@ -517,7 +517,7 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], ARRAY_ELEM(ARRAY_APPEND(arr1, arr2[1]), 1), p, arr2[2] from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
         assertEquals(1, rs.getInt(3));
         assertEquals(1, rs.getInt(4));
@@ -545,10 +545,10 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT arr1, arr1[1], ARRAY_ELEM(ARRAY_APPEND(arr1, arr2[1]), 1), p, arr2[2] from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2}), rs.getArray(1));
         assertEquals(1, rs.getInt(2));
         assertEquals(1, rs.getInt(3));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{5, 6}), rs.getArray(4));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {5, 6}), rs.getArray(4));
         assertEquals(3, rs.getInt(5));
     }
 
@@ -642,16 +642,16 @@ public class Array3IT extends ArrayIT {
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 1}), rs.getArray(2));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 1}), rs.getArray(2));
         assertTrue(rs.next());
         assertEquals(2, rs.getInt(1));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 1}), rs.getArray(2));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 1}), rs.getArray(2));
         assertTrue(rs.next());
         assertEquals(2, rs.getInt(1));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 1}), rs.getArray(2));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 1}), rs.getArray(2));
         assertTrue(rs.next());
         assertEquals(3, rs.getInt(1));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{1, 2, 1}), rs.getArray(2));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {1, 2, 1}), rs.getArray(2));
         assertFalse(rs.next());
     }
 
@@ -716,12 +716,12 @@ public class Array3IT extends ArrayIT {
         assertEquals(2, rs.getInt(1));
         assertEquals(1, rs.getInt(2));
         assertEquals(1, rs.getInt(3));
-        assertEquals(conn.createArrayOf("INTEGER", new Integer[]{5, 6}), rs.getArray(4));
+        assertEquals(conn.createArrayOf("INTEGER", new Integer[] {5, 6}), rs.getArray(4));
         assertEquals(3, rs.getInt(5));
     }
 
     @Test
-    public void testCharPrimaryKey() throws SQLException{
+    public void testCharPrimaryKey() throws SQLException {
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -741,7 +741,7 @@ public class Array3IT extends ArrayIT {
         stmt = conn.prepareStatement("SELECT testCharArray from   " + table);
         rs = stmt.executeQuery();
         assertTrue(rs.next());
-        assertEquals(conn.createArrayOf("CHAR", new String[]{"aaa", "bbb", "ccc"}), rs.getArray(1));
+        assertEquals(conn.createArrayOf("CHAR", new String[] {"aaa", "bbb", "ccc"}), rs.getArray(1));
     }
 
     @Test

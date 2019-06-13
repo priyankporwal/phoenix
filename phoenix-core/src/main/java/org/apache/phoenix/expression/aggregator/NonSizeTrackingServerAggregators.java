@@ -25,7 +25,7 @@ public class NonSizeTrackingServerAggregators extends ServerAggregators {
     public static final ServerAggregators EMPTY_AGGREGATORS = new NonSizeTrackingServerAggregators(new SingleAggregateFunction[0], new Aggregator[0], new Expression[0], 0);
 
     public NonSizeTrackingServerAggregators(SingleAggregateFunction[] functions, Aggregator[] aggregators,
-            Expression[] expressions, int minNullableIndex) {
+                                            Expression[] expressions, int minNullableIndex) {
         super(functions, aggregators, expressions, minNullableIndex);
     }
 

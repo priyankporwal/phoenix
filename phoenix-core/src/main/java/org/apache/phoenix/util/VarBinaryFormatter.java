@@ -31,22 +31,22 @@ import org.apache.commons.codec.binary.Hex;
  */
 public class VarBinaryFormatter extends Format {
 
-	private static final long serialVersionUID = -7940880118392024750L;
+    private static final long serialVersionUID = -7940880118392024750L;
 
-	public static final VarBinaryFormatter INSTANCE = new VarBinaryFormatter();
+    public static final VarBinaryFormatter INSTANCE = new VarBinaryFormatter();
 
-	@Override
-	public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-		if (!(obj instanceof byte[])) {
-			throw new IllegalArgumentException("VarBinaryFormatter can only format byte arrays");
-		}
-		String hexString = Hex.encodeHexString((byte[]) obj);
-		toAppendTo.append(hexString);
-		return toAppendTo;
-	}
+    @Override
+    public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+        if (!(obj instanceof byte[])) {
+            throw new IllegalArgumentException("VarBinaryFormatter can only format byte arrays");
+        }
+        String hexString = Hex.encodeHexString((byte[]) obj);
+        toAppendTo.append(hexString);
+        return toAppendTo;
+    }
 
-	@Override
-	public Object parseObject(String source, ParsePosition pos) {
-		return new UnsupportedOperationException();
-	}
+    @Override
+    public Object parseObject(String source, ParsePosition pos) {
+        return new UnsupportedOperationException();
+    }
 }

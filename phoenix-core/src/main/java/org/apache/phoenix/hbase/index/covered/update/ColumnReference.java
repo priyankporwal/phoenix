@@ -25,19 +25,19 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
 
 /**
- * 
+ *
  */
 public class ColumnReference implements Comparable<ColumnReference> {
-    
-  public static final byte[] ALL_QUALIFIERS = new byte[0];
-  
-  private static int calcHashCode(ImmutableBytesWritable familyPtr, ImmutableBytesWritable qualifierPtr) {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + familyPtr.hashCode();
-    result = prime * result + qualifierPtr.hashCode();
-    return result;
-  }
+
+    public static final byte[] ALL_QUALIFIERS = new byte[0];
+
+    private static int calcHashCode(ImmutableBytesWritable familyPtr, ImmutableBytesWritable qualifierPtr) {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + familyPtr.hashCode();
+        result = prime * result + qualifierPtr.hashCode();
+        return result;
+    }
 
     private final int hashCode;
     protected volatile byte[] family;
@@ -52,12 +52,12 @@ public class ColumnReference implements Comparable<ColumnReference> {
     }
 
     public ColumnReference(byte[] family, int familyOffset, int familyLength, byte[] qualifier,
-            int qualifierOffset, int qualifierLength) {
+                           int qualifierOffset, int qualifierLength) {
         this.familyPtr = new ImmutableBytesPtr(family, familyOffset, familyLength);
         this.qualifierPtr = new ImmutableBytesPtr(qualifier, qualifierOffset, qualifierLength);
         this.hashCode = calcHashCode(this.familyPtr, this.qualifierPtr);
     }
-  
+
     public byte[] getFamily() {
         if (this.family == null) {
             synchronized (this.familyPtr) {
@@ -88,55 +88,56 @@ public class ColumnReference implements Comparable<ColumnReference> {
         return this.qualifierPtr;
     }
 
-  public boolean matches(Cell kv) {
-    if (matchesFamily(kv.getFamilyArray(), kv.getFamilyOffset(), kv.getFamilyLength())) {
-      return matchesQualifier(kv.getQualifierArray(), kv.getQualifierOffset(), kv.getQualifierLength());
+    public boolean matches(Cell kv) {
+        if (matchesFamily(kv.getFamilyArray(), kv.getFamilyOffset(), kv.getFamilyLength())) {
+            return matchesQualifier(kv.getQualifierArray(), kv.getQualifierOffset(), kv.getQualifierLength());
+        }
+        return false;
     }
-    return false;
-  }
 
-  /**
-   * @param qual to check against
-   * @return <tt>true</tt> if this column covers the given qualifier.
-   */
-  public boolean matchesQualifier(byte[] qual) {
-    return matchesQualifier(qual, 0, qual.length);
-  }
+    /**
+     * @param qual to check against
+     * @return <tt>true</tt> if this column covers the given qualifier.
+     */
+    public boolean matchesQualifier(byte[] qual) {
+        return matchesQualifier(qual, 0, qual.length);
+    }
 
     public boolean matchesQualifier(byte[] bytes, int offset, int length) {
         return allColumns() ? true : match(bytes, offset, length, qualifierPtr.get(),
-            qualifierPtr.getOffset(), qualifierPtr.getLength());
+                qualifierPtr.getOffset(), qualifierPtr.getLength());
     }
 
-  /**
-   * @param family to check against
-   * @return <tt>true</tt> if this column covers the given family.
-   */
-  public boolean matchesFamily(byte[] family) {
-    return matchesFamily(family, 0, family.length);
-  }
+    /**
+     * @param family to check against
+     * @return <tt>true</tt> if this column covers the given family.
+     */
+    public boolean matchesFamily(byte[] family) {
+        return matchesFamily(family, 0, family.length);
+    }
 
-  public boolean matchesFamily(byte[] bytes, int offset, int length) {
-    return match(bytes, offset, length, familyPtr.get(), familyPtr.getOffset(), familyPtr.getLength());
-  }
+    public boolean matchesFamily(byte[] bytes, int offset, int length) {
+        return match(bytes, offset, length, familyPtr.get(), familyPtr.getOffset(), familyPtr.getLength());
+    }
 
-  /**
-   * @return <tt>true</tt> if this should include all column qualifiers, <tt>false</tt> otherwise
-   */
-  public boolean allColumns() {
-    return getQualifier() == ALL_QUALIFIERS;
-  }
+    /**
+     * @return <tt>true</tt> if this should include all column qualifiers, <tt>false</tt> otherwise
+     */
+    public boolean allColumns() {
+        return getQualifier() == ALL_QUALIFIERS;
+    }
 
     /**
      * Check to see if the passed bytes match the stored bytes
+     *
      * @param first
      * @param storedKey the stored byte[], should never be <tt>null</tt>
      * @return <tt>true</tt> if they are byte-equal
      */
     private boolean match(byte[] first, int offset1, int length1, byte[] storedKey, int offset2,
-            int length2) {
+                          int length2) {
         return first == null ? false : Bytes.equals(first, offset1, length1, storedKey, offset2,
-            length2);
+                length2);
     }
 
     public KeyValue getFirstKeyValueForRow(byte[] row) {
@@ -144,34 +145,34 @@ public class ColumnReference implements Comparable<ColumnReference> {
                 : getQualifier());
     }
 
-  @Override
-  public int compareTo(ColumnReference o) {
-    int c = familyPtr.compareTo(o.familyPtr);
-    if (c == 0) {
-      // matching families, compare qualifiers
-      c = qualifierPtr.compareTo(o.qualifierPtr);
+    @Override
+    public int compareTo(ColumnReference o) {
+        int c = familyPtr.compareTo(o.familyPtr);
+        if (c == 0) {
+            // matching families, compare qualifiers
+            c = qualifierPtr.compareTo(o.qualifierPtr);
+        }
+        return c;
     }
-    return c;
-  }
 
-  @Override
-  public boolean equals(Object o) {
-    if (o instanceof ColumnReference) {
-      ColumnReference other = (ColumnReference) o;
-      if (hashCode == other.hashCode && familyPtr.equals(other.familyPtr)) {
-        return qualifierPtr.equals(other.qualifierPtr);
-      }
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ColumnReference) {
+            ColumnReference other = (ColumnReference) o;
+            if (hashCode == other.hashCode && familyPtr.equals(other.familyPtr)) {
+                return qualifierPtr.equals(other.qualifierPtr);
+            }
+        }
+        return false;
     }
-    return false;
-  }
 
-  @Override
-  public int hashCode() {
-    return hashCode;
-  }
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
 
-  @Override
-  public String toString() {
-    return "ColumnReference - " + Bytes.toString(getFamily()) + ":" + Bytes.toString(getQualifier());
-  }
+    @Override
+    public String toString() {
+        return "ColumnReference - " + Bytes.toString(getFamily()) + ":" + Bytes.toString(getQualifier());
+    }
 }

@@ -30,10 +30,10 @@ public class PherfMainIT extends ResultBaseTestIT {
 
     //@Test disabled until PHOENIX-5327 is fixed
     public void testPherfMain() throws Exception {
-        String[] args = { "-q", "-l",
+        String[] args = {"-q", "-l",
                 "--schemaFile", ".*create_prod_test_unsalted.sql",
                 "--scenarioFile", ".*prod_test_unsalted_scenario.xml",
-                "-m", "--monitorFrequency", "10" };
+                "-m", "--monitorFrequency", "10"};
         Pherf pherf = new Pherf(args);
         pherf.run();
 

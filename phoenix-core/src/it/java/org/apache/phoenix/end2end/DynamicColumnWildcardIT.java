@@ -57,7 +57,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
     private final ImmutableStorageScheme storageScheme;
 
     // name is used by failsafe as file name in reports
-    @Parameterized.Parameters(name="DynamicColumnWildcardIT_mutable={0}, storageScheme={1}")
+    @Parameterized.Parameters(name = "DynamicColumnWildcardIT_mutable={0}, storageScheme={1}")
     public static Collection<Object[]> data() {
         // TODO: Once PHOENIX-5107 is fixed, add a case for SINGLE_CELL_ARRAY_WITH_OFFSETS
         return Arrays.asList(new Object[][] {
@@ -107,7 +107,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         int rsCounter = 0;
-        while(rs.next()) {
+        while (rs.next()) {
             ResultSetMetaData rmd = rs.getMetaData();
             int count = rmd.getColumnCount();
             assertEquals(rsCounter == 0 ? 1 : 2, count);
@@ -131,7 +131,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
                         assertEquals("A", rmd.getColumnName(i));
                         assertEquals(INTEGER, rmd.getColumnType(i));
                         assertEquals(100, rs.getObject(i));
-                    } else if (i ==2) {
+                    } else if (i == 2) {
                         assertEquals("DYN1", rmd.getColumnName(i));
                         assertEquals(VARCHAR, rmd.getColumnType(i));
                         assertEquals("test", rs.getObject(i));
@@ -160,7 +160,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         int rsCounter = 0;
-        while(rs.next()) {
+        while (rs.next()) {
             ResultSetMetaData rmd = rs.getMetaData();
             int count = rmd.getColumnCount();
             assertEquals(rsCounter == 0 ? 2 : rsCounter == 1 ? 3 : 4,
@@ -233,7 +233,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         int rsCounter = 0;
-        while(rs.next()) {
+        while (rs.next()) {
             ResultSetMetaData rmd = rs.getMetaData();
             int count = rmd.getColumnCount();
             assertEquals(rsCounter == 0 ? 2 : 3, count);
@@ -291,7 +291,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         conn.createStatement().execute(generateTableCreateDDL(tableName,
                 " (A INTEGER NOT NULL, B INTEGER NOT NULL, C VARCHAR" +
-                " CONSTRAINT PK PRIMARY KEY (A, B))"));
+                        " CONSTRAINT PK PRIMARY KEY (A, B))"));
         conn.createStatement().execute("UPSERT INTO " + tableName +
                 " (A, B) VALUES(10, 500)");
         conn.createStatement().execute("UPSERT INTO " + tableName +
@@ -303,7 +303,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         int rsCounter = 0;
-        while(rs.next()) {
+        while (rs.next()) {
             ResultSetMetaData rmd = rs.getMetaData();
             int count = rmd.getColumnCount();
             assertEquals(rsCounter <= 1 ?
@@ -408,7 +408,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT CF1.* FROM " + tableName);
         int rsCounter = 0;
-        while(rs.next()) {
+        while (rs.next()) {
             ResultSetMetaData rmd = rs.getMetaData();
             int count = rmd.getColumnCount();
             assertEquals(rsCounter <= 1 || rsCounter == 3 ?
@@ -463,7 +463,7 @@ public class DynamicColumnWildcardIT extends BaseTest {
 
         rs = conn.createStatement().executeQuery("SELECT CF2.* FROM " + tableName);
         rsCounter = 0;
-        while(rs.next()) {
+        while (rs.next()) {
             ResultSetMetaData rmd = rs.getMetaData();
             int count = rmd.getColumnCount();
             assertEquals(rsCounter <= 2 ?

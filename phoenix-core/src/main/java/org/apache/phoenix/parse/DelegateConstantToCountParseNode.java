@@ -31,15 +31,15 @@ public abstract class DelegateConstantToCountParseNode extends AggregateFunction
     public DelegateConstantToCountParseNode(String name, List<ParseNode> children, BuiltInFunctionInfo info) {
         super(name, children, info);
     }
-    
+
     protected CountAggregateFunction getDelegateFunction(List<Expression> children, StatementContext context) {
         CountAggregateFunction countFunc = null;
         if (getChildren().get(0).isStateless()) {
-            countFunc = (CountAggregateFunction)context.getExpressionManager().addIfAbsent(new CountAggregateFunction(children));
+            countFunc = (CountAggregateFunction) context.getExpressionManager().addIfAbsent(new CountAggregateFunction(children));
         }
         return countFunc;
     }
-    
+
     @Override
     public abstract FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException;
 

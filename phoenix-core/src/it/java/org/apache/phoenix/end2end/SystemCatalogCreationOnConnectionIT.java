@@ -71,7 +71,7 @@ public class SystemCatalogCreationOnConnectionIT {
     private static final String PHOENIX_NAMESPACE_MAPPED_SYSTEM_CATALOG = "SYSTEM:CATALOG";
     private static final String PHOENIX_SYSTEM_CATALOG = "SYSTEM.CATALOG";
     private static final String EXECUTE_UPGRADE_COMMAND = "EXECUTE UPGRADE";
-    private static final String MODIFIED_MAX_VERSIONS ="5";
+    private static final String MODIFIED_MAX_VERSIONS = "5";
     private static final String CREATE_TABLE_STMT = "CREATE TABLE %s"
             + " (k1 VARCHAR NOT NULL, k2 VARCHAR, CONSTRAINT PK PRIMARY KEY(K1,K2))";
     private static final String SELECT_STMT = "SELECT * FROM %s";
@@ -80,12 +80,12 @@ public class SystemCatalogCreationOnConnectionIT {
     private static final String UPSERT_STMT = "UPSERT INTO %s VALUES ('A', 'B')";
 
     private static final Set<String> PHOENIX_SYSTEM_TABLES = new HashSet<>(Arrays.asList(
-      "SYSTEM.CATALOG", "SYSTEM.SEQUENCE", "SYSTEM.STATS", "SYSTEM.FUNCTION",
-      "SYSTEM.MUTEX", "SYSTEM.LOG", "SYSTEM.CHILD_LINK", "SYSTEM.TASK"));
+            "SYSTEM.CATALOG", "SYSTEM.SEQUENCE", "SYSTEM.STATS", "SYSTEM.FUNCTION",
+            "SYSTEM.MUTEX", "SYSTEM.LOG", "SYSTEM.CHILD_LINK", "SYSTEM.TASK"));
 
     private static final Set<String> PHOENIX_NAMESPACE_MAPPED_SYSTEM_TABLES = new HashSet<>(
-      Arrays.asList("SYSTEM:CATALOG", "SYSTEM:SEQUENCE", "SYSTEM:STATS", "SYSTEM:FUNCTION",
-        "SYSTEM:MUTEX", "SYSTEM:LOG", "SYSTEM:CHILD_LINK", "SYSTEM:TASK"));
+            Arrays.asList("SYSTEM:CATALOG", "SYSTEM:SEQUENCE", "SYSTEM:STATS", "SYSTEM:FUNCTION",
+                    "SYSTEM:MUTEX", "SYSTEM:LOG", "SYSTEM:CHILD_LINK", "SYSTEM:TASK"));
 
     private static class PhoenixSysCatCreationServices extends ConnectionQueryServicesImpl {
 
@@ -110,7 +110,7 @@ public class SystemCatalogCreationOnConnectionIT {
 
         @Override
         protected PhoenixConnection upgradeSystemCatalogIfRequired(PhoenixConnection metaConnection,
-          long currentServerSideTableTimeStamp) throws InterruptedException, SQLException, TimeoutException, IOException {
+                                                                   long currentServerSideTableTimeStamp) throws InterruptedException, SQLException, TimeoutException, IOException {
             PhoenixConnection newMetaConnection = super.upgradeSystemCatalogIfRequired(metaConnection, currentServerSideTableTimeStamp);
             if (currentServerSideTableTimeStamp < MetaDataProtocol.MIN_SYSTEM_TABLE_TIMESTAMP) {
                 actualSysCatUpgrades++;
@@ -166,8 +166,8 @@ public class SystemCatalogCreationOnConnectionIT {
     }
 
 
-     // Conditions: isDoNotUpgradePropSet is true
-     // Expected: We do not create SYSTEM.CATALOG even if this is the first connection to the server
+    // Conditions: isDoNotUpgradePropSet is true
+    // Expected: We do not create SYSTEM.CATALOG even if this is the first connection to the server
     @Test
     public void testFirstConnectionDoNotUpgradePropSet() throws Exception {
         startMiniClusterWithToggleNamespaceMapping(Boolean.FALSE.toString());
@@ -175,7 +175,7 @@ public class SystemCatalogCreationOnConnectionIT {
         // Set doNotUpgradeProperty to true
         UpgradeUtil.doNotUpgradeOnFirstConnection(propsDoNotUpgradePropSet);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
 
         driver.getConnectionQueryServices(getJdbcUrl(), propsDoNotUpgradePropSet);
         hbaseTables = getHBaseTables();
@@ -195,7 +195,7 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testMigrateToSystemNamespace() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientEnabledMappingDisabled();
+                firstConnectionNSMappingServerEnabledClientEnabledMappingDisabled();
         driver.resetCQS();
         // Setting this to true to effect migration of SYSTEM tables to the SYSTEM namespace
         Properties clientProps = getClientProperties(true, true);
@@ -213,7 +213,7 @@ public class SystemCatalogCreationOnConnectionIT {
     public void testUpgradeAttempted() throws Exception {
         setOldTimestampToInduceUpgrade = true;
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientEnabled();
+                firstConnectionNSMappingServerEnabledClientEnabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(true, true);
         setOldTimestampToInduceUpgrade = false;
@@ -234,7 +234,7 @@ public class SystemCatalogCreationOnConnectionIT {
     public void testUpgradeNotAllowed() throws Exception {
         setOldTimestampToInduceUpgrade = true;
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientEnabled();
+                firstConnectionNSMappingServerEnabledClientEnabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(true, true);
         UpgradeUtil.doNotUpgradeOnFirstConnection(clientProps);
@@ -266,7 +266,7 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testMigrateSysCatCreateOthers() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientDisabled();
+                firstConnectionNSMappingServerEnabledClientDisabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(true, true);
         driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
@@ -284,7 +284,7 @@ public class SystemCatalogCreationOnConnectionIT {
     public void testMigrateToSystemNamespaceAndUpgradeSysCat() throws Exception {
         setOldTimestampToInduceUpgrade = true;
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientEnabledMappingDisabled();
+                firstConnectionNSMappingServerEnabledClientEnabledMappingDisabled();
         driver.resetCQS();
         setOldTimestampToInduceUpgrade = false;
         Properties clientProps = getClientProperties(true, true);
@@ -301,7 +301,7 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testTablesExistInconsistentNSMappingFails() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientEnabled();
+                firstConnectionNSMappingServerEnabledClientEnabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(false, false);
         try {
@@ -321,7 +321,7 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testUnmappedSysCatExistsInconsistentNSMappingFails() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerEnabledClientDisabled();
+                firstConnectionNSMappingServerEnabledClientDisabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(false, false);
         try {
@@ -342,7 +342,7 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testSysTablesExistInconsistentNSMappingFails() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerDisabledClientDisabled();
+                firstConnectionNSMappingServerDisabledClientDisabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(true, true);
         try {
@@ -362,10 +362,10 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testMappedSysCatExistsInconsistentNSMappingFails() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerDisabledClientEnabled();
+                firstConnectionNSMappingServerDisabledClientEnabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(true, true);
-        try{
+        try {
             driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
             fail("Client should not be able to connect to cluster with inconsistent client-server namespace mapping properties");
         } catch (SQLException sqlE) {
@@ -383,7 +383,7 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testNSMappingDisabledNoUpgradeRequired() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerDisabledClientDisabled();
+                firstConnectionNSMappingServerDisabledClientDisabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(false, false);
         driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
@@ -398,10 +398,10 @@ public class SystemCatalogCreationOnConnectionIT {
     @Test
     public void testClientNSMappingDisabledConnectionFails() throws Exception {
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          firstConnectionNSMappingServerDisabledClientEnabled();
+                firstConnectionNSMappingServerDisabledClientEnabled();
         driver.resetCQS();
         Properties clientProps = getClientProperties(false, false);
-        try{
+        try {
             driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
             fail("Client should not be able to connect to cluster with inconsistent client-server namespace mapping properties");
         } catch (SQLException sqlE) {
@@ -499,6 +499,7 @@ public class SystemCatalogCreationOnConnectionIT {
 
     /**
      * Return all created HBase tables
+     *
      * @return Set of HBase table name strings
      * @throws IOException
      */
@@ -512,6 +513,7 @@ public class SystemCatalogCreationOnConnectionIT {
 
     /**
      * Alter the table metadata and return modified value
+     *
      * @param driver
      * @param tableName
      * @return value of VERSIONS option for the table
@@ -531,6 +533,7 @@ public class SystemCatalogCreationOnConnectionIT {
 
     /**
      * Start the mini-cluster with server-side namespace mapping property specified
+     *
      * @param isNamespaceMappingEnabled
      * @throws Exception
      */
@@ -545,6 +548,7 @@ public class SystemCatalogCreationOnConnectionIT {
 
     /**
      * Get the connection string for the mini-cluster
+     *
      * @return Phoenix connection string
      */
     private String getJdbcUrl() {
@@ -553,6 +557,7 @@ public class SystemCatalogCreationOnConnectionIT {
 
     /**
      * Set namespace mapping related properties for the client connection
+     *
      * @param nsMappingEnabled
      * @param systemTableMappingEnabled
      * @return Properties object
@@ -566,12 +571,13 @@ public class SystemCatalogCreationOnConnectionIT {
 
     /**
      * Initiate the first connection to the server with provided auto-upgrade property
+     *
      * @param isAutoUpgradeEnabled
      * @return Phoenix JDBC driver
      * @throws Exception
      */
     private SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver firstConnectionAutoUpgradeToggle(boolean isAutoUpgradeEnabled)
-    throws Exception {
+            throws Exception {
         if (isAutoUpgradeEnabled) {
             return firstConnectionNSMappingServerDisabledClientDisabled();
         }
@@ -588,7 +594,7 @@ public class SystemCatalogCreationOnConnectionIT {
         props.put(QueryServices.AUTO_UPGRADE_ENABLED, Boolean.FALSE.toString());
         ReadOnlyProps readOnlyProps = new ReadOnlyProps(props);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(readOnlyProps);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(readOnlyProps);
 
         // We should be able to get a connection, however upgradeRequired should be set so that we
         // are not allowed to run any query/mutation until "EXECUTE UPGRADE" has been run
@@ -614,11 +620,11 @@ public class SystemCatalogCreationOnConnectionIT {
     // are to be mapped to the SYSTEM namespace.
     // Expected: If this is the first connection to the server, we should be able to create all namespace mapped system tables i.e. SYSTEM:.*
     private SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver firstConnectionNSMappingServerEnabledClientEnabled()
-    throws Exception {
+            throws Exception {
         startMiniClusterWithToggleNamespaceMapping(Boolean.TRUE.toString());
         Properties clientProps = getClientProperties(true, true);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
         driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
         hbaseTables = getHBaseTables();
         assertEquals(PHOENIX_NAMESPACE_MAPPED_SYSTEM_TABLES, hbaseTables);
@@ -630,12 +636,12 @@ public class SystemCatalogCreationOnConnectionIT {
     // SYSTEM tables to the SYSTEM namespace is disabled
     // Expected: If this is the first connection to the server, we will create unmapped SYSTEM tables i.e. SYSTEM\..*
     private SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver firstConnectionNSMappingServerEnabledClientEnabledMappingDisabled()
-    throws Exception {
+            throws Exception {
         startMiniClusterWithToggleNamespaceMapping(Boolean.TRUE.toString());
         // client-side namespace mapping is enabled, but mapping SYSTEM tables to SYSTEM namespace is not
         Properties clientProps = getClientProperties(true, false);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
         driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
         hbaseTables = getHBaseTables();
         assertEquals(PHOENIX_SYSTEM_TABLES, hbaseTables);
@@ -647,11 +653,11 @@ public class SystemCatalogCreationOnConnectionIT {
     // Expected: Since this is the first connection to the server, we will create SYSTEM.CATALOG but immediately
     // throw an exception for inconsistent namespace mapping
     private SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver firstConnectionNSMappingServerEnabledClientDisabled()
-    throws Exception {
+            throws Exception {
         startMiniClusterWithToggleNamespaceMapping(Boolean.TRUE.toString());
         Properties clientProps = getClientProperties(false, false);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
         try {
             driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
             fail("Client should not be able to connect to cluster with inconsistent client-server namespace mapping properties");
@@ -669,11 +675,11 @@ public class SystemCatalogCreationOnConnectionIT {
     // Expected: Since this is the first connection to the server, we will create the SYSTEM namespace and create
     // SYSTEM:CATALOG and then immediately throw an exception for inconsistent namespace mapping
     private SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver firstConnectionNSMappingServerDisabledClientEnabled()
-    throws Exception {
+            throws Exception {
         startMiniClusterWithToggleNamespaceMapping(Boolean.FALSE.toString());
         Properties clientProps = getClientProperties(true, true);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
         try {
             driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
             fail("Client should not be able to connect to cluster with inconsistent client-server namespace mapping properties");
@@ -691,11 +697,11 @@ public class SystemCatalogCreationOnConnectionIT {
     // Expected: Since this is the first connection to the server and auto-upgrade is enabled by default,
     // we will create all SYSTEM\..* tables
     private SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver firstConnectionNSMappingServerDisabledClientDisabled()
-    throws Exception {
+            throws Exception {
         startMiniClusterWithToggleNamespaceMapping(Boolean.FALSE.toString());
         Properties clientProps = getClientProperties(false, false);
         SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver driver =
-          new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
+                new SystemCatalogCreationOnConnectionIT.PhoenixSysCatCreationTestingDriver(ReadOnlyProps.EMPTY_PROPS);
         driver.getConnectionQueryServices(getJdbcUrl(), clientProps);
         hbaseTables = getHBaseTables();
         assertEquals(PHOENIX_SYSTEM_TABLES, hbaseTables);

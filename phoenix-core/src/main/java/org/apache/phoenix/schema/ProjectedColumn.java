@@ -18,7 +18,7 @@
 package org.apache.phoenix.schema;
 
 public class ProjectedColumn extends DelegateColumn {
-    
+
     private final PName name;
     private final PName familyName;
     private final int position;
@@ -35,32 +35,32 @@ public class ProjectedColumn extends DelegateColumn {
         this.sourceColumnRef = sourceColumnRef;
         this.cq = cq;
     }
-    
+
     @Override
     public PName getName() {
         return name;
     }
-    
+
     @Override
     public PName getFamilyName() {
         return familyName;
     }
-    
+
     @Override
     public int getPosition() {
         return position;
     }
-    
+
     @Override
     public boolean isNullable() {
         return nullable;
     }
-    
+
     @Override
     public byte[] getColumnQualifierBytes() {
         return cq;
     }
-    
+
     public ColumnRef getSourceColumnRef() {
         return sourceColumnRef;
     }

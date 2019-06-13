@@ -32,21 +32,25 @@ public class PTableRefFactory {
 
     private static final PTableRefFactory INSTANCE = new PTableRefFactory();
 
-    public static enum Encoding {
+    public static enum Encoding
+
+    {
         OBJECT, PROTOBUF
-    };
+    }
+
+    ;
 
     public static PTableRefFactory getFactory(ReadOnlyProps props) {
         String encodingEnumString =
                 props.get(QueryServices.CLIENT_CACHE_ENCODING,
-                    QueryServicesOptions.DEFAULT_CLIENT_CACHE_ENCODING);
+                        QueryServicesOptions.DEFAULT_CLIENT_CACHE_ENCODING);
         Encoding encoding = Encoding.valueOf(encodingEnumString.toUpperCase());
         switch (encoding) {
-        case PROTOBUF:
-            return SerializedPTableRefFactory.getFactory();
-        case OBJECT:
-        default:
-            return INSTANCE;
+            case PROTOBUF:
+                return SerializedPTableRefFactory.getFactory();
+            case OBJECT:
+            default:
+                return INSTANCE;
         }
     }
 }

@@ -54,7 +54,7 @@ class MultiThreadedRunner implements Callable<Void> {
     private final Scenario scenario;
     private final WorkloadExecutor workloadExecutor;
     private final XMLConfigParser parser;
-    
+
 
     /**
      * MultiThreadedRunner
@@ -65,10 +65,10 @@ class MultiThreadedRunner implements Callable<Void> {
      * @param threadTime
      * @param numberOfExecutions
      * @param executionDurationInMs
-     * @param ruleRunner 
+     * @param ruleRunner
      */
     MultiThreadedRunner(String threadName, Query query, DataModelResult dataModelResult,
-            ThreadTime threadTime, long numberOfExecutions, long executionDurationInMs, boolean writeRuntimeResults, RulesApplier ruleApplier, Scenario scenario, WorkloadExecutor workloadExecutor, XMLConfigParser parser) {
+                        ThreadTime threadTime, long numberOfExecutions, long executionDurationInMs, boolean writeRuntimeResults, RulesApplier ruleApplier, Scenario scenario, WorkloadExecutor workloadExecutor, XMLConfigParser parser) {
         this.query = query;
         this.threadName = threadName;
         this.threadTime = threadTime;
@@ -77,9 +77,9 @@ class MultiThreadedRunner implements Callable<Void> {
         this.executionDurationInMs = executionDurationInMs;
         this.ruleApplier = ruleApplier;
         this.scenario = scenario;
-       	this.resultManager = new ResultManager(dataModelResult.getName(), writeRuntimeResults);
-       	this.workloadExecutor = workloadExecutor;
-       	this.parser = parser;
+        this.resultManager = new ResultManager(dataModelResult.getName(), writeRuntimeResults);
+        this.workloadExecutor = workloadExecutor;
+        this.parser = parser;
     }
 
     /**
@@ -138,21 +138,22 @@ class MultiThreadedRunner implements Callable<Void> {
             final String statementString = query.getDynamicStatement(ruleApplier, scenario);
             statement = conn.prepareStatement(statementString);
             LOGGER.info("Executing: " + statementString);
-            
+
             if (scenario.getWriteParams() != null) {
-            	Workload writes = new WriteWorkload(PhoenixUtil.create(), parser, scenario, GeneratePhoenixStats.NO);
-            	workloadExecutor.add(writes);
+                Workload writes = new WriteWorkload(PhoenixUtil.create(), parser, scenario, GeneratePhoenixStats.NO);
+                workloadExecutor.add(writes);
             }
-            
+
             boolean isQuery = statement.execute();
             if (isQuery) {
                 rs = statement.getResultSet();
                 while (rs.next()) {
                     if (null != query.getExpectedAggregateRowCount()) {
-                        if (rs.getLong(1) != query.getExpectedAggregateRowCount())
+                        if (rs.getLong(1) != query.getExpectedAggregateRowCount()) {
                             throw new RuntimeException(
                                     "Aggregate count " + rs.getLong(1) + " does not match expected "
                                             + query.getExpectedAggregateRowCount());
+                        }
                     }
 
                     if (isSelectCountStatement) {
@@ -172,9 +173,15 @@ class MultiThreadedRunner implements Callable<Void> {
             getThreadTime().getRunTimesInMs().add(new RunTime(exception, startDate, resultRowCount,
                     (int) (System.currentTimeMillis() - start)));
 
-            if (rs != null) rs.close();
-            if (statement != null) statement.close();
-            if (conn != null) conn.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
         }
     }
 }

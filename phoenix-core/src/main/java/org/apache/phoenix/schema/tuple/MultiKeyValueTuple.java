@@ -32,20 +32,22 @@ import org.apache.phoenix.util.PhoenixKeyValueUtil;
  */
 public class MultiKeyValueTuple extends BaseTuple {
     private List<Cell> values;
-    
+
     public MultiKeyValueTuple(List<Cell> values) {
         setKeyValues(values);
     }
-    
+
     public MultiKeyValueTuple() {
     }
 
-    /** Caller must not modify the list that is passed here */
+    /**
+     * Caller must not modify the list that is passed here
+     */
     @Override
     public void setKeyValues(List<Cell> values) {
         this.values = values;
     }
-    
+
     @Override
     public void getKey(ImmutableBytesWritable ptr) {
         Cell value = values.get(0);
@@ -79,10 +81,11 @@ public class MultiKeyValueTuple extends BaseTuple {
 
     @Override
     public boolean getValue(byte[] family, byte[] qualifier,
-            ImmutableBytesWritable ptr) {
+                            ImmutableBytesWritable ptr) {
         Cell kv = getValue(family, qualifier);
-        if (kv == null)
+        if (kv == null) {
             return false;
+        }
         ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
         return true;
     }

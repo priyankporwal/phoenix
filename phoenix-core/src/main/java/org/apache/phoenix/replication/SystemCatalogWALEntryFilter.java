@@ -37,34 +37,34 @@ import com.google.common.collect.Lists;
  */
 public class SystemCatalogWALEntryFilter implements WALEntryFilter {
 
-  @Override
-  public WAL.Entry filter(WAL.Entry entry) {
+    @Override
+    public WAL.Entry filter(WAL.Entry entry) {
 
-    //if the WAL.Entry's table isn't System.Catalog or System.Child_Link, it auto-passes this filter
-    //TODO: when Phoenix drops support for pre-1.3 versions of HBase, redo as a WALCellFilter
-    if (!SchemaUtil.isMetaTable(entry.getKey().getTableName().getName())){
-      return entry;
+        //if the WAL.Entry's table isn't System.Catalog or System.Child_Link, it auto-passes this filter
+        //TODO: when Phoenix drops support for pre-1.3 versions of HBase, redo as a WALCellFilter
+        if (!SchemaUtil.isMetaTable(entry.getKey().getTableName().getName())) {
+            return entry;
+        }
+
+        List<Cell> cells = entry.getEdit().getCells();
+        List<Cell> cellsToRemove = Lists.newArrayList();
+        for (Cell cell : cells) {
+            if (!isTenantRowCell(cell)) {
+                cellsToRemove.add(cell);
+            }
+        }
+        cells.removeAll(cellsToRemove);
+        if (cells.size() > 0) {
+            return entry;
+        } else {
+            return null;
+        }
     }
 
-    List<Cell> cells = entry.getEdit().getCells();
-    List<Cell> cellsToRemove = Lists.newArrayList();
-    for (Cell cell : cells) {
-      if (!isTenantRowCell(cell)){
-        cellsToRemove.add(cell);
-      }
+    private boolean isTenantRowCell(Cell cell) {
+        ImmutableBytesWritable key =
+                new ImmutableBytesWritable(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+        //rows in system.catalog that aren't tenant-owned will have a leading separator byte
+        return key.get()[key.getOffset()] != QueryConstants.SEPARATOR_BYTE;
     }
-    cells.removeAll(cellsToRemove);
-    if (cells.size() > 0) {
-      return entry;
-    } else {
-      return null;
-    }
-  }
-
-  private boolean isTenantRowCell(Cell cell) {
-    ImmutableBytesWritable key =
-        new ImmutableBytesWritable(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
-    //rows in system.catalog that aren't tenant-owned will have a leading separator byte
-    return key.get()[key.getOffset()] != QueryConstants.SEPARATOR_BYTE;
-  }
 }

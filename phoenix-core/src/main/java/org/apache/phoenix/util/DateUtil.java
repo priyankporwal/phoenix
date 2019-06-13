@@ -50,12 +50,12 @@ import com.google.common.collect.Lists;
 import com.sun.istack.NotNull;
 
 
-@SuppressWarnings({ "serial", "deprecation" })
+@SuppressWarnings( {"serial", "deprecation"})
 public class DateUtil {
     public static final String DEFAULT_TIME_ZONE_ID = "GMT";
     public static final String LOCAL_TIME_ZONE_ID = "LOCAL";
     private static final TimeZone DEFAULT_TIME_ZONE = TimeZone.getTimeZone(DEFAULT_TIME_ZONE_ID);
-    
+
     public static final String DEFAULT_MS_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     public static final Format DEFAULT_MS_DATE_FORMATTER = FastDateFormat.getInstance(
             DEFAULT_MS_DATE_FORMAT, TimeZone.getTimeZone(DEFAULT_TIME_ZONE_ID));
@@ -70,13 +70,13 @@ public class DateUtil {
     public static final Format DEFAULT_TIMESTAMP_FORMATTER = DEFAULT_MS_DATE_FORMATTER;
 
     private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
-        .append(ISODateTimeFormat.dateParser())
-        .appendOptional(new DateTimeFormatterBuilder()
-                .appendLiteral(' ').toParser())
-        .appendOptional(new DateTimeFormatterBuilder()
-                .append(ISODateTimeFormat.timeParser()).toParser())
-        .toFormatter().withChronology(ISOChronology.getInstanceUTC());
-    
+            .append(ISODateTimeFormat.dateParser())
+            .appendOptional(new DateTimeFormatterBuilder()
+                    .appendLiteral(' ').toParser())
+            .appendOptional(new DateTimeFormatterBuilder()
+                    .append(ISODateTimeFormat.timeParser()).toParser())
+            .toFormatter().withChronology(ISOChronology.getInstanceUTC());
+
     private DateUtil() {
     }
 
@@ -94,7 +94,7 @@ public class DateUtil {
             throw new RuntimeException(TypeMismatchException.newException(PTimestamp.INSTANCE, type));
         }
     }
-    
+
     public static TimeZone getTimeZone(String timeZoneId) {
         TimeZone parserTimeZone;
         if (timeZoneId == null || timeZoneId.equals(DateUtil.DEFAULT_TIME_ZONE_ID)) {
@@ -106,8 +106,9 @@ public class DateUtil {
         }
         return parserTimeZone;
     }
-    
+
     private static String[] defaultPattern;
+
     static {
         int maxOrdinal = Integer.MIN_VALUE;
         List<PDataType> timeDataTypes = Lists.newArrayListWithExpectedSize(6);
@@ -119,22 +120,22 @@ public class DateUtil {
                 }
             }
         }
-        defaultPattern = new String[maxOrdinal+1];
+        defaultPattern = new String[maxOrdinal + 1];
         for (PDataType type : timeDataTypes) {
             switch (type.getResultSetSqlType()) {
-            case Types.TIMESTAMP:
-                defaultPattern[type.ordinal()] = DateUtil.DEFAULT_TIMESTAMP_FORMAT;
-                break;
-            case Types.TIME:
-                defaultPattern[type.ordinal()] = DateUtil.DEFAULT_TIME_FORMAT;
-                break;
-            case Types.DATE:
-                defaultPattern[type.ordinal()] = DateUtil.DEFAULT_DATE_FORMAT;
-                break;
+                case Types.TIMESTAMP:
+                    defaultPattern[type.ordinal()] = DateUtil.DEFAULT_TIMESTAMP_FORMAT;
+                    break;
+                case Types.TIME:
+                    defaultPattern[type.ordinal()] = DateUtil.DEFAULT_TIME_FORMAT;
+                    break;
+                case Types.DATE:
+                    defaultPattern[type.ordinal()] = DateUtil.DEFAULT_DATE_FORMAT;
+                    break;
             }
         }
     }
-    
+
     private static String getDefaultFormat(PDataType type) {
         int ordinal = type.ordinal();
         if (ordinal >= 0 || ordinal < defaultPattern.length) {
@@ -152,7 +153,7 @@ public class DateUtil {
         if (pattern == null || pattern.length() == 0) {
             pattern = defaultPattern;
         }
-        if(defaultPattern.equals(pattern)) {
+        if (defaultPattern.equals(pattern)) {
             return ISODateFormatParserFactory.getParser(timeZone);
         } else {
             return new SimpleDateFormatParser(pattern, timeZone);
@@ -202,9 +203,10 @@ public class DateUtil {
         int period = timestampValue.indexOf('.');
         if (period > 0) {
             String nanosStr = timestampValue.substring(period + 1);
-            if (nanosStr.length() > 9)
+            if (nanosStr.length() > 9) {
                 throw new IllegalDataException("nanos > 999999999 or < 0");
-            if(nanosStr.length() > 3 ) {
+            }
+            if (nanosStr.length() > 3) {
                 int nanos = Integer.parseInt(nanosStr);
                 for (int i = 0; i < 9 - nanosStr.length(); i++) {
                     nanos *= 10;
@@ -217,10 +219,10 @@ public class DateUtil {
 
     /**
      * Utility function to work around the weirdness of the {@link Timestamp} constructor.
-     * This method takes the milli-seconds that spills over to the nanos part as part of 
+     * This method takes the milli-seconds that spills over to the nanos part as part of
      * constructing the {@link Timestamp} object.
-     * If we just set the nanos part of timestamp to the nanos passed in param, we 
-     * end up losing the sub-second part of timestamp. 
+     * If we just set the nanos part of timestamp to the nanos passed in param, we
+     * end up losing the sub-second part of timestamp.
      */
     public static Timestamp getTimestamp(long millis, int nanos) {
         if (nanos > MAX_ALLOWED_NANOS || nanos < 0) {
@@ -248,6 +250,7 @@ public class DateUtil {
 
     public static interface DateTimeParser {
         public long parseDateTime(String dateTimeString) throws IllegalDataException;
+
         public TimeZone getTimeZone();
     }
 
@@ -273,7 +276,7 @@ public class DateUtil {
         @Override
         public long parseDateTime(String dateTimeString) throws IllegalDataException {
             try {
-                java.util.Date date =parser.parse(dateTimeString);
+                java.util.Date date = parser.parse(dateTimeString);
                 return date.getTime();
             } catch (ParseException e) {
                 throw new IllegalDataException("Unable to parse date/time '" + dateTimeString + "' using format string of '" + datePattern + "'.");
@@ -287,8 +290,9 @@ public class DateUtil {
     }
 
     private static class ISODateFormatParserFactory {
-        private ISODateFormatParserFactory() {}
-        
+        private ISODateFormatParserFactory() {
+        }
+
         public static DateTimeParser getParser(final TimeZone timeZone) {
             // If timeZone matches default, get singleton DateTimeParser
             if (timeZone.equals(DEFAULT_TIME_ZONE)) {
@@ -303,7 +307,7 @@ public class DateUtil {
                 public long parseDateTime(String dateTimeString) throws IllegalDataException {
                     try {
                         return formatter.parseDateTime(dateTimeString).getMillis();
-                    } catch(IllegalArgumentException ex) {
+                    } catch (IllegalArgumentException ex) {
                         throw new IllegalDataException(ex);
                     }
                 }
@@ -315,6 +319,7 @@ public class DateUtil {
             };
         }
     }
+
     /**
      * This class is our default DateTime string parser
      */
@@ -327,13 +332,14 @@ public class DateUtil {
 
         private final DateTimeFormatter formatter = ISO_DATE_TIME_FORMATTER.withZone(DateTimeZone.UTC);
 
-        private ISODateFormatParser() {}
+        private ISODateFormatParser() {
+        }
 
         @Override
         public long parseDateTime(String dateTimeString) throws IllegalDataException {
             try {
                 return formatter.parseDateTime(dateTimeString).getMillis();
-            } catch(IllegalArgumentException ex) {
+            } catch (IllegalArgumentException ex) {
                 throw new IllegalDataException(ex);
             }
         }

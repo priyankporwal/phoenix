@@ -23,32 +23,32 @@ public abstract class BasePhoenixArrayToStringTest {
 
     @Test
     public void testSingleObjectArray() {
-        helpTestToString(getBaseType(), new Object[] { getElement1() }, "[" + getString1() + "]");
+        helpTestToString(getBaseType(), new Object[] {getElement1()}, "[" + getString1() + "]");
     }
 
     @Test
     public void testMultipleObjectArray() {
         helpTestToString(getBaseType(),
-            new Object[] { getElement1(), getElement2(), getElement3() }, "[" + getString1() + ", "
-                    + getString2() + ", " + getString3() + "]");
+                new Object[] {getElement1(), getElement2(), getElement3()}, "[" + getString1() + ", "
+                        + getString2() + ", " + getString3() + "]");
     }
 
     @Test
     public void testSingleNullObjectArray() {
-        helpTestToString(getBaseType(), new Object[] { null }, "[" + getNullString() + "]");
+        helpTestToString(getBaseType(), new Object[] {null}, "[" + getNullString() + "]");
     }
 
     @Test
     public void testMultipleNullObjectArray() {
-        helpTestToString(getBaseType(), new Object[] { null, null }, "[" + getNullString() + ", "
+        helpTestToString(getBaseType(), new Object[] {null, null}, "[" + getNullString() + ", "
                 + getNullString() + "]");
     }
 
     @Test
     public void testNormalAndNullObjectArray() {
-        helpTestToString(getBaseType(), new Object[] { null, getElement1(), null, getElement2() },
-            "[" + getNullString() + ", " + getString1() + ", " + getNullString() + ", "
-                    + getString2() + "]");
+        helpTestToString(getBaseType(), new Object[] {null, getElement1(), null, getElement2()},
+                "[" + getNullString() + ", " + getString1() + ", " + getNullString() + ", "
+                        + getString2() + "]");
     }
 
     protected abstract PDataType getBaseType();

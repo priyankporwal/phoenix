@@ -33,9 +33,9 @@ public class BulkLoadToolTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> params() {
-        return Arrays.asList(new Object[][]{
-                { new CsvBulkLoadTool() },
-                { new JsonBulkLoadTool() },
+        return Arrays.asList(new Object[][] {
+                {new CsvBulkLoadTool()},
+                {new JsonBulkLoadTool()},
         });
     }
 
@@ -44,27 +44,27 @@ public class BulkLoadToolTest {
 
     @Test
     public void testParseOptions() {
-        CommandLine cmdLine = bulkLoadTool.parseOptions(new String[] { "--input", "/input",
-                "--table", "mytable" });
+        CommandLine cmdLine = bulkLoadTool.parseOptions(new String[] {"--input", "/input",
+                "--table", "mytable"});
 
         assertEquals("mytable", cmdLine.getOptionValue(CsvBulkLoadTool.TABLE_NAME_OPT.getOpt()));
         assertEquals("/input", cmdLine.getOptionValue(CsvBulkLoadTool.INPUT_PATH_OPT.getOpt()));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testParseOptions_ExtraArguments() {
-        bulkLoadTool.parseOptions(new String[] { "--input", "/input",
-                "--table", "mytable", "these", "shouldnt", "be", "here" });
+        bulkLoadTool.parseOptions(new String[] {"--input", "/input",
+                "--table", "mytable", "these", "shouldnt", "be", "here"});
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testParseOptions_NoInput() {
-        bulkLoadTool.parseOptions(new String[] { "--table", "mytable" });
+        bulkLoadTool.parseOptions(new String[] {"--table", "mytable"});
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testParseOptions_NoTable() {
-        bulkLoadTool.parseOptions(new String[] { "--input", "/input" });
+        bulkLoadTool.parseOptions(new String[] {"--input", "/input"});
     }
 
     @Test

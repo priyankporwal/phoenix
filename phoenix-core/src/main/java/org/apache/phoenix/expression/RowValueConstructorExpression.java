@@ -18,8 +18,7 @@
 
 /**
  * Implementation for row value constructor (a,b,c) expression.
- * 
- * 
+ *
  * @since 0.1
  */
 package org.apache.phoenix.expression;
@@ -43,7 +42,7 @@ import org.apache.phoenix.util.SchemaUtil;
 import org.apache.phoenix.util.TrustedByteArrayOutputStream;
 
 public class RowValueConstructorExpression extends BaseCompoundExpression {
-    
+
     private ImmutableBytesWritable ptrs[];
     private ImmutableBytesWritable literalExprPtr;
     private int partialEvalIndex = -1;
@@ -54,34 +53,36 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
     // This is to facilitate b/w compat to 4.13 clients.
     // @see <a href="https://issues.apache.org/jira/browse/PHOENIX-5122">PHOENIX-5122</a> 
     private BitSet extraFields;
-    
+
     // Important : When you want to add new bits make sure to add those towards the end, 
     // else will break b/w compat again.
-    private enum ExtraFieldPosition {
-    	
-    	LITERAL_CONSTANT(0),
-    	STRIP_TRAILING_SEPARATOR_BYTE(1);
-    	
-    	private int bitPosition;
+    private enum ExtraFieldPosition
 
-    	private ExtraFieldPosition(int position) {
-    		bitPosition = position;
-    	}
-    	
-    	private int getBitPosition() {
-    		return bitPosition;
-    	}
+    {
+
+        LITERAL_CONSTANT(0),
+                STRIP_TRAILING_SEPARATOR_BYTE(1);
+
+        private int bitPosition;
+
+    	private ExtraFieldPosition( int position){
+        bitPosition = position;
+    }
+
+        private int getBitPosition () {
+        return bitPosition;
+    }
     }
 
     public RowValueConstructorExpression() {
     }
-    
+
     public RowValueConstructorExpression(List<Expression> children, boolean isConstant) {
         super(children);
         extraFields = new BitSet(8);
-    	extraFields.set(ExtraFieldPosition.STRIP_TRAILING_SEPARATOR_BYTE.getBitPosition());
+        extraFields.set(ExtraFieldPosition.STRIP_TRAILING_SEPARATOR_BYTE.getBitPosition());
         if (isConstant) {
-        	extraFields.set(ExtraFieldPosition.LITERAL_CONSTANT.getBitPosition());
+            extraFields.set(ExtraFieldPosition.LITERAL_CONSTANT.getBitPosition());
         }
         estimatedByteSize = 0;
         init();
@@ -90,16 +91,16 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
     public RowValueConstructorExpression clone(List<Expression> children) {
         return new RowValueConstructorExpression(children, literalExprPtr != null);
     }
-    
+
     public int getEstimatedSize() {
         return estimatedByteSize;
     }
-    
+
     @Override
     public boolean isStateless() {
         return literalExprPtr != null;
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         List<T> l = acceptChildren(visitor, visitor.visitEnter(this));
@@ -116,14 +117,14 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
         extraFields = BitSet.valueOf(new byte[] {input.readByte()});
         init();
     }
-    
+
     @Override
     public void write(DataOutput output) throws IOException {
         super.write(output);
         byte[] b = extraFields.toByteArray();
-        output.writeByte((int)(b.length > 0 ? b[0] & 0xff  : 0));
+        output.writeByte((int) (b.length > 0 ? b[0] & 0xff : 0));
     }
-    
+
     private void init() {
         this.ptrs = new ImmutableBytesWritable[children.size()];
         if (isConstant()) {
@@ -132,20 +133,20 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
             literalExprPtr = ptr;
         }
     }
-    
+
     private boolean isConstant() {
-    	return extraFields.get(ExtraFieldPosition.LITERAL_CONSTANT.getBitPosition());
+        return extraFields.get(ExtraFieldPosition.LITERAL_CONSTANT.getBitPosition());
     }
-    
+
     private boolean isStripTrailingSepByte() {
-    	return extraFields.get(ExtraFieldPosition.STRIP_TRAILING_SEPARATOR_BYTE.getBitPosition());
+        return extraFields.get(ExtraFieldPosition.STRIP_TRAILING_SEPARATOR_BYTE.getBitPosition());
     }
-    
+
     @Override
     public PDataType getDataType() {
         return PVarbinary.INSTANCE;
     }
-    
+
     @Override
     public void reset() {
         partialEvalIndex = 0;
@@ -153,7 +154,7 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
         Arrays.fill(ptrs, null);
         super.reset();
     }
-    
+
     private static int getExpressionByteCount(Expression e) {
         PDataType childType = e.getDataType();
         if (childType != null && !childType.isFixedWidth()) {
@@ -163,10 +164,10 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
             return childType == null || !childType.isFixedWidth() ? 1 : SchemaUtil.getFixedByteSize(e);
         }
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        if(literalExprPtr != null) {
+        if (literalExprPtr != null) {
             // if determined during construction that the row value constructor is just comprised of literal expressions, 
             // let's just return the ptr we have already computed and be done with evaluation.
             ptr.set(literalExprPtr.get(), literalExprPtr.getOffset(), literalExprPtr.getLength());
@@ -176,14 +177,14 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
             boolean isPartialEval = this.partialEvalIndex >= 0;
             int evalIndex = isPartialEval ? this.partialEvalIndex : 0;
             int expressionCount = evalIndex;
-            for(; evalIndex < ptrs.length; evalIndex++) {
+            for (; evalIndex < ptrs.length; evalIndex++) {
                 final Expression expression = children.get(evalIndex);
                 // TODO: handle overflow and underflow
                 if (expression.evaluate(tuple, ptr)) {
                     if (ptr.getLength() == 0) {
                         estimatedByteSize += getExpressionByteCount(expression);
                     } else {
-                        expressionCount = evalIndex+1;
+                        expressionCount = evalIndex + 1;
                         ptrs[evalIndex] = new ImmutableBytesWritable();
                         ptrs[evalIndex].set(ptr.get(), ptr.getOffset(), ptr.getLength());
                         estimatedByteSize += ptr.getLength() + (expression.getDataType().isFixedWidth() ? 0 : 1); // 1 extra for the separator byte.
@@ -197,7 +198,7 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
             if (isPartialEval) {
                 this.partialEvalIndex = evalIndex; // Move counter forward
             }
-            
+
             if (evalIndex == ptrs.length) {
                 if (expressionCount == 0) {
                     ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
@@ -210,7 +211,7 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
                 TrustedByteArrayOutputStream output = new TrustedByteArrayOutputStream(estimatedByteSize);
                 try {
                     boolean previousCarryOver = false;
-                    for (int i = 0; i< expressionCount; i++) {
+                    for (int i = 0; i < expressionCount; i++) {
                         Expression child = getChildren().get(i);
                         PDataType childType = child.getDataType();
                         ImmutableBytesWritable tempPtr = ptrs[i];
@@ -241,11 +242,11 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
                     // Additionally for b/w compat with clients older than 4.14.1 -
                     // If SortOorder.ASC then always strip trailing separator byte (as before)
                     // else only strip for >= 4.14 client (when STRIP_TRAILING_SEPARATOR_BYTE bit is set)
-                    for (int k = expressionCount -1 ; 
-                            k >=0 &&  getChildren().get(k).getDataType() != null 
-                                  && !getChildren().get(k).getDataType().isFixedWidth()
-                                  && outputBytes[outputSize-1] == SchemaUtil.getSeparatorByte(true, false, getChildren().get(k))
-                                  &&  (getChildren().get(k).getSortOrder() == SortOrder.ASC ? true : isStripTrailingSepByte()) ; k--) {
+                    for (int k = expressionCount - 1;
+                         k >= 0 && getChildren().get(k).getDataType() != null
+                                 && !getChildren().get(k).getDataType().isFixedWidth()
+                                 && outputBytes[outputSize - 1] == SchemaUtil.getSeparatorByte(true, false, getChildren().get(k))
+                                 && (getChildren().get(k).getSortOrder() == SortOrder.ASC ? true : isStripTrailingSepByte()); k--) {
                         outputSize--;
                     }
                     ptr.set(outputBytes, 0, outputSize);
@@ -253,23 +254,23 @@ public class RowValueConstructorExpression extends BaseCompoundExpression {
                 } finally {
                     output.close();
                 }
-            }  
+            }
             return false;
         } catch (IOException e) {
             throw new RuntimeException(e); //Impossible.
         }
     }
-    
+
     @Override
     public final String toString() {
         StringBuilder buf = new StringBuilder("(");
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + ", ");
         }
-        buf.append(children.get(children.size()-1) + ")");
+        buf.append(children.get(children.size() - 1) + ")");
         return buf.toString();
     }
-    
+
     @Override
     public boolean requiresFinalEvaluation() {
         return true;

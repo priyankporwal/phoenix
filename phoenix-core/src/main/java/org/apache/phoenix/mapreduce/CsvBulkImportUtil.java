@@ -36,22 +36,22 @@ public class CsvBulkImportUtil {
     /**
      * Configure a job configuration for a bulk CSV import.
      *
-     * @param conf job configuration to be set up
+     * @param conf           job configuration to be set up
      * @param fieldDelimiter field delimiter character for the CSV input
-     * @param quoteChar quote character for the CSV input
-     * @param escapeChar escape character for the CSV input
+     * @param quoteChar      quote character for the CSV input
+     * @param escapeChar     escape character for the CSV input
      * @param arrayDelimiter array delimiter character, can be null
-     * @param binaryEncoding 
+     * @param binaryEncoding
      */
     public static void initCsvImportJob(Configuration conf, char fieldDelimiter, char quoteChar,
-            char escapeChar, String arrayDelimiter, String binaryEncoding) {
+                                        char escapeChar, String arrayDelimiter, String binaryEncoding) {
         setChar(conf, CsvToKeyValueMapper.FIELD_DELIMITER_CONFKEY, fieldDelimiter);
         setChar(conf, CsvToKeyValueMapper.QUOTE_CHAR_CONFKEY, quoteChar);
         setChar(conf, CsvToKeyValueMapper.ESCAPE_CHAR_CONFKEY, escapeChar);
         if (arrayDelimiter != null) {
             conf.set(CsvToKeyValueMapper.ARRAY_DELIMITER_CONFKEY, arrayDelimiter);
         }
-        if(binaryEncoding!=null){
+        if (binaryEncoding != null) {
             conf.set(QueryServices.UPLOAD_BINARY_DATA_TYPE_ENCODING, binaryEncoding);
         }
     }
@@ -59,11 +59,11 @@ public class CsvBulkImportUtil {
     /**
      * Configure an {@link ImportPreUpsertKeyValueProcessor} for a CSV bulk import job.
      *
-     * @param conf job configuration
+     * @param conf           job configuration
      * @param processorClass class to be used for performing pre-upsert processing
      */
     public static void configurePreUpsertProcessor(Configuration conf,
-            Class<? extends ImportPreUpsertKeyValueProcessor> processorClass) {
+                                                   Class<? extends ImportPreUpsertKeyValueProcessor> processorClass) {
         conf.setClass(PhoenixConfigurationUtil.UPSERT_HOOK_CLASS_CONFKEY, processorClass,
                 ImportPreUpsertKeyValueProcessor.class);
     }

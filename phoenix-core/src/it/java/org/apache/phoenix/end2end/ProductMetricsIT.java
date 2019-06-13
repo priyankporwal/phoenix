@@ -90,9 +90,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         ensureTableCreated(getUrl(), tablename, PRODUCT_METRICS_NAME, splits, null, null);
     }
 
-    private static void assertNoRows(String tablename,Connection conn) throws SQLException {
+    private static void assertNoRows(String tablename, Connection conn) throws SQLException {
         Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("select 1 from "+tablename);
+        ResultSet rs = stmt.executeQuery("select 1 from " + tablename);
         assertFalse(rs.next());
     }
 
@@ -195,7 +195,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
     }
 
     private static void initDateTableValues(String tablename, String tenantId, byte[][] splits, Date startDate, double dateIncrement) throws Exception {
-         initTable(tablename, splits);
+        initTable(tablename, splits);
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -210,7 +210,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     private static void initDateTableValues(String tablename, Connection conn, String tenantId, Date startDate, double dateIncrement) throws Exception {
         PreparedStatement stmt = conn.prepareStatement(
-                "upsert into " +tablename+
+                "upsert into " + tablename +
                         "(" +
                         "    ORGANIZATION_ID, " +
                         "    \"DATE\", " +
@@ -233,7 +233,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         stmt.setNull(9, Types.BIGINT);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "B");
@@ -245,7 +245,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         stmt.setLong(9, 2000);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "C");
@@ -257,7 +257,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         stmt.setNull(9, Types.BIGINT);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "D");
@@ -269,7 +269,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         stmt.setLong(9, 4000);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "E");
@@ -281,7 +281,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         stmt.setLong(9, 5000);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "F");
@@ -294,12 +294,12 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         stmt.execute();
     }
 
-    
+
     @Test
     public void testDateRangeAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(1), feature f FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY f";
+        String query = "SELECT count(1), feature f FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY f";
         //String query = "SELECT count(1), feature FROM PRODUCT_METRICS GROUP BY feature";
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -325,9 +325,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testTableAliasSameAsTableName() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum("+tablename+".transactions) FROM "+tablename+" PRODUCT_METRICS";
+        String query = "SELECT sum(" + tablename + ".transactions) FROM " + tablename + " PRODUCT_METRICS";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -344,9 +344,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testPartiallyEvaluableAnd() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT \"DATE\" FROM "+tablename+" WHERE organization_id=? AND unique_users >= 30 AND transactions >= 300 AND cpu_utilization > 2 AND db_utilization > 0.5 AND io_time = 4000";
+        String query = "SELECT \"DATE\" FROM " + tablename + " WHERE organization_id=? AND unique_users >= 30 AND transactions >= 300 AND cpu_utilization > 2 AND db_utilization > 0.5 AND io_time = 4000";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -364,9 +364,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testPartiallyEvaluableOr() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT \"DATE\" FROM "+tablename+" WHERE organization_id=? AND (transactions = 10000 OR unset_column = 5 OR io_time = 4000)";
+        String query = "SELECT \"DATE\" FROM " + tablename + " WHERE organization_id=? AND (transactions = 10000 OR unset_column = 5 OR io_time = 4000)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -384,9 +384,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testConstantTrueHaving() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(1), feature FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature HAVING 1=1";
+        String query = "SELECT count(1), feature FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature HAVING 1=1";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -410,9 +410,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testConstantFalseHaving() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(1), feature FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature HAVING 1=1 and 0=1";
+        String query = "SELECT count(1), feature FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature HAVING 1=1 and 0=1";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -430,9 +430,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateRangeHavingAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(1), feature FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature HAVING count(1) >= 2";
+        String query = "SELECT count(1), feature FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature HAVING count(1) >= 2";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -453,9 +453,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateRangeSumLongAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(transactions), feature FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature";
+        String query = "SELECT sum(transactions), feature FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -479,9 +479,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testRoundAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT round(\"DATE\",'hour',1) r,count(1) FROM "+tablename+" WHERE organization_id=? GROUP BY r";
+        String query = "SELECT round(\"DATE\",'hour',1) r,count(1) FROM " + tablename + " WHERE organization_id=? GROUP BY r";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -518,9 +518,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testRoundScan() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT round(\"DATE\",'hour') FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT round(\"DATE\",'hour') FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -560,9 +560,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testTruncAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT trunc(\"DATE\",'hour'),count(1) FROM "+tablename+" WHERE organization_id=? GROUP BY trunc(\"DATE\",'hour')";
+        String query = "SELECT trunc(\"DATE\",'hour'),count(1) FROM " + tablename + " WHERE organization_id=? GROUP BY trunc(\"DATE\",'hour')";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -605,9 +605,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,sum(unique_users) FROM "+tablename+" WHERE organization_id=? AND transactions > 0 GROUP BY feature";
+        String query = "SELECT feature,sum(unique_users) FROM " + tablename + " WHERE organization_id=? AND transactions > 0 GROUP BY feature";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -626,9 +626,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testHavingAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,sum(unique_users) FROM "+tablename+" WHERE organization_id=? AND transactions > 0 GROUP BY feature HAVING feature=?";
+        String query = "SELECT feature,sum(unique_users) FROM " + tablename + " WHERE organization_id=? AND transactions > 0 GROUP BY feature HAVING feature=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -646,9 +646,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testConstantSumAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(1),sum(unique_users) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT sum(1),sum(unique_users) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -657,8 +657,8 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            assertEquals(6,rs.getInt(1));
-            assertEquals(210,rs.getInt(2));
+            assertEquals(6, rs.getInt(1));
+            assertEquals(210, rs.getInt(2));
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -667,9 +667,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMultiDimAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,region,sum(unique_users) FROM "+tablename+" WHERE organization_id=? GROUP BY feature,region";
+        String query = "SELECT feature,region,sum(unique_users) FROM " + tablename + " WHERE organization_id=? GROUP BY feature,region";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -679,27 +679,27 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
             ResultSet rs = statement.executeQuery();
 
             assertTrue(rs.next());
-            assertEquals(F1,rs.getString(1));
-            assertEquals(null,rs.getString(2));
-            assertEquals(80,rs.getInt(3));
+            assertEquals(F1, rs.getString(1));
+            assertEquals(null, rs.getString(2));
+            assertEquals(80, rs.getInt(3));
             assertTrue(rs.next());
-            assertEquals(F1,rs.getString(1));
-            assertEquals(R1,rs.getString(2));
-            assertEquals(30,rs.getInt(3));
+            assertEquals(F1, rs.getString(1));
+            assertEquals(R1, rs.getString(2));
+            assertEquals(30, rs.getInt(3));
             assertTrue(rs.next());
-            assertEquals(F1,rs.getString(1));
-            assertEquals(R2,rs.getString(2));
-            assertEquals(10,rs.getInt(3));
+            assertEquals(F1, rs.getString(1));
+            assertEquals(R2, rs.getString(2));
+            assertEquals(10, rs.getInt(3));
 
             assertTrue(rs.next());
-            assertEquals(F2,rs.getString(1));
-            assertEquals(R1,rs.getString(2));
-            assertEquals(40,rs.getInt(3));
+            assertEquals(F2, rs.getString(1));
+            assertEquals(R1, rs.getString(2));
+            assertEquals(40, rs.getInt(3));
 
             assertTrue(rs.next());
-            assertEquals(F3,rs.getString(1));
-            assertEquals(R2,rs.getString(2));
-            assertEquals(50,rs.getInt(3));
+            assertEquals(F3, rs.getString(1));
+            assertEquals(R2, rs.getString(2));
+            assertEquals(50, rs.getInt(3));
 
             assertFalse(rs.next());
         } finally {
@@ -709,9 +709,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMultiDimRoundAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT round(\"DATE\",'hour',1),feature,sum(unique_users) FROM "+tablename+" WHERE organization_id=? GROUP BY round(\"DATE\",'hour',1),feature";
+        String query = "SELECT round(\"DATE\",'hour',1),feature,sum(unique_users) FROM " + tablename + " WHERE organization_id=? GROUP BY round(\"DATE\",'hour',1),feature";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -726,30 +726,30 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
             assertTrue(rs.next());
             assertEquals(bucket1, rs.getDate(1));
-            assertEquals(F1,rs.getString(2));
-            assertEquals(30,rs.getInt(3));
+            assertEquals(F1, rs.getString(2));
+            assertEquals(30, rs.getInt(3));
 
 
             assertTrue(rs.next());
             assertEquals(bucket2, rs.getDate(1));
-            assertEquals(F1,rs.getString(2));
-            assertEquals(30,rs.getInt(3));
+            assertEquals(F1, rs.getString(2));
+            assertEquals(30, rs.getInt(3));
 
             assertTrue(rs.next());
             assertEquals(bucket2.getTime(), rs.getDate(1).getTime());
-            assertEquals(F2,rs.getString(2));
-            assertEquals(40,rs.getInt(3));
+            assertEquals(F2, rs.getString(2));
+            assertEquals(40, rs.getInt(3));
 
             assertTrue(rs.next());
             assertEquals(bucket2, rs.getDate(1));
-            assertEquals(F3,rs.getString(2));
-            assertEquals(50,rs.getInt(3));
+            assertEquals(F3, rs.getString(2));
+            assertEquals(50, rs.getInt(3));
 
 
             assertTrue(rs.next());
             assertEquals(bucket3, rs.getDate(1));
-            assertEquals(F1,rs.getString(2));
-            assertEquals(60,rs.getInt(3));
+            assertEquals(F1, rs.getString(2));
+            assertEquals(60, rs.getInt(3));
 
             assertFalse(rs.next());
         } finally {
@@ -759,9 +759,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateRangeSumNumberUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(cpu_utilization) FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?)";
+        String query = "SELECT sum(cpu_utilization) FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -781,9 +781,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testSumUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -806,17 +806,17 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testResetColumnInSameTxn() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(transactions) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT sum(transactions) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         Connection upsertConn = DriverManager.getConnection(getUrl(), props);
         try {
-            initTable(tablename,getSplits(tenantId));
+            initTable(tablename, getSplits(tenantId));
             initTableValues(tablename, upsertConn, tenantId);
             PreparedStatement stmt = upsertConn.prepareStatement(
-                    "upsert into " + tablename+
+                    "upsert into " + tablename +
                             "(" +
                             "    ORGANIZATION_ID, " +
                             "    \"DATE\", " +
@@ -845,9 +845,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testSumUngroupedHavingAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) FROM "+tablename+" WHERE organization_id=? HAVING sum(unique_users) > 200 AND sum(db_utilization) > 4.5";
+        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) FROM " + tablename + " WHERE organization_id=? HAVING sum(unique_users) > 200 AND sum(db_utilization) > 4.5";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -870,9 +870,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testSumUngroupedHavingAggregation2() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) FROM "+tablename+" WHERE organization_id=? HAVING sum(unique_users) > 200 AND sum(db_utilization) > 5";
+        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) FROM " + tablename + " WHERE organization_id=? HAVING sum(unique_users) > 200 AND sum(db_utilization) > 5";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -888,9 +888,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMinUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT min(unique_users),min(cpu_utilization),min(transactions),min(db_utilization),min('X'),min(response_time) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT min(unique_users),min(cpu_utilization),min(transactions),min(db_utilization),min('X'),min(response_time) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -914,9 +914,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMinUngroupedAggregation1() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT min(cpu_utilization) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT min(cpu_utilization) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -934,9 +934,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMaxUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT max(unique_users),max(cpu_utilization),max(transactions),max(db_utilization),max('X'),max(response_time) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT max(unique_users),max(cpu_utilization),max(transactions),max(db_utilization),max('X'),max(response_time) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -960,9 +960,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMaxGroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,max(transactions) FROM "+tablename+" WHERE organization_id=? GROUP BY feature";
+        String query = "SELECT feature,max(transactions) FROM " + tablename + " WHERE organization_id=? GROUP BY feature";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -971,14 +971,14 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            assertEquals(F1,rs.getString(1));
-            assertEquals(600,rs.getInt(2));
+            assertEquals(F1, rs.getString(1));
+            assertEquals(600, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals(F2,rs.getString(1));
-            assertEquals(400,rs.getInt(2));
+            assertEquals(F2, rs.getString(1));
+            assertEquals(400, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals(F3,rs.getString(1));
-            assertEquals(500,rs.getInt(2));
+            assertEquals(F3, rs.getString(1));
+            assertEquals(500, rs.getInt(2));
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -987,9 +987,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testCountUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(1) FROM "+tablename;
+        String query = "SELECT count(1) FROM " + tablename;
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1006,9 +1006,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testCountColumnUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(io_time),sum(io_time),avg(io_time) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT count(io_time),sum(io_time),avg(io_time) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1029,16 +1029,16 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testNoRowsUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(io_time),sum(io_time),avg(io_time),count(1) FROM "+tablename+" WHERE organization_id=? AND feature > ?";
+        String query = "SELECT count(io_time),sum(io_time),avg(io_time),count(1) FROM " + tablename + " WHERE organization_id=? AND feature > ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             initTableValues(tablename, tenantId, getSplits(tenantId));
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
-            statement.setString(2,F3);
+            statement.setString(2, F3);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
             assertEquals(0, rs.getLong(1));
@@ -1056,9 +1056,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testAvgUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT avg(unique_users) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT avg(unique_users) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1076,9 +1076,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testAvgUngroupedAggregationOnValueField() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT AVG(DB_UTILIZATION) FROM "+tablename+" WHERE organization_id=?";
+        String query = "SELECT AVG(DB_UTILIZATION) FROM " + tablename + " WHERE organization_id=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1098,15 +1098,16 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     /**
      * Test aggregate query with rownum limit that does not explicity contain a count(1) as a select expression
+     *
      * @throws Exception
      */
     @Test
     public void testLimitSumUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         // No count(1) aggregation, so it will get added automatically
         // LIMIT has no effect, since it's applied at the end and we'll always have a single row for ungrouped aggregation
-        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) feature FROM "+tablename+" WHERE organization_id=? LIMIT 3";
+        String query = "SELECT sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time) feature FROM " + tablename + " WHERE organization_id=? LIMIT 3";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1129,13 +1130,14 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     /**
      * Test grouped aggregation query with a mix of aggregated data types
+     *
      * @throws Exception
      */
     @Test
     public void testSumGroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time),count(1) c FROM "+tablename+" WHERE organization_id=? AND feature < ? GROUP BY feature";
+        String query = "SELECT feature,sum(unique_users),sum(cpu_utilization),sum(transactions),sum(db_utilization),sum(response_time),count(1) c FROM " + tablename + " WHERE organization_id=? AND feature < ? GROUP BY feature";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1170,9 +1172,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDegenerateAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT count(1), feature FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature";
+        String query = "SELECT count(1), feature FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND \"DATE\" <= to_date(?) GROUP BY feature";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1191,13 +1193,14 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     /**
      * Query with multiple > expressions on continquous PK columns
+     *
      * @throws Exception
      */
     @Test
     public void testFeatureDateRangeAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,unique_users FROM "+tablename+" WHERE organization_id=? AND \"DATE\" >= to_date(?) AND feature > ?";
+        String query = "SELECT feature,unique_users FROM " + tablename + " WHERE organization_id=? AND \"DATE\" >= to_date(?) AND feature > ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1218,13 +1221,14 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     /**
      * Query with non contiguous PK column expressions (i.e. no expresion for DATE)
+     *
      * @throws Exception
      */
     @Test
     public void testFeatureGTAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,unique_users FROM "+tablename+" WHERE organization_id=? AND feature > ?";
+        String query = "SELECT feature,unique_users FROM " + tablename + " WHERE organization_id=? AND feature > ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1244,9 +1248,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testFeatureGTEAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,unique_users FROM "+tablename+" WHERE organization_id=? AND feature >= ?";
+        String query = "SELECT feature,unique_users FROM " + tablename + " WHERE organization_id=? AND feature >= ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1269,9 +1273,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testFeatureEQAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,unique_users FROM "+tablename+" WHERE organization_id=? AND feature = ?";
+        String query = "SELECT feature,unique_users FROM " + tablename + " WHERE organization_id=? AND feature = ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1292,9 +1296,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testFeatureLTAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,unique_users FROM "+tablename+" WHERE organization_id=? AND feature < ?";
+        String query = "SELECT feature,unique_users FROM " + tablename + " WHERE organization_id=? AND feature < ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1323,9 +1327,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testFeatureLTEAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature,unique_users FROM "+tablename+" WHERE organization_id=? AND feature <= ?";
+        String query = "SELECT feature,unique_users FROM " + tablename + " WHERE organization_id=? AND feature <= ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1354,12 +1358,13 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
+
     @Test
     public void testOrderByNonAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         initTableValues(tablename, tenantId, getSplits(tenantId));
-        String query = "SELECT \"DATE\", transactions t FROM "+tablename+" WHERE organization_id=? AND unique_users <= 30 ORDER BY t DESC LIMIT 2";
+        String query = "SELECT \"DATE\", transactions t FROM " + tablename + " WHERE organization_id=? AND unique_users <= 30 ORDER BY t DESC LIMIT 2";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
 
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -1379,10 +1384,10 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testOrderByUngroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         String query = "SELECT sum(unique_users) sumUsers,count(feature) " +
-                "FROM " + tablename+
+                "FROM " + tablename +
                 " WHERE organization_id=? " +
                 "ORDER BY 100000-sumUsers";
 
@@ -1404,10 +1409,10 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testOrderByGroupedAggregation() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         String query = "SELECT feature,sum(unique_users) s,count(feature),round(\"DATE\",'hour',1) r " +
-                "FROM "+tablename+
+                "FROM " + tablename +
                 " WHERE organization_id=? " +
                 "GROUP BY feature, r " +
                 "ORDER BY 1 desc,feature desc,r,feature,s";
@@ -1442,10 +1447,10 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testOrderByUnprojected() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         String query = "SELECT sum(unique_users), count(feature) c " +
-                "FROM " + tablename+
+                "FROM " + tablename +
                 " WHERE organization_id=? " +
                 "GROUP BY feature " +
                 "ORDER BY 100-c,feature";
@@ -1480,10 +1485,10 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
     }
 
     private void helpTestOrderByNullColumns(boolean nullsFirst) throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         String query = "SELECT region " +
-                "FROM " +tablename+
+                "FROM " + tablename +
                 " WHERE organization_id=? " +
                 "GROUP BY region " +
                 "ORDER BY region nulls " + (nullsFirst ? "first" : "last");
@@ -1514,11 +1519,12 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
     /**
      * Test to repro ArrayIndexOutOfBoundException that happens during filtering in BinarySubsetComparator
      * only after a flush is performed
+     *
      * @throws Exception
      */
     @Test
     public void testFilterOnTrailingKeyColumn() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -1527,7 +1533,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         try {
             initTableValues(tablename, tenantId, getSplits(tenantId));
             admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();
-            admin.flush(TableName.valueOf(SchemaUtil.getTableNameAsBytes(PRODUCT_METRICS_SCHEMA_NAME,tablename)));
+            admin.flush(TableName.valueOf(SchemaUtil.getTableNameAsBytes(PRODUCT_METRICS_SCHEMA_NAME, tablename)));
             String query = "SELECT SUM(TRANSACTIONS) FROM " + tablename + " WHERE FEATURE=?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, F1);
@@ -1535,22 +1541,24 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             assertEquals(1200, rs.getInt(1));
         } finally {
-            if (admin != null) admin.close();
+            if (admin != null) {
+                admin.close();
+            }
             conn.close();
         }
     }
 
     @Test
     public void testFilterOnTrailingKeyColumn2() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT organization_id, \"DATE\", feature FROM "+tablename+" WHERE substr(organization_id,1,3)=? AND \"DATE\" > to_date(?)";
+        String query = "SELECT organization_id, \"DATE\", feature FROM " + tablename + " WHERE substr(organization_id,1,3)=? AND \"DATE\" > to_date(?)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             initTableValues(tablename, tenantId, getSplits(tenantId));
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, tenantId.substring(0,3));
+            statement.setString(1, tenantId.substring(0, 3));
             statement.setString(2, DS4);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
@@ -1569,15 +1577,15 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testSubstringNotEqual() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT organization_id, \"DATE\", feature FROM "+tablename+" WHERE organization_id=? AND \"DATE\" > to_date(?)";
+        String query = "SELECT organization_id, \"DATE\", feature FROM " + tablename + " WHERE organization_id=? AND \"DATE\" > to_date(?)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             initTableValues(tablename, tenantId, getSplits(tenantId));
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, tenantId.substring(0,3));
+            statement.setString(1, tenantId.substring(0, 3));
             statement.setString(2, DS4);
             ResultSet rs = statement.executeQuery();
             assertFalse(rs.next());
@@ -1588,9 +1596,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testKeyOrderedAggregation1() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT \"DATE\", sum(UNIQUE_USERS) FROM "+tablename+" WHERE \"DATE\" > to_date(?) GROUP BY organization_id, \"DATE\"";
+        String query = "SELECT \"DATE\", sum(UNIQUE_USERS) FROM " + tablename + " WHERE \"DATE\" > to_date(?) GROUP BY organization_id, \"DATE\"";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1612,9 +1620,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testKeyOrderedAggregation2() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT \"DATE\", sum(UNIQUE_USERS) FROM "+tablename+" WHERE \"DATE\" < to_date(?) GROUP BY organization_id, \"DATE\"";
+        String query = "SELECT \"DATE\", sum(UNIQUE_USERS) FROM " + tablename + " WHERE \"DATE\" < to_date(?) GROUP BY organization_id, \"DATE\"";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1639,9 +1647,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testKeyOrderedRoundAggregation1() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT round(\"DATE\",'HOUR'), sum(UNIQUE_USERS) FROM "+tablename+" WHERE \"DATE\" < to_date(?) GROUP BY organization_id, round(\"DATE\",'HOUR')";
+        String query = "SELECT round(\"DATE\",'HOUR'), sum(UNIQUE_USERS) FROM " + tablename + " WHERE \"DATE\" < to_date(?) GROUP BY organization_id, round(\"DATE\",'HOUR')";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1663,9 +1671,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testKeyOrderedRoundAggregation2() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT round(\"DATE\",'HOUR'), sum(UNIQUE_USERS) FROM "+tablename+" WHERE \"DATE\" <= to_date(?) GROUP BY organization_id, round(\"DATE\",'HOUR')";
+        String query = "SELECT round(\"DATE\",'HOUR'), sum(UNIQUE_USERS) FROM " + tablename + " WHERE \"DATE\" <= to_date(?) GROUP BY organization_id, round(\"DATE\",'HOUR')";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1687,14 +1695,14 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testEqualsRound() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and trunc(\"DATE\",'DAY')=?";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and trunc(\"DATE\",'DAY')=?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             Date startDate = new Date(System.currentTimeMillis());
-            Date equalDate = new Date((startDate.getTime() + 2 * QueryConstants.MILLIS_IN_DAY)/ QueryConstants.MILLIS_IN_DAY*QueryConstants.MILLIS_IN_DAY);
+            Date equalDate = new Date((startDate.getTime() + 2 * QueryConstants.MILLIS_IN_DAY) / QueryConstants.MILLIS_IN_DAY * QueryConstants.MILLIS_IN_DAY);
             initDateTableValues(tablename, tenantId, getSplits(tenantId), startDate, 1.0);
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
@@ -1710,9 +1718,9 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testTruncateNotTraversableToFormScanKey() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and TRUNC(\"DATE\",'DAY') <= ?";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and TRUNC(\"DATE\",'DAY') <= ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1720,7 +1728,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
             initDateTableValues(tablename, tenantId, getSplits(tenantId), startDate, 0.5);
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
-            statement.setDate(2, new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * 0.25)));
+            statement.setDate(2, new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * 0.25)));
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
             assertEquals("A", rs.getString(1));
@@ -1734,7 +1742,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testSaltedOrderBy() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String ddl = "create table " + tablename +
                 "   (organization_id char(15) not null," +
                 "    \"DATE\" date not null," +
@@ -1749,7 +1757,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
                 "    unset_column decimal(31,10)\n" +
                 "    CONSTRAINT pk PRIMARY KEY (organization_id, \"DATE\", feature, unique_users)) salt_buckets=3";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-        try(Connection conn = DriverManager.getConnection(getUrl(), props);) {
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);) {
             conn.createStatement().execute(ddl);
         }
 
@@ -1758,7 +1766,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         initDateTableValues(tablename, tenantId, getSplits(tenantId), startDate);
         // Add more date data
         props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-        try(Connection conn = DriverManager.getConnection(getUrl(), props);) {
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);) {
             initDateTableValues(tablename, conn, tenantId, new Date(startDate.getTime() + MILLIS_IN_DAY * 10),
                     2.0);
             initDateTableValues(tablename, conn, tenantId, new Date(startDate.getTime() + MILLIS_IN_DAY * 20),
@@ -1767,14 +1775,14 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
         }
 
         props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-        try(Connection conn = DriverManager.getConnection(getUrl(), props);){
-            PreparedStatement statement = conn.prepareStatement("SELECT count(1) FROM "+tablename+" WHERE organization_id = ?");
+        try (Connection conn = DriverManager.getConnection(getUrl(), props);) {
+            PreparedStatement statement = conn.prepareStatement("SELECT count(1) FROM " + tablename + " WHERE organization_id = ?");
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
             assertEquals(18, rs.getLong(1));
 
-            statement = conn.prepareStatement("SELECT \"DATE\" FROM "+tablename+" WHERE organization_id = ?  order by \"DATE\" desc limit 10");
+            statement = conn.prepareStatement("SELECT \"DATE\" FROM " + tablename + " WHERE organization_id = ?  order by \"DATE\" desc limit 10");
             statement.setString(1, tenantId);
             rs = statement.executeQuery();
             Date date = null;
@@ -1786,7 +1794,7 @@ public class ProductMetricsIT extends ParallelStatsDisabledIT {
                 count++;
                 date = rs.getDate(1);
             }
-            assertEquals(10,count);
+            assertEquals(10, count);
         }
     }
 

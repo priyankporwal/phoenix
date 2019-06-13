@@ -48,15 +48,15 @@ import com.google.common.collect.Maps;
 public class SystemCatalogIT extends BaseTest {
     private HBaseTestingUtility testUtil = null;
 
-	@BeforeClass
-	public static void doSetup() throws Exception {
-		Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(1);
-		serverProps.put(QueryServices.SYSTEM_CATALOG_SPLITTABLE, "false");
+    @BeforeClass
+    public static void doSetup() throws Exception {
+        Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(1);
+        serverProps.put(QueryServices.SYSTEM_CATALOG_SPLITTABLE, "false");
         serverProps.put(QueryServices.ALLOW_SPLITTABLE_SYSTEM_CATALOG_ROLLBACK, "true");
-		Map<String, String> clientProps = Collections.emptyMap();
-		setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()),
-				new ReadOnlyProps(clientProps.entrySet().iterator()));
-	}
+        Map<String, String> clientProps = Collections.emptyMap();
+        setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()),
+                new ReadOnlyProps(clientProps.entrySet().iterator()));
+    }
 
     /**
      * Make sure that SYSTEM.CATALOG cannot be split if QueryServices.SYSTEM_CATALOG_SPLITTABLE is false
@@ -64,8 +64,8 @@ public class SystemCatalogIT extends BaseTest {
     @Test
     public void testSystemTableSplit() throws Exception {
         testUtil = getUtility();
-        for (int i=0; i<10; i++) {
-            createTable("schema"+i+".table_"+i);
+        for (int i = 0; i < 10; i++) {
+            createTable("schema" + i + ".table_" + i);
         }
         TableName systemCatalog = TableName.valueOf("SYSTEM.CATALOG");
         RegionLocator rl = testUtil.getConnection().getRegionLocator(systemCatalog);
@@ -78,7 +78,7 @@ public class SystemCatalogIT extends BaseTest {
             testUtil.getAdmin().enableTable(systemCatalog);
         } catch (DoNotRetryIOException e) {
             // table is not splittable
-            assert (e.getMessage().contains("NOT splittable"));
+            assert(e.getMessage().contains("NOT splittable"));
         }
 
         // test again... Must still be exactly one region.
@@ -88,7 +88,7 @@ public class SystemCatalogIT extends BaseTest {
 
     private void createTable(String tableName) throws Exception {
         try (Connection conn = DriverManager.getConnection(getJdbcUrl());
-            Statement stmt = conn.createStatement();) {
+             Statement stmt = conn.createStatement();) {
             stmt.execute("DROP TABLE IF EXISTS " + tableName);
             stmt.execute("CREATE TABLE " + tableName
                     + " (TENANT_ID VARCHAR NOT NULL, PK1 VARCHAR NOT NULL, V1 VARCHAR CONSTRAINT PK " +
@@ -131,8 +131,7 @@ public class SystemCatalogIT extends BaseTest {
                 ddl = "ALTER TABLE " + fullTableName + " ADD v2 INTEGER";
                 conn.createStatement().execute(ddl);
                 fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
             }
         }

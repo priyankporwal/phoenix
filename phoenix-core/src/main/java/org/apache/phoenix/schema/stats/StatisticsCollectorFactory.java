@@ -36,8 +36,8 @@ import org.apache.phoenix.util.ServerUtil.ConnectionType;
 public class StatisticsCollectorFactory {
 
     public static StatisticsCollector createStatisticsCollector(RegionCoprocessorEnvironment env,
-            String tableName, long clientTimeStamp, byte[] guidepostWidthBytes,
-            byte[] guidepostsPerRegionBytes) throws IOException {
+                                                                String tableName, long clientTimeStamp, byte[] guidepostWidthBytes,
+                                                                byte[] guidepostsPerRegionBytes) throws IOException {
         return createStatisticsCollector(env, tableName, clientTimeStamp, null, guidepostWidthBytes, guidepostsPerRegionBytes);
     }
 
@@ -56,12 +56,12 @@ public class StatisticsCollectorFactory {
             Table table = ConnectionFactory.getConnection(ConnectionType.DEFAULT_SERVER_CONNECTION, env).getTable(
                     SchemaUtil.getPhysicalTableName(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES, env.getConfiguration()));
             return new DefaultStatisticsCollector(env.getConfiguration(), env.getRegion(), tableName,
-                    storeName,guidepostWidthBytes, guidepostsPerRegionBytes, statsWriter, table);
+                    storeName, guidepostWidthBytes, guidepostsPerRegionBytes, statsWriter, table);
         } else {
             return new NoOpStatisticsCollector();
         }
     }
-    
+
     /**
      * Determines if statistics are enabled (which is the default). This is done on the
      * RegionCoprocessorEnvironment for now to allow setting this on a per-table basis, although
@@ -70,7 +70,7 @@ public class StatisticsCollectorFactory {
      */
     private static boolean statisticsEnabled(RegionCoprocessorEnvironment env) {
         return (env.getConfiguration().getBoolean(STATS_COLLECTION_ENABLED, DEFAULT_STATS_COLLECTION_ENABLED))
-            && StatisticsUtil.isStatsEnabled(env.getRegionInfo().getTable());
+                && StatisticsUtil.isStatsEnabled(env.getRegionInfo().getTable());
     }
 
 }

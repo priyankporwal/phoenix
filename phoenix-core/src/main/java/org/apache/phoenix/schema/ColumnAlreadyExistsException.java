@@ -24,10 +24,8 @@ import org.apache.phoenix.exception.SQLExceptionInfo;
 
 
 /**
- * 
  * Exception thrown when a column already exists.
  *
- * 
  * @since 0.1
  */
 public class ColumnAlreadyExistsException extends SQLException {
@@ -39,7 +37,7 @@ public class ColumnAlreadyExistsException extends SQLException {
 
     public ColumnAlreadyExistsException(String schemaName, String tableName, String columnName) {
         super(new SQLExceptionInfo.Builder(code).setColumnName(columnName)
-                .setSchemaName(schemaName).setTableName(tableName).build().toString(),
+                        .setSchemaName(schemaName).setTableName(tableName).build().toString(),
                 code.getSQLState(), code.getErrorCode(), null);
         this.schemaName = schemaName;
         this.tableName = tableName;

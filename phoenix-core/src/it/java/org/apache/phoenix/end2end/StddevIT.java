@@ -46,13 +46,13 @@ public class StddevIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal stddev = rs.getBigDecimal(1);
             stddev = stddev.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(2.6, stddev.doubleValue(),0.0);
+            assertEquals(2.6, stddev.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSTDDEV_SAMP() throws Exception {
         String tenantId = getOrganizationId();
@@ -67,7 +67,7 @@ public class StddevIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal stddev = rs.getBigDecimal(1);
             stddev = stddev.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(2.0, stddev.doubleValue(),0.0);
+            assertEquals(2.0, stddev.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();

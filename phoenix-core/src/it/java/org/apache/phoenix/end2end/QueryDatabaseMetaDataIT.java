@@ -114,30 +114,30 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testMetadataTenantSpecific() throws SQLException {
-    	// create multi-tenant table
-    	String tableName = generateUniqueName();
+        // create multi-tenant table
+        String tableName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl())) {
-        	String baseTableDdl = "CREATE TABLE %s (K1 VARCHAR NOT NULL, K2 VARCHAR NOT NULL, V VARCHAR CONSTRAINT PK PRIMARY KEY(K1, K2)) MULTI_TENANT=true";
-        	conn.createStatement().execute(String.format(baseTableDdl, tableName));
+            String baseTableDdl = "CREATE TABLE %s (K1 VARCHAR NOT NULL, K2 VARCHAR NOT NULL, V VARCHAR CONSTRAINT PK PRIMARY KEY(K1, K2)) MULTI_TENANT=true";
+            conn.createStatement().execute(String.format(baseTableDdl, tableName));
         }
-    	
+
         // create tenant specific view and execute metdata data call with tenant specific connection
         String tenantId = generateUniqueName();
         Properties tenantProps = new Properties();
         tenantProps.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         try (Connection tenantConn = DriverManager.getConnection(getUrl(), tenantProps)) {
-        	String viewName = generateUniqueName();
-        	String viewDdl = "CREATE VIEW %s AS SELECT * FROM %s";
-        	tenantConn.createStatement().execute(String.format(viewDdl, viewName, tableName));
-        	DatabaseMetaData dbmd = tenantConn.getMetaData();
-        	ResultSet rs = dbmd.getTables(tenantId, "", viewName, null);
+            String viewName = generateUniqueName();
+            String viewDdl = "CREATE VIEW %s AS SELECT * FROM %s";
+            tenantConn.createStatement().execute(String.format(viewDdl, viewName, tableName));
+            DatabaseMetaData dbmd = tenantConn.getMetaData();
+            ResultSet rs = dbmd.getTables(tenantId, "", viewName, null);
             assertTrue(rs.next());
             assertEquals(rs.getString("TABLE_NAME"), viewName);
             assertEquals(PTableType.VIEW.toString(), rs.getString("TABLE_TYPE"));
             assertFalse(rs.next());
         }
     }
-    
+
     @Test
     public void testTableMetadataScan() throws SQLException {
         String tableAName = generateUniqueName() + "TABLE";
@@ -148,7 +148,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
         String tableC = generateUniqueName();
         String tableCSchema = generateUniqueName();
         ensureTableCreated(getUrl(), tableCSchema + "." + tableC, CUSTOM_ENTITY_DATA_FULL_NAME,
-            null);
+                null);
 
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             DatabaseMetaData dbmd = conn.getMetaData();
@@ -220,7 +220,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(PTableType.TABLE.toString(), rs.getString("TABLE_TYPE"));
             assertFalse(rs.next());
 
-            rs = dbmd.getTables(null, "", "%TABLE", new String[] { PTableType.TABLE.toString() });
+            rs = dbmd.getTables(null, "", "%TABLE", new String[] {PTableType.TABLE.toString()});
             assertTrue(rs.next());
             assertEquals(null, rs.getString("TABLE_SCHEM"));
             assertEquals(tableAName, rs.getString("TABLE_NAME"));
@@ -272,11 +272,11 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             conn.createStatement().execute("CREATE SEQUENCE " + seq3FullName);
             conn.createStatement().execute("CREATE SEQUENCE " + seq4FullName);
             DatabaseMetaData dbmd = conn.getMetaData();
-            ResultSet rs = dbmd.getTables(null, null, null, new String[] { "FOO" });
+            ResultSet rs = dbmd.getTables(null, null, null, new String[] {"FOO"});
             assertFalse(rs.next());
             rs =
                     dbmd.getTables(null, null, null,
-                        new String[] { "FOO", PhoenixDatabaseMetaData.SEQUENCE_TABLE_TYPE });
+                            new String[] {"FOO", PhoenixDatabaseMetaData.SEQUENCE_TABLE_TYPE});
             assertTrue(rs.next());
             assertNull(rs.getString("TABLE_CAT"));
             assertEquals(schema1, rs.getString("TABLE_SCHEM"));
@@ -304,8 +304,8 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
 
             dbmd = conn.getMetaData();
             rs =
-                    dbmd.getTables(null, null, null, new String[] { PTableType.TABLE.toString(),
-                            PhoenixDatabaseMetaData.SEQUENCE_TABLE_TYPE });
+                    dbmd.getTables(null, null, null, new String[] {PTableType.TABLE.toString(),
+                            PhoenixDatabaseMetaData.SEQUENCE_TABLE_TYPE});
             assertTrue(rs.next());
             assertNull(rs.getString("TABLE_CAT"));
             assertEquals(schema1, rs.getString("TABLE_SCHEM"));
@@ -340,7 +340,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
 
             rs =
                     dbmd.getTables(null, "B%", null,
-                        new String[] { PhoenixDatabaseMetaData.SEQUENCE_TABLE_TYPE });
+                            new String[] {PhoenixDatabaseMetaData.SEQUENCE_TABLE_TYPE});
             assertTrue(rs.next());
             assertNull(rs.getString("TABLE_CAT"));
             assertEquals(schema1, rs.getString("TABLE_SCHEM"));
@@ -378,7 +378,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(null, rs.getString("TABLE_CATALOG"));
             assertTrue(rs.next());
             assertEquals(PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA,
-                rs.getString("TABLE_SCHEM"));
+                    rs.getString("TABLE_SCHEM"));
             assertEquals(null, rs.getString("TABLE_CATALOG"));
             assertTrue(rs.next());
             assertEquals(schema1, rs.getString("TABLE_SCHEM"));
@@ -597,7 +597,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(table2, rs.getString("TABLE_NAME"));
             assertEquals(null, rs.getString("TABLE_CAT"));
             assertEquals(SchemaUtil.normalizeIdentifier("custom_entity_data_id"),
-                rs.getString("COLUMN_NAME"));
+                    rs.getString("COLUMN_NAME"));
             assertEquals(3, rs.getInt("KEY_SEQ"));
             assertEquals(SchemaUtil.normalizeIdentifier("pk"), rs.getString("PK_NAME"));
 
@@ -614,13 +614,13 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(table2, rs.getString("TABLE_NAME"));
             assertEquals(null, rs.getString("TABLE_CAT"));
             assertEquals(SchemaUtil.normalizeIdentifier("organization_id"),
-                rs.getString("COLUMN_NAME"));
+                    rs.getString("COLUMN_NAME"));
             assertEquals(1, rs.getInt("KEY_SEQ"));
             assertEquals(SchemaUtil.normalizeIdentifier("pk"), rs.getString("PK_NAME")); // TODO:
-                                                                                         // this is
-                                                                                         // on the
-                                                                                         // table
-                                                                                         // row
+            // this is
+            // on the
+            // table
+            // row
 
             assertFalse(rs.next());
 
@@ -630,7 +630,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(table2, rs.getString("TABLE_NAME"));
             assertEquals(null, rs.getString("TABLE_CAT"));
             assertEquals(SchemaUtil.normalizeIdentifier("organization_id"),
-                rs.getString("COLUMN_NAME"));
+                    rs.getString("COLUMN_NAME"));
             assertEquals(rs.getInt("COLUMN_SIZE"), 15);
 
             assertTrue(rs.next());
@@ -645,7 +645,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(table2, rs.getString("TABLE_NAME"));
             assertEquals(null, rs.getString("TABLE_CAT"));
             assertEquals(SchemaUtil.normalizeIdentifier("custom_entity_data_id"),
-                rs.getString("COLUMN_NAME"));
+                    rs.getString("COLUMN_NAME"));
 
             // The above returns all columns, starting with the PK columns
             assertTrue(rs.next());
@@ -668,7 +668,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
 
             String table3 = generateUniqueName();
             conn.createStatement().execute(
-                "CREATE TABLE " + table3 + " (k INTEGER PRIMARY KEY, v VARCHAR) SALT_BUCKETS=3");
+                    "CREATE TABLE " + table3 + " (k INTEGER PRIMARY KEY, v VARCHAR) SALT_BUCKETS=3");
             dbmd = conn.getMetaData();
             rs = dbmd.getPrimaryKeys(null, "", table3);
             assertTrue(rs.next());
@@ -747,13 +747,13 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
     @Test
     public void testCreateOnExistingTable() throws Exception {
         try (PhoenixConnection pconn =
-                DriverManager.getConnection(getUrl()).unwrap(PhoenixConnection.class)) {
+                     DriverManager.getConnection(getUrl()).unwrap(PhoenixConnection.class)) {
             String tableName = generateUniqueName();// MDTEST_NAME;
             String schemaName = "";// MDTEST_SCHEMA_NAME;
             byte[] cfA = Bytes.toBytes(SchemaUtil.normalizeIdentifier("a"));
             byte[] cfB = Bytes.toBytes(SchemaUtil.normalizeIdentifier("b"));
             byte[] cfC = Bytes.toBytes("c");
-            byte[][] familyNames = new byte[][] { cfB, cfC };
+            byte[][] familyNames = new byte[][] {cfB, cfC};
             byte[] htableName = SchemaUtil.getTableNameAsBytes(schemaName, tableName);
             Admin admin = pconn.getQueryServices().getAdmin();
             try {
@@ -769,7 +769,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             }
             admin.createTable(builder.build());
             createMDTestTable(pconn, tableName,
-                "a." + ColumnFamilyDescriptorBuilder.BLOCKSIZE+ "=" + 50000);
+                    "a." + ColumnFamilyDescriptorBuilder.BLOCKSIZE + "=" + 50000);
 
             TableDescriptor descriptor = admin.getDescriptor(TableName.valueOf(htableName));
             assertEquals(3, descriptor.getColumnFamilies().length);
@@ -777,14 +777,14 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
             assertEquals(ColumnFamilyDescriptorBuilder.DEFAULT_KEEP_DELETED, cdA.getKeepDeletedCells());
             assertNotEquals(ColumnFamilyDescriptorBuilder.DEFAULT_BLOCKSIZE, cdA.getBlocksize());
             assertEquals(DataBlockEncoding.NONE, cdA.getDataBlockEncoding()); // Overriden using
-                                                                              // WITH
+            // WITH
             assertEquals(1, cdA.getMaxVersions());// Overriden using WITH
             ColumnFamilyDescriptor cdB = descriptor.getColumnFamily(cfB);
             // Allow KEEP_DELETED_CELLS to be false for VIEW
             assertEquals(ColumnFamilyDescriptorBuilder.DEFAULT_KEEP_DELETED, cdB.getKeepDeletedCells());
             assertEquals(ColumnFamilyDescriptorBuilder.DEFAULT_BLOCKSIZE, cdB.getBlocksize());
             assertEquals(DataBlockEncoding.NONE, cdB.getDataBlockEncoding()); // Should keep the
-                                                                              // original value.
+            // original value.
             // CF c should stay the same since it's not a Phoenix cf.
             ColumnFamilyDescriptor cdC = descriptor.getColumnFamily(cfC);
             assertNotNull("Column family not found", cdC);
@@ -827,13 +827,13 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
     @Test
     public void testCreateViewOnExistingTable() throws Exception {
         try (PhoenixConnection pconn =
-                DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES))
-                        .unwrap(PhoenixConnection.class)) {
+                     DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES))
+                             .unwrap(PhoenixConnection.class)) {
             String tableName = generateUniqueName();// MDTEST_NAME;
             String schemaName = "";// MDTEST_SCHEMA_NAME;
             byte[] cfB = Bytes.toBytes(SchemaUtil.normalizeIdentifier("b"));
             byte[] cfC = Bytes.toBytes("c");
-            byte[][] familyNames = new byte[][] { cfB, cfC };
+            byte[][] familyNames = new byte[][] {cfB, cfC};
             byte[] htableName = SchemaUtil.getTableNameAsBytes(schemaName, tableName);
             try (Admin admin = pconn.getQueryServices().getAdmin()) {
                 try {
@@ -947,7 +947,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String tableName = generateUniqueName();
         initATableValues(tableName, tenantId, getDefaultSplits(tenantId), null, null, getUrl(),
-            null);
+                null);
         try (Connection conn1 = DriverManager.getConnection(getUrl())) {
             conn1.createStatement()
                     .executeUpdate("ALTER TABLE " + tableName + " ADD z_integer integer");
@@ -961,7 +961,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String tableName =
                 initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(),
-                    null);
+                        null);
         try (Connection conn1 = DriverManager.getConnection(getUrl())) {
             conn1.createStatement()
                     .executeUpdate("ALTER TABLE " + tableName + " ADD newcf.z_integer integer");
@@ -975,17 +975,17 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String tableName =
                 initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(),
-                    null);
+                        null);
         try (Connection conn1 = DriverManager.getConnection(getUrl())) {
             try {
                 conn1.createStatement().executeUpdate(
-                    "ALTER TABLE " + tableName + " ADD z_string varchar not null primary key");
+                        "ALTER TABLE " + tableName + " ADD z_string varchar not null primary key");
                 fail();
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.NOT_NULLABLE_COLUMN_IN_ROW_KEY.getErrorCode(), e.getErrorCode());
             }
             conn1.createStatement().executeUpdate(
-                "ALTER TABLE " + tableName + " ADD z_string varchar primary key");
+                    "ALTER TABLE " + tableName + " ADD z_string varchar primary key");
 
             String query = "SELECT z_string FROM " + tableName;
             assertTrue(conn1.prepareStatement(query).executeQuery().next());
@@ -997,7 +997,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String tableName =
                 initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(),
-                    null);
+                        null);
         try (Connection conn5 = DriverManager.getConnection(getUrl())) {
             assertTrue(conn5.createStatement()
                     .executeQuery("SELECT 1 FROM " + tableName + " WHERE b_string IS NOT NULL")
@@ -1026,7 +1026,7 @@ public class QueryDatabaseMetaDataIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String tableName =
                 initATableValues(generateUniqueName(), tenantId, getDefaultSplits(tenantId), null,
-                    null, getUrl(), null);
+                        null, getUrl(), null);
         try (Connection conn1 = DriverManager.getConnection(getUrl())) {
             conn1.createStatement()
                     .executeUpdate("ALTER TABLE " + tableName + " DROP COLUMN entity_id");

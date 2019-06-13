@@ -38,8 +38,9 @@ public abstract class ClientProcessingPlan extends DelegateQueryPlan {
     protected final Integer offset;
     protected final Expression where;
     protected final OrderBy orderBy;
-    public ClientProcessingPlan(StatementContext context, FilterableStatement statement, TableRef table, 
-            RowProjector projector, Integer limit, Integer offset, Expression where, OrderBy orderBy, QueryPlan delegate) {
+
+    public ClientProcessingPlan(StatementContext context, FilterableStatement statement, TableRef table,
+                                RowProjector projector, Integer limit, Integer offset, Expression where, OrderBy orderBy, QueryPlan delegate) {
         super(delegate);
         this.context = context;
         this.statement = statement;
@@ -50,7 +51,7 @@ public abstract class ClientProcessingPlan extends DelegateQueryPlan {
         this.orderBy = orderBy;
         this.offset = offset;
     }
-    
+
     @Override
     public StatementContext getContext() {
         return context;
@@ -70,7 +71,7 @@ public abstract class ClientProcessingPlan extends DelegateQueryPlan {
     public Integer getLimit() {
         return limit;
     }
-    
+
     @Override
     public Integer getOffset() {
         return offset;

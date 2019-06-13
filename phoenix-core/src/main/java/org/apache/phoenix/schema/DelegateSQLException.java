@@ -23,17 +23,17 @@ import java.util.Iterator;
 public class DelegateSQLException extends SQLException {
     private final SQLException delegate;
     private final String msg;
-    
+
     public DelegateSQLException(SQLException e, String msg) {
         this.delegate = e;
         this.msg = e.getMessage() + msg;
     }
-    
+
     @Override
     public String getMessage() {
         return msg;
     }
-    
+
     @Override
     public String getSQLState() {
         return delegate.getSQLState();

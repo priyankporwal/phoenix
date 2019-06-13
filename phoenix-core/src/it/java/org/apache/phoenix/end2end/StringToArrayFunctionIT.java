@@ -40,11 +40,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
         tableName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String ddl = "CREATE TABLE " + tableName
-                + " (region_name VARCHAR PRIMARY KEY, string1 VARCHAR, string2 CHAR(50), delimiter1 VARCHAR, delimiter2 CHAR(20), nullstring1 VARCHAR, nullstring2 CHAR(20))";
+                    + " (region_name VARCHAR PRIMARY KEY, string1 VARCHAR, string2 CHAR(50), delimiter1 VARCHAR, delimiter2 CHAR(20), nullstring1 VARCHAR, nullstring2 CHAR(20))";
             conn.createStatement().execute(ddl);
             String dml = "UPSERT INTO " + tableName
-                + "(region_name, string1, string2, delimiter1, delimiter2, nullstring1, nullstring2) VALUES('SF Bay Area',"
-                +
+                    + "(region_name, string1, string2, delimiter1, delimiter2, nullstring1, nullstring2) VALUES('SF Bay Area',"
+                    +
                     "'a,b,c,d'," +
                     "'1.2.3.4'," +
                     "','," +
@@ -64,11 +64,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string1, delimiter1) FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string1, delimiter1) FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", "b", "c", "d"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", "b", "c", "d"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -80,11 +80,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string1, delimiter1, nullstring1) FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string1, delimiter1, nullstring1) FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", "b", null, "d"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", "b", null, "d"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -96,11 +96,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string1, delimiter1, 'a') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string1, delimiter1, 'a') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{null, "b", "c", "d"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {null, "b", "c", "d"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -112,11 +112,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string1, delimiter1, 'd') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string1, delimiter1, 'd') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", "b", "c", null});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", "b", "c", null});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -128,11 +128,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string2, delimiter2) FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string2, delimiter2) FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"1", "2", "3", "4"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"1", "2", "3", "4"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -144,11 +144,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string2, delimiter2, nullstring2) FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string2, delimiter2, nullstring2) FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"1", "2", null, "4"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"1", "2", null, "4"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -160,11 +160,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string2, delimiter2, '1') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string2, delimiter2, '1') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{null, "2", "3", "4"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {null, "2", "3", "4"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -176,11 +176,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(string2, delimiter2, '4') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(string2, delimiter2, '4') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"1", "2", "3", null});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"1", "2", "3", null});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -192,11 +192,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(region_name, ' ', '4') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(region_name, ' ', '4') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"SF", "Bay", "Area"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"SF", "Bay", "Area"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -208,11 +208,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY('hello,hello,hello', delimiter1) FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY('hello,hello,hello', delimiter1) FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"hello", "hello", "hello"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"hello", "hello", "hello"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -224,11 +224,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY('a,hello,hello,hello,b', ',', 'hello') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY('a,hello,hello,hello,b', ',', 'hello') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", null, null, null, "b"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", null, null, null, "b"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -240,11 +240,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY('b.a.b', delimiter2, 'b') FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY('b.a.b', delimiter2, 'b') FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{null, "a", null});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {null, "a", null});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -256,8 +256,8 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT ARRAY_LENGTH(STRING_TO_ARRAY('a, b, c', ', ')) FROM " + tableName
-                + " WHERE region_name = 'SF Bay Area'");
+                "SELECT ARRAY_LENGTH(STRING_TO_ARRAY('a, b, c', ', ')) FROM " + tableName
+                        + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
         assertEquals(3, rs.getInt(1));
@@ -270,11 +270,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(ARRAY_TO_STRING(ARRAY['a', 'b', 'c'], delimiter2), delimiter2, 'b') FROM "
-                + tableName + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(ARRAY_TO_STRING(ARRAY['a', 'b', 'c'], delimiter2), delimiter2, 'b') FROM "
+                        + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", null, "c"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", null, "c"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -286,11 +286,11 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT STRING_TO_ARRAY(ARRAY_TO_STRING(ARRAY['a', 'b', 'c'], delimiter2), ARRAY_ELEM(ARRAY[',', '.'], 2), 'b') FROM "
-                + tableName + " WHERE region_name = 'SF Bay Area'");
+                "SELECT STRING_TO_ARRAY(ARRAY_TO_STRING(ARRAY['a', 'b', 'c'], delimiter2), ARRAY_ELEM(ARRAY[',', '.'], 2), 'b') FROM "
+                        + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", null, "c"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", null, "c"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -302,20 +302,20 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         String tableName = generateUniqueName();
         String ddl =
-            "CREATE TABLE " + tableName + " (region_name VARCHAR PRIMARY KEY,varchars VARCHAR[])";
+                "CREATE TABLE " + tableName + " (region_name VARCHAR PRIMARY KEY,varchars VARCHAR[])";
         conn.createStatement().execute(ddl);
 
         String dml = "UPSERT INTO " + tableName
-            + "(region_name,varchars) VALUES('SF Bay Area', STRING_TO_ARRAY('hello, world, :-)', ', '))";
+                + "(region_name,varchars) VALUES('SF Bay Area', STRING_TO_ARRAY('hello, world, :-)', ', '))";
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
+                "SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"hello", "world", ":-)"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"hello", "world", ":-)"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -327,20 +327,20 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         String tableName = generateUniqueName();
         String ddl =
-            "CREATE TABLE " + tableName + " (region_name VARCHAR PRIMARY KEY,varchars VARCHAR[])";
+                "CREATE TABLE " + tableName + " (region_name VARCHAR PRIMARY KEY,varchars VARCHAR[])";
         conn.createStatement().execute(ddl);
 
         String dml = "UPSERT INTO " + tableName
-            + "(region_name,varchars) VALUES('SF Bay Area', STRING_TO_ARRAY('a, b, -, c', ', ', '-'))";
+                + "(region_name,varchars) VALUES('SF Bay Area', STRING_TO_ARRAY('a, b, -, c', ', ', '-'))";
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery(
-            "SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
+                "SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", "b", null, "c"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", "b", null, "c"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -352,7 +352,7 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         String table1 = generateUniqueName();
         String ddl =
-            "CREATE TABLE " + table1 + " (region_name VARCHAR PRIMARY KEY, varchar VARCHAR)";
+                "CREATE TABLE " + table1 + " (region_name VARCHAR PRIMARY KEY, varchar VARCHAR)";
         conn.createStatement().execute(ddl);
 
         String table2 = generateUniqueName();
@@ -360,7 +360,7 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ddl);
 
         String dml =
-            "UPSERT INTO " + table1 + "(region_name, varchar) VALUES('SF Bay Area', 'a,b,c,d')";
+                "UPSERT INTO " + table1 + "(region_name, varchar) VALUES('SF Bay Area', 'a,b,c,d')";
         conn.createStatement().execute(dml);
 
         dml = "UPSERT INTO " + table1 + "(region_name, varchar) VALUES('SF Bay Area2', '1,2,3,4')";
@@ -368,9 +368,9 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
         conn.commit();
 
         dml =
-            "UPSERT INTO " + table2
-                + "(region_name, varchars) SELECT region_name, STRING_TO_ARRAY(varchar, ',') FROM "
-                + table1;
+                "UPSERT INTO " + table2
+                        + "(region_name, varchars) SELECT region_name, STRING_TO_ARRAY(varchar, ',') FROM "
+                        + table1;
         conn.createStatement().execute(dml);
         conn.commit();
 
@@ -378,12 +378,12 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + table2);
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", "b", "c", "d"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", "b", "c", "d"});
 
         assertEquals(expected, rs.getArray(1));
         assertTrue(rs.next());
 
-        expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"1", "2", "3", "4"});
+        expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"1", "2", "3", "4"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -396,27 +396,27 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
         String sourceTable = generateUniqueName();
 
         String ddl =
-            "CREATE TABLE " + sourceTable + " (region_name VARCHAR PRIMARY KEY, varchar VARCHAR)";
+                "CREATE TABLE " + sourceTable + " (region_name VARCHAR PRIMARY KEY, varchar VARCHAR)";
         conn.createStatement().execute(ddl);
 
         String targetTable = generateUniqueName();
         ddl = "CREATE TABLE " + targetTable
-            + " (region_name VARCHAR PRIMARY KEY, varchars VARCHAR[])";
+                + " (region_name VARCHAR PRIMARY KEY, varchars VARCHAR[])";
         conn.createStatement().execute(ddl);
 
         String dml = "UPSERT INTO " + sourceTable
-            + "(region_name, varchar) VALUES('SF Bay Area', 'a,b,-,c,d')";
+                + "(region_name, varchar) VALUES('SF Bay Area', 'a,b,-,c,d')";
         conn.createStatement().execute(dml);
 
         dml = "UPSERT INTO " + sourceTable
-            + "(region_name, varchar) VALUES('SF Bay Area2', '1,2,-,3,4')";
+                + "(region_name, varchar) VALUES('SF Bay Area2', '1,2,-,3,4')";
         conn.createStatement().execute(dml);
         conn.commit();
 
         dml =
-            "UPSERT INTO " + targetTable
-                + "(region_name, varchars) SELECT region_name, STRING_TO_ARRAY(varchar, ',', '-') FROM "
-                + sourceTable;
+                "UPSERT INTO " + targetTable
+                        + "(region_name, varchars) SELECT region_name, STRING_TO_ARRAY(varchar, ',', '-') FROM "
+                        + sourceTable;
         conn.createStatement().execute(dml);
         conn.commit();
 
@@ -424,12 +424,12 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + targetTable);
         assertTrue(rs.next());
 
-        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"a", "b", null, "c", "d"});
+        PhoenixArray expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"a", "b", null, "c", "d"});
 
         assertEquals(expected, rs.getArray(1));
         assertTrue(rs.next());
 
-        expected = new PhoenixArray(PVarchar.INSTANCE, new Object[]{"1", "2", null, "3", "4"});
+        expected = new PhoenixArray(PVarchar.INSTANCE, new Object[] {"1", "2", null, "3", "4"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -441,7 +441,7 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT region_name FROM " + tableName
-            + " WHERE ARRAY['a', 'b', 'c', 'd']=STRING_TO_ARRAY(string1, delimiter1)");
+                + " WHERE ARRAY['a', 'b', 'c', 'd']=STRING_TO_ARRAY(string1, delimiter1)");
         assertTrue(rs.next());
 
         assertEquals("SF Bay Area", rs.getString(1));
@@ -454,7 +454,7 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT region_name FROM " + tableName
-            + " WHERE 'a'=ANY(STRING_TO_ARRAY(string1, delimiter1))");
+                + " WHERE 'a'=ANY(STRING_TO_ARRAY(string1, delimiter1))");
         assertTrue(rs.next());
 
         assertEquals("SF Bay Area", rs.getString(1));
@@ -467,7 +467,7 @@ public class StringToArrayFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT region_name FROM " + tableName
-            + " WHERE 'a'=ALL(STRING_TO_ARRAY('a,a,a,', delimiter1))");
+                + " WHERE 'a'=ALL(STRING_TO_ARRAY('a,a,a,', delimiter1))");
         assertTrue(rs.next());
 
         assertEquals("SF Bay Area", rs.getString(1));

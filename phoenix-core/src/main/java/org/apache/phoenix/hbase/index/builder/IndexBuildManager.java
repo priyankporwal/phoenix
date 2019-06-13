@@ -43,134 +43,134 @@ import org.slf4j.LoggerFactory;
  */
 public class IndexBuildManager implements Stoppable {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuildManager.class);
-  private final IndexBuilder delegate;
-  private boolean stopped;
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexBuildManager.class);
+    private final IndexBuilder delegate;
+    private boolean stopped;
 
-  /**
-   * @param env environment in which <tt>this</tt> is running. Used to setup the
-   *          {@link IndexBuilder} and executor
-   * @throws IOException if an {@link IndexBuilder} cannot be correctly steup
-   */
-  public IndexBuildManager(RegionCoprocessorEnvironment env) throws IOException {
-    // Prevent deadlock by using single thread for all reads so that we know
-    // we can get the ReentrantRWLock. See PHOENIX-2671 for more details.
-    this.delegate = getIndexBuilder(env);
-  }
-  
-  private static IndexBuilder getIndexBuilder(RegionCoprocessorEnvironment e) throws IOException {
-    Configuration conf = e.getConfiguration();
-    Class<? extends IndexBuilder> builderClass =
-        conf.getClass(Indexer.INDEX_BUILDER_CONF_KEY, null, IndexBuilder.class);
-    try {
-      IndexBuilder builder = builderClass.newInstance();
-      builder.setup(e);
-      return builder;
-    } catch (InstantiationException e1) {
-      throw new IOException("Couldn't instantiate index builder:" + builderClass
-          + ", disabling indexing on table " + e.getRegion().getTableDescriptor().getTableName().getNameAsString());
-    } catch (IllegalAccessException e1) {
-      throw new IOException("Couldn't instantiate index builder:" + builderClass
-          + ", disabling indexing on table " + e.getRegion().getTableDescriptor().getTableName().getNameAsString());
+    /**
+     * @param env environment in which <tt>this</tt> is running. Used to setup the
+     *            {@link IndexBuilder} and executor
+     * @throws IOException if an {@link IndexBuilder} cannot be correctly steup
+     */
+    public IndexBuildManager(RegionCoprocessorEnvironment env) throws IOException {
+        // Prevent deadlock by using single thread for all reads so that we know
+        // we can get the ReentrantRWLock. See PHOENIX-2671 for more details.
+        this.delegate = getIndexBuilder(env);
     }
-  }
 
-  public IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
-      return this.delegate.getIndexMetaData(miniBatchOp);
-  }
-
-  public Collection<Pair<Pair<Mutation, byte[]>, byte[]>> getIndexUpdates(
-      MiniBatchOperationInProgress<Mutation> miniBatchOp,
-      Collection<? extends Mutation> mutations) throws Throwable {
-    // notify the delegate that we have started processing a batch
-    final IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
-    this.delegate.batchStarted(miniBatchOp, indexMetaData);
-
-    // Avoid the Object overhead of the executor when it's not actually parallelizing anything.
-    ArrayList<Pair<Pair<Mutation, byte[]>, byte[]>> results = new ArrayList<>(mutations.size());
-    for (Mutation m : mutations) {
-      Collection<Pair<Mutation, byte[]>> updates = delegate.getIndexUpdate(m, indexMetaData);
-      if (PhoenixIndexMetaData.isIndexRebuild(m.getAttributesMap())) {
-          for (Pair<Mutation, byte[]> update : updates) {
-            update.getFirst().setAttribute(BaseScannerRegionObserver.REPLAY_WRITES,
-                BaseScannerRegionObserver.REPLAY_INDEX_REBUILD_WRITES);
-          }
-      }
-      for (Pair<Mutation, byte[]> update : updates) {
-        results.add(new Pair<>(update, m.getRow()));
-      }
-    }
-    return results;
-  }
-
-  public Collection<Pair<Mutation, byte[]>> getIndexUpdate(
-          MiniBatchOperationInProgress<Mutation> miniBatchOp,
-          Collection<? extends Mutation> mutations) throws Throwable {
-    // notify the delegate that we have started processing a batch
-    final IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
-    this.delegate.batchStarted(miniBatchOp, indexMetaData);
-
-    // Avoid the Object overhead of the executor when it's not actually parallelizing anything.
-    ArrayList<Pair<Mutation, byte[]>> results = new ArrayList<>(mutations.size());
-    for (Mutation m : mutations) {
-      Collection<Pair<Mutation, byte[]>> updates = delegate.getIndexUpdate(m, indexMetaData);
-      if (PhoenixIndexMetaData.isIndexRebuild(m.getAttributesMap())) {
-        for (Pair<Mutation, byte[]> update : updates) {
-          update.getFirst().setAttribute(BaseScannerRegionObserver.REPLAY_WRITES,
-                  BaseScannerRegionObserver.REPLAY_INDEX_REBUILD_WRITES);
+    private static IndexBuilder getIndexBuilder(RegionCoprocessorEnvironment e) throws IOException {
+        Configuration conf = e.getConfiguration();
+        Class<? extends IndexBuilder> builderClass =
+                conf.getClass(Indexer.INDEX_BUILDER_CONF_KEY, null, IndexBuilder.class);
+        try {
+            IndexBuilder builder = builderClass.newInstance();
+            builder.setup(e);
+            return builder;
+        } catch (InstantiationException e1) {
+            throw new IOException("Couldn't instantiate index builder:" + builderClass
+                    + ", disabling indexing on table " + e.getRegion().getTableDescriptor().getTableName().getNameAsString());
+        } catch (IllegalAccessException e1) {
+            throw new IOException("Couldn't instantiate index builder:" + builderClass
+                    + ", disabling indexing on table " + e.getRegion().getTableDescriptor().getTableName().getNameAsString());
         }
-      }
-      results.addAll(updates);
     }
-    return results;
-  }
 
-  public Collection<Pair<Mutation, byte[]>> getIndexUpdateForFilteredRows(
-      Collection<Cell> filtered, IndexMetaData indexMetaData) throws IOException {
-    // this is run async, so we can take our time here
-    return delegate.getIndexUpdateForFilteredRows(filtered, indexMetaData);
-  }
-
-  public void batchCompleted(MiniBatchOperationInProgress<Mutation> miniBatchOp) {
-    delegate.batchCompleted(miniBatchOp);
-  }
-
-  public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData indexMetaData)
-      throws IOException {
-    delegate.batchStarted(miniBatchOp, indexMetaData);
-  }
-
-  public boolean isEnabled(Mutation m) {
-    return delegate.isEnabled(m);
-  }
-
-  public boolean isAtomicOp(Mutation m) {
-    return delegate.isAtomicOp(m);
-  }
-
-  public List<Mutation> executeAtomicOp(Increment inc) throws IOException {
-      return delegate.executeAtomicOp(inc);
-  }
-  
-  @Override
-  public void stop(String why) {
-    if (stopped) {
-      return;
+    public IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
+        return this.delegate.getIndexMetaData(miniBatchOp);
     }
-    this.stopped = true;
-    this.delegate.stop(why);
-  }
 
-  @Override
-  public boolean isStopped() {
-    return this.stopped;
-  }
+    public Collection<Pair<Pair<Mutation, byte[]>, byte[]>> getIndexUpdates(
+            MiniBatchOperationInProgress<Mutation> miniBatchOp,
+            Collection<? extends Mutation> mutations) throws Throwable {
+        // notify the delegate that we have started processing a batch
+        final IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
+        this.delegate.batchStarted(miniBatchOp, indexMetaData);
 
-  public IndexBuilder getBuilderForTesting() {
-    return this.delegate;
-  }
+        // Avoid the Object overhead of the executor when it's not actually parallelizing anything.
+        ArrayList<Pair<Pair<Mutation, byte[]>, byte[]>> results = new ArrayList<>(mutations.size());
+        for (Mutation m : mutations) {
+            Collection<Pair<Mutation, byte[]>> updates = delegate.getIndexUpdate(m, indexMetaData);
+            if (PhoenixIndexMetaData.isIndexRebuild(m.getAttributesMap())) {
+                for (Pair<Mutation, byte[]> update : updates) {
+                    update.getFirst().setAttribute(BaseScannerRegionObserver.REPLAY_WRITES,
+                            BaseScannerRegionObserver.REPLAY_INDEX_REBUILD_WRITES);
+                }
+            }
+            for (Pair<Mutation, byte[]> update : updates) {
+                results.add(new Pair<>(update, m.getRow()));
+            }
+        }
+        return results;
+    }
 
-  public ReplayWrite getReplayWrite(Mutation m) throws IOException {
-    return this.delegate.getReplayWrite(m);
-  }
+    public Collection<Pair<Mutation, byte[]>> getIndexUpdate(
+            MiniBatchOperationInProgress<Mutation> miniBatchOp,
+            Collection<? extends Mutation> mutations) throws Throwable {
+        // notify the delegate that we have started processing a batch
+        final IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
+        this.delegate.batchStarted(miniBatchOp, indexMetaData);
+
+        // Avoid the Object overhead of the executor when it's not actually parallelizing anything.
+        ArrayList<Pair<Mutation, byte[]>> results = new ArrayList<>(mutations.size());
+        for (Mutation m : mutations) {
+            Collection<Pair<Mutation, byte[]>> updates = delegate.getIndexUpdate(m, indexMetaData);
+            if (PhoenixIndexMetaData.isIndexRebuild(m.getAttributesMap())) {
+                for (Pair<Mutation, byte[]> update : updates) {
+                    update.getFirst().setAttribute(BaseScannerRegionObserver.REPLAY_WRITES,
+                            BaseScannerRegionObserver.REPLAY_INDEX_REBUILD_WRITES);
+                }
+            }
+            results.addAll(updates);
+        }
+        return results;
+    }
+
+    public Collection<Pair<Mutation, byte[]>> getIndexUpdateForFilteredRows(
+            Collection<Cell> filtered, IndexMetaData indexMetaData) throws IOException {
+        // this is run async, so we can take our time here
+        return delegate.getIndexUpdateForFilteredRows(filtered, indexMetaData);
+    }
+
+    public void batchCompleted(MiniBatchOperationInProgress<Mutation> miniBatchOp) {
+        delegate.batchCompleted(miniBatchOp);
+    }
+
+    public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData indexMetaData)
+            throws IOException {
+        delegate.batchStarted(miniBatchOp, indexMetaData);
+    }
+
+    public boolean isEnabled(Mutation m) {
+        return delegate.isEnabled(m);
+    }
+
+    public boolean isAtomicOp(Mutation m) {
+        return delegate.isAtomicOp(m);
+    }
+
+    public List<Mutation> executeAtomicOp(Increment inc) throws IOException {
+        return delegate.executeAtomicOp(inc);
+    }
+
+    @Override
+    public void stop(String why) {
+        if (stopped) {
+            return;
+        }
+        this.stopped = true;
+        this.delegate.stop(why);
+    }
+
+    @Override
+    public boolean isStopped() {
+        return this.stopped;
+    }
+
+    public IndexBuilder getBuilderForTesting() {
+        return this.delegate;
+    }
+
+    public ReplayWrite getReplayWrite(Mutation m) throws IOException {
+        return this.delegate.getReplayWrite(m);
+    }
 }

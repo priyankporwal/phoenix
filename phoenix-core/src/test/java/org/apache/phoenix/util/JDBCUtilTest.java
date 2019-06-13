@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,14 +33,14 @@ import org.apache.phoenix.query.QueryServices;
 import org.junit.Test;
 
 public class JDBCUtilTest {
-    
+
     @Test
     public void testGetCustomTracingAnnotationsWithNone() {
         String url = "localhost;TenantId=abc;";
         Map<String, String> customAnnotations = JDBCUtil.getAnnotations(url, new Properties());
         assertTrue(customAnnotations.isEmpty());
     }
-    
+
     @Test
     public void testGetCustomTracingAnnotationInBothPropertiesAndURL() {
         String annotKey1 = "key1";
@@ -49,13 +49,13 @@ public class JDBCUtilTest {
         String annotVal2 = "val2";
         String annotKey3 = "key3";
         String annotVal3 = "val3";
-        
-        String url= "localhost;" + ANNOTATION_ATTRIB_PREFIX + annotKey1 + '=' + annotVal1;
-        
+
+        String url = "localhost;" + ANNOTATION_ATTRIB_PREFIX + annotKey1 + '=' + annotVal1;
+
         Properties prop = new Properties();
         prop.put(ANNOTATION_ATTRIB_PREFIX + annotKey2, annotVal2);
         prop.put(ANNOTATION_ATTRIB_PREFIX + annotKey3, annotVal3);
-        
+
         Map<String, String> customAnnotations = JDBCUtil.getAnnotations(url, prop);
         assertEquals(3, customAnnotations.size());
         assertEquals(annotVal1, customAnnotations.get(annotKey1));
@@ -109,7 +109,7 @@ public class JDBCUtilTest {
     @Test
     public void testGetConsistency_TIMELINE_InUrl() {
         assertTrue(JDBCUtil.getConsistencyLevel("localhost;Consistency=TIMELINE", new Properties(),
-            Consistency.STRONG.toString()) == Consistency.TIMELINE);
+                Consistency.STRONG.toString()) == Consistency.TIMELINE);
     }
 
     @Test
@@ -124,13 +124,13 @@ public class JDBCUtilTest {
         Properties props = new Properties();
         props.setProperty(PhoenixRuntime.CONSISTENCY_ATTRIB, "TIMELINE");
         assertTrue(JDBCUtil.getConsistencyLevel("localhost", props, Consistency.STRONG.toString())
-            == Consistency.TIMELINE);
+                == Consistency.TIMELINE);
     }
 
     @Test
     public void testGetMaxMutateBytes() throws Exception {
         assertEquals(1000L, JDBCUtil.getMutateBatchSizeBytes("localhost;" + PhoenixRuntime.UPSERT_BATCH_SIZE_BYTES_ATTRIB +
-            "=1000", new Properties(), ReadOnlyProps.EMPTY_PROPS));
+                "=1000", new Properties(), ReadOnlyProps.EMPTY_PROPS));
 
         Properties props = new Properties();
         props.setProperty(PhoenixRuntime.UPSERT_BATCH_SIZE_BYTES_ATTRIB, "2000");

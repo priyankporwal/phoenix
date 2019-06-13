@@ -89,12 +89,12 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     protected Date date;
     protected static final String tenantId = getOrganizationId();
     protected final static String ROW10 = "00D123122312312";
-    protected  String tableName;
+    protected String tableName;
 
     private static void initDateTableValues(String tablename, Connection conn, String tenantId, Date startDate) throws Exception {
         double dateIncrement = 2.0;
         PreparedStatement stmt = conn.prepareStatement(
-                "upsert into " +tablename+
+                "upsert into " + tablename +
                         "(" +
                         "    ORGANIZATION_ID, " +
                         "    \"DATE\", " +
@@ -117,7 +117,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(9, Types.BIGINT);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "B");
@@ -129,7 +129,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(9, 2000);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "C");
@@ -141,7 +141,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(9, Types.BIGINT);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "D");
@@ -153,7 +153,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(9, 4000);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "E");
@@ -165,7 +165,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(9, 5000);
         stmt.execute();
 
-        startDate = new Date(startDate.getTime() + (long)(QueryConstants.MILLIS_IN_DAY * dateIncrement));
+        startDate = new Date(startDate.getTime() + (long) (QueryConstants.MILLIS_IN_DAY * dateIncrement));
         stmt.setString(1, tenantId);
         stmt.setDate(2, startDate);
         stmt.setString(3, "F");
@@ -181,14 +181,14 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     private static void initDateTableValues(String tablename, String tenantId, byte[][] splits, Date startDate) throws Exception {
         ensureTableCreated(getUrl(), tablename, PRODUCT_METRICS_NAME, splits, null, null);
 
-       Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-       Connection conn = DriverManager.getConnection(getUrl(), props);
-       try {
-           initDateTableValues(tablename, conn, tenantId, startDate);
-           conn.commit();
-       } finally {
-           conn.close();
-       }
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        Connection conn = DriverManager.getConnection(getUrl(), props);
+        try {
+            initDateTableValues(tablename, conn, tenantId, startDate);
+            conn.commit();
+        } finally {
+            conn.close();
+        }
     }
 
 
@@ -207,30 +207,30 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     public void tearDown() throws SQLException {
         conn.close();
     }
-    
+
     private String initAtable() throws SQLException {
         String tableName = generateUniqueName();
-        ensureTableCreated(getUrl(), tableName, ATABLE_NAME, (byte[][])null, null);
+        ensureTableCreated(getUrl(), tableName, ATABLE_NAME, (byte[][]) null, null);
         PreparedStatement stmt = conn.prepareStatement(
-            "upsert into " + tableName +
-            "(" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_STRING, " +
-            "    B_STRING, " +
-            "    A_INTEGER, " +
-            "    A_DATE, " +
-            "    X_DECIMAL, " +
-            "    X_LONG, " +
-            "    X_INTEGER," +
-            "    Y_INTEGER," +
-            "    A_BYTE," +
-            "    A_SHORT," +
-            "    A_FLOAT," +
-            "    A_DOUBLE," +
-            "    A_UNSIGNED_FLOAT," +
-            "    A_UNSIGNED_DOUBLE)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                "upsert into " + tableName +
+                        "(" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_STRING, " +
+                        "    B_STRING, " +
+                        "    A_INTEGER, " +
+                        "    A_DATE, " +
+                        "    X_DECIMAL, " +
+                        "    X_LONG, " +
+                        "    X_INTEGER," +
+                        "    Y_INTEGER," +
+                        "    A_BYTE," +
+                        "    A_SHORT," +
+                        "    A_FLOAT," +
+                        "    A_DOUBLE," +
+                        "    A_UNSIGNED_FLOAT," +
+                        "    A_UNSIGNED_DOUBLE)" +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, ROW1);
         stmt.setString(3, A_VALUE);
@@ -241,7 +241,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(8, Types.BIGINT);
         stmt.setNull(9, Types.INTEGER);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)1);
+        stmt.setByte(11, (byte) 1);
         stmt.setShort(12, (short) 128);
         stmt.setFloat(13, 0.01f);
         stmt.setDouble(14, 0.0001);
@@ -259,7 +259,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(8, Types.BIGINT);
         stmt.setNull(9, Types.INTEGER);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)2);
+        stmt.setByte(11, (byte) 2);
         stmt.setShort(12, (short) 129);
         stmt.setFloat(13, 0.02f);
         stmt.setDouble(14, 0.0002);
@@ -277,7 +277,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(8, Types.BIGINT);
         stmt.setNull(9, Types.INTEGER);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)3);
+        stmt.setByte(11, (byte) 3);
         stmt.setShort(12, (short) 130);
         stmt.setFloat(13, 0.03f);
         stmt.setDouble(14, 0.0003);
@@ -295,7 +295,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(8, Types.BIGINT);
         stmt.setNull(9, Types.INTEGER);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)4);
+        stmt.setByte(11, (byte) 4);
         stmt.setShort(12, (short) 131);
         stmt.setFloat(13, 0.04f);
         stmt.setDouble(14, 0.0004);
@@ -313,7 +313,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(8, Types.BIGINT);
         stmt.setNull(9, Types.INTEGER);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)5);
+        stmt.setByte(11, (byte) 5);
         stmt.setShort(12, (short) 132);
         stmt.setFloat(13, 0.05f);
         stmt.setDouble(14, 0.0005);
@@ -331,7 +331,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setNull(8, Types.BIGINT);
         stmt.setNull(9, Types.INTEGER);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)6);
+        stmt.setByte(11, (byte) 6);
         stmt.setShort(12, (short) 133);
         stmt.setFloat(13, 0.06f);
         stmt.setDouble(14, 0.0006);
@@ -349,7 +349,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(8, 5L);
         stmt.setInt(9, 5);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)7);
+        stmt.setByte(11, (byte) 7);
         stmt.setShort(12, (short) 134);
         stmt.setFloat(13, 0.07f);
         stmt.setDouble(14, 0.0007);
@@ -369,7 +369,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(8, l);
         stmt.setInt(9, 4);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)8);
+        stmt.setByte(11, (byte) 8);
         stmt.setShort(12, (short) 135);
         stmt.setFloat(13, 0.08f);
         stmt.setDouble(14, 0.0008);
@@ -389,7 +389,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(8, l);
         stmt.setInt(9, 3);
         stmt.setInt(10, 300);
-        stmt.setByte(11, (byte)9);
+        stmt.setByte(11, (byte) 9);
         stmt.setShort(12, (short) 0);
         stmt.setFloat(13, 0.09f);
         stmt.setDouble(14, 0.0009);
@@ -408,7 +408,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setLong(8, 5L);
         stmt.setInt(9, 5);
         stmt.setNull(10, Types.INTEGER);
-        stmt.setByte(11, (byte)7);
+        stmt.setByte(11, (byte) 7);
         stmt.setShort(12, (short) 134);
         stmt.setFloat(13, 0.07f);
         stmt.setDouble(14, 0.0007);
@@ -417,7 +417,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.execute();
 
         conn.commit();
-        return  tableName;
+        return tableName;
 
     }
 
@@ -498,14 +498,14 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     @Test
     public void testDateInList() throws Exception {
         String query = "SELECT entity_id FROM " + this.tableName + " WHERE a_date IN (?,?) AND a_integer < 4";
-            PreparedStatement statement = conn.prepareStatement(query);
-            statement.setDate(1, new Date(0));
-            statement.setDate(2, date);
-            ResultSet rs = statement.executeQuery();
-            assertTrue(rs.next());
-            assertEquals(ROW1, rs.getString(1));
-            assertFalse(rs.next());
-    }  
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setDate(1, new Date(0));
+        statement.setDate(2, date);
+        ResultSet rs = statement.executeQuery();
+        assertTrue(rs.next());
+        assertEquals(ROW1, rs.getString(1));
+        assertFalse(rs.next());
+    }
 
     @Test
     public void testDateBetweenLiterals() throws Exception {
@@ -518,18 +518,18 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         String today = formatter.format(dateToday);
         String tomorrow = formatter.format(dateTomorrow);
         String query = "SELECT entity_id FROM " + this.tableName + " WHERE a_integer < 4 AND a_date BETWEEN date '" + today + "' AND date '" + tomorrow + "' ";
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(query);
-            assertTrue(rs.next());
-            assertEquals(ROW1, rs.getString(1));
-            assertFalse(rs.next());
+        Statement statement = conn.createStatement();
+        ResultSet rs = statement.executeQuery(query);
+        assertTrue(rs.next());
+        assertEquals(ROW1, rs.getString(1));
+        assertFalse(rs.next());
     }
 
     private static int callYearFunction(Connection conn, String invocation) throws SQLException {
         Statement stmt = conn.createStatement();
         ResultSet rs =
                 stmt.executeQuery(String
-                    .format("SELECT %s FROM \"SYSTEM\".\"CATALOG\" LIMIT 1", invocation));
+                        .format("SELECT %s FROM \"SYSTEM\".\"CATALOG\" LIMIT 1", invocation));
         assertTrue(rs.next());
         int returnValue = rs.getInt(1);
         assertFalse(rs.next());
@@ -548,7 +548,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         assertEquals(2008, callYearFunction("\"YEAR\"(TO_DATE('2008-01-01', 'yyyy-MM-dd', 'local'))"));
 
         assertEquals(2004,
-            callYearFunction("\"YEAR\"(TO_DATE('2004-12-13 10:13:18', 'yyyy-MM-dd hh:mm:ss'))"));
+                callYearFunction("\"YEAR\"(TO_DATE('2004-12-13 10:13:18', 'yyyy-MM-dd hh:mm:ss'))"));
 
         assertEquals(2015, callYearFunction("\"YEAR\"(TO_DATE('2015-01-27T16:17:57+00:00'))"));
 
@@ -559,8 +559,8 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         assertEquals(2015, callYearFunction("\"YEAR\"(TO_DATE('2015-W05'))"));
 
         assertEquals(
-            2008,
-            callYearFunction("\"YEAR\"(TO_DATE('Sat, 3 Feb 2008 03:05:06 GMT', 'EEE, d MMM yyyy HH:mm:ss z', 'UTC'))"));
+                2008,
+                callYearFunction("\"YEAR\"(TO_DATE('Sat, 3 Feb 2008 03:05:06 GMT', 'EEE, d MMM yyyy HH:mm:ss z', 'UTC'))"));
     }
 
     @Test
@@ -579,11 +579,11 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         assertEquals(2006, callYearFunction("\"YEAR\"(TO_TIMESTAMP('2006-12-13'))"));
 
         assertEquals(2004,
-            callYearFunction("\"YEAR\"(TO_TIMESTAMP('2004-12-13 10:13:18', 'yyyy-MM-dd hh:mm:ss'))"));
+                callYearFunction("\"YEAR\"(TO_TIMESTAMP('2004-12-13 10:13:18', 'yyyy-MM-dd hh:mm:ss'))"));
 
         assertEquals(
-            2008,
-            callYearFunction("\"YEAR\"(TO_TIMESTAMP('Sat, 3 Feb 2008 03:05:06 GMT', 'EEE, d MMM yyyy HH:mm:ss z', 'UTC'))"));
+                2008,
+                callYearFunction("\"YEAR\"(TO_TIMESTAMP('Sat, 3 Feb 2008 03:05:06 GMT', 'EEE, d MMM yyyy HH:mm:ss z', 'UTC'))"));
     }
 
     @Test
@@ -721,7 +721,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testHourFuncAgainstColumns() throws Exception {
-        String tableName  = generateUniqueName();
+        String tableName = generateUniqueName();
         String ddl =
                 "CREATE TABLE IF NOT EXISTS " + tableName + " (k1 INTEGER NOT NULL, dates DATE, timestamps TIMESTAMP, times TIME CONSTRAINT pk PRIMARY KEY (k1))";
         conn.createStatement().execute(ddl);
@@ -754,17 +754,17 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         String dml = "UPSERT INTO " + tableName + " VALUES (?, ?)";
         PreparedStatement stmt = conn.prepareStatement(dml);
         stmt.setInt(1, 1);
-        stmt.setDate(2, new Date(date.getTime()-500));
+        stmt.setDate(2, new Date(date.getTime() - 500));
         stmt.execute();
         stmt.setInt(1, 2);
-        stmt.setDate(2, new Date(date.getTime()+600000));
+        stmt.setDate(2, new Date(date.getTime() + 600000));
         stmt.execute();
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * from " + tableName + "  where now() > timestamps");
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
-        assertEquals(new Date(date.getTime()-500), rs.getDate(2));
+        assertEquals(new Date(date.getTime() - 500), rs.getDate(2));
         assertFalse(rs.next());
     }
 
@@ -794,7 +794,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         assertEquals(50, rs.getInt(6));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testDayOfMonthFuncAgainstColumns() throws Exception {
         String tableName = generateUniqueName();
@@ -871,7 +871,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         assertNull(rs.getDate(1, GregorianCalendar.getInstance()));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testCurrentDateWithNoTable() throws Exception {
         long expectedTime = System.currentTimeMillis();
@@ -880,6 +880,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         long actualTime = rs.getDate(1).getTime();
         assertTrue(Math.abs(actualTime - expectedTime) < MILLIS_IN_DAY);
     }
+
     @Test
     public void testSelectBetweenNanos() throws Exception {
         String tableName = generateUniqueName();
@@ -905,7 +906,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     }
 
     @Test
-    public void testCurrentTimeWithProjectedTable () throws Exception {
+    public void testCurrentTimeWithProjectedTable() throws Exception {
         String tableName1 = generateUniqueName();
         String tableName2 = generateUniqueName();
         String ddl = "CREATE TABLE " + tableName1 + " ( ID integer primary key)";
@@ -918,16 +919,16 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(ups);
         conn.commit();
         ResultSet rs = conn.createStatement().executeQuery("select /*+ USE_SORT_MERGE_JOIN */ op" +
-                ".id, current_time() from " +tableName1 + " op where op.id in (select id from " + tableName2 + ")");
+                ".id, current_time() from " + tableName1 + " op where op.id in (select id from " + tableName2 + ")");
         assertTrue(rs.next());
-        assertEquals(new java.util.Date().getYear(),rs.getTimestamp(2).getYear());
+        assertEquals(new java.util.Date().getYear(), rs.getTimestamp(2).getYear());
     }
-    
+
     @Test
     public void testLiteralDateComparison() throws Exception {
         ResultSet rs =
                 conn.createStatement().executeQuery(
-                    "select DATE '2016-05-10 00:00:00' > DATE '2016-05-11 00:00:00'");
+                        "select DATE '2016-05-10 00:00:00' > DATE '2016-05-11 00:00:00'");
 
         assertTrue(rs.next());
         assertEquals(false, rs.getBoolean(1));
@@ -938,7 +939,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     public void testLiteralTimestampComparison() throws Exception {
         ResultSet rs =
                 conn.createStatement().executeQuery(
-                    "select TIMESTAMP '2016-05-10 00:00:00' > TIMESTAMP '2016-05-11 00:00:00'");
+                        "select TIMESTAMP '2016-05-10 00:00:00' > TIMESTAMP '2016-05-11 00:00:00'");
 
         assertTrue(rs.next());
         assertEquals(false, rs.getBoolean(1));
@@ -949,7 +950,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     public void testLiteralDateTimestampComparison() throws Exception {
         ResultSet rs =
                 conn.createStatement().executeQuery(
-                    "select \"DATE\" '2016-05-10 00:00:00' > \"TIMESTAMP\" '2016-05-11 00:00:00'");
+                        "select \"DATE\" '2016-05-10 00:00:00' > \"TIMESTAMP\" '2016-05-11 00:00:00'");
 
         assertTrue(rs.next());
         assertEquals(false, rs.getBoolean(1));
@@ -960,13 +961,13 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     public void testLiteralDateTimestampComparison2() throws Exception {
         ResultSet rs =
                 conn.createStatement().executeQuery(
-                    "select \"TIMESTAMP\" '2016-05-10 00:00:00' > \"DATE\" '2016-05-11 00:00:00'");
+                        "select \"TIMESTAMP\" '2016-05-10 00:00:00' > \"DATE\" '2016-05-11 00:00:00'");
 
         assertTrue(rs.next());
         assertEquals(false, rs.getBoolean(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testFunctionOnNullDate() throws Exception {
         ResultSet rs = conn.createStatement().executeQuery("SELECT \"YEAR\"(a_date), entity_id from " + this.tableName + " WHERE entity_id = '" + ROW10 + "'");
@@ -1671,7 +1672,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         assertEquals(true, rs.getBoolean(1));
         assertFalse(rs.next());
     }
-    
+
     private static byte[][] getSplits(String tenantId) {
         return new byte[][] {
                 ByteUtil.concat(Bytes.toBytes(tenantId), PDate.INSTANCE.toBytes(SPLIT1)),
@@ -1685,9 +1686,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateSubtractionCompareNumber() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and ? - \"DATE\" > 3";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and ? - \"DATE\" > 3";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1710,9 +1711,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateSubtractionLongToDecimalCompareNumber() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and ? - \"DATE\" - 1.5 > 3";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and ? - \"DATE\" - 1.5 > 3";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1737,9 +1738,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateSubtractionCompareDate() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and date - 1 >= ?";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and date - 1 >= ?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1760,9 +1761,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testDateAddCompareDate() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and date + 1 >= ?";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and date + 1 >= ?";
         Connection conn = DriverManager.getConnection(url);
         try {
             Date startDate = new Date(System.currentTimeMillis());
@@ -1784,9 +1785,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testCurrentDate() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and \"DATE\" - current_date() > 8";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and \"DATE\" - current_date() > 8";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1805,9 +1806,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testCurrentTime() throws Exception {
-        String tablename=generateUniqueName();
+        String tablename = generateUniqueName();
         String tenantId = getOrganizationId();
-        String query = "SELECT feature FROM "+tablename+" WHERE organization_id = ? and \"DATE\" - current_time() > 8";
+        String query = "SELECT feature FROM " + tablename + " WHERE organization_id = ? and \"DATE\" - current_time() > 8";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -1836,7 +1837,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
         String localTime = LocalDate.now().toString();
         conn.createStatement().execute("UPSERT INTO " + tablename +
-                " VALUES(1,TO_TIMESTAMP('"+ localTime + "'))");
+                " VALUES(1,TO_TIMESTAMP('" + localTime + "'))");
 
         conn.setAutoCommit(true);
         try {
@@ -1844,9 +1845,9 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
                     conn.prepareStatement("SELECT CAST(A_TIMESTAMP AS DATE) as A_DATE FROM " + tablename);
 
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue (rs.getString(1).contains(localTime));
-            assertFalse (rs.next());
+            assertTrue(rs.next());
+            assertTrue(rs.getString(1).contains(localTime));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -1854,13 +1855,13 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testTimestamp() throws Exception {
-        String updateStmt = 
-            "upsert into " + tableName +
-            " (" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_TIMESTAMP) " +
-            "VALUES (?, ?, ?)";
+        String updateStmt =
+                "upsert into " + tableName +
+                        " (" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_TIMESTAMP) " +
+                        "VALUES (?, ?, ?)";
         // Override value that was set at creation time
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection upsertConn = DriverManager.getConnection(url, props);
@@ -1872,19 +1873,19 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         byte[] ts1 = PTimestamp.INSTANCE.toBytes(tsValue1);
         stmt.setTimestamp(3, tsValue1);
         stmt.execute();
-        
+
         Connection conn1 = DriverManager.getConnection(url, props);
         TestUtil.analyzeTable(conn1, tableName);
         conn1.close();
-        
-        updateStmt = 
-            "upsert into " + tableName +
-            " (" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_TIMESTAMP," +
-            "    A_TIME) " +
-            "VALUES (?, ?, ?, ?)";
+
+        updateStmt =
+                "upsert into " + tableName +
+                        " (" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_TIMESTAMP," +
+                        "    A_TIME) " +
+                        "VALUES (?, ?, ?, ?)";
         stmt = upsertConn.prepareStatement(updateStmt);
         stmt.setString(1, tenantId);
         stmt.setString(2, ROW5);
@@ -1895,7 +1896,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
         stmt.setTime(4, new Time(tsValue2.getTime()));
         stmt.execute();
         upsertConn.close();
-        
+
         assertTrue(TestUtil.compare(CompareOp.GREATER, new ImmutableBytesWritable(ts2), new ImmutableBytesWritable(ts1)));
         assertFalse(TestUtil.compare(CompareOp.GREATER, new ImmutableBytesWritable(ts1), new ImmutableBytesWritable(ts1)));
 
@@ -1906,7 +1907,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             statement.setTimestamp(2, new Timestamp(5000));
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW5);
             assertEquals(rs.getTimestamp("A_TIMESTAMP"), tsValue2);
             assertEquals(rs.getTime("A_TIME"), new Time(tsValue2.getTime()));
@@ -1917,7 +1918,7 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
     }
 
     @Test
-    public void testDateFormatTimeZone()throws Exception {
+    public void testDateFormatTimeZone() throws Exception {
         String[] timeZoneIDs = {DateUtil.DEFAULT_TIME_ZONE_ID, "Asia/Yerevan", "Australia/Adelaide", "Asia/Tokyo"};
         for (String timeZoneID : timeZoneIDs) {
             testDateFormatTimeZone(timeZoneID);
@@ -1983,6 +1984,6 @@ public class DateTimeIT extends ParallelStatsDisabledIT {
 
     private void verifyTimeZoneIDWithFormatter(Format formatter, String timeZoneId) {
         assertTrue(formatter instanceof FastDateFormat);
-        assertEquals(((FastDateFormat)formatter).getTimeZone().getID(), timeZoneId);
+        assertEquals(((FastDateFormat) formatter).getTimeZone().getID(), timeZoneId);
     }
 }

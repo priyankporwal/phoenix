@@ -48,7 +48,7 @@ import com.google.common.collect.Maps;
 
 
 public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
-	
+
     @Test
     public void testUpdatableView() throws Exception {
         testUpdatableView(null);
@@ -126,7 +126,7 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
         String tenantId2 = TENANT2;
         createViewAndIndexesWithTenantId(tableName, viewName1, localIndex, tenantId1, isNamespaceEnabled, 0L);
         createViewAndIndexesWithTenantId(tableName, viewName2, localIndex, tenantId2, isNamespaceEnabled, 1L);
-        
+
         String sequenceNameA = getViewIndexSequenceName(PNameFactory.newName(tableName), PNameFactory.newName(tenantId2), isNamespaceEnabled);
         String sequenceNameB = getViewIndexSequenceName(PNameFactory.newName(tableName), PNameFactory.newName(tenantId1), isNamespaceEnabled);
         //IndexIds of the same physical base table should come from the same sequence even if the view indexes
@@ -150,9 +150,9 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
     }
 
     private void createViewAndIndexesWithTenantId(String tableName, String viewName, boolean localIndex, String tenantId,
-            boolean isNamespaceMapped, long indexIdOffset) throws Exception {
+                                                  boolean isNamespaceMapped, long indexIdOffset) throws Exception {
         Properties props = new Properties();
-        String indexName = "I_"+ generateUniqueName();
+        String indexName = "I_" + generateUniqueName();
         if (tenantId != null) {
             props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         }
@@ -201,15 +201,15 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
         rs = conn.createStatement().executeQuery("explain select pk2,col1 from " + viewName + " where col1='f'");
         if (localIndex) {
             assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER "
-                    + SchemaUtil.getPhysicalTableName(Bytes.toBytes(tableName), isNamespaceMapped) +
-                    " [" + Long.toString(1L + indexIdOffset) + ",'"
-                    + tenantId + "','f']\n" + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
+                            + SchemaUtil.getPhysicalTableName(Bytes.toBytes(tableName), isNamespaceMapped) +
+                            " [" + Long.toString(1L + indexIdOffset) + ",'"
+                            + tenantId + "','f']\n" + "    SERVER FILTER BY FIRST KEY ONLY\n" + "CLIENT MERGE SORT",
                     QueryUtil.getExplainPlan(rs));
         } else {
             assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER "
-                    + Bytes.toString(MetaDataUtil.getViewIndexPhysicalName(
-                        SchemaUtil.getPhysicalTableName(Bytes.toBytes(tableName), isNamespaceMapped).toBytes()))
-                    + " [" + Long.toString(Long.MIN_VALUE + indexIdOffset) + ",'" + tenantId + "','f']\n" + "    SERVER FILTER BY FIRST KEY ONLY",
+                            + Bytes.toString(MetaDataUtil.getViewIndexPhysicalName(
+                    SchemaUtil.getPhysicalTableName(Bytes.toBytes(tableName), isNamespaceMapped).toBytes()))
+                            + " [" + Long.toString(Long.MIN_VALUE + indexIdOffset) + ",'" + tenantId + "','f']\n" + "    SERVER FILTER BY FIRST KEY ONLY",
                     QueryUtil.getExplainPlan(rs));
         }
 
@@ -247,20 +247,20 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
 
         conn.close();
     }
-    
+
     @Test
     public void testNonPaddedTenantId() throws Exception {
         String tenantId1 = TENANT1;
         String tenantId2 = TENANT2;
         String tableName = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         String viewName = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
-        
+
         String ddl = "CREATE TABLE " + tableName + " (tenantId char(15) NOT NULL, pk1 varchar NOT NULL, pk2 INTEGER NOT NULL, val1 VARCHAR CONSTRAINT pk primary key (tenantId,pk1,pk2)) MULTI_TENANT = true";
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute(ddl);
         String dml = "UPSERT INTO " + tableName + " (tenantId, pk1, pk2, val1) VALUES (?, ?, ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(dml);
-        
+
         String pk = "pk1b";
         // insert two rows in table T. One for tenantId1 and other for tenantId2.
         stmt.setString(1, tenantId1);
@@ -268,7 +268,7 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
         stmt.setInt(3, 100);
         stmt.setString(4, "value1");
         stmt.executeUpdate();
-        
+
         stmt.setString(1, tenantId2);
         stmt.setString(2, pk);
         stmt.setInt(3, 200);
@@ -276,15 +276,15 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
         stmt.executeUpdate();
         conn.commit();
         conn.close();
-        
+
         // get a tenant specific url.
         String tenantUrl = getUrl() + ';' + PhoenixRuntime.TENANT_ID_ATTRIB + '=' + tenantId1;
         Connection tenantConn = DriverManager.getConnection(tenantUrl);
-        
+
         // create a tenant specific view.
         tenantConn.createStatement().execute("CREATE VIEW " + viewName + " AS select * from " + tableName);
         String query = "SELECT val1 FROM " + viewName + " WHERE pk1 = ?";
-        
+
         // using the tenant connection query the view.
         PreparedStatement stmt2 = tenantConn.prepareStatement(query);
         stmt2.setString(1, pk); // for tenantId1 the row inserted has pk1 = "pk1b"
@@ -293,50 +293,50 @@ public class TenantSpecificViewIndexIT extends BaseTenantSpecificViewIndexIT {
         assertEquals("value1", rs.getString(1));
         assertFalse("No other rows should have been returned for the tenant", rs.next()); // should have just returned one record since for org1 we have only one row.
     }
-    
+
     @Test
     public void testOverlappingDatesFilter() throws Exception {
         String tenantId = TENANT1;
         String tenantUrl = getUrl() + ';' + TENANT_ID_ATTRIB + "=" + tenantId + ";" + QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB + "=true";
         String tableName = SchemaUtil.getTableName(SCHEMA1, generateUniqueName());
         String viewName = SchemaUtil.getTableName(SCHEMA2, generateUniqueName());
-        String ddl = "CREATE TABLE " + tableName 
+        String ddl = "CREATE TABLE " + tableName
                 + "(ORGANIZATION_ID CHAR(15) NOT NULL, "
                 + "PARENT_TYPE CHAR(3) NOT NULL, "
                 + "PARENT_ID CHAR(15) NOT NULL,"
                 + "CREATED_DATE DATE NOT NULL "
                 + "CONSTRAINT PK PRIMARY KEY (ORGANIZATION_ID, PARENT_TYPE, PARENT_ID, CREATED_DATE DESC)"
-                + ") VERSIONS=1,MULTI_TENANT=true,REPLICATION_SCOPE=1"; 
-                
+                + ") VERSIONS=1,MULTI_TENANT=true,REPLICATION_SCOPE=1";
+
         try (Connection conn = DriverManager.getConnection(getUrl());
-                Connection viewConn = DriverManager.getConnection(tenantUrl) ) {
+             Connection viewConn = DriverManager.getConnection(tenantUrl)) {
             // create table
             conn.createStatement().execute(ddl);
             // create index
             conn.createStatement().execute("CREATE INDEX IF NOT EXISTS IDX ON " + tableName + "(PARENT_TYPE, CREATED_DATE, PARENT_ID)");
             // create view
-            viewConn.createStatement().execute("CREATE VIEW IF NOT EXISTS " + viewName + " AS SELECT * FROM "+ tableName );
-            
-            String query ="EXPLAIN SELECT PARENT_ID FROM " + viewName
+            viewConn.createStatement().execute("CREATE VIEW IF NOT EXISTS " + viewName + " AS SELECT * FROM " + tableName);
+
+            String query = "EXPLAIN SELECT PARENT_ID FROM " + viewName
                     + " WHERE PARENT_TYPE='001' "
                     + "AND (CREATED_DATE > to_date('2011-01-01') AND CREATED_DATE < to_date('2016-10-31'))"
                     + "ORDER BY PARENT_TYPE,CREATED_DATE LIMIT 501";
-            
+
             ResultSet rs = viewConn.createStatement().executeQuery(query);
             String exptectedIndexName = SchemaUtil.getTableName(SCHEMA1, "IDX");
             String expectedPlanFormat = "CLIENT SERIAL 1-WAY RANGE SCAN OVER " + exptectedIndexName
                     + " ['tenant1        ','001','%s 00:00:00.001'] - ['tenant1        ','001','%s 00:00:00.000']" + "\n" +
-                        "    SERVER FILTER BY FIRST KEY ONLY" + "\n" +
-                        "    SERVER 501 ROW LIMIT" + "\n" +
-                        "CLIENT 501 ROW LIMIT";
+                    "    SERVER FILTER BY FIRST KEY ONLY" + "\n" +
+                    "    SERVER 501 ROW LIMIT" + "\n" +
+                    "CLIENT 501 ROW LIMIT";
             assertEquals(String.format(expectedPlanFormat, "2011-01-01", "2016-10-31"), QueryUtil.getExplainPlan(rs));
-            
-            query ="EXPLAIN SELECT PARENT_ID FROM " + viewName
+
+            query = "EXPLAIN SELECT PARENT_ID FROM " + viewName
                     + " WHERE PARENT_TYPE='001' "
                     + " AND (CREATED_DATE >= to_date('2011-01-01') AND CREATED_DATE <= to_date('2016-01-01'))"
                     + " AND (CREATED_DATE > to_date('2012-10-21') AND CREATED_DATE < to_date('2016-10-31')) "
                     + "ORDER BY PARENT_TYPE,CREATED_DATE LIMIT 501";
-            
+
             rs = viewConn.createStatement().executeQuery(query);
             assertEquals(String.format(expectedPlanFormat, "2012-10-21", "2016-01-01"), QueryUtil.getExplainPlan(rs));
         }

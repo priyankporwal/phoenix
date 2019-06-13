@@ -73,16 +73,16 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         conn = DriverManager.getConnection(getUrl(), props);
         ResultSet rs = conn.createStatement().executeQuery("select count(1) from " + tableName + " group by inst limit 1");
         assertTrue(rs.next());
-        assertEquals(3,rs.getInt(1));
+        assertEquals(3, rs.getInt(1));
         assertFalse(rs.next());
 
         rs = conn.createStatement().executeQuery("select inst from " + tableName + " where inst > 'a' group by inst limit 1");
         assertTrue(rs.next());
-        assertEquals("b",rs.getString(1));
+        assertEquals("b", rs.getString(1));
         assertFalse(rs.next());
         conn.close();
     }
-    
+
     @Test
     public void testUpsertDateValues() throws Exception {
         String tableName = generateUniqueName();
@@ -98,19 +98,19 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         rowsInserted = upsertStmt.executeUpdate();
         assertEquals(1, rowsInserted);
         conn.commit();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         String select = "SELECT \"DATE\",current_date() FROM " + tableName;
         ResultSet rs = conn.createStatement().executeQuery(select);
         Date then = new Date(EnvironmentEdgeManager.currentTimeMillis());
         assertTrue(rs.next());
         Date date = DateUtil.parseDate(dateString);
-        assertEquals(date,rs.getDate(1));
+        assertEquals(date, rs.getDate(1));
         assertTrue(rs.next());
         assertTrue(rs.getDate(1).after(now) && rs.getDate(1).before(then));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testUpsertValuesWithExpression() throws Exception {
         String tableName = generateUniqueName();
@@ -127,17 +127,17 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         assertEquals(1, rowsInserted);
         conn.commit();
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         String select = "SELECT i FROM " + tableName;
         ResultSet rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
-        assertEquals(-1,rs.getInt(1));
+        assertEquals(-1, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(3,rs.getInt(1));
+        assertEquals(3, rs.getInt(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testUpsertValuesWithDate() throws Exception {
         Properties props = new Properties();
@@ -150,14 +150,14 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("upsert into " + tableName + " values ('a',to_date('2013-06-08 00:00:00'))");
         conn.commit();
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
-        ResultSet rs = conn.createStatement().executeQuery("select k,to_char(\"DATE\") from " + tableName );
+        ResultSet rs = conn.createStatement().executeQuery("select k,to_char(\"DATE\") from " + tableName);
         assertTrue(rs.next());
         assertEquals("a", rs.getString(1));
         assertEquals("2013-06-08 00:00:00.000", rs.getString(2));
     }
-    
+
     @Test
     public void testUpsertValuesWithDescDecimal() throws Exception {
         Properties props = new Properties();
@@ -170,9 +170,9 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("upsert into " + tableName + " values (0.0)");
         conn.commit();
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
-        ResultSet rs = conn.createStatement().executeQuery("select k from " + tableName );
+        ResultSet rs = conn.createStatement().executeQuery("select k from " + tableName);
         assertTrue(rs.next());
         assertEquals(0.0, rs.getDouble(1), 0.001);
     }
@@ -221,9 +221,9 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("upsert into " + tableName + " values ('000000005919','b')");
         conn.commit();
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
-        ResultSet rs = conn.createStatement().executeQuery("select max(mac_md5) from " + tableName );
+        ResultSet rs = conn.createStatement().executeQuery("select max(mac_md5) from " + tableName);
         assertTrue(rs.next());
         assertEquals("000000005919", rs.getString(1));
         conn.close();
@@ -232,14 +232,14 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("upsert into " + tableName + " values ('000000005919adfasfasfsafdasdfasfdasdfdasfdsafaxxf1','b')");
         conn.commit();
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("select max(mac_md5) from " + tableName);
         assertTrue(rs.next());
         assertEquals("000000005919adfasfasfsafdasdfasfdasdfdasfdsafaxxf1", rs.getString(1));
         conn.close();
     }
-    
+
     @Test
     public void testUpsertValuesWithDescExpression() throws Exception {
         String tableName = generateUniqueName();
@@ -252,14 +252,14 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("upsert into " + tableName + " values (to_char(100))");
         conn.commit();
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         ResultSet rs = conn.createStatement().executeQuery("select to_number(k) from " + tableName);
         assertTrue(rs.next());
         assertEquals(100, rs.getInt(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testUpsertValuesWithMoreValuesThanNumColsInTable() throws Exception {
         String tableName = generateUniqueName();
@@ -280,12 +280,12 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             stmt.execute("upsert into " + tableName + " values (to_char(100), to_char(100), to_char(100))");
             fail();
         } catch (SQLException e) {
-            assertEquals(SQLExceptionCode.UPSERT_COLUMN_NUMBERS_MISMATCH.getErrorCode(),e.getErrorCode());
+            assertEquals(SQLExceptionCode.UPSERT_COLUMN_NUMBERS_MISMATCH.getErrorCode(), e.getErrorCode());
         } finally {
             closeStmtAndConn(stmt, conn);
         }
     }
-    
+
     @Test
     public void testTimestampSerializedAndDeserializedCorrectly() throws Exception {
         String tableName = generateUniqueName();
@@ -298,7 +298,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStmtAndConn(stmt, conn);
         }
-        
+
         Timestamp ts1 = new Timestamp(120055);
         ts1.setNanos(ts1.getNanos() + 60);
         try {
@@ -307,10 +307,10 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             stmt.setTimestamp(1, ts1);
             stmt.executeUpdate();
             conn.commit();
-         } finally {
-             closeStmtAndConn(stmt, conn);
+        } finally {
+            closeStmtAndConn(stmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             stmt = conn.prepareStatement("select t from " + tableName + " where t = ?");
@@ -322,7 +322,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             closeStmtAndConn(stmt, conn);
         }
     }
-    
+
     @Test
     public void testTimestampAddSubtractArithmetic() throws Exception {
         String tableName = generateUniqueName();
@@ -335,7 +335,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStmtAndConn(stmt, conn);
         }
-        
+
         Timestamp ts1 = new Timestamp(120550);
         int extraNanos = 60;
         ts1.setNanos(ts1.getNanos() + extraNanos);
@@ -346,9 +346,9 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             stmt.executeUpdate();
             conn.commit();
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             stmt = conn.prepareStatement("select t from " + tableName + " LIMIT 1");
@@ -357,25 +357,25 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertEquals(ts1, rs.getTimestamp(1));
             assertFalse(rs.next());
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
 
-        BigDecimal msInDay = BigDecimal.valueOf(1*24*60*60*1000);
-        BigDecimal nanosInDay = BigDecimal.valueOf(1*24*60*60*1000).multiply(BigDecimal.valueOf(1000000));
+        BigDecimal msInDay = BigDecimal.valueOf(1 * 24 * 60 * 60 * 1000);
+        BigDecimal nanosInDay = BigDecimal.valueOf(1 * 24 * 60 * 60 * 1000).multiply(BigDecimal.valueOf(1000000));
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             stmt = conn.prepareStatement("select 500.0/(1*24*60*60*1000) c1, 10.0/(1*24*60*60*1000*1000000) c2  from " + tableName + " LIMIT 1");
             ResultSet rs = stmt.executeQuery();
             assertTrue(rs.next());
             BigDecimal c1 = rs.getBigDecimal(1);
-            BigDecimal rc1 = c1.multiply(msInDay).setScale(0,RoundingMode.HALF_UP);
+            BigDecimal rc1 = c1.multiply(msInDay).setScale(0, RoundingMode.HALF_UP);
             BigDecimal c2 = rs.getBigDecimal(2);
-            BigDecimal rc2 = c2.multiply(nanosInDay).setScale(0,RoundingMode.HALF_UP);
+            BigDecimal rc2 = c2.multiply(nanosInDay).setScale(0, RoundingMode.HALF_UP);
             assertTrue(BigDecimal.valueOf(500).compareTo(rc1) == 0);
             assertTrue(BigDecimal.valueOf(10).compareTo(rc2) == 0);
             assertFalse(rs.next());
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
 
         Timestamp ts2 = new Timestamp(ts1.getTime() + 500);
@@ -389,7 +389,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStatement(stmt);
         }
-        
+
         ts2 = new Timestamp(ts1.getTime() - 250);
         ts2.setNanos(ts2.getNanos() + extraNanos - 30); //setting the extra nanos as well as what spilled over from timestamp millis.
         try {
@@ -400,7 +400,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStatement(stmt);
         }
-        
+
         ts2 = new Timestamp(ts1.getTime() + 250);
         ts2.setNanos(ts2.getNanos() + extraNanos);
         try {
@@ -413,7 +413,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             closeStmtAndConn(stmt, conn);
         }
     }
-    
+
     @Test
     public void testUpsertIntoFloat() throws Exception {
         String tableName = generateUniqueName();
@@ -426,16 +426,16 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStmtAndConn(stmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             stmt = conn.prepareStatement("upsert into " + tableName + " values ('a', 0.0)");
             stmt.executeUpdate();
             conn.commit();
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             stmt = conn.prepareStatement("select * from " + tableName);
@@ -445,11 +445,11 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertTrue(Float.valueOf(0.0f).equals(rs.getFloat(2)));
             assertFalse(rs.next());
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
     }
-        
-    
+
+
     @Test
     public void testBatchedUpsert() throws Exception {
         String tableName = generateUniqueName();
@@ -462,7 +462,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStmtAndConn(pstmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             pstmt = conn.prepareStatement("upsert into " + tableName + " values (?, ?)");
@@ -475,9 +475,9 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             pstmt.executeBatch();
             conn.commit();
         } finally {
-             closeStmtAndConn(pstmt, conn);
+            closeStmtAndConn(pstmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             pstmt = conn.prepareStatement("select * from " + tableName);
@@ -490,9 +490,9 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertEquals(2, rs.getInt(2));
             assertFalse(rs.next());
         } finally {
-             closeStmtAndConn(pstmt, conn);
+            closeStmtAndConn(pstmt, conn);
         }
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         Statement stmt = conn.createStatement();
         try {
@@ -503,15 +503,15 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
             int[] result = stmt.executeBatch();
-            assertEquals(3,result.length);
+            assertEquals(3, result.length);
             assertEquals(result[0], 1);
             assertEquals(result[1], -2);
             assertEquals(result[2], 1);
             conn.commit();
         } finally {
-             closeStmtAndConn(pstmt, conn);
+            closeStmtAndConn(pstmt, conn);
         }
-        
+
         try {
             conn = DriverManager.getConnection(getUrl(), props);
             pstmt = conn.prepareStatement("select * from " + tableName);
@@ -527,14 +527,14 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertEquals(3, rs.getInt(2));
             assertFalse(rs.next());
         } finally {
-             closeStmtAndConn(pstmt, conn);
+            closeStmtAndConn(pstmt, conn);
         }
     }
-    
+
     private static Date toDate(String dateString) {
         return DateUtil.parseDate(dateString);
     }
-    
+
     @Test
     public void testUpsertDateIntoDescUnsignedDate() throws Exception {
         String tableName = generateUniqueName();
@@ -547,7 +547,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
         } finally {
             closeStmtAndConn(stmt, conn);
         }
-        
+
         String dateStr = "2013-01-01 04:00:00";
         try {
             conn = DriverManager.getConnection(getUrl(), props);
@@ -556,9 +556,9 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             stmt.executeUpdate();
             conn.commit();
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
-        
+
         Date date = toDate(dateStr);
         try {
             conn = DriverManager.getConnection(getUrl(), props);
@@ -569,7 +569,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertEquals(date, rs.getDate(2));
             assertFalse(rs.next());
         } finally {
-             closeStmtAndConn(stmt, conn);
+            closeStmtAndConn(stmt, conn);
         }
     }
 
@@ -620,7 +620,7 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             closeStmtAndConn(stmt, conn);
         }
     }
-    
+
     @Test
     public void testAutoCastLongToBigDecimal() throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -638,13 +638,13 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     public void testColumnQualifierForUpsertedValues() throws Exception {
         String schemaName = "A";
         String tableName = "TEST";
         String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
-        String ddl = "create table " + fullTableName 
-                + " (" 
+        String ddl = "create table " + fullTableName
+                + " ("
                 + " K varchar primary key,"
                 + " CF1.V1 varchar, CF2.V2 VARCHAR, CF2.V3 VARCHAR)";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -670,5 +670,5 @@ public class UpsertValuesIT extends ParallelStatsDisabledIT {
             assertTrue(next.containsColumn(Bytes.toBytes("CF2"), PInteger.INSTANCE.toBytes(3)));
         }
     }
-    
+
 }

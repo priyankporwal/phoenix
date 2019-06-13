@@ -20,76 +20,76 @@
 
 -->
 <component>
-  <fileSets>
-    <!-- Top level directories -->
-    <fileSet>
-      <!--Get misc project files -->
-      <directory>${project.basedir}/..</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>*.txt</include>
-      </includes>
-    </fileSet>
-    <!-- Copy the executable files from the bin directory  -->
-    <fileSet>
-      <directory>${project.basedir}/../bin</directory>
-      <outputDirectory>bin</outputDirectory>
-      <fileMode>0755</fileMode>
-      <directoryMode>0755</directoryMode>
-      <includes>
-        <include>*.py</include>
-        <include>*.sh</include>
-      </includes>
-      <excludes>
-        <!-- The sandbox doesn't work with the binary distribution, and it
-             would complicate things a lot to make it work there, so we just
-             exclude it. -->
-        <exclude>*sandbox*</exclude>
-      </excludes>
-    </fileSet>
-    <!-- Copy the non-executable files from the bin directory -->
-    <fileSet>
-      <directory>${project.basedir}/../bin</directory>
-      <outputDirectory>bin</outputDirectory>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-      <excludes>
-        <exclude>*.py*</exclude>
-        <exclude>*.sh*</exclude>
-        <!-- The sandbox doesn't work with the binary distribution, and it
-             would complicate things a lot to make it work there, so we just
-             exclude it. -->
-        <exclude>*sandbox*</exclude>
-      </excludes>
-    </fileSet>
-    <fileSet>
-      <directory>${project.basedir}/../dev</directory>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </fileSet>
-    <fileSet>
-      <directory>${project.basedir}/../docs</directory>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </fileSet>
-    <fileSet>
-      <directory>${project.basedir}/../examples</directory>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </fileSet>
-      <fileSet>
-          <directory>${project.basedir}/../phoenix-pherf/target</directory>
-          <outputDirectory>phoenix-pherf</outputDirectory>
-          <includes>
-              <include>*.zip</include>
-          </includes>
-          <fileMode>0644</fileMode>
-          <directoryMode>0755</directoryMode>
-      </fileSet>
-    <fileSet>
-      <directory>${project.basedir}/../python</directory>
-      <fileMode>0644</fileMode>
-      <directoryMode>0755</directoryMode>
-    </fileSet>
-  </fileSets>
+    <fileSets>
+        <!-- Top level directories -->
+        <fileSet>
+            <!--Get misc project files -->
+            <directory>${project.basedir}/..</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+        </fileSet>
+        <!-- Copy the executable files from the bin directory  -->
+        <fileSet>
+            <directory>${project.basedir}/../bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+            <includes>
+                <include>*.py</include>
+                <include>*.sh</include>
+            </includes>
+            <excludes>
+                <!-- The sandbox doesn't work with the binary distribution, and it
+                     would complicate things a lot to make it work there, so we just
+                     exclude it. -->
+                <exclude>*sandbox*</exclude>
+            </excludes>
+        </fileSet>
+        <!-- Copy the non-executable files from the bin directory -->
+        <fileSet>
+            <directory>${project.basedir}/../bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+            <excludes>
+                <exclude>*.py*</exclude>
+                <exclude>*.sh*</exclude>
+                <!-- The sandbox doesn't work with the binary distribution, and it
+                     would complicate things a lot to make it work there, so we just
+                     exclude it. -->
+                <exclude>*sandbox*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../dev</directory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../docs</directory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../examples</directory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../phoenix-pherf/target</directory>
+            <outputDirectory>phoenix-pherf</outputDirectory>
+            <includes>
+                <include>*.zip</include>
+            </includes>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../python</directory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+    </fileSets>
 </component>

@@ -27,10 +27,10 @@ import com.google.common.collect.ImmutableList;
 import org.apache.phoenix.schema.SortOrder;
 
 public class IndexKeyConstraint {
-	public static final IndexKeyConstraint EMPTY = new IndexKeyConstraint(Collections.<Pair<ParseNode, SortOrder>>emptyList());
+    public static final IndexKeyConstraint EMPTY = new IndexKeyConstraint(Collections.<Pair<ParseNode, SortOrder>>emptyList());
 
     private final List<Pair<ParseNode, SortOrder>> columnNameToSortOrder;
-    
+
     IndexKeyConstraint(List<Pair<ParseNode, SortOrder>> parseNodeAndSortOrder) {
         this.columnNameToSortOrder = ImmutableList.copyOf(parseNodeAndSortOrder);
     }

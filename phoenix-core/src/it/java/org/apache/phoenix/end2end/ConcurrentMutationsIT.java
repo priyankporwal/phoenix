@@ -57,17 +57,17 @@ import org.junit.runner.RunWith;
 @RunWith(RunUntilFailure.class)
 public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
     private static final Random RAND = new Random(5);
-    private static final String MVCC_LOCK_TEST_TABLE_PREFIX = "MVCCLOCKTEST_";  
+    private static final String MVCC_LOCK_TEST_TABLE_PREFIX = "MVCCLOCKTEST_";
     private static final String LOCK_TEST_TABLE_PREFIX = "LOCKTEST_";
     private static final int ROW_LOCK_WAIT_TIME = 10000;
-    
+
     private final Object lock = new Object();
 
     private static class MyClock extends EnvironmentEdge {
         public volatile long time;
         boolean shouldAdvance = true;
 
-        public MyClock (long time) {
+        public MyClock(long time) {
             this.time = time;
         }
 
@@ -79,6 +79,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                 return time;
             }
         }
+
         public void setAdvance(boolean val) {
             shouldAdvance = val;
         }
@@ -108,7 +109,9 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                                 conn.setAutoCommit(true);
                                 conn.createStatement().execute("DELETE FROM " + tableName);
                             } finally {
-                                if (conn != null) conn.close();
+                                if (conn != null) {
+                                    conn.close();
+                                }
                             }
                         }
                     }
@@ -121,7 +124,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Runnable r2 = new Runnable() {
 
@@ -131,16 +134,18 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
                     int nRowsToUpsert = 1000;
                     for (int i = 0; i < nRowsToUpsert; i++) {
-                        synchronized(lock) {
+                        synchronized (lock) {
                             PhoenixConnection conn = null;
                             try {
                                 conn = DriverManager.getConnection(getUrl(), props).unwrap(PhoenixConnection.class);
                                 conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (" + (i % 10) + ", 0, 1)");
-                                if ((i % 20) == 0 || i == nRowsToUpsert-1 ) {
+                                if ((i % 20) == 0 || i == nRowsToUpsert - 1) {
                                     conn.commit();
                                 }
                             } finally {
-                                if (conn != null) conn.close();
+                                if (conn != null) {
+                                    conn.close();
+                                }
                             }
                         }
                     }
@@ -150,13 +155,13 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Thread t1 = new Thread(r1);
         t1.start();
         Thread t2 = new Thread(r2);
         t2.start();
-        
+
         doneSignal.await(60, TimeUnit.SECONDS);
         IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
     }
@@ -190,7 +195,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Runnable r2 = new Runnable() {
 
@@ -211,17 +216,17 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Thread t1 = new Thread(r1);
         t1.start();
         Thread t2 = new Thread(r2);
         t2.start();
-        
+
         doneSignal.await(60, TimeUnit.SECONDS);
         IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
     }
-    
+
     @Test
     @Repeat(5)
     public void testConcurrentUpserts() throws Exception {
@@ -238,35 +243,35 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
         final CountDownLatch doneSignal = new CountDownLatch(nThreads);
         Runnable[] runnables = new Runnable[nThreads];
         for (int i = 0; i < nThreads; i++) {
-           runnables[i] = new Runnable() {
-    
-               @Override
-               public void run() {
-                   try {
-                       Connection conn = DriverManager.getConnection(getUrl());
-                       for (int i = 0; i < 10000; i++) {
-                           boolean isNull = RAND.nextBoolean();
-                           int randInt = RAND.nextInt() % nIndexValues;
-                           conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (" + (i % nRows) + ", 0, " + (isNull ? null : randInt) + ")");
-                           if ((i % batchSize) == 0) {
-                               conn.commit();
-                           }
-                       }
-                       conn.commit();
-                   } catch (SQLException e) {
-                       throw new RuntimeException(e);
-                   } finally {
-                       doneSignal.countDown();
-                   }
-               }
-                
+            runnables[i] = new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        Connection conn = DriverManager.getConnection(getUrl());
+                        for (int i = 0; i < 10000; i++) {
+                            boolean isNull = RAND.nextBoolean();
+                            int randInt = RAND.nextInt() % nIndexValues;
+                            conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES (" + (i % nRows) + ", 0, " + (isNull ? null : randInt) + ")");
+                            if ((i % batchSize) == 0) {
+                                conn.commit();
+                            }
+                        }
+                        conn.commit();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        doneSignal.countDown();
+                    }
+                }
+
             };
         }
         for (int i = 0; i < nThreads; i++) {
             Thread t = new Thread(runnables[i]);
             t.start();
         }
-        
+
         assertTrue("Ran out of time", doneSignal.await(120, TimeUnit.SECONDS));
         long actualRowCount = IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
         assertEquals(nRows, actualRowCount);
@@ -277,7 +282,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
         final String tableName = LOCK_TEST_TABLE_PREFIX + generateUniqueName();
         final String indexName = generateUniqueName();
         Connection conn = DriverManager.getConnection(getUrl());
-        
+
         conn.createStatement().execute("CREATE TABLE " + tableName + "(k VARCHAR PRIMARY KEY, v INTEGER) COLUMN_ENCODED_BYTES = 0");
         TestUtil.addCoprocessor(conn, tableName, DelayingRegionObserver.class);
         conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + tableName + "(v)");
@@ -299,7 +304,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Runnable r2 = new Runnable() {
 
@@ -317,13 +322,13 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Thread t1 = new Thread(r1);
         t1.start();
         Thread t2 = new Thread(r2);
         t2.start();
-        
+
         doneSignal.await(ROW_LOCK_WAIT_TIME + 5000, TimeUnit.SECONDS);
         assertNull(failedMsg[0], failedMsg[0]);
         long actualRowCount = IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
@@ -357,7 +362,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Runnable r2 = new Runnable() {
 
@@ -374,13 +379,13 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
                     doneSignal.countDown();
                 }
             }
-            
+
         };
         Thread t1 = new Thread(r1);
         t1.start();
         Thread t2 = new Thread(r2);
         t2.start();
-        
+
         doneSignal.await(ROW_LOCK_WAIT_TIME + 5000, TimeUnit.SECONDS);
         long actualRowCount = IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
         assertEquals(1, actualRowCount);
@@ -388,18 +393,18 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
 
     public static class DelayingRegionObserver extends SimpleRegionObserver {
         private volatile boolean lockedTableRow;
-        
+
         @Override
         public void postBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c, MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
             try {
                 String tableName = c.getEnvironment().getRegionInfo().getTable().getNameAsString();
                 if (tableName.startsWith(MVCC_LOCK_TEST_TABLE_PREFIX)) {
-                    Thread.sleep(ROW_LOCK_WAIT_TIME/2); // Wait long enough that they'll both have the same mvcc
+                    Thread.sleep(ROW_LOCK_WAIT_TIME / 2); // Wait long enough that they'll both have the same mvcc
                 }
             } catch (InterruptedException e) {
             }
         }
-        
+
         @Override
         public void preBatchMutate(ObserverContext<RegionCoprocessorEnvironment> c, MiniBatchOperationInProgress<Mutation> miniBatchOp) throws HBaseIOException {
             try {
@@ -416,7 +421,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
             } finally {
                 lockedTableRow = false;
             }
-            
+
         }
     }
 
@@ -460,7 +465,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
 
             conn = DriverManager.getConnection(getUrl(), props);
 
-            IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);        
+            IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
 
             ResultSet rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ ts,v FROM " + tableName);
             assertTrue(rs.next());
@@ -520,7 +525,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
 
             conn = DriverManager.getConnection(getUrl(), props);
 
-            IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);        
+            IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
 
             ResultSet rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ ts,v FROM " + tableName);
             assertTrue(rs.next());
@@ -550,7 +555,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
             Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
             long ts = 1000;
             clock.time = ts;
-            Connection conn = DriverManager.getConnection(getUrl(), props);     
+            Connection conn = DriverManager.getConnection(getUrl(), props);
             conn.createStatement().execute("CREATE TABLE " + tableName + "(k1 CHAR(2) NOT NULL, k2 CHAR(2) NOT NULL, ts TIMESTAMP, V VARCHAR, V2 VARCHAR, CONSTRAINT pk PRIMARY KEY (k1,k2)) COLUMN_ENCODED_BYTES = 0, STORE_NULLS=true");
             conn.close();
 
@@ -562,7 +567,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
 
             ts = 1020;
             clock.time = ts;
-            conn = DriverManager.getConnection(getUrl(), props);        
+            conn = DriverManager.getConnection(getUrl(), props);
             PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + tableName + " VALUES('aa','aa',?, '0')");
             stmt.setTimestamp(1, new Timestamp(1000L));
             stmt.executeUpdate();
@@ -588,7 +593,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
             clock.time = ts;
             conn = DriverManager.getConnection(getUrl(), props);
 
-            IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);        
+            IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
 
             ResultSet rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ ts,v FROM " + tableName);
             assertTrue(rs.next());
@@ -618,7 +623,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
             Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
             long ts = 1000;
             clock.time = ts;
-            Connection conn = DriverManager.getConnection(getUrl(), props);     
+            Connection conn = DriverManager.getConnection(getUrl(), props);
             conn.createStatement().execute("CREATE TABLE " + tableName + "(k1 CHAR(2) NOT NULL, k2 CHAR(2) NOT NULL, ts TIMESTAMP, A.V VARCHAR, B.V2 VARCHAR, CONSTRAINT pk PRIMARY KEY (k1,k2)) COLUMN_ENCODED_BYTES = 0, STORE_NULLS=true");
             conn.close();
             conn = DriverManager.getConnection(getUrl(), props);
@@ -648,7 +653,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
             conn = DriverManager.getConnection(getUrl(), props);
 
             long rowCount = IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
-            assertEquals(0,rowCount);
+            assertEquals(0, rowCount);
 
             conn.close();
         } finally {
@@ -695,7 +700,7 @@ public class ConcurrentMutationsIT extends ParallelStatsDisabledIT {
             conn = DriverManager.getConnection(getUrl(), props);
 
             long rowCount = IndexScrutiny.scrutinizeIndex(conn, tableName, indexName);
-            assertEquals(0,rowCount);
+            assertEquals(0, rowCount);
 
             conn.close();
         } finally {

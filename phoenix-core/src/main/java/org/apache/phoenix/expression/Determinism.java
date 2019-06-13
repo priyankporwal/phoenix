@@ -9,11 +9,11 @@
  */
 package org.apache.phoenix.expression;
 
-public enum Determinism {
-	
-	ALWAYS, PER_STATEMENT, PER_ROW, PER_INVOCATION;
-	
-	public Determinism combine (Determinism that) {
-		return Determinism.values()[Math.max(this.ordinal(), that.ordinal())];
-	}
-}
+public enum Determinism{
+
+        ALWAYS,PER_STATEMENT,PER_ROW,PER_INVOCATION;
+
+public Determinism combine(Determinism that){
+        return Determinism.values()[Math.max(this.ordinal(),that.ordinal())];
+        }
+        }

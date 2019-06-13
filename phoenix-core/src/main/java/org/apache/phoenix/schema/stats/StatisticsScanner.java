@@ -53,7 +53,7 @@ public class StatisticsScanner implements InternalScanner {
     private final RegionCoprocessorEnvironment env;
 
     public StatisticsScanner(StatisticsCollector tracker, StatisticsWriter stats, RegionCoprocessorEnvironment env,
-            InternalScanner delegate, ImmutableBytesPtr family) {
+                             InternalScanner delegate, ImmutableBytesPtr family) {
         this.tracker = tracker;
         this.statsWriter = stats;
         this.delegate = delegate;
@@ -79,9 +79,8 @@ public class StatisticsScanner implements InternalScanner {
     /**
      * Update the current statistics based on the lastest batch of key-values from the underlying scanner
      *
-     * @param results
-     *            next batch of {@link KeyValue}s
-     * @throws IOException 
+     * @param results next batch of {@link KeyValue}s
+     * @throws IOException
      */
     private void updateStats(final List<Cell> results) throws IOException {
         if (!results.isEmpty()) {
@@ -121,7 +120,7 @@ public class StatisticsScanner implements InternalScanner {
     Region getRegion() {
         return region;
     }
-    
+
     Connection getConnection() {
         return env.getConnection();
     }
@@ -178,17 +177,23 @@ public class StatisticsScanner implements InternalScanner {
                     getStatisticsWriter().close();// close the writer
                     getTracker().close();// close the tracker
                 } catch (IOException e) {
-                    if (toThrow == null) toThrow = e;
+                    if (toThrow == null) {
+                        toThrow = e;
+                    }
                     LOGGER.error("Error while closing the stats table", e);
                 } finally {
                     // close the delegate scanner
                     try {
                         getDelegate().close();
                     } catch (IOException e) {
-                        if (toThrow == null) toThrow = e;
+                        if (toThrow == null) {
+                            toThrow = e;
+                        }
                         LOGGER.error("Error while closing the scanner", e);
                     } finally {
-                        if (toThrow != null) { throw toThrow; }
+                        if (toThrow != null) {
+                            throw toThrow;
+                        }
                     }
                 }
             }

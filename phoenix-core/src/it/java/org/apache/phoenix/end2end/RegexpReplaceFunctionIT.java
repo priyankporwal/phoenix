@@ -36,7 +36,7 @@ import org.junit.Test;
 public class RegexpReplaceFunctionIT extends ParallelStatsDisabledIT {
 
     private int id;
-    protected  String tableName;
+    protected String tableName;
 
     @Before
     public void doBeforeTestSetup() throws Exception {

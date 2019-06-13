@@ -24,10 +24,8 @@ import org.apache.phoenix.exception.SQLExceptionInfo;
 
 
 /**
- * 
  * Exception thrown when a table name could not be found in the schema
  *
- * 
  * @since 0.1
  */
 public class TableAlreadyExistsException extends SQLException {
@@ -64,7 +62,7 @@ public class TableAlreadyExistsException extends SQLException {
     public String getSchemaName() {
         return schemaName;
     }
-    
+
     public PTable getTable() {
         return table;
     }

@@ -33,10 +33,7 @@ import com.google.common.collect.Lists;
 
 
 /**
- *
  * Create a union ResultIterators
- *
- * 
  */
 public class UnionResultIterators implements ResultIterators {
     private final List<KeyRange> splits;
@@ -46,29 +43,31 @@ public class UnionResultIterators implements ResultIterators {
     private final List<OverAllQueryMetrics> overAllQueryMetricsList;
     private boolean closed;
     private final StatementContext parentStmtCtx;
+
     public UnionResultIterators(List<QueryPlan> plans, StatementContext parentStmtCtx) throws SQLException {
         this.parentStmtCtx = parentStmtCtx;
         int nPlans = plans.size();
         iterators = Lists.newArrayListWithExpectedSize(nPlans);
-        splits = Lists.newArrayListWithExpectedSize(nPlans * 30); 
-        scans = Lists.newArrayListWithExpectedSize(nPlans * 10); 
+        splits = Lists.newArrayListWithExpectedSize(nPlans * 30);
+        scans = Lists.newArrayListWithExpectedSize(nPlans * 10);
         readMetricsList = Lists.newArrayListWithCapacity(nPlans);
         overAllQueryMetricsList = Lists.newArrayListWithCapacity(nPlans);
         for (QueryPlan plan : plans) {
             readMetricsList.add(plan.getContext().getReadMetricsQueue());
             overAllQueryMetricsList.add(plan.getContext().getOverallQueryMetrics());
             iterators.add(LookAheadResultIterator.wrap(plan.iterator()));
-            splits.addAll(plan.getSplits()); 
+            splits.addAll(plan.getSplits());
             scans.addAll(plan.getScans());
         }
     }
 
     @Override
     public List<KeyRange> getSplits() {
-        if (splits == null)
+        if (splits == null) {
             return Collections.emptyList();
-        else
+        } else {
             return splits;
+        }
     }
 
     @Override
@@ -78,7 +77,7 @@ public class UnionResultIterators implements ResultIterators {
             SQLException toThrow = null;
             try {
                 if (iterators != null) {
-                    for (int index=0; index < iterators.size(); index++) {
+                    for (int index = 0; index < iterators.size(); index++) {
                         PeekingResultIterator iterator = iterators.get(index);
                         try {
                             iterator.close();
@@ -101,7 +100,7 @@ public class UnionResultIterators implements ResultIterators {
             }
         }
     }
-    
+
     private void setMetricsInParentContext() {
         ReadMetricQueue parentCtxReadMetrics = parentStmtCtx.getReadMetricsQueue();
         for (ReadMetricQueue readMetrics : readMetricsList) {
@@ -112,13 +111,14 @@ public class UnionResultIterators implements ResultIterators {
             parentCtxQueryMetrics.combine(metric);
         }
     }
-    
+
     @Override
     public List<List<Scan>> getScans() {
-        if (scans == null)
+        if (scans == null) {
             return Collections.emptyList();
-        else
+        } else {
             return scans;
+        }
     }
 
     @Override
@@ -128,13 +128,13 @@ public class UnionResultIterators implements ResultIterators {
 
     @Override
     public void explain(List<String> planSteps) {
-        for (int index=0; index < iterators.size(); index++) {
+        for (int index = 0; index < iterators.size(); index++) {
             iterators.get(index).explain(planSteps);
         }
     }
 
-    @Override 
-    public List<PeekingResultIterator> getIterators() throws SQLException {    
+    @Override
+    public List<PeekingResultIterator> getIterators() throws SQLException {
         return iterators;
     }
 }

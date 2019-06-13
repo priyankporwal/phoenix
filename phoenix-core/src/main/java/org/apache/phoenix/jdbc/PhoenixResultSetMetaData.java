@@ -31,7 +31,6 @@ import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * JDBC ResultSetMetaData implementation of Phoenix.
  * Currently only the following methods are supported:
  * - {@link #getColumnCount()}
@@ -51,20 +50,19 @@ import org.apache.phoenix.schema.types.PDataType;
  * - {@link #isDefinitelyWritable(int)} always false
  * - {@link #isReadOnly(int)} always true
  * - {@link #isSearchable(int)} always true
- * 
- * 
+ *
  * @since 0.1
  */
 public class PhoenixResultSetMetaData implements ResultSetMetaData {
     static final int DEFAULT_DISPLAY_WIDTH = 40;
     private final RowProjector rowProjector;
     private final PhoenixConnection connection;
-    
+
     public PhoenixResultSetMetaData(PhoenixConnection connection, RowProjector projector) {
         this.connection = connection;
         this.rowProjector = projector;
     }
-    
+
     @Override
     public String getCatalogName(int column) throws SQLException {
         return "";
@@ -72,7 +70,7 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getColumnClassName(int column) throws SQLException {
-        PDataType type = rowProjector.getColumnProjector(column-1).getExpression().getDataType();
+        PDataType type = rowProjector.getColumnProjector(column - 1).getExpression().getDataType();
         return type == null ? null : type.getJavaClassName();
     }
 
@@ -83,7 +81,7 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        ColumnProjector projector = rowProjector.getColumnProjector(column-1);
+        ColumnProjector projector = rowProjector.getColumnProjector(column - 1);
         PDataType type = projector.getExpression().getDataType();
         if (type == null) {
             return QueryConstants.NULL_DISPLAY_TEXT.length();
@@ -96,39 +94,39 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
         }
         return DEFAULT_DISPLAY_WIDTH;
     }
-    
+
     @Override
     public String getColumnLabel(int column) throws SQLException {
-        return rowProjector.getColumnProjector(column-1).getName();
+        return rowProjector.getColumnProjector(column - 1).getName();
     }
 
     @Override
     public String getColumnName(int column) throws SQLException {
         // TODO: will return alias if there is one
-        return rowProjector.getColumnProjector(column-1).getName();
+        return rowProjector.getColumnProjector(column - 1).getName();
     }
 
     @Override
     public int getColumnType(int column) throws SQLException {
-        PDataType type = rowProjector.getColumnProjector(column-1).getExpression().getDataType();
+        PDataType type = rowProjector.getColumnProjector(column - 1).getExpression().getDataType();
         return type == null ? Types.NULL : type.getResultSetSqlType();
     }
 
     @Override
     public String getColumnTypeName(int column) throws SQLException {
-        PDataType type = rowProjector.getColumnProjector(column-1).getExpression().getDataType();
+        PDataType type = rowProjector.getColumnProjector(column - 1).getExpression().getDataType();
         return type == null ? null : type.getSqlTypeName();
     }
 
     @Override
     public int getPrecision(int column) throws SQLException {
-        Integer precision = rowProjector.getColumnProjector(column-1).getExpression().getMaxLength();
+        Integer precision = rowProjector.getColumnProjector(column - 1).getExpression().getMaxLength();
         return precision == null ? 0 : precision;
     }
 
     @Override
     public int getScale(int column) throws SQLException {
-        Integer scale = rowProjector.getColumnProjector(column-1).getExpression().getScale();
+        Integer scale = rowProjector.getColumnProjector(column - 1).getExpression().getScale();
         return scale == null ? 0 : scale;
     }
 
@@ -139,7 +137,7 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getTableName(int column) throws SQLException {
-        return rowProjector.getColumnProjector(column-1).getTableName();
+        return rowProjector.getColumnProjector(column - 1).getTableName();
     }
 
     @Override
@@ -149,7 +147,7 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public boolean isCaseSensitive(int column) throws SQLException {
-        return rowProjector.getColumnProjector(column-1).isCaseSensitive();
+        return rowProjector.getColumnProjector(column - 1).isCaseSensitive();
     }
 
     @Override
@@ -164,7 +162,7 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int isNullable(int column) throws SQLException {
-        return rowProjector.getColumnProjector(column-1).getExpression().isNullable() ? ResultSetMetaData.columnNullable : ResultSetMetaData.columnNoNulls;
+        return rowProjector.getColumnProjector(column - 1).getExpression().isNullable() ? ResultSetMetaData.columnNullable : ResultSetMetaData.columnNoNulls;
     }
 
     @Override
@@ -179,7 +177,7 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public boolean isSigned(int column) throws SQLException {
-        PDataType type = rowProjector.getColumnProjector(column-1).getExpression().getDataType();
+        PDataType type = rowProjector.getColumnProjector(column - 1).getExpression().getDataType();
         if (type == null) {
             return false;
         }
@@ -201,10 +199,10 @@ public class PhoenixResultSetMetaData implements ResultSetMetaData {
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (!iface.isInstance(this)) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.CLASS_NOT_UNWRAPPABLE)
-                .setMessage(this.getClass().getName() + " not unwrappable from " + iface.getName())
-                .build().buildException();
+                    .setMessage(this.getClass().getName() + " not unwrappable from " + iface.getName())
+                    .build().buildException();
         }
-        return (T)this;
+        return (T) this;
     }
-    
+
 }

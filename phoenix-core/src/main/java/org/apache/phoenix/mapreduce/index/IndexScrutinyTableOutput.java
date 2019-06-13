@@ -1,5 +1,5 @@
 /**
-/*
+ * /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -7,9 +7,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,22 +61,22 @@ public class IndexScrutinyTableOutput {
     public static final String SOURCE_TABLE_COL_NAME = "SOURCE_TABLE";
     public static final String OUTPUT_TABLE_DDL =
             "CREATE TABLE IF NOT EXISTS " + OUTPUT_TABLE_NAME + "\n" +
-            "(\n" +
-            "    " + SOURCE_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
-            "    " + TARGET_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
-            "    " + SCRUTINY_EXECUTE_TIME_COL_NAME + " BIGINT NOT NULL,\n" +
-            "    SOURCE_ROW_PK_HASH VARCHAR NOT NULL,\n" +
-            "    SOURCE_TS BIGINT,\n" +
-            "    TARGET_TS BIGINT,\n" +
-            "    HAS_TARGET_ROW BOOLEAN,\n" +
-            "    CONSTRAINT PK PRIMARY KEY\n" +
-            "    (\n" +
-            "        " + SOURCE_TABLE_COL_NAME + ",\n" +
-            "        " + TARGET_TABLE_COL_NAME + ",\n" +
-            "        " + SCRUTINY_EXECUTE_TIME_COL_NAME + ",\n" + // time at which the scrutiny ran
-            "        SOURCE_ROW_PK_HASH\n" + //  this hash makes the PK unique
-            "    )\n" + // dynamic columns consisting of the source and target columns will follow
-            ")";
+                    "(\n" +
+                    "    " + SOURCE_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
+                    "    " + TARGET_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
+                    "    " + SCRUTINY_EXECUTE_TIME_COL_NAME + " BIGINT NOT NULL,\n" +
+                    "    SOURCE_ROW_PK_HASH VARCHAR NOT NULL,\n" +
+                    "    SOURCE_TS BIGINT,\n" +
+                    "    TARGET_TS BIGINT,\n" +
+                    "    HAS_TARGET_ROW BOOLEAN,\n" +
+                    "    CONSTRAINT PK PRIMARY KEY\n" +
+                    "    (\n" +
+                    "        " + SOURCE_TABLE_COL_NAME + ",\n" +
+                    "        " + TARGET_TABLE_COL_NAME + ",\n" +
+                    "        " + SCRUTINY_EXECUTE_TIME_COL_NAME + ",\n" + // time at which the scrutiny ran
+                    "        SOURCE_ROW_PK_HASH\n" + //  this hash makes the PK unique
+                    "    )\n" + // dynamic columns consisting of the source and target columns will follow
+                    ")";
 
     /**
      * This table holds metadata about a scrutiny job - result counters and queries to fetch invalid
@@ -86,30 +86,30 @@ public class IndexScrutinyTableOutput {
     public static final String OUTPUT_METADATA_TABLE_NAME = "PHOENIX_INDEX_SCRUTINY_METADATA";
     public static final String OUTPUT_METADATA_DDL =
             "CREATE TABLE IF NOT EXISTS " + OUTPUT_METADATA_TABLE_NAME + "\n" +
-            "(\n" +
-            "    " + SOURCE_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
-            "    " + TARGET_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
-            "    " + SCRUTINY_EXECUTE_TIME_COL_NAME + " BIGINT NOT NULL,\n" +
-            "    SOURCE_TYPE VARCHAR,\n" + // source is either data or index table
-            "    CMD_LINE_ARGS VARCHAR,\n" + // arguments the tool was run with
-            "    INPUT_RECORDS BIGINT,\n" +
-            "    FAILED_RECORDS BIGINT,\n" +
-            "    VALID_ROW_COUNT BIGINT,\n" +
-            "    INVALID_ROW_COUNT BIGINT,\n" +
-            "    INCORRECT_COVERED_COL_VAL_COUNT BIGINT,\n" +
-            "    BATCHES_PROCESSED_COUNT BIGINT,\n" +
-            "    SOURCE_DYNAMIC_COLS VARCHAR,\n" +
-            "    TARGET_DYNAMIC_COLS VARCHAR,\n" +
-            "    INVALID_ROWS_QUERY_ALL VARCHAR,\n" + // stored sql query to fetch all the invalid rows from the output table
-            "    INVALID_ROWS_QUERY_MISSING_TARGET VARCHAR,\n" +  // stored sql query to fetch all the invalid rows which are missing a target row
-            "    INVALID_ROWS_QUERY_BAD_COVERED_COL_VAL VARCHAR,\n" + // stored sql query to fetch all the invalid rows which have bad covered column values
-            "    CONSTRAINT PK PRIMARY KEY\n" +
-            "    (\n" +
-            "        " + SOURCE_TABLE_COL_NAME + ",\n" +
-            "        " + TARGET_TABLE_COL_NAME + ",\n" +
-            "        " + SCRUTINY_EXECUTE_TIME_COL_NAME + "\n" +
-            "    )\n" +
-            ")\n";
+                    "(\n" +
+                    "    " + SOURCE_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
+                    "    " + TARGET_TABLE_COL_NAME + " VARCHAR NOT NULL,\n" +
+                    "    " + SCRUTINY_EXECUTE_TIME_COL_NAME + " BIGINT NOT NULL,\n" +
+                    "    SOURCE_TYPE VARCHAR,\n" + // source is either data or index table
+                    "    CMD_LINE_ARGS VARCHAR,\n" + // arguments the tool was run with
+                    "    INPUT_RECORDS BIGINT,\n" +
+                    "    FAILED_RECORDS BIGINT,\n" +
+                    "    VALID_ROW_COUNT BIGINT,\n" +
+                    "    INVALID_ROW_COUNT BIGINT,\n" +
+                    "    INCORRECT_COVERED_COL_VAL_COUNT BIGINT,\n" +
+                    "    BATCHES_PROCESSED_COUNT BIGINT,\n" +
+                    "    SOURCE_DYNAMIC_COLS VARCHAR,\n" +
+                    "    TARGET_DYNAMIC_COLS VARCHAR,\n" +
+                    "    INVALID_ROWS_QUERY_ALL VARCHAR,\n" + // stored sql query to fetch all the invalid rows from the output table
+                    "    INVALID_ROWS_QUERY_MISSING_TARGET VARCHAR,\n" +  // stored sql query to fetch all the invalid rows which are missing a target row
+                    "    INVALID_ROWS_QUERY_BAD_COVERED_COL_VAL VARCHAR,\n" + // stored sql query to fetch all the invalid rows which have bad covered column values
+                    "    CONSTRAINT PK PRIMARY KEY\n" +
+                    "    (\n" +
+                    "        " + SOURCE_TABLE_COL_NAME + ",\n" +
+                    "        " + TARGET_TABLE_COL_NAME + ",\n" +
+                    "        " + SCRUTINY_EXECUTE_TIME_COL_NAME + "\n" +
+                    "    )\n" +
+                    ")\n";
 
     public static final String UPSERT_METADATA_SQL = "UPSERT INTO " + OUTPUT_METADATA_TABLE_NAME + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -122,16 +122,16 @@ public class IndexScrutinyTableOutput {
      * @throws SQLException
      */
     public static String constructOutputTableUpsert(List<String> sourceDynamicCols,
-            List<String> targetDynamicCols, Connection connection) throws SQLException {
+                                                    List<String> targetDynamicCols, Connection connection) throws SQLException {
         List<String> outputTableColumns = getOutputTableColumns(connection);
 
         // construct a dynamic column upsert into the output table
         List<String> upsertCols =
                 Lists.newArrayList(
-                    Iterables.concat(outputTableColumns, sourceDynamicCols, targetDynamicCols));
+                        Iterables.concat(outputTableColumns, sourceDynamicCols, targetDynamicCols));
         String upsertStmt =
                 QueryUtil.constructUpsertStatement(IndexScrutinyTableOutput.OUTPUT_TABLE_NAME,
-                    upsertCols, null);
+                        upsertCols, null);
         return upsertStmt;
     }
 
@@ -144,7 +144,7 @@ public class IndexScrutinyTableOutput {
      * @throws SQLException
      */
     public static String getSqlQueryAllInvalidRows(Connection conn,
-            SourceTargetColumnNames columnNames, long scrutinyTimeMillis) throws SQLException {
+                                                   SourceTargetColumnNames columnNames, long scrutinyTimeMillis) throws SQLException {
         String paramQuery = getAllInvalidParamQuery(conn, columnNames);
         paramQuery = bindPkCols(columnNames, scrutinyTimeMillis, paramQuery);
         return paramQuery;
@@ -159,7 +159,7 @@ public class IndexScrutinyTableOutput {
      * @throws SQLException
      */
     public static String getSqlQueryMissingTargetRows(Connection conn,
-            SourceTargetColumnNames columnNames, long scrutinyTimeMillis) throws SQLException {
+                                                      SourceTargetColumnNames columnNames, long scrutinyTimeMillis) throws SQLException {
         String paramQuery = getHasTargetRowQuery(conn, columnNames, scrutinyTimeMillis);
         return paramQuery.replaceFirst("\\?", "false");
     }
@@ -173,7 +173,7 @@ public class IndexScrutinyTableOutput {
      * @throws SQLException
      */
     public static String getSqlQueryBadCoveredColVal(Connection conn,
-            SourceTargetColumnNames columnNames, long scrutinyTimeMillis) throws SQLException {
+                                                     SourceTargetColumnNames columnNames, long scrutinyTimeMillis) throws SQLException {
         String paramQuery = getHasTargetRowQuery(conn, columnNames, scrutinyTimeMillis);
         return paramQuery.replaceFirst("\\?", "true");
     }
@@ -189,7 +189,7 @@ public class IndexScrutinyTableOutput {
      * @throws SQLException
      */
     public static ResultSet queryMetadata(Connection conn, List<String> selectCols,
-            String qSourceTableName, String qTargetTableName, long scrutinyTimeMillis)
+                                          String qSourceTableName, String qTargetTableName, long scrutinyTimeMillis)
             throws SQLException {
         PreparedStatement ps = conn.prepareStatement(constructMetadataParamQuery(selectCols));
         ps.setString(1, qSourceTableName);
@@ -208,11 +208,11 @@ public class IndexScrutinyTableOutput {
      * @throws SQLException
      */
     public static ResultSet queryAllMetadata(Connection conn, String qSourceTableName,
-            String qTargetTableName, long scrutinyTimeMillis) throws SQLException {
+                                             String qTargetTableName, long scrutinyTimeMillis) throws SQLException {
         PTable pMetadata = PhoenixRuntime.getTable(conn, OUTPUT_METADATA_TABLE_NAME);
         List<String> metadataCols = SchemaUtil.getColumnNames(pMetadata.getColumns());
         return queryMetadata(conn, metadataCols, qSourceTableName, qTargetTableName,
-            scrutinyTimeMillis);
+                scrutinyTimeMillis);
     }
 
     /**
@@ -237,9 +237,9 @@ public class IndexScrutinyTableOutput {
             SourceTargetColumnNames columnNames =
                     SourceTable.DATA_TABLE_SOURCE.equals(sourceTable)
                             ? new DataSourceColNames(pdataTable,
-                                    pindexTable)
+                            pindexTable)
                             : new IndexSourceColNames(pdataTable,
-                                    pindexTable);
+                            pindexTable);
 
             Counters counters = job.getCounters();
             int index = 1;
@@ -272,13 +272,13 @@ public class IndexScrutinyTableOutput {
         String pkColsCsv = getPksCsv();
         String query =
                 QueryUtil.constructSelectStatement(OUTPUT_METADATA_TABLE_NAME, metadataSelectCols,
-                    pkColsCsv, null, true);
+                        pkColsCsv, null, true);
         String inClause = " IN " + QueryUtil.constructParameterizedInClause(3, 1);
         return query + inClause;
     }
 
     private static String getAllInvalidParamQuery(Connection conn,
-            SourceTargetColumnNames columnNames) throws SQLException {
+                                                  SourceTargetColumnNames columnNames) throws SQLException {
         String whereQuery = constructOutputTableQuery(conn, columnNames, getPksCsv());
         String inClause = " IN " + QueryUtil.constructParameterizedInClause(getPkCols().size(), 1);
         String paramQuery = whereQuery + inClause;
@@ -286,22 +286,22 @@ public class IndexScrutinyTableOutput {
     }
 
     private static String bindPkCols(SourceTargetColumnNames columnNames, long scrutinyTimeMillis,
-            String paramQuery) {
+                                     String paramQuery) {
         paramQuery =
                 paramQuery.replaceFirst("\\?",
-                    "'" + columnNames.getQualifiedSourceTableName() + "'");
+                        "'" + columnNames.getQualifiedSourceTableName() + "'");
         paramQuery =
                 paramQuery.replaceFirst("\\?",
-                    "'" + columnNames.getQualifiedTargetTableName() + "'");
+                        "'" + columnNames.getQualifiedTargetTableName() + "'");
         paramQuery = paramQuery.replaceFirst("\\?", scrutinyTimeMillis + "");
         return paramQuery;
     }
 
     private static String getHasTargetRowQuery(Connection conn, SourceTargetColumnNames columnNames,
-            long scrutinyTimeMillis) throws SQLException {
+                                               long scrutinyTimeMillis) throws SQLException {
         String whereQuery =
                 constructOutputTableQuery(conn, columnNames,
-                    getPksCsv() + ", " + SchemaUtil.getEscapedFullColumnName("HAS_TARGET_ROW"));
+                        getPksCsv() + ", " + SchemaUtil.getEscapedFullColumnName("HAS_TARGET_ROW"));
         String inClause =
                 " IN " + QueryUtil.constructParameterizedInClause(getPkCols().size() + 1, 1);
         String paramQuery = whereQuery + inClause;
@@ -316,20 +316,20 @@ public class IndexScrutinyTableOutput {
 
     private static List<String> getPkCols() {
         return Arrays.asList(SOURCE_TABLE_COL_NAME, TARGET_TABLE_COL_NAME,
-            SCRUTINY_EXECUTE_TIME_COL_NAME);
+                SCRUTINY_EXECUTE_TIME_COL_NAME);
     }
 
     private static String constructOutputTableQuery(Connection connection,
-            SourceTargetColumnNames columnNames, String conditions) throws SQLException {
+                                                    SourceTargetColumnNames columnNames, String conditions) throws SQLException {
         PTable pOutputTable = PhoenixRuntime.getTable(connection, OUTPUT_TABLE_NAME);
         List<String> outputTableColumns = SchemaUtil.getColumnNames(pOutputTable.getColumns());
         List<String> selectCols =
                 Lists.newArrayList(
-                    Iterables.concat(outputTableColumns, columnNames.getUnqualifiedSourceColNames(),
-                        columnNames.getUnqualifiedTargetColNames()));
+                        Iterables.concat(outputTableColumns, columnNames.getUnqualifiedSourceColNames(),
+                                columnNames.getUnqualifiedTargetColNames()));
         String dynamicCols =
                 Joiner.on(",").join(Iterables.concat(columnNames.getSourceDynamicCols(),
-                    columnNames.getTargetDynamicCols()));
+                        columnNames.getTargetDynamicCols()));
         // dynamic defined after the table name
         // https://phoenix.apache.org/dynamic_columns.html
         String dynamicTableName = OUTPUT_TABLE_NAME + "(" + dynamicCols + ")";

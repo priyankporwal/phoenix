@@ -19,6 +19,7 @@ package org.apache.phoenix.filter;
 
 import java.util.BitSet;
 import java.util.HashSet;
+
 import org.apache.phoenix.schema.PTable.QualifierEncodingScheme;
 import junit.framework.TestCase;
 

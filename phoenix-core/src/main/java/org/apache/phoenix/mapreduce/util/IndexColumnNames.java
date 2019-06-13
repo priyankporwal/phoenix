@@ -114,21 +114,21 @@ public class IndexColumnNames {
     private String getDataTypeString(PColumn col) {
         PDataType<?> dataType = col.getDataType();
         switch (dataType.getSqlType()) {
-        case Types.DECIMAL:
-            String typeStr = dataType.toString();
-            if (col.getMaxLength() != null) {
-                typeStr += "(" + col.getMaxLength().toString();
-                if (col.getScale() != null) {
-                    typeStr += "," + col.getScale().toString();
+            case Types.DECIMAL:
+                String typeStr = dataType.toString();
+                if (col.getMaxLength() != null) {
+                    typeStr += "(" + col.getMaxLength().toString();
+                    if (col.getScale() != null) {
+                        typeStr += "," + col.getScale().toString();
+                    }
+                    typeStr += ")";
                 }
-                typeStr += ")";
-            }
-            return typeStr;
-        default:
-            if (col.getMaxLength() != null) {
-                return String.format("%s(%s)", dataType.toString(), col.getMaxLength());
-            }
-            return dataType.toString();
+                return typeStr;
+            default:
+                if (col.getMaxLength() != null) {
+                    return String.format("%s(%s)", dataType.toString(), col.getMaxLength());
+                }
+                return dataType.toString();
         }
     }
 
@@ -173,17 +173,17 @@ public class IndexColumnNames {
 
     public String getQualifiedDataTableName() {
         return SchemaUtil.getQualifiedTableName(pdataTable.getSchemaName().getString(),
-            pdataTable.getTableName().getString());
+                pdataTable.getTableName().getString());
     }
 
     public String getQualifiedIndexTableName() {
         return SchemaUtil.getQualifiedTableName(pindexTable.getSchemaName().getString(),
-            pindexTable.getTableName().getString());
+                pindexTable.getTableName().getString());
     }
 
     /**
      * @return the escaped data column names (equivalents for the index columns) along with their
-     *         sql type, for use in dynamic column queries/upserts
+     * sql type, for use in dynamic column queries/upserts
      */
     public List<String> getDynamicDataCols() {
         // don't want the column family for dynamic columns
@@ -193,7 +193,7 @@ public class IndexColumnNames {
 
     /**
      * @return the escaped index column names along with their sql type, for use in dynamic column
-     *         queries/upserts
+     * queries/upserts
      */
     public List<String> getDynamicIndexCols() {
         // don't want the column family for dynamic columns
@@ -202,7 +202,7 @@ public class IndexColumnNames {
 
     /**
      * @return the corresponding data table column names for the index columns, leading with the
-     *         data table pk columns
+     * data table pk columns
      */
     public List<String> getDataColNames() {
         return dataColNames;
@@ -217,7 +217,7 @@ public class IndexColumnNames {
 
     /**
      * @return the corresponding data table column names for the index columns, which are not part
-     *         of the data table pk
+     * of the data table pk
      */
     public List<String> getDataNonPkColNames() {
         return dataNonPkColNames;
@@ -225,7 +225,7 @@ public class IndexColumnNames {
 
     /**
      * @return the corresponding data table column names for the index columns, which are part of
-     *         the data table pk
+     * the data table pk
      */
     public List<String> getDataPkColNames() {
         return dataPkColNames;

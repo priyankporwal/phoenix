@@ -48,9 +48,10 @@ public class SequencePointInTimeIT extends BaseUniqueNamesOwnClusterIT {
     private static String generateSequenceNameWithSchema() {
         return SchemaUtil.getTableName(SCHEMA_NAME, generateUniqueSequenceName());
     }
+
     @BeforeClass
     public static void doSetup() throws Exception {
-        Map<String,String> props = Maps.newHashMapWithExpectedSize(5);
+        Map<String, String> props = Maps.newHashMapWithExpectedSize(5);
         // Must update config before starting server
         props.put(QueryServices.DEFAULT_SYSTEM_KEEP_DELETED_CELLS_ATTRIB, Boolean.TRUE.toString());
         props.put(QueryServices.DEFAULT_SYSTEM_MAX_VERSIONS_ATTRIB, "5");

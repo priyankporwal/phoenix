@@ -121,7 +121,7 @@ public class ExpFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void testSignedNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, 123.1234}) {
+        for (double d : new double[] {0.0, 1.0, 123.1234}) {
             testSignedNumberSpec(conn, d);
         }
     }
@@ -129,11 +129,11 @@ public class ExpFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void testUnsignedNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, 123.1234 }) {
+        for (double d : new double[] {0.0, 1.0, 123.1234}) {
             testUnsignedNumberSpec(conn, d);
         }
     }
-    
+
     @Test
     public void testExpForLeadingPK() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -154,5 +154,5 @@ public class ExpFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         assertEquals(2, rs.getInt(1));
         assertFalse(rs.next());
     }
-    
+
 }

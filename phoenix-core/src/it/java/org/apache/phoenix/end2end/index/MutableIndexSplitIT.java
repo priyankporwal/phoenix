@@ -50,37 +50,38 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public abstract class MutableIndexSplitIT extends ParallelStatsDisabledIT {
-    
+
     protected final boolean localIndex;
     protected final boolean multiTenant;
-	
-    public MutableIndexSplitIT(boolean localIndex,boolean multiTenant) {
-		this.localIndex = localIndex;
-		this.multiTenant = multiTenant;
-	}
-    
+
+    public MutableIndexSplitIT(boolean localIndex, boolean multiTenant) {
+        this.localIndex = localIndex;
+        this.multiTenant = multiTenant;
+    }
+
     private static Connection getConnection(Properties props) throws SQLException {
         props.setProperty(QueryServices.INDEX_MUTATE_BATCH_SIZE_THRESHOLD_ATTRIB, Integer.toString(1));
         Connection conn = DriverManager.getConnection(getUrl(), props);
         return conn;
     }
-    
-	@Parameters(name="MutableIndexSplitIT_localIndex={0},multiTenant={1}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "MutableIndexSplitIT_localIndex={0},multiTenant={1}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean[]> data() {
-        return Arrays.asList(new Boolean[][] { 
-                { false, false },{ false, true },{true, false}, { true, true } });
+        return Arrays.asList(new Boolean[][] {
+                {false, false}, {false, true}, {true, false}, {true, true}});
     }
-    
+
     protected void testSplitDuringIndexScan(boolean isReverse) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         props.setProperty(QueryServices.SCAN_CACHE_SIZE_ATTRIB, Integer.toString(2));
         props.setProperty(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, Boolean.toString(false));
         Connection conn1 = getConnection(props);
-		String tableName = "TBL_" + generateUniqueName();
+        String tableName = "TBL_" + generateUniqueName();
         String indexName = "IDX_" + generateUniqueName();
-		Admin admin = driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin();
-        try{
-            String[] strings = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+        Admin admin = driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin();
+        try {
+            String[] strings = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
             createTableAndLoadData(conn1, tableName, indexName, strings, isReverse);
 
             ResultSet rs = conn1.createStatement().executeQuery("SELECT * FROM " + tableName);
@@ -92,22 +93,26 @@ public abstract class MutableIndexSplitIT extends ParallelStatsDisabledIT {
             } catch (StaleRegionBoundaryCacheException x) {
                 assertTrue(localIndex);
             }
-       } finally {
-           if(conn1 != null) conn1.close();
-           if(admin != null) admin.close();
-       }
+        } finally {
+            if (conn1 != null) {
+                conn1.close();
+            }
+            if (admin != null) {
+                admin.close();
+            }
+        }
     }
 
     private void createTableAndLoadData(Connection conn1, String tableName, String indexName, String[] strings, boolean isReverse) throws SQLException {
         createBaseTable(conn1, tableName, null);
         for (int i = 0; i < 26; i++) {
             conn1.createStatement().execute(
-                "UPSERT INTO " + tableName + " values('"+strings[i]+"'," + i + ","
-                        + (i + 1) + "," + (i + 2) + ",'" + strings[25 - i] + "')");
+                    "UPSERT INTO " + tableName + " values('" + strings[i] + "'," + i + ","
+                            + (i + 1) + "," + (i + 2) + ",'" + strings[25 - i] + "')");
         }
         conn1.commit();
         conn1.createStatement().execute(
-            "CREATE " + (localIndex ? "LOCAL" : "")+" INDEX " + indexName + " ON " + tableName + "(v1"+(isReverse?" DESC":"")+") include (k3)");
+                "CREATE " + (localIndex ? "LOCAL" : "") + " INDEX " + indexName + " ON " + tableName + "(v1" + (isReverse ? " DESC" : "") + ") include (k3)");
     }
 
     private List<RegionInfo> splitDuringScan(Connection conn1, String tableName, String indexName, String[] strings, Admin admin, boolean isReverse)
@@ -116,7 +121,7 @@ public abstract class MutableIndexSplitIT extends ParallelStatsDisabledIT {
 
         String query = "SELECT t_id,k1,v1 FROM " + tableName;
         rs = conn1.createStatement().executeQuery(query);
-        String[] tIdColumnValues = new String[26]; 
+        String[] tIdColumnValues = new String[26];
         String[] v1ColumnValues = new String[26];
         int[] k1ColumnValue = new int[26];
         for (int j = 0; j < 5; j++) {
@@ -134,25 +139,25 @@ public abstract class MutableIndexSplitIT extends ParallelStatsDisabledIT {
         splitInts[0] = 22;
         splitInts[1] = 4;
         List<RegionInfo> regionsOfUserTable = null;
-        for(int i = 0; i <=1; i++) {
-            if(localIndex) {
+        for (int i = 0; i <= 1; i++) {
+            if (localIndex) {
                 admin.split(TableName.valueOf(tableName),
-                    ByteUtil.concat(Bytes.toBytes(splitKeys[i])));
+                        ByteUtil.concat(Bytes.toBytes(splitKeys[i])));
             } else {
                 admin.split(TableName.valueOf(indexName), ByteUtil.concat(Bytes.toBytes(splitInts[i])));
             }
             Thread.sleep(100);
             regionsOfUserTable =
                     MetaTableAccessor.getTableRegions(admin.getConnection(),
-                        TableName.valueOf(localIndex ? tableName : indexName), false);
+                            TableName.valueOf(localIndex ? tableName : indexName), false);
 
-            while (regionsOfUserTable.size() < (i+2)) {
+            while (regionsOfUserTable.size() < (i + 2)) {
                 Thread.sleep(100);
                 regionsOfUserTable =
                         MetaTableAccessor.getTableRegions(admin.getConnection(),
-                            TableName.valueOf(localIndex ? tableName : indexName), false);
+                                TableName.valueOf(localIndex ? tableName : indexName), false);
             }
-            assertTrue(regionsOfUserTable.size() >= (i+2));
+            assertTrue(regionsOfUserTable.size() >= (i + 2));
         }
         for (int j = 5; j < 26; j++) {
             assertTrue(rs.next());
@@ -165,7 +170,7 @@ public abstract class MutableIndexSplitIT extends ParallelStatsDisabledIT {
         Arrays.sort(k1ColumnValue);
         assertTrue(Arrays.equals(strings, tIdColumnValues));
         assertTrue(Arrays.equals(strings, v1ColumnValues));
-        for(int i=0;i<26;i++) {
+        for (int i = 0; i < 26; i++) {
             assertEquals(i, k1ColumnValue[i]);
         }
         assertFalse(rs.next());
@@ -178,9 +183,9 @@ public abstract class MutableIndexSplitIT extends ParallelStatsDisabledIT {
                 "k2 INTEGER NOT NULL,\n" +
                 "k3 INTEGER,\n" +
                 "v1 VARCHAR,\n" +
-                "CONSTRAINT pk PRIMARY KEY (t_id, k1, k2))" + (multiTenant ? " MULTI_TENANT=true ":"") +"\n"
-                    + (splits != null ? (" split on " + splits) : "");
+                "CONSTRAINT pk PRIMARY KEY (t_id, k1, k2))" + (multiTenant ? " MULTI_TENANT=true " : "") + "\n"
+                + (splits != null ? (" split on " + splits) : "");
         conn.createStatement().execute(ddl);
     }
-    
+
 }

@@ -35,18 +35,16 @@ import org.apache.phoenix.schema.types.PDataType;
 
 
 /**
- * 
  * Base class for aggregate functions that calculate an aggregation
  * using a single {{@link Aggregator}
  *
- * 
  * @since 0.1
  */
 abstract public class SingleAggregateFunction extends AggregateFunction {
     private static final List<Expression> DEFAULT_EXPRESSION_LIST = Arrays.<Expression>asList(LiteralExpression.newConstant(1, Determinism.ALWAYS));
     protected boolean isConstant;
     private Aggregator aggregator;
-    
+
     /**
      * Sort aggregate functions with nullable fields last. This allows us not to have to store trailing null values.
      * Within non-nullable/nullable groups, put fixed width values first since we can access those more efficiently
@@ -81,7 +79,7 @@ abstract public class SingleAggregateFunction extends AggregateFunction {
             return r1.compareTo(r2);
         }
     };
-    
+
     protected SingleAggregateFunction() {
         this(DEFAULT_EXPRESSION_LIST, true);
     }
@@ -89,7 +87,7 @@ abstract public class SingleAggregateFunction extends AggregateFunction {
     public SingleAggregateFunction(List<Expression> children) {
         this(children, children.get(0) instanceof LiteralExpression);
     }
-    
+
     private SingleAggregateFunction(List<Expression> children, boolean isConstant) {
         super(children);
         this.isConstant = isConstant;
@@ -99,20 +97,20 @@ abstract public class SingleAggregateFunction extends AggregateFunction {
     public boolean isConstantExpression() {
         return isConstant;
     }
-    
+
     @Override
     public PDataType getDataType() {
         return children.get(0).getDataType();
     }
-    
+
     public Expression getAggregatorExpression() {
         return children.get(0);
     }
-    
+
     public Aggregator getAggregator() {
         return aggregator;
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         return getAggregator().evaluate(tuple, ptr);
@@ -122,15 +120,18 @@ abstract public class SingleAggregateFunction extends AggregateFunction {
      * Create the aggregator to do server-side aggregation.
      * The data type of the returned Aggregator must match
      * the data type returned by {@link #newClientAggregator()}
+     *
      * @param conf HBase configuration.
      * @return the aggregator to use on the server-side
      */
     abstract public Aggregator newServerAggregator(Configuration conf);
+
     /**
      * Create the aggregator to do client-side aggregation
      * based on the results returned from the aggregating
      * coprocessor. The data type of the returned Aggregator
      * must match the data type returned by {@link #newServerAggregator(Configuration)}
+     *
      * @return the aggregator to use on the client-side
      */
     public Aggregator newClientAggregator() {
@@ -142,7 +143,7 @@ abstract public class SingleAggregateFunction extends AggregateFunction {
         agg.aggregate(null, ptr);
         return agg;
     }
-    
+
     public final void readFields(DataInput input, Configuration conf) throws IOException {
         super.readFields(input);
         aggregator = newServerAggregator(conf);
@@ -152,7 +153,7 @@ abstract public class SingleAggregateFunction extends AggregateFunction {
     public boolean isNullable() {
         return true;
     }
-    
+
     protected SingleAggregateFunction getDelegate() {
         return this;
     }

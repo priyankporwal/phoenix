@@ -53,13 +53,13 @@ import org.junit.Test;
 
 
 public class SkipScanQueryIT extends ParallelStatsDisabledIT {
-    
+
     private String initIntInTable(Connection conn, List<Integer> data) throws SQLException {
         String tableName = generateUniqueName();
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName + " (" + 
-                     "  i INTEGER NOT NULL PRIMARY KEY)";
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
+                "  i INTEGER NOT NULL PRIMARY KEY)";
         conn.createStatement().executeUpdate(ddl);
-        
+
         // Test upsert correct values 
         String query = "UPSERT INTO " + tableName + " VALUES(?)";
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -70,13 +70,13 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         conn.commit();
         return tableName;
     }
-    
+
     private String initVarCharCrossProductInTable(Connection conn, List<String> c1, List<String> c2) throws SQLException {
         String tableName = generateUniqueName();
         String ddl = "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
-                     "  s1 VARCHAR, s2 VARCHAR CONSTRAINT pk PRIMARY KEY (s1,s2))";
+                "  s1 VARCHAR, s2 VARCHAR CONSTRAINT pk PRIMARY KEY (s1,s2))";
         conn.createStatement().executeUpdate(ddl);
-        
+
         // Test upsert correct values 
         String query = "UPSERT INTO " + tableName + " VALUES(?,?)";
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -90,13 +90,13 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         conn.commit();
         return tableName;
     }
-    
+
     private String initVarCharParallelListInTable(Connection conn, List<String> c1, List<String> c2) throws SQLException {
         String tableName = generateUniqueName();
-        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName + " (" + 
-                     "  s1 VARCHAR, s2 VARCHAR CONSTRAINT pk PRIMARY KEY (s1,s2))";
+        String ddl = "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
+                "  s1 VARCHAR, s2 VARCHAR CONSTRAINT pk PRIMARY KEY (s1,s2))";
         conn.createStatement().executeUpdate(ddl);
-        
+
         // Test upsert correct values 
         String query = "UPSERT INTO " + tableName + " VALUES(?,?)";
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -108,10 +108,11 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         conn.commit();
         return tableName;
     }
-    
+
     private static String UPSERT_SELECT_AFTER_UPSERT_STATEMENTS =
-    		"upsert into %s(c1, c2, c3, c4, v1, v2) values('1001', '91', 's1', '2013-09-26', 28397, 23541);\n" +
-    		"upsert into %s(c1, c2, c3, c4, v1, v2) values('1001', '91', 's2', '2013-09-23', 3369, null);\n";
+            "upsert into %s(c1, c2, c3, c4, v1, v2) values('1001', '91', 's1', '2013-09-26', 28397, 23541);\n" +
+                    "upsert into %s(c1, c2, c3, c4, v1, v2) values('1001', '91', 's2', '2013-09-23', 3369, null);\n";
+
     private String initSelectAfterUpsertTable(Connection conn) throws Exception {
         String tableName = generateUniqueName();
         String ddl = "create table if not exists  " + tableName + " ("
@@ -128,15 +129,15 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         conn.commit();
         return tableName;
     }
-    
+
     @Test
     public void testSkipScanFilterQuery() throws Exception {
         String tableName = generateUniqueName();
         String createTableDDL = "CREATE TABLE " + tableName + "(col1 VARCHAR," + "col2 VARCHAR," + "col3 VARCHAR,"
-             + "col4 VARCHAR," + "CONSTRAINT pk  " + "PRIMARY KEY (col1,col2,col3,col4))";
+                + "col4 VARCHAR," + "CONSTRAINT pk  " + "PRIMARY KEY (col1,col2,col3,col4))";
         String upsertQuery = "upsert into  " + tableName + "  values(?,?,?,?)";
         String query = "SELECT col1, col2, col3, col4 FROM " + tableName + " WHERE col1 IN ('a','e','f') AND col2 = 'b' AND col4 = '1' ";
-        String[] col1Values = { "a", "e.f", "f" };
+        String[] col1Values = {"a", "e.f", "f"};
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         createTestTable(getUrl(), createTableDDL);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -168,8 +169,8 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         try {
             String query;
             query = "SELECT case when sum(v2)*1.0/sum(v1) is null then 0 else sum(v2)*1.0/sum(v1) END AS val FROM  " + tableName +
-            		" WHERE c1='1001' AND c2 = '91' " +
-            		"AND c3 IN ('s1','s2') AND c4='2013-09-24'";
+                    " WHERE c1='1001' AND c2 = '91' " +
+                    "AND c3 IN ('s1','s2') AND c4='2013-09-24'";
             ResultSet rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
@@ -177,11 +178,12 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
+
     @Test
     public void testInQuery() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         conn.setAutoCommit(false);
-        String tableName = initIntInTable(conn,Arrays.asList(2,7,10));
+        String tableName = initIntInTable(conn, Arrays.asList(2, 7, 10));
         try {
             String query;
             query = "SELECT i FROM " + tableName + " WHERE i IN (1,2,4,5,7,8,10)";
@@ -202,7 +204,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
     public void testVarCharParallelListInQuery() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         conn.setAutoCommit(false);
-        String tableName = initVarCharParallelListInTable(conn,Arrays.asList("d","da","db"),Arrays.asList("m","mc","tt"));
+        String tableName = initVarCharParallelListInTable(conn, Arrays.asList("d", "da", "db"), Arrays.asList("m", "mc", "tt"));
         try {
             String query;
             query = "SELECT s1,s2 FROM " + tableName + " WHERE s1 IN ('a','b','da','db') AND s2 IN ('c','ma','m','mc','ttt','z')";
@@ -215,12 +217,12 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testVarCharXInQuery() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         conn.setAutoCommit(false);
-        String tableName = initVarCharCrossProductInTable(conn,Arrays.asList("d","da","db"),Arrays.asList("m","mc","tt"));
+        String tableName = initVarCharCrossProductInTable(conn, Arrays.asList("d", "da", "db"), Arrays.asList("m", "mc", "tt"));
         try {
             String query;
             query = "SELECT s1,s2 FROM " + tableName + " WHERE s1 IN ('a','b','da','db') AND s2 IN ('c','ma','m','mc','ttt','z')";
@@ -247,7 +249,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
     public void testVarCharXIntInQuery() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         conn.setAutoCommit(false);
-        String tableName = initVarCharCrossProductInTable(conn,Arrays.asList("d","da","db"),Arrays.asList("m","mc","tt"));
+        String tableName = initVarCharCrossProductInTable(conn, Arrays.asList("d", "da", "db"), Arrays.asList("m", "mc", "tt"));
         try {
             String query;
             query = "SELECT s1,s2 FROM " + tableName +
@@ -262,7 +264,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testPreSplitCompositeFixedKey() throws Exception {
         String tableName = generateUniqueName();
@@ -291,7 +293,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         }
     }
 
-    
+
     @Test
     public void testInWithDescKey() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -326,32 +328,32 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             assertEquals("aacc", rs.getString(2));
             assertEquals("value_3", rs.getString(3));
             assertFalse(rs.next());
-            
+
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSkipScanIntersectionAtEnd() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
         conn.createStatement()
                 .execute(
-                    "create table "
-                            + tableName
-                            + "(pk1 UNSIGNED_TINYINT NOT NULL, pk2 UNSIGNED_TINYINT NOT NULL, pk3 UNSIGNED_TINYINT NOT NULL, kv VARCHAR "
-                            + "CONSTRAINT pk PRIMARY KEY (pk1, pk2, pk3)) SPLIT ON ('"
-                            + Bytes.toString(new byte[] { 1, 1 }) + "', '"
-                            + Bytes.toString(new byte[] { 2, 1 }) + "', '"
-                            + Bytes.toString(new byte[] { 3, 1 }) + "')");
-        
+                        "create table "
+                                + tableName
+                                + "(pk1 UNSIGNED_TINYINT NOT NULL, pk2 UNSIGNED_TINYINT NOT NULL, pk3 UNSIGNED_TINYINT NOT NULL, kv VARCHAR "
+                                + "CONSTRAINT pk PRIMARY KEY (pk1, pk2, pk3)) SPLIT ON ('"
+                                + Bytes.toString(new byte[] {1, 1}) + "', '"
+                                + Bytes.toString(new byte[] {2, 1}) + "', '"
+                                + Bytes.toString(new byte[] {3, 1}) + "')");
+
         conn.createStatement().execute("upsert into " + tableName + " values (0, 1, 1, 'a')");
         conn.createStatement().execute("upsert into " + tableName + " values (1, 1, 1, 'a')");
         conn.createStatement().execute("upsert into " + tableName + " values (2, 1, 1, 'a')");
         conn.createStatement().execute("upsert into " + tableName + " values (3, 1, 1, 'a')");
         conn.commit();
-        
+
         ResultSet rs = conn.createStatement().executeQuery("select count(kv) from " + tableName + " where pk1 in (0, 1, 2, 3) AND pk2 = 1");
         assertTrue(rs.next());
         assertEquals(4, rs.getInt(1));
@@ -366,7 +368,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         try {
-            TestUtil.createMultiCFTestTable(conn , fullTableName, null);
+            TestUtil.createMultiCFTestTable(conn, fullTableName, null);
             populateMultiCFTestTable(fullTableName);
             String upsert = "UPSERT INTO " + fullTableName
                     + " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -388,7 +390,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(15, new BigDecimal("3.1"));
             stmt.setDate(16, null);
             stmt.executeUpdate();
-            
+
             stmt.setString(1, "varchar5");
             stmt.setString(2, "char2");
             stmt.setInt(3, 2);
@@ -406,7 +408,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             stmt.setBigDecimal(15, new BigDecimal("4.2"));
             stmt.setDate(16, null);
             stmt.executeUpdate();
-            
+
             stmt.setString(1, "varchar6");
             stmt.setString(2, "char3");
             stmt.setInt(3, 3);
@@ -436,12 +438,12 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             assertEquals(4, rs.getInt(2));
             assertEquals(5L, rs.getLong(3));
             assertFalse(rs.next());
-            
+
         } finally {
             conn.close();
         }
-    }    
-    
+    }
+
     @Test
     public void testOrPKWithAndNonPK() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -457,26 +459,26 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             assertEquals("i1", rs.getString(1));
             assertEquals("c1", rs.getString(2));
             assertFalse(rs.next());
-            
+
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNullInfiniteLoop() throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String tableName = generateUniqueName();
             conn.setAutoCommit(true);
             conn.createStatement().execute(
-              "create table " + tableName +
-              "("+
-                     "CREATETIME VARCHAR,"+
-                     "ACCOUNTID VARCHAR,"+
-                     "SERVICENAME VARCHAR,"+
-                     "SPAN.APPID VARCHAR,"+
-                     "CONSTRAINT pk PRIMARY KEY(CREATETIME,ACCOUNTID,SERVICENAME)"+
-              ")");
+                    "create table " + tableName +
+                            "(" +
+                            "CREATETIME VARCHAR," +
+                            "ACCOUNTID VARCHAR," +
+                            "SERVICENAME VARCHAR," +
+                            "SPAN.APPID VARCHAR," +
+                            "CONSTRAINT pk PRIMARY KEY(CREATETIME,ACCOUNTID,SERVICENAME)" +
+                            ")");
 
             conn.createStatement().execute("upsert into " + tableName + "(CREATETIME,SERVICENAME,SPAN.APPID) values('20160116141006','servlet','android')");
             conn.createStatement().execute("upsert into " + tableName + "(CREATETIME,ACCOUNTID,SERVICENAME,SPAN.APPID) values('20160116151006','2404787','jdbc','ios')");
@@ -538,7 +540,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             stmt.executeUpdate();
             conn.commit();
             try (Admin admin =
-                    conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin()) {
+                         conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin()) {
                 /*
                  * The split key is 27 bytes instead of at least 30 bytes (CHAR(15) + CHAR(15)).
                  * Note that we cannot use the phoenix way of giving split points in the ddl because
@@ -623,7 +625,7 @@ public class SkipScanQueryIT extends ParallelStatsDisabledIT {
             assertEquals("Expected a single scan ", 1, plan.getScans().size());
             assertEquals("Expected a single scan ", 1, plan.getScans().get(0).size());
             Scan scan = plan.getScans().get(0).get(0);
-            FilterList filterList = (FilterList)scan.getFilter();
+            FilterList filterList = (FilterList) scan.getFilter();
             boolean skipScanFilterFound = false;
             for (Filter f : filterList.getFilters()) {
                 if (f instanceof SkipScanFilter) {

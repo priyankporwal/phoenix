@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 package org.apache.phoenix.tx;
+
 import static org.apache.phoenix.util.TestUtil.INDEX_DATA_SCHEMA;
 import static org.apache.phoenix.util.TestUtil.TEST_PROPERTIES;
 import static org.junit.Assert.assertEquals;
@@ -72,14 +73,14 @@ import com.google.common.collect.Lists;
 
 @RunWith(Parameterized.class)
 public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
-    
+
     private final String tableDDLOptions;
     private final String tableDDLOptionsWithoutProvider;
     private final PhoenixTransactionProvider transactionProvider;
 
     public ParameterizedTransactionIT(Boolean mutable, Boolean columnEncoded, String transactionProvider) {
         StringBuilder optionBuilder = new StringBuilder();
-        optionBuilder.append("TRANSACTION_PROVIDER='"+transactionProvider+"',");
+        optionBuilder.append("TRANSACTION_PROVIDER='" + transactionProvider + "',");
         this.transactionProvider = TransactionFactory.Provider.valueOf(transactionProvider).getTransactionProvider();
         StringBuilder optionBuilder2 = new StringBuilder();
         if (!columnEncoded) {
@@ -88,38 +89,39 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         if (!mutable) {
             optionBuilder2.append("IMMUTABLE_ROWS=true,");
             if (!columnEncoded) {
-                optionBuilder2.append("IMMUTABLE_STORAGE_SCHEME="+PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN +",");
+                optionBuilder2.append("IMMUTABLE_STORAGE_SCHEME=" + PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN + ",");
             }
         }
         if (optionBuilder2.length() > 0) {
-            optionBuilder2.setLength(optionBuilder2.length()-1);
+            optionBuilder2.setLength(optionBuilder2.length() - 1);
             optionBuilder.append(optionBuilder2);
         } else {
-            optionBuilder.setLength(optionBuilder.length()-1);
+            optionBuilder.setLength(optionBuilder.length() - 1);
         }
         this.tableDDLOptions = optionBuilder.toString();
         this.tableDDLOptionsWithoutProvider = optionBuilder2.toString();
     }
-    
-    @Parameters(name="ParameterizedTransactionIT_mutable={0},columnEncoded={1},transactionProvider={2}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "ParameterizedTransactionIT_mutable={0},columnEncoded={1},transactionProvider={2}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
-        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {     
-                 {false, false, "TEPHRA" }, {false, true, "TEPHRA" }, {true, false, "TEPHRA" }, { true, true, "TEPHRA" },
-                 {false, false, "OMID" }, {true, false, "OMID" },
-           }), 2);
+        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {
+                {false, false, "TEPHRA"}, {false, true, "TEPHRA"}, {true, false, "TEPHRA"}, {true, true, "TEPHRA"},
+                {false, false, "OMID"}, {true, false, "OMID"},
+        }), 2);
     }
-    
+
     @Test
     public void testReadOwnWrites() throws Exception {
         String transTableName = generateUniqueName();
         String fullTableName = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + transTableName;
-        String selectSql = "SELECT * FROM "+ fullTableName;
+        String selectSql = "SELECT * FROM " + fullTableName;
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute("create table " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions + (tableDDLOptions.length() > 0 ? "," : "") + "TRANSACTIONAL=true");
             conn.setAutoCommit(false);
             ResultSet rs = conn.createStatement().executeQuery(selectSql);
             assertFalse(rs.next());
-            
+
             String upsert = "UPSERT INTO " + fullTableName + "(varchar_pk, char_pk, int_pk, long_pk, decimal_pk, date_pk) VALUES(?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(upsert);
             // upsert two rows
@@ -127,15 +129,15 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             stmt.execute();
             TestUtil.setRowKeyColumns(stmt, 2);
             stmt.execute();
-            
+
             // verify rows can be read even though commit has not been called
             rs = conn.createStatement().executeQuery(selectSql);
             TestUtil.validateRowKeyColumns(rs, 1);
             TestUtil.validateRowKeyColumns(rs, 2);
             assertFalse(rs.next());
-            
+
             conn.commit();
-            
+
             // verify rows can be read after commit
             rs = conn.createStatement().executeQuery(selectSql);
             TestUtil.validateRowKeyColumns(rs, 1);
@@ -143,19 +145,19 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     @Test
     public void testTxnClosedCorrecty() throws Exception {
         String transTableName = generateUniqueName();
         String fullTableName = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + transTableName;
-        String selectSql = "SELECT * FROM "+fullTableName;
+        String selectSql = "SELECT * FROM " + fullTableName;
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             String ddl = "create table " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions + (tableDDLOptions.length() > 0 ? "," : "") + "TRANSACTIONAL=true";
             conn.createStatement().execute(ddl);
             conn.setAutoCommit(false);
             ResultSet rs = conn.createStatement().executeQuery(selectSql);
             assertFalse(rs.next());
-            
+
             String upsert = "UPSERT INTO " + fullTableName + "(varchar_pk, char_pk, int_pk, long_pk, decimal_pk, date_pk) VALUES(?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(upsert);
             // upsert two rows
@@ -163,14 +165,14 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             stmt.execute();
             TestUtil.setRowKeyColumns(stmt, 2);
             stmt.execute();
-            
+
             // verify rows can be read even though commit has not been called
             rs = conn.createStatement().executeQuery(selectSql);
             TestUtil.validateRowKeyColumns(rs, 1);
             TestUtil.validateRowKeyColumns(rs, 2);
             // Long currentTx = rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp();
             assertFalse(rs.next());
-            
+
             conn.close();
             // start new connection
             // conn.createStatement().executeQuery(selectSql);
@@ -178,7 +180,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             // txManager.getCurrentState().getInvalid().contains(currentTx));
         }
     }
-    
+
     @Test
     public void testAutoCommitQuerySingleTable() throws Exception {
         String transTableName = generateUniqueName();
@@ -191,7 +193,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     @Test
     public void testAutoCommitQueryMultiTables() throws Exception {
         String transTableName = generateUniqueName();
@@ -202,9 +204,9 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             // verify no rows returned
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + fullTableName + " x JOIN " + fullTableName + " y ON (x.long_pk = y.int_pk)");
             assertFalse(rs.next());
-        } 
+        }
     }
-    
+
     @Test
     public void testSelfJoin() throws Exception {
         String t1 = generateUniqueName();
@@ -217,15 +219,15 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
             rs = conn.createStatement().executeQuery("SELECT * FROM " + t2 + " x JOIN " + t2 + " y ON (x.varchar_pk = y.a.varchar_col1)");
             assertFalse(rs.next());
-        } 
+        }
     }
-    
+
     private void testRowConflicts(String fullTableName) throws Exception {
         try (Connection conn1 = DriverManager.getConnection(getUrl());
-                Connection conn2 = DriverManager.getConnection(getUrl())) {
+             Connection conn2 = DriverManager.getConnection(getUrl())) {
             conn1.setAutoCommit(false);
             conn2.setAutoCommit(false);
-            String selectSql = "SELECT * FROM "+fullTableName;
+            String selectSql = "SELECT * FROM " + fullTableName;
             conn1.setAutoCommit(false);
             ResultSet rs = conn1.createStatement().executeQuery(selectSql);
             boolean immutableRows = conn1.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, fullTableName)).isImmutableRows();
@@ -242,20 +244,23 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             TestUtil.setRowKeyColumns(stmt, 1);
             stmt.setInt(7, 11);
             stmt.execute();
-            
+
             conn1.commit();
             //second commit should fail
             try {
                 conn2.commit();
-                if (!immutableRows) fail();
-            }   
-            catch (SQLException e) {
-                if (immutableRows) fail();
+                if (!immutableRows) {
+                    fail();
+                }
+            } catch (SQLException e) {
+                if (immutableRows) {
+                    fail();
+                }
                 assertEquals(e.getErrorCode(), SQLExceptionCode.TRANSACTION_CONFLICT_EXCEPTION.getErrorCode());
             }
         }
     }
-    
+
     @Test
     public void testRowConflictDetected() throws Exception {
         String transTableName = generateUniqueName();
@@ -264,7 +269,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("create table " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions + (tableDDLOptions.length() > 0 ? "," : "") + "TRANSACTIONAL=true");
         testRowConflicts(fullTableName);
     }
-    
+
     @Test
     public void testNoConflictDetectionForImmutableRows() throws Exception {
         String transTableName = generateUniqueName();
@@ -274,7 +279,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("ALTER TABLE " + fullTableName + " SET IMMUTABLE_ROWS=true");
         testRowConflicts(fullTableName);
     }
-    
+
     @Test
     public void testNonTxToTxTable() throws Exception {
         String nonTxTableName = generateUniqueName();
@@ -285,17 +290,17 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO " + nonTxTableName + " VALUES (2, 'a')");
         conn.createStatement().execute("UPSERT INTO " + nonTxTableName + " VALUES (3, 'b')");
         conn.commit();
-        
+
         String index = generateUniqueName();
         conn.createStatement().execute("CREATE INDEX " + index + " ON " + nonTxTableName + "(v)");
         // Reset empty column value to an empty value like it is pre-transactions
-        Table htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes( nonTxTableName));
-        List<Put>puts = Lists.newArrayList(new Put(PInteger.INSTANCE.toBytes(1)), new Put(PInteger.INSTANCE.toBytes(2)), new Put(PInteger.INSTANCE.toBytes(3)));
+        Table htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(nonTxTableName));
+        List<Put> puts = Lists.newArrayList(new Put(PInteger.INSTANCE.toBytes(1)), new Put(PInteger.INSTANCE.toBytes(2)), new Put(PInteger.INSTANCE.toBytes(3)));
         for (Put put : puts) {
             put.addColumn(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, QueryConstants.EMPTY_COLUMN_BYTES, ByteUtil.EMPTY_BYTE_ARRAY);
         }
         htable.put(puts);
-        
+
         try {
             conn.createStatement().execute("ALTER TABLE " + nonTxTableName + " SET TRANSACTIONAL=true,TRANSACTION_PROVIDER='" + transactionProvider + "'");
             if (transactionProvider.isUnsupported(Feature.ALTER_NONTX_TO_TX)) {
@@ -309,48 +314,48 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
                 throw e;
             }
         }
-        
-        htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes( nonTxTableName));
+
+        htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(nonTxTableName));
         assertTrue(htable.getDescriptor().getCoprocessors().contains(TephraTransactionalProcessor.class.getName()));
         htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(index));
         assertTrue(htable.getDescriptor().getCoprocessors().contains(TephraTransactionalProcessor.class.getName()));
 
         conn.createStatement().execute("UPSERT INTO " + nonTxTableName + " VALUES (4, 'c')");
         ResultSet rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ k FROM " + nonTxTableName + " WHERE v IS NULL");
-        assertTrue(conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null,  nonTxTableName)).isTransactional());
+        assertTrue(conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, nonTxTableName)).isTransactional());
         assertTrue(rs.next());
-        assertEquals(1,rs.getInt(1));
+        assertEquals(1, rs.getInt(1));
         assertFalse(rs.next());
         conn.commit();
-        
+
         conn.createStatement().execute("UPSERT INTO " + nonTxTableName + " VALUES (5, 'd')");
         rs = conn.createStatement().executeQuery("SELECT k FROM " + nonTxTableName);
         assertTrue(conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, index)).isTransactional());
         assertTrue(rs.next());
-        assertEquals(1,rs.getInt(1));
+        assertEquals(1, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(2,rs.getInt(1));
+        assertEquals(2, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(3,rs.getInt(1));
+        assertEquals(3, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(4,rs.getInt(1));
+        assertEquals(4, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(5,rs.getInt(1));
+        assertEquals(5, rs.getInt(1));
         assertFalse(rs.next());
         conn.rollback();
-        
+
         rs = conn.createStatement().executeQuery("SELECT k FROM " + nonTxTableName);
         assertTrue(rs.next());
-        assertEquals(1,rs.getInt(1));
+        assertEquals(1, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(2,rs.getInt(1));
+        assertEquals(2, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(3,rs.getInt(1));
+        assertEquals(3, rs.getInt(1));
         assertTrue(rs.next());
-        assertEquals(4,rs.getInt(1));
+        assertEquals(4, rs.getInt(1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testNonTxToTxTableFailure() throws Exception {
         String nonTxTableName = generateUniqueName();
@@ -365,7 +370,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         Put put = new Put(PInteger.INSTANCE.toBytes(1));
         put.addColumn(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, QueryConstants.EMPTY_COLUMN_BYTES, ByteUtil.EMPTY_BYTE_ARRAY);
         htable.put(put);
-        
+
         Admin admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();
         admin.disableTable(TableName.valueOf(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME));
         try {
@@ -384,20 +389,20 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             admin.enableTable(TableName.valueOf(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME));
             admin.close();
         }
-        
+
         ResultSet rs = conn.createStatement().executeQuery("SELECT k FROM \"SYSTEM\"." + nonTxTableName + " WHERE v IS NULL");
         assertTrue(rs.next());
-        assertEquals(1,rs.getInt(1));
+        assertEquals(1, rs.getInt(1));
         assertFalse(rs.next());
-        
+
         htable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes("SYSTEM." + nonTxTableName));
         Class<? extends RegionObserver> clazz = transactionProvider.getCoprocessor();
         assertFalse(htable.getDescriptor().getCoprocessors().contains(clazz.getName()));
-        assertEquals(1,conn.unwrap(PhoenixConnection.class).getQueryServices().
+        assertEquals(1, conn.unwrap(PhoenixConnection.class).getQueryServices().
                 getTableDescriptor(Bytes.toBytes("SYSTEM." + nonTxTableName)).
                 getColumnFamily(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES).getMaxVersions());
     }
-    
+
     @Test
     public void testCreateTableToBeTransactional() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -412,7 +417,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         assertTrue(table.isTransactional());
         Class<? extends RegionObserver> clazz = transactionProvider.getCoprocessor();
         assertTrue(htable.getDescriptor().getCoprocessors().contains(clazz.getName()));
-        
+
         try {
             ddl = "ALTER TABLE " + t1 + " SET transactional=false";
             conn.createStatement().execute(ddl);
@@ -441,9 +446,9 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         TableDescriptor tableDescriptor = admin.getDescriptor(TableName.valueOf(t2));
         String str = tableDescriptor.getValue(PhoenixTransactionContext.READ_NON_TX_DATA);
         assertEquals(Boolean.TRUE.toString(), str);
-        
+
         // Should be ok, as HBase metadata should match existing metadata.
-        ddl = "CREATE TABLE IF NOT EXISTS " + t1 + " (k varchar primary key)"; 
+        ddl = "CREATE TABLE IF NOT EXISTS " + t1 + " (k varchar primary key)";
         try {
             conn.createStatement().execute(ddl);
             fail();
@@ -462,27 +467,27 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
     public void testCurrentDate() throws Exception {
         String transTableName = generateUniqueName();
         String fullTableName = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + transTableName;
-        String selectSql = "SELECT current_date() FROM "+fullTableName;
+        String selectSql = "SELECT current_date() FROM " + fullTableName;
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute("create table " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions + (tableDDLOptions.length() > 0 ? "," : "") + "TRANSACTIONAL=true");
             conn.setAutoCommit(false);
             ResultSet rs = conn.createStatement().executeQuery(selectSql);
             assertFalse(rs.next());
-            
+
             String upsert = "UPSERT INTO " + fullTableName + "(varchar_pk, char_pk, int_pk, long_pk, decimal_pk, date_pk) VALUES(?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(upsert);
             // upsert two rows
             TestUtil.setRowKeyColumns(stmt, 1);
             stmt.execute();
             conn.commit();
-            
+
             rs = conn.createStatement().executeQuery(selectSql);
             assertTrue(rs.next());
             Date date1 = rs.getDate(1);
             assertFalse(rs.next());
-            
+
             Thread.sleep(1000);
-            
+
             rs = conn.createStatement().executeQuery(selectSql);
             assertTrue(rs.next());
             Date date2 = rs.getDate(1);
@@ -490,8 +495,8 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             assertTrue("current_date() should change while executing multiple statements", date2.getTime() > date1.getTime());
         }
     }
-    
-    
+
+
     @Test
     public void testParallelUpsertSelect() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -505,16 +510,16 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
         String sequenceName = "S_" + generateUniqueName();
         conn.createStatement().execute("CREATE SEQUENCE " + sequenceName);
         conn.createStatement().execute("CREATE TABLE " + fullTableName1 + " (pk INTEGER PRIMARY KEY, val INTEGER) SALT_BUCKETS=4, TRANSACTIONAL=true"
-                + (tableDDLOptions.length() > 0 ? "," : "")  + tableDDLOptions);
-        conn.createStatement().execute("CREATE TABLE " + fullTableName2 + " (pk INTEGER PRIMARY KEY, val INTEGER)" );
+                + (tableDDLOptions.length() > 0 ? "," : "") + tableDDLOptions);
+        conn.createStatement().execute("CREATE TABLE " + fullTableName2 + " (pk INTEGER PRIMARY KEY, val INTEGER)");
 
         for (int i = 0; i < 100; i++) {
-            conn.createStatement().execute("UPSERT INTO " + fullTableName1 + " VALUES (NEXT VALUE FOR " + sequenceName + ", " + (i%10) + ")");
+            conn.createStatement().execute("UPSERT INTO " + fullTableName1 + " VALUES (NEXT VALUE FOR " + sequenceName + ", " + (i % 10) + ")");
         }
         conn.commit();
         conn.setAutoCommit(true);
         int upsertCount = conn.createStatement().executeUpdate("UPSERT INTO " + fullTableName2 + " SELECT pk, val FROM " + fullTableName1);
-        assertEquals(100,upsertCount);
+        assertEquals(100, upsertCount);
         conn.close();
     }
 
@@ -526,7 +531,7 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
             Statement stmt = conn.createStatement();
             stmt.execute("CREATE TABLE " + transactTableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR) " + tableDDLOptions + (tableDDLOptions.length() > 0 ? "," : "") + "TRANSACTIONAL=true");
 
-            
+
             try (Connection conn1 = DriverManager.getConnection(getUrl()); Connection conn2 = DriverManager.getConnection(getUrl())) {
                 conn1.createStatement().execute("UPSERT INTO " + transactTableName + " VALUES ('a','b','x')");
                 // Select to force uncommitted data to be written
@@ -535,24 +540,24 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
                 assertEquals("a", rs.getString(1));
                 assertEquals("b", rs.getString(2));
                 assertFalse(rs.next());
-                
+
                 conn2.createStatement().execute("UPSERT INTO " + transactTableName + " VALUES ('a','c','x')");
                 // Select to force uncommitted data to be written
-                rs = conn2.createStatement().executeQuery("SELECT * FROM " + transactTableName );
+                rs = conn2.createStatement().executeQuery("SELECT * FROM " + transactTableName);
                 assertTrue(rs.next());
                 assertEquals("a", rs.getString(1));
                 assertEquals("c", rs.getString(2));
                 assertFalse(rs.next());
-                
+
                 // If the AndExpression were to see the uncommitted row from conn2, the filter would
                 // filter the row out early and no longer continue to evaluate other cells due to
                 // the way partial evaluation holds state.
-                rs = conn1.createStatement().executeQuery("SELECT * FROM " +  transactTableName + " WHERE v1 != 'c' AND v2 = 'x'");
+                rs = conn1.createStatement().executeQuery("SELECT * FROM " + transactTableName + " WHERE v1 != 'c' AND v2 = 'x'");
                 assertTrue(rs.next());
                 assertEquals("a", rs.getString(1));
                 assertEquals("b", rs.getString(2));
                 assertFalse(rs.next());
-                
+
                 // Same as above for conn1 data
                 rs = conn2.createStatement().executeQuery("SELECT * FROM " + transactTableName + " WHERE v1 != 'b' AND v2 = 'x'");
                 assertTrue(rs.next());
@@ -563,5 +568,5 @@ public class ParameterizedTransactionIT extends ParallelStatsDisabledIT {
 
         }
     }
-    
+
 }

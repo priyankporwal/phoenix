@@ -27,13 +27,11 @@ import org.apache.hadoop.hbase.coprocessor.ObserverContext;
 import org.apache.hadoop.hbase.regionserver.MiniBatchOperationInProgress;
 
 /**
- * 
  * Provide a client API for updating rows. The updates are processed in
  * the calling order. Calling setValue after calling delete will cause the
  * delete to be canceled.  Conversely, calling delete after calling
  * setValue will cause all prior setValue calls to be canceled.
  *
- * 
  * @since 0.1
  */
 public interface PRow {
@@ -43,18 +41,20 @@ public interface PRow {
      * Get the list of {@link org.apache.hadoop.hbase.client.Mutation} used to
      * update an HTable after all mutations through calls to
      * {@link #setValue(PColumn, byte[])} or {@link #delete()}.
+     *
      * @return the list of mutations representing all changes made to a row
      * @throws ConstraintViolationException if row data violates schema
-     * constraint
+     *                                      constraint
      */
     public List<Mutation> toRowMutations();
-    
+
     /**
      * Set a column value in the row
-     * @param col the column for which the value is being set
+     *
+     * @param col   the column for which the value is being set
      * @param value the value
      * @throws ConstraintViolationException if row data violates schema
-     * constraint
+     *                                      constraint
      */
     public void setValue(PColumn col, byte[] value);
 
@@ -63,6 +63,7 @@ public interface PRow {
      * persisted as cells under a reserved qualifier for the dynamic column metadata so that we
      * can resolve them for wildcard queries without requiring the user to provide the data type
      * of the dynamic columns. See PHOENIX-374
+     *
      * @return true if attributes for dynamic columns are added, otherwise false
      */
     public boolean setAttributesForDynamicColumnsIfReqd();

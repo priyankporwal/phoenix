@@ -47,19 +47,19 @@ public class QueryExecutor implements Workload {
     private RulesApplier ruleApplier;
 
     public QueryExecutor(XMLConfigParser parser, PhoenixUtil util,
-            WorkloadExecutor workloadExecutor) {
+                         WorkloadExecutor workloadExecutor) {
         this(parser, util, workloadExecutor, parser.getDataModels(), null, false, true);
     }
 
     public QueryExecutor(XMLConfigParser parser, PhoenixUtil util,
-            WorkloadExecutor workloadExecutor, List<DataModel> dataModels, String queryHint,
-            boolean exportCSV) {
-    	this(parser, util, workloadExecutor, dataModels, queryHint, exportCSV, true);
+                         WorkloadExecutor workloadExecutor, List<DataModel> dataModels, String queryHint,
+                         boolean exportCSV) {
+        this(parser, util, workloadExecutor, dataModels, queryHint, exportCSV, true);
     }
 
     public QueryExecutor(XMLConfigParser parser, PhoenixUtil util,
-            WorkloadExecutor workloadExecutor, List<DataModel> dataModels, String queryHint,
-            boolean exportCSV, boolean writeRuntimeResults) {
+                         WorkloadExecutor workloadExecutor, List<DataModel> dataModels, String queryHint,
+                         boolean exportCSV, boolean writeRuntimeResults) {
         this.parser = parser;
         this.queryHint = queryHint;
         this.exportCSV = exportCSV;
@@ -71,7 +71,8 @@ public class QueryExecutor implements Workload {
     }
 
     @Override
-    public void complete() {}
+    public void complete() {
+    }
 
     /**
      * Calls in Multithreaded Query Executor for all datamodels
@@ -129,7 +130,8 @@ public class QueryExecutor implements Workload {
      */
     protected Callable<Void> executeAllScenarios(final DataModel dataModel) throws Exception {
         return new Callable<Void>() {
-            @Override public Void call() throws Exception {
+            @Override
+            public Void call() throws Exception {
                 List<DataModelResult> dataModelResults = new ArrayList<>();
                 DataModelResult
                         dataModelResult =
@@ -179,11 +181,11 @@ public class QueryExecutor implements Workload {
      * @param dataModelResult
      * @param querySet
      * @param querySetResult
-     * @param scenario 
+     * @param scenario
      * @throws InterruptedException
      */
     protected void executeQuerySetSerial(DataModelResult dataModelResult, QuerySet querySet,
-            QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
+                                         QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
         for (Query query : querySet.getQuery()) {
             QueryResult queryResult = new QueryResult(query);
             querySetResult.getQueryResults().add(queryResult);
@@ -217,7 +219,7 @@ public class QueryExecutor implements Workload {
      * @throws InterruptedException
      */
     protected void executeQuerySetParallel(DataModelResult dataModelResult, QuerySet querySet,
-            QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
+                                           QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
         for (int cr = querySet.getMinConcurrency(); cr <= querySet.getMaxConcurrency(); cr++) {
             List<Future> threads = new ArrayList<>();
             for (int i = 0; i < cr; i++) {
@@ -246,11 +248,11 @@ public class QueryExecutor implements Workload {
      * @param dataModelResult
      * @param queryResult
      * @param querySet
-     * @param scenario 
+     * @param scenario
      * @return
      */
     protected Callable<Void> executeRunner(String name, DataModelResult dataModelResult,
-            QueryResult queryResult, QuerySet querySet, Scenario scenario) {
+                                           QueryResult queryResult, QuerySet querySet, Scenario scenario) {
         ThreadTime threadTime = new ThreadTime();
         queryResult.getThreadTimes().add(threadTime);
         threadTime.setThreadName(name);

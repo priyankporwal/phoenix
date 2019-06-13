@@ -34,19 +34,19 @@ public class ITGuidePostsCacheFactory implements GuidePostsCacheFactory {
         return count.get();
     }
 
-    public static ConcurrentHashMap<Integer, DefaultGuidePostsCacheFactory> getMap(){
+    public static ConcurrentHashMap<Integer, DefaultGuidePostsCacheFactory> getMap() {
         return map;
     }
 
     @Override
     public PhoenixStatsLoader getPhoenixStatsLoader(ConnectionQueryServices queryServices,
-            ReadOnlyProps readOnlyProps, Configuration config) {
+                                                    ReadOnlyProps readOnlyProps, Configuration config) {
         return map.get(key).getPhoenixStatsLoader(queryServices, readOnlyProps, config);
     }
 
     @Override
     public GuidePostsCache getGuidePostsCache(PhoenixStatsLoader phoenixStatsLoader,
-            Configuration config) {
+                                              Configuration config) {
         return map.get(key).getGuidePostsCache(phoenixStatsLoader, config);
     }
 }

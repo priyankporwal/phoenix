@@ -46,9 +46,9 @@ public class PatternPerformanceTest {
         }
     }
 
-    private String[] data = new String[] { "ONE:TWO:THREE", "ABC:DEF", "PKU:THU:FDU" };
-    private ImmutableBytesWritable[] dataPtr = new ImmutableBytesWritable[] { getPtr(data[0]),
-            getPtr(data[1]), getPtr(data[2]) };
+    private String[] data = new String[] {"ONE:TWO:THREE", "ABC:DEF", "PKU:THU:FDU"};
+    private ImmutableBytesWritable[] dataPtr = new ImmutableBytesWritable[] {getPtr(data[0]),
+            getPtr(data[1]), getPtr(data[2])};
     private String patternString;
     private ImmutableBytesWritable resultPtr = new ImmutableBytesWritable();
     private int maxTimes = 10000000;
@@ -60,13 +60,13 @@ public class PatternPerformanceTest {
     }
 
     private void testReplaceAll(ImmutableBytesWritable replacePtr, AbstractBasePattern pattern,
-            String name) {
+                                String name) {
         timer.reset();
         for (int i = 0; i < maxTimes; ++i) {
             ImmutableBytesWritable ptr = dataPtr[i % 3];
             resultPtr.set(ptr.get(), ptr.getOffset(), ptr.getLength());
             pattern.replaceAll(resultPtr, replacePtr.get(), replacePtr.getOffset(),
-                replacePtr.getLength());
+                    replacePtr.getLength());
             if (ENABLE_ASSERT) {
                 String result = (String) PVarchar.INSTANCE.toObject(resultPtr);
                 assertTrue((i % 3 == 1 && ":".equals(result))
@@ -107,7 +107,7 @@ public class PatternPerformanceTest {
         timer.reset();
         for (int i = 0; i < maxTimes; ++i) {
             ImmutableBytesWritable ptr = dataPtr[i % 3];
-            resultPtr.set(ptr.get(),ptr.getOffset(),ptr.getLength());
+            resultPtr.set(ptr.get(), ptr.getOffset(), ptr.getLength());
             pattern.substr(resultPtr, 0);
             if (ENABLE_ASSERT) {
                 assertTrue((i % 3 != 2 || ":THU".equals(PVarchar.INSTANCE.toObject(resultPtr))));

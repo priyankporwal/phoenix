@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base server aggregator for (FIRST|LAST|NTH)_VALUE functions
- *
  */
 public class FirstLastValueServerAggregator extends BaseAggregator {
 

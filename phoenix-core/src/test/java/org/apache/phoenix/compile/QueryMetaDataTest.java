@@ -34,12 +34,9 @@ import org.apache.phoenix.util.TestUtil;
 import org.junit.Test;
 
 
-
 /**
- * 
  * Tests for getting PreparedStatement meta data
  *
- * 
  * @since 0.1
  */
 public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
@@ -173,7 +170,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(1, pmd.getParameterCount());
         assertEquals(BigDecimal.class.getName(), pmd.getParameterClassName(1));
         assertEquals(ParameterMetaData.parameterNullable, pmd.isNullable(1));
-        
+
         String query2 = "SELECT a_string, b_string FROM atable WHERE case when a_integer = 1 then 1 when a_integer > 2 then 2 end > ?";
         PreparedStatement statement2 = conn.prepareStatement(query2);
         ParameterMetaData pmd2 = statement2.getParameterMetaData();
@@ -203,7 +200,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(1, pmd.getParameterCount());
         assertEquals(String.class.getName(), pmd.getParameterClassName(1));
     }
-    
+
     @Test
     public void testDateSubstractExpressionMetaData1() throws Exception {
         String query = "SELECT entity_id,a_string FROM atable where a_date-2.5-?=a_date";
@@ -273,7 +270,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testCoerceToDecimalArithmeticMetaData() throws Exception {
-        String[] ops = { "+", "-", "*", "/" };
+        String[] ops = {"+", "-", "*", "/"};
         for (String op : ops) {
             String query = "SELECT entity_id,a_string FROM atable where a_integer" + op + "2.5" + op + "?=0";
             Connection conn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
@@ -287,7 +284,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
 
     @Test
     public void testLongArithmeticMetaData() throws Exception {
-        String[] ops = { "+", "-", "*", "/" };
+        String[] ops = {"+", "-", "*", "/"};
         for (String op : ops) {
             String query = "SELECT entity_id,a_string FROM atable where a_integer" + op + "2" + op + "?=0";
             Connection conn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
@@ -306,40 +303,41 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         PreparedStatement statement = conn.prepareStatement(query);
         ResultSetMetaData md = statement.getMetaData();
         assertEquals(5, md.getColumnCount());
-        
-        assertEquals("organization_id".toUpperCase(),md.getColumnName(1));
-        assertEquals("a_string".toUpperCase(),md.getColumnName(2));
-        assertEquals("b_string".toUpperCase(),md.getColumnName(3));
-        assertEquals("i".toUpperCase(),md.getColumnName(4));
-        assertEquals("a_date".toUpperCase(),md.getColumnName(5));
-        
-        assertEquals(String.class.getName(),md.getColumnClassName(1));
-        assertEquals(String.class.getName(),md.getColumnClassName(2));
-        assertEquals(String.class.getName(),md.getColumnClassName(3));
-        assertEquals(Integer.class.getName(),md.getColumnClassName(4));
-        assertEquals(Date.class.getName(),md.getColumnClassName(5));
-        
-        assertEquals("atable".toUpperCase(),md.getTableName(1));
-        assertEquals(java.sql.Types.INTEGER,md.getColumnType(4));
-        assertEquals(true,md.isReadOnly(1));
-        assertEquals(false,md.isDefinitelyWritable(1));
-        assertEquals("i".toUpperCase(),md.getColumnLabel(4));
-        assertEquals("a_date".toUpperCase(),md.getColumnLabel(5));
-        assertEquals(ResultSetMetaData.columnNoNulls,md.isNullable(1));
-        assertEquals(ResultSetMetaData.columnNullable,md.isNullable(5));
+
+        assertEquals("organization_id".toUpperCase(), md.getColumnName(1));
+        assertEquals("a_string".toUpperCase(), md.getColumnName(2));
+        assertEquals("b_string".toUpperCase(), md.getColumnName(3));
+        assertEquals("i".toUpperCase(), md.getColumnName(4));
+        assertEquals("a_date".toUpperCase(), md.getColumnName(5));
+
+        assertEquals(String.class.getName(), md.getColumnClassName(1));
+        assertEquals(String.class.getName(), md.getColumnClassName(2));
+        assertEquals(String.class.getName(), md.getColumnClassName(3));
+        assertEquals(Integer.class.getName(), md.getColumnClassName(4));
+        assertEquals(Date.class.getName(), md.getColumnClassName(5));
+
+        assertEquals("atable".toUpperCase(), md.getTableName(1));
+        assertEquals(java.sql.Types.INTEGER, md.getColumnType(4));
+        assertEquals(true, md.isReadOnly(1));
+        assertEquals(false, md.isDefinitelyWritable(1));
+        assertEquals("i".toUpperCase(), md.getColumnLabel(4));
+        assertEquals("a_date".toUpperCase(), md.getColumnLabel(5));
+        assertEquals(ResultSetMetaData.columnNoNulls, md.isNullable(1));
+        assertEquals(ResultSetMetaData.columnNullable, md.isNullable(5));
     }
+
     @Test
     public void testStringConcatMetaData() throws Exception {
-    	String query = "SELECT entity_id,a_string FROM atable where 2 || a_integer || ? like '2%'";
-    	Connection conn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
-    	PreparedStatement statement = conn.prepareStatement(query);
-    	statement.setString(1, "foo");
-    	ParameterMetaData pmd = statement.getParameterMetaData();
-    	assertEquals(1, pmd.getParameterCount());
-    	assertEquals(String.class.getName(), pmd.getParameterClassName(1));
+        String query = "SELECT entity_id,a_string FROM atable where 2 || a_integer || ? like '2%'";
+        Connection conn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setString(1, "foo");
+        ParameterMetaData pmd = statement.getParameterMetaData();
+        assertEquals(1, pmd.getParameterCount());
+        assertEquals(String.class.getName(), pmd.getParameterClassName(1));
 
     }
-    
+
     @Test
     public void testRowValueConstructorBindParamMetaData() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (a_integer, x_integer, a_string) = (?, ?, ?)";
@@ -351,7 +349,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(2));
         assertEquals(String.class.getName(), pmd.getParameterClassName(3));
     }
-    
+
     @Test
     public void testRowValueConstructorBindParamMetaDataWithMoreNumberOfBindArgs() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (a_integer, x_integer) = (?, ?, ?)";
@@ -363,7 +361,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(2));
         assertEquals(null, pmd.getParameterClassName(3));
     }
-    
+
     @Test
     public void testRowValueConstructorBindParamMetaDataWithLessNumberOfBindArgs() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (a_integer, x_integer, a_string) = (?, ?)";
@@ -374,7 +372,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(1));
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(2));
     }
-    
+
     @Test
     public void testRowValueConstructorBindParamMetaDataWithBindArgsAtSamePlacesOnLHSRHS() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (a_integer, ?) = (a_integer, ?)";
@@ -385,7 +383,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(null, pmd.getParameterClassName(1));
         assertEquals(null, pmd.getParameterClassName(2));
     }
-    
+
     @Test
     public void testRowValueConstructorBindParamMetaDataWithBindArgsAtDiffPlacesOnLHSRHS() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (a_integer, ?) = (?, a_integer)";
@@ -396,7 +394,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(1));
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(2));
     }
-    
+
     // @Test broken currently, as we'll end up with null = 7 which is never true
     public void testRowValueConstructorBindParamMetaDataWithBindArgsOnLHSAndLiteralExprOnRHS() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE (?, ?) = 7";
@@ -407,7 +405,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(1));
         assertEquals(null, pmd.getParameterClassName(2));
     }
-    
+
     @Test
     public void testRowValueConstructorBindParamMetaDataWithBindArgsOnRHSAndLiteralExprOnLHS() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE 7 = (?, ?)";
@@ -418,7 +416,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(1));
         assertEquals(null, pmd.getParameterClassName(2));
     }
-    
+
     @Test
     public void testNonEqualityRowValueConstructorBindParamMetaDataWithBindArgsOnRHSAndLiteralExprOnLHS() throws Exception {
         String query = "SELECT a_integer, x_integer FROM aTable WHERE 7 >= (?, ?)";
@@ -429,7 +427,7 @@ public class QueryMetaDataTest extends BaseConnectionlessQueryTest {
         assertEquals(Integer.class.getName(), pmd.getParameterClassName(1));
         assertEquals(null, pmd.getParameterClassName(2));
     }
-    
+
     @Test
     public void testBindParamMetaDataForNestedRVC() throws Exception {
         String query = "SELECT organization_id, entity_id, a_string FROM aTable WHERE (organization_id, (entity_id, a_string)) >= (?, (?, ?))";

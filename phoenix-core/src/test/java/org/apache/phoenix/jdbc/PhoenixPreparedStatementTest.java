@@ -59,7 +59,7 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
             // Expected exception
         }
     }
-    
+
     @Test
     public void testMutationUsingExecuteQueryShouldFail() throws Exception {
         Properties connectionProperties = new Properties();
@@ -68,11 +68,11 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         try {
             stmt.executeQuery();
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.EXECUTE_QUERY_NOT_APPLICABLE.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     public void testQueriesUsingExecuteUpdateShouldFail() throws Exception {
         Properties connectionProperties = new Properties();
@@ -81,11 +81,11 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         try {
             stmt.executeUpdate();
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.EXECUTE_UPDATE_NOT_APPLICABLE.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Test
     /**
      * Validates that if a user sets the query timeout via the
@@ -97,15 +97,15 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         Connection connection = DriverManager.getConnection(getUrl());
         PreparedStatement stmt = connection.prepareStatement("SELECT * FROM " + ATABLE);
         PhoenixStatement phoenixStmt = stmt.unwrap(PhoenixStatement.class);
-        
+
         // Act
         stmt.setQueryTimeout(3);
-    
+
         // Assert
         assertEquals(3, stmt.getQueryTimeout());
         assertEquals(3000, phoenixStmt.getQueryTimeoutInMillis());
     }
-    
+
     @Test
     /**
      * Validates if a user sets the timeout to zero that we store the timeout
@@ -116,15 +116,15 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         Connection connection = DriverManager.getConnection(getUrl());
         PreparedStatement stmt = connection.prepareStatement("SELECT * FROM " + ATABLE);
         PhoenixStatement phoenixStmt = stmt.unwrap(PhoenixStatement.class);
-        
+
         // Act
         stmt.setQueryTimeout(0);
-    
+
         // Assert
         assertEquals(Integer.MAX_VALUE / 1000, stmt.getQueryTimeout());
         assertEquals(Integer.MAX_VALUE, phoenixStmt.getQueryTimeoutInMillis());
     }
-    
+
     @Test
     /**
      * Validates that is negative value is supplied we set the timeout to the default.
@@ -135,17 +135,17 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         PreparedStatement stmt = connection.prepareStatement("SELECT * FROM " + ATABLE);
         PhoenixStatement phoenixStmt = stmt.unwrap(PhoenixStatement.class);
         PhoenixConnection phoenixConnection = connection.unwrap(PhoenixConnection.class);
-        int defaultQueryTimeout = phoenixConnection.getQueryServices().getProps().getInt(QueryServices.THREAD_TIMEOUT_MS_ATTRIB, 
-            QueryServicesOptions.DEFAULT_THREAD_TIMEOUT_MS);
-        
+        int defaultQueryTimeout = phoenixConnection.getQueryServices().getProps().getInt(QueryServices.THREAD_TIMEOUT_MS_ATTRIB,
+                QueryServicesOptions.DEFAULT_THREAD_TIMEOUT_MS);
+
         // Act
         stmt.setQueryTimeout(-1);
-    
+
         // Assert
         assertEquals(defaultQueryTimeout / 1000, stmt.getQueryTimeout());
         assertEquals(defaultQueryTimeout, phoenixStmt.getQueryTimeoutInMillis());
     }
-    
+
     @Test
     /**
      * Validates that setting custom phoenix query timeout using
@@ -158,12 +158,12 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         Connection connection = DriverManager.getConnection(getUrl(), connectionProperties);
         PreparedStatement stmt = connection.prepareStatement("SELECT * FROM " + ATABLE);
         PhoenixStatement phoenixStmt = stmt.unwrap(PhoenixStatement.class);
-    
+
         // Assert
         assertEquals(3, stmt.getQueryTimeout());
         assertEquals(2350, phoenixStmt.getQueryTimeoutInMillis());
     }
-    
+
     @Test
     public void testZeroCustomQueryTimeout() throws Exception {
         // Arrange
@@ -172,7 +172,7 @@ public class PhoenixPreparedStatementTest extends BaseConnectionlessQueryTest {
         Connection connection = DriverManager.getConnection(getUrl(), connectionProperties);
         PreparedStatement stmt = connection.prepareStatement("SELECT * FROM " + ATABLE);
         PhoenixStatement phoenixStmt = stmt.unwrap(PhoenixStatement.class);
-    
+
         // Assert
         assertEquals(0, stmt.getQueryTimeout());
         assertEquals(0, phoenixStmt.getQueryTimeoutInMillis());

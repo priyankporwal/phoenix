@@ -74,7 +74,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal percentile = rs.getBigDecimal(1);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(8.6, percentile.doubleValue(),0.0);
+            assertEquals(8.6, percentile.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -96,7 +96,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal percentile = rs.getBigDecimal(1);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(1.4, percentile.doubleValue(),0.0);
+            assertEquals(1.4, percentile.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -116,20 +116,20 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             BigDecimal percentile = rs.getBigDecimal(2);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(7.0, percentile.doubleValue(),0.0);
+            assertEquals(7.0, percentile.doubleValue(), 0.0);
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
+            assertEquals("b", rs.getString(1));
             percentile = rs.getBigDecimal(2);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(9.0, percentile.doubleValue(),0.0);
+            assertEquals(9.0, percentile.doubleValue(), 0.0);
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1));
+            assertEquals("c", rs.getString(1));
             percentile = rs.getBigDecimal(2);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(8.0, percentile.doubleValue(),0.0);
+            assertEquals(8.0, percentile.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -149,20 +149,20 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             BigDecimal percentile = rs.getBigDecimal(2);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(7.0, percentile.doubleValue(),0.0);
+            assertEquals(7.0, percentile.doubleValue(), 0.0);
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1));
+            assertEquals("c", rs.getString(1));
             percentile = rs.getBigDecimal(2);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(8.0, percentile.doubleValue(),0.0);
+            assertEquals(8.0, percentile.doubleValue(), 0.0);
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
+            assertEquals("b", rs.getString(1));
             percentile = rs.getBigDecimal(2);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(9.0, percentile.doubleValue(),0.0);
+            assertEquals(9.0, percentile.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -224,15 +224,15 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             int percentile_disc = rs.getInt(2);
             assertEquals(2, percentile_disc);
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
+            assertEquals("b", rs.getString(1));
             percentile_disc = rs.getInt(2);
             assertEquals(5, percentile_disc);
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1));
+            assertEquals("c", rs.getString(1));
             percentile_disc = rs.getInt(2);
             assertEquals(8, percentile_disc);
             assertFalse(rs.next());
@@ -254,15 +254,15 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1));
+            assertEquals("c", rs.getString(1));
             int percentile_disc = rs.getInt(2);
             assertEquals(8, percentile_disc);
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
+            assertEquals("b", rs.getString(1));
             percentile_disc = rs.getInt(2);
             assertEquals(5, percentile_disc);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             percentile_disc = rs.getInt(2);
             assertEquals(2, percentile_disc);
             assertFalse(rs.next());
@@ -421,7 +421,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             BigDecimal percentile = rs.getBigDecimal(1);
             percentile = percentile.setScale(1, RoundingMode.HALF_UP);
-            assertEquals(3.0, percentile.doubleValue(),0.0);
+            assertEquals(3.0, percentile.doubleValue(), 0.0);
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -479,13 +479,13 @@ public class PercentileIT extends ParallelStatsDisabledIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
 
         try (Connection conn = DriverManager.getConnection(getUrl(), props);
-            Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             // Remove all the records in the table
             assertFalse(stmt.execute("DELETE FROM " + tableName));
 
             // Execute a query with PERCENTILE_CONT against the empty table
             String query = "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY A_INTEGER ASC) FROM "
-                + tableName;
+                    + tableName;
             ResultSet rs = stmt.executeQuery(query);
             assertNotNull(rs);
             assertTrue(rs.next());
@@ -501,7 +501,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
         Date date = DateUtil.parseDate("2015-01-01 00:00:00");
         try {
             String upsert = "UPSERT INTO " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTableName
-                + " VALUES(?, ?, ?, ?, ?, ?)";
+                    + " VALUES(?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(upsert);
             stmt.setString(1, "varchar1");
             stmt.setString(2, "char1");
@@ -534,7 +534,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
     }
 
     private static String initATableValues(String tenantId1, String tenantId2, byte[][] splits,
-        Date date) throws Exception {
+                                           Date date) throws Exception {
         String tableName = generateUniqueName();
         ensureTableCreated(getUrl(), tableName, ATABLE_NAME, splits, null, null);
 
@@ -542,10 +542,10 @@ public class PercentileIT extends ParallelStatsDisabledIT {
         try {
             // Insert all rows at ts
             PreparedStatement stmt = conn.prepareStatement("upsert into " + tableName + "("
-                + "    ORGANIZATION_ID, " + "    ENTITY_ID, " + "    A_STRING, "
-                + "    B_STRING, " + "    A_INTEGER, " + "    A_DATE, " + "    X_DECIMAL, "
-                + "    X_LONG, " + "    X_INTEGER," + "    Y_INTEGER)"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    + "    ORGANIZATION_ID, " + "    ENTITY_ID, " + "    A_STRING, "
+                    + "    B_STRING, " + "    A_INTEGER, " + "    A_DATE, " + "    X_DECIMAL, "
+                    + "    X_LONG, " + "    X_INTEGER," + "    Y_INTEGER)"
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             if (tenantId1 != null) {
                 stmt.setString(1, tenantId1);
                 stmt.setString(2, ROW1);
@@ -639,7 +639,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
                 stmt.setDate(6, date == null ? null : new Date(date.getTime() + MILLIS_IN_DAY * 1));
                 stmt.setBigDecimal(7, BigDecimal.valueOf(3.9));
                 long l = Integer.MIN_VALUE - 1L;
-                assert (l < Integer.MIN_VALUE);
+                assert(l < Integer.MIN_VALUE);
                 stmt.setLong(8, l);
                 stmt.setInt(9, 4);
                 stmt.setNull(10, Types.INTEGER);
@@ -653,7 +653,7 @@ public class PercentileIT extends ParallelStatsDisabledIT {
                 stmt.setDate(6, date == null ? null : new Date(date.getTime() + MILLIS_IN_DAY * 2));
                 stmt.setBigDecimal(7, BigDecimal.valueOf(3.3));
                 l = Integer.MAX_VALUE + 1L;
-                assert (l > Integer.MAX_VALUE);
+                assert(l > Integer.MAX_VALUE);
                 stmt.setLong(8, l);
                 stmt.setInt(9, 3);
                 stmt.setInt(10, 300);

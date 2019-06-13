@@ -32,49 +32,50 @@ import com.google.common.base.Preconditions;
 
 /**
  * Utility class for {@linkplain IndexTool}
- *
  */
 public class IndexToolUtil {
 
-	private static final String ALTER_INDEX_QUERY_TEMPLATE = "ALTER INDEX IF EXISTS %s ON %s %s";  
-    
-	private static final Logger LOGGER = LoggerFactory.getLogger(IndexToolUtil.class);
-	
-	/**
-	 * Updates the index state.
-	 * @param configuration
-	 * @param state
-	 * @throws SQLException 
-	 */
-	public static void updateIndexState(Configuration configuration,PIndexState state) throws SQLException {
-		final String masterTable = PhoenixConfigurationUtil.getInputTableName(configuration);
-		final String[] indexTables = PhoenixConfigurationUtil.getDisableIndexes(configuration).split(",");
-		final Properties overrideProps = new Properties();
-		final Connection connection = ConnectionUtil.getOutputConnection(configuration, overrideProps);
-		try {
+    private static final String ALTER_INDEX_QUERY_TEMPLATE = "ALTER INDEX IF EXISTS %s ON %s %s";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexToolUtil.class);
+
+    /**
+     * Updates the index state.
+     *
+     * @param configuration
+     * @param state
+     * @throws SQLException
+     */
+    public static void updateIndexState(Configuration configuration, PIndexState state) throws SQLException {
+        final String masterTable = PhoenixConfigurationUtil.getInputTableName(configuration);
+        final String[] indexTables = PhoenixConfigurationUtil.getDisableIndexes(configuration).split(",");
+        final Properties overrideProps = new Properties();
+        final Connection connection = ConnectionUtil.getOutputConnection(configuration, overrideProps);
+        try {
             for (String indexTable : indexTables) {
                 updateIndexState(connection, masterTable, indexTable, state);
             }
-		} finally {
-			if(connection != null) {
-				connection.close();
-			}
-		}
-	}
-	
-	/**
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
+
+    /**
      * Updates the index state.
+     *
      * @param connection
      * @param masterTable
      * @param indexTable
      * @param state
      * @throws SQLException
      */
-    public static void updateIndexState(Connection connection, final String masterTable , final String indexTable, PIndexState state) throws SQLException {
+    public static void updateIndexState(Connection connection, final String masterTable, final String indexTable, PIndexState state) throws SQLException {
         Preconditions.checkNotNull(connection);
-        final String alterQuery = String.format(ALTER_INDEX_QUERY_TEMPLATE,indexTable,masterTable,state.name());
+        final String alterQuery = String.format(ALTER_INDEX_QUERY_TEMPLATE, indexTable, masterTable, state.name());
         connection.createStatement().execute(alterQuery);
-        LOGGER.info(" Updated the status of the index {} to {} " , indexTable , state.name());
+        LOGGER.info(" Updated the status of the index {} to {} ", indexTable, state.name());
     }
-	
+
 }

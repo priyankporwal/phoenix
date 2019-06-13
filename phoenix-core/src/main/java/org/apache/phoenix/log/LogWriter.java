@@ -27,26 +27,26 @@ import java.sql.SQLException;
 public interface LogWriter {
     /**
      * Called by ring buffer event handler to write RingBufferEvent
-     * 
+     *
      * @param event
      * @throws SQLException
      * @throws IOException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     void write(RingBufferEvent event) throws SQLException, IOException, ClassNotFoundException;
 
     /**
      * will be called when disruptor is getting shutdown
-     * 
+     *
      * @throws IOException
-     * @throws SQLException 
+     * @throws SQLException
      */
 
     void close() throws IOException, SQLException;
 
     /**
      * if writer is closed and cannot write further event
-     * 
+     *
      * @return
      */
     boolean isClosed();

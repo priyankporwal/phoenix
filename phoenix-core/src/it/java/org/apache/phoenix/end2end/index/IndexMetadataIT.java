@@ -66,47 +66,53 @@ import org.junit.Test;
 
 public class IndexMetadataIT extends ParallelStatsDisabledIT {
 
-	private enum Order {ASC, DESC};
-	
+    private enum Order
+
+    {
+        ASC, DESC
+    }
+
+    ;
+
     private static void assertIndexInfoMetadata(ResultSet rs, String schemaName, String dataTableName, String indexName, int colPos, String colName, Order order) throws SQLException {
         assertTrue(rs.next());
-        assertEquals(null,rs.getString(1));
+        assertEquals(null, rs.getString(1));
         assertEquals(schemaName, rs.getString(2));
         assertEquals(dataTableName, rs.getString(3));
         assertEquals(Boolean.TRUE, rs.getBoolean(4));
-        assertEquals(null,rs.getString(5));
+        assertEquals(null, rs.getString(5));
         assertEquals(indexName, rs.getString(6));
         assertEquals(DatabaseMetaData.tableIndexOther, rs.getShort(7));
         assertEquals(colPos, rs.getShort(8));
         assertEquals(colName, rs.getString(9));
         assertEquals(order == Order.ASC ? "A" : order == Order.DESC ? "D" : null, rs.getString(10));
-        assertEquals(0,rs.getInt(11));
+        assertEquals(0, rs.getInt(11));
         assertTrue(rs.wasNull());
-        assertEquals(0,rs.getInt(12));
+        assertEquals(0, rs.getInt(12));
         assertTrue(rs.wasNull());
-        assertEquals(null,rs.getString(13));
+        assertEquals(null, rs.getString(13));
     }
 
     private static void assertIndexInfoMetadata(ResultSet rs, String schemaName, String dataTableName, String indexName, int colPos, String colName, Order order, int type) throws SQLException {
         assertTrue(rs.next());
-        assertEquals(null,rs.getString(1));
+        assertEquals(null, rs.getString(1));
         assertEquals(schemaName, rs.getString(2));
         assertEquals(dataTableName, rs.getString(3));
         assertEquals(Boolean.TRUE, rs.getBoolean(4));
-        assertEquals(null,rs.getString(5));
+        assertEquals(null, rs.getString(5));
         assertEquals(indexName, rs.getString(6));
         assertEquals(DatabaseMetaData.tableIndexOther, rs.getShort(7));
         assertEquals(colPos, rs.getShort(8));
         assertEquals(colName, rs.getString(9));
         assertEquals(order == Order.ASC ? "A" : order == Order.DESC ? "D" : null, rs.getString(10));
-        assertEquals(0,rs.getInt(11));
+        assertEquals(0, rs.getInt(11));
         assertTrue(rs.wasNull());
-        assertEquals(0,rs.getInt(12));
+        assertEquals(0, rs.getInt(12));
         assertTrue(rs.wasNull());
-        assertEquals(null,rs.getString(13));
-        assertEquals(type,rs.getInt(14));
+        assertEquals(null, rs.getString(13));
+        assertEquals(type, rs.getInt(14));
     }
-	
+
     private static void assertActiveIndex(Connection conn, String schemaName, String tableName) throws SQLException {
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
@@ -115,7 +121,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         pconn.getTable(new PTableKey(pconn.getTenantId(), fullTableName)).getIndexMaintainers(ptr, pconn);
         assertTrue(ptr.getLength() > 0);
     }
-    
+
     private static void assertNoActiveIndex(Connection conn, String schemaName, String tableName) throws SQLException {
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         String fullTableName = SchemaUtil.getTableName(schemaName, tableName);
@@ -140,64 +146,64 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
                     + " (varchar_col1 ASC, varchar_col2 ASC, int_pk DESC)"
                     + " INCLUDE (int_col1, int_col2)";
             conn.createStatement().execute(ddl);
-            
+
             // Verify the metadata for index is correct.
             ResultSet rs = conn.getMetaData().getIndexInfo(null, INDEX_DATA_SCHEMA, indexDataTable, false, false);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 1, "A:VARCHAR_COL1", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 2, "B:VARCHAR_COL2", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 3, ":INT_PK", Order.DESC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 4, ":VARCHAR_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 5, ":CHAR_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 6, ":LONG_PK", Order.DESC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 7, ":DECIMAL_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 8, ":DATE_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 9, "A:INT_COL1", null);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 10, "B:INT_COL2", null);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 1, "A:VARCHAR_COL1", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 2, "B:VARCHAR_COL2", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 3, ":INT_PK", Order.DESC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 4, ":VARCHAR_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 5, ":CHAR_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 6, ":LONG_PK", Order.DESC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 7, ":DECIMAL_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 8, ":DATE_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 9, "A:INT_COL1", null);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 10, "B:INT_COL2", null);
             assertFalse(rs.next());
-            
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), StringUtil.escapeLike(indexName ), new String[] {PTableType.INDEX.getValue().getString() });
+
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), StringUtil.escapeLike(indexName), new String[] {PTableType.INDEX.getValue().getString()});
             assertTrue(rs.next());
             assertEquals(PIndexState.ACTIVE.toString(), rs.getString("INDEX_STATE"));
 
             // Verify that there is a row inserted into the data table for the index table.
-            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName );
+            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName);
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(1));
+            assertEquals(indexName, rs.getString(1));
             assertFalse(rs.next());
-            
+
             assertActiveIndex(conn, INDEX_DATA_SCHEMA, indexDataTable);
-            
+
             ddl = "ALTER INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + " UNUSABLE";
             conn.createStatement().execute(ddl);
             // Verify the metadata for index is correct.
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName , new String[] {PTableType.INDEX.toString()});
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName, new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(3));
+            assertEquals(indexName, rs.getString(3));
             assertEquals(PIndexState.INACTIVE.toString(), rs.getString("INDEX_STATE"));
             assertFalse(rs.next());
-            
+
             assertActiveIndex(conn, INDEX_DATA_SCHEMA, indexDataTable);
 
             ddl = "ALTER INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + " USABLE";
             conn.createStatement().execute(ddl);
             // Verify the metadata for index is correct.
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName , new String[] {PTableType.INDEX.toString()});
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName, new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(3));
+            assertEquals(indexName, rs.getString(3));
             assertEquals(PIndexState.ACTIVE.toString(), rs.getString("INDEX_STATE"));
             assertFalse(rs.next());
-            
+
             assertActiveIndex(conn, INDEX_DATA_SCHEMA, indexDataTable);
 
             ddl = "ALTER INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + " DISABLE";
             conn.createStatement().execute(ddl);
             // Verify the metadata for index is correct.
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName , new String[] {PTableType.INDEX.toString()});
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName, new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(3));
+            assertEquals(indexName, rs.getString(3));
             assertEquals(PIndexState.DISABLE.toString(), rs.getString("INDEX_STATE"));
             assertFalse(rs.next());
-            
+
             assertNoActiveIndex(conn, INDEX_DATA_SCHEMA, indexDataTable);
 
             try {
@@ -214,47 +220,47 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.INVALID_INDEX_STATE_TRANSITION.getErrorCode(), e.getErrorCode());
             }
-            
+
             ddl = "ALTER INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + " REBUILD";
             conn.createStatement().execute(ddl);
             // Verify the metadata for index is correct.
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName , new String[] {PTableType.INDEX.toString()});
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName, new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(3));
+            assertEquals(indexName, rs.getString(3));
             assertEquals(PIndexState.ACTIVE.toString(), rs.getString("INDEX_STATE"));
             assertFalse(rs.next());
-            
+
             assertActiveIndex(conn, INDEX_DATA_SCHEMA, indexDataTable);
-            
+
             ddl = "ALTER INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + " REBUILD ASYNC";
             conn.createStatement().execute(ddl);
             // Verify the metadata for index is correct.
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName , new String[] {PTableType.INDEX.toString()});
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName, new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(3));
+            assertEquals(indexName, rs.getString(3));
             assertEquals(PIndexState.BUILDING.toString(), rs.getString("INDEX_STATE"));
             assertFalse(rs.next());
 
             ddl = "DROP INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable;
             conn.createStatement().execute(ddl);
-            
+
             assertNoActiveIndex(conn, INDEX_DATA_SCHEMA, indexDataTable);
 
-           // Assert the rows for index table is completely removed.
+            // Assert the rows for index table is completely removed.
             rs = conn.getMetaData().getIndexInfo(null, INDEX_DATA_SCHEMA, indexDataTable, false, false);
             assertFalse(rs.next());
-            
+
             // Assert the row in the original data table is removed.
             // Verify that there is a row inserted into the data table for the index table.
-            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName );
+            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName);
             assertFalse(rs.next());
-            
+
             // Create another two indexes, and drops the table, verifies the indexes are dropped as well.
             ddl = "CREATE INDEX " + indexName + "1 ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable
                     + " (varchar_col1 ASC, varchar_col2 ASC, int_pk DESC)"
                     + " INCLUDE (int_col1, int_col2)";
             conn.createStatement().execute(ddl);
-            
+
             ddl = "CREATE INDEX " + indexName + "2 ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable
                     + " (varchar_col1 ASC, varchar_col2 ASC, int_pk DESC)"
                     + " INCLUDE (long_pk, int_col2)";
@@ -281,7 +287,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName + "2", 8, ":DATE_PK", Order.ASC);
             assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName + "2", 9, "B:INT_COL2", null);
             assertFalse(rs.next());
-            
+
             // Create another table in the same schema
             String diffTableNameInSameSchema = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + "2";
             conn.createStatement().execute("CREATE TABLE " + diffTableNameInSameSchema + "(k INTEGER PRIMARY KEY)");
@@ -294,7 +300,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
 
             ddl = "DROP TABLE " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable;
             conn.createStatement().execute(ddl);
-            
+
             rs = conn.getMetaData().getIndexInfo(null, INDEX_DATA_SCHEMA, indexDataTable, false, false);
             assertFalse(rs.next());
             rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName + "1");
@@ -308,8 +314,8 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testIndexDefinitionWithNullableFixedWidthColInPK() throws Exception {
-    	// If we have nullable fixed width column in the PK, we convert those types into a compatible variable type
-    	// column. The definition is defined in IndexUtil.getIndexColumnDataType.
+        // If we have nullable fixed width column in the PK, we convert those types into a compatible variable type
+        // column. The definition is defined in IndexUtil.getIndexColumnDataType.
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String indexDataTable = generateUniqueName();
@@ -322,51 +328,51 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
                     + " (char_col1 ASC, int_col2 ASC, long_col2 DESC)"
                     + " INCLUDE (int_col1)";
             conn.createStatement().execute(ddl);
-            
+
             // Verify the CHAR, INT and LONG are converted to right type.
             ResultSet rs = conn.getMetaData().getIndexInfo(null, INDEX_DATA_SCHEMA, indexDataTable, false, false);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 1, "A:CHAR_COL1", Order.ASC, Types.VARCHAR);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 2, "B:INT_COL2", Order.ASC, Types.DECIMAL);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 3, "B:LONG_COL2", Order.DESC, Types.DECIMAL);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 4, ":VARCHAR_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 5, ":CHAR_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 6, ":INT_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 7, ":LONG_PK", Order.DESC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 8, ":DECIMAL_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 9, ":DATE_PK", Order.ASC);
-            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName , 10, "A:INT_COL1", null);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 1, "A:CHAR_COL1", Order.ASC, Types.VARCHAR);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 2, "B:INT_COL2", Order.ASC, Types.DECIMAL);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 3, "B:LONG_COL2", Order.DESC, Types.DECIMAL);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 4, ":VARCHAR_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 5, ":CHAR_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 6, ":INT_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 7, ":LONG_PK", Order.DESC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 8, ":DECIMAL_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 9, ":DATE_PK", Order.ASC);
+            assertIndexInfoMetadata(rs, INDEX_DATA_SCHEMA, indexDataTable, indexName, 10, "A:INT_COL1", null);
             assertFalse(rs.next());
-            
-            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName );
+
+            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName);
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(1));
+            assertEquals(indexName, rs.getString(1));
             assertFalse(rs.next());
-            
+
             ddl = "ALTER INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable + " UNUSABLE";
             conn.createStatement().execute(ddl);
             // Verify the metadata for index is correct.
-            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName , new String[] {PTableType.INDEX.toString()});
+            rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), indexName, new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
-            assertEquals(indexName , rs.getString(3));
+            assertEquals(indexName, rs.getString(3));
             assertEquals(PIndexState.INACTIVE.toString(), rs.getString("INDEX_STATE"));
             assertFalse(rs.next());
-            
+
             ddl = "DROP INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable;
             conn.createStatement().execute(ddl);
-            
+
             // Assert the rows for index table is completely removed.
             rs = conn.getMetaData().getIndexInfo(null, INDEX_DATA_SCHEMA, indexDataTable, false, false);
             assertFalse(rs.next());
-            
+
             // Assert the row in the original data table is removed.
             // Verify that there is a row inserted into the data table for the index table.
-            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName );
+            rs = IndexTestUtil.readDataTableIndexRow(conn, INDEX_DATA_SCHEMA, indexDataTable, indexName);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testAlterIndexWithLowerCaseName() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -388,10 +394,10 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(INDEX_DATA_SCHEMA), "lowerCaseIndex", new String[] {PTableType.INDEX.toString()});
             assertTrue(rs.next());
             assertEquals("lowerCaseIndex", rs.getString(3));
-            
+
             ddl = "DROP INDEX " + indexName + " ON " + INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable;
             conn.createStatement().execute(ddl);
-            
+
             // Assert the rows for index table is completely removed.
             rs = conn.getMetaData().getIndexInfo(null, INDEX_DATA_SCHEMA, indexDataTable, false, false);
             assertFalse(rs.next());
@@ -402,7 +408,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testIndexDefinitionWithRepeatedColumns() throws Exception {
-    	// Test index creation when the columns is included in both the PRIMARY and INCLUDE section. Test de-duplication.
+        // Test index creation when the columns is included in both the PRIMARY and INCLUDE section. Test de-duplication.
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(false);
@@ -412,8 +418,8 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             String fullTableName = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + indexDataTable;
             conn.createStatement().execute("create table " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + "IMMUTABLE_ROWS=true");
             String ddl = "CREATE INDEX " + indexName + " ON " + fullTableName
-            		+ " (a.int_col1, a.long_col1, b.int_col2, b.long_col2)"
-            		+ " INCLUDE(int_col1, int_col2)";
+                    + " (a.int_col1, a.long_col1, b.int_col2, b.long_col2)"
+                    + " INCLUDE(int_col1, int_col2)";
             conn.createStatement().execute(ddl);
             fail("Should have caught exception.");
         } catch (SQLException e) {
@@ -430,8 +436,8 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(false);
         try {
             String ddl = "create table " + generateUniqueName() + " (char_pk varchar not null,"
-        		+ " int_col integer, long_col integer, int_col integer"
-        		+ " constraint pk primary key (char_pk))";
+                    + " int_col integer, long_col integer, int_col integer"
+                    + " constraint pk primary key (char_pk))";
             conn.createStatement().execute(ddl);
             fail("Should have caught exception");
         } catch (ColumnAlreadyExistsException e) {
@@ -448,9 +454,9 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(false);
         try {
             String ddl = "create table " + generateUniqueName() + " (char_pk varchar not null,"
-        		+ " a.int_col integer, a.long_col integer,"
-        		+ " a.int_col integer, b.long_col integer"
-        		+ " constraint pk primary key (char_pk))";
+                    + " a.int_col integer, a.long_col integer,"
+                    + " a.int_col integer, b.long_col integer"
+                    + " constraint pk primary key (char_pk))";
             conn.createStatement().execute(ddl);
             fail("Should have caught exception");
         } catch (ColumnAlreadyExistsException e) {
@@ -459,7 +465,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testIndexDefinitionWithSameColumnNamesInTwoFamily() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -467,16 +473,16 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(false);
         String testTable = generateUniqueName();
         String indexName = generateUniqueName();
-        String ddl = "create table " + testTable  + " (char_pk varchar not null,"
-        		+ " a.int_col integer, a.long_col integer,"
-        		+ " b.int_col integer, b.long_col integer"
-        		+ " constraint pk primary key (char_pk))";
+        String ddl = "create table " + testTable + " (char_pk varchar not null,"
+                + " a.int_col integer, a.long_col integer,"
+                + " b.int_col integer, b.long_col integer"
+                + " constraint pk primary key (char_pk))";
         conn.createStatement().execute(ddl);
-        
-        ddl = "CREATE INDEX " + indexName + "1 ON " + testTable  + " (a.int_col, b.int_col)";
+
+        ddl = "CREATE INDEX " + indexName + "1 ON " + testTable + " (a.int_col, b.int_col)";
         conn.createStatement().execute(ddl);
         try {
-            ddl = "CREATE INDEX " + indexName + "2 ON " + testTable  + " (int_col)";
+            ddl = "CREATE INDEX " + indexName + "2 ON " + testTable + " (int_col)";
             conn.createStatement().execute(ddl);
             fail("Should have caught exception");
         } catch (AmbiguousColumnException e) {
@@ -485,7 +491,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testBinaryNonnullableIndex() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -493,39 +499,39 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         String indexName = generateUniqueName();
         try {
             String ddl =
-                    "CREATE TABLE " + testTable  + " ( "
-                    + "v1 BINARY(64) NOT NULL, "
-                    + "v2 VARCHAR, "
-                    + "v3 BINARY(64), "
-                    + "v4 VARCHAR "
-                    + "CONSTRAINT PK PRIMARY KEY (v1))";
+                    "CREATE TABLE " + testTable + " ( "
+                            + "v1 BINARY(64) NOT NULL, "
+                            + "v2 VARCHAR, "
+                            + "v3 BINARY(64), "
+                            + "v4 VARCHAR "
+                            + "CONSTRAINT PK PRIMARY KEY (v1))";
             conn.createStatement().execute(ddl);
             conn.commit();
 
             try {
-                conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + testTable  + " (v3) INCLUDE (v4)");
+                conn.createStatement().execute("CREATE INDEX " + indexName + " ON " + testTable + " (v3) INCLUDE (v4)");
                 fail("Should have seen SQLExceptionCode.VARBINARY_IN_ROW_KEY");
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.VARBINARY_IN_ROW_KEY.getErrorCode(), e.getErrorCode());
             }
 
             try {
-                conn.createStatement().execute("CREATE INDEX " + indexName + "3 ON " + testTable  + " (v2, v3) INCLUDE (v4)");
+                conn.createStatement().execute("CREATE INDEX " + indexName + "3 ON " + testTable + " (v2, v3) INCLUDE (v4)");
                 fail("Should have seen SQLExceptionCode.VARBINARY_IN_ROW_KEY");
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.VARBINARY_IN_ROW_KEY.getErrorCode(), e.getErrorCode());
             }
-            conn.createStatement().execute("CREATE INDEX " + indexName + "4 ON " + testTable  + " (v4) INCLUDE (v2)");
+            conn.createStatement().execute("CREATE INDEX " + indexName + "4 ON " + testTable + " (v4) INCLUDE (v2)");
             conn.commit();
 
-            conn.createStatement().execute("CREATE INDEX varbinLastInRow ON " + testTable  + " (v1, v3)");
+            conn.createStatement().execute("CREATE INDEX varbinLastInRow ON " + testTable + " (v1, v3)");
             conn.commit();
 
-            conn.createStatement().execute( "CREATE INDEX " + indexName + "5 ON " + testTable  + " (v2) INCLUDE (v4, v3, v1)");
+            conn.createStatement().execute("CREATE INDEX " + indexName + "5 ON " + testTable + " (v2) INCLUDE (v4, v3, v1)");
             conn.commit();
 
             conn.createStatement().executeQuery(
-                "select v1,v2,v3,v4 FROM " + testTable  + " where v2 = 'abc' and v3 != 'a'");
+                    "select v1,v2,v3,v4 FROM " + testTable + " where v2 = 'abc' and v3 != 'a'");
 
 
         } finally {
@@ -542,22 +548,22 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         String testTable = generateUniqueName();
 
 
-        String ddl = "create table " + testTable  + " (k varchar primary key, v1 varchar, v2 varchar, v3 varchar)";
+        String ddl = "create table " + testTable + " (k varchar primary key, v1 varchar, v2 varchar, v3 varchar)";
         conn.createStatement().execute(ddl);
         String indexName = "ASYNCIND_" + generateUniqueName();
-        
-        ddl = "CREATE INDEX " + indexName + "1 ON " + testTable  + " (v1) ASYNC";
+
+        ddl = "CREATE INDEX " + indexName + "1 ON " + testTable + " (v1) ASYNC";
         conn.createStatement().execute(ddl);
-        ddl = "CREATE INDEX " + indexName + "2 ON " + testTable  + " (v2) ASYNC";
+        ddl = "CREATE INDEX " + indexName + "2 ON " + testTable + " (v2) ASYNC";
         conn.createStatement().execute(ddl);
-        ddl = "CREATE INDEX " + indexName + "3 ON " + testTable  + " (v3)";
+        ddl = "CREATE INDEX " + indexName + "3 ON " + testTable + " (v3)";
         conn.createStatement().execute(ddl);
-        
+
         ResultSet rs = conn.createStatement().executeQuery(
-            "select table_name, " + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " " +
-            "from \"SYSTEM\".catalog (" + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " " + PDate.INSTANCE.getSqlTypeName() + ") " +
-            "where " + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " is not null and table_name like 'ASYNCIND_%' " +
-            "order by " + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE
+                "select table_name, " + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " " +
+                        "from \"SYSTEM\".catalog (" + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " " + PDate.INSTANCE.getSqlTypeName() + ") " +
+                        "where " + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE + " is not null and table_name like 'ASYNCIND_%' " +
+                        "order by " + PhoenixDatabaseMetaData.ASYNC_CREATED_DATE
         );
         assertTrue(rs.next());
         assertEquals(indexName + "1", rs.getString(1));
@@ -569,7 +575,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         assertTrue(d2.after(d1));
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testAsyncRebuildTimestamp() throws Exception {
         long startTimestamp = System.currentTimeMillis();
@@ -579,40 +585,40 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         String testTable = generateUniqueName();
 
 
-        String ddl = "create table " + testTable  + " (k varchar primary key, v1 varchar, v2 varchar, v3 varchar)";
+        String ddl = "create table " + testTable + " (k varchar primary key, v1 varchar, v2 varchar, v3 varchar)";
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
         String indexName = "R_ASYNCIND_" + generateUniqueName();
 
-        ddl = "CREATE INDEX " + indexName + "1 ON " + testTable  + " (v1) ";
+        ddl = "CREATE INDEX " + indexName + "1 ON " + testTable + " (v1) ";
         stmt.execute(ddl);
-        ddl = "CREATE INDEX " + indexName + "2 ON " + testTable  + " (v2) ";
+        ddl = "CREATE INDEX " + indexName + "2 ON " + testTable + " (v2) ";
         stmt.execute(ddl);
-        ddl = "CREATE INDEX " + indexName + "3 ON " + testTable  + " (v3)";
+        ddl = "CREATE INDEX " + indexName + "3 ON " + testTable + " (v3)";
         stmt.execute(ddl);
 
-        conn.createStatement().execute("ALTER INDEX "+indexName+"1 ON " + testTable +" DISABLE ");
-        conn.createStatement().execute("ALTER INDEX "+indexName+"2 ON " + testTable +" REBUILD ");
-        conn.createStatement().execute("ALTER INDEX "+indexName+"3 ON " + testTable +" REBUILD ASYNC");
+        conn.createStatement().execute("ALTER INDEX " + indexName + "1 ON " + testTable + " DISABLE ");
+        conn.createStatement().execute("ALTER INDEX " + indexName + "2 ON " + testTable + " REBUILD ");
+        conn.createStatement().execute("ALTER INDEX " + indexName + "3 ON " + testTable + " REBUILD ASYNC");
 
         ResultSet rs = conn.createStatement().executeQuery(
-            "select table_name, " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " +
-            "from \"SYSTEM\".catalog (" + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " + PLong.INSTANCE.getSqlTypeName() + ") " +
-            "where " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " !=0 and table_name like 'R_ASYNCIND_%' " +
-            "order by table_name");
+                "select table_name, " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " +
+                        "from \"SYSTEM\".catalog (" + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " + PLong.INSTANCE.getSqlTypeName() + ") " +
+                        "where " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " !=0 and table_name like 'R_ASYNCIND_%' " +
+                        "order by table_name");
         assertTrue(rs.next());
         assertEquals(indexName + "3", rs.getString(1));
         long asyncTimestamp = rs.getLong(2);
-		assertTrue("Async timestamp is recent timestamp", asyncTimestamp > startTimestamp);
-        PTable table = PhoenixRuntime.getTable(conn, indexName+"3");
+        assertTrue("Async timestamp is recent timestamp", asyncTimestamp > startTimestamp);
+        PTable table = PhoenixRuntime.getTable(conn, indexName + "3");
         assertEquals(table.getTimeStamp(), asyncTimestamp);
         assertFalse(rs.next());
-        conn.createStatement().execute("ALTER INDEX "+indexName+"3 ON " + testTable +" DISABLE");
+        conn.createStatement().execute("ALTER INDEX " + indexName + "3 ON " + testTable + " DISABLE");
         rs = conn.createStatement().executeQuery(
                 "select table_name, " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " +
-                "from \"SYSTEM\".catalog (" + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " + PLong.INSTANCE.getSqlTypeName() + ") " +
-                "where " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " !=0 and table_name like 'ASYNCIND_%' " +
-                "order by table_name" );
+                        "from \"SYSTEM\".catalog (" + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " " + PLong.INSTANCE.getSqlTypeName() + ") " +
+                        "where " + PhoenixDatabaseMetaData.ASYNC_REBUILD_TIMESTAMP + " !=0 and table_name like 'ASYNCIND_%' " +
+                        "order by table_name");
         assertFalse(rs.next());
     }
 
@@ -666,7 +672,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
 
             String
                     queryTaskTable =
-                    "SELECT * FROM " +  PhoenixDatabaseMetaData.SYSTEM_TASK_NAME;
+                    "SELECT * FROM " + PhoenixDatabaseMetaData.SYSTEM_TASK_NAME;
             ResultSet rs = conn.createStatement().executeQuery(queryTaskTable);
             assertTrue(rs.next());
             assertEquals(testTable, rs.getString(TABLE_NAME));
@@ -718,14 +724,14 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
     }
 
     private void helpTestTableOnlyHasPrimaryKeyIndex(boolean mutable,
-            boolean localIndex) throws Exception {
+                                                     boolean localIndex) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String dataTableName = generateUniqueName();
         String indexName = generateUniqueName();
         try {
             conn.createStatement().execute(
-                "CREATE TABLE " + dataTableName + " ("
+                    "CREATE TABLE " + dataTableName + " ("
                             + "pk1 VARCHAR not null, "
                             + "pk2 VARCHAR not null, "
                             + "CONSTRAINT PK PRIMARY KEY (pk1, pk2))"
@@ -734,8 +740,8 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.createStatement().executeQuery(query);
             assertFalse(rs.next());
             conn.createStatement().execute(
-                "CREATE " + (localIndex ? "LOCAL" : "")
-                    + " INDEX " + indexName + " ON " + dataTableName + " (pk2, pk1)");
+                    "CREATE " + (localIndex ? "LOCAL" : "")
+                            + " INDEX " + indexName + " ON " + dataTableName + " (pk2, pk1)");
             query = "SELECT * FROM " + indexName;
             rs = conn.createStatement().executeQuery(query);
             assertFalse(rs.next());
@@ -752,7 +758,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
             assertEquals("k21", rs.getString(1));
             assertEquals("k11", rs.getString(2));
             assertFalse(rs.next());
-            
+
             query = "SELECT * FROM " + dataTableName + " WHERE pk2='k21'";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
@@ -770,23 +776,25 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String testTable = generateUniqueName();
 
-        String ddl = "create table " + testTable  + " (k varchar primary key, v1 varchar)";
+        String ddl = "create table " + testTable + " (k varchar primary key, v1 varchar)";
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
         String indexName = "IDX_" + generateUniqueName();
 
-        ddl = "CREATE INDEX " + indexName + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE INDEX " + indexName + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
-        conn.createStatement().execute("ALTER INDEX "+indexName+" ON " + testTable +" ACTIVE SET GUIDE_POSTS_WIDTH = 10");
+        conn.createStatement().execute("ALTER INDEX " + indexName + " ON " + testTable + " ACTIVE SET GUIDE_POSTS_WIDTH = 10");
 
         ResultSet rs = conn.createStatement().executeQuery(
-                "select GUIDE_POSTS_WIDTH from SYSTEM.\"CATALOG\" where TABLE_NAME='" + indexName + "'");assertTrue(rs.next());
-        assertEquals(10,rs.getInt(1));
+                "select GUIDE_POSTS_WIDTH from SYSTEM.\"CATALOG\" where TABLE_NAME='" + indexName + "'");
+        assertTrue(rs.next());
+        assertEquals(10, rs.getInt(1));
 
-        conn.createStatement().execute("ALTER INDEX "+indexName+" ON " + testTable +" ACTIVE SET GUIDE_POSTS_WIDTH = 20");
+        conn.createStatement().execute("ALTER INDEX " + indexName + " ON " + testTable + " ACTIVE SET GUIDE_POSTS_WIDTH = 20");
         rs = conn.createStatement().executeQuery(
-                "select GUIDE_POSTS_WIDTH from SYSTEM.\"CATALOG\" where TABLE_NAME='" + indexName + "'");assertTrue(rs.next());
-        assertEquals(20,rs.getInt(1));
+                "select GUIDE_POSTS_WIDTH from SYSTEM.\"CATALOG\" where TABLE_NAME='" + indexName + "'");
+        assertTrue(rs.next());
+        assertEquals(20, rs.getInt(1));
     }
 
     @Test
@@ -795,12 +803,12 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String testTable = generateUniqueName();
 
-        String ddl = "CREATE TABLE " + testTable  + " (k varchar primary key, v1 varchar)";
+        String ddl = "CREATE TABLE " + testTable + " (k varchar primary key, v1 varchar)";
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
         String indexName = "IDX_" + generateUniqueName();
 
-        ddl = "CREATE INDEX " + indexName + " ON " + testTable  + " (v1) " +
+        ddl = "CREATE INDEX " + indexName + " ON " + testTable + " (v1) " +
                 "UPDATE_CACHE_FREQUENCY=10000";
         try {
             stmt.execute(ddl);
@@ -818,7 +826,7 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         String testTable = generateUniqueName();
 
         long updateCacheFreq = 10000;
-        String ddl = "CREATE TABLE " + testTable  + " (k varchar primary key, v1 varchar) " +
+        String ddl = "CREATE TABLE " + testTable + " (k varchar primary key, v1 varchar) " +
                 "UPDATE_CACHE_FREQUENCY=" + updateCacheFreq;
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
@@ -826,9 +834,9 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         String localIndex = "LOCAL_" + generateUniqueName();
         String globalIndex = "GLOBAL_" + generateUniqueName();
 
-        ddl = "CREATE LOCAL INDEX " + localIndex + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE LOCAL INDEX " + localIndex + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
-        ddl = "CREATE INDEX " + globalIndex + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE INDEX " + globalIndex + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
 
         // Check that local and global index both have the propagated UPDATE_CACHE_FREQUENCY value
@@ -843,16 +851,16 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String testTable = generateUniqueName();
 
-        String ddl = "CREATE TABLE " + testTable  + " (k varchar primary key, v1 varchar) ";
+        String ddl = "CREATE TABLE " + testTable + " (k varchar primary key, v1 varchar) ";
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
 
         String localIndex = "LOCAL_" + generateUniqueName();
         String globalIndex = "GLOBAL_" + generateUniqueName();
 
-        ddl = "CREATE LOCAL INDEX " + localIndex + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE LOCAL INDEX " + localIndex + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
-        ddl = "CREATE INDEX " + globalIndex + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE INDEX " + globalIndex + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
 
         assertUpdateCacheFreq(conn, testTable, DEFAULT_UPDATE_CACHE_FREQUENCY);
@@ -876,16 +884,16 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String testTable = generateUniqueName();
 
-        String ddl = "CREATE TABLE " + testTable  + " (k varchar primary key, v1 varchar)";
+        String ddl = "CREATE TABLE " + testTable + " (k varchar primary key, v1 varchar)";
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
 
         String localIndex = "LOCAL_" + generateUniqueName();
         String globalIndex = "GLOBAL_" + generateUniqueName();
 
-        ddl = "CREATE LOCAL INDEX " + localIndex + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE LOCAL INDEX " + localIndex + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
-        ddl = "CREATE INDEX " + globalIndex + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE INDEX " + globalIndex + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
 
         try {
@@ -913,18 +921,18 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String testTable = generateUniqueName();
 
-        String ddl = "create table " + testTable  + " (k varchar primary key, v1 varchar)";
+        String ddl = "create table " + testTable + " (k varchar primary key, v1 varchar)";
         Statement stmt = conn.createStatement();
         stmt.execute(ddl);
         String indexName = "IDX_" + generateUniqueName();
 
-        ddl = "CREATE INDEX " + indexName + " ON " + testTable  + " (v1) ";
+        ddl = "CREATE INDEX " + indexName + " ON " + testTable + " (v1) ";
         stmt.execute(ddl);
 
-        conn.createStatement().execute("ALTER INDEX "+indexName+" ON " + testTable +" ACTIVE SET DISABLE_WAL=true");
-        asssertIsWALDisabled(conn,indexName,true);
-        conn.createStatement().execute("ALTER INDEX "+indexName+" ON " + testTable +" ACTIVE SET DISABLE_WAL=false");
-        asssertIsWALDisabled(conn,indexName,false);
+        conn.createStatement().execute("ALTER INDEX " + indexName + " ON " + testTable + " ACTIVE SET DISABLE_WAL=true");
+        asssertIsWALDisabled(conn, indexName, true);
+        conn.createStatement().execute("ALTER INDEX " + indexName + " ON " + testTable + " ACTIVE SET DISABLE_WAL=false");
+        asssertIsWALDisabled(conn, indexName, false);
     }
 
     private static void asssertIsWALDisabled(Connection conn, String fullTableName, boolean expectedValue) throws SQLException {
@@ -934,13 +942,14 @@ public class IndexMetadataIT extends ParallelStatsDisabledIT {
 
     /**
      * Helper method to assert the value of UPDATE_CACHE_FREQUENCY for a table/index/view
-     * @param conn Phoenix connection
-     * @param name table/view/index name
+     *
+     * @param conn                    Phoenix connection
+     * @param name                    table/view/index name
      * @param expectedUpdateCacheFreq expected value of UPDATE_CACHE_FREQUENCY
      * @throws SQLException
      */
     public static void assertUpdateCacheFreq(Connection conn, String name,
-            long expectedUpdateCacheFreq) throws SQLException {
+                                             long expectedUpdateCacheFreq) throws SQLException {
         ResultSet rs = conn.createStatement().executeQuery(
                 "select UPDATE_CACHE_FREQUENCY from SYSTEM.\"CATALOG\" where TABLE_NAME='" +
                         name + "'");

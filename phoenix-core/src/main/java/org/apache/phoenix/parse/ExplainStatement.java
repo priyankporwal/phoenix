@@ -21,7 +21,7 @@ import org.apache.phoenix.jdbc.PhoenixStatement.Operation;
 
 public class ExplainStatement implements BindableStatement {
     private final BindableStatement statement;
-    
+
     public ExplainStatement(BindableStatement statement) {
         this.statement = statement;
     }

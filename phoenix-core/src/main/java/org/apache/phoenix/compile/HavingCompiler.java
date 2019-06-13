@@ -78,27 +78,25 @@ public class HavingCompiler {
     }
 
     /**
-     * 
      * Visitor that figures out if an expression can be moved from the HAVING clause to
      * the WHERE clause, since it's more optimal to pre-filter instead of post-filter.
-     * 
+     * <p>
      * The visitor traverses through AND expressions only and into comparison expresssions.
      * If a comparison expression uses a GROUP BY column and does not use any aggregate
      * functions, then it's moved. For example, these HAVING expressions would be moved:
-     * 
+     * <p>
      * select count(1) from atable group by a_string having a_string = 'foo'
      * select count(1) from atable group by a_date having round(a_date,'hour') > ?
      * select count(1) from atable group by a_date,a_string having a_date > ? or a_string = 'a'
      * select count(1) from atable group by a_string,b_string having a_string = 'a' and b_string = 'b'
-     * 
+     * <p>
      * while these would not be moved:
-     * 
+     * <p>
      * select count(1) from atable having min(a_integer) < 5
      * select count(1) from atable group by a_string having count(a_string) >= 1
      * select count(1) from atable group by a_date,a_string having a_date > ? or min(a_string) = 'a'
      * select count(1) from atable group by a_date having round(min(a_date),'hour') < ?
      *
-     * 
      * @since 0.1
      */
     private static class HavingClauseVisitor extends BooleanParseNodeVisitor<Void> {
@@ -108,12 +106,12 @@ public class HavingCompiler {
         private final StatementContext context;
         private final GroupBy groupBy;
         private final Set<ParseNode> moveToWhereClause = new LinkedHashSet<ParseNode>();
-        
+
         HavingClauseVisitor(StatementContext context, GroupBy groupBy) {
             this.context = context;
             this.groupBy = groupBy;
         }
-        
+
         public Set<ParseNode> getMoveToWhereClauseExpressions() {
             return moveToWhereClause;
         }
@@ -123,21 +121,21 @@ public class HavingCompiler {
             if (topNode == null) {
                 topNode = node;
             }
-            
+
             return true;
         }
 
         @Override
         protected Void leaveBooleanNode(ParseNode node, List<Void> l) throws SQLException {
             if (topNode == node) {
-                if ( hasNoAggregateFunctions && !Boolean.FALSE.equals(hasOnlyAggregateColumns)) {
+                if (hasNoAggregateFunctions && !Boolean.FALSE.equals(hasOnlyAggregateColumns)) {
                     moveToWhereClause.add(node);
                 }
                 hasNoAggregateFunctions = true;
                 hasOnlyAggregateColumns = null;
                 topNode = null;
             }
-            
+
             return null;
         }
 
@@ -150,7 +148,7 @@ public class HavingCompiler {
         protected Void leaveNonBooleanNode(ParseNode node, List<Void> l) throws SQLException {
             return null;
         }
-        
+
         @Override
         public boolean visitEnter(AndParseNode node) throws SQLException {
             return true;
@@ -177,9 +175,9 @@ public class HavingCompiler {
             } else {
                 hasOnlyAggregateColumns &= isAggregateColumn;
             }
-            
+
             return null;
         }
-		
+
     }
 }

@@ -44,15 +44,15 @@ public class RowKeyOrderedAggregateResultIteratorTest extends BaseConnectionless
     public void testNoSpan() throws Exception {
         Tuple[] results1 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1L))),
-            };
+        };
         Tuple[] results2 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(2L)))
-            };
+        };
         Tuple[] results3 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(C, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(3L))),
                 new SingleKeyValueTuple(new KeyValue(D, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(4L))),
-            };
-        final List<PeekingResultIterator>results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
+        };
+        final List<PeekingResultIterator> results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
         ResultIterators iterators = new MaterializedResultIterators(results);
 
         Tuple[] expectedResults = new Tuple[] {
@@ -60,34 +60,34 @@ public class RowKeyOrderedAggregateResultIteratorTest extends BaseConnectionless
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(2L))),
                 new SingleKeyValueTuple(new KeyValue(C, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(3L))),
                 new SingleKeyValueTuple(new KeyValue(D, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(4L))),
-            };
+        };
 
         ClientAggregators aggregators = TestUtil.getSingleSumAggregator(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
         ResultIterator scanner = new RowKeyOrderedAggregateResultIterator(iterators, aggregators);
         AssertResults.assertResults(scanner, expectedResults);
     }
-    
+
     @Test
     public void testSpanThree() throws Exception {
         Tuple[] results1 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1L))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(2L)))
-            };
+        };
         Tuple[] results2 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(3L)))
-            };
+        };
         Tuple[] results3 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(4L))),
                 new SingleKeyValueTuple(new KeyValue(C, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(5L))),
-            };
-        final List<PeekingResultIterator>results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
+        };
+        final List<PeekingResultIterator> results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
         ResultIterators iterators = new MaterializedResultIterators(results);
 
         Tuple[] expectedResults = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1L))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(9L))),
                 new SingleKeyValueTuple(new KeyValue(C, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(5L))),
-            };
+        };
 
         ClientAggregators aggregators = TestUtil.getSingleSumAggregator(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
         ResultIterator scanner = new RowKeyOrderedAggregateResultIterator(iterators, aggregators);
@@ -98,40 +98,40 @@ public class RowKeyOrderedAggregateResultIteratorTest extends BaseConnectionless
     public void testSpanAll() throws Exception {
         Tuple[] results1 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(2L)))
-            };
+        };
         Tuple[] results2 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(3L)))
-            };
+        };
         Tuple[] results3 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(4L))),
-            };
-        final List<PeekingResultIterator>results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
+        };
+        final List<PeekingResultIterator> results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
         ResultIterators iterators = new MaterializedResultIterators(results);
 
         Tuple[] expectedResults = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(9L))),
-            };
+        };
 
         ClientAggregators aggregators = TestUtil.getSingleSumAggregator(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
         ResultIterator scanner = new RowKeyOrderedAggregateResultIterator(iterators, aggregators);
         AssertResults.assertResults(scanner, expectedResults);
     }
-    
+
     @Test
     public void testSpanEnd() throws Exception {
         Tuple[] results1 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(1L))),
-            };
+        };
         Tuple[] results2 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(2L))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(3L))),
                 new SingleKeyValueTuple(new KeyValue(C, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(4L))),
                 new SingleKeyValueTuple(new KeyValue(D, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(5L))),
-            };
+        };
         Tuple[] results3 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(D, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(6L))),
-            };
-        final List<PeekingResultIterator>results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
+        };
+        final List<PeekingResultIterator> results = Arrays.asList(new PeekingResultIterator[] {new MaterializedResultIterator(Arrays.asList(results1)), new MaterializedResultIterator(Arrays.asList(results2)), new MaterializedResultIterator(Arrays.asList(results3))});
         ResultIterators iterators = new MaterializedResultIterators(results);
 
         Tuple[] expectedResults = new Tuple[] {
@@ -139,7 +139,7 @@ public class RowKeyOrderedAggregateResultIteratorTest extends BaseConnectionless
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(3L))),
                 new SingleKeyValueTuple(new KeyValue(C, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(4L))),
                 new SingleKeyValueTuple(new KeyValue(D, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, Bytes.toBytes(11L))),
-            };
+        };
 
         ClientAggregators aggregators = TestUtil.getSingleSumAggregator(getUrl(), PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
         ResultIterator scanner = new RowKeyOrderedAggregateResultIterator(iterators, aggregators);

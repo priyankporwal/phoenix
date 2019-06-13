@@ -103,7 +103,7 @@ public interface PhoenixTransactionContext {
 
         @Override
         public void markDMLFence(PTable dataTable) {
-            
+
         }
 
         @Override
@@ -117,15 +117,15 @@ public interface PhoenixTransactionContext {
         }
     };
     /**
-     * 
-     * Visibility levels needed for checkpointing and  
-     *
+     * Visibility levels needed for checkpointing and
      */
-    public enum PhoenixVisibilityLevel {
+    public enum PhoenixVisibilityLevel
+
+    {
         SNAPSHOT,
-        SNAPSHOT_EXCLUDE_CURRENT,
-        SNAPSHOT_ALL
-      }
+                SNAPSHOT_EXCLUDE_CURRENT,
+                SNAPSHOT_ALL
+    }
 
     public static final String TX_ROLLBACK_ATTRIBUTE_KEY = "tephra.tx.rollback"; //"phoenix.tx.rollback"; 
 
@@ -154,9 +154,10 @@ public interface PhoenixTransactionContext {
      * @throws SQLException
      */
     public void abort() throws SQLException;
-    
+
     /**
      * Create a checkpoint in a transaction as defined in [TEPHRA-96]
+     *
      * @throws SQLException
      */
     public void checkpoint(boolean hasUncommittedData) throws SQLException;
@@ -165,7 +166,7 @@ public interface PhoenixTransactionContext {
      * Commit DDL to guarantee that no transaction started before create index
      * and committed afterwards, as explained in [PHOENIX-2478], [TEPHRA-157] and [OMID-56].
      *
-     * @param dataTable  the table that the DDL command works on
+     * @param dataTable the table that the DDL command works on
      * @throws SQLException
      * @throws InterruptedException
      * @throws TimeoutException
@@ -177,6 +178,7 @@ public interface PhoenixTransactionContext {
     /**
      * Mark the start of DML go ensure that updates to indexed rows are not
      * missed.
+     *
      * @param dataTable the table on which DML command is working
      */
     public void markDMLFence(PTable dataTable);
@@ -210,7 +212,7 @@ public interface PhoenixTransactionContext {
     public long getReadPointer();
 
     /**
-     * Returns transaction write pointer. After checkpoint the write pointer is different than the initial one  
+     * Returns transaction write pointer. After checkpoint the write pointer is different than the initial one
      */
     public long getWritePointer();
 
@@ -230,8 +232,10 @@ public interface PhoenixTransactionContext {
     public byte[] encodeTransaction() throws SQLException;
 
     public Provider getProvider();
+
     public PhoenixTransactionContext newTransactionContext(PhoenixTransactionContext contex, boolean subTask);
 
     public Table getTransactionalTable(Table htable, boolean isConflictFree) throws SQLException;
+
     public Table getTransactionalTableWriter(PhoenixConnection connection, PTable table, Table htable, boolean isIndex) throws SQLException;
 }

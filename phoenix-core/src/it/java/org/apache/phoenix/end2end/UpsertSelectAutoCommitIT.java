@@ -45,7 +45,8 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
         this.allowServerSideMutations = allowServerSideMutations;
     }
 
-    @Parameters(name="UpsertSelectAutoCommitIT_allowServerSideMutations={0}") // name is used by failsafe as file name in reports
+    @Parameters(name = "UpsertSelectAutoCommitIT_allowServerSideMutations={0}")
+    // name is used by failsafe as file name in reports
     public static Object[] data() {
         return new Object[] {"true", "false"};
     }
@@ -54,34 +55,34 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
     public void testAutoCommitUpsertSelect() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_UPSERT_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(true);
         String atable = generateUniqueName();
         conn.createStatement().execute("CREATE TABLE " + atable
-            + " (ORGANIZATION_ID CHAR(15) NOT NULL, ENTITY_ID CHAR(15) NOT NULL, A_STRING VARCHAR\n"
-            +
-        "CONSTRAINT pk PRIMARY KEY (organization_id, entity_id))");
-        
+                + " (ORGANIZATION_ID CHAR(15) NOT NULL, ENTITY_ID CHAR(15) NOT NULL, A_STRING VARCHAR\n"
+                +
+                "CONSTRAINT pk PRIMARY KEY (organization_id, entity_id))");
+
         String tenantId = getOrganizationId();
-       // Insert all rows at ts
+        // Insert all rows at ts
         PreparedStatement stmt = conn.prepareStatement(
                 "upsert into " + atable +
-                "(" +
-                "    ORGANIZATION_ID, " +
-                "    ENTITY_ID, " +
-                "    A_STRING " +
-                "    )" +
-                "VALUES (?, ?, ?)");
+                        "(" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_STRING " +
+                        "    )" +
+                        "VALUES (?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, ROW1);
         stmt.setString(3, A_VALUE);
         stmt.execute();
-        
+
         String query = "SELECT entity_id, a_string FROM " + atable;
         PreparedStatement statement = conn.prepareStatement(query);
         ResultSet rs = statement.executeQuery();
-        
+
         assertTrue(rs.next());
         assertEquals(ROW1, rs.getString(1));
         assertEquals(A_VALUE, rs.getString(2));
@@ -89,31 +90,31 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
 
         String atable2 = generateUniqueName();
         conn.createStatement().execute("CREATE TABLE " + atable2
-            + " (ORGANIZATION_ID CHAR(15) NOT NULL, ENTITY_ID CHAR(15) NOT NULL, A_STRING VARCHAR\n"
-            +
-        "CONSTRAINT pk PRIMARY KEY (organization_id, entity_id DESC))");
-        
+                + " (ORGANIZATION_ID CHAR(15) NOT NULL, ENTITY_ID CHAR(15) NOT NULL, A_STRING VARCHAR\n"
+                +
+                "CONSTRAINT pk PRIMARY KEY (organization_id, entity_id DESC))");
+
         conn.createStatement().execute("UPSERT INTO " + atable2 + " SELECT * FROM " + atable);
         query = "SELECT entity_id, a_string FROM " + atable2;
         statement = conn.prepareStatement(query);
         rs = statement.executeQuery();
-        
+
         assertTrue(rs.next());
         assertEquals(ROW1, rs.getString(1));
         assertEquals(A_VALUE, rs.getString(2));
         assertFalse(rs.next());
-        
+
     }
 
     @Test
     public void testDynamicUpsertSelect() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_UPSERT_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String tableName = generateUniqueName();
         String cursorDDL = " CREATE TABLE IF NOT EXISTS " + tableName
-            + " (ORGANIZATION_ID VARCHAR(15) NOT NULL, \n"
+                + " (ORGANIZATION_ID VARCHAR(15) NOT NULL, \n"
                 + "QUERY_ID VARCHAR(15) NOT NULL, \n"
                 + "CURSOR_ORDER UNSIGNED_LONG NOT NULL, \n"
                 + "CONSTRAINT API_HBASE_CURSOR_STORAGE_PK PRIMARY KEY (ORGANIZATION_ID, QUERY_ID, CURSOR_ORDER))\n"
@@ -125,16 +126,16 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
                 "(" +
                 "ORGANIZATION_ID CHAR(15) NOT NULL, " +
                 "PLINY_ID CHAR(15) NOT NULL, " +
-                "CREATED_DATE DATE NOT NULL, " + 
+                "CREATED_DATE DATE NOT NULL, " +
                 "TEXT VARCHAR, " +
                 "CONSTRAINT PK PRIMARY KEY " +
                 "(" +
                 "ORGANIZATION_ID, " +
-                "PLINY_ID, "  +
+                "PLINY_ID, " +
                 "CREATED_DATE" +
                 ")" +
                 ")";
-        
+
         conn.createStatement().execute(dataTableDDL);
         PreparedStatement stmt = null;
         String upsert = "UPSERT INTO " + tableName2 + " VALUES (?, ?, ?, ?)";
@@ -145,10 +146,10 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
         stmt.setString(4, "text");
         stmt.executeUpdate();
         conn.commit();
-        
+
         String upsertSelect = "UPSERT INTO " + tableName
-            +
-            " (ORGANIZATION_ID, QUERY_ID, CURSOR_ORDER, PLINY_ID CHAR(15),CREATED_DATE DATE) SELECT ?, ?, ?, PLINY_ID, CREATED_DATE FROM "
+                +
+                " (ORGANIZATION_ID, QUERY_ID, CURSOR_ORDER, PLINY_ID CHAR(15),CREATED_DATE DATE) SELECT ?, ?, ?, PLINY_ID, CREATED_DATE FROM "
                 + tableName2 + " WHERE ORGANIZATION_ID = ?";
         stmt = conn.prepareStatement(upsertSelect);
         String orgId = getOrganizationId();
@@ -168,29 +169,29 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
         props.setProperty(QueryServices.SCAN_CACHE_SIZE_ATTRIB, Integer.toString(3));
         props.setProperty(QueryServices.SCAN_RESULT_CHUNK_SIZE, Integer.toString(3));
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_UPSERT_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(true);
         String tableName = generateUniqueName();
-        conn.createStatement().execute("CREATE SEQUENCE "+ tableName + "_seq CACHE 1000");
+        conn.createStatement().execute("CREATE SEQUENCE " + tableName + "_seq CACHE 1000");
         conn.createStatement().execute("CREATE TABLE " + tableName
                 + " (pk INTEGER PRIMARY KEY, val INTEGER) UPDATE_CACHE_FREQUENCY=3600000");
 
         conn.createStatement().execute(
-            "UPSERT INTO " + tableName + " VALUES (NEXT VALUE FOR "+ tableName + "_seq, 1)");
+                "UPSERT INTO " + tableName + " VALUES (NEXT VALUE FOR " + tableName + "_seq, 1)");
         PreparedStatement stmt =
                 conn.prepareStatement("UPSERT INTO " + tableName
-                        + " SELECT NEXT VALUE FOR "+ tableName + "_seq, val FROM " + tableName);
+                        + " SELECT NEXT VALUE FOR " + tableName + "_seq, val FROM " + tableName);
         Admin admin =
                 driver.getConnectionQueryServices(getUrl(), TestUtil.TEST_PROPERTIES).getAdmin();
-        for (int i=0; i<12; i++) {
+        for (int i = 0; i < 12; i++) {
             try {
                 admin.split(TableName.valueOf(tableName));
             } catch (IOException ignore) {
                 // we don't care if the split sometime cannot be executed
             }
             int upsertCount = stmt.executeUpdate();
-            assertEquals((int)Math.pow(2, i), upsertCount);
+            assertEquals((int) Math.pow(2, i), upsertCount);
         }
         admin.close();
         conn.close();
@@ -202,7 +203,7 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
         connectionProperties.setProperty(QueryServices.MAX_MUTATION_SIZE_ATTRIB, "3");
         connectionProperties.setProperty(QueryServices.MAX_MUTATION_SIZE_BYTES_ATTRIB, "50000");
         connectionProperties.setProperty(QueryServices.ENABLE_SERVER_SIDE_UPSERT_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         PhoenixConnection connection =
                 (PhoenixConnection) DriverManager.getConnection(getUrl(), connectionProperties);
         connection.setAutoCommit(true);
@@ -215,7 +216,7 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
             stmt.execute("UPSERT INTO " + fullTableName + " VALUES (NEXT VALUE FOR " + fullTableName + "_seq, rand(), rand())");
         }
         try (Statement stmt = connection.createStatement()) {
-            for (int i=0; i<16; i++) {
+            for (int i = 0; i < 16; i++) {
                 stmt.execute("UPSERT INTO " + fullTableName + " SELECT NEXT VALUE FOR " + fullTableName + "_seq, rand(), rand() FROM " + fullTableName);
             }
         }
@@ -229,25 +230,25 @@ public class UpsertSelectAutoCommitIT extends ParallelStatsDisabledIT {
         props.setProperty(QueryServices.SCAN_CACHE_SIZE_ATTRIB, Integer.toString(3));
         props.setProperty(QueryServices.SCAN_RESULT_CHUNK_SIZE, Integer.toString(3));
         props.setProperty(QueryServices.ENABLE_SERVER_SIDE_UPSERT_MUTATIONS,
-            allowServerSideMutations);
+                allowServerSideMutations);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(false);
         String tableName = generateUniqueName();
 
-        conn.createStatement().execute("CREATE SEQUENCE "+ tableName + "_seq");
+        conn.createStatement().execute("CREATE SEQUENCE " + tableName + "_seq");
         conn.createStatement().execute(
                 "CREATE TABLE " + tableName + " (pk INTEGER PRIMARY KEY, val INTEGER)");
 
         conn.createStatement().execute(
-                "UPSERT INTO " + tableName + " VALUES (NEXT VALUE FOR "+ tableName + "_seq, 1)");
+                "UPSERT INTO " + tableName + " VALUES (NEXT VALUE FOR " + tableName + "_seq, 1)");
         conn.commit();
-        for (int i=0; i<6; i++) {
+        for (int i = 0; i < 6; i++) {
             Statement stmt = conn.createStatement();
             int upsertCount = stmt.executeUpdate(
-                    "UPSERT INTO " + tableName + " SELECT NEXT VALUE FOR "+ tableName + "_seq, val FROM "
+                    "UPSERT INTO " + tableName + " SELECT NEXT VALUE FOR " + tableName + "_seq, val FROM "
                             + tableName);
             conn.commit();
-            assertEquals((int)Math.pow(2, i), upsertCount);
+            assertEquals((int) Math.pow(2, i), upsertCount);
         }
         conn.close();
     }

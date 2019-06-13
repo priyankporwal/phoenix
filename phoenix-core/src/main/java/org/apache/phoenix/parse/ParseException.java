@@ -18,11 +18,9 @@
 package org.apache.phoenix.parse;
 
 /**
- * 
  * RuntimeException for exceptions occurring during parsing,
  * since ANTLR doesn't handle typed exceptions well.
  *
- * 
  * @since 2.0
  */
 public class ParseException extends RuntimeException {

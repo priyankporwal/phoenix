@@ -26,7 +26,7 @@ public class DropTableStatement extends MutableStatement {
     private final PTableType tableType;
     private final boolean cascade;
     private final boolean skipAddingParentColumns;
-    
+
 
     public DropTableStatement(TableName tableName, PTableType tableType, boolean ifExists, boolean cascade, boolean skipAddingParentColumns) {
         this.tableName = tableName;
@@ -35,7 +35,7 @@ public class DropTableStatement extends MutableStatement {
         this.cascade = cascade;
         this.skipAddingParentColumns = skipAddingParentColumns;
     }
-    
+
     @Override
     public int getBindCount() {
         return 0; // No binds for DROP
@@ -52,17 +52,17 @@ public class DropTableStatement extends MutableStatement {
     public boolean ifExists() {
         return ifExists;
     }
-    
+
     public boolean cascade() {
-    	return cascade;
+        return cascade;
     }
-    
+
     @Override
     public Operation getOperation() {
         return Operation.DELETE;
     }
 
-	public boolean getSkipAddingParentColumns() {
-		return skipAddingParentColumns;
-	}
+    public boolean getSkipAddingParentColumns() {
+        return skipAddingParentColumns;
+    }
 }

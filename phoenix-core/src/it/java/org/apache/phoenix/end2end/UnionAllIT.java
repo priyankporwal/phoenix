@@ -77,18 +77,18 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             ddl = "select * from " + tableName1 + " union all select * from " + tableName2 + " union all select * from " + tableName1;
             ResultSet rs = conn.createStatement().executeQuery(ddl);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1).trim());
-            assertEquals(20,rs.getInt(2));
+            assertEquals("b", rs.getString(1).trim());
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("c",rs.getString(1).trim());
-            assertEquals(20,rs.getInt(2));
+            assertEquals("c", rs.getString(1).trim());
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
-            assertFalse(rs.next());  
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -138,12 +138,12 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             String aggregate = "select count(*) from " + tableName1 + " union all select count(*) from " + tableName2 + " union all select count(*) from " + tableName1;
             ResultSet rs = conn.createStatement().executeQuery(aggregate);
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
+            assertEquals(3, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(2,rs.getInt(1));
+            assertEquals(2, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
-            assertFalse(rs.next());  
+            assertEquals(3, rs.getInt(1));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -187,12 +187,12 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             String aggregate = "select count(*), col1 from " + tableName1 + " group by col1 union all select count(*), col1 from " + tableName2 + " group by col1";
             ResultSet rs = conn.createStatement().executeQuery(aggregate);
             assertTrue(rs.next());
-            assertEquals(1,rs.getInt(1));
+            assertEquals(1, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(1,rs.getInt(1));
+            assertEquals(1, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(1,rs.getInt(1)); 
-            assertFalse(rs.next());  
+            assertEquals(1, rs.getInt(1));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -245,30 +245,30 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             String aggregate = "select count(*), col1 from " + tableName2 + " group by col1 union all select count(*), col1 from " + tableName1 + " group by col1 order by col1";
             ResultSet rs = conn.createStatement().executeQuery(aggregate);
             assertTrue(rs.next());
-            assertEquals(2,rs.getInt(1));
+            assertEquals(2, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(1,rs.getInt(1));
+            assertEquals(1, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));  
-            assertFalse(rs.next());  
+            assertEquals(3, rs.getInt(1));
+            assertFalse(rs.next());
 
             String limit = "select count(*), col1 x from " + tableName1 + " group by col1 union all select count(*), col1 x from " + tableName2 + " group by col1 order by x limit 2";
             rs = conn.createStatement().executeQuery(limit);
             assertTrue(rs.next());
-            assertEquals(2,rs.getInt(1));
+            assertEquals(2, rs.getInt(1));
             assertTrue(rs.next());
-            assertEquals(1,rs.getInt(1));
-            assertFalse(rs.next());  
+            assertEquals(1, rs.getInt(1));
+            assertFalse(rs.next());
 
             String limitOnly = "select * from " + tableName1 + " union all select * from " + tableName2 + " limit 2";
             rs = conn.createStatement().executeQuery(limitOnly);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("f",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
-            assertFalse(rs.next());  
+            assertEquals("f", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -296,7 +296,7 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             ddl = "select a_string, col1, col1 from " + tableName1 + " union all select * from " + tableName2 + " union all select a_string, col1 from " + tableName1;
             conn.createStatement().executeQuery(ddl);
             fail();
-        }  catch (SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.SELECT_COLUMN_NUM_IN_UNIONALL_DIFFS.getErrorCode(), e.getErrorCode());
         } finally {
             conn.close();
@@ -338,41 +338,41 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             conn.commit();
 
             ddl = "select x.a_string, y.col1  from " + tableName1 + " x, " + tableName2 + " y where x.a_string=y.a_string union all " +
-                    "select t.a_string, s.col1 from " + tableName1 + " s, " + tableName2 + " t where s.a_string=t.a_string"; 
+                    "select t.a_string, s.col1 from " + tableName1 + " s, " + tableName2 + " t where s.a_string=t.a_string";
             ResultSet rs = conn.createStatement().executeQuery(ddl);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(20,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
-            assertFalse(rs.next()); 
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
+            assertFalse(rs.next());
 
             ddl = "select x.a_string, y.col1  from " + tableName1 + " x join " + tableName2 + " y on x.a_string=y.a_string union all " +
-                    "select t.a_string, s.col1 from " + tableName1 + " s inner join " + tableName2 + " t on s.a_string=t.a_string"; 
+                    "select t.a_string, s.col1 from " + tableName1 + " s inner join " + tableName2 + " t on s.a_string=t.a_string";
             rs = conn.createStatement().executeQuery(ddl);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(20,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
-            assertFalse(rs.next()); 
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
+            assertFalse(rs.next());
 
             ddl = "select x.a_string, y.col1  from " + tableName1 + " x left join " + tableName2 + " y on x.a_string=y.a_string union all " +
                     "select t.a_string, s.col1 from " + tableName1 + " s inner join " + tableName2 + " t on s.a_string=t.a_string union all " +
                     "select y.a_string, x.col1 from " + tableName2 + " x right join " + tableName1 + " y on x.a_string=y.a_string";
             rs = conn.createStatement().executeQuery(ddl);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(20,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2)); 
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(20,rs.getInt(2)); 
-            assertFalse(rs.next()); 
+            assertEquals("a", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -412,15 +412,15 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             conn.commit();
 
             ddl = "select * from (select x.a_string, y.col1  from " + tableName1 + " x, " + tableName2 + " y where x.a_string=y.a_string) union all " +
-                    "select * from (select t.a_string, s.col1 from " + tableName1 + " s, " + tableName2 + " t where s.a_string=t.a_string)"; 
+                    "select * from (select t.a_string, s.col1 from " + tableName1 + " s, " + tableName2 + " t where s.a_string=t.a_string)";
             ResultSet rs = conn.createStatement().executeQuery(ddl);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(20,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
-            assertFalse(rs.next()); 
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -477,7 +477,7 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             assertTrue(rs.next());
             assertEquals("c", rs.getString(1));
             assertFalse(rs.next());
-            
+
             query = "select c from " +
                     "(select a_string, col1 c from " + tableName1 + " union all select a_string, col2 c from " + tableName2 + " order by c)";
             rs = conn.createStatement().executeQuery(query);
@@ -588,12 +588,12 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             stmt.setInt(2, 10);
             ResultSet rs = stmt.executeQuery();
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
-            assertEquals(20,rs.getInt(2));
+            assertEquals("b", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
-            assertFalse(rs.next()); 
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
@@ -622,25 +622,25 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.createStatement().executeQuery(ddl);
             assertEquals(
                     "UNION ALL OVER 2 QUERIES\n" +
-                    "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName1 + "\n" + 
-                    "        SERVER TOP 1 ROW SORTED BY [COL1]\n" + 
-                    "    CLIENT MERGE SORT\n" + 
-                    "    CLIENT LIMIT 1\n" + 
-                    "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName2 + "\n" + 
-                    "        SERVER TOP 1 ROW SORTED BY [COL1]\n" + 
-                    "    CLIENT MERGE SORT\n" +
-                    "    CLIENT LIMIT 1\n" + 
-                    "CLIENT MERGE SORT\nCLIENT LIMIT 1", QueryUtil.getExplainPlan(rs)); 
-            
-            String limitPlan = 
-                    "UNION ALL OVER 2 QUERIES\n" + 
-                    "    CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName1 + "\n" + 
-                    "        SERVER 2 ROW LIMIT\n" + 
-                    "    CLIENT 2 ROW LIMIT\n" + 
-                    "    CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName2 + "\n" + 
-                    "        SERVER 2 ROW LIMIT\n" + 
-                    "    CLIENT 2 ROW LIMIT\n" + 
-                    "CLIENT 2 ROW LIMIT";
+                            "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName1 + "\n" +
+                            "        SERVER TOP 1 ROW SORTED BY [COL1]\n" +
+                            "    CLIENT MERGE SORT\n" +
+                            "    CLIENT LIMIT 1\n" +
+                            "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName2 + "\n" +
+                            "        SERVER TOP 1 ROW SORTED BY [COL1]\n" +
+                            "    CLIENT MERGE SORT\n" +
+                            "    CLIENT LIMIT 1\n" +
+                            "CLIENT MERGE SORT\nCLIENT LIMIT 1", QueryUtil.getExplainPlan(rs));
+
+            String limitPlan =
+                    "UNION ALL OVER 2 QUERIES\n" +
+                            "    CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName1 + "\n" +
+                            "        SERVER 2 ROW LIMIT\n" +
+                            "    CLIENT 2 ROW LIMIT\n" +
+                            "    CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName2 + "\n" +
+                            "        SERVER 2 ROW LIMIT\n" +
+                            "    CLIENT 2 ROW LIMIT\n" +
+                            "CLIENT 2 ROW LIMIT";
             ddl = "explain select a_string, col1 from " + tableName1 + " union all select a_string, col1 from " + tableName2;
             rs = conn.createStatement().executeQuery(ddl + " limit 2");
             assertEquals(limitPlan, QueryUtil.getExplainPlan(rs));
@@ -648,17 +648,17 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             stmt.setMaxRows(2);
             rs = stmt.executeQuery(ddl);
             assertEquals(limitPlan, QueryUtil.getExplainPlan(rs));
-            
+
             ddl = "explain select a_string, col1 from " + tableName1 + " union all select a_string, col1 from " + tableName2;
             rs = conn.createStatement().executeQuery(ddl);
             assertEquals(
-                    "UNION ALL OVER 2 QUERIES\n" + 
-                    "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName1 + "\n" + 
-                    "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName2, QueryUtil.getExplainPlan(rs)); 
+                    "UNION ALL OVER 2 QUERIES\n" +
+                            "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName1 + "\n" +
+                            "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + tableName2, QueryUtil.getExplainPlan(rs));
         } finally {
             conn.close();
         }
-    } 
+    }
 
     @Test
     public void testBug2295() throws Exception {
@@ -686,7 +686,7 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
             createTestTable(getUrl(), ddl);
 
             ddl = "Explain SELECT /*+ INDEX(" + tableName1 + " " + itableName1 + ") */ col1, col2 from " + tableName1 + " where col1='123' " +
-                    "union all SELECT /*+ INDEX(" + tableName2 + " " + itableName2 + ") */ col1, col2 from " + tableName2 + " where col1='123'"; 
+                    "union all SELECT /*+ INDEX(" + tableName2 + " " + itableName2 + ") */ col1, col2 from " + tableName2 + " where col1='123'";
             ResultSet rs = conn.createStatement().executeQuery(ddl);
             assertTrue(rs.next());
         } finally {
@@ -700,7 +700,7 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
         String tableName2 = generateUniqueName();
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-    
+
         String ddl = "CREATE TABLE " + tableName1 + " " +
                 "  (a_string varchar not null, col1 integer" +
                 "  CONSTRAINT pk PRIMARY KEY (a_string))\n";
@@ -725,21 +725,21 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
 
         String query = "select * from " + tableName1 + " union all select * from " + tableName2;
 
-        try{
+        try {
             PreparedStatement pstmt = conn.prepareStatement(query);
             assertTrue(pstmt.getParameterMetaData() != null);
             ResultSet rs = pstmt.executeQuery();
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals(10,rs.getInt(2));
+            assertEquals("a", rs.getString(1));
+            assertEquals(10, rs.getInt(2));
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
-            assertEquals(20,rs.getInt(2));
-            assertFalse(rs.next()); 
+            assertEquals("b", rs.getString(1));
+            assertEquals(20, rs.getInt(2));
+            assertFalse(rs.next());
         } finally {
             conn.close();
         }
-    } 
+    }
 
     @Test
     public void testDiffDataTypes() throws Exception {
@@ -926,7 +926,7 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
                 "firstname char(8), lastname varchar )";
         createTestTable(getUrl(), ddl);
         String dml = "upsert into " + tableName2 + " values (?, ?, ?)";
-        PreparedStatement  stmt = conn.prepareStatement(dml);
+        PreparedStatement stmt = conn.prepareStatement(dml);
         stmt.setInt(1, 1);
         stmt.setString(2, "sam");
         stmt.setString(3, "johnson");
@@ -990,7 +990,7 @@ public class UnionAllIT extends ParallelStatsDisabledIT {
                 "firstname char(8), lastname varchar, sales double)";
         createTestTable(getUrl(), ddl);
         String dml = "upsert into " + tableName2 + " values (?, ?, ?, ?)";
-        PreparedStatement  stmt = conn.prepareStatement(dml);
+        PreparedStatement stmt = conn.prepareStatement(dml);
         stmt.setInt(1, 1);
         stmt.setString(2, "sam");
         stmt.setString(3, "johnson");

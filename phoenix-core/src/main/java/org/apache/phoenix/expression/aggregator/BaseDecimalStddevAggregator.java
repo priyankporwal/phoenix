@@ -34,8 +34,6 @@ import org.apache.phoenix.util.BigDecimalUtil;
 import org.apache.phoenix.util.BigDecimalUtil.Operation;
 
 /**
- * 
- * 
  * @since 1.2.1
  */
 public abstract class BaseDecimalStddevAggregator extends DistinctValueWithCountClientAggregator {
@@ -45,7 +43,7 @@ public abstract class BaseDecimalStddevAggregator extends DistinctValueWithCount
 
     public BaseDecimalStddevAggregator(List<Expression> exps, SortOrder sortOrder) {
         super(sortOrder);
-        ColumnExpression stdDevColExp = (ColumnExpression)exps.get(0);
+        ColumnExpression stdDevColExp = (ColumnExpression) exps.get(0);
         this.colPrecision = stdDevColExp.getMaxLength();
         this.colScale = stdDevColExp.getScale();
     }
@@ -64,7 +62,9 @@ public abstract class BaseDecimalStddevAggregator extends DistinctValueWithCount
             int resultPrecision = colPrecision;
             for (int i = 1; i < this.totalCount; i++) {
                 // Max precision that we can support is 38 See PDataType.MAX_PRECISION
-                if (resultPrecision >= PDataType.MAX_PRECISION) break;
+                if (resultPrecision >= PDataType.MAX_PRECISION) {
+                    break;
+                }
                 Pair<Integer, Integer> precisionScale = BigDecimalUtil.getResultPrecisionScale(this.colPrecision,
                         this.colScale, this.colPrecision, this.colScale, Operation.OTHERS);
                 resultPrecision = precisionScale.getFirst();

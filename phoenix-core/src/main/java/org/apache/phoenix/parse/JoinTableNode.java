@@ -22,31 +22,32 @@ import java.sql.SQLException;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Node representing the join specified in the FROM clause of SQL
  *
- * 
  * @since 0.1
  */
 public class JoinTableNode extends TableNode {
-    public enum JoinType {
-        Inner, 
-        Left, 
-        Right, 
-        Full,
-        // the following two types derive from sub-query rewriting
-        Semi, 
-        Anti,
-    };
-    
+    public enum JoinType
+
+    {
+        Inner,
+                Left,
+                Right,
+                Full,
+                // the following two types derive from sub-query rewriting
+                Semi,
+                Anti,
+    }
+
+    ;
+
     private final JoinType type;
     private final TableNode lhs;
     private final TableNode rhs;
     private final ParseNode onNode;
     private final boolean singleValueOnly;
-    
+
     JoinTableNode(JoinType type, TableNode lhs, TableNode rhs, ParseNode onNode, boolean singleValueOnly) {
         super(null);
         this.type = type;
@@ -55,23 +56,23 @@ public class JoinTableNode extends TableNode {
         this.onNode = onNode;
         this.singleValueOnly = singleValueOnly;
     }
-    
+
     public JoinType getType() {
         return type;
     }
-    
+
     public TableNode getLHS() {
         return lhs;
     }
-    
+
     public TableNode getRHS() {
         return rhs;
     }
-    
+
     public ParseNode getOnNode() {
         return onNode;
     }
-    
+
     public boolean isSingleValueOnly() {
         return singleValueOnly;
     }
@@ -112,21 +113,43 @@ public class JoinTableNode extends TableNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        JoinTableNode other = (JoinTableNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        JoinTableNode other = (JoinTableNode) obj;
         if (lhs == null) {
-            if (other.lhs != null) return false;
-        } else if (!lhs.equals(other.lhs)) return false;
+            if (other.lhs != null) {
+                return false;
+            }
+        } else if (!lhs.equals(other.lhs)) {
+            return false;
+        }
         if (onNode == null) {
-            if (other.onNode != null) return false;
-        } else if (!onNode.equals(other.onNode)) return false;
+            if (other.onNode != null) {
+                return false;
+            }
+        } else if (!onNode.equals(other.onNode)) {
+            return false;
+        }
         if (rhs == null) {
-            if (other.rhs != null) return false;
-        } else if (!rhs.equals(other.rhs)) return false;
-        if (singleValueOnly != other.singleValueOnly) return false;
-        if (type != other.type) return false;
+            if (other.rhs != null) {
+                return false;
+            }
+        } else if (!rhs.equals(other.rhs)) {
+            return false;
+        }
+        if (singleValueOnly != other.singleValueOnly) {
+            return false;
+        }
+        if (type != other.type) {
+            return false;
+        }
         return true;
     }
 }

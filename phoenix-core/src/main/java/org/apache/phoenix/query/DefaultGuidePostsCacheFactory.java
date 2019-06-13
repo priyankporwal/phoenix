@@ -25,7 +25,7 @@ public class DefaultGuidePostsCacheFactory implements GuidePostsCacheFactory {
 
     @Override
     public PhoenixStatsLoader getPhoenixStatsLoader(ConnectionQueryServices queryServices, ReadOnlyProps readOnlyProps,
-            Configuration config) {
+                                                    Configuration config) {
         Preconditions.checkNotNull(config);
 
         final boolean isStatsEnabled = config.getBoolean(STATS_COLLECTION_ENABLED, DEFAULT_STATS_COLLECTION_ENABLED);

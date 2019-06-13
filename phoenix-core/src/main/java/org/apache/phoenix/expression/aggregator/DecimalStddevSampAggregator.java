@@ -24,8 +24,7 @@ import org.apache.phoenix.schema.SortOrder;
 
 /**
  * Client side Aggregator for STDDEV_SAMP aggregations for DECIMAL data type.
- * 
- * 
+ *
  * @since 1.2.1
  */
 public class DecimalStddevSampAggregator extends BaseDecimalStddevAggregator {

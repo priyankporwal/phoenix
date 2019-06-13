@@ -73,10 +73,8 @@ import com.google.common.collect.Sets;
 
 
 /**
- *
  * Class to build the filter of a scan
  *
- * 
  * @since 0.1
  */
 public class WhereCompiler {
@@ -93,16 +91,17 @@ public class WhereCompiler {
         WhereExpressionCompiler viewWhereCompiler = new WhereExpressionCompiler(context, true);
         return whereNode.accept(viewWhereCompiler);
     }
-    
+
     /**
      * Pushes where clause filter expressions into scan by building and setting a filter.
-     * @param context the shared context during query compilation
+     *
+     * @param context   the shared context during query compilation
      * @param statement TODO
-     * @throws SQLException if mismatched types are found, bind value do not match binds,
-     * or invalid function arguments are encountered.
+     * @throws SQLException                    if mismatched types are found, bind value do not match binds,
+     *                                         or invalid function arguments are encountered.
      * @throws SQLFeatureNotSupportedException if an unsupported expression is encountered.
-     * @throws ColumnNotFoundException if column name could not be resolved
-     * @throws AmbiguousColumnException if an unaliased column name is ambiguous across multiple tables
+     * @throws ColumnNotFoundException         if column name could not be resolved
+     * @throws AmbiguousColumnException        if an unaliased column name is ambiguous across multiple tables
      */
     public static Expression compile(StatementContext context, FilterableStatement statement, ParseNode viewWhere, Set<SubqueryParseNode> subqueryNodes) throws SQLException {
         return compile(context, statement, viewWhere, Collections.<Expression>emptyList(), subqueryNodes);
@@ -110,14 +109,15 @@ public class WhereCompiler {
 
     /**
      * Optimize scan ranges by applying dynamically generated filter expressions.
-     * @param context the shared context during query compilation
+     *
+     * @param context   the shared context during query compilation
      * @param statement TODO
-     * @throws SQLException if mismatched types are found, bind value do not match binds,
-     * or invalid function arguments are encountered.
+     * @throws SQLException                    if mismatched types are found, bind value do not match binds,
+     *                                         or invalid function arguments are encountered.
      * @throws SQLFeatureNotSupportedException if an unsupported expression is encountered.
-     * @throws ColumnNotFoundException if column name could not be resolved
-     * @throws AmbiguousColumnException if an unaliased column name is ambiguous across multiple tables
-     */    
+     * @throws ColumnNotFoundException         if column name could not be resolved
+     * @throws AmbiguousColumnException        if an unaliased column name is ambiguous across multiple tables
+     */
     public static Expression compile(StatementContext context, FilterableStatement statement, ParseNode viewWhere, List<Expression> dynamicFilters, Set<SubqueryParseNode> subqueryNodes) throws SQLException {
         ParseNode where = statement.getWhere();
         if (subqueryNodes != null) { // if the subqueryNodes passed in is null, we assume there will be no sub-queries in the WHERE clause.
@@ -132,10 +132,10 @@ public class WhereCompiler {
                 return null;
             }
         }
-        
+
         Set<Expression> extractedNodes = Sets.<Expression>newHashSet();
         WhereExpressionCompiler whereCompiler = new WhereExpressionCompiler(context);
-        Expression expression = where == null ? LiteralExpression.newConstant(true, PBoolean.INSTANCE,Determinism.ALWAYS) : where.accept(whereCompiler);
+        Expression expression = where == null ? LiteralExpression.newConstant(true, PBoolean.INSTANCE, Determinism.ALWAYS) : where.accept(whereCompiler);
         if (whereCompiler.isAggregate()) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.AGGREGATE_IN_WHERE).build().buildException();
         }
@@ -152,7 +152,7 @@ public class WhereCompiler {
             filters.addAll(dynamicFilters);
             expression = AndExpression.create(filters);
         }
-        
+
         if (context.getCurrentTable().getTable().getType() != PTableType.PROJECTED && context.getCurrentTable().getTable().getType() != PTableType.SUBQUERY) {
             expression = WhereOptimizer.pushKeyExpressionsToScan(context, statement, expression, extractedNodes);
         }
@@ -160,7 +160,7 @@ public class WhereCompiler {
 
         return expression;
     }
-    
+
     private static class WhereExpressionCompiler extends ExpressionCompiler {
         private boolean disambiguateWithFamily;
 
@@ -178,12 +178,12 @@ public class WhereCompiler {
             TableRef tableRef = ref.getTableRef();
             Expression newColumnExpression = ref.newColumnExpression(node.isTableNameCaseSensitive(), node.isCaseSensitive());
             if (tableRef.equals(context.getCurrentTable()) && !SchemaUtil.isPKColumn(ref.getColumn())) {
-                byte[] cq = tableRef.getTable().getImmutableStorageScheme() == ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS 
-                		? QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES : ref.getColumn().getColumnQualifierBytes();
+                byte[] cq = tableRef.getTable().getImmutableStorageScheme() == ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS
+                        ? QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES : ref.getColumn().getColumnQualifierBytes();
                 // track the where condition columns. Later we need to ensure the Scan in HRS scans these column CFs
                 context.addWhereConditionColumn(ref.getColumn().getFamilyName().getBytes(), cq);
             }
-			return newColumnExpression;
+            return newColumnExpression;
         }
 
         @Override
@@ -201,11 +201,17 @@ public class WhereCompiler {
                 disambiguateWithFamily = true;
             }
             return ref;
-         }
+        }
     }
 
     private static final class Counter {
-        public enum Count {NONE, SINGLE, MULTIPLE};
+        public enum Count
+
+        {
+            NONE, SINGLE, MULTIPLE
+        }
+
+        ;
         private Count count = Count.NONE;
         private KeyValueColumnExpression column;
 
@@ -223,11 +229,11 @@ public class WhereCompiler {
 
             }
         }
-        
+
         public Count getCount() {
             return count;
         }
-        
+
         public KeyValueColumnExpression getColumn() {
             return column;
         }
@@ -235,7 +241,8 @@ public class WhereCompiler {
 
     /**
      * Sets the start/stop key range based on the whereClause expression.
-     * @param context the shared context during query compilation
+     *
+     * @param context     the shared context during query compilation
      * @param whereClause the final where clause expression.
      */
     private static void setScanFilter(StatementContext context, FilterableStatement statement, Expression whereClause, boolean disambiguateWithFamily) {
@@ -269,7 +276,7 @@ public class WhereCompiler {
             Counter.Count count = counter.getCount();
             boolean allCFs = false;
             byte[] essentialCF = null;
-            if (counter.getCount() == Counter.Count.SINGLE && whereClause.requiresFinalEvaluation() ) {
+            if (counter.getCount() == Counter.Count.SINGLE && whereClause.requiresFinalEvaluation()) {
                 if (table.getViewType() == ViewType.MAPPED) {
                     allCFs = true;
                 } else {
@@ -281,24 +288,24 @@ public class WhereCompiler {
                 }
             }
             switch (count) {
-            case NONE:
-                essentialCF = table.getType() == PTableType.VIEW 
-                        ? ByteUtil.EMPTY_BYTE_ARRAY 
-                        : SchemaUtil.getEmptyColumnFamily(table);
-                filter = new RowKeyComparisonFilter(whereClause, essentialCF);
-                break;
-            case SINGLE:
-                filter = disambiguateWithFamily 
-                    ? new SingleCFCQKeyValueComparisonFilter(whereClause) 
-                    : new SingleCQKeyValueComparisonFilter(whereClause);
-                break;
-            case MULTIPLE:
-                filter = isPossibleToUseEncodedCQFilter(encodingScheme, storageScheme) 
-                    ? new MultiEncodedCQKeyValueComparisonFilter(whereClause, encodingScheme, allCFs, essentialCF) 
-                    : (disambiguateWithFamily 
-                        ? new MultiCFCQKeyValueComparisonFilter( whereClause, allCFs, essentialCF) 
-                        : new MultiCQKeyValueComparisonFilter(whereClause, allCFs, essentialCF));
-                break;
+                case NONE:
+                    essentialCF = table.getType() == PTableType.VIEW
+                            ? ByteUtil.EMPTY_BYTE_ARRAY
+                            : SchemaUtil.getEmptyColumnFamily(table);
+                    filter = new RowKeyComparisonFilter(whereClause, essentialCF);
+                    break;
+                case SINGLE:
+                    filter = disambiguateWithFamily
+                            ? new SingleCFCQKeyValueComparisonFilter(whereClause)
+                            : new SingleCQKeyValueComparisonFilter(whereClause);
+                    break;
+                case MULTIPLE:
+                    filter = isPossibleToUseEncodedCQFilter(encodingScheme, storageScheme)
+                            ? new MultiEncodedCQKeyValueComparisonFilter(whereClause, encodingScheme, allCFs, essentialCF)
+                            : (disambiguateWithFamily
+                            ? new MultiCFCQKeyValueComparisonFilter(whereClause, allCFs, essentialCF)
+                            : new MultiCQKeyValueComparisonFilter(whereClause, allCFs, essentialCF));
+                    break;
             }
             scan.setFilter(filter);
         }
@@ -308,24 +315,24 @@ public class WhereCompiler {
             ScanUtil.andFilterAtBeginning(scan, scanRanges.getSkipScanFilter());
         }
     }
-    
+
     private static class SubqueryParseNodeVisitor extends StatelessTraverseAllParseNodeVisitor {
         private final StatementContext context;
         private final Set<SubqueryParseNode> subqueryNodes;
-        
+
         SubqueryParseNodeVisitor(StatementContext context, Set<SubqueryParseNode> subqueryNodes) {
             this.context = context;
             this.subqueryNodes = subqueryNodes;
         }
-        
+
         @Override
         public Void visit(SubqueryParseNode node) throws SQLException {
             SelectStatement select = node.getSelectNode();
             if (!context.isSubqueryResultAvailable(select)) {
                 this.subqueryNodes.add(node);
             }
-            return null;                
+            return null;
         }
-        
+
     }
 }

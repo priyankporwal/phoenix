@@ -24,8 +24,7 @@ import org.apache.phoenix.schema.SortOrder;
 
 /**
  * Client side Aggregator for STDDEV_POP aggregations
- * 
- * 
+ *
  * @since 1.2.1
  */
 public class StddevPopAggregator extends BaseStddevAggregator {

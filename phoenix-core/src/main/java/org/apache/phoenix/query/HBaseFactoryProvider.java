@@ -24,21 +24,20 @@ import org.apache.phoenix.util.InstanceResolver;
  * <p/>
  * Dependent modules may register their own implementations of the following using {@link java.util.ServiceLoader}:
  * <ul>
- *     <li>{@link ConfigurationFactory}</li>
- *     <li>{@link HTableFactory}</li>
- *     <li> {@link HConnectionFactory} </li>
+ * <li>{@link ConfigurationFactory}</li>
+ * <li>{@link HTableFactory}</li>
+ * <li> {@link HConnectionFactory} </li>
  * </ul>
- *
+ * <p>
  * If a custom implementation is not registered, the default implementations will be used.
  *
- * 
  * @since 0.2
  */
 public class HBaseFactoryProvider {
 
     private static final HTableFactory DEFAULT_HTABLE_FACTORY = new HTableFactory.HTableFactoryImpl();
     private static final HConnectionFactory DEFAULT_HCONNECTION_FACTORY =
-        new HConnectionFactory.HConnectionFactoryImpl();
+            new HConnectionFactory.HConnectionFactoryImpl();
     private static final ConfigurationFactory DEFAULT_CONFIGURATION_FACTORY = new ConfigurationFactory.ConfigurationFactoryImpl();
 
     public static HTableFactory getHTableFactory() {

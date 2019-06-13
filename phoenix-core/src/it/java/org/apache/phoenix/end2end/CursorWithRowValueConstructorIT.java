@@ -69,7 +69,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt = conn.prepareStatement("UPSERT INTO " + tableName +
                 "(a_id, a_data) VALUES (?,?)");
         int rowCount = 0;
-        while(rowCount < 100){
+        while (rowCount < 100) {
             stmt.setInt(1, rowCount);
             stmt.setInt(2, rand.nextInt(501));
             stmt.execute();
@@ -94,8 +94,8 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
             cursorSQL = "FETCH NEXT FROM " + cursorName;
             ResultSet rs = conn.prepareStatement(cursorSQL).executeQuery();
             int rowID = 0;
-            while(rs.next()){
-                assertEquals(rowID,rs.getInt(1));
+            while (rs.next()) {
+                assertEquals(rowID, rs.getInt(1));
                 ++rowID;
                 rs = conn.createStatement().executeQuery(cursorSQL);
             }
@@ -118,8 +118,8 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
             ResultSet cursorRS = conn.prepareStatement(cursorSQL).executeQuery();
             ResultSet rs = conn.prepareStatement(querySQL).executeQuery();
             int rowCount = 0;
-            while(rs.next() && cursorRS.next()){
-                assertEquals(rs.getInt(2),cursorRS.getInt(2));
+            while (rs.next() && cursorRS.next()) {
+                assertEquals(rs.getInt(2), cursorRS.getInt(2));
                 ++rowCount;
                 cursorRS = conn.prepareStatement(cursorSQL).executeQuery();
             }
@@ -142,8 +142,8 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
             cursorSQL = "FETCH NEXT FROM " + cursorName;
             ResultSet rs = conn.prepareStatement(cursorSQL).executeQuery();
             int rowCount = 0;
-            while(rs.next()){
-                assertEquals(99-rowCount, rs.getInt(1));
+            while (rs.next()) {
+                assertEquals(99 - rowCount, rs.getInt(1));
                 rs = conn.prepareStatement(cursorSQL).executeQuery();
                 ++rowCount;
             }
@@ -166,7 +166,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
             cursorSQL = "FETCH NEXT FROM " + cursorName;
             ResultSet rs = conn.prepareStatement(cursorSQL).executeQuery();
             int rowCount = 0;
-            while(rs.next()){
+            while (rs.next()) {
                 rs = conn.prepareStatement(cursorSQL).executeQuery();
                 ++rowCount;
             }
@@ -183,15 +183,15 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
             String querySQL = "SELECT * FROM " + tableName;
             ResultSet rs = conn.prepareStatement(querySQL).executeQuery();
 
-            String cursorSQL = "DECLARE " + cursorName + " CURSOR FOR "+querySQL;
+            String cursorSQL = "DECLARE " + cursorName + " CURSOR FOR " + querySQL;
             conn.prepareStatement(cursorSQL).execute();
             cursorSQL = "OPEN " + cursorName;
             conn.prepareStatement(cursorSQL).execute();
             cursorSQL = "FETCH NEXT FROM " + cursorName;
             ResultSet cursorRS = conn.prepareStatement(cursorSQL).executeQuery();
             int rowCount = 0;
-            while(rs.next() && cursorRS.next()){
-                assertEquals(rs.getInt(1),cursorRS.getInt(1));
+            while (rs.next() && cursorRS.next()) {
+                assertEquals(rs.getInt(1), cursorRS.getInt(1));
                 ++rowCount;
                 cursorRS = conn.prepareStatement(cursorSQL).executeQuery();
             }
@@ -205,15 +205,15 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String cursorName = generateUniqueName();
         final String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+ aTable +" WHERE ?=organization_id AND (a_integer, x_integer) = (7, 5)";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE ?=organization_id AND (a_integer, x_integer) = (7, 5)";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 PreparedStatement statement = conn.prepareStatement(cursor);
                 statement.setString(1, tenantId);
                 statement.execute();
-            }catch(SQLException e){
+            } catch (SQLException e) {
                 assertTrue(e.getMessage().equalsIgnoreCase("Cannot declare cursor, internal SELECT statement contains bindings!"));
                 assertFalse(CursorUtil.cursorDeclared(cursorName));
                 return;
@@ -229,12 +229,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
     public void testCursorsInWhereWithEqualsExpression() throws Exception {
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+aTable+" WHERE '"+tenantId+"'=organization_id AND (a_integer, x_integer) = (7, 5)";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE '" + tenantId + "'=organization_id AND (a_integer, x_integer) = (7, 5)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String cursorName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 conn.prepareStatement(cursor).execute();
                 cursor = "OPEN " + cursorName;
@@ -242,7 +242,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 cursor = "FETCH NEXT FROM " + cursorName;
                 ResultSet rs = conn.prepareStatement(cursor).executeQuery();
                 int count = 0;
-                while(rs.next()) {
+                while (rs.next()) {
                     assertTrue(rs.getInt(1) == 7);
                     assertTrue(rs.getInt(2) == 5);
                     count++;
@@ -260,12 +260,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
     public void testCursorsInWhereWithGreaterThanExpression() throws Exception {
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+aTable+" WHERE '"+tenantId+"'=organization_id  AND (a_integer, x_integer) >= (4, 4)";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE '" + tenantId + "'=organization_id  AND (a_integer, x_integer) >= (4, 4)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String cursorName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 conn.prepareStatement(cursor).execute();
                 cursor = "OPEN " + cursorName;
@@ -273,7 +273,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 cursor = "FETCH NEXT FROM " + cursorName;
                 ResultSet rs = conn.prepareStatement(cursor).executeQuery();
                 int count = 0;
-                while(rs.next()) {
+                while (rs.next()) {
                     assertTrue(rs.getInt(1) >= 4);
                     assertTrue(rs.getInt(1) == 4 ? rs.getInt(2) >= 4 : rs.getInt(2) >= 0);
                     count++;
@@ -291,12 +291,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
     public void testCursorsInWhereWithUnEqualNumberArgs() throws Exception {
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+ aTable+" WHERE '"+tenantId+"'=organization_id  AND (a_integer, x_integer, y_integer) >= (7, 5)";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE '" + tenantId + "'=organization_id  AND (a_integer, x_integer, y_integer) >= (7, 5)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String cursorName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 double startTime = System.nanoTime();
                 conn.prepareStatement(cursor).execute();
@@ -305,7 +305,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 cursor = "FETCH NEXT FROM " + cursorName;
                 ResultSet rs = conn.prepareStatement(cursor).executeQuery();
                 int count = 0;
-                while(rs.next()) {
+                while (rs.next()) {
                     assertTrue(rs.getInt(1) >= 7);
                     assertTrue(rs.getInt(1) == 7 ? rs.getInt(2) >= 5 : rs.getInt(2) >= 0);
                     count++;
@@ -314,7 +314,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
                 assertTrue(count == 3);
                 double endTime = System.nanoTime();
-                System.out.println("Method Time in milliseconds: "+Double.toString((endTime-startTime)/1000000));
+                System.out.println("Method Time in milliseconds: " + Double.toString((endTime - startTime) / 1000000));
             } finally {
                 cursor = "CLOSE " + cursorName;
                 conn.prepareStatement(cursor).execute();
@@ -326,12 +326,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
     public void testCursorsOnLHSAndLiteralExpressionOnRHS() throws Exception {
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+ aTable +" WHERE '"+tenantId+"'=organization_id  AND (a_integer, x_integer) >= 7";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE '" + tenantId + "'=organization_id  AND (a_integer, x_integer) >= 7";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String cursorName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 conn.prepareStatement(cursor).execute();
                 cursor = "OPEN " + cursorName;
@@ -339,7 +339,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 cursor = "FETCH NEXT FROM " + cursorName;
                 ResultSet rs = conn.prepareStatement(cursor).executeQuery();
                 int count = 0;
-                while(rs.next()) {
+                while (rs.next()) {
                     count++;
                     rs = conn.prepareStatement(cursor).executeQuery();
                 }
@@ -356,12 +356,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
     public void testCursorsOnRHSLiteralExpressionOnLHS() throws Exception {
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+ aTable+" WHERE '"+tenantId+"'=organization_id  AND 7 <= (a_integer, x_integer)";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE '" + tenantId + "'=organization_id  AND 7 <= (a_integer, x_integer)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String cursorName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 conn.prepareStatement(cursor).execute();
                 cursor = "OPEN " + cursorName;
@@ -369,7 +369,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 cursor = "FETCH NEXT FROM " + cursorName;
                 ResultSet rs = conn.prepareStatement(cursor).executeQuery();
                 int count = 0;
-                while(rs.next()) {
+                while (rs.next()) {
                     count++;
                     rs = conn.prepareStatement(cursor).executeQuery();
                 }
@@ -386,12 +386,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
     public void testCursorsOnBuiltInFunctionOperatingOnIntegerLiteral() throws Exception {
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_integer, x_integer FROM "+aTable+" WHERE '"+tenantId+"'=organization_id  AND (a_integer, x_integer) >= to_number('7')";
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_integer, x_integer FROM " + aTable + " WHERE '" + tenantId + "'=organization_id  AND (a_integer, x_integer) >= to_number('7')";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String cursorName = generateUniqueName();
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             try {
                 conn.prepareStatement(cursor).execute();
                 cursor = "OPEN " + cursorName;
@@ -399,7 +399,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
                 cursor = "FETCH NEXT FROM " + cursorName;
                 ResultSet rs = conn.prepareStatement(cursor).executeQuery();
                 int count = 0;
-                while(rs.next()) {
+                while (rs.next()) {
                     count++;
                     rs = conn.prepareStatement(cursor).executeQuery();
                 }
@@ -423,13 +423,13 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String strCurrentDate = date.toString();
 
         //Sets date to <yesterday's date> 23:59:59.999
-        while(date.toString().equals(strCurrentDate)){
+        while (date.toString().equals(strCurrentDate)) {
             currentTime -= 1;
             date = new Date(currentTime);
         }
         //Sets date to <today's date> 00:00:00.001
-        date = new Date(currentTime+2);
-        java.sql.Date midnight = new Date(currentTime+1);
+        date = new Date(currentTime + 2);
+        java.sql.Date midnight = new Date(currentTime + 1);
 
 
         String tableName = initEntityHistoryTableValues(null, tenantId, getDefaultSplits(tenantId), date, null);
@@ -440,16 +440,16 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String query = "select parent_id from " + tableName +
                 " WHERE (organization_id, parent_id, created_date, entity_history_id) IN ((?,?,?,?),(?,?,?,?))";
 
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "'"+PARENTID3+"'");
-        query = query.replaceFirst("\\?", "TO_DATE('"+DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(date)+"')");
-        query = query.replaceFirst("\\?", "'"+ENTITYHISTID3+"'");
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "'"+PARENTID7+"'");
-        query = query.replaceFirst("\\?", "TO_DATE('"+DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(date)+"')");
-        query = query.replaceFirst("\\?", "'"+ENTITYHISTID7+"'");
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "'" + PARENTID3 + "'");
+        query = query.replaceFirst("\\?", "TO_DATE('" + DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(date) + "')");
+        query = query.replaceFirst("\\?", "'" + ENTITYHISTID3 + "'");
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "'" + PARENTID7 + "'");
+        query = query.replaceFirst("\\?", "TO_DATE('" + DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(date) + "')");
+        query = query.replaceFirst("\\?", "'" + ENTITYHISTID7 + "'");
         String cursorName = generateUniqueName();
-        String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+        String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
 
         conn.prepareStatement(cursor).execute();
         cursor = "OPEN " + cursorName;
@@ -468,16 +468,16 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         //'midnight' is identical to 'date' to the tens of millisecond precision.
         query = "select parent_id from " + tableName +
                 " WHERE (organization_id, parent_id, created_date, entity_history_id) IN ((?,?,?,?),(?,?,?,?))";
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "'"+PARENTID3+"'");
-        query = query.replaceFirst("\\?", "TO_DATE('"+DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(midnight)+"')");
-        query = query.replaceFirst("\\?", "'"+ENTITYHISTID3+"'");
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "'"+PARENTID7+"'");
-        query = query.replaceFirst("\\?", "TO_DATE('"+DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(midnight)+"')");
-        query = query.replaceFirst("\\?", "'"+ENTITYHISTID7+"'");
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "'" + PARENTID3 + "'");
+        query = query.replaceFirst("\\?", "TO_DATE('" + DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(midnight) + "')");
+        query = query.replaceFirst("\\?", "'" + ENTITYHISTID3 + "'");
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "'" + PARENTID7 + "'");
+        query = query.replaceFirst("\\?", "TO_DATE('" + DateUtil.getDateFormatter(DateUtil.DEFAULT_DATE_FORMAT).format(midnight) + "')");
+        query = query.replaceFirst("\\?", "'" + ENTITYHISTID7 + "'");
         String cursorName2 = generateUniqueName();
-        cursor = "DECLARE " + cursorName2 + " CURSOR FOR "+query;
+        cursor = "DECLARE " + cursorName2 + " CURSOR FOR " + query;
 
         conn.prepareStatement(cursor).execute();
         cursor = "OPEN " + cursorName2;
@@ -497,9 +497,9 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String cursorName = generateUniqueName();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
         String updateStmt =
-                "upsert into " + aTable+
+                "upsert into " + aTable +
                         "(" +
                         "    ORGANIZATION_ID, " +
                         "    ENTITY_ID, " +
@@ -515,14 +515,14 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt.setTimestamp(3, tsValue);
         stmt.execute();
 
-        String query = "SELECT a_timestamp, a_string FROM "+aTable+" WHERE ?=organization_id  AND (a_timestamp, a_string) = (?, 'a')";
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "TO_DATE('"+DateUtil.getDateFormatter(DateUtil.DEFAULT_TIMESTAMP_FORMAT).format(tsValue)+"')");
+        String query = "SELECT a_timestamp, a_string FROM " + aTable + " WHERE ?=organization_id  AND (a_timestamp, a_string) = (?, 'a')";
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "TO_DATE('" + DateUtil.getDateFormatter(DateUtil.DEFAULT_TIMESTAMP_FORMAT).format(tsValue) + "')");
 
         props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             conn.prepareStatement(cursor).execute();
             cursor = "OPEN " + cursorName;
             conn.prepareStatement(cursor).execute();
@@ -530,7 +530,7 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
 
             ResultSet rs = conn.prepareStatement(cursor).executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getTimestamp(1).equals(tsValue));
                 assertTrue(rs.getString(2).compareTo("a") == 0);
                 count++;
@@ -549,9 +549,9 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         String cursorName = generateUniqueName();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
         String updateStmt =
-                "upsert into " +aTable+
+                "upsert into " + aTable +
                         "(ORGANIZATION_ID, ENTITY_ID, Y_INTEGER, X_INTEGER) VALUES (?, ?, ?, ?)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection upsertConn = DriverManager.getConnection(url, props);
@@ -564,14 +564,14 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt.execute();
 
         //we have a row present in aTable where x_integer = 5 and y_integer = NULL which gets translated to 0 when retriving from HBase.
-        String query = "SELECT x_integer, y_integer FROM "+ aTable+" WHERE ? = organization_id AND (x_integer) IN ((5))";
+        String query = "SELECT x_integer, y_integer FROM " + aTable + " WHERE ? = organization_id AND (x_integer) IN ((5))";
 
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
 
         Connection conn = DriverManager.getConnection(getUrl(), props);
 
         try {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             conn.prepareStatement(cursor).execute();
             cursor = "OPEN " + cursorName;
             conn.prepareStatement(cursor).execute();
@@ -597,18 +597,18 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String cursorName = generateUniqueName();
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
 
-        String query = "SELECT x_decimal FROM "+ aTable+" WHERE ?=organization_id AND entity_id IN (?,?,?)";
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "'"+ROW7+"'");
-        query = query.replaceFirst("\\?", "'"+ROW8+"'");
-        query = query.replaceFirst("\\?", "'"+ROW9+"'");
+        String query = "SELECT x_decimal FROM " + aTable + " WHERE ?=organization_id AND entity_id IN (?,?,?)";
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "'" + ROW7 + "'");
+        query = query.replaceFirst("\\?", "'" + ROW8 + "'");
+        query = query.replaceFirst("\\?", "'" + ROW9 + "'");
 
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             conn.prepareStatement(cursor).execute();
             cursor = "OPEN " + cursorName;
             conn.prepareStatement(cursor).execute();
@@ -616,10 +616,12 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
 
             ResultSet rs = conn.prepareStatement(cursor).executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(BigDecimal.valueOf(0.1).equals(rs.getBigDecimal(1)) || BigDecimal.valueOf(3.9).equals(rs.getBigDecimal(1)) || BigDecimal.valueOf(3.3).equals(rs.getBigDecimal(1)));
                 count++;
-                if(count == 3) break;
+                if (count == 3) {
+                    break;
+                }
                 rs = conn.prepareStatement(cursor).executeQuery();
             }
             assertTrue(count == 3);
@@ -635,17 +637,17 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
         String cursorName = generateUniqueName();
         String tenantId = getOrganizationId();
         String aTable = initATableValues(null, tenantId,
-            getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String query = "SELECT a_byte,a_short,a_float,a_double FROM "+ aTable+" WHERE ?=organization_id AND entity_id IN (?,?,?)";
-        query = query.replaceFirst("\\?", "'"+tenantId+"'");
-        query = query.replaceFirst("\\?", "'"+ROW1+"'");
-        query = query.replaceFirst("\\?", "'"+ROW2+"'");
-        query = query.replaceFirst("\\?", "'"+ROW3+"'");
+                getDefaultSplits(tenantId), null, null, getUrl(), null);
+        String query = "SELECT a_byte,a_short,a_float,a_double FROM " + aTable + " WHERE ?=organization_id AND entity_id IN (?,?,?)";
+        query = query.replaceFirst("\\?", "'" + tenantId + "'");
+        query = query.replaceFirst("\\?", "'" + ROW1 + "'");
+        query = query.replaceFirst("\\?", "'" + ROW2 + "'");
+        query = query.replaceFirst("\\?", "'" + ROW3 + "'");
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
-            String cursor = "DECLARE " + cursorName + " CURSOR FOR "+query;
+            String cursor = "DECLARE " + cursorName + " CURSOR FOR " + query;
             conn.prepareStatement(cursor).execute();
             cursor = "OPEN " + cursorName;
             conn.prepareStatement(cursor).execute();
@@ -653,13 +655,15 @@ public class CursorWithRowValueConstructorIT extends ParallelStatsDisabledIT {
 
             ResultSet rs = conn.prepareStatement(cursor).executeQuery();
             int count = 0;
-            while(rs.next()) {
-                assertTrue((byte)1 == (rs.getByte(1)) || (byte)2 == (rs.getByte(1)) || (byte)3 == (rs.getByte(1)));
-                assertTrue((short)128 == (rs.getShort(2)) || (short)129 == (rs.getShort(2)) || (short)130 == (rs.getShort(2)));
+            while (rs.next()) {
+                assertTrue((byte) 1 == (rs.getByte(1)) || (byte) 2 == (rs.getByte(1)) || (byte) 3 == (rs.getByte(1)));
+                assertTrue((short) 128 == (rs.getShort(2)) || (short) 129 == (rs.getShort(2)) || (short) 130 == (rs.getShort(2)));
                 assertTrue(0.01f == (rs.getFloat(3)) || 0.02f == (rs.getFloat(3)) || 0.03f == (rs.getFloat(3)));
                 assertTrue(0.0001 == (rs.getDouble(4)) || 0.0002 == (rs.getDouble(4)) || 0.0003 == (rs.getDouble(4)));
                 count++;
-                if(count == 3) break;
+                if (count == 3) {
+                    break;
+                }
                 rs = conn.prepareStatement(cursor).executeQuery();
             }
             assertTrue(count == 3);

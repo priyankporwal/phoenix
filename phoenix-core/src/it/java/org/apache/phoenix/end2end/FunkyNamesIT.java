@@ -38,23 +38,23 @@ import org.junit.Test;
 public class FunkyNamesIT extends ParallelStatsDisabledIT {
 
     protected static String initTableValues(byte[][] splits) throws Exception {
-    	String tableName = generateUniqueName();
-        ensureTableCreated(getUrl(), tableName, FUNKY_NAME,splits, null, null);
+        String tableName = generateUniqueName();
+        ensureTableCreated(getUrl(), tableName, FUNKY_NAME, splits, null, null);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(true);
         PreparedStatement stmt = conn.prepareStatement(
                 "upsert into " +
-                tableName +
-                "(" +
-                "    \"foo!\", " +
-                "    \"#@$\", " +
-                "    \"foo.bar-bas\", " +
-                "    \"_blah^\"," +
-                "    \"Value\", " +
-                "    \"VALUE\", " +
-                "    \"value\") " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)");
+                        tableName +
+                        "(" +
+                        "    \"foo!\", " +
+                        "    \"#@$\", " +
+                        "    \"foo.bar-bas\", " +
+                        "    \"_blah^\"," +
+                        "    \"Value\", " +
+                        "    \"VALUE\", " +
+                        "    \"value\") " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, "a");
         stmt.setString(2, "b");
         stmt.setString(3, "c");
@@ -81,7 +81,7 @@ public class FunkyNamesIT extends ParallelStatsDisabledIT {
             assertEquals("b", rs.getString(2));
             assertEquals("c", rs.getString(3));
             assertEquals("d", rs.getString(4));
-            
+
             assertEquals("a", rs.getString("foo!"));
             assertEquals("b", rs.getString("#@$"));
             assertEquals("c", rs.getString("foo.bar-bas"));
@@ -105,7 +105,7 @@ public class FunkyNamesIT extends ParallelStatsDisabledIT {
             assertEquals(1, rs.getInt(1));
             assertEquals(2, rs.getInt(2));
             assertEquals(3, rs.getInt(3));
-            
+
             assertEquals(1, rs.getInt("Value"));
             assertEquals(2, rs.getInt("VALUE"));
             assertEquals(3, rs.getInt("value"));

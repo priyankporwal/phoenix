@@ -39,7 +39,7 @@ public class OrderByWithServerMemoryLimitIT extends BaseTest {
         Map<String, String> props = Maps.newHashMapWithExpectedSize(1);
         props.put(QueryServices.SERVER_SPOOL_THRESHOLD_BYTES_ATTRIB, Integer.toString(1));
         props.put(QueryServices.SERVER_ORDERBY_SPOOLING_ENABLED_ATTRIB,
-            Boolean.toString(Boolean.FALSE));
+                Boolean.toString(Boolean.FALSE));
         setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
     }
 

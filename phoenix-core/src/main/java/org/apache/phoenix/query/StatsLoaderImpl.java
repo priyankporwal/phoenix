@@ -42,7 +42,7 @@ class StatsLoaderImpl implements PhoenixStatsLoader {
 
     private final ConnectionQueryServices queryServices;
 
-    public StatsLoaderImpl(ConnectionQueryServices queryServices){
+    public StatsLoaderImpl(ConnectionQueryServices queryServices) {
         this.queryServices = queryServices;
     }
 
@@ -98,7 +98,7 @@ class StatsLoaderImpl implements PhoenixStatsLoader {
     void traceStatsUpdate(GuidePostsKey key, GuidePostsInfo info) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Updating local TableStats cache (id={}) for {}, size={}bytes",
-                    new Object[] { Objects.hashCode(this), key, info.getEstimatedSize()});
+                    new Object[] {Objects.hashCode(this), key, info.getEstimatedSize()});
         }
     }
 }

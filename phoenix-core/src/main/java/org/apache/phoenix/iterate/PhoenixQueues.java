@@ -49,9 +49,9 @@ public class PhoenixQueues {
             Comparator<ResultEntry> comparator, Integer limit, long maxSizeBytes) {
         limit = limit == null ? -1 : limit;
         MinMaxPriorityQueue<ResultEntry> queue =
-                limit < 0 ? MinMaxPriorityQueue.<ResultEntry> orderedBy(comparator).create()
-                        : MinMaxPriorityQueue.<ResultEntry> orderedBy(comparator).maximumSize(limit)
-                                .create();
+                limit < 0 ? MinMaxPriorityQueue.<ResultEntry>orderedBy(comparator).create()
+                        : MinMaxPriorityQueue.<ResultEntry>orderedBy(comparator).maximumSize(limit)
+                        .create();
         return new SizeBoundQueue<ResultEntry>(maxSizeBytes, queue) {
             @Override
             public long sizeOf(org.apache.phoenix.iterate.OrderedResultIterator.ResultEntry e) {
@@ -85,7 +85,7 @@ public class PhoenixQueues {
     }
 
     public static SizeAwareQueue<Tuple> newTupleQueue(boolean spoolingEnabled,
-            long thresholdBytes) {
+                                                      long thresholdBytes) {
         if (spoolingEnabled) {
             return newBufferedTupleQueue(thresholdBytes);
         } else {

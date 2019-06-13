@@ -67,7 +67,7 @@ import com.google.common.collect.Maps;
 public class DefaultStatisticsCollector implements StatisticsCollector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultStatisticsCollector.class);
-    
+
     final Map<ImmutableBytesPtr, Pair<Long, GuidePostsInfoBuilder>> guidePostsInfoWriterMap = Maps.newHashMap();
     private final Table htable;
     private StatisticsWriter statsWriter;
@@ -86,7 +86,7 @@ public class DefaultStatisticsCollector implements StatisticsCollector {
     private final Configuration configuration;
 
     public DefaultStatisticsCollector(Configuration configuration, Region region, String tableName, byte[] family,
-                               byte[] gp_width_bytes, byte[] gp_per_region_bytes, StatisticsWriter statsWriter, Table htable) {
+                                      byte[] gp_width_bytes, byte[] gp_per_region_bytes, StatisticsWriter statsWriter, Table htable) {
         this.configuration = configuration;
         this.region = region;
         this.guidePostWidthBytes = gp_width_bytes;
@@ -133,7 +133,7 @@ public class DefaultStatisticsCollector implements StatisticsCollector {
      * 2. GPW column in SYSTEM.CATALOG for the table is not null
      * Inherits the value from base table for views and indexes (PHOENIX-4332)
      * 3. Value from global configuration parameters from hbase-site.xml
-     *
+     * <p>
      * GPW of 0 disables the stats collection. If stats were previously collected, this task
      * would attempt to delete entries from SYSTEM.STATS table. Not reading '0' from SYSTEM.CATALOG
      * would mean the fall back to global value which is defaulted to DEFAULT_STATS_GUIDEPOST_PER_REGION
@@ -303,10 +303,9 @@ public class DefaultStatisticsCollector implements StatisticsCollector {
 
     /**
      * Update the current statistics based on the latest batch of key-values from the underlying scanner
-     * 
-     * @param results
-     *            next batch of {@link KeyValue}s
-     * @throws IOException 
+     *
+     * @param results next batch of {@link KeyValue}s
+     * @throws IOException
      */
     @Override
     public void collectStatistics(final List<Cell> results) {

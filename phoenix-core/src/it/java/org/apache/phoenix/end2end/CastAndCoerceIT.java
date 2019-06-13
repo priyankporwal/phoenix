@@ -45,12 +45,13 @@ public class CastAndCoerceIT extends BaseQueryIT {
     public CastAndCoerceIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
-    @Parameters(name="CastAndCoerceIT_{index}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "CastAndCoerceIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
-    
+
     @Test
     public void testCastOperatorInSelect() throws Exception {
         String query = "SELECT CAST(a_integer AS decimal)/2 FROM " + tableName + " WHERE ?=organization_id and 5=a_integer";
@@ -60,14 +61,14 @@ public class CastAndCoerceIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(BigDecimal.valueOf(2.5), rs.getBigDecimal(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCastOperatorInWhere() throws Exception {
         String query = "SELECT a_integer FROM " + tableName + " WHERE ?=organization_id and 2.5 = CAST(a_integer AS DECIMAL)/2 ";
@@ -77,14 +78,14 @@ public class CastAndCoerceIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(5, rs.getInt(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCoerceIntegerToLong() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND x_long >= x_integer";
@@ -104,7 +105,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCoerceLongToDecimal1() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND x_decimal > x_integer";
@@ -122,7 +123,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCoerceLongToDecimal2() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND x_integer <= x_decimal";
@@ -140,7 +141,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCoerceTinyIntToSmallInt() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND a_byte >= a_short";
@@ -159,7 +160,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
         }
     }
 
-    
+
     @Test
     public void testCoerceDateToBigInt() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -185,7 +186,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             assertEquals(ROW1, rs.getString(1));
             dateAsLong = rs.getLong(2);
             assertFalse(rs.next());
-        
+
             query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND a_date = CAST(? AS DATE) LIMIT 1";
             statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
@@ -203,7 +204,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             assertEquals(ROW1, rs.getString(1));
             dateAsLong = rs.getLong(2);
             assertFalse(rs.next());
-        
+
             query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND a_time = CAST(? AS TIME) LIMIT 1";
             statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
@@ -221,7 +222,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             assertEquals(ROW1, rs.getString(1));
             dateAsDecimal = rs.getBigDecimal(2);
             assertFalse(rs.next());
-        
+
             query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND a_timestamp = CAST(? AS TIMESTAMP) LIMIT 1";
             statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
@@ -240,7 +241,7 @@ public class CastAndCoerceIT extends BaseQueryIT {
             assertEquals(ROW1, rs.getString(1));
             dateAsLong = rs.getLong(2);
             assertFalse(rs.next());
-        
+
             query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND a_timestamp = CAST(? AS TIMESTAMP) LIMIT 1";
             statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);

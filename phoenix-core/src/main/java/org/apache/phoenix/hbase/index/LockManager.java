@@ -33,12 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * Class, copied for the most part from HRegion.getRowLockInternal implementation
  * that manages reentrant row locks based on the row key. Phoenix needs to manage
  * it's own locking due to secondary indexes needing a consistent snapshot from
  * the time the mvcc is acquired until the time it is advanced (PHOENIX-4053).
- *
  */
 public class LockManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(LockManager.class);
@@ -46,16 +44,17 @@ public class LockManager {
     private final ConcurrentHashMap<ImmutableBytesPtr, RowLockContext> lockedRows =
             new ConcurrentHashMap<ImmutableBytesPtr, RowLockContext>();
 
-    public LockManager () {
+    public LockManager() {
     }
 
     /**
      * Lock the row or throw otherwise
+     *
      * @param rowKey the row key
-     * @return RowLock used to eventually release the lock 
+     * @return RowLock used to eventually release the lock
      * @throws TimeoutIOException if the lock could not be acquired within the
-     * allowed rowLockWaitDuration and InterruptedException if interrupted while
-     * waiting to acquire lock.
+     *                            allowed rowLockWaitDuration and InterruptedException if interrupted while
+     *                            waiting to acquire lock.
      */
     public RowLock lockRow(ImmutableBytesPtr rowKey, int waitDuration) throws IOException {
         RowLockContext rowLockContext = null;
@@ -106,7 +105,9 @@ public class LockManager {
             throw iie;
         } finally {
             // On failure, clean up the counts just in case this was the thing keeping the context alive.
-            if (!success && rowLockContext != null) rowLockContext.cleanUp();
+            if (!success && rowLockContext != null) {
+                rowLockContext.cleanUp();
+            }
             if (traceScope != null) {
                 traceScope.close();
             }
@@ -125,6 +126,7 @@ public class LockManager {
      * coprocessor calls (see HBASE-18482). Once we have that, we
      * can have the caller collect RowLock instances and free when
      * needed.
+     *
      * @param row the row key
      * @throws IOException
      */
@@ -171,15 +173,16 @@ public class LockManager {
                 }
             }
         }
-        
+
         void cleanUp() {
             long c = count.decrementAndGet();
             if (c <= 0) {
                 synchronized (this) {
-                    if (count.get() <= 0 && rowLock != null){
+                    if (count.get() <= 0 && rowLock != null) {
                         rowLock = null;
                         RowLockContext removed = lockedRows.remove(rowKey);
-                        assert removed == this: "we should never remove a different context";
+                        assert removed ==this:
+                        "we should never remove a different context";
                     }
                 }
             }
@@ -212,7 +215,7 @@ public class LockManager {
             context = null;
             lock = null;
         }
-        
+
         RowLockImpl(RowLockContext context, Lock lock) {
             this.context = context;
             this.lock = lock;
@@ -251,8 +254,9 @@ public class LockManager {
         /**
          * Release the given lock.  If there are no remaining locks held by the current thread
          * then unlock the row and allow other threads to acquire the lock.
+         *
          * @throws IllegalArgumentException if called by a different thread than the lock owning
-         *     thread
+         *                                  thread
          */
         void release();
 

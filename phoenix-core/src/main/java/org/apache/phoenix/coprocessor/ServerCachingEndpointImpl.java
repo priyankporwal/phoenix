@@ -44,80 +44,77 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 
 /**
- * 
  * Server-side implementation of {@link ServerCachingProtocol}
  *
- * 
  * @since 0.1
  */
-public class ServerCachingEndpointImpl extends ServerCachingService implements RegionCoprocessor 
-     {
+public class ServerCachingEndpointImpl extends ServerCachingService implements RegionCoprocessor {
 
-  private RegionCoprocessorEnvironment env;
-  
-  @Override
-  public Iterable<Service> getServices() {
-      return Collections.singleton(this);
-  }
+    private RegionCoprocessorEnvironment env;
 
-  @Override
-  public void addServerCache(RpcController controller, AddServerCacheRequest request,
-          RpcCallback<AddServerCacheResponse> done) {
-      ImmutableBytesPtr tenantId = null;
-      if (request.hasTenantId()) {
-          tenantId = new ImmutableBytesPtr(request.getTenantId().toByteArray());
-      }
-      TenantCache tenantCache = GlobalCache.getTenantCache(this.env, tenantId);
-      ImmutableBytesWritable cachePtr =
-              org.apache.phoenix.protobuf.ProtobufUtil
-              .toImmutableBytesWritable(request.getCachePtr());
-      byte[] txState = request.hasTxState() ? request.getTxState().toByteArray() : ByteUtil.EMPTY_BYTE_ARRAY;
+    @Override
+    public Iterable<Service> getServices() {
+        return Collections.singleton(this);
+    }
 
-      try {
-          @SuppressWarnings("unchecked")
-          Class<ServerCacheFactory> serverCacheFactoryClass =
-          (Class<ServerCacheFactory>) Class.forName(request.getCacheFactory().getClassName());
-          ServerCacheFactory cacheFactory = serverCacheFactoryClass.newInstance();
-          tenantCache.addServerCache(new ImmutableBytesPtr(request.getCacheId().toByteArray()),
-              cachePtr, txState, cacheFactory, request.hasHasProtoBufIndexMaintainer() && request.getHasProtoBufIndexMaintainer(),
-              request.getUsePersistentCache(), request.hasClientVersion() ? request.getClientVersion() : ScanUtil.UNKNOWN_CLIENT_VERSION);
+    @Override
+    public void addServerCache(RpcController controller, AddServerCacheRequest request,
+                               RpcCallback<AddServerCacheResponse> done) {
+        ImmutableBytesPtr tenantId = null;
+        if (request.hasTenantId()) {
+            tenantId = new ImmutableBytesPtr(request.getTenantId().toByteArray());
+        }
+        TenantCache tenantCache = GlobalCache.getTenantCache(this.env, tenantId);
+        ImmutableBytesWritable cachePtr =
+                org.apache.phoenix.protobuf.ProtobufUtil
+                        .toImmutableBytesWritable(request.getCachePtr());
+        byte[] txState = request.hasTxState() ? request.getTxState().toByteArray() : ByteUtil.EMPTY_BYTE_ARRAY;
+
+        try {
+            @SuppressWarnings("unchecked")
+            Class<ServerCacheFactory> serverCacheFactoryClass =
+                    (Class<ServerCacheFactory>) Class.forName(request.getCacheFactory().getClassName());
+            ServerCacheFactory cacheFactory = serverCacheFactoryClass.newInstance();
+            tenantCache.addServerCache(new ImmutableBytesPtr(request.getCacheId().toByteArray()),
+                    cachePtr, txState, cacheFactory, request.hasHasProtoBufIndexMaintainer() && request.getHasProtoBufIndexMaintainer(),
+                    request.getUsePersistentCache(), request.hasClientVersion() ? request.getClientVersion() : ScanUtil.UNKNOWN_CLIENT_VERSION);
         } catch (Throwable e) {
             ProtobufUtil.setControllerException(controller,
-                ServerUtil.createIOException("Error when adding cache: ", e));
+                    ServerUtil.createIOException("Error when adding cache: ", e));
         }
-      AddServerCacheResponse.Builder responseBuilder = AddServerCacheResponse.newBuilder();
-      responseBuilder.setReturn(true);
-      AddServerCacheResponse result = responseBuilder.build();
-      done.run(result);
-  }
-
-  @Override
-  public void removeServerCache(RpcController controller, RemoveServerCacheRequest request,
-      RpcCallback<RemoveServerCacheResponse> done) {
-    ImmutableBytesPtr tenantId = null;
-    if (request.hasTenantId()) {
-      tenantId = new ImmutableBytesPtr(request.getTenantId().toByteArray());
+        AddServerCacheResponse.Builder responseBuilder = AddServerCacheResponse.newBuilder();
+        responseBuilder.setReturn(true);
+        AddServerCacheResponse result = responseBuilder.build();
+        done.run(result);
     }
-    TenantCache tenantCache = GlobalCache.getTenantCache(this.env, tenantId);
-    tenantCache.removeServerCache(new ImmutableBytesPtr(request.getCacheId().toByteArray()));
-    RemoveServerCacheResponse.Builder responseBuilder = RemoveServerCacheResponse.newBuilder();
-    responseBuilder.setReturn(true);
-    RemoveServerCacheResponse result = responseBuilder.build();
-    done.run(result);
-  }
 
-  @Override
-  public void start(CoprocessorEnvironment env) throws IOException {
-    if (env instanceof RegionCoprocessorEnvironment) {
-      this.env = (RegionCoprocessorEnvironment) env;
-    } else {
-      throw new CoprocessorException("Must be loaded on a table region!");
+    @Override
+    public void removeServerCache(RpcController controller, RemoveServerCacheRequest request,
+                                  RpcCallback<RemoveServerCacheResponse> done) {
+        ImmutableBytesPtr tenantId = null;
+        if (request.hasTenantId()) {
+            tenantId = new ImmutableBytesPtr(request.getTenantId().toByteArray());
+        }
+        TenantCache tenantCache = GlobalCache.getTenantCache(this.env, tenantId);
+        tenantCache.removeServerCache(new ImmutableBytesPtr(request.getCacheId().toByteArray()));
+        RemoveServerCacheResponse.Builder responseBuilder = RemoveServerCacheResponse.newBuilder();
+        responseBuilder.setReturn(true);
+        RemoveServerCacheResponse result = responseBuilder.build();
+        done.run(result);
     }
-  }
 
-  @Override
-  public void stop(CoprocessorEnvironment arg0) throws IOException {
-    // nothing to do
-  }
+    @Override
+    public void start(CoprocessorEnvironment env) throws IOException {
+        if (env instanceof RegionCoprocessorEnvironment) {
+            this.env = (RegionCoprocessorEnvironment) env;
+        } else {
+            throw new CoprocessorException("Must be loaded on a table region!");
+        }
+    }
+
+    @Override
+    public void stop(CoprocessorEnvironment arg0) throws IOException {
+        // nothing to do
+    }
 
 }

@@ -34,46 +34,47 @@ import com.google.common.collect.Lists;
 @SuppressWarnings("serial")
 public class MultiIndexWriteFailureException extends IndexWriteException {
 
-  public static final String FAILURE_MSG = "Failed to write to multiple index tables: ";
-  private List<HTableInterfaceReference> failures;
+    public static final String FAILURE_MSG = "Failed to write to multiple index tables: ";
+    private List<HTableInterfaceReference> failures;
 
-  /**
-   * @param failures the tables to which the index write did not succeed
-   */
-  public MultiIndexWriteFailureException(List<HTableInterfaceReference> failures, boolean disableIndexOnFailure) {
-    super(disableIndexOnFailure);
-    this.failures = failures;
-  }
+    /**
+     * @param failures the tables to which the index write did not succeed
+     */
+    public MultiIndexWriteFailureException(List<HTableInterfaceReference> failures, boolean disableIndexOnFailure) {
+        super(disableIndexOnFailure);
+        this.failures = failures;
+    }
 
-  /**
-   * This constructor used to rematerialize this exception when receiving
-   * an rpc exception from the server
-   * @param message detail message
-   */
-  public MultiIndexWriteFailureException(String message) {
-      super(IndexWriteException.parseDisableIndexOnFailure(message));
-      Pattern p = Pattern.compile(FAILURE_MSG + "\\[(.*)\\]");
-      Matcher m = p.matcher(message);
-      if (m.find()) {
-          failures = Lists.newArrayList();
-          String tablesStr = m.group(1);
-          for (String tableName : tablesStr.split(",\\s")) {
-            HTableInterfaceReference tableRef = new HTableInterfaceReference(new ImmutableBytesPtr(Bytes.toBytes(tableName)));
-            failures.add(tableRef);
+    /**
+     * This constructor used to rematerialize this exception when receiving
+     * an rpc exception from the server
+     *
+     * @param message detail message
+     */
+    public MultiIndexWriteFailureException(String message) {
+        super(IndexWriteException.parseDisableIndexOnFailure(message));
+        Pattern p = Pattern.compile(FAILURE_MSG + "\\[(.*)\\]");
+        Matcher m = p.matcher(message);
+        if (m.find()) {
+            failures = Lists.newArrayList();
+            String tablesStr = m.group(1);
+            for (String tableName : tablesStr.split(",\\s")) {
+                HTableInterfaceReference tableRef = new HTableInterfaceReference(new ImmutableBytesPtr(Bytes.toBytes(tableName)));
+                failures.add(tableRef);
+            }
         }
-      }
-  }
+    }
 
-  public List<HTableInterfaceReference> getFailedTables() {
-    return this.failures;
-  }
+    public List<HTableInterfaceReference> getFailedTables() {
+        return this.failures;
+    }
 
-  public void setFailedTables(List<HTableInterfaceReference> failedTables) {
-      this.failures = failedTables;
-  }
+    public void setFailedTables(List<HTableInterfaceReference> failedTables) {
+        this.failures = failedTables;
+    }
 
-  @Override
+    @Override
     public String getMessage() {
-        return Objects.firstNonNull(super.getMessage(),"") + " " + FAILURE_MSG + failures;
+        return Objects.firstNonNull(super.getMessage(), "") + " " + FAILURE_MSG + failures;
     }
 }

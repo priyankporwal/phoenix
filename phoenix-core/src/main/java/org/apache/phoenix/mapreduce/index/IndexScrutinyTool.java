@@ -74,7 +74,6 @@ import static org.apache.phoenix.util.MetaDataUtil.VIEW_INDEX_TABLE_PREFIX;
 
 /**
  * An MR job to verify that the index table is in sync with the data table.
- *
  */
 public class IndexScrutinyTool extends Configured implements Tool {
 
@@ -124,15 +123,19 @@ public class IndexScrutinyTool extends Configured implements Tool {
     /**
      * Which table to use as the source table
      */
-    public static enum SourceTable {
+    public static enum SourceTable
+
+    {
         DATA_TABLE_SOURCE, INDEX_TABLE_SOURCE,
-        /**
-         * Runs two separate jobs to iterate over both tables
-         */
-        BOTH;
+                /**
+                 * Runs two separate jobs to iterate over both tables
+                 */
+                BOTH;
     }
 
-    public static enum OutputFormat {
+    public static enum OutputFormat
+
+    {
         FILE, TABLE
     }
 
@@ -160,6 +163,7 @@ public class IndexScrutinyTool extends Configured implements Tool {
     /**
      * Parses the commandline arguments, throws IllegalStateException if mandatory arguments are
      * missing.
+     *
      * @param args supplied command line arguments
      * @return the parsed command line
      */
@@ -214,8 +218,8 @@ public class IndexScrutinyTool extends Configured implements Tool {
         private String tenantId;
 
         public JobFactory(Connection connection, Configuration configuration, long batchSize,
-                boolean useSnapshot, long ts, boolean outputInvalidRows, OutputFormat outputFormat,
-                String basePath, long outputMaxRows, String tenantId) {
+                          boolean useSnapshot, long ts, boolean outputInvalidRows, OutputFormat outputFormat,
+                          String basePath, long outputMaxRows, String tenantId) {
             this.outputInvalidRows = outputInvalidRows;
             this.outputFormat = outputFormat;
             this.basePath = basePath;
@@ -227,17 +231,17 @@ public class IndexScrutinyTool extends Configured implements Tool {
             this.tenantId = tenantId;
             this.ts = ts; // CURRENT_SCN to set
             scrutinyExecuteTime = EnvironmentEdgeManager.currentTimeMillis(); // time at which scrutiny was run.
-                                                              // Same for
+            // Same for
             // all jobs created from this factory
             PhoenixConfigurationUtil.setScrutinyExecuteTimestamp(configuration,
-                scrutinyExecuteTime);
+                    scrutinyExecuteTime);
             if (!Strings.isNullOrEmpty(tenantId)) {
                 PhoenixConfigurationUtil.setTenantId(configuration, tenantId);
             }
         }
 
         public Job createSubmittableJob(String schemaName, String indexTable, String dataTable,
-                SourceTable sourceTable) throws Exception {
+                                        SourceTable sourceTable) throws Exception {
             Preconditions.checkArgument(SourceTable.DATA_TABLE_SOURCE.equals(sourceTable)
                     || SourceTable.INDEX_TABLE_SOURCE.equals(sourceTable));
 
@@ -264,9 +268,9 @@ public class IndexScrutinyTool extends Configured implements Tool {
             SourceTargetColumnNames columnNames =
                     SourceTable.DATA_TABLE_SOURCE.equals(sourceTable)
                             ? new SourceTargetColumnNames.DataSourceColNames(pdataTable,
-                                    pindexTable)
+                            pindexTable)
                             : new SourceTargetColumnNames.IndexSourceColNames(pdataTable,
-                                    pindexTable);
+                            pindexTable);
             String qSourceTable = columnNames.getQualifiedSourceTableName();
             List<String> sourceColumnNames = columnNames.getSourceColNames();
             List<String> sourceDynamicCols = columnNames.getSourceDynamicCols();
@@ -277,7 +281,7 @@ public class IndexScrutinyTool extends Configured implements Tool {
             // or select the data table equivalents of the index columns from the data table
             final String selectQuery =
                     QueryUtil.constructSelectStatement(qSourceTable, sourceColumnNames, null,
-                        Hint.NO_INDEX, true);
+                            Hint.NO_INDEX, true);
             LOGGER.info("Query used on source table to feed the mapper: " + selectQuery);
 
             PhoenixConfigurationUtil.setScrutinyOutputFormat(configuration, outputFormat);
@@ -285,19 +289,19 @@ public class IndexScrutinyTool extends Configured implements Tool {
             if (outputInvalidRows && OutputFormat.TABLE.equals(outputFormat)) {
                 String upsertStmt =
                         IndexScrutinyTableOutput.constructOutputTableUpsert(sourceDynamicCols,
-                            targetDynamicCols, connection);
+                                targetDynamicCols, connection);
                 PhoenixConfigurationUtil.setUpsertStatement(configuration, upsertStmt);
                 LOGGER.info("Upsert statement used for output table: " + upsertStmt);
             }
 
             final String jobName =
                     String.format(INDEX_JOB_NAME_TEMPLATE, qSourceTable,
-                        columnNames.getQualifiedTargetTableName());
+                            columnNames.getQualifiedTargetTableName());
             final Job job = Job.getInstance(configuration, jobName);
 
             if (!useSnapshot) {
                 PhoenixMapReduceUtil.setInput(job, PhoenixIndexDBWritable.class, qDataTable,
-                    selectQuery);
+                        selectQuery);
             } else { // TODO check if using a snapshot works
                 Admin admin = null;
                 String snapshotName;
@@ -324,8 +328,8 @@ public class IndexScrutinyTool extends Configured implements Tool {
             TableMapReduceUtil.initCredentials(job);
             Path outputPath =
                     getOutputPath(configuration, basePath,
-                        SourceTable.DATA_TABLE_SOURCE.equals(sourceTable) ? pdataTable
-                                : pindexTable);
+                            SourceTable.DATA_TABLE_SOURCE.equals(sourceTable) ? pdataTable
+                                    : pindexTable);
 
             return configureSubmittableJob(job, outputPath);
         }
@@ -356,7 +360,7 @@ public class IndexScrutinyTool extends Configured implements Tool {
             if (basePath != null) {
                 outputPath =
                         CsvBulkImportUtil.getOutputPath(new Path(basePath),
-                            table.getPhysicalName().getString());
+                                table.getPhysicalName().getString());
                 fs = outputPath.getFileSystem(configuration);
                 fs.delete(outputPath, true);
             }
@@ -395,7 +399,7 @@ public class IndexScrutinyTool extends Configured implements Tool {
             SourceTable sourceTable =
                     cmdLine.hasOption(SOURCE_TABLE_OPTION.getOpt())
                             ? SourceTable
-                                    .valueOf(cmdLine.getOptionValue(SOURCE_TABLE_OPTION.getOpt()))
+                            .valueOf(cmdLine.getOptionValue(SOURCE_TABLE_OPTION.getOpt()))
                             : SourceTable.BOTH;
 
             long batchSize =
@@ -438,9 +442,9 @@ public class IndexScrutinyTool extends Configured implements Tool {
             }
 
             LOGGER.info(String.format(
-                "Running scrutiny [schemaName=%s, dataTable=%s, indexTable=%s, useSnapshot=%s, timestamp=%s, batchSize=%s, outputBasePath=%s, outputFormat=%s, outputMaxRows=%s]",
-                schemaName, dataTable, indexTable, useSnapshot, ts, batchSize, basePath,
-                outputFormat, outputMaxRows));
+                    "Running scrutiny [schemaName=%s, dataTable=%s, indexTable=%s, useSnapshot=%s, timestamp=%s, batchSize=%s, outputBasePath=%s, outputFormat=%s, outputMaxRows=%s]",
+                    schemaName, dataTable, indexTable, useSnapshot, ts, batchSize, basePath,
+                    outputFormat, outputMaxRows));
             JobFactory jobFactory =
                     new JobFactory(connection, configuration, batchSize, useSnapshot, ts,
                             outputInvalidRows, outputFormat, basePath, outputMaxRows, tenantId);
@@ -448,12 +452,12 @@ public class IndexScrutinyTool extends Configured implements Tool {
             // one for each direction
             if (SourceTable.BOTH.equals(sourceTable)) {
                 jobs.add(jobFactory.createSubmittableJob(schemaName, indexTable, dataTable,
-                    SourceTable.DATA_TABLE_SOURCE));
+                        SourceTable.DATA_TABLE_SOURCE));
                 jobs.add(jobFactory.createSubmittableJob(schemaName, indexTable, dataTable,
-                    SourceTable.INDEX_TABLE_SOURCE));
+                        SourceTable.INDEX_TABLE_SOURCE));
             } else {
                 jobs.add(jobFactory.createSubmittableJob(schemaName, indexTable, dataTable,
-                    sourceTable));
+                        sourceTable));
             }
 
             if (!isForeground) {
@@ -464,7 +468,7 @@ public class IndexScrutinyTool extends Configured implements Tool {
                 return 0;
             }
             LOGGER.info(
-                "Running Index Scrutiny in Foreground. Waits for the build to complete. This may take a long time!.");
+                    "Running Index Scrutiny in Foreground. Waits for the build to complete. This may take a long time!.");
             boolean result = true;
             for (Job job : jobs) {
                 result = result && job.waitForCompletion(true);

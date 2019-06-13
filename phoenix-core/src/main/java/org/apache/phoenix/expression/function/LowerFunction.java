@@ -33,9 +33,9 @@ import org.apache.phoenix.schema.types.PVarchar;
 
 import com.force.i18n.LocaleUtils;
 
-@FunctionParseNode.BuiltInFunction(name=LowerFunction.NAME,  args={
-        @FunctionParseNode.Argument(allowedTypes={PVarchar.class}),
-        @FunctionParseNode.Argument(allowedTypes={PVarchar.class}, defaultValue="null", isConstant=true)} )
+@FunctionParseNode.BuiltInFunction(name = LowerFunction.NAME, args = {
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}),
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}, defaultValue = "null", isConstant = true)})
 public class LowerFunction extends ScalarFunction {
     public static final String NAME = "LOWER";
 
@@ -50,7 +50,7 @@ public class LowerFunction extends ScalarFunction {
     }
 
     private void initialize() {
-        if(children.size() > 1) {
+        if (children.size() > 1) {
             String localeISOCode = getLiteralValue(1, String.class);
             locale = LocaleUtils.get().getLocaleByIsoCode(localeISOCode);
         }
@@ -67,7 +67,7 @@ public class LowerFunction extends ScalarFunction {
         if (!getStrExpression().evaluate(tuple, ptr)) {
             return false;
         }
-        if (ptr.getLength()==0) {
+        if (ptr.getLength() == 0) {
             return true;
         }
 

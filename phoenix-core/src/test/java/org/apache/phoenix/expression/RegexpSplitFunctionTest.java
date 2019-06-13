@@ -66,11 +66,16 @@ public class RegexpSplitFunctionTest {
     }
 
     private void testEqual(String[] expectedStr, String[] result) {
-        if (result == null ^ expectedStr == null) return;
-        if (expectedStr == null) return;
+        if (result == null ^ expectedStr == null) {
+            return;
+        }
+        if (expectedStr == null) {
+            return;
+        }
         assertEquals(expectedStr.length, result.length);
-        for (int i = 0; i < expectedStr.length; ++i)
+        for (int i = 0; i < expectedStr.length; ++i) {
             assertEquals(expectedStr[i], result[i]);
+        }
     }
 
     private void testExpression(String srcStr, String patternStr, String[] expectedStr)
@@ -81,14 +86,14 @@ public class RegexpSplitFunctionTest {
 
     @Test
     public void test() throws Exception {
-        String[] res = new String[] { "ONE", "TWO", "THREE" };
+        String[] res = new String[] {"ONE", "TWO", "THREE"};
         testExpression("ONE:TWO:THREE", ":", res);
         testExpression("ONE,TWO,THREE", ",", res);
-        testExpression("12ONE34TWO56THREE78", "[0-9]+", new String[] { null, "ONE", "TWO", "THREE",
-                null });
-        testExpression("ONE34TWO56THREE78", "[0-9]+", new String[] { "ONE", "TWO", "THREE", null });
-        testExpression("123ONE34TWO56THREE", "[0-9]+", new String[] { null, "ONE", "TWO", "THREE" });
-        testExpression("123", "[0-9]+", new String[] { null, null });
-        testExpression("ONE", "[0-9]+", new String[] { "ONE" });
+        testExpression("12ONE34TWO56THREE78", "[0-9]+", new String[] {null, "ONE", "TWO", "THREE",
+                null});
+        testExpression("ONE34TWO56THREE78", "[0-9]+", new String[] {"ONE", "TWO", "THREE", null});
+        testExpression("123ONE34TWO56THREE", "[0-9]+", new String[] {null, "ONE", "TWO", "THREE"});
+        testExpression("123", "[0-9]+", new String[] {null, null});
+        testExpression("ONE", "[0-9]+", new String[] {"ONE"});
     }
 }

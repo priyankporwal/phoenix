@@ -41,19 +41,19 @@ public class AsyncIndexDisabledIT extends ParallelStatsDisabledIT {
             Statement stmt = conn.createStatement();
             String tableName = "TBL_" + generateUniqueName();
             String indexName = "IND_" + generateUniqueName();
-            
+
             String ddl = "CREATE TABLE " + tableName + " (pk INTEGER NOT NULL PRIMARY KEY, val VARCHAR)";
             stmt.execute(ddl);
             stmt.execute("UPSERT INTO " + tableName + " values(1, 'y')");
             // create the async index
             stmt.execute("CREATE INDEX " + indexName + " ON " + tableName + "(val) ASYNC");
-    
+
             // it should be built as a regular index
             PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
             PTable table = phxConn.getTable(new PTableKey(null, tableName));
             assertEquals("Index not built", 1, table.getIndexes().size());
             assertEquals("Wrong index created", indexName, table.getIndexes().get(0).getName().getString());
-            
+
             ResultSet rs = stmt.executeQuery("select /*+ INDEX(" + indexName + ")*/ pk, val from " + tableName);
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));
@@ -61,5 +61,5 @@ public class AsyncIndexDisabledIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
 }

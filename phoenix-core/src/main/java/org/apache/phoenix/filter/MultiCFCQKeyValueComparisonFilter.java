@@ -26,11 +26,9 @@ import org.apache.phoenix.expression.Expression;
 
 
 /**
- *
  * Filter that evaluates WHERE clause expression, used in the case where there
  * are references to multiple column qualifiers over multiple column families.
  * Also there same qualifier names in different families.
- * 
  */
 public class MultiCFCQKeyValueComparisonFilter extends MultiKeyValueComparisonFilter {
     private final ImmutablePairBytesPtr ptr = new ImmutablePairBytesPtr();
@@ -44,14 +42,14 @@ public class MultiCFCQKeyValueComparisonFilter extends MultiKeyValueComparisonFi
 
     @Override
     protected Object setColumnKey(byte[] cf, int cfOffset, int cfLength,
-            byte[] cq, int cqOffset, int cqLength) {
+                                  byte[] cq, int cqOffset, int cqLength) {
         ptr.set(cf, cfOffset, cfLength, cq, cqOffset, cqLength);
         return ptr;
     }
 
     @Override
     protected Object newColumnKey(byte[] cf, int cfOffset, int cfLength,
-            byte[] cq, int cqOffset, int cqLength) {
+                                  byte[] cq, int cqOffset, int cqLength) {
 
         byte[] cfKey;
         if (cfOffset == 0 && cf.length == cfLength) {
@@ -95,29 +93,43 @@ public class MultiCFCQKeyValueComparisonFilter extends MultiKeyValueComparisonFi
             this.offset2 = offset2;
             this.length2 = length2;
             int hash = 1;
-            for (int i = offset1; i < offset1 + length1; i++)
+            for (int i = offset1; i < offset1 + length1; i++) {
                 hash = (31 * hash) + bytes1[i];
-            for (int i = offset2; i < offset2 + length2; i++)
+            }
+            for (int i = offset2; i < offset2 + length2; i++) {
                 hash = (31 * hash) + bytes2[i];
+            }
             hashCode = hash;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (getClass() != obj.getClass()) return false;
-            ImmutablePairBytesPtr that = (ImmutablePairBytesPtr)obj;
-            if (this.hashCode != that.hashCode) return false;
-            if (Bytes.compareTo(this.bytes2, this.offset2, this.length2, that.bytes2, that.offset2, that.length2) != 0) return false;
-            if (Bytes.compareTo(this.bytes1, this.offset1, this.length1, that.bytes1, that.offset1, that.length1) != 0) return false;
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ImmutablePairBytesPtr that = (ImmutablePairBytesPtr) obj;
+            if (this.hashCode != that.hashCode) {
+                return false;
+            }
+            if (Bytes.compareTo(this.bytes2, this.offset2, this.length2, that.bytes2, that.offset2, that.length2) != 0) {
+                return false;
+            }
+            if (Bytes.compareTo(this.bytes1, this.offset1, this.length1, that.bytes1, that.offset1, that.length1) != 0) {
+                return false;
+            }
             return true;
         }
     }
 
-    public static MultiCFCQKeyValueComparisonFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+    public static MultiCFCQKeyValueComparisonFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (MultiCFCQKeyValueComparisonFilter)Writables.getWritable(pbBytes, new MultiCFCQKeyValueComparisonFilter());
+            return (MultiCFCQKeyValueComparisonFilter) Writables.getWritable(pbBytes, new MultiCFCQKeyValueComparisonFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }

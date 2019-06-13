@@ -48,7 +48,7 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
 
     @Override
     public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, IndexMetaData indexMetaData) throws IOException {
-    	// create a state manager, so we can manage each batch
+        // create a state manager, so we can manage each batch
         LocalTableState state = new LocalTableState(localTable, mutation);
         // build the index updates for each group
         IndexUpdateManager manager = new IndexUpdateManager(indexMetaData);
@@ -68,14 +68,11 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      * don't all have the timestamp, so we need to manage everything in batches based on timestamp.
      * <p>
      * Adds all the updates in the {@link Mutation} to the state, as a side-effect.
-     * @param state
-     *            current state of the row for the mutation.
-     * @param m
-     *            mutation to batch
+     *
+     * @param state         current state of the row for the mutation.
+     * @param m             mutation to batch
      * @param indexMetaData TODO
-     * @param updateMap
-     *            index updates into which to add new updates. Modified as a side-effect.
-     * 
+     * @param updateMap     index updates into which to add new updates. Modified as a side-effect.
      * @throws IOException
      */
     private void batchMutationAndAddUpdates(IndexUpdateManager manager, LocalTableState state, Mutation m, IndexMetaData indexMetaData) throws IOException {
@@ -85,7 +82,7 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
         for (List<Cell> family : m.getFamilyCellMap().values()) {
             for (Cell kv : family) {
                 batch.add(kv);
-                if(ts != kv.getTimestamp()) {
+                if (ts != kv.getTimestamp()) {
                     throw new IllegalStateException("Time stamps must match for all cells in a batch");
                 }
             }
@@ -113,20 +110,17 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      * timestamp. This gets rid of anything currently in the index for the current state of the row (at the timestamp).
      * Then we can just follow that by applying the pending update and building the index update based on the new row
      * state.
-     * 
-     * @param updateMap
-     *            map to update with new index elements
-     * @param batch
-     *            timestamp-based batch of edits
-     * @param state
-     *            local state to update and pass to the codec
+     *
+     * @param updateMap     map to update with new index elements
+     * @param batch         timestamp-based batch of edits
+     * @param state         local state to update and pass to the codec
      * @param indexMetaData TODO
      * @return <tt>true</tt> if we cleaned up the current state forward (had a back-in-time put), <tt>false</tt>
-     *         otherwise
+     * otherwise
      * @throws IOException
      */
     private boolean addMutationsForBatch(IndexUpdateManager updateMap, Batch batch, LocalTableState state,
-            IndexMetaData indexMetaData) throws IOException {
+                                         IndexMetaData indexMetaData) throws IOException {
 
         // need a temporary manager for the current batch. It should resolve any conflicts for the
         // current batch. Essentially, we can get the case where a batch doesn't change the current
@@ -167,16 +161,13 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
     /**
      * Add the necessary mutations for the pending batch on the local state. Handles rolling up through history to
      * determine the index changes after applying the batch (for the case where the batch is back in time).
-     * 
-     * @param updateMap
-     *            to update with index mutations
-     * @param state
-     *            current state of the table
+     *
+     * @param updateMap     to update with index mutations
+     * @param state         current state of the table
      * @param indexMetaData TODO
-     * @param batch
-     *            to apply to the current state
+     * @param batch         to apply to the current state
      * @return the minimum timestamp across all index columns requested. If {@link ColumnTracker#isNewestTime(long)}
-     *         returns <tt>true</tt> on the returned timestamp, we know that this <i>was not a back-in-time update</i>.
+     * returns <tt>true</tt> on the returned timestamp, we know that this <i>was not a back-in-time update</i>.
      * @throws IOException
      */
     private long addCurrentStateMutationsForBatch(IndexUpdateManager updateMap, LocalTableState state, IndexMetaData indexMetaData)
@@ -203,13 +194,13 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
             if (trackerTs < minTs) {
                 minTs = tracker.getTS();
             }
-            
+
             // FIXME: PHOENIX-4057 do not attempt to issue index updates
             // for out-of-order mutations since it corrupts the index.
             if (tracker.hasNewerTimestamps()) {
                 continue;
             }
-            
+
             // only make the put if the index update has been setup
             if (update.isValid()) {
                 byte[] table = update.getTableName();
@@ -225,8 +216,8 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      * update map.
      * <p>
      * Expects the {@link LocalTableState} to already be correctly setup (correct timestamp, updates applied, etc).
+     *
      * @param indexMetaData TODO
-     * 
      * @throws IOException
      */
     protected void addDeleteUpdatesToMap(IndexUpdateManager updateMap, LocalTableState state, long ts, IndexMetaData indexMetaData)
@@ -243,9 +234,9 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
                 if (tracker.hasNewerTimestamps()) {
                     continue;
                 }
-                
+
                 // override the timestamps in the delete to match the current batch.
-                Delete remove = (Delete)d.getUpdate();
+                Delete remove = (Delete) d.getUpdate();
                 remove.setTimestamp(ts);
                 updateMap.addIndexUpdate(d.getTableName(), remove);
             }

@@ -66,16 +66,16 @@ import org.apache.phoenix.util.SchemaUtil;
 
 import com.google.common.base.Preconditions;
 
-public class TupleProjector {    
+public class TupleProjector {
     private static final String SCAN_PROJECTOR = "scanProjector";
-    
+
     private final KeyValueSchema schema;
     private final Expression[] expressions;
     private ValueBitSet valueSet;
     private final ImmutableBytesWritable ptr = new ImmutableBytesWritable();
-    
+
     private static final byte[] OLD_VALUE_COLUMN_QUALIFIER = new byte[0];
-    
+
     public TupleProjector(RowProjector rowProjector) {
         List<? extends ColumnProjector> columnProjectors = rowProjector.getColumnProjectors();
         int count = columnProjectors.size();
@@ -99,35 +99,35 @@ public class TupleProjector {
         schema = builder.build();
         valueSet = ValueBitSet.newInstance(schema);
     }
-    
+
     public TupleProjector(PTable projectedTable) throws SQLException {
         Preconditions.checkArgument(projectedTable.getType() == PTableType.PROJECTED);
-    	List<PColumn> columns = projectedTable.getColumns();
-    	this.expressions = new Expression[columns.size() - projectedTable.getPKColumns().size()];
-    	KeyValueSchemaBuilder builder = new KeyValueSchemaBuilder(0);
-    	int i = 0;
+        List<PColumn> columns = projectedTable.getColumns();
+        this.expressions = new Expression[columns.size() - projectedTable.getPKColumns().size()];
+        KeyValueSchemaBuilder builder = new KeyValueSchemaBuilder(0);
+        int i = 0;
         for (PColumn column : columns) {
-        	if (!SchemaUtil.isPKColumn(column)) {
-        		builder.addField(column);
-        		expressions[i++] = ((ProjectedColumn) column).getSourceColumnRef().newColumnExpression();
-        	}
+            if (!SchemaUtil.isPKColumn(column)) {
+                builder.addField(column);
+                expressions[i++] = ((ProjectedColumn) column).getSourceColumnRef().newColumnExpression();
+            }
         }
         schema = builder.build();
         valueSet = ValueBitSet.newInstance(schema);
     }
-    
+
     public TupleProjector(KeyValueSchema schema, Expression[] expressions) {
-    	this.schema = schema;
-    	this.expressions = expressions;
-    	this.valueSet = ValueBitSet.newInstance(schema);
+        this.schema = schema;
+        this.expressions = expressions;
+        this.valueSet = ValueBitSet.newInstance(schema);
     }
-    
+
     public void setValueBitSet(ValueBitSet bitSet) {
         this.valueSet = bitSet;
     }
-    
+
     public static void serializeProjectorIntoScan(Scan scan, TupleProjector projector,
-            boolean projectDynColsInWildcardQueries) {
+                                                  boolean projectDynColsInWildcardQueries) {
         scan.setAttribute(SCAN_PROJECTOR, serializeProjectorIntoBytes(projector));
         if (projectDynColsInWildcardQueries) {
             scan.setAttribute(WILDCARD_SCAN_INCLUDES_DYNAMIC_COLUMNS, TRUE_BYTES);
@@ -136,6 +136,7 @@ public class TupleProjector {
 
     /**
      * Serialize the projector into a byte array
+     *
      * @param projector projector to serialize
      * @return byte array
      */
@@ -162,13 +163,14 @@ public class TupleProjector {
             }
         }
     }
-    
+
     public static TupleProjector deserializeProjectorFromScan(Scan scan) {
         return deserializeProjectorFromBytes(scan.getAttribute(SCAN_PROJECTOR));
     }
 
     /**
      * Deserialize the byte array to form a projector
+     *
      * @param proj byte array to deserialize
      * @return projector
      */
@@ -203,15 +205,16 @@ public class TupleProjector {
     /**
      * Iterate over the list of cells returned from the scan and return a tuple projector for the
      * dynamic columns by parsing the metadata stored for the list of dynamic columns
-     * @param result list of cells
-     * @param dynCols list of dynamic columns to be populated
+     *
+     * @param result      list of cells
+     * @param dynCols     list of dynamic columns to be populated
      * @param dynColCells list of cells corresponding to dynamic columns to be populated
      * @return The tuple projector corresponding to dynamic columns or null if there are no dynamic
      * columns to process
      * @throws InvalidProtocolBufferException Thrown if there is an error parsing byte[] to protobuf
      */
     public static TupleProjector getDynamicColumnsTupleProjector(List<Cell> result,
-            List<PColumn> dynCols, List<Cell> dynColCells) throws InvalidProtocolBufferException {
+                                                                 List<PColumn> dynCols, List<Cell> dynColCells) throws InvalidProtocolBufferException {
         Set<Pair<ByteBuffer, ByteBuffer>> dynColCellQualifiers = new HashSet<>();
         populateDynColsFromResult(result, dynCols, dynColCellQualifiers);
         if (dynCols.isEmpty()) {
@@ -231,13 +234,14 @@ public class TupleProjector {
 
     /**
      * Populate cells corresponding to dynamic columns
-     * @param result list of cells
+     *
+     * @param result               list of cells
      * @param dynColCellQualifiers Set of <column family, column qualifier> pairs corresponding to
      *                             cells of dynamic columns
-     * @param dynColCells Populated list of cells corresponding to dynamic columns
+     * @param dynColCells          Populated list of cells corresponding to dynamic columns
      */
     private static void populateDynamicColumnCells(List<Cell> result,
-            Set<Pair<ByteBuffer, ByteBuffer>> dynColCellQualifiers, List<Cell> dynColCells) {
+                                                   Set<Pair<ByteBuffer, ByteBuffer>> dynColCellQualifiers, List<Cell> dynColCells) {
         for (Cell c : result) {
             Pair famQualPair = new Pair<>(ByteBuffer.wrap(CellUtil.cloneFamily(c)),
                     ByteBuffer.wrap(CellUtil.cloneQualifier(c)));
@@ -249,15 +253,16 @@ public class TupleProjector {
 
     /**
      * Iterate over the list of cells and populate dynamic columns
-     * @param result list of cells
-     * @param dynCols Populated list of PColumns corresponding to dynamic columns
+     *
+     * @param result               list of cells
+     * @param dynCols              Populated list of PColumns corresponding to dynamic columns
      * @param dynColCellQualifiers Populated set of <column family, column qualifier> pairs
      *                             for the cells in the list, which correspond to dynamic columns
      * @throws InvalidProtocolBufferException Thrown if there is an error parsing byte[] to protobuf
      */
     private static void populateDynColsFromResult(List<Cell> result, List<PColumn> dynCols,
-            Set<Pair<ByteBuffer, ByteBuffer>> dynColCellQualifiers)
-    throws InvalidProtocolBufferException {
+                                                  Set<Pair<ByteBuffer, ByteBuffer>> dynColCellQualifiers)
+            throws InvalidProtocolBufferException {
         for (Cell c : result) {
             byte[] qual = CellUtil.cloneQualifier(c);
             byte[] fam = CellUtil.cloneFamily(c);
@@ -279,7 +284,7 @@ public class TupleProjector {
             }
         }
     }
-    
+
     public static class ProjectedValueTuple extends BaseTuple {
         ImmutableBytesWritable keyPtr = new ImmutableBytesWritable();
         long timestamp;
@@ -300,23 +305,23 @@ public class TupleProjector {
             this.projectedValue.set(projectedValue, valueOffset, valueLength);
             this.bitSetLen = bitSetLen;
         }
-        
+
         public ImmutableBytesWritable getKeyPtr() {
             return keyPtr;
         }
-        
+
         public long getTimestamp() {
             return timestamp;
         }
-        
+
         public ImmutableBytesWritable getProjectedValue() {
             return projectedValue;
         }
-        
+
         public int getBitSetLength() {
             return bitSetLen;
         }
-        
+
         @Override
         public void getKey(ImmutableBytesWritable ptr) {
             ptr.set(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength());
@@ -355,7 +360,7 @@ public class TupleProjector {
         @Override
         public Cell getValue(byte[] family, byte[] qualifier) {
             if (keyValue == null) {
-                keyValue = PhoenixKeyValueUtil.newKeyValue(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength(), 
+                keyValue = PhoenixKeyValueUtil.newKeyValue(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength(),
                         VALUE_COLUMN_FAMILY, VALUE_COLUMN_QUALIFIER, timestamp, projectedValue.get(), projectedValue.getOffset(), projectedValue.getLength());
             }
             return keyValue;
@@ -363,7 +368,7 @@ public class TupleProjector {
 
         @Override
         public boolean getValue(byte[] family, byte[] qualifier,
-                ImmutableBytesWritable ptr) {
+                                ImmutableBytesWritable ptr) {
             ptr.set(projectedValue.get(), projectedValue.getOffset(), projectedValue.getLength());
             return true;
         }
@@ -378,22 +383,24 @@ public class TupleProjector {
             return 1;
         }
     }
-    
+
     public static class OldProjectedValueTuple extends ProjectedValueTuple {
 
         public OldProjectedValueTuple(byte[] keyBuffer, int keyOffset, int keyLength, long timestamp,
-                byte[] projectedValue, int valueOffset, int valueLength, int bitSetLen) {
+                                      byte[] projectedValue, int valueOffset, int valueLength, int bitSetLen) {
             super(keyBuffer, keyOffset, keyLength, timestamp, projectedValue, valueOffset, valueLength, bitSetLen);
         }
 
         public OldProjectedValueTuple(Tuple keyBase, long timestamp, byte[] projectedValue, int valueOffset,
-                int valueLength, int bitSetLen) {
+                                      int valueLength, int bitSetLen) {
             super(keyBase, timestamp, projectedValue, valueOffset, valueLength, bitSetLen);
         }
 
         @Override
         public Cell getValue(int index) {
-            if (index != 0) { throw new IndexOutOfBoundsException(Integer.toString(index)); }
+            if (index != 0) {
+                throw new IndexOutOfBoundsException(Integer.toString(index));
+            }
             return getValue(VALUE_COLUMN_FAMILY, OLD_VALUE_COLUMN_QUALIFIER);
         }
 
@@ -406,15 +413,15 @@ public class TupleProjector {
             }
             return keyValue;
         }
-        
+
     }
-    
+
     public ProjectedValueTuple projectResults(Tuple tuple) {
-    	byte[] bytesValue = schema.toBytes(tuple, getExpressions(), valueSet, ptr);
-    	Cell base = tuple.getValue(0);
+        byte[] bytesValue = schema.toBytes(tuple, getExpressions(), valueSet, ptr);
+        Cell base = tuple.getValue(0);
         return new ProjectedValueTuple(base.getRowArray(), base.getRowOffset(), base.getRowLength(), base.getTimestamp(), bytesValue, 0, bytesValue.length, valueSet.getEstimatedLength());
     }
-    
+
     public ProjectedValueTuple projectResults(Tuple tuple, boolean useNewValueQualifier) {
         long maxTS = tuple.getValue(0).getTimestamp();
         int nCells = tuple.size();
@@ -432,47 +439,49 @@ public class TupleProjector {
             return new OldProjectedValueTuple(base.getRowArray(), base.getRowOffset(), base.getRowLength(), maxTS, bytesValue, 0, bytesValue.length, valueSet.getEstimatedLength());
         }
     }
-    
+
     public static void decodeProjectedValue(Tuple tuple, ImmutableBytesWritable ptr) throws IOException {
         boolean b = tuple.getValue(VALUE_COLUMN_FAMILY, VALUE_COLUMN_QUALIFIER, ptr);
         if (!b) {
             // fall back to use the old value column qualifier for backward compatibility
             b = tuple.getValue(VALUE_COLUMN_FAMILY, OLD_VALUE_COLUMN_QUALIFIER, ptr);
         }
-        if (!b) throw new IOException("Trying to decode a non-projected value.");
+        if (!b) {
+            throw new IOException("Trying to decode a non-projected value.");
+        }
     }
-    
+
     public static ProjectedValueTuple mergeProjectedValue(ProjectedValueTuple dest,
-            ValueBitSet destBitSet, Tuple src, ValueBitSet srcBitSet, int offset,
-            boolean useNewValueColumnQualifier) throws IOException {
-    	ImmutableBytesWritable destValue = dest.getProjectedValue();
+                                                          ValueBitSet destBitSet, Tuple src, ValueBitSet srcBitSet, int offset,
+                                                          boolean useNewValueColumnQualifier) throws IOException {
+        ImmutableBytesWritable destValue = dest.getProjectedValue();
         int origDestBitSetLen = dest.getBitSetLength();
-    	destBitSet.clear();
-    	destBitSet.or(destValue, origDestBitSetLen);
-    	ImmutableBytesWritable srcValue = null;
-    	int srcValueLen = 0;
-    	if (src != null) {
-    	    srcValue = new ImmutableBytesWritable();
-    	    decodeProjectedValue(src, srcValue);
-    	    srcBitSet.clear();
-    	    srcBitSet.or(srcValue);
-    	    int origSrcBitSetLen = srcBitSet.getEstimatedLength();
-    	    for (int i = 0; i <= srcBitSet.getMaxSetBit(); i++) {
-    	        if (srcBitSet.get(i)) {
-    	            destBitSet.set(offset + i);
-    	        }
-    	    }
-    	    srcValueLen = srcValue.getLength() - origSrcBitSetLen;
-    	}
-    	int destBitSetLen = destBitSet.getEstimatedLength();
-    	byte[] merged = new byte[destValue.getLength() - origDestBitSetLen + srcValueLen + destBitSetLen];
-    	int o = Bytes.putBytes(merged, 0, destValue.get(), destValue.getOffset(), destValue.getLength() - origDestBitSetLen);
-    	if (src != null) {
-    	    o = Bytes.putBytes(merged, o, srcValue.get(), srcValue.getOffset(), srcValueLen);
-    	}
-    	destBitSet.toBytes(merged, o);
-        return useNewValueColumnQualifier ? new ProjectedValueTuple(dest, dest.getTimestamp(), merged, 0, merged.length, destBitSetLen) : 
-            new OldProjectedValueTuple(dest, dest.getTimestamp(), merged, 0, merged.length, destBitSetLen);
+        destBitSet.clear();
+        destBitSet.or(destValue, origDestBitSetLen);
+        ImmutableBytesWritable srcValue = null;
+        int srcValueLen = 0;
+        if (src != null) {
+            srcValue = new ImmutableBytesWritable();
+            decodeProjectedValue(src, srcValue);
+            srcBitSet.clear();
+            srcBitSet.or(srcValue);
+            int origSrcBitSetLen = srcBitSet.getEstimatedLength();
+            for (int i = 0; i <= srcBitSet.getMaxSetBit(); i++) {
+                if (srcBitSet.get(i)) {
+                    destBitSet.set(offset + i);
+                }
+            }
+            srcValueLen = srcValue.getLength() - origSrcBitSetLen;
+        }
+        int destBitSetLen = destBitSet.getEstimatedLength();
+        byte[] merged = new byte[destValue.getLength() - origDestBitSetLen + srcValueLen + destBitSetLen];
+        int o = Bytes.putBytes(merged, 0, destValue.get(), destValue.getOffset(), destValue.getLength() - origDestBitSetLen);
+        if (src != null) {
+            o = Bytes.putBytes(merged, o, srcValue.get(), srcValue.getOffset(), srcValueLen);
+        }
+        destBitSet.toBytes(merged, o);
+        return useNewValueColumnQualifier ? new ProjectedValueTuple(dest, dest.getTimestamp(), merged, 0, merged.length, destBitSetLen) :
+                new OldProjectedValueTuple(dest, dest.getTimestamp(), merged, 0, merged.length, destBitSetLen);
     }
 
     public KeyValueSchema getSchema() {
@@ -486,7 +495,7 @@ public class TupleProjector {
     public ValueBitSet getValueBitSet() {
         return valueSet;
     }
-    
+
     @Override
     public String toString() {
         return "TUPLE-PROJECTOR {" + Arrays.toString(expressions) + " ==> " + schema.toString() + "}";

@@ -73,7 +73,9 @@ public class IndexRebuildTaskIT extends BaseUniqueNamesOwnClusterIT {
     private String generateDDL(String format) {
         StringBuilder optionsBuilder = new StringBuilder();
 
-        if (optionsBuilder.length() != 0) optionsBuilder.append(",");
+        if (optionsBuilder.length() != 0) {
+            optionsBuilder.append(",");
+        }
         optionsBuilder.append("MULTI_TENANT=true");
 
         return String.format(format, "TENANT_ID VARCHAR NOT NULL, ", "TENANT_ID, ", optionsBuilder.toString());
@@ -89,7 +91,7 @@ public class IndexRebuildTaskIT extends BaseUniqueNamesOwnClusterIT {
             Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
             props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, TENANT1);
 
-            viewConn =DriverManager.getConnection(getUrl(), props);
+            viewConn = DriverManager.getConnection(getUrl(), props);
             String ddlFormat =
                     "CREATE TABLE IF NOT EXISTS " + baseTable + "  ("
                             + " %s PK2 VARCHAR NOT NULL, V1 VARCHAR, V2 VARCHAR "
@@ -109,7 +111,7 @@ public class IndexRebuildTaskIT extends BaseUniqueNamesOwnClusterIT {
 
             // Insert rows
             int numOfValues = 1;
-            for (int i=0; i < numOfValues; i++){
+            for (int i = 0; i < numOfValues; i++) {
                 viewConn.createStatement().execute(
                         String.format("UPSERT INTO %s VALUES('%s', '%s', '%s')", viewName, String.valueOf(i), "y",
                                 "z"));
@@ -151,7 +153,7 @@ public class IndexRebuildTaskIT extends BaseUniqueNamesOwnClusterIT {
                     PTable.TaskStatus.CREATED.toString(), data, null, startTs, null, true);
             task.run();
 
-            Table systemHTable= queryServices.getTable(Bytes.toBytes("SYSTEM."+PhoenixDatabaseMetaData.SYSTEM_TASK_TABLE));
+            Table systemHTable = queryServices.getTable(Bytes.toBytes("SYSTEM." + PhoenixDatabaseMetaData.SYSTEM_TASK_TABLE));
             count = getUtility().countRows(systemHTable);
             assertEquals(1, count);
 
@@ -159,7 +161,7 @@ public class IndexRebuildTaskIT extends BaseUniqueNamesOwnClusterIT {
             waitForTaskState(conn, PTable.TaskType.INDEX_REBUILD, PTable.TaskStatus.COMPLETED);
 
             // See that index is rebuilt and confirm index has rows
-            Table htable= queryServices.getTable(Bytes.toBytes(viewIndexTableName));
+            Table htable = queryServices.getTable(Bytes.toBytes(viewIndexTableName));
             count = getUtility().countRows(htable);
             assertEquals(numOfValues, count);
         } finally {

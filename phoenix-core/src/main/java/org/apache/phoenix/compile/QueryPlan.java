@@ -35,24 +35,22 @@ import org.apache.phoenix.query.KeyRange;
 import org.apache.phoenix.schema.TableRef;
 
 
-
 /**
- * 
  * Interface for an executable query plan
  *
- * 
  * @since 0.1
  */
 public interface QueryPlan extends StatementPlan {
     /**
      * Get a result iterator to iterate over the results
+     *
      * @return result iterator for iterating over the results
      * @throws SQLException
      */
     public ResultIterator iterator() throws SQLException;
-    
+
     public ResultIterator iterator(ParallelScanGrouper scanGrouper) throws SQLException;
-    
+
     public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException;
 
     public long getEstimatedSize();
@@ -61,11 +59,12 @@ public interface QueryPlan extends StatementPlan {
 
     // TODO: change once joins are supported
     TableRef getTableRef();
+
     /**
      * Returns projector used to formulate resultSet row
      */
     RowProjector getProjector();
-    
+
     Integer getLimit();
 
     Integer getOffset();
@@ -84,15 +83,14 @@ public interface QueryPlan extends StatementPlan {
     FilterableStatement getStatement();
 
     public boolean isDegenerate();
-    
+
     public boolean isRowKeyOrdered();
-    
+
     /**
-     * 
-     * @return whether underlying {@link ResultScanner} can be picked up in a round-robin 
+     * @return whether underlying {@link ResultScanner} can be picked up in a round-robin
      * fashion. Generally, selecting scanners in such a fashion is possible if rows don't
      * have to be returned back in a certain order.
-     * @throws SQLException 
+     * @throws SQLException
      */
     public boolean useRoundRobinIterator() throws SQLException;
 
@@ -107,7 +105,8 @@ public interface QueryPlan extends StatementPlan {
      * SELECT  * FROM T1 JOIN T2 ON T1.a = T2.a and T1.b = T2.b
      * The result of the sort-merge-join is sorted on (T1.a, T1.b) and (T2.a, T2.b) at the same time.
      * </pre>
+     *
      * @return
      */
-    public List<OrderBy> getOutputOrderBys() ;
+    public List<OrderBy> getOutputOrderBys();
 }

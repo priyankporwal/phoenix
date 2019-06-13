@@ -23,7 +23,9 @@ import org.apache.phoenix.monitoring.CombinableMetric.NoOpRequestMetric;
 public class MetricUtil {
 
     public static CombinableMetric getCombinableMetric(boolean isRequestMetricsEnabled, LogLevel connectionLogLevel, MetricType type) {
-        if (!type.isLoggingEnabled(connectionLogLevel) && !isRequestMetricsEnabled) { return NoOpRequestMetric.INSTANCE; }
+        if (!type.isLoggingEnabled(connectionLogLevel) && !isRequestMetricsEnabled) {
+            return NoOpRequestMetric.INSTANCE;
+        }
         return new CombinableMetricImpl(type);
     }
 

@@ -22,28 +22,28 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
  * An bounded blocking queue implementation that keeps a virtual queue of elements on per-producer
  * basis and iterates through each producer queue in round robin fashion.
- *
  */
 public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
-        implements BlockingQueue<E>{
+        implements BlockingQueue<E> {
 
     /**
      * Construct an AbstractBlockingRoundRobinQueue that limits the size of the queued elements
      * to at most maxSize. Attempts to insert new elements after that point will cause the
      * caller to block.
+     *
      * @param maxSize
      */
     public AbstractRoundRobinQueue(int maxSize) {
         this(maxSize, false);
     }
+
     /**
      * @param newProducerToFront If true, new producers go to the front of the round-robin list, if false, they go to the end.
      */
     public AbstractRoundRobinQueue(int maxSize, boolean newProducerToFront) {
-        this.producerMap = new HashMap<Object,ProducerList<E>>();
+        this.producerMap = new HashMap<Object, ProducerList<E>>();
         this.producerLists = new LinkedList<ProducerList<E>>();
         this.lock = new Object();
         this.newProducerToFront = newProducerToFront;
@@ -52,10 +52,10 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public Iterator<E> iterator() {
-        synchronized(lock) {
+        synchronized (lock) {
             ArrayList<E> allElements = new ArrayList<E>(this.size);
             ListIterator<ProducerList<E>> iter = this.producerLists.listIterator(this.currentProducer);
-            while(iter.hasNext()) {
+            while (iter.hasNext()) {
                 ProducerList<E> tList = iter.next();
                 allElements.addAll(tList.list);
             }
@@ -67,7 +67,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
     public boolean offer(E o, long timeout, TimeUnit unit) throws InterruptedException {
         boolean taken = false;
         long endAt = System.currentTimeMillis() + unit.toMillis(timeout);
-        synchronized(lock) {
+        synchronized (lock) {
             long waitTime = endAt - System.currentTimeMillis();
             while (!(taken = offer(o)) && waitTime > 0) {
                 this.lock.wait(waitTime);
@@ -79,13 +79,14 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public boolean offer(E o) {
-        if (o == null)
+        if (o == null) {
             throw new NullPointerException();
+        }
 
         final Object producerKey = extractProducer(o);
 
         ProducerList<E> producerList = null;
-        synchronized(lock) {
+        synchronized (lock) {
             if (this.size == this.maxSize) {
                 return false;
             }
@@ -104,7 +105,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
         }
         return true;
     }
-    
+
     /**
      * Implementations must extracts the producer object which is used as the key to identify a unique producer.
      */
@@ -117,12 +118,12 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public E take() throws InterruptedException {
-        synchronized(lock) {
+        synchronized (lock) {
             while (this.size == 0) {
                 this.lock.wait();
             }
             E element = poll();
-            assert element != null;
+            assert element !=null;
             return element;
         }
     }
@@ -130,7 +131,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         long endAt = System.currentTimeMillis() + unit.toMillis(timeout);
-        synchronized(lock) {
+        synchronized (lock) {
             long waitTime = endAt - System.currentTimeMillis();
             while (this.size == 0 && waitTime > 0) {
                 this.lock.wait(waitTime);
@@ -142,7 +143,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public E poll() {
-        synchronized(lock) {
+        synchronized (lock) {
             ListIterator<ProducerList<E>> iter = this.producerLists.listIterator(this.currentProducer);
             while (iter.hasNext()) {
                 ProducerList<E> tList = iter.next();
@@ -153,7 +154,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
                 } else {
                     E element = tList.list.removeFirst();
                     this.size--;
-                    assert element != null;
+                    assert element !=null;
                     // This is the round robin part. When we take an element from the current thread's queue
                     // we move on to the next thread.
                     if (tList.list.isEmpty()) {
@@ -176,7 +177,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
      * Polls using the given producer key.
      */
     protected E pollProducer(Object producer) {
-        synchronized(lock) {
+        synchronized (lock) {
             ProducerList<E> tList = this.producerMap.get(producer);
             if (tList != null && !tList.list.isEmpty()) {
                 E element = tList.list.removeFirst();
@@ -188,7 +189,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
                     adjustCurrentProducerPointer();
                 }
                 lock.notifyAll();
-                assert element != null;
+                assert element !=null;
                 // Since this is only processing the current thread's work, we'll leave the
                 // round-robin part alone and just return the work
                 return element;
@@ -199,7 +200,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public E peek() {
-        synchronized(lock) {
+        synchronized (lock) {
             ListIterator<ProducerList<E>> iter = this.producerLists.listIterator(this.currentProducer);
             while (iter.hasNext()) {
                 ProducerList<E> tList = iter.next();
@@ -209,7 +210,7 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
                     adjustCurrentProducerPointer();
                 } else {
                     E element = tList.list.getFirst();
-                    assert element != null;
+                    assert element !=null;
                     return element;
                 }
             }
@@ -220,15 +221,17 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public int drainTo(Collection<? super E> c) {
-        if (c == null)
+        if (c == null) {
             throw new NullPointerException();
-        if (c == this)
+        }
+        if (c == this) {
             throw new IllegalArgumentException();
+        }
 
-        synchronized(this.lock) {
+        synchronized (this.lock) {
             int originalSize = this.size;
             int drained = drainTo(c, this.size);
-            assert drained == originalSize;
+            assert drained ==originalSize;
             assert this.size == 0;
             assert this.producerLists.isEmpty();
             assert this.producerMap.isEmpty();
@@ -238,14 +241,16 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public int drainTo(Collection<? super E> c, int maxElements) {
-        if (c == null)
+        if (c == null) {
             throw new NullPointerException();
-        if (c == this)
+        }
+        if (c == this) {
             throw new IllegalArgumentException();
+        }
 
-        synchronized(this.lock) {
+        synchronized (this.lock) {
             int i = 0;
-            while(i < maxElements) {
+            while (i < maxElements) {
                 E element = poll();
                 if (element != null) {
                     c.add(element);
@@ -265,30 +270,30 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
 
     @Override
     public int size() {
-        synchronized(this.lock) {
+        synchronized (this.lock) {
             return this.size;
         }
     }
-    
+
     private void incrementCurrentProducerPointer() {
-        synchronized(lock) {
+        synchronized (lock) {
             if (this.producerLists.size() == 0) {
                 this.currentProducer = 0;
             } else {
-                this.currentProducer = (this.currentProducer+1)%this.producerLists.size();
+                this.currentProducer = (this.currentProducer + 1) % this.producerLists.size();
             }
         }
     }
-    
+
     /**
      * Adjusts the current pointer to a decrease in size.
      */
     private void adjustCurrentProducerPointer() {
-        synchronized(lock) {
+        synchronized (lock) {
             if (this.producerLists.size() == 0) {
                 this.currentProducer = 0;
             } else {
-                this.currentProducer = (this.currentProducer)%this.producerLists.size();
+                this.currentProducer = (this.currentProducer) % this.producerLists.size();
             }
         }
     }
@@ -298,11 +303,12 @@ public abstract class AbstractRoundRobinQueue<E> extends AbstractQueue<E>
             this.producer = producer;
             this.list = new LinkedList<E>();
         }
+
         private final Object producer;
         private final LinkedList<E> list;
     }
 
-    private final Map<Object,ProducerList<E>> producerMap;
+    private final Map<Object, ProducerList<E>> producerMap;
     private final LinkedList<ProducerList<E>> producerLists;
     private final Object lock;
     private final boolean newProducerToFront;

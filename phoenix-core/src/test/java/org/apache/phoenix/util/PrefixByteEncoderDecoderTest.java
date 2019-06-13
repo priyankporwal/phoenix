@@ -47,8 +47,8 @@ public class PrefixByteEncoderDecoderTest {
             ByteUtil.concat(Bytes.toBytes("d"), QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(1000L), Bytes.toBytes("bbbbbbbbbb")),
             ByteUtil.concat(Bytes.toBytes("d"), QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(1000L), Bytes.toBytes("bbbbbbbbbbc")),
             ByteUtil.concat(Bytes.toBytes("e"), QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(1000L), Bytes.toBytes("bbbbbbbbbb"))
-            );
-    
+    );
+
     @Test
     public void testEncode() throws IOException {
         List<byte[]> listOfBytes = Arrays.asList(Bytes.toBytes("aaaaa"), Bytes.toBytes("aaaabb"));
@@ -65,17 +65,17 @@ public class PrefixByteEncoderDecoderTest {
         output.write(Bytes.toBytes("bb")); // Only writes part of second key that's different
         assertArrayEquals(stream.toByteArray(), ptr.copyBytes());
     }
-    
+
     @Test
     public void testEncodeDecodeWithSingleBuffer() throws IOException {
         testEncodeDecode(true);
     }
-    
+
     @Test
     public void testEncodeDecodeWithNewBuffer() throws IOException {
         testEncodeDecode(false);
     }
-    
+
     private void testEncodeDecode(boolean useSingleBuffer) throws IOException {
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         int maxLength = PrefixByteCodec.encodeBytes(guideposts, ptr);
@@ -85,7 +85,7 @@ public class PrefixByteEncoderDecoderTest {
         List<byte[]> listOfBytes = PrefixByteCodec.decodeBytes(ptr, useSingleBuffer ? maxLength : -1);
         assertListByteArraysEquals(guideposts, listOfBytes);
     }
-    
+
     private static void assertListByteArraysEquals(List<byte[]> listOfBytes1, List<byte[]> listOfBytes2) {
         assertEquals(listOfBytes1.size(), listOfBytes2.size());
         for (int i = 0; i < listOfBytes1.size(); i++) {

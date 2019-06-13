@@ -76,10 +76,12 @@ public class TaskRegionObserver implements RegionObserver, RegionCoprocessor {
             .put(TaskType.INDEX_REBUILD, "org.apache.phoenix.coprocessor.tasks.IndexRebuildTask")
             .build();
 
-    public enum TaskResultCode {
+    public enum TaskResultCode
+
+    {
         SUCCESS,
-        FAIL,
-        SKIPPED,
+                FAIL,
+                SKIPPED,
     }
 
     public static class TaskResult {
@@ -111,7 +113,7 @@ public class TaskRegionObserver implements RegionObserver, RegionCoprocessor {
 
     @Override
     public void preClose(final ObserverContext<RegionCoprocessorEnvironment> c,
-            boolean abortRequested) {
+                         boolean abortRequested) {
         executor.shutdownNow();
     }
 
@@ -125,8 +127,8 @@ public class TaskRegionObserver implements RegionObserver, RegionCoprocessor {
         Configuration config = env.getConfiguration();
         timeInterval =
                 config.getLong(
-                    QueryServices.TASK_HANDLING_INTERVAL_MS_ATTRIB,
-                    QueryServicesOptions.DEFAULT_TASK_HANDLING_INTERVAL_MS);
+                        QueryServices.TASK_HANDLING_INTERVAL_MS_ATTRIB,
+                        QueryServicesOptions.DEFAULT_TASK_HANDLING_INTERVAL_MS);
         timeMaxInterval =
                 config.getLong(
                         QueryServices.TASK_HANDLING_MAX_INTERVAL_MS_ATTRIB,
@@ -168,10 +170,10 @@ public class TaskRegionObserver implements RegionObserver, RegionCoprocessor {
             PhoenixConnection connForTask = null;
             try {
                 connForTask = QueryUtil.getConnectionOnServer(env.getConfiguration()).unwrap(PhoenixConnection.class);
-                String[] excludeStates = new String[] { PTable.TaskStatus.FAILED.toString(),
-                        PTable.TaskStatus.COMPLETED.toString() };
-                List<Task.TaskRecord> taskRecords = Task.queryTaskTable(connForTask,  excludeStates);
-                for (Task.TaskRecord taskRecord : taskRecords){
+                String[] excludeStates = new String[] {PTable.TaskStatus.FAILED.toString(),
+                        PTable.TaskStatus.COMPLETED.toString()};
+                List<Task.TaskRecord> taskRecords = Task.queryTaskTable(connForTask, excludeStates);
+                for (Task.TaskRecord taskRecord : taskRecords) {
                     try {
                         TaskType taskType = taskRecord.getTaskType();
                         if (!classMap.containsKey(taskType)) {
@@ -226,12 +228,11 @@ public class TaskRegionObserver implements RegionObserver, RegionCoprocessor {
                             setEndTaskStatus(connForTask, taskRecord, taskStatus);
                         }
 
-                    }
-                    catch (Throwable t) {
+                    } catch (Throwable t) {
                         LOG.warn("Exception while running self healingtask. " +
                                 "It will be retried in the next system task table scan : " +
                                 " taskType : " + taskRecord.getTaskType().name() +
-                                taskRecord.getSchemaName()  + "." + taskRecord.getTableName() +
+                                taskRecord.getSchemaName() + "." + taskRecord.getTableName() +
                                 " with tenant id " + (taskRecord.getTenantId() == null ? " IS NULL" : taskRecord.getTenantId()) +
                                 " and timestamp " + taskRecord.getTimeStamp().toString(), t);
                     }

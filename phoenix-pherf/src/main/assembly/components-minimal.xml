@@ -17,17 +17,17 @@
   -->
 
 <component>
-  <dependencySets>
-    <dependencySet>
-      <unpack>true</unpack>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>org.apache.phoenix:phoenix-pherf</include>
-        <include>org.jfree:*</include>
-        <include>com.googlecode.java-diff-utils:diffutils</include>
-        <include>org.apache.commons:commons-lang3</include>
-        <include>org.apache.commons:commons-math3</include>
-      </includes>
-    </dependencySet>
-  </dependencySets>
+    <dependencySets>
+        <dependencySet>
+            <unpack>true</unpack>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>org.apache.phoenix:phoenix-pherf</include>
+                <include>org.jfree:*</include>
+                <include>com.googlecode.java-diff-utils:diffutils</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>org.apache.commons:commons-math3</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
 </component>

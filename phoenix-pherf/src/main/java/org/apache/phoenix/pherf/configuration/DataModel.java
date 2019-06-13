@@ -53,14 +53,14 @@ public class DataModel {
         this.scenarios = scenarios;
     }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@XmlAttribute()
-	public void setName(String name) {
-		this.name = name;
-	}
+    @XmlAttribute()
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {

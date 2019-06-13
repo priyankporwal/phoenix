@@ -30,9 +30,8 @@ import org.apache.phoenix.util.ByteUtil;
 
 
 /**
- * 
  * Implementation for || string concatenation expression.
- * 
+ *
  * @since 0.1
  */
 
@@ -50,7 +49,7 @@ public class StringConcatExpression extends BaseCompoundExpression {
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + " || ");
         }
-        buf.append(children.get(children.size()-1));
+        buf.append(children.get(children.size() - 1));
         buf.append(')');
         return buf.toString();
     }
@@ -69,11 +68,11 @@ public class StringConcatExpression extends BaseCompoundExpression {
     public boolean requiresFinalEvaluation() {
         return true;
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         byte[] result = ByteUtil.EMPTY_BYTE_ARRAY;
-        for (int i=0; i<children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             if (children.get(i).getDataType() == null) {
                 continue;
             }

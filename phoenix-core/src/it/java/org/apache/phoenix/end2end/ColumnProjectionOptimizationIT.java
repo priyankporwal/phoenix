@@ -70,7 +70,7 @@ public class ColumnProjectionOptimizationIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
 
         // Table wildcard query
-        String query = "SELECT * FROM " + tableName ;
+        String query = "SELECT * FROM " + tableName;
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
@@ -95,7 +95,7 @@ public class ColumnProjectionOptimizationIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
 
             // Select only specific columns
-            query = "SELECT A_STRING, A_INTEGER FROM " + tableName ;
+            query = "SELECT A_STRING, A_INTEGER FROM " + tableName;
             statement = conn.prepareStatement(query);
             rs = statement.executeQuery();
             assertTrue(rs.next());
@@ -215,7 +215,7 @@ public class ColumnProjectionOptimizationIT extends ParallelStatsDisabledIT {
                 PhoenixConnection.class);
         byte[] cfB = Bytes.toBytes(SchemaUtil.normalizeIdentifier("b"));
         byte[] cfC = Bytes.toBytes(SchemaUtil.normalizeIdentifier("c"));
-        byte[][] familyNames = new byte[][] { cfB, cfC };
+        byte[][] familyNames = new byte[][] {cfB, cfC};
         String table = generateUniqueName();
         byte[] htableName = SchemaUtil.getTableNameAsBytes("", table);
         Admin admin = pconn.getQueryServices().getAdmin();
@@ -297,14 +297,16 @@ public class ColumnProjectionOptimizationIT extends ParallelStatsDisabledIT {
             assertEquals(3, rs.getInt(1));
             assertFalse(rs.next());
         } finally {
-            if (htable != null) htable.close();
+            if (htable != null) {
+                htable.close();
+            }
             admin.disableTable(TableName.valueOf(htableName));
             admin.deleteTable(TableName.valueOf(htableName));
             admin.close();
         }
     }
 
-    
+
     private static String initMultiCFTable() throws Exception {
         String url = getUrl();
         String tableName = generateUniqueName();
@@ -326,12 +328,12 @@ public class ColumnProjectionOptimizationIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement stmt = conn.prepareStatement(
                     "upsert into " + tableName +
-                    "(" +
-                    "    id, " +
-                    "    a.unique_user_count, " +
-                    "    b.unique_org_count, " +
-                    "    c.db_cpu_utilization) " +
-                    "VALUES (?, ?, ?, ?)");
+                            "(" +
+                            "    id, " +
+                            "    a.unique_user_count, " +
+                            "    b.unique_org_count, " +
+                            "    c.db_cpu_utilization) " +
+                            "VALUES (?, ?, ?, ?)");
             stmt.setString(1, "id1");
             stmt.setInt(2, 1);
             stmt.setInt(3, 1);
@@ -353,7 +355,7 @@ public class ColumnProjectionOptimizationIT extends ParallelStatsDisabledIT {
     @Test
     public void testSelectWithConditionOnMultiCF() throws Exception {
         String tableName = initMultiCFTable();
-        
+
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {

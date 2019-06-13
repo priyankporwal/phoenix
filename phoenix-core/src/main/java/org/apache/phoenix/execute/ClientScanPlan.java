@@ -52,8 +52,8 @@ public class ClientScanPlan extends ClientProcessingPlan {
     private List<OrderBy> actualOutputOrderBys;
 
     public ClientScanPlan(StatementContext context, FilterableStatement statement, TableRef table,
-            RowProjector projector, Integer limit, Integer offset, Expression where, OrderBy orderBy,
-            QueryPlan delegate) {
+                          RowProjector projector, Integer limit, Integer offset, Expression where, OrderBy orderBy,
+                          QueryPlan delegate) {
         super(context, statement, table, projector, limit, offset, where, orderBy, delegate);
         this.actualOutputOrderBys = convertActualOutputOrderBy(orderBy, delegate, context);
     }
@@ -89,16 +89,16 @@ public class ClientScanPlan extends ClientProcessingPlan {
         if (where != null) {
             iterator = new FilterResultIterator(iterator, where);
         }
-        
+
         if (!orderBy.getOrderByExpressions().isEmpty()) { // TopN
             long thresholdBytes =
                     context.getConnection().getQueryServices().getProps().getLong(
-                        QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
-                        QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
+                            QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
+                            QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
             boolean spoolingEnabled =
                     context.getConnection().getQueryServices().getProps().getBoolean(
-                        QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
-                        QueryServicesOptions.DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED);
+                            QueryServices.CLIENT_ORDERBY_SPOOLING_ENABLED_ATTRIB,
+                            QueryServicesOptions.DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED);
             iterator =
                     new OrderedResultIterator(iterator, orderBy.getOrderByExpressions(),
                             spoolingEnabled, thresholdBytes, limit, offset,
@@ -111,11 +111,11 @@ public class ClientScanPlan extends ClientProcessingPlan {
                 iterator = new LimitingResultIterator(iterator, limit);
             }
         }
-        
+
         if (context.getSequenceManager().getSequenceCount() > 0) {
             iterator = new SequenceResultIterator(iterator, context.getSequenceManager());
         }
-        
+
         return iterator;
     }
 
@@ -143,7 +143,7 @@ public class ClientScanPlan extends ClientProcessingPlan {
             int nSequences = context.getSequenceManager().getSequenceCount();
             planSteps.add("CLIENT RESERVE VALUES FROM " + nSequences + " SEQUENCE" + (nSequences == 1 ? "" : "S"));
         }
-        
+
         return new ExplainPlan(planSteps);
     }
 
@@ -152,16 +152,16 @@ public class ClientScanPlan extends ClientProcessingPlan {
             QueryPlan targetQueryPlan,
             StatementContext statementContext) {
 
-        if(!orderBy.isEmpty()) {
+        if (!orderBy.isEmpty()) {
             return Collections.singletonList(OrderBy.convertCompiledOrderByToOutputOrderBy(orderBy));
         }
 
-        assert orderBy != OrderBy.REV_ROW_KEY_ORDER_BY;
+        assert orderBy !=OrderBy.REV_ROW_KEY_ORDER_BY;
         return targetQueryPlan.getOutputOrderBys();
     }
 
     @Override
     public List<OrderBy> getOutputOrderBys() {
-       return this.actualOutputOrderBys;
+        return this.actualOutputOrderBys;
     }
 }

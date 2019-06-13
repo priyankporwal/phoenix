@@ -27,12 +27,9 @@ import org.apache.phoenix.schema.types.PDate;
 import org.apache.phoenix.schema.types.PLong;
 
 
-
 /**
- * 
  * Subtract expression implementation
  *
- * 
  * @since 0.1
  */
 public class LongSubtractExpression extends SubtractExpression {
@@ -44,11 +41,11 @@ public class LongSubtractExpression extends SubtractExpression {
     }
 
     @Override
-	public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-		long finalResult=0;
-		
-		for(int i=0;i<children.size();i++) {
-		    Expression child = children.get(i);
+    public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
+        long finalResult = 0;
+
+        for (int i = 0; i < children.size(); i++) {
+            Expression child = children.get(i);
             if (!child.evaluate(tuple, ptr) || ptr.getLength() == 0) {
                 return false;
             }
@@ -67,21 +64,21 @@ public class LongSubtractExpression extends SubtractExpression {
                     finalResult /= QueryConstants.MILLIS_IN_DAY;
                 }
             }
-		}
-		byte[] resultPtr=new byte[getDataType().getByteSize()];
-		getDataType().getCodec().encodeLong(finalResult, resultPtr, 0);
-		ptr.set(resultPtr);
-		return true;
-	}
+        }
+        byte[] resultPtr = new byte[getDataType().getByteSize()];
+        getDataType().getCodec().encodeLong(finalResult, resultPtr, 0);
+        ptr.set(resultPtr);
+        return true;
+    }
 
-	@Override
-	public final PDataType getDataType() {
-		return PLong.INSTANCE;
-	}
+    @Override
+    public final PDataType getDataType() {
+        return PLong.INSTANCE;
+    }
 
     @Override
     public ArithmeticExpression clone(List<Expression> children) {
         return new LongSubtractExpression(children);
     }
-	
+
 }

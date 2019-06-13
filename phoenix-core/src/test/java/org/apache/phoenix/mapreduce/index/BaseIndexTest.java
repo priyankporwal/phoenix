@@ -32,9 +32,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 /**
- *
  * Creates a simple data table and index table
- *
  */
 public class BaseIndexTest extends BaseConnectionlessQueryTest {
     protected static final String SCHEMA_NAME = "TEST_SCHEMA";
@@ -45,19 +43,19 @@ public class BaseIndexTest extends BaseConnectionlessQueryTest {
 
     private static final String DATA_TABLE_DDL =
             "CREATE TABLE IF NOT EXISTS " + DATA_TABLE_FULL_NAME + "\n" +
-            "(\n" +
-            "    ID INTEGER NOT NULL,\n" +
-            "    PK_PART2 TINYINT NOT NULL,\n" +
-            "    NAME VARCHAR,\n" +
-            "    ZIP BIGINT,\n" +
-            "    EMPLOYER CHAR(20),\n" +
-            "    CONSTRAINT PK PRIMARY KEY\n" +
-            "    (\n" +
-            "        ID,\n" +
-            "        PK_PART2\n" +
-            "        \n" +
-            "    )\n" +
-            ")";
+                    "(\n" +
+                    "    ID INTEGER NOT NULL,\n" +
+                    "    PK_PART2 TINYINT NOT NULL,\n" +
+                    "    NAME VARCHAR,\n" +
+                    "    ZIP BIGINT,\n" +
+                    "    EMPLOYER CHAR(20),\n" +
+                    "    CONSTRAINT PK PRIMARY KEY\n" +
+                    "    (\n" +
+                    "        ID,\n" +
+                    "        PK_PART2\n" +
+                    "        \n" +
+                    "    )\n" +
+                    ")";
 
     private static final String INDEX_TABLE_DDL =
             "CREATE INDEX " + INDEX_TABLE_NAME + " ON " + DATA_TABLE_FULL_NAME

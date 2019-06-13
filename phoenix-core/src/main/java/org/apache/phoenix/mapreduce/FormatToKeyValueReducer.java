@@ -177,7 +177,9 @@ public class FormatToKeyValueReducer
         int index = 0;
         for (KeyValue kv : map) {
             context.write(key, kv);
-            if (++index % 100 == 0) context.setStatus("Wrote " + index);
+            if (++index % 100 == 0) {
+                context.setStatus("Wrote " + index);
+            }
         }
     }
 }

@@ -112,7 +112,7 @@ public class PUnsignedDouble extends PRealNumber<PDouble> {
 
     @Override
     public Object toObject(byte[] b, int o, int l, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                           Integer maxLength, Integer scale) {
         Double v = (Double) PDouble.INSTANCE.toObject(b, o, l, actualType, sortOrder);
         throwIfNonNegativeNumber(v);
         return v;

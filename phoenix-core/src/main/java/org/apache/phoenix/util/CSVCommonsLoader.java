@@ -46,18 +46,18 @@ public class CSVCommonsLoader {
 
     public static final String DEFAULT_ARRAY_ELEMENT_SEPARATOR = ":";
 
-    private static final Map<Character,Character> CTRL_CHARACTER_TABLE =
-            ImmutableMap.<Character,Character>builder()
-                        .put('1', '\u0001')
-                        .put('2', '\u0002')
-                        .put('3', '\u0003')
-                        .put('4', '\u0004')
-                        .put('5', '\u0005')
-                        .put('6', '\u0006')
-                        .put('7', '\u0007')
-                        .put('8', '\u0008')
-                        .put('9', '\u0009')
-                        .build();
+    private static final Map<Character, Character> CTRL_CHARACTER_TABLE =
+            ImmutableMap.<Character, Character>builder()
+                    .put('1', '\u0001')
+                    .put('2', '\u0002')
+                    .put('3', '\u0003')
+                    .put('4', '\u0004')
+                    .put('5', '\u0005')
+                    .put('6', '\u0006')
+                    .put('7', '\u0007')
+                    .put('8', '\u0008')
+                    .put('9', '\u0009')
+                    .build();
 
     private final PhoenixConnection conn;
     private final String tableName;
@@ -72,20 +72,22 @@ public class CSVCommonsLoader {
 
     private final String arrayElementSeparator;
 
-    public enum PhoenixHeaderSource {
+    public enum PhoenixHeaderSource
+
+    {
         FROM_TABLE,
-        IN_LINE,
-        SUPPLIED_BY_USER
+                IN_LINE,
+                SUPPLIED_BY_USER
     }
 
     public CSVCommonsLoader(PhoenixConnection conn, String tableName,
-            List<String> columns, boolean isStrict) {
+                            List<String> columns, boolean isStrict) {
         this(conn, tableName, columns, isStrict, ',', '"', null, DEFAULT_ARRAY_ELEMENT_SEPARATOR);
     }
 
     public CSVCommonsLoader(PhoenixConnection conn, String tableName,
-            List<String> columns, boolean isStrict, char fieldDelimiter, char quoteCharacter,
-            Character escapeCharacter, String arrayElementSeparator) {
+                            List<String> columns, boolean isStrict, char fieldDelimiter, char quoteCharacter,
+                            Character escapeCharacter, String arrayElementSeparator) {
         this.conn = conn;
         this.tableName = tableName;
         this.columns = columns;
@@ -95,10 +97,9 @@ public class CSVCommonsLoader {
         this.escapeCharacter = escapeCharacter;
 
         // implicit in the columns value.
-        if (columns !=null && !columns.isEmpty()) {
+        if (columns != null && !columns.isEmpty()) {
             headerSource = PhoenixHeaderSource.SUPPLIED_BY_USER;
-        }
-        else if (columns != null && columns.isEmpty()) {
+        } else if (columns != null && columns.isEmpty()) {
             headerSource = PhoenixHeaderSource.IN_LINE;
         }
 
@@ -130,20 +131,20 @@ public class CSVCommonsLoader {
             format = format.withEscape(asControlCharacter(escapeCharacter));
         }
 
-        switch(headerSource) {
-        case FROM_TABLE:
-            // obtain headers from table, so format should not expect a header.
-            break;
-        case IN_LINE:
-            // an empty string array triggers csv loader to grab the first line as the header
-            format = format.withHeader(new String[0]);
-            break;
-        case SUPPLIED_BY_USER:
-            // a populated string array supplied by the user
-            format = format.withHeader(columns.toArray(new String[columns.size()]));
-            break;
-        default:
-            throw new RuntimeException("Header source was unable to be inferred.");
+        switch (headerSource) {
+            case FROM_TABLE:
+                // obtain headers from table, so format should not expect a header.
+                break;
+            case IN_LINE:
+                // an empty string array triggers csv loader to grab the first line as the header
+                format = format.withHeader(new String[0]);
+                break;
+            case SUPPLIED_BY_USER:
+                // a populated string array supplied by the user
+                format = format.withHeader(columns.toArray(new String[columns.size()]));
+                break;
+            default:
+                throw new RuntimeException("Header source was unable to be inferred.");
 
         }
         return format;
@@ -158,7 +159,7 @@ public class CSVCommonsLoader {
      * @return
      */
     public static char asControlCharacter(char delimiter) {
-        if(CTRL_CHARACTER_TABLE.containsKey(delimiter)) {
+        if (CTRL_CHARACTER_TABLE.containsKey(delimiter)) {
             return CTRL_CHARACTER_TABLE.get(delimiter);
         } else {
             return delimiter;
@@ -167,11 +168,11 @@ public class CSVCommonsLoader {
 
     /**
      * Upserts data from CSV file.
-     *
+     * <p>
      * Data is batched up based on connection batch size.
      * Column PDataType is read from metadata and is used to convert
      * column value to correct type before upsert.
-     *
+     * <p>
      * The constructor determines the format for the CSV files.
      *
      * @param fileName
@@ -183,7 +184,7 @@ public class CSVCommonsLoader {
     }
 
     public void upsert(Reader reader) throws Exception {
-        CSVParser parser = new CSVParser(reader,format);
+        CSVParser parser = new CSVParser(reader, format);
         upsert(parser);
     }
 
@@ -195,11 +196,10 @@ public class CSVCommonsLoader {
      * Data is batched up based on connection batch size.
      * Column PDataType is read from metadata and is used to convert
      * column value to correct type before upsert.
-     *
+     * <p>
      * The format is determined by the supplied csvParser.
-
-     * @param csvParser
-     *            CSVParser instance
+     *
+     * @param csvParser CSVParser instance
      * @throws Exception
      */
     public void upsert(CSVParser csvParser) throws Exception {
@@ -238,23 +238,23 @@ public class CSVCommonsLoader {
     private List<ColumnInfo> buildColumnInfoList(CSVParser parser) throws SQLException {
         List<String> columns = this.columns;
         switch (headerSource) {
-        case FROM_TABLE:
-            System.out.println(String.format("csv columns from database."));
-            break;
-        case IN_LINE:
-            columns = new ArrayList<String>();
-            for (String colName : parser.getHeaderMap().keySet()) {
-                columns.add(colName); // iterates in column order
-            }
-            System.out.println(String.format("csv columns from header line. length=%s, %s",
-                    columns.size(), buildStringFromList(columns)));
-            break;
-        case SUPPLIED_BY_USER:
-            System.out.println(String.format("csv columns from user. length=%s, %s",
-                    columns.size(), buildStringFromList(columns)));
-            break;
-        default:
-            throw new IllegalStateException("parser has unknown column source.");
+            case FROM_TABLE:
+                System.out.println(String.format("csv columns from database."));
+                break;
+            case IN_LINE:
+                columns = new ArrayList<String>();
+                for (String colName : parser.getHeaderMap().keySet()) {
+                    columns.add(colName); // iterates in column order
+                }
+                System.out.println(String.format("csv columns from header line. length=%s, %s",
+                        columns.size(), buildStringFromList(columns)));
+                break;
+            case SUPPLIED_BY_USER:
+                System.out.println(String.format("csv columns from user. length=%s, %s",
+                        columns.size(), buildStringFromList(columns)));
+                break;
+            default:
+                throw new IllegalStateException("parser has unknown column source.");
         }
         return SchemaUtil.generateColumnInfo(conn, tableName, columns, isStrict);
     }

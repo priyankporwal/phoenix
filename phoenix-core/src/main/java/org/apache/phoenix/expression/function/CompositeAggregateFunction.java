@@ -24,12 +24,10 @@ import org.apache.phoenix.expression.visitor.ExpressionVisitor;
 
 
 /**
- * 
  * Base class for aggregation functions which are composed of other
  * aggregation functions (for example, AVG is modeled as a SUM aggregate
  * function and a COUNT aggregate function).
  *
- * 
  * @since 0.1
  */
 abstract public class CompositeAggregateFunction extends AggregateFunction {
@@ -37,7 +35,7 @@ abstract public class CompositeAggregateFunction extends AggregateFunction {
     public CompositeAggregateFunction(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         return null;

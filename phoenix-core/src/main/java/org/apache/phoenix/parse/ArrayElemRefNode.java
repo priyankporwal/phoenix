@@ -37,7 +37,7 @@ public class ArrayElemRefNode extends CompoundParseNode {
         }
         return visitor.visitLeave(this, l);
     }
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         List<ParseNode> children = getChildren();

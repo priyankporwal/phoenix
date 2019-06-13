@@ -30,7 +30,7 @@ public class ConcurrentTableMutationException extends SQLException {
     private final String tableName;
 
     public ConcurrentTableMutationException(String schemaName, String tableName) {
-        super(new SQLExceptionInfo.Builder(code).setSchemaName(schemaName).setTableName(tableName).build().toString(), 
+        super(new SQLExceptionInfo.Builder(code).setSchemaName(schemaName).setTableName(tableName).build().toString(),
                 code.getSQLState(), code.getErrorCode());
         this.schemaName = schemaName;
         this.tableName = tableName;

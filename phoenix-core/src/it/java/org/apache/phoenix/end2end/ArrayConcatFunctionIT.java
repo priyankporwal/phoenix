@@ -63,7 +63,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(varchars,varchars) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"2345", "46345", "23234", "2345", "46345", "23234"};
+        String[] strings = new String[] {"2345", "46345", "23234", "2345", "46345", "23234"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -80,13 +80,13 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(nullvarchar,varchars) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"2345", "46345", "23234"};
+        String[] strings = new String[] {"2345", "46345", "23234"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
         assertFalse(rs.next());
-        
+
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(varchars,nullvarchar) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
         assertEquals(array, rs.getArray(1));
@@ -102,7 +102,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(integers,integers) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 46345, 23234, 456, 2345, 46345, 23234, 456};
+        Integer[] integers = new Integer[] {2345, 46345, 23234, 456, 2345, 46345, 23234, 456};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -119,7 +119,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(doubles,doubles) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, 23.45, 46.345, 23.234, 45.6, 5.78};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, 23.45, 46.345, 23.234, 45.6, 5.78};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -136,7 +136,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(doubles,ARRAY[23]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, new Double(23)};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, new Double(23)};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -152,7 +152,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(bigints,bigints) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Long[] longs = new Long[]{12l, 34l, 56l, 78l, 910l, 12l, 34l, 56l, 78l, 910l};
+        Long[] longs = new Long[] {12l, 34l, 56l, 78l, 910l, 12l, 34l, 56l, 78l, 910l};
 
         Array array = conn.createArrayOf("BIGINT", longs);
 
@@ -168,7 +168,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(chars,chars) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"a", "bbbb", "c", "ddd", "e", "a", "bbbb", "c", "ddd", "e"};
+        String[] strings = new String[] {"a", "bbbb", "c", "ddd", "e", "a", "bbbb", "c", "ddd", "e"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -184,7 +184,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(chars,chars2) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"a", "bbbb", "c", "ddd", "e", "a", "bbbb", "c", "ddd", "e", "foo"};
+        String[] strings = new String[] {"a", "bbbb", "c", "ddd", "e", "a", "bbbb", "c", "ddd", "e", "foo"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -230,7 +230,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(doubles,ARRAY[45, 55]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, 45.0, 55.0};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, 45.0, 55.0};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -247,7 +247,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(ARRAY[23,45],ARRAY[integers[1],integers[1]]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{23, 45, 2345, 2345};
+        Integer[] integers = new Integer[] {23, 45, 2345, 2345};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -264,7 +264,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(integers,ARRAY[ARRAY_ELEM(ARRAY[2,4],1),ARRAY_ELEM(ARRAY[2,4],2)]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 46345, 23234, 456, 2, 4};
+        Integer[] integers = new Integer[] {2345, 46345, 23234, 456, 2, 4};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -281,7 +281,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_CAT(doubles,ARRAY[ARRAY_ELEM(doubles, 1), ARRAY_ELEM(doubles, 1)]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 46.345, 23.234, 45.6, 5.78, 23.45, 23.45};
+        Double[] doubles = new Double[] {23.45, 46.345, 23.234, 45.6, 5.78, 23.45, 23.45};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -305,7 +305,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"hello", "world", ":-)"};
+        String[] strings = new String[] {"hello", "world", ":-)"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -329,7 +329,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT integers FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{4, 5, 6, 7};
+        Integer[] integers = new Integer[] {4, 5, 6, 7};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -353,7 +353,7 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT doubles FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{5.67, 7.87, new Double(9), new Double(8)};
+        Double[] doubles = new Double[] {5.67, 7.87, new Double(9), new Double(8)};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -380,21 +380,21 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(dml);
         conn.commit();
 
-        dml = "UPSERT INTO " + targetTableName + "(region_name, doubles) SELECT region_name, ARRAY_CAT(doubles,doubles) FROM " + sourceTableName ;
+        dml = "UPSERT INTO " + targetTableName + "(region_name, doubles) SELECT region_name, ARRAY_CAT(doubles,doubles) FROM " + sourceTableName;
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT doubles FROM " + targetTableName );
+        rs = conn.createStatement().executeQuery("SELECT doubles FROM " + targetTableName);
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{5.67, 7.87, new Double(9), new Double(4), 5.67, 7.87, new Double(9), new Double(4)};
+        Double[] doubles = new Double[] {5.67, 7.87, new Double(9), new Double(4), 5.67, 7.87, new Double(9), new Double(4)};
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
         assertEquals(array, rs.getArray(1));
         assertTrue(rs.next());
 
-        doubles = new Double[]{56.7, 7.87, new Double(9.2), new Double(3.4), 56.7, 7.87, new Double(9.2), new Double(3.4)};
+        doubles = new Double[] {56.7, 7.87, new Double(9.2), new Double(3.4), 56.7, 7.87, new Double(9.2), new Double(3.4)};
         array = conn.createArrayOf("DOUBLE", doubles);
 
         assertEquals(array, rs.getArray(1));
@@ -419,21 +419,21 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute(dml);
         conn.commit();
 
-        dml = "UPSERT INTO " + targetTableName + "(region_name, varchars) SELECT region_name, ARRAY_CAT(varchars,varchars) FROM " + sourceTableName ;
+        dml = "UPSERT INTO " + targetTableName + "(region_name, varchars) SELECT region_name, ARRAY_CAT(varchars,varchars) FROM " + sourceTableName;
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT varchars FROM " + targetTableName );
+        rs = conn.createStatement().executeQuery("SELECT varchars FROM " + targetTableName);
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"abcd", "b", "c", "d", "abcd", "b", "c", "d"};
+        String[] strings = new String[] {"abcd", "b", "c", "d", "abcd", "b", "c", "d"};
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
         assertTrue(rs.next());
 
-        strings = new String[]{"d", "fgh", "something", "something", "d", "fgh", "something", "something"};
+        strings = new String[] {"d", "fgh", "something", "something", "d", "fgh", "something", "something"};
         array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
@@ -538,14 +538,14 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         PreparedStatement st = conn.prepareStatement("SELECT ARRAY_CAT(?,?) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
-        Array array1 = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c", null});
+        Array array1 = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c", null});
         st.setArray(1, array1);
-        Array array2 = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c"});
+        Array array2 = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c"});
         st.setArray(2, array2);
         rs = st.executeQuery();
         assertTrue(rs.next());
 
-        Array expected = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c", null, "a", "b", "c"});
+        Array expected = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c", null, "a", "b", "c"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -558,14 +558,14 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         PreparedStatement st = conn.prepareStatement("SELECT ARRAY_CAT(?,?) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
-        Array array1 = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c"});
+        Array array1 = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c"});
         st.setArray(1, array1);
-        Array array2 = conn.createArrayOf("VARCHAR", new Object[]{null, "a", "b", "c"});
+        Array array2 = conn.createArrayOf("VARCHAR", new Object[] {null, "a", "b", "c"});
         st.setArray(2, array2);
         rs = st.executeQuery();
         assertTrue(rs.next());
 
-        Array expected = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c", null, "a", "b", "c"});
+        Array expected = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c", null, "a", "b", "c"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -578,14 +578,14 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         PreparedStatement st = conn.prepareStatement("SELECT ARRAY_CAT(?,?) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
-        Array array1 = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c", null});
+        Array array1 = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c", null});
         st.setArray(1, array1);
-        Array array2 = conn.createArrayOf("VARCHAR", new Object[]{null, "a", "b", "c"});
+        Array array2 = conn.createArrayOf("VARCHAR", new Object[] {null, "a", "b", "c"});
         st.setArray(2, array2);
         rs = st.executeQuery();
         assertTrue(rs.next());
 
-        Array expected = conn.createArrayOf("VARCHAR", new Object[]{"a", "b", "c", null, null, "a", "b", "c"});
+        Array expected = conn.createArrayOf("VARCHAR", new Object[] {"a", "b", "c", null, null, "a", "b", "c"});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());
@@ -598,14 +598,14 @@ public class ArrayConcatFunctionIT extends ParallelStatsDisabledIT {
 
         ResultSet rs;
         PreparedStatement st = conn.prepareStatement("SELECT ARRAY_CAT(?,?) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
-        Array array1 = conn.createArrayOf("VARCHAR", new Object[]{null, "a", null, "b", "c", null, null});
+        Array array1 = conn.createArrayOf("VARCHAR", new Object[] {null, "a", null, "b", "c", null, null});
         st.setArray(1, array1);
-        Array array2 = conn.createArrayOf("VARCHAR", new Object[]{null, null, "a", null, "b", null, "c", null});
+        Array array2 = conn.createArrayOf("VARCHAR", new Object[] {null, null, "a", null, "b", null, "c", null});
         st.setArray(2, array2);
         rs = st.executeQuery();
         assertTrue(rs.next());
 
-        Array expected = conn.createArrayOf("VARCHAR", new Object[]{null, "a", null, "b", "c", null, null, null, null, "a", null, "b", null, "c", null});
+        Array expected = conn.createArrayOf("VARCHAR", new Object[] {null, "a", null, "b", "c", null, null, null, null, "a", null, "b", null, "c", null});
 
         assertEquals(expected, rs.getArray(1));
         assertFalse(rs.next());

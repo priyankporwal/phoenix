@@ -79,7 +79,7 @@ import com.google.common.collect.Sets;
 
 public class SortMergeJoinPlan implements QueryPlan {
     private static final byte[] EMPTY_PTR = new byte[0];
-    
+
     private final StatementContext context;
     private final FilterableStatement statement;
     private final TableRef table;
@@ -109,15 +109,17 @@ public class SortMergeJoinPlan implements QueryPlan {
             JoinType type,
             QueryPlan lhsPlan,
             QueryPlan rhsPlan,
-            Pair<List<Expression>,List<Expression>> lhsAndRhsKeyExpressions,
+            Pair<List<Expression>, List<Expression>> lhsAndRhsKeyExpressions,
             List<Expression> rhsKeyExpressions,
             PTable joinedTable,
             PTable lhsTable,
             PTable rhsTable,
             int rhsFieldPosition,
             boolean isSingleValueOnly,
-            Pair<List<OrderByNode>,List<OrderByNode>> lhsAndRhsOrderByNodes) throws SQLException {
-        if (type == JoinType.Right) throw new IllegalArgumentException("JoinType should not be " + type);
+            Pair<List<OrderByNode>, List<OrderByNode>> lhsAndRhsOrderByNodes) throws SQLException {
+        if (type == JoinType.Right) {
+            throw new IllegalArgumentException("JoinType should not be " + type);
+        }
         this.context = context;
         this.statement = statement;
         this.table = table;
@@ -136,12 +138,12 @@ public class SortMergeJoinPlan implements QueryPlan {
         this.tableRefs.addAll(rhsPlan.getSourceRefs());
         this.thresholdBytes =
                 context.getConnection().getQueryServices().getProps().getLong(
-                    QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
-                    QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
+                        QueryServices.CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB,
+                        QueryServicesOptions.DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES);
         this.spoolingEnabled =
                 context.getConnection().getQueryServices().getProps().getBoolean(
-                    QueryServices.CLIENT_JOIN_SPOOLING_ENABLED_ATTRIB,
-                    QueryServicesOptions.DEFAULT_CLIENT_JOIN_SPOOLING_ENABLED);
+                        QueryServices.CLIENT_JOIN_SPOOLING_ENABLED_ATTRIB,
+                        QueryServicesOptions.DEFAULT_CLIENT_JOIN_SPOOLING_ENABLED);
         this.actualOutputOrderBys = convertActualOutputOrderBy(lhsAndRhsOrderByNodes.getFirst(), lhsAndRhsOrderByNodes.getSecond(), context);
     }
 
@@ -168,14 +170,14 @@ public class SortMergeJoinPlan implements QueryPlan {
     }
 
     @Override
-    public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {        
-        return type == JoinType.Semi || type == JoinType.Anti ? 
+    public ResultIterator iterator(ParallelScanGrouper scanGrouper, Scan scan) throws SQLException {
+        return type == JoinType.Semi || type == JoinType.Anti ?
                 new SemiAntiJoinIterator(lhsPlan.iterator(scanGrouper), rhsPlan.iterator(scanGrouper)) :
                 new BasicJoinIterator(lhsPlan.iterator(scanGrouper), rhsPlan.iterator(scanGrouper));
     }
-    
+
     @Override
-    public ResultIterator iterator() throws SQLException {        
+    public ResultIterator iterator() throws SQLException {
         return iterator(DefaultParallelScanGrouper.getInstance());
     }
 
@@ -184,11 +186,11 @@ public class SortMergeJoinPlan implements QueryPlan {
         List<String> steps = Lists.newArrayList();
         steps.add("SORT-MERGE-JOIN (" + type.toString().toUpperCase() + ") TABLES");
         for (String step : lhsPlan.getExplainPlan().getPlanSteps()) {
-            steps.add("    " + step);            
+            steps.add("    " + step);
         }
         steps.add("AND" + (rhsSchema.getFieldCount() == 0 ? " (SKIP MERGE)" : ""));
         for (String step : rhsPlan.getExplainPlan().getPlanSteps()) {
-            steps.add("    " + step);            
+            steps.add("    " + step);
         }
         return new ExplainPlan(steps);
     }
@@ -252,12 +254,12 @@ public class SortMergeJoinPlan implements QueryPlan {
 
     @Override
     public List<KeyRange> getSplits() {
-        return Collections.<KeyRange> emptyList();
+        return Collections.<KeyRange>emptyList();
     }
 
     @Override
     public List<List<Scan>> getScans() {
-        return Collections.<List<Scan>> emptyList();
+        return Collections.<List<Scan>>emptyList();
     }
 
     @Override
@@ -284,12 +286,12 @@ public class SortMergeJoinPlan implements QueryPlan {
         try {
             lhsIterator.close();
         } catch (Throwable e1) {
-            e = e1 instanceof SQLException ? (SQLException)e1 : new SQLException(e1);
+            e = e1 instanceof SQLException ? (SQLException) e1 : new SQLException(e1);
         }
         try {
             rhsIterator.close();
         } catch (Throwable e2) {
-            SQLException e22 = e2 instanceof SQLException ? (SQLException)e2 : new SQLException(e2);
+            SQLException e22 = e2 instanceof SQLException ? (SQLException) e2 : new SQLException(e2);
             if (e != null) {
                 e.setNextException(e22);
             } else {
@@ -317,7 +319,7 @@ public class SortMergeJoinPlan implements QueryPlan {
         private byte[] emptyProjectedValue;
         private SizeAwareQueue<Tuple> queue;
         private Iterator<Tuple> queueIterator;
-        
+
         public BasicJoinIterator(ResultIterator lhsIterator, ResultIterator rhsIterator) {
             this.lhsIterator = lhsIterator;
             this.rhsIterator = rhsIterator;
@@ -340,19 +342,19 @@ public class SortMergeJoinPlan implements QueryPlan {
             this.queue = PhoenixQueues.newTupleQueue(spoolingEnabled, thresholdBytes);
             this.queueIterator = null;
         }
-        
+
         @Override
         public void close() throws SQLException {
             SQLException e = closeIterators(lhsIterator, rhsIterator);
             try {
-              queue.close();
+                queue.close();
             } catch (IOException t) {
-              if (e != null) {
+                if (e != null) {
                     e.setNextException(
-                        new SQLException("Also encountered exception while closing queue", t));
-              } else {
-                e = new SQLException("Error while closing queue",t);
-              }
+                            new SQLException("Also encountered exception while closing queue", t));
+                } else {
+                    e = new SQLException("Error while closing queue", t);
+                }
             }
             if (e != null) {
                 throw e;
@@ -384,7 +386,7 @@ public class SortMergeJoinPlan implements QueryPlan {
                     if (rhsTuple != null) {
                         if (lhsKey.equals(rhsKey)) {
                             next = join(lhsTuple, rhsTuple);
-                             if (nextLhsTuple != null && lhsKey.equals(nextLhsKey)) {
+                            if (nextLhsTuple != null && lhsKey.equals(nextLhsKey)) {
                                 try {
                                     queue.add(rhsTuple);
                                 } catch (IllegalStateException e) {
@@ -399,7 +401,7 @@ public class SortMergeJoinPlan implements QueryPlan {
                             } else if (nextRhsTuple == null || !rhsKey.equals(nextRhsKey)) {
                                 advance(true);
                             } else if (isSingleValueOnly) {
-                                throw new SQLExceptionInfo.Builder(SQLExceptionCode.SINGLE_ROW_SUBQUERY_RETURNS_MULTIPLE_ROWS).build().buildException();                                
+                                throw new SQLExceptionInfo.Builder(SQLExceptionCode.SINGLE_ROW_SUBQUERY_RETURNS_MULTIPLE_ROWS).build().buildException();
                             }
                             advance(false);
                         } else if (lhsKey.compareTo(rhsKey) < 0) {
@@ -429,7 +431,7 @@ public class SortMergeJoinPlan implements QueryPlan {
         @Override
         public void explain(List<String> planSteps) {
         }
-        
+
         private void init() throws SQLException {
             nextLhsTuple = lhsIterator.next();
             if (nextLhsTuple != null) {
@@ -443,7 +445,7 @@ public class SortMergeJoinPlan implements QueryPlan {
             advance(false);
             initialized = true;
         }
-        
+
         private void advance(boolean lhs) throws SQLException {
             if (lhs) {
                 lhsTuple = nextLhsTuple;
@@ -466,21 +468,21 @@ public class SortMergeJoinPlan implements QueryPlan {
                     } else {
                         nextRhsKey.clear();
                     }
-                }                    
+                }
             }
         }
-        
+
         private boolean isEnd() {
             return (lhsTuple == null && (rhsTuple == null || type != JoinType.Full))
                     || (queueIterator == null && rhsTuple == null && type == JoinType.Inner);
-        }        
-        
+        }
+
         private Tuple join(Tuple lhs, Tuple rhs) throws SQLException {
             try {
                 ProjectedValueTuple t = null;
                 if (lhs == null) {
-                    t = new ProjectedValueTuple(rhs, rhs.getValue(0).getTimestamp(), 
-                            this.emptyProjectedValue, 0, this.emptyProjectedValue.length, 
+                    t = new ProjectedValueTuple(rhs, rhs.getValue(0).getTimestamp(),
+                            this.emptyProjectedValue, 0, this.emptyProjectedValue.length,
                             this.emptyProjectedValue.length);
                 } else if (lhs instanceof ProjectedValueTuple) {
                     t = (ProjectedValueTuple) lhs;
@@ -490,19 +492,19 @@ public class SortMergeJoinPlan implements QueryPlan {
                     lhsBitSet.clear();
                     lhsBitSet.or(ptr);
                     int bitSetLen = lhsBitSet.getEstimatedLength();
-                    t = new ProjectedValueTuple(lhs, lhs.getValue(0).getTimestamp(), 
+                    t = new ProjectedValueTuple(lhs, lhs.getValue(0).getTimestamp(),
                             ptr.get(), ptr.getOffset(), ptr.getLength(), bitSetLen);
-                    
+
                 }
                 return rhsBitSet == ValueBitSet.EMPTY_VALUE_BITSET ?
                         t : TupleProjector.mergeProjectedValue(t, destBitSet,
-                                rhs, rhsBitSet, rhsFieldPosition, true);
+                        rhs, rhsBitSet, rhsFieldPosition, true);
             } catch (IOException e) {
                 throw new SQLException(e);
             }
         }
     }
-    
+
     private class SemiAntiJoinIterator implements ResultIterator {
         private final ResultIterator lhsIterator;
         private final ResultIterator rhsIterator;
@@ -512,9 +514,11 @@ public class SortMergeJoinPlan implements QueryPlan {
         private Tuple rhsTuple;
         private JoinKey lhsKey;
         private JoinKey rhsKey;
-        
+
         public SemiAntiJoinIterator(ResultIterator lhsIterator, ResultIterator rhsIterator) {
-            if (type != JoinType.Semi && type != JoinType.Anti) throw new IllegalArgumentException("Type " + type + " is not allowed by " + SemiAntiJoinIterator.class.getName());
+            if (type != JoinType.Semi && type != JoinType.Anti) {
+                throw new IllegalArgumentException("Type " + type + " is not allowed by " + SemiAntiJoinIterator.class.getName());
+            }
             this.lhsIterator = lhsIterator;
             this.rhsIterator = rhsIterator;
             this.isSemi = type == JoinType.Semi;
@@ -540,8 +544,8 @@ public class SortMergeJoinPlan implements QueryPlan {
                 advance(false);
                 initialized = true;
             }
-            
-            Tuple next = null;            
+
+            Tuple next = null;
             while (lhsTuple != null && next == null) {
                 if (rhsTuple != null) {
                     if (lhsKey.equals(rhsKey)) {
@@ -564,14 +568,14 @@ public class SortMergeJoinPlan implements QueryPlan {
                     advance(true);
                 }
             }
-            
+
             return next;
         }
 
         @Override
         public void explain(List<String> planSteps) {
         }
-        
+
         private void advance(boolean lhs) throws SQLException {
             if (lhs) {
                 lhsTuple = lhsIterator.next();
@@ -590,11 +594,11 @@ public class SortMergeJoinPlan implements QueryPlan {
             }
         }
     }
-    
+
     private static class JoinKey implements Comparable<JoinKey> {
         private final List<Expression> expressions;
         private final List<ImmutableBytesWritable> keys;
-        
+
         public JoinKey(List<Expression> expressions) {
             this.expressions = expressions;
             this.keys = Lists.newArrayListWithExpectedSize(expressions.size());
@@ -602,7 +606,7 @@ public class SortMergeJoinPlan implements QueryPlan {
                 this.keys.add(new ImmutableBytesWritable(EMPTY_PTR));
             }
         }
-        
+
         public void evaluate(Tuple tuple) {
             for (int i = 0; i < keys.size(); i++) {
                 if (!expressions.get(i).evaluate(tuple, keys.get(i))) {
@@ -610,40 +614,42 @@ public class SortMergeJoinPlan implements QueryPlan {
                 }
             }
         }
-        
+
         public void set(JoinKey other) {
             for (int i = 0; i < keys.size(); i++) {
                 ImmutableBytesWritable key = other.keys.get(i);
                 this.keys.get(i).set(key.get(), key.getOffset(), key.getLength());
-            }            
+            }
         }
-        
+
         public void clear() {
             for (int i = 0; i < keys.size(); i++) {
                 this.keys.get(i).set(EMPTY_PTR);
-            }            
+            }
         }
-        
+
         @Override
         public boolean equals(Object other) {
-            if (!(other instanceof JoinKey)) 
+            if (!(other instanceof JoinKey)) {
                 return false;
+            }
             return this.compareTo((JoinKey) other) == 0;
         }
-        
+
         @Override
         public int compareTo(JoinKey other) {
             for (int i = 0; i < keys.size(); i++) {
                 int comp = this.keys.get(i).compareTo(other.keys.get(i));
-                if (comp != 0) 
-                    return comp; 
+                if (comp != 0) {
+                    return comp;
+                }
             }
-            
+
             return 0;
         }
     }
-    
-    
+
+
     @Override
     public boolean useRoundRobinIterator() {
         return false;
@@ -721,6 +727,7 @@ public class SortMergeJoinPlan implements QueryPlan {
      * We do not use {@link #lhsKeyExpressions} and {@link #rhsKeyExpressions} directly because {@link #lhsKeyExpressions} is compiled by the
      * {@link ColumnResolver} of lhs and {@link #rhsKeyExpressions} is compiled by the {@link ColumnResolver} of rhs, so we must recompile use
      * the {@link ColumnResolver} of joinProjectedTables.
+     *
      * @param lhsOrderByNodes
      * @param rhsOrderByNodes
      * @param statementContext
@@ -735,17 +742,17 @@ public class SortMergeJoinPlan implements QueryPlan {
         List<OrderBy> orderBys = new ArrayList<OrderBy>(2);
         List<OrderByExpression> lhsOrderByExpressions =
                 compileOrderByNodes(lhsOrderByNodes, statementContext);
-        if(!lhsOrderByExpressions.isEmpty()) {
+        if (!lhsOrderByExpressions.isEmpty()) {
             orderBys.add(new OrderBy(lhsOrderByExpressions));
         }
 
         List<OrderByExpression> rhsOrderByExpressions =
                 compileOrderByNodes(rhsOrderByNodes, statementContext);
-        if(!rhsOrderByExpressions.isEmpty()) {
+        if (!rhsOrderByExpressions.isEmpty()) {
             orderBys.add(new OrderBy(rhsOrderByExpressions));
         }
-        if(orderBys.isEmpty()) {
-            return Collections.<OrderBy> emptyList();
+        if (orderBys.isEmpty()) {
+            return Collections.<OrderBy>emptyList();
         }
         return orderBys;
     }
@@ -757,19 +764,19 @@ public class SortMergeJoinPlan implements QueryPlan {
          */
         StatelessExpressionCompiler expressionCompiler = new StatelessExpressionCompiler(statementContext);
         List<OrderByExpression> orderByExpressions = new ArrayList<OrderByExpression>(orderByNodes.size());
-        for(OrderByNode orderByNode : orderByNodes) {
+        for (OrderByNode orderByNode : orderByNodes) {
             expressionCompiler.reset();
             Expression expression = null;
             try {
                 expression = orderByNode.getNode().accept(expressionCompiler);
-            } catch(TableNotFoundException exception) {
+            } catch (TableNotFoundException exception) {
                 return orderByExpressions;
-            } catch(ColumnNotFoundException exception) {
+            } catch (ColumnNotFoundException exception) {
                 return orderByExpressions;
-            } catch(ColumnFamilyNotFoundException exception) {
+            } catch (ColumnFamilyNotFoundException exception) {
                 return orderByExpressions;
             }
-            assert expression != null;
+            assert expression !=null;
             orderByExpressions.add(
                     OrderByExpression.createByCheckIfOrderByReverse(
                             expression,

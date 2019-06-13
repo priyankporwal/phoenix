@@ -40,7 +40,7 @@ import java.util.List;
 
 /**
  * Creates a new WHERE clause by replaces non-correlated sub-queries with dummy values.
- *
+ * <p>
  * Note that this class does not check the presence of correlation, thus it should only
  * be used after de-correlation has been performed.
  */
@@ -63,10 +63,10 @@ public class GenSubqueryParamValuesRewriter extends ParseNodeRewriter {
         Expression expr = lhs.accept(expressionCompiler);
         PDataType type = expr.getDataType();
         if (!multipleValues) {
-            return Arrays.<ParseNode> asList(NODE_FACTORY.literal(type.getSampleValue(), type));
+            return Arrays.<ParseNode>asList(NODE_FACTORY.literal(type.getSampleValue(), type));
         }
 
-        return Arrays.<ParseNode> asList(
+        return Arrays.<ParseNode>asList(
                 NODE_FACTORY.literal(type.getSampleValue(), type),
                 NODE_FACTORY.literal(type.getSampleValue(), type),
                 NODE_FACTORY.literal(type.getSampleValue(), type));

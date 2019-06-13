@@ -31,8 +31,7 @@ import org.apache.phoenix.util.ByteUtil;
 
 /**
  * Client side Aggregator for PERCENTILE_CONT aggregations
- * 
- * 
+ *
  * @since 1.2.1
  */
 public class PercentileClientAggregator extends DistinctValueWithCountClientAggregator {
@@ -47,18 +46,18 @@ public class PercentileClientAggregator extends DistinctValueWithCountClientAggr
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (cachedResult == null) {
-            ColumnExpression columnExp = (ColumnExpression)exps.get(0);
+            ColumnExpression columnExp = (ColumnExpression) exps.get(0);
             // Second exp will be a LiteralExpression of Boolean type indicating whether the ordering to
             // be ASC/DESC
-            LiteralExpression isAscendingExpression = (LiteralExpression)exps.get(1);
-            boolean isAscending = (Boolean)isAscendingExpression.getValue();
+            LiteralExpression isAscendingExpression = (LiteralExpression) exps.get(1);
+            boolean isAscending = (Boolean) isAscendingExpression.getValue();
 
             // Third expression will be LiteralExpression
-            LiteralExpression percentileExp = (LiteralExpression)exps.get(2);
-            float p = ((Number)percentileExp.getValue()).floatValue();
+            LiteralExpression percentileExp = (LiteralExpression) exps.get(2);
+            float p = ((Number) percentileExp.getValue()).floatValue();
             Map<Object, Integer> sorted = getSortedValueVsCount(isAscending, columnExp.getDataType());
             float i = (p * this.totalCount) + 0.5F;
-            long k = (long)i;
+            long k = (long) i;
             float f = i - k;
             Object o1 = null;
             Object o2 = null;
@@ -78,14 +77,14 @@ public class PercentileClientAggregator extends DistinctValueWithCountClientAggr
             }
 
             double result = 0.0;
-            Number n1 = (Number)o1;
+            Number n1 = (Number) o1;
             if (o1 == null && o2 == null) {
                 ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
                 return true;
             } else if (o2 == null || o1 == o2) {
                 result = n1.doubleValue();
             } else {
-                Number n2 = (Number)o2;
+                Number n2 = (Number) o2;
                 result = (n1.doubleValue() * (1.0F - f)) + (n2.doubleValue() * f);
             }
             this.cachedResult = new BigDecimal(result);

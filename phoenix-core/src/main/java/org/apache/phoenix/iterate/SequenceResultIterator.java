@@ -24,20 +24,18 @@ import org.apache.phoenix.compile.SequenceManager;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
- * 
  * Iterates through tuples retrieving sequences from the server as needed
  *
- * 
  * @since 3.0
  */
 public class SequenceResultIterator extends DelegateResultIterator {
     private final SequenceManager sequenceManager;
-    
+
     public SequenceResultIterator(ResultIterator delegate, SequenceManager sequenceManager) throws SQLException {
         super(delegate);
         this.sequenceManager = sequenceManager;
     }
-    
+
     @Override
     public Tuple next() throws SQLException {
         Tuple next = super.next();
@@ -55,9 +53,9 @@ public class SequenceResultIterator extends DelegateResultIterator {
         planSteps.add("CLIENT RESERVE VALUES FROM " + nSequences + " SEQUENCE" + (nSequences == 1 ? "" : "S"));
     }
 
-	@Override
-	public String toString() {
-		return "SequenceResultIterator [sequenceManager=" + sequenceManager
-				+ "]";
-	}
+    @Override
+    public String toString() {
+        return "SequenceResultIterator [sequenceManager=" + sequenceManager
+                + "]";
+    }
 }

@@ -28,49 +28,51 @@ import org.apache.hadoop.hbase.CellComparator;
  */
 public class IndexKeyValueSkipListSet extends KeyValueSkipListSet {
 
-  // this is annoying that we need to keep this extra pointer around here, but its pretty minimal
-  // and means we don't need to change the HBase code.
-  private ConcurrentSkipListMap<Cell, Cell> delegate;
+    // this is annoying that we need to keep this extra pointer around here, but its pretty minimal
+    // and means we don't need to change the HBase code.
+    private ConcurrentSkipListMap<Cell, Cell> delegate;
 
-  /**
-   * Create a new {@link IndexKeyValueSkipListSet} based on the passed comparator.
-   * @param comparator to use when comparing keyvalues. It is used both to determine sort order as
-   *          well as object equality in the map.
-   * @return a map that uses the passed comparator
-   */
-  public static IndexKeyValueSkipListSet create(CellComparator comparator) {
-    ConcurrentSkipListMap<Cell, Cell> delegate =
-        new ConcurrentSkipListMap<Cell, Cell>(comparator);
-    IndexKeyValueSkipListSet ret = new IndexKeyValueSkipListSet(delegate);
-    return ret;
-  }
+    /**
+     * Create a new {@link IndexKeyValueSkipListSet} based on the passed comparator.
+     *
+     * @param comparator to use when comparing keyvalues. It is used both to determine sort order as
+     *                   well as object equality in the map.
+     * @return a map that uses the passed comparator
+     */
+    public static IndexKeyValueSkipListSet create(CellComparator comparator) {
+        ConcurrentSkipListMap<Cell, Cell> delegate =
+                new ConcurrentSkipListMap<Cell, Cell>(comparator);
+        IndexKeyValueSkipListSet ret = new IndexKeyValueSkipListSet(delegate);
+        return ret;
+    }
 
-  /**
-   * @param delegate map to which to delegate all calls
-   */
-  public IndexKeyValueSkipListSet(ConcurrentSkipListMap<Cell, Cell> delegate) {
-    super(delegate);
-    this.delegate = delegate;
-  }
+    /**
+     * @param delegate map to which to delegate all calls
+     */
+    public IndexKeyValueSkipListSet(ConcurrentSkipListMap<Cell, Cell> delegate) {
+        super(delegate);
+        this.delegate = delegate;
+    }
 
-  /**
-   * Add the passed {@link KeyValue} to the set, only if one is not already set. This is equivalent
-   * to
-   * <pre>
-   * if (!set.containsKey(key))
-   *   return set.put(key);
-   * else
-   *  return map.set(key);
-   * </pre>
-   * except that the action is performed atomically.
-   * @param kv {@link KeyValue} to add
-   * @return the previous value associated with the specified key, or <tt>null</tt> if there was no
-   *         previously stored key
-   * @throws ClassCastException if the specified key cannot be compared with the keys currently in
-   *           the map
-   * @throws NullPointerException if the specified key is null
-   */
-  public Cell putIfAbsent(Cell kv) {
-    return this.delegate.putIfAbsent(kv, kv);
-  }
+    /**
+     * Add the passed {@link KeyValue} to the set, only if one is not already set. This is equivalent
+     * to
+     * <pre>
+     * if (!set.containsKey(key))
+     *   return set.put(key);
+     * else
+     *  return map.set(key);
+     * </pre>
+     * except that the action is performed atomically.
+     *
+     * @param kv {@link KeyValue} to add
+     * @return the previous value associated with the specified key, or <tt>null</tt> if there was no
+     * previously stored key
+     * @throws ClassCastException   if the specified key cannot be compared with the keys currently in
+     *                              the map
+     * @throws NullPointerException if the specified key is null
+     */
+    public Cell putIfAbsent(Cell kv) {
+        return this.delegate.putIfAbsent(kv, kv);
+    }
 }

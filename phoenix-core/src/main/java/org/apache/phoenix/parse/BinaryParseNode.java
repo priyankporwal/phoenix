@@ -20,10 +20,8 @@ package org.apache.phoenix.parse;
 import java.util.Arrays;
 
 /**
- * 
  * Abstract class for operators that operate on exactly two nodes
  *
- * 
  * @since 0.1
  */
 public abstract class BinaryParseNode extends CompoundParseNode {
@@ -35,7 +33,7 @@ public abstract class BinaryParseNode extends CompoundParseNode {
     public ParseNode getLHS() {
         return getChildren().get(0);
     }
-    
+
     public ParseNode getRHS() {
         return getChildren().get(1);
     }

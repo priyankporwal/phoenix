@@ -44,7 +44,7 @@ public class ServerExceptionIT extends ParallelStatsDisabledIT {
             String ddl = "CREATE TABLE IF NOT EXISTS " + t1 + "(pk VARCHAR NOT NULL PRIMARY KEY, " +
                     "col1 INTEGER, col2 INTEGER)";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + t1 + " VALUES(?,?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
@@ -52,7 +52,7 @@ public class ServerExceptionIT extends ParallelStatsDisabledIT {
             stmt.setInt(3, 0);
             stmt.execute();
             conn.commit();
-            
+
             query = "SELECT * FROM " + t1 + " where col1/col2 > 0";
             stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();

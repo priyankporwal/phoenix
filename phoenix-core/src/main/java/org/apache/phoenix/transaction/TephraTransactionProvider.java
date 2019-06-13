@@ -52,24 +52,24 @@ import com.google.inject.util.Providers;
 
 public class TephraTransactionProvider implements PhoenixTransactionProvider {
     private static final TephraTransactionProvider INSTANCE = new TephraTransactionProvider();
-    
+
     public static final TephraTransactionProvider getInstance() {
         return INSTANCE;
     }
-    
+
     private TephraTransactionProvider() {
     }
-    
+
     @Override
     public String toString() {
         return getProvider().toString();
     }
-    
+
     @Override
     public PhoenixTransactionContext getTransactionContext(byte[] txnBytes) throws IOException {
-       return new TephraTransactionContext(txnBytes);
+        return new TephraTransactionContext(txnBytes);
     }
-    
+
     @Override
     public PhoenixTransactionContext getTransactionContext(PhoenixConnection connection) throws SQLException {
         return new TephraTransactionContext(connection);
@@ -81,54 +81,54 @@ public class TephraTransactionProvider implements PhoenixTransactionProvider {
             TransactionManager txnManager = new TransactionManager(config);
             TransactionSystemClient txClient = new InMemoryTxSystemClient(txnManager);
             return new TephraTransactionClient(txClient);
-            
+
         }
         String zkQuorumServersString = config.get(TxConstants.Service.CFG_DATA_TX_ZOOKEEPER_QUORUM);
-        if (zkQuorumServersString==null) {
+        if (zkQuorumServersString == null) {
             zkQuorumServersString = connectionInfo.getZookeeperConnectionString();
         }
 
         int timeOut = config.getInt(HConstants.ZK_SESSION_TIMEOUT, HConstants.DEFAULT_ZK_SESSION_TIMEOUT);
-        int retryTimeOut = config.getInt(TxConstants.Service.CFG_DATA_TX_CLIENT_DISCOVERY_TIMEOUT_SEC, 
+        int retryTimeOut = config.getInt(TxConstants.Service.CFG_DATA_TX_CLIENT_DISCOVERY_TIMEOUT_SEC,
                 TxConstants.Service.DEFAULT_DATA_TX_CLIENT_DISCOVERY_TIMEOUT_SEC);
         // Create instance of the tephra zookeeper client
-        ZKClientService zkClientService  = ZKClientServices.delegate(
-            ZKClients.reWatchOnExpire(
-                ZKClients.retryOnFailure(
-                     new TephraZKClientService(zkQuorumServersString, timeOut, null,
-                             ArrayListMultimap.<String, byte[]>create()), 
-                         RetryStrategies.exponentialDelay(500, retryTimeOut, TimeUnit.MILLISECONDS))
-                     )
-                );
+        ZKClientService zkClientService = ZKClientServices.delegate(
+                ZKClients.reWatchOnExpire(
+                        ZKClients.retryOnFailure(
+                                new TephraZKClientService(zkQuorumServersString, timeOut, null,
+                                        ArrayListMultimap.<String, byte[]>create()),
+                                RetryStrategies.exponentialDelay(500, retryTimeOut, TimeUnit.MILLISECONDS))
+                )
+        );
         ZKDiscoveryService zkDiscoveryService = new ZKDiscoveryService(zkClientService);
         PooledClientProvider pooledClientProvider = new PooledClientProvider(
                 config, zkDiscoveryService);
-        TransactionServiceClient txClient = new TransactionServiceClient(config,pooledClientProvider);
+        TransactionServiceClient txClient = new TransactionServiceClient(config, pooledClientProvider);
         TephraTransactionClient client = new TephraTransactionClient(zkClientService, txClient);
         client.start();
-        
+
         return client;
     }
 
     @Override
     public PhoenixTransactionService getTransactionService(Configuration config, ConnectionInfo connInfo, int port) {
         config.setInt(TxConstants.Service.CFG_DATA_TX_BIND_PORT, port);
-        int retryTimeOut = config.getInt(TxConstants.Service.CFG_DATA_TX_CLIENT_DISCOVERY_TIMEOUT_SEC, 
+        int retryTimeOut = config.getInt(TxConstants.Service.CFG_DATA_TX_CLIENT_DISCOVERY_TIMEOUT_SEC,
                 TxConstants.Service.DEFAULT_DATA_TX_CLIENT_DISCOVERY_TIMEOUT_SEC);
         ZKClientService zkClient = ZKClientServices.delegate(
-          ZKClients.reWatchOnExpire(
-            ZKClients.retryOnFailure(
-              ZKClientService.Builder.of(connInfo.getZookeeperConnectionString())
-                .setSessionTimeout(config.getInt(HConstants.ZK_SESSION_TIMEOUT,
-                        HConstants.DEFAULT_ZK_SESSION_TIMEOUT))
-                .build(),
-              RetryStrategies.exponentialDelay(500, retryTimeOut, TimeUnit.MILLISECONDS)
-            )
-          )
+                ZKClients.reWatchOnExpire(
+                        ZKClients.retryOnFailure(
+                                ZKClientService.Builder.of(connInfo.getZookeeperConnectionString())
+                                        .setSessionTimeout(config.getInt(HConstants.ZK_SESSION_TIMEOUT,
+                                                HConstants.DEFAULT_ZK_SESSION_TIMEOUT))
+                                        .build(),
+                                RetryStrategies.exponentialDelay(500, retryTimeOut, TimeUnit.MILLISECONDS)
+                        )
+                )
         );
 
         DiscoveryService discovery = new ZKDiscoveryService(zkClient);
-        TransactionManager txManager = new TransactionManager(config, new HDFSTransactionStateStorage(config, 
+        TransactionManager txManager = new TransactionManager(config, new HDFSTransactionStateStorage(config,
                 new SnapshotCodecProvider(config), new TxMetricsCollector()), new TxMetricsCollector());
         TransactionService txService = new TransactionService(config, zkClient, discovery, Providers.of(txManager));
         TephraTransactionService service = new TephraTransactionService(zkClient, txService);
@@ -144,23 +144,27 @@ public class TephraTransactionProvider implements PhoenixTransactionProvider {
             this.zkClient = zkClient;
             this.txService = txService;
         }
-        
+
         public void start() {
             zkClient.startAndWait();
-            txService.startAndWait();            
+            txService.startAndWait();
         }
-        
+
         @Override
         public void close() throws IOException {
             try {
-                if (txService != null) txService.stopAndWait();
+                if (txService != null) {
+                    txService.stopAndWait();
+                }
             } finally {
-                if (zkClient != null) zkClient.stopAndWait();
+                if (zkClient != null) {
+                    zkClient.stopAndWait();
+                }
             }
         }
-        
+
     }
-    
+
     static class TephraTransactionClient implements PhoenixTransactionClient {
         private final ZKClientService zkClient;
         private final TransactionSystemClient txClient;
@@ -168,34 +172,36 @@ public class TephraTransactionProvider implements PhoenixTransactionProvider {
         public TephraTransactionClient(TransactionSystemClient txClient) {
             this(null, txClient);
         }
-        
+
         public TephraTransactionClient(ZKClientService zkClient, TransactionSystemClient txClient) {
             this.zkClient = zkClient;
             this.txClient = txClient;
         }
-        
+
         public void start() {
             zkClient.startAndWait();
         }
-        
+
         public TransactionSystemClient getTransactionClient() {
             return txClient;
         }
-        
+
         @Override
         public void close() throws IOException {
             zkClient.stopAndWait();
         }
-        
+
     }
-    
+
     @Override
     public Class<? extends RegionObserver> getCoprocessor() {
         return TephraTransactionalProcessor.class;
     }
 
     @Override
-    public Class<? extends RegionObserver> getGCCoprocessor() {return null;}
+    public Class<? extends RegionObserver> getGCCoprocessor() {
+        return null;
+    }
 
     @Override
     public Provider getProvider() {

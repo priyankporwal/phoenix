@@ -25,7 +25,7 @@ public class PrimitiveFloatPhoenixArrayToStringTest extends BasePrimitiveDoubleP
     @Override
     protected Object getElement2() {
         return 2.2f;
-        
+
     }
 
     @Override

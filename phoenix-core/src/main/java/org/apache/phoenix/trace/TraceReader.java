@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,15 +49,16 @@ public class TraceReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(TraceReader.class);
     private final Joiner comma = Joiner.on(',');
     private String knownColumns;
+
     {
         // the order here dictates the order we pull out the values below. For now, just keep them
         // in sync - so we can be efficient pulling them off the results.
         knownColumns =
                 comma.join(MetricInfo.TRACE.columnName, MetricInfo.PARENT.columnName,
-                    MetricInfo.SPAN.columnName, MetricInfo.DESCRIPTION.columnName,
-                    MetricInfo.START.columnName, MetricInfo.END.columnName,
-                    MetricInfo.HOSTNAME.columnName, TraceWriter.TAG_COUNT,
-                    TraceWriter.ANNOTATION_COUNT);
+                        MetricInfo.SPAN.columnName, MetricInfo.DESCRIPTION.columnName,
+                        MetricInfo.START.columnName, MetricInfo.END.columnName,
+                        MetricInfo.HOSTNAME.columnName, TraceWriter.TAG_COUNT,
+                        TraceWriter.ANNOTATION_COUNT);
     }
 
     private Connection conn;
@@ -183,13 +184,13 @@ public class TraceReader {
     }
 
     private Collection<? extends String> getAnnotations(long traceid, long parent, long span,
-            int count) throws SQLException {
+                                                        int count) throws SQLException {
         return getDynamicCountColumns(traceid, parent, span, count,
-            TraceWriter.ANNOTATION_FAMILY, MetricInfo.ANNOTATION.columnName);
+                TraceWriter.ANNOTATION_FAMILY, MetricInfo.ANNOTATION.columnName);
     }
 
     private Collection<? extends String> getDynamicCountColumns(long traceid, long parent,
-            long span, int count, String family, String columnName) throws SQLException {
+                                                                long span, int count, String family, String columnName) throws SQLException {
         if (count == 0) {
             return Collections.emptyList();
         }
@@ -227,15 +228,15 @@ public class TraceReader {
         }
         return cols;
     }
-    
+
     private String addCustomAnnotations(String logLine) throws SQLException {
-    	if (conn.isWrapperFor(PhoenixConnection.class)) {
-    		PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
-    		logLine = LogUtil.addCustomAnnotations(logLine, phxConn);
-    	}
-    	return logLine;
+        if (conn.isWrapperFor(PhoenixConnection.class)) {
+            PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
+            logLine = LogUtil.addCustomAnnotations(logLine, phxConn);
+        }
+        return logLine;
     }
-    
+
     /**
      * Holds information about a trace
      */
@@ -299,7 +300,7 @@ public class TraceReader {
         private long parentId;
 
         public SpanInfo(SpanInfo parent, long parentid, long span, String desc, long start,
-                long end, String host, int tagCount, int annotationCount) {
+                        long end, String host, int tagCount, int annotationCount) {
             this.parent = parent;
             this.parentId = parentid;
             this.id = span;
@@ -355,7 +356,7 @@ public class TraceReader {
             sb.append("\n");
             sb.append("\tparent="
                     + (parent == null ? (parentId == Span.ROOT_SPAN_ID ? "ROOT" : "[orphan - id: "
-                            + parentId + "]") : parent.id));
+                    + parentId + "]") : parent.id));
             sb.append("\n");
             sb.append("\tstart,end=" + start + "," + end);
             sb.append("\n");

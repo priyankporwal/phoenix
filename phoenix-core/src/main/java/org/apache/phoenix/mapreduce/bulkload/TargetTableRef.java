@@ -26,7 +26,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Represents the logical and physical name of a single table to which data is to be loaded.
- *
+ * <p>
  * This class exists to allow for the difference between HBase physical table names and
  * Phoenix logical table names.
  */
@@ -39,7 +39,7 @@ public class TargetTableRef {
     private final String physicalName;
 
     @JsonProperty
-    private Map<String,String> configuration = Maps.newHashMap();
+    private Map<String, String> configuration = Maps.newHashMap();
 
     public TargetTableRef(String name) {
         this(name, name);
@@ -47,7 +47,7 @@ public class TargetTableRef {
 
     @JsonCreator
     public TargetTableRef(@JsonProperty("logicalName") String logicalName,
-        @JsonProperty("physicalName") String physicalName) {
+                          @JsonProperty("physicalName") String physicalName) {
         this.logicalName = logicalName;
         this.physicalName = physicalName;
     }

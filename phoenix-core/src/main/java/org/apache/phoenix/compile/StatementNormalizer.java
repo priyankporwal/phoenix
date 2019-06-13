@@ -47,17 +47,15 @@ import com.google.common.collect.Lists;
 
 
 /**
- * 
  * Class that creates a new select statement ensuring that a literal always occurs
  * on the RHS (i.e. if literal found on the LHS, then the operator is reversed and
  * the literal is put on the RHS)
  *
- * 
  * @since 0.1
  */
 public class StatementNormalizer extends ParseNodeRewriter {
     private boolean multiTable;
-    
+
     public StatementNormalizer(ColumnResolver resolver, int expectedAliasCount, boolean multiTable) {
         super(resolver, expectedAliasCount);
         this.multiTable = multiTable;
@@ -66,14 +64,15 @@ public class StatementNormalizer extends ParseNodeRewriter {
     public static ParseNode normalize(ParseNode where, ColumnResolver resolver) throws SQLException {
         return rewrite(where, new StatementNormalizer(resolver, 0, false));
     }
-    
+
     /**
      * Rewrite the select statement by switching any constants to the right hand side
      * of the expression.
+     *
      * @param statement the select statement
-     * @param resolver 
+     * @param resolver
      * @return new select statement
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static SelectStatement normalize(SelectStatement statement, ColumnResolver resolver) throws SQLException {
         boolean multiTable = statement.isJoin();
@@ -103,7 +102,7 @@ public class StatementNormalizer extends ParseNodeRewriter {
                         statement.getLimit(), statement.getOffset(), statement.getBindCount(), statement.isAggregate(), statement.hasSequence(), statement.getSelects(), statement.getUdfParseNodes());
             }
         }
-        
+
         return rewrite(statement, new StatementNormalizer(resolver, statement.getSelect().size(), multiTable));
     }
 
@@ -118,7 +117,7 @@ public class StatementNormalizer extends ParseNodeRewriter {
         @Override
         public List<TableName> visit(JoinTableNode joinNode) throws SQLException {
             List<TableName> lhs = joinNode.getLHS().accept(this);
-            List<TableName> rhs = joinNode.getType() == JoinType.Semi || joinNode.getType() == JoinType.Anti ? Collections.<TableName> emptyList() : joinNode.getRHS().accept(this);
+            List<TableName> rhs = joinNode.getType() == JoinType.Semi || joinNode.getType() == JoinType.Anti ? Collections.<TableName>emptyList() : joinNode.getRHS().accept(this);
             List<TableName> ret = Lists.<TableName>newArrayListWithExpectedSize(lhs.size() + rhs.size());
             ret.addAll(lhs);
             ret.addAll(rhs);
@@ -138,26 +137,28 @@ public class StatementNormalizer extends ParseNodeRewriter {
             TableName name = TableName.create(null, subselectNode.getAlias());
             return Collections.singletonList(name);
         }
-    };
-    
+    }
+
+    ;
+
     @Override
     public ParseNode visitLeave(ComparisonParseNode node, List<ParseNode> nodes) throws SQLException {
-         if (nodes.get(0).isStateless() && !nodes.get(1).isStateless()
-                 && !(nodes.get(1) instanceof ArrayElemRefNode)) {
-             List<ParseNode> normNodes = Lists.newArrayListWithExpectedSize(2);
-             normNodes.add(nodes.get(1));
-             normNodes.add(nodes.get(0));
-             nodes = normNodes;
-             node = NODE_FACTORY.comparison(node.getInvertFilterOp(), nodes.get(0), nodes.get(1));
-         }
-         return super.visitLeave(node, nodes);
+        if (nodes.get(0).isStateless() && !nodes.get(1).isStateless()
+                && !(nodes.get(1) instanceof ArrayElemRefNode)) {
+            List<ParseNode> normNodes = Lists.newArrayListWithExpectedSize(2);
+            normNodes.add(nodes.get(1));
+            normNodes.add(nodes.get(0));
+            nodes = normNodes;
+            node = NODE_FACTORY.comparison(node.getInvertFilterOp(), nodes.get(0), nodes.get(1));
+        }
+        return super.visitLeave(node, nodes);
     }
 
     @Override
     public ParseNode visitLeave(final BetweenParseNode node, List<ParseNode> nodes) throws SQLException {
-       
-        LessThanOrEqualParseNode lhsNode =  NODE_FACTORY.lte(node.getChildren().get(1), node.getChildren().get(0));
-        LessThanOrEqualParseNode rhsNode =  NODE_FACTORY.lte(node.getChildren().get(0), node.getChildren().get(2));
+
+        LessThanOrEqualParseNode lhsNode = NODE_FACTORY.lte(node.getChildren().get(1), node.getChildren().get(0));
+        LessThanOrEqualParseNode rhsNode = NODE_FACTORY.lte(node.getChildren().get(0), node.getChildren().get(2));
         List<ParseNode> parseNodes = Lists.newArrayListWithExpectedSize(2);
         parseNodes.add(this.visitLeave(lhsNode, lhsNode.getChildren()));
         parseNodes.add(this.visitLeave(rhsNode, rhsNode.getChildren()));
@@ -166,22 +167,23 @@ public class StatementNormalizer extends ParseNodeRewriter {
 
     @Override
     public ParseNode visit(ColumnParseNode node) throws SQLException {
-        if (multiTable 
-                && node.getAlias() != null 
+        if (multiTable
+                && node.getAlias() != null
                 && node.getTableName() != null
                 && SchemaUtil.normalizeIdentifier(node.getAlias()).equals(node.getName())) {
-            node = NODE_FACTORY.column(TableName.create(node.getSchemaName(), node.getTableName()), 
-                    node.isCaseSensitive() ? '"' + node.getName() + '"' : node.getName(), 
+            node = NODE_FACTORY.column(TableName.create(node.getSchemaName(), node.getTableName()),
+                    node.isCaseSensitive() ? '"' + node.getName() + '"' : node.getName(),
                     node.isCaseSensitive() ? '"' + node.getFullName() + '"' : node.getFullName());
         }
         return super.visit(node);
     }
-    
+
     @Override
     public ParseNode visit(FamilyWildcardParseNode node) throws SQLException {
-        if (!multiTable)
+        if (!multiTable) {
             return super.visit(node);
-        
+        }
+
         return super.visit(NODE_FACTORY.tableWildcard(NODE_FACTORY.table(null, node.isCaseSensitive() ? '"' + node.getName() + '"' : node.getName())));
     }
 }

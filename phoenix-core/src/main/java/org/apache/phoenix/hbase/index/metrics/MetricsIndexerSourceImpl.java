@@ -45,7 +45,7 @@ public class MetricsIndexerSourceImpl extends BaseSourceImpl implements MetricsI
     }
 
     public MetricsIndexerSourceImpl(String metricsName, String metricsDescription,
-        String metricsContext, String metricsJmxContext) {
+                                    String metricsContext, String metricsJmxContext) {
         super(metricsName, metricsDescription, metricsContext, metricsJmxContext);
 
         indexPrepareTimeHisto = getMetricsRegistry().newHistogram(INDEX_PREPARE_TIME, INDEX_PREPARE_TIME_DESC);

@@ -43,11 +43,12 @@ public class IndexMetaDataCacheClient {
 
     private final ServerCacheClient serverCache;
     private PTable cacheUsingTable;
-    
+
     /**
      * Construct client used to send index metadata to each region server
      * for caching during batched put for secondary index maintenance.
-     * @param connection the client connection
+     *
+     * @param connection         the client connection
      * @param cacheUsingTableRef table ref to table that will use the cache during its scan
      */
     public IndexMetaDataCacheClient(PhoenixConnection connection, PTable cacheUsingTable) {
@@ -59,8 +60,9 @@ public class IndexMetaDataCacheClient {
      * Determines whether or not to use the IndexMetaDataCache to send the index metadata
      * to the region servers. The alternative is to just set the index metadata as an attribute on
      * the mutations.
-     * @param connection 
-     * @param mutations the list of mutations that will be sent in a batch to server
+     *
+     * @param connection
+     * @param mutations               the list of mutations that will be sent in a batch to server
      * @param indexMetaDataByteLength length in bytes of the index metadata cache
      */
     public static boolean useIndexMetadataCache(PhoenixConnection connection, List<? extends Mutation> mutations, int indexMetaDataByteLength) {
@@ -68,13 +70,14 @@ public class IndexMetaDataCacheClient {
         int threshold = props.getInt(INDEX_MUTATE_BATCH_SIZE_THRESHOLD_ATTRIB, QueryServicesOptions.DEFAULT_INDEX_MUTATE_BATCH_SIZE_THRESHOLD);
         return (indexMetaDataByteLength > ServerCacheClient.UUID_LENGTH && mutations.size() > threshold);
     }
-    
+
     /**
      * Send the index metadata cahce to all region servers for regions that will handle the mutations.
+     *
      * @return client-side {@link ServerCache} representing the added index metadata cache
-     * @throws SQLException 
+     * @throws SQLException
      * @throws MaxServerCacheSizeExceededException if size of hash cache exceeds max allowed
-     * size
+     *                                             size
      */
     public ServerCache addIndexMetadataCache(List<? extends Mutation> mutations, ImmutableBytesWritable ptr, byte[] txState) throws SQLException {
         /**
@@ -82,15 +85,16 @@ public class IndexMetaDataCacheClient {
          */
         return serverCache.addServerCache(ScanUtil.newScanRanges(mutations), ptr, txState, new IndexMetaDataCacheFactory(), cacheUsingTable);
     }
-    
-    
+
+
     /**
      * Send the index metadata cahce to all region servers for regions that will handle the mutations.
+     *
      * @param txState TODO
      * @return client-side {@link ServerCache} representing the added index metadata cache
-     * @throws SQLException 
+     * @throws SQLException
      * @throws MaxServerCacheSizeExceededException if size of hash cache exceeds max allowed
-     * size
+     *                                             size
      */
     public ServerCache addIndexMetadataCache(ScanRanges ranges, ImmutableBytesWritable ptr, byte[] txState) throws SQLException {
         /**
@@ -100,7 +104,7 @@ public class IndexMetaDataCacheClient {
     }
 
     public static ServerCache setMetaDataOnMutations(PhoenixConnection connection, PTable table, List<? extends Mutation> mutations,
-            ImmutableBytesWritable indexMetaDataPtr) throws SQLException {
+                                                     ImmutableBytesWritable indexMetaDataPtr) throws SQLException {
         final byte[] tenantIdBytes;
         if (table.isMultiTenant()) {
             tenantIdBytes = connection.getTenantId() == null ? null : ScanUtil.getTenantIdBytes(
@@ -126,7 +130,9 @@ public class IndexMetaDataCacheClient {
                 attribValue = ByteUtil.copyKeyBytesIfNecessary(indexMetaDataPtr);
                 uuidValue = ServerCacheClient.generateId();
             }
-        } else if (txState.length == 0) { return null; }
+        } else if (txState.length == 0) {
+            return null;
+        }
         // Either set the UUID to be able to access the index metadata from the cache
         // or set the index metadata directly on the Mutation
         for (Mutation mutation : mutations) {

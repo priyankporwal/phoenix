@@ -37,15 +37,14 @@ import org.iq80.snappy.Snappy;
 
 /**
  * Server side Aggregator which will aggregate data and find distinct values with number of occurrences for each.
- * 
- * 
+ *
  * @since 1.2.1
  */
 public class DistinctValueWithCountServerAggregator extends BaseAggregator {
     public static final int DEFAULT_ESTIMATED_DISTINCT_VALUES = 10000;
-    public static final byte[] COMPRESS_MARKER = new byte[] { (byte)1 };
+    public static final byte[] COMPRESS_MARKER = new byte[] {(byte) 1};
     // copy a key unless it uses at least 10% of the backing array
-    private static final int COPY_THRESHOLD = 100/10;
+    private static final int COPY_THRESHOLD = 100 / 10;
     // copy key only (make a new array) if the backing array is at least this size
     // (to avoid ending up using _more_ memory)
     private static final int FIXED_COPY_THRESHOLD = SizedUtil.ARRAY_SIZE * 2;
@@ -69,9 +68,9 @@ public class DistinctValueWithCountServerAggregator extends BaseAggregator {
     @Override
     public void aggregate(Tuple tuple, ImmutableBytesWritable ptr) {
         ImmutableBytesPtr key = ptr.get().length > FIXED_COPY_THRESHOLD &&
-                                ptr.get().length > ptr.getLength() * COPY_THRESHOLD ?
-                        new ImmutableBytesPtr(ptr.copyBytes()) :
-                        new ImmutableBytesPtr(ptr);
+                ptr.get().length > ptr.getLength() * COPY_THRESHOLD ?
+                new ImmutableBytesPtr(ptr.copyBytes()) :
+                new ImmutableBytesPtr(ptr);
         Integer count = this.valueVsCount.get(key);
         if (count == null) {
             this.valueVsCount.put(key, 1);
@@ -158,7 +157,7 @@ public class DistinctValueWithCountServerAggregator extends BaseAggregator {
     public int getSize() {
         return super.getSize() + SizedUtil.ARRAY_SIZE + countMapHeapSize();
     }
-    
+
     @Override
     public boolean trackSize() {
         return true;

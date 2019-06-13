@@ -44,7 +44,7 @@ public class QueryExecWithoutSCNIT extends ParallelStatsDisabledIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getString("B_string"), C_VALUE);
             assertFalse(rs.next());

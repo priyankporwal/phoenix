@@ -49,7 +49,7 @@ public class TenantCacheTest {
         ImmutableBytesPtr cacheId = new ImmutableBytesPtr(Bytes.toBytes(1L));
         ImmutableBytesWritable cachePtr = new ImmutableBytesWritable(Bytes.toBytes("a"));
         newTenantCache.addServerCache(cacheId, cachePtr, ByteUtil.EMPTY_BYTE_ARRAY, cacheFactory, true, false, MetaDataProtocol.PHOENIX_VERSION);
-        assertEquals(maxBytes-1, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 1, memoryManager.getAvailableMemory());
         newTenantCache.removeServerCache(cacheId);
         assertEquals(maxBytes, memoryManager.getAvailableMemory());
     }
@@ -65,7 +65,7 @@ public class TenantCacheTest {
         ImmutableBytesPtr cacheId1 = new ImmutableBytesPtr(Bytes.toBytes(1L));
         ImmutableBytesWritable cachePtr = new ImmutableBytesWritable(Bytes.toBytes("a"));
         cache.addServerCache(cacheId1, cachePtr, ByteUtil.EMPTY_BYTE_ARRAY, cacheFactory, true, false, MetaDataProtocol.PHOENIX_VERSION);
-        assertEquals(maxBytes-1, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 1, memoryManager.getAvailableMemory());
         ticker.time += (maxServerCacheTimeToLive + 1) * 1000000;
         cache.cleanUp();
         assertEquals(maxBytes, memoryManager.getAvailableMemory());
@@ -82,7 +82,7 @@ public class TenantCacheTest {
         ImmutableBytesPtr cacheId1 = new ImmutableBytesPtr(Bytes.toBytes(1L));
         ImmutableBytesWritable cachePtr = new ImmutableBytesWritable(Bytes.toBytes("a"));
         cache.addServerCache(cacheId1, cachePtr, ByteUtil.EMPTY_BYTE_ARRAY, cacheFactory, true, false, MetaDataProtocol.PHOENIX_VERSION);
-        assertEquals(maxBytes-1, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 1, memoryManager.getAvailableMemory());
         ticker.time += (maxServerCacheTimeToLive + 1) * 1000000;
         assertNull(cache.getServerCache(cacheId1));
         assertEquals(maxBytes, memoryManager.getAvailableMemory());
@@ -116,13 +116,13 @@ public class TenantCacheTest {
         ImmutableBytesPtr cacheId1 = new ImmutableBytesPtr(Bytes.toBytes(1L));
         ImmutableBytesWritable cachePtr = new ImmutableBytesWritable(Bytes.toBytes("a"));
         cache.addServerCache(cacheId1, cachePtr, ByteUtil.EMPTY_BYTE_ARRAY, cacheFactory, true, true, MetaDataProtocol.PHOENIX_VERSION);
-        assertEquals(maxBytes-1, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 1, memoryManager.getAvailableMemory());
         assertNotNull(cache.getServerCache(cacheId1));
 
         // Expire it from live cache but not persistent cache
         ticker.time += (maxServerCacheTimeToLive + 1) * 1000000;
         cache.cleanUp();
-        assertEquals(maxBytes-1, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 1, memoryManager.getAvailableMemory());
         assertNotNull(cache.getServerCache(cacheId1));
 
         // Expire it from persistent cache as well
@@ -143,12 +143,12 @@ public class TenantCacheTest {
         ImmutableBytesPtr cacheId1 = new ImmutableBytesPtr(Bytes.toBytes(1L));
         ImmutableBytesWritable cachePtr = new ImmutableBytesWritable(Bytes.toBytes("12"));
         cache.addServerCache(cacheId1, cachePtr, ByteUtil.EMPTY_BYTE_ARRAY, cacheFactory, true, true, MetaDataProtocol.PHOENIX_VERSION);
-        assertEquals(maxBytes-2, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 2, memoryManager.getAvailableMemory());
         assertNotNull(cache.getServerCache(cacheId1));
 
         // Remove should only remove from live cache
         cache.removeServerCache(cacheId1);
-        assertEquals(maxBytes-2, memoryManager.getAvailableMemory());
+        assertEquals(maxBytes - 2, memoryManager.getAvailableMemory());
         assertNotNull(cache.getServerCache(cacheId1));
     }
 
@@ -181,14 +181,14 @@ public class TenantCacheTest {
 
     public static class ManualTicker extends Ticker {
         public long time = 0;
-        
+
         @Override
         public long read() {
             return time;
         }
-        
+
     }
-    
+
     public static ServerCacheFactory cacheFactory = new ServerCacheFactory() {
 
         @Override
@@ -204,6 +204,6 @@ public class TenantCacheTest {
                 throws SQLException {
             return chunk;
         }
-        
+
     };
 }

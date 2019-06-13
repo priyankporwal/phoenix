@@ -22,12 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 
-
 /**
- * 
  * Node representing division in a SQL expression
  *
- * 
  * @since 0.1
  */
 public class DivideParseNode extends ArithmeticParseNode {
@@ -37,7 +34,7 @@ public class DivideParseNode extends ArithmeticParseNode {
     public String getOperator() {
         return OPERATOR;
     }
-    
+
 
     DivideParseNode(List<ParseNode> children) {
         super(children);

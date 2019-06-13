@@ -60,7 +60,7 @@ public class PBooleanArray extends PArrayDataType<boolean[]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                           Integer maxLength, Integer scale) {
         return toObject(bytes, offset, length, PBoolean.INSTANCE, sortOrder, maxLength, scale, PBoolean.INSTANCE);
     }
 
@@ -71,11 +71,15 @@ public class PBooleanArray extends PArrayDataType<boolean[]> {
 
     @Override
     public boolean isCoercibleTo(PDataType targetType, Object value) {
-        if (value == null) { return true; }
-        PrimitiveBooleanPhoenixArray pArr = (PrimitiveBooleanPhoenixArray)value;
-        boolean[] booleanArr = (boolean[])pArr.array;
+        if (value == null) {
+            return true;
+        }
+        PrimitiveBooleanPhoenixArray pArr = (PrimitiveBooleanPhoenixArray) value;
+        boolean[] booleanArr = (boolean[]) pArr.array;
         for (boolean b : booleanArr) {
-            if (!super.isCoercibleTo(PInteger.INSTANCE, b)) { return false; }
+            if (!super.isCoercibleTo(PInteger.INSTANCE, b)) {
+                return false;
+            }
         }
         return true;
     }

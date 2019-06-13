@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Resolves object instances registered using the JDK 6+ {@link java.util.ServiceLoader}.
  *
- * 
  * @since 2.0
  */
 public class InstanceResolver {
@@ -39,33 +38,37 @@ public class InstanceResolver {
 
     /**
      * Resolves an instance of the specified class if it has not already been resolved.
-     * @param clazz The type of instance to resolve
+     *
+     * @param clazz           The type of instance to resolve
      * @param defaultInstance The instance to use if a custom instance has not been registered
      * @return The resolved instance or the default instance provided.
-     *         {@code null} if an instance is not registered and a default is not provided.
+     * {@code null} if an instance is not registered and a default is not provided.
      */
     @SuppressWarnings("unchecked")
     public static <T> T getSingleton(Class<T> clazz, T defaultInstance) {
         Object obj = RESOLVED_SINGLETONS.get(clazz);
-        if(obj != null) {
-            return (T)obj;
+        if (obj != null) {
+            return (T) obj;
         }
-        if (defaultInstance != null && !clazz.isInstance(defaultInstance)) throw new IllegalArgumentException("defaultInstance is not of type " + clazz.getName());
+        if (defaultInstance != null && !clazz.isInstance(defaultInstance)) {
+            throw new IllegalArgumentException("defaultInstance is not of type " + clazz.getName());
+        }
         final Object o = resolveSingleton(clazz, defaultInstance);
         obj = RESOLVED_SINGLETONS.putIfAbsent(clazz, o);
-        if(obj == null) {
+        if (obj == null) {
             obj = o;
         }
-        return (T)obj;
+        return (T) obj;
     }
 
     /**
      * Resolves all instances of a specified class and add it to the list of default implementations
-     * @param clazz Type of the instance to resolve
+     *
+     * @param clazz            Type of the instance to resolve
      * @param defaultInstances {@link List} of instances that match the type clazz
-     * @param <T> Type of class passed
+     * @param <T>              Type of class passed
      * @return {@link List} of instance of the specified class. Newly found instances will be added
-     *          to the existing contents of defaultInstances
+     * to the existing contents of defaultInstances
      */
     @SuppressWarnings("unchecked")
     public static <T> List get(Class<T> clazz, List<T> defaultInstances) {

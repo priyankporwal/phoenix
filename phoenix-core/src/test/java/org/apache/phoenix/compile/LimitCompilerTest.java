@@ -42,14 +42,14 @@ import org.junit.Test;
 
 
 public class LimitCompilerTest extends BaseConnectionlessQueryTest {
-    
+
     private static QueryPlan compileStatement(String query, List<Object> binds) throws SQLException {
         PhoenixConnection pconn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES)).unwrap(PhoenixConnection.class);
         PhoenixPreparedStatement pstmt = new PhoenixPreparedStatement(pconn, query);
         TestUtil.bindParams(pstmt, binds);
         return pstmt.compileQuery();
     }
-    
+
     @Test
     public void testLimit() throws SQLException {
         String tenantId = "000000000000001";
@@ -57,11 +57,11 @@ public class LimitCompilerTest extends BaseConnectionlessQueryTest {
         List<Object> binds = Collections.emptyList();
         QueryPlan plan = compileStatement(query, binds);
         Scan scan = plan.getContext().getScan();
-        
+
         assertNull(scan.getFilter());
         assertArrayEquals(PVarchar.INSTANCE.toBytes(tenantId), scan.getStartRow());
         assertArrayEquals(ByteUtil.nextKey(PVarchar.INSTANCE.toBytes(tenantId)), scan.getStopRow());
-        assertEquals(plan.getLimit(),Integer.valueOf(5));
+        assertEquals(plan.getLimit(), Integer.valueOf(5));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class LimitCompilerTest extends BaseConnectionlessQueryTest {
         assertArrayEquals(PVarchar.INSTANCE.toBytes(tenantId), scan.getStartRow());
         assertArrayEquals(ByteUtil.nextKey(PVarchar.INSTANCE.toBytes(tenantId)), scan.getStopRow());
     }
-    
+
     @Test
     public void testBoundLimit() throws SQLException {
         String tenantId = "000000000000001";
@@ -89,7 +89,7 @@ public class LimitCompilerTest extends BaseConnectionlessQueryTest {
         assertNull(scan.getFilter());
         assertArrayEquals(PVarchar.INSTANCE.toBytes(tenantId), scan.getStartRow());
         assertArrayEquals(ByteUtil.nextKey(PVarchar.INSTANCE.toBytes(tenantId)), scan.getStopRow());
-        assertEquals(plan.getLimit(),Integer.valueOf(5));
+        assertEquals(plan.getLimit(), Integer.valueOf(5));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class LimitCompilerTest extends BaseConnectionlessQueryTest {
     public void testBindTypeMismatch() throws SQLException {
         Long tenantId = Long.valueOf(0);
         String keyPrefix = "002";
-        List<Object> binds = Arrays.<Object>asList(tenantId,keyPrefix);
+        List<Object> binds = Arrays.<Object>asList(tenantId, keyPrefix);
         String query = "select * from atable where organization_id=? and substr(entity_id,1,3)=?";
         try {
             compileStatement(query, binds);

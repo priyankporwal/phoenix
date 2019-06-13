@@ -31,18 +31,18 @@ public abstract class ArithmeticExpression extends BaseCompoundExpression {
     }
 
     abstract public ArithmeticExpression clone(List<Expression> children);
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder("(");
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + getOperatorString());
         }
-        buf.append(children.get(children.size()-1));
+        buf.append(children.get(children.size() - 1));
         buf.append(')');
         return buf.toString();
     }
-    
+
     protected Integer getScale(Expression e) {
         Integer scale = e.getScale();
         if (scale != null) {
@@ -57,6 +57,7 @@ public abstract class ArithmeticExpression extends BaseCompoundExpression {
         }
         return null;
     }
+
     protected int getPrecision(Expression e) {
         Integer precision = e.getMaxLength();
         if (precision != null) {
@@ -71,6 +72,6 @@ public abstract class ArithmeticExpression extends BaseCompoundExpression {
         }
         return PDataType.MAX_PRECISION;
     }
-    
+
     abstract protected String getOperatorString();
 }

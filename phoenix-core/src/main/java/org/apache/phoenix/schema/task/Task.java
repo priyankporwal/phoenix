@@ -43,8 +43,7 @@ public class Task {
                     return null;
                 }
             });
-        }
-        else {
+        } else {
             try {
                 stmt.execute();
                 conn.commit();
@@ -54,8 +53,8 @@ public class Task {
         }
     }
 
-    private static  PreparedStatement setValuesToAddTaskPS(PreparedStatement stmt, PTable.TaskType taskType,
-            String tenantId, String schemaName, String tableName) throws SQLException {
+    private static PreparedStatement setValuesToAddTaskPS(PreparedStatement stmt, PTable.TaskType taskType,
+                                                          String tenantId, String schemaName, String tableName) throws SQLException {
         stmt.setByte(1, taskType.getSerializedValue());
         if (tenantId != null) {
             stmt.setString(2, tenantId);
@@ -71,9 +70,9 @@ public class Task {
         return stmt;
     }
 
-    private static  PreparedStatement setValuesToAddTaskPS(PreparedStatement stmt, PTable.TaskType taskType,
-            String tenantId, String schemaName, String tableName, String taskStatus, String data,
-            Integer priority, Timestamp startTs, Timestamp endTs) throws SQLException {
+    private static PreparedStatement setValuesToAddTaskPS(PreparedStatement stmt, PTable.TaskType taskType,
+                                                          String tenantId, String schemaName, String tableName, String taskStatus, String data,
+                                                          Integer priority, Timestamp startTs, Timestamp endTs) throws SQLException {
         stmt = setValuesToAddTaskPS(stmt, taskType, tenantId, schemaName, tableName);
         if (taskStatus != null) {
             stmt.setString(5, taskStatus);
@@ -109,7 +108,7 @@ public class Task {
     }
 
     public static void addTask(PhoenixConnection conn, PTable.TaskType taskType, String tenantId, String schemaName,
-            String tableName, boolean accessCheckEnabled)
+                               String tableName, boolean accessCheckEnabled)
             throws IOException {
         PreparedStatement stmt = null;
         try {
@@ -127,8 +126,8 @@ public class Task {
     }
 
     public static void addTask(PhoenixConnection conn, PTable.TaskType taskType, String tenantId, String schemaName,
-            String tableName, String taskStatus, String data, Integer priority, Timestamp startTs, Timestamp endTs,
-            boolean accessCheckEnabled)
+                               String tableName, String taskStatus, String data, Integer priority, Timestamp startTs, Timestamp endTs,
+                               boolean accessCheckEnabled)
             throws IOException {
         PreparedStatement stmt = null;
         try {
@@ -152,7 +151,7 @@ public class Task {
     }
 
     public static void deleteTask(PhoenixConnection conn, PTable.TaskType taskType, Timestamp ts, String tenantId,
-            String schemaName, String tableName, boolean accessCheckEnabled) throws IOException {
+                                  String schemaName, String tableName, boolean accessCheckEnabled) throws IOException {
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement("DELETE FROM " +
@@ -186,7 +185,7 @@ public class Task {
     }
 
     public static List<TaskRecord> queryTaskTable(Connection connection, String schema, String tableName,
-            PTable.TaskType taskType, String tenantId, String indexName)
+                                                  PTable.TaskType taskType, String tenantId, String indexName)
             throws SQLException {
         String taskQuery = "SELECT " +
                 PhoenixDatabaseMetaData.TASK_TS + ", " +
@@ -198,20 +197,20 @@ public class Task {
                 PhoenixDatabaseMetaData.TASK_PRIORITY + ", " +
                 PhoenixDatabaseMetaData.TASK_DATA +
                 " FROM " + PhoenixDatabaseMetaData.SYSTEM_TASK_NAME;
-            taskQuery += " WHERE " +
-                    PhoenixDatabaseMetaData.TABLE_NAME + " ='" + tableName + "' AND " +
-                    PhoenixDatabaseMetaData.TASK_TYPE + "=" + taskType.getSerializedValue();
-            if (!Strings.isNullOrEmpty(tenantId)) {
-                taskQuery += " AND " + PhoenixDatabaseMetaData.TENANT_ID + "='" + tenantId + "' ";
-            }
+        taskQuery += " WHERE " +
+                PhoenixDatabaseMetaData.TABLE_NAME + " ='" + tableName + "' AND " +
+                PhoenixDatabaseMetaData.TASK_TYPE + "=" + taskType.getSerializedValue();
+        if (!Strings.isNullOrEmpty(tenantId)) {
+            taskQuery += " AND " + PhoenixDatabaseMetaData.TENANT_ID + "='" + tenantId + "' ";
+        }
 
-            if (!Strings.isNullOrEmpty(schema)) {
-                taskQuery += " AND " + PhoenixDatabaseMetaData.TABLE_SCHEM + "='" + schema + "' ";
-            }
+        if (!Strings.isNullOrEmpty(schema)) {
+            taskQuery += " AND " + PhoenixDatabaseMetaData.TABLE_SCHEM + "='" + schema + "' ";
+        }
 
-            if (!Strings.isNullOrEmpty(indexName)) {
-                taskQuery += " AND " + PhoenixDatabaseMetaData.TASK_DATA + " LIKE '%" + indexName + "%'";
-            }
+        if (!Strings.isNullOrEmpty(indexName)) {
+            taskQuery += " AND " + PhoenixDatabaseMetaData.TASK_DATA + " LIKE '%" + indexName + "%'";
+        }
 
         return populateTasks(connection, taskQuery);
     }
@@ -230,9 +229,9 @@ public class Task {
                 " FROM " + PhoenixDatabaseMetaData.SYSTEM_TASK_NAME;
         if (excludedTaskStatus != null && excludedTaskStatus.length > 0) {
             taskQuery += " WHERE " + PhoenixDatabaseMetaData.TASK_STATUS + " IS NULL OR " +
-            PhoenixDatabaseMetaData.TASK_STATUS + " NOT IN (";
+                    PhoenixDatabaseMetaData.TASK_STATUS + " NOT IN (";
             String[] values = new String[excludedTaskStatus.length];
-            for (int i=0; i < excludedTaskStatus.length; i++) {
+            for (int i = 0; i < excludedTaskStatus.length; i++) {
                 values[i] = String.format("'%s'", excludedTaskStatus[i].trim());
             }
 
@@ -254,7 +253,7 @@ public class Task {
         taskRecord.setTableName(rs.getString(PhoenixDatabaseMetaData.TABLE_NAME));
         taskRecord.setTableNameBytes(rs.getBytes(PhoenixDatabaseMetaData.TABLE_NAME));
         taskRecord.setStatus(rs.getString(PhoenixDatabaseMetaData.TASK_STATUS));
-        taskRecord.setTaskType(PTable.TaskType.fromSerializedValue(rs.getByte(PhoenixDatabaseMetaData.TASK_TYPE )));
+        taskRecord.setTaskType(PTable.TaskType.fromSerializedValue(rs.getByte(PhoenixDatabaseMetaData.TASK_TYPE)));
         taskRecord.setPriority(rs.getInt(PhoenixDatabaseMetaData.TASK_PRIORITY));
         taskRecord.setData(rs.getString(PhoenixDatabaseMetaData.TASK_DATA));
         return taskRecord;
@@ -264,7 +263,7 @@ public class Task {
         private String tenantId;
         private Timestamp timeStamp;
         private byte[] tenantIdBytes;
-        private String schemaName= null;
+        private String schemaName = null;
         private byte[] schemaNameBytes;
         private String tableName = null;
         private byte[] tableNameBytes;

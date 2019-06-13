@@ -55,12 +55,13 @@ public class GroupByIT extends BaseQueryIT {
     public GroupByIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
-    @Parameters(name="GroupByIT_{index}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "GroupByIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
-    
+
     @Test
     public void testGroupedAggregation() throws Exception {
         // Tests that you don't get an ambiguous column exception when using the same alias as the column name
@@ -98,32 +99,32 @@ public class GroupByIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            
+
             assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getLong(2), 1L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertTrue(rs.next());
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getLong(2), 2L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getLong(2), 1L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getLong(2), 2L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertTrue(rs.next());
             assertEquals(rs.getString(1), C_VALUE);
             assertEquals(rs.getLong(2), 1L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -155,12 +156,12 @@ public class GroupByIT extends BaseQueryIT {
             assertEquals(rs.getString(1), A_VALUE);
             assertEquals(rs.getLong(2), 2L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertTrue(rs.next());
             assertEquals(rs.getString(1), B_VALUE);
             assertEquals(rs.getLong(2), 2L);
             assertEquals(rs.getString(3), "foo");
-            
+
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -176,7 +177,7 @@ public class GroupByIT extends BaseQueryIT {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            
+
             assertTrue(rs.next());
             assertEquals(9L, rs.getLong(1));
             assertFalse(rs.next());
@@ -271,7 +272,7 @@ public class GroupByIT extends BaseQueryIT {
         assertEquals(143985346, rs.getInt(1));
         assertEquals(6.77, rs.getDouble(3), 0.1);
     }
-    
+
     @Test
     public void testPointInTimeGroupedAggregation() throws Exception {
         String updateStmt =
@@ -284,7 +285,7 @@ public class GroupByIT extends BaseQueryIT {
         Statement stmt = upsertConn.createStatement();
         stmt.execute(updateStmt); // should commit too
         upsertConn.close();
-        
+
         long upsert1Time = System.currentTimeMillis();
         long timeDelta = 100;
         Thread.sleep(timeDelta);
@@ -299,7 +300,7 @@ public class GroupByIT extends BaseQueryIT {
         pstmt.setString(3, E_VALUE);
         pstmt.execute(); // should commit too
         upsertConn.close();
-        
+
         long queryTime = upsert1Time + timeDelta / 2;
         String query =
                 "SELECT a_string, count(1) FROM " + tableName + " WHERE organization_id='"
@@ -329,14 +330,14 @@ public class GroupByIT extends BaseQueryIT {
         PreparedStatement statement = conn.prepareStatement("SELECT count(*) FROM " + tableName + " WHERE organization_id=? GROUP BY a_integer=6");
         statement.setString(1, tenantId);
         ResultSet rs = statement.executeQuery();
-        assertValueEqualsResultSet(rs, Arrays.<Object>asList(1L,8L));
+        assertValueEqualsResultSet(rs, Arrays.<Object>asList(1L, 8L));
         try {
             statement = conn.prepareStatement("SELECT count(*),a_integer=6 FROM " + tableName + " WHERE organization_id=? and (a_integer IN (5,6) or a_integer is null) GROUP BY a_integer=6");
             statement.setString(1, tenantId);
             rs = statement.executeQuery();
             List<List<Object>> expectedResults = Lists.newArrayList(
-                    Arrays.<Object>asList(1L,false),
-                    Arrays.<Object>asList(1L,true));
+                    Arrays.<Object>asList(1L, false),
+                    Arrays.<Object>asList(1L, true));
             assertValuesEqualsResultSet(rs, expectedResults);
         } finally {
             conn.close();
@@ -356,28 +357,28 @@ public class GroupByIT extends BaseQueryIT {
         statement = conn.prepareStatement("SELECT count(*) FROM " + tableName + " WHERE organization_id=? GROUP BY a_integer=6");
         statement.setString(1, tenantId);
         rs = statement.executeQuery();
-        assertValueEqualsResultSet(rs, Arrays.<Object>asList(1L,1L,7L));
+        assertValueEqualsResultSet(rs, Arrays.<Object>asList(1L, 1L, 7L));
         statement = conn.prepareStatement("SELECT a_integer, entity_id FROM " + tableName + " WHERE organization_id=? and (a_integer IN (5,6) or a_integer is null)");
         statement.setString(1, tenantId);
         rs = statement.executeQuery();
         List<List<Object>> expectedResults = Lists.newArrayList(
-                Arrays.<Object>asList(null,ROW3),
-                Arrays.<Object>asList(5,ROW5),
-                Arrays.<Object>asList(6,ROW6));
+                Arrays.<Object>asList(null, ROW3),
+                Arrays.<Object>asList(5, ROW5),
+                Arrays.<Object>asList(6, ROW6));
         assertValuesEqualsResultSet(rs, expectedResults);
         try {
             statement = conn.prepareStatement("SELECT count(*),a_integer=6 FROM " + tableName + " WHERE organization_id=? and (a_integer IN (5,6) or a_integer is null) GROUP BY a_integer=6");
             statement.setString(1, tenantId);
             rs = statement.executeQuery();
             expectedResults = Lists.newArrayList(
-                    Arrays.<Object>asList(1L,null),
-                    Arrays.<Object>asList(1L,false),
-                    Arrays.<Object>asList(1L,true));
+                    Arrays.<Object>asList(1L, null),
+                    Arrays.<Object>asList(1L, false),
+                    Arrays.<Object>asList(1L, true));
             assertValuesEqualsResultSet(rs, expectedResults);
         } finally {
             conn.close();
         }
     }
-    
+
 
 }

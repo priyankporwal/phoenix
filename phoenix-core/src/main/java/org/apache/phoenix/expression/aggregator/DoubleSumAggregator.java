@@ -26,7 +26,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.util.SizedUtil;
 
 public class DoubleSumAggregator extends BaseAggregator {
-    
+
     private double sum = 0;
     private byte[] buffer;
 
@@ -37,11 +37,11 @@ public class DoubleSumAggregator extends BaseAggregator {
             sum = PDouble.INSTANCE.getCodec().decodeDouble(ptr, sortOrder);
         }
     }
-    
+
     protected PDataType getInputDataType() {
         return PDouble.INSTANCE;
     }
-    
+
     private void initBuffer() {
         buffer = new byte[getDataType().getByteSize()];
     }
@@ -72,19 +72,19 @@ public class DoubleSumAggregator extends BaseAggregator {
     public PDataType getDataType() {
         return PDouble.INSTANCE;
     }
-    
+
     @Override
     public String toString() {
         return "SUM [sum=" + sum + "]";
     }
-    
+
     @Override
     public void reset() {
         sum = 0;
         buffer = null;
         super.reset();
     }
-    
+
     @Override
     public int getSize() {
         return super.getSize() + SizedUtil.LONG_SIZE + SizedUtil.ARRAY_SIZE + getDataType().getByteSize();

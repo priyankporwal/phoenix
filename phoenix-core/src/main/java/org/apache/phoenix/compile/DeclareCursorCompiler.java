@@ -52,14 +52,14 @@ public class DeclareCursorCompiler {
     }
 
     public MutationPlan compile(final DeclareCursorStatement declare) throws SQLException {
-        if(declare.getBindCount() != 0){
+        if (declare.getBindCount() != 0) {
             throw new SQLException("Cannot declare cursor, internal SELECT statement contains bindings!");
         }
 
         final PhoenixConnection connection = statement.getConnection();
         final StatementContext context = new StatementContext(statement);
         final MetaDataClient client = new MetaDataClient(connection);
-        
+
         return new BaseMutationPlan(context, operation) {
             @Override
             public MutationState execute() throws SQLException {

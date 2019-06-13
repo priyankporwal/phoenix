@@ -44,18 +44,18 @@ public class SequenceValueExpression extends BaseTerminalExpression {
     public long getNumToAllocate() {
         return numToAllocate;
     }
-    
+
     public SequenceKey getKey() {
         return key;
     }
-    
+
     public int getIndex() {
         return index;
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-    		byte[] valueBuffer = new byte[PLong.INSTANCE.getByteSize()];
+        byte[] valueBuffer = new byte[PLong.INSTANCE.getByteSize()];
         PLong.INSTANCE.getCodec().encodeLong(tuple.getSequenceValue(index), valueBuffer, 0);
         ptr.set(valueBuffer);
         return true;
@@ -65,17 +65,17 @@ public class SequenceValueExpression extends BaseTerminalExpression {
     public PDataType getDataType() {
         return PLong.INSTANCE;
     }
-    
+
     @Override
     public boolean isNullable() {
         return false;
     }
-    
+
     @Override
     public Determinism getDeterminism() {
         return Determinism.PER_ROW;
     }
-    
+
     @Override
     public boolean isStateless() {
         return true;
@@ -83,7 +83,7 @@ public class SequenceValueExpression extends BaseTerminalExpression {
 
     @Override
     public String toString() {
-        return op.getName() + (numToAllocate == 1 ? " VALUE " : (" " + numToAllocate + " VALUES " )) + "FOR " + SchemaUtil.getTableName(key.getSchemaName(),key.getSequenceName());
+        return op.getName() + (numToAllocate == 1 ? " VALUE " : (" " + numToAllocate + " VALUES ")) + "FOR " + SchemaUtil.getTableName(key.getSchemaName(), key.getSequenceName());
     }
 
     @Override

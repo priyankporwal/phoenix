@@ -36,7 +36,7 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
     private final ImmutableBytesWritable valuePtr = new ImmutableBytesWritable();
     private int estimatedSize = 0;
     private boolean rowKeyOrderOptimizable;
-    
+
     public ArrayConstructorExpression() {
     }
 
@@ -48,7 +48,7 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
     public ArrayConstructorExpression clone(List<Expression> children) {
         return new ArrayConstructorExpression(children, this.baseType, this.rowKeyOrderOptimizable);
     }
-    
+
     private void init(PDataType baseType, boolean rowKeyOrderOptimizable) {
         this.baseType = baseType;
         this.rowKeyOrderOptimizable = rowKeyOrderOptimizable;
@@ -84,14 +84,18 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
             Expression child = children.get(i);
             if (!child.evaluate(tuple, ptr)) {
                 if (tuple != null && !tuple.isImmutable()) {
-                    if (position >= 0) position = i;
+                    if (position >= 0) {
+                        position = i;
+                    }
                     return false;
                 }
             } else {
                 builder.appendValue(ptr.get(), ptr.getOffset(), ptr.getLength());
             }
         }
-        if (position >= 0) position = elements.length;
+        if (position >= 0) {
+            position = elements.length;
+        }
         byte[] bytes = builder.encode();
         ptr.set(bytes, 0, bytes.length);
         valuePtr.set(ptr.get(), ptr.getOffset(), ptr.getLength());
@@ -106,7 +110,7 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
         int baseTypeOrdinal = WritableUtils.readVInt(input);
         if (baseTypeOrdinal < 0) {
             rowKeyOrderOptimizable = true;
-            baseTypeOrdinal = -(baseTypeOrdinal+1);
+            baseTypeOrdinal = -(baseTypeOrdinal + 1);
         }
         init(PDataType.values()[baseTypeOrdinal], rowKeyOrderOptimizable);
     }
@@ -115,12 +119,12 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
     public void write(DataOutput output) throws IOException {
         super.write(output);
         if (rowKeyOrderOptimizable) {
-            WritableUtils.writeVInt(output, -(baseType.ordinal()+1));
+            WritableUtils.writeVInt(output, -(baseType.ordinal() + 1));
         } else {
             WritableUtils.writeVInt(output, baseType.ordinal());
         }
     }
-    
+
     @Override
     public boolean requiresFinalEvaluation() {
         return true;
@@ -135,16 +139,17 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
         }
         return t;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder(PArrayDataType.ARRAY_TYPE_SUFFIX + "[");
-        if (children.size()==0)
+        if (children.size() == 0) {
             return buf.append("]").toString();
+        }
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + ",");
         }
-        buf.append(children.get(children.size()-1) + "]");
+        buf.append(children.get(children.size() - 1) + "]");
         return buf.toString();
     }
 

@@ -41,13 +41,13 @@ public class XMLResultHandlerTest {
         File resultsFile = new File(resultsUrl.getFile());
         XMLResultHandler handler = new XMLResultHandler();
         try {
-          handler.readFromResultFile(resultsFile);
-          fail("Expected to see an exception parsing the results with a DTD");
+            handler.readFromResultFile(resultsFile);
+            fail("Expected to see an exception parsing the results with a DTD");
         } catch (UnmarshalException e) {
-          // If we don't parse the DTD, the variable 'name' won't be defined in the XML
-          LOGGER.debug("Caught expected exception", e);
-          Throwable cause = e.getLinkedException();
-          assertTrue("Cause was a " + cause.getClass(), cause instanceof XMLStreamException);
+            // If we don't parse the DTD, the variable 'name' won't be defined in the XML
+            LOGGER.debug("Caught expected exception", e);
+            Throwable cause = e.getLinkedException();
+            assertTrue("Cause was a " + cause.getClass(), cause instanceof XMLStreamException);
         }
     }
 }

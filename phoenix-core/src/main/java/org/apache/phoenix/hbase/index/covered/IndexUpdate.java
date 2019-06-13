@@ -27,51 +27,51 @@ import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
  * Update to make to the index table.
  */
 public class IndexUpdate {
-  Mutation update;
-  byte[] tableName;
-  ColumnTracker columns;
+    Mutation update;
+    byte[] tableName;
+    ColumnTracker columns;
 
-  public IndexUpdate(ColumnTracker tracker) {
-    this.columns = tracker;
-  }
+    public IndexUpdate(ColumnTracker tracker) {
+        this.columns = tracker;
+    }
 
-  public void setUpdate(Mutation p) {
-    this.update = p;
-  }
+    public void setUpdate(Mutation p) {
+        this.update = p;
+    }
 
-  public void setTable(byte[] tableName) {
-    this.tableName = tableName;
-  }
+    public void setTable(byte[] tableName) {
+        this.tableName = tableName;
+    }
 
-  public Mutation getUpdate() {
-    return update;
-  }
+    public Mutation getUpdate() {
+        return update;
+    }
 
-  public byte[] getTableName() {
-    return tableName;
-  }
+    public byte[] getTableName() {
+        return tableName;
+    }
 
-  public ColumnTracker getIndexedColumns() {
-    return columns;
-  }
+    public ColumnTracker getIndexedColumns() {
+        return columns;
+    }
 
-  @Override
-  public String toString() {
-    return "IndexUpdate: \n\ttable - " + Bytes.toString(tableName) + "\n\tupdate: " + update
-        + "\n\tcolumns: " + columns;
-  }
+    @Override
+    public String toString() {
+        return "IndexUpdate: \n\ttable - " + Bytes.toString(tableName) + "\n\tupdate: " + update
+                + "\n\tcolumns: " + columns;
+    }
 
-  public static IndexUpdate createIndexUpdateForTesting(ColumnTracker tracker, byte[] table, Put p) {
-    IndexUpdate update = new IndexUpdate(tracker);
-    update.setTable(table);
-    update.setUpdate(p);
-    return update;
-  }
+    public static IndexUpdate createIndexUpdateForTesting(ColumnTracker tracker, byte[] table, Put p) {
+        IndexUpdate update = new IndexUpdate(tracker);
+        update.setTable(table);
+        update.setUpdate(p);
+        return update;
+    }
 
-  /**
-   * @return <tt>true</tt> if the necessary state for a valid index update has been set.
-   */
-  public boolean isValid() {
-    return this.tableName != null && this.update != null;
-  }
+    /**
+     * @return <tt>true</tt> if the necessary state for a valid index update has been set.
+     */
+    public boolean isValid() {
+        return this.tableName != null && this.update != null;
+    }
 }

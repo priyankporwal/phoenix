@@ -42,7 +42,7 @@ public class JsonToKeyValueMapper extends FormatToBytesWritableMapper<Map<?, ?>>
     private LineParser<Map<?, ?>> lineParser;
 
     @Override
-    protected  LineParser<Map<?, ?>> getLineParser() {
+    protected LineParser<Map<?, ?>> getLineParser() {
         return lineParser;
     }
 

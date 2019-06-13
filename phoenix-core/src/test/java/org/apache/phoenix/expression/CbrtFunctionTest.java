@@ -85,43 +85,43 @@ public class CbrtFunctionTest {
         Random random = new Random();
 
         testBatch(
-            new BigDecimal[] { BigDecimal.valueOf(1.0), BigDecimal.valueOf(0.0),
-                    BigDecimal.valueOf(-1.0), BigDecimal.valueOf(123.1234),
-                    BigDecimal.valueOf(-123.1234), BigDecimal.valueOf(random.nextDouble()),
-                    BigDecimal.valueOf(random.nextDouble()) }, PDecimal.INSTANCE);
+                new BigDecimal[] {BigDecimal.valueOf(1.0), BigDecimal.valueOf(0.0),
+                        BigDecimal.valueOf(-1.0), BigDecimal.valueOf(123.1234),
+                        BigDecimal.valueOf(-123.1234), BigDecimal.valueOf(random.nextDouble()),
+                        BigDecimal.valueOf(random.nextDouble())}, PDecimal.INSTANCE);
 
-        testBatch(new Float[] { 1.0f, 0.0f, -1.0f, 123.1234f, -123.1234f, random.nextFloat(),
-                random.nextFloat() }, PFloat.INSTANCE);
+        testBatch(new Float[] {1.0f, 0.0f, -1.0f, 123.1234f, -123.1234f, random.nextFloat(),
+                random.nextFloat()}, PFloat.INSTANCE);
 
-        testBatch(new Float[] { 1.0f, 0.0f, 123.1234f, }, PUnsignedFloat.INSTANCE);
-
-        testBatch(
-            new Double[] { 1.0, 0.0, -1.0, 123.1234, -123.1234, random.nextDouble(),
-                    random.nextDouble() }, PDouble.INSTANCE);
-
-        testBatch(new Double[] { 1.0, 0.0, 123.1234, }, PUnsignedDouble.INSTANCE);
+        testBatch(new Float[] {1.0f, 0.0f, 123.1234f,}, PUnsignedFloat.INSTANCE);
 
         testBatch(
-            new Long[] { 1L, 0L, -1L, Long.MAX_VALUE, Long.MIN_VALUE, 123L, -123L,
-                    random.nextLong(), random.nextLong() }, PLong.INSTANCE);
+                new Double[] {1.0, 0.0, -1.0, 123.1234, -123.1234, random.nextDouble(),
+                        random.nextDouble()}, PDouble.INSTANCE);
 
-        testBatch(new Long[] { 1L, 0L, Long.MAX_VALUE, 123L }, PUnsignedLong.INSTANCE);
+        testBatch(new Double[] {1.0, 0.0, 123.1234,}, PUnsignedDouble.INSTANCE);
 
         testBatch(
-            new Integer[] { 1, 0, -1, Integer.MAX_VALUE, Integer.MIN_VALUE, 123, -123,
-                    random.nextInt(), random.nextInt() }, PInteger.INSTANCE);
+                new Long[] {1L, 0L, -1L, Long.MAX_VALUE, Long.MIN_VALUE, 123L, -123L,
+                        random.nextLong(), random.nextLong()}, PLong.INSTANCE);
 
-        testBatch(new Integer[] { 1, 0, Integer.MAX_VALUE, 123 }, PUnsignedInt.INSTANCE);
+        testBatch(new Long[] {1L, 0L, Long.MAX_VALUE, 123L}, PUnsignedLong.INSTANCE);
 
-        testBatch(new Short[] { (short) 1, (short) 0, (short) -1, Short.MAX_VALUE, Short.MIN_VALUE,
-                (short) 123, (short) -123 }, PSmallint.INSTANCE);
+        testBatch(
+                new Integer[] {1, 0, -1, Integer.MAX_VALUE, Integer.MIN_VALUE, 123, -123,
+                        random.nextInt(), random.nextInt()}, PInteger.INSTANCE);
 
-        testBatch(new Short[] { (short) 1, (short) 0, Short.MAX_VALUE, (short) 123 },
-            PSmallint.INSTANCE);
+        testBatch(new Integer[] {1, 0, Integer.MAX_VALUE, 123}, PUnsignedInt.INSTANCE);
 
-        testBatch(new Byte[] { (byte) 1, (byte) 0, (byte) -1, Byte.MAX_VALUE, Byte.MIN_VALUE,
-                (byte) 123, (byte) -123 }, PTinyint.INSTANCE);
+        testBatch(new Short[] {(short) 1, (short) 0, (short) -1, Short.MAX_VALUE, Short.MIN_VALUE,
+                (short) 123, (short) -123}, PSmallint.INSTANCE);
 
-        testBatch(new Byte[] { (byte) 1, (byte) 0, Byte.MAX_VALUE, (byte) 123 }, PTinyint.INSTANCE);
+        testBatch(new Short[] {(short) 1, (short) 0, Short.MAX_VALUE, (short) 123},
+                PSmallint.INSTANCE);
+
+        testBatch(new Byte[] {(byte) 1, (byte) 0, (byte) -1, Byte.MAX_VALUE, Byte.MIN_VALUE,
+                (byte) 123, (byte) -123}, PTinyint.INSTANCE);
+
+        testBatch(new Byte[] {(byte) 1, (byte) 0, Byte.MAX_VALUE, (byte) 123}, PTinyint.INSTANCE);
     }
 }

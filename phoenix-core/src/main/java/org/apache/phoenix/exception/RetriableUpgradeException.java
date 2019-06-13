@@ -20,7 +20,6 @@ package org.apache.phoenix.exception;
 import java.sql.SQLException;
 
 /**
- *
  * Super class for upgrade related exceptions whose occurrence shouldn't prevent the
  * client from retrying or reestablishing connection.
  */

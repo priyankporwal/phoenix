@@ -38,7 +38,7 @@ public class OrderByExpression implements Writable {
     private Expression expression;
     private boolean isNullsLast;
     private boolean isAscending;
-    
+
     public OrderByExpression() {
     }
 
@@ -51,6 +51,7 @@ public class OrderByExpression implements Writable {
 
     /**
      * If {@link Expression#getSortOrder()} is {@link SortOrder#DESC},the isAscending of returned new is reversed,but isNullsLast is untouched.
+     *
      * @param expression
      * @param isNullsLast
      * @param isAscending
@@ -66,13 +67,14 @@ public class OrderByExpression implements Writable {
     /**
      * If {@link Expression#getSortOrder()} is {@link SortOrder#DESC},reverse the isAscending,but isNullsLast is untouched.
      * A typical case is in {@link OrderByCompiler#compile} to get the compiled {@link OrderByExpression} to used for {@link OrderedResultIterator}.
+     *
      * @param expression
      * @param isNullsLast
      * @param isAscending
      * @return
      */
     public static OrderByExpression createByCheckIfExpressionSortOrderDesc(Expression expression, boolean isNullsLast, boolean isAscending) {
-        if(expression.getSortOrder() == SortOrder.DESC) {
+        if (expression.getSortOrder() == SortOrder.DESC) {
             isAscending = !isAscending;
         }
         return new OrderByExpression(expression, isNullsLast, isAscending);
@@ -81,6 +83,7 @@ public class OrderByExpression implements Writable {
     /**
      * If orderByReverse is true, reverse the isNullsLast and isAscending.
      * A typical case is in {@link AggregatePlan.OrderingResultIteratorFactory#newIterator}
+     *
      * @param expression
      * @param isNullsLast
      * @param isAscending
@@ -88,7 +91,7 @@ public class OrderByExpression implements Writable {
      * @return
      */
     public static OrderByExpression createByCheckIfOrderByReverse(Expression expression, boolean isNullsLast, boolean isAscending, boolean orderByReverse) {
-        if(orderByReverse) {
+        if (orderByReverse) {
             isNullsLast = !isNullsLast;
             isAscending = !isAscending;
         }
@@ -98,17 +101,19 @@ public class OrderByExpression implements Writable {
     /**
      * Create OrderByExpression from expression,isNullsLast is the default value "false",isAscending is based on {@link Expression#getSortOrder()}.
      * If orderByReverse is true, reverses the isNullsLast and isAscending.
+     *
      * @param expression
      * @param orderByReverse
      * @return
      */
     public static OrderByExpression convertExpressionToOrderByExpression(Expression expression, boolean orderByReverse) {
-      return convertExpressionToOrderByExpression(expression, null, orderByReverse);
+        return convertExpressionToOrderByExpression(expression, null, orderByReverse);
     }
 
     /**
      * Create OrderByExpression from expression, if the orderPreservingTrackInfo is not null, use isNullsLast and isAscending from orderPreservingTrackInfo.
      * If orderByReverse is true, reverses the isNullsLast and isAscending.
+     *
      * @param expression
      * @param orderPreservingTrackInfo
      * @param orderByReverse
@@ -120,7 +125,7 @@ public class OrderByExpression implements Writable {
             boolean orderByReverse) {
         boolean isNullsLast = false;
         boolean isAscending = expression.getSortOrder() == SortOrder.ASC;
-        if(orderPreservingTrackInfo != null) {
+        if (orderPreservingTrackInfo != null) {
             isNullsLast = orderPreservingTrackInfo.isNullsLast();
             isAscending = orderPreservingTrackInfo.isAscending();
         }
@@ -130,29 +135,29 @@ public class OrderByExpression implements Writable {
     public Expression getExpression() {
         return expression;
     }
-    
+
     public boolean isNullsLast() {
         return isNullsLast;
     }
-    
+
     public boolean isAscending() {
         return isAscending;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o != null && this.getClass() == o.getClass()) {
-            OrderByExpression that = (OrderByExpression)o;
+            OrderByExpression that = (OrderByExpression) o;
             return isNullsLast == that.isNullsLast
-                && isAscending == that.isAscending
-                && expression.equals(that.expression);
+                    && isAscending == that.isAscending
+                    && expression.equals(that.expression);
         }
         return false;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -162,7 +167,7 @@ public class OrderByExpression implements Writable {
         result = prime * result + expression.hashCode();
         return result;
     }
-    
+
     @Override
     public String toString() {
         Expression e = this.getExpression();
@@ -176,7 +181,7 @@ public class OrderByExpression implements Writable {
         }
         return e + (isAscending ? "" : " DESC") + (isNullsLast ? " NULLS LAST" : "");
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         this.isNullsLast = input.readBoolean();

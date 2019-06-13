@@ -62,7 +62,7 @@ public class ArrayToStringFunctionTest {
     public void testInt1() throws SQLException {
         PDataType type = PIntegerArray.INSTANCE;
         PDataType base = PInteger.INSTANCE;
-        Object[] o1 = new Object[]{1, 2, 3, 4, 5};
+        Object[] o1 = new Object[] {1, 2, 3, 4, 5};
         PhoenixArray arr = new PhoenixArray.PrimitiveIntPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -75,7 +75,7 @@ public class ArrayToStringFunctionTest {
     public void testInt2() throws SQLException {
         PDataType type = PIntegerArray.INSTANCE;
         PDataType base = PInteger.INSTANCE;
-        Object[] o1 = new Object[]{1, 2, 3, 4, 5};
+        Object[] o1 = new Object[] {1, 2, 3, 4, 5};
         PhoenixArray arr = new PhoenixArray.PrimitiveIntPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "";
@@ -88,7 +88,7 @@ public class ArrayToStringFunctionTest {
     public void testInt3() throws SQLException {
         PDataType type = PIntegerArray.INSTANCE;
         PDataType base = PInteger.INSTANCE;
-        Object[] o1 = new Object[]{1, 2, 3, 4, 5};
+        Object[] o1 = new Object[] {1, 2, 3, 4, 5};
         PhoenixArray arr = new PhoenixArray.PrimitiveIntPhoenixArray(base, o1);
         String delimiter = "";
         String nullString = "";
@@ -101,7 +101,7 @@ public class ArrayToStringFunctionTest {
     public void testInt4() throws SQLException {
         PDataType type = PIntegerArray.INSTANCE;
         PDataType base = PInteger.INSTANCE;
-        Object[] o1 = new Object[]{1};
+        Object[] o1 = new Object[] {1};
         PhoenixArray arr = new PhoenixArray.PrimitiveIntPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "";
@@ -114,7 +114,7 @@ public class ArrayToStringFunctionTest {
     public void testFloat1() throws SQLException {
         PDataType type = PFloatArray.INSTANCE;
         PDataType base = PFloat.INSTANCE;
-        Object[] o1 = new Object[]{(float) 1.1, (float) 2.2, (float) 3.3, (float) 4.4, (float) 5.5};
+        Object[] o1 = new Object[] {(float) 1.1, (float) 2.2, (float) 3.3, (float) 4.4, (float) 5.5};
         PhoenixArray arr = new PhoenixArray.PrimitiveFloatPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -126,19 +126,19 @@ public class ArrayToStringFunctionTest {
     public void testFloat2() throws SQLException {
         PDataType type = PFloatArray.INSTANCE;
         PDataType base = PFloat.INSTANCE;
-        Object[] o1 = new Object[]{(float) 1.1, (float) 2.2, (float) 3.3, (float) 4.4, (float) 5.5};
+        Object[] o1 = new Object[] {(float) 1.1, (float) 2.2, (float) 3.3, (float) 4.4, (float) 5.5};
         PhoenixArray arr = new PhoenixArray.PrimitiveFloatPhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
         String expected = "1.1, 2.2, 3.3, 4.4, 5.5";
         test(arr, type, null, null, delimiter, nullString, expected, SortOrder.ASC, SortOrder.ASC, SortOrder.ASC);
     }
-    
+
     @Test
     public void testDate() throws SQLException {
         PDataType type = PDateArray.INSTANCE;
         PDataType base = PDate.INSTANCE;
-        Object[] o1 = new Object[]{new Date(0l), new Date(0l), new Date(0l)};
+        Object[] o1 = new Object[] {new Date(0l), new Date(0l), new Date(0l)};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
@@ -155,7 +155,7 @@ public class ArrayToStringFunctionTest {
     public void testTime() throws SQLException {
         PDataType type = PTimeArray.INSTANCE;
         PDataType base = PTime.INSTANCE;
-        Object[] o1 = new Object[]{new Time(0l), new Time(0l), new Time(0l)};
+        Object[] o1 = new Object[] {new Time(0l), new Time(0l), new Time(0l)};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
@@ -172,7 +172,7 @@ public class ArrayToStringFunctionTest {
     public void testTimestamp() throws SQLException {
         PDataType type = PTimestampArray.INSTANCE;
         PDataType base = PTimestamp.INSTANCE;
-        Object[] o1 = new Object[]{new Timestamp(0l), new Timestamp(0l), new Timestamp(0l)};
+        Object[] o1 = new Object[] {new Timestamp(0l), new Timestamp(0l), new Timestamp(0l)};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
@@ -188,7 +188,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar1() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{"hello", null, "hello", null};
+        Object[] o1 = new Object[] {"hello", null, "hello", null};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
@@ -201,7 +201,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar2() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{"hello", null, "hello", null, null};
+        Object[] o1 = new Object[] {"hello", null, "hello", null, null};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
@@ -214,7 +214,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar3() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{"hello", null, "hello", null, null};
+        Object[] o1 = new Object[] {"hello", null, "hello", null, null};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "";
@@ -227,7 +227,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar4() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{null, "hello", "hello", null, null};
+        Object[] o1 = new Object[] {null, "hello", "hello", null, null};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "";
@@ -240,7 +240,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar5() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{"hello"};
+        Object[] o1 = new Object[] {"hello"};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "";
@@ -253,7 +253,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar6() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{null, null, null, null, "hello"};
+        Object[] o1 = new Object[] {null, null, null, null, "hello"};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "";
@@ -266,7 +266,7 @@ public class ArrayToStringFunctionTest {
     public void testVarchar7() throws SQLException {
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
-        Object[] o1 = new Object[]{null, null, null, null, "hello"};
+        Object[] o1 = new Object[] {null, null, null, null, "hello"};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ", ";
         String nullString = "*";
@@ -279,7 +279,7 @@ public class ArrayToStringFunctionTest {
     public void testDouble() throws SQLException {
         PDataType type = PDoubleArray.INSTANCE;
         PDataType base = PDouble.INSTANCE;
-        Object[] o1 = new Object[]{23.4, 56.8, 2.4};
+        Object[] o1 = new Object[] {23.4, 56.8, 2.4};
         PhoenixArray arr = new PhoenixArray.PrimitiveDoublePhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -291,7 +291,7 @@ public class ArrayToStringFunctionTest {
     public void testTinyint() throws SQLException {
         PDataType type = PTinyintArray.INSTANCE;
         PDataType base = PTinyint.INSTANCE;
-        Object[] o1 = new Object[]{(byte) 2, (byte) 4, (byte) 5};
+        Object[] o1 = new Object[] {(byte) 2, (byte) 4, (byte) 5};
         PhoenixArray arr = new PhoenixArray.PrimitiveBytePhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -304,7 +304,7 @@ public class ArrayToStringFunctionTest {
     public void testSmallint() throws SQLException {
         PDataType type = PSmallintArray.INSTANCE;
         PDataType base = PSmallint.INSTANCE;
-        Object[] o1 = new Object[]{(short) 6, (short) 7, (short) 8};
+        Object[] o1 = new Object[] {(short) 6, (short) 7, (short) 8};
         PhoenixArray arr = new PhoenixArray.PrimitiveShortPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -317,7 +317,7 @@ public class ArrayToStringFunctionTest {
     public void testBoolean() throws SQLException {
         PDataType type = PBooleanArray.INSTANCE;
         PDataType base = PBoolean.INSTANCE;
-        Object[] o1 = new Object[]{true, false, true};
+        Object[] o1 = new Object[] {true, false, true};
         PhoenixArray arr = new PhoenixArray.PrimitiveBooleanPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -329,7 +329,7 @@ public class ArrayToStringFunctionTest {
     public void testLong() throws SQLException {
         PDataType type = PLongArray.INSTANCE;
         PDataType base = PLong.INSTANCE;
-        Object[] o1 = new Object[]{(long) 23, (long) 34, (long) 45};
+        Object[] o1 = new Object[] {(long) 23, (long) 34, (long) 45};
         PhoenixArray arr = new PhoenixArray.PrimitiveLongPhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -342,7 +342,7 @@ public class ArrayToStringFunctionTest {
     public void testDecimal1() throws SQLException {
         PDataType type = PDecimalArray.INSTANCE;
         PDataType base = PDecimal.INSTANCE;
-        Object[] o1 = new Object[]{BigDecimal.valueOf(23.45), BigDecimal.valueOf(2.345), BigDecimal.valueOf(234.5)};
+        Object[] o1 = new Object[] {BigDecimal.valueOf(23.45), BigDecimal.valueOf(2.345), BigDecimal.valueOf(234.5)};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -355,7 +355,7 @@ public class ArrayToStringFunctionTest {
     public void testDecimal2() throws SQLException {
         PDataType type = PDecimalArray.INSTANCE;
         PDataType base = PDecimal.INSTANCE;
-        Object[] o1 = new Object[]{BigDecimal.valueOf(23.45), BigDecimal.valueOf(2.345), BigDecimal.valueOf(234.5), null};
+        Object[] o1 = new Object[] {BigDecimal.valueOf(23.45), BigDecimal.valueOf(2.345), BigDecimal.valueOf(234.5), null};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";
@@ -368,7 +368,7 @@ public class ArrayToStringFunctionTest {
     public void testDecimal3() throws SQLException {
         PDataType type = PDecimalArray.INSTANCE;
         PDataType base = PDecimal.INSTANCE;
-        Object[] o1 = new Object[]{BigDecimal.valueOf(23.45), BigDecimal.valueOf(2.345), null, BigDecimal.valueOf(234.5)};
+        Object[] o1 = new Object[] {BigDecimal.valueOf(23.45), BigDecimal.valueOf(2.345), null, BigDecimal.valueOf(234.5)};
         PhoenixArray arr = new PhoenixArray(base, o1);
         String delimiter = ",";
         String nullString = "*";

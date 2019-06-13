@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 package org.apache.phoenix.compile;
+
 import static org.apache.phoenix.query.QueryConstants.VALUE_COLUMN_FAMILY;
 import static org.apache.phoenix.query.QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT;
 
@@ -61,18 +62,19 @@ import com.google.common.base.Preconditions;
 public class TupleProjectionCompiler {
     public static final PName PROJECTED_TABLE_SCHEMA = PNameFactory.newName(".");
     private static final ParseNodeFactory NODE_FACTORY = new ParseNodeFactory();
-    
+
     public static PTable createProjectedTable(SelectStatement select, StatementContext context) throws SQLException {
         Preconditions.checkArgument(!select.isJoin());
         // Non-group-by or group-by aggregations will create its own projected result.
-        if (select.getInnerSelectStatement() != null 
+        if (select.getInnerSelectStatement() != null
                 || select.getFrom() == null
-                || select.isAggregate() 
+                || select.isAggregate()
                 || select.isDistinct()
                 || (context.getResolver().getTables().get(0).getTable().getType() != PTableType.TABLE
-                && context.getResolver().getTables().get(0).getTable().getType() != PTableType.INDEX && context.getResolver().getTables().get(0).getTable().getType() != PTableType.VIEW))
+                && context.getResolver().getTables().get(0).getTable().getType() != PTableType.INDEX && context.getResolver().getTables().get(0).getTable().getType() != PTableType.VIEW)) {
             return null;
-        
+        }
+
         List<PColumn> projectedColumns = new ArrayList<PColumn>();
         boolean isWildcard = false;
         Set<String> families = new HashSet<String>();
@@ -85,7 +87,7 @@ public class TupleProjectionCompiler {
             if (node instanceof WildcardParseNode) {
                 if (((WildcardParseNode) node).isRewrite()) {
                     TableRef parentTableRef = FromCompiler.getResolver(
-                            NODE_FACTORY.namedTable(null, TableName.create(table.getSchemaName().getString(), 
+                            NODE_FACTORY.namedTable(null, TableName.create(table.getSchemaName().getString(),
                                     table.getParentTableName().getString())), context.getConnection()).resolveTable(
                             table.getSchemaName().getString(),
                             table.getParentTableName().getString());
@@ -99,14 +101,14 @@ public class TupleProjectionCompiler {
                 String familyName = familyWildcardNode.getName();
                 if (familyWildcardNode.isRewrite()) {
                     TableRef parentTableRef = FromCompiler.getResolver(
-                            NODE_FACTORY.namedTable(null, TableName.create(table.getSchemaName().getString(), 
+                            NODE_FACTORY.namedTable(null, TableName.create(table.getSchemaName().getString(),
                                     table.getParentTableName().getString())), context.getConnection()).resolveTable(
                             table.getSchemaName().getString(),
                             table.getParentTableName().getString());
                     for (PColumn column : parentTableRef.getTable().getColumnFamily(familyName).getColumns()) {
                         NODE_FACTORY.column(null, '"' + IndexUtil.getIndexColumnName(column) + '"', null).accept(visitor);
                     }
-                }else{
+                } else {
                     for (PColumn column : table.getColumnFamily(familyName).getColumns()) {
                         NODE_FACTORY.column(TableName.create(null, familyName), '"' + column.getName().getString() + '"', null).accept(visitor);
                     }
@@ -128,20 +130,22 @@ public class TupleProjectionCompiler {
         for (int i = position; i < table.getPKColumns().size(); i++) {
             PColumn sourceColumn = table.getPKColumns().get(i);
             ColumnRef sourceColumnRef = new ColumnRef(tableRef, sourceColumn.getPosition());
-            PColumn column = new ProjectedColumn(sourceColumn.getName(), sourceColumn.getFamilyName(), 
+            PColumn column = new ProjectedColumn(sourceColumn.getName(), sourceColumn.getFamilyName(),
                     position++, sourceColumn.isNullable(), sourceColumnRef, null);
             projectedColumns.add(column);
         }
 
         List<ColumnRef> nonPkColumnRefList = new ArrayList<ColumnRef>(visitor.nonPkColumnRefSet);
         for (PColumn sourceColumn : table.getColumns()) {
-            if (SchemaUtil.isPKColumn(sourceColumn))
+            if (SchemaUtil.isPKColumn(sourceColumn)) {
                 continue;
+            }
             ColumnRef sourceColumnRef = new ColumnRef(tableRef, sourceColumn.getPosition());
-            if (!isWildcard 
+            if (!isWildcard
                     && !visitor.nonPkColumnRefSet.contains(sourceColumnRef)
-                    && !families.contains(sourceColumn.getFamilyName().getString()))
+                    && !families.contains(sourceColumn.getFamilyName().getString())) {
                 continue;
+            }
 
             PColumn column = new ProjectedColumn(sourceColumn.getName(), sourceColumn.getFamilyName(),
                     visitor.nonPkColumnRefSet.contains(sourceColumnRef)
@@ -151,14 +155,14 @@ public class TupleProjectionCompiler {
             projectedColumns.add(column);
             // Wildcard or FamilyWildcard will be handled by ProjectionCompiler.
             if (!isWildcard && !families.contains(sourceColumn.getFamilyName())) {
-            	EncodedColumnsUtil.setColumns(column, table, context.getScan());
+                EncodedColumnsUtil.setColumns(column, table, context.getScan());
             }
         }
         // add LocalIndexDataColumnRef
         position = projectedColumns.size();
         for (LocalIndexDataColumnRef sourceColumnRef : visitor.localIndexColumnRefSet) {
-            PColumn column = new ProjectedColumn(sourceColumnRef.getColumn().getName(), 
-                    sourceColumnRef.getColumn().getFamilyName(), position++, 
+            PColumn column = new ProjectedColumn(sourceColumnRef.getColumn().getName(),
+                    sourceColumnRef.getColumn().getFamilyName(), position++,
                     sourceColumnRef.getColumn().isNullable(), sourceColumnRef, sourceColumnRef.getColumn().getColumnQualifierBytes());
             projectedColumns.add(column);
         }
@@ -169,7 +173,7 @@ public class TupleProjectionCompiler {
                 .setPhysicalNames(ImmutableList.of())
                 .build();
     }
-    
+
     public static PTable createProjectedTable(TableRef tableRef, List<ColumnRef> sourceColumnRefs, boolean retainPKColumns) throws SQLException {
         PTable table = tableRef.getTable();
         List<PColumn> projectedColumns = new ArrayList<PColumn>();
@@ -178,12 +182,12 @@ public class TupleProjectionCompiler {
             ColumnRef sourceColumnRef = sourceColumnRefs.get(i);
             PColumn sourceColumn = sourceColumnRef.getColumn();
             String colName = sourceColumn.getName().getString();
-            String aliasedName = tableRef.getTableAlias() == null ? 
-                      SchemaUtil.getColumnName(table.getName().getString(), colName) 
+            String aliasedName = tableRef.getTableAlias() == null ?
+                    SchemaUtil.getColumnName(table.getName().getString(), colName)
                     : SchemaUtil.getColumnName(tableRef.getTableAlias(), colName);
-            PName familyName =  SchemaUtil.isPKColumn(sourceColumn) ? (retainPKColumns ? null : PNameFactory.newName(VALUE_COLUMN_FAMILY)) : sourceColumn.getFamilyName();
+            PName familyName = SchemaUtil.isPKColumn(sourceColumn) ? (retainPKColumns ? null : PNameFactory.newName(VALUE_COLUMN_FAMILY)) : sourceColumn.getFamilyName();
             // If we're not retaining the PK columns, then we should switch columns to be nullable
-            PColumn column = new ProjectedColumn(PNameFactory.newName(aliasedName), familyName, 
+            PColumn column = new ProjectedColumn(PNameFactory.newName(aliasedName), familyName,
                     position++, sourceColumn.isNullable(), sourceColumnRef, sourceColumn.getColumnQualifierBytes());
             projectedColumns.add(column);
         }
@@ -231,7 +235,7 @@ public class TupleProjectionCompiler {
         private final StatementContext context;
         private final LinkedHashSet<ColumnRef> nonPkColumnRefSet;
         private final LinkedHashSet<LocalIndexDataColumnRef> localIndexColumnRefSet;
-        
+
         private ColumnRefVisitor(StatementContext context) {
             this.context = context;
             this.nonPkColumnRefSet = new LinkedHashSet<ColumnRef>();
@@ -258,6 +262,6 @@ public class TupleProjectionCompiler {
                 }
             }
             return null;
-        }        
+        }
     }
 }

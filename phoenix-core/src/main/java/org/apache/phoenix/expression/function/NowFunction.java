@@ -28,19 +28,18 @@ import org.apache.phoenix.parse.FunctionParseNode.FunctionClassType;
 
 
 /**
- * 
  * Function used to represent NOW()
  * The function returns a {@link org.apache.phoenix.schema.types.PTimestamp}
- *
  */
 @BuiltInFunction(name = NowFunction.NAME,
-        nodeClass=CurrentDateParseNode.class, args= {}, classType = FunctionClassType.ALIAS, derivedFunctions = {CurrentDateFunction.class})
+        nodeClass = CurrentDateParseNode.class, args = {}, classType = FunctionClassType.ALIAS, derivedFunctions = {CurrentDateFunction.class})
 public abstract class NowFunction extends ScalarFunction {
-    
+
     public static final String NAME = "NOW";
 
-    public NowFunction() {}
-    
+    public NowFunction() {
+    }
+
     public NowFunction(List<Expression> children) throws SQLException {
         super(children);
     }
@@ -48,6 +47,6 @@ public abstract class NowFunction extends ScalarFunction {
     @Override
     public String getName() {
         return NAME;
-    }   
-    
+    }
+
 }

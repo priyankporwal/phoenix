@@ -39,19 +39,19 @@ import com.google.common.collect.Lists;
  * oldest entries when size grows beyond the maxSize specified at create time.
  */
 public class PMetaDataImpl implements PMetaData {
-    
+
     private PMetaDataCache metaData;
     private final TimeKeeper timeKeeper;
     private final PTableRefFactory tableRefFactory;
-    
+
     public PMetaDataImpl(int initialCapacity, ReadOnlyProps props) {
         this(initialCapacity, TimeKeeper.SYSTEM, props);
     }
 
     public PMetaDataImpl(int initialCapacity, TimeKeeper timeKeeper, ReadOnlyProps props) {
         this(new PMetaDataCache(initialCapacity, props.getLong(
-            QueryServices.MAX_CLIENT_METADATA_CACHE_SIZE_ATTRIB,
-            QueryServicesOptions.DEFAULT_MAX_CLIENT_METADATA_CACHE_SIZE), timeKeeper,
+                QueryServices.MAX_CLIENT_METADATA_CACHE_SIZE_ATTRIB,
+                QueryServicesOptions.DEFAULT_MAX_CLIENT_METADATA_CACHE_SIZE), timeKeeper,
                 PTableRefFactory.getFactory(props)), timeKeeper, PTableRefFactory.getFactory(props));
     }
 
@@ -65,7 +65,7 @@ public class PMetaDataImpl implements PMetaData {
     public PMetaDataImpl clone() {
         return new PMetaDataImpl(new PMetaDataCache(this.metaData), this.timeKeeper, this.tableRefFactory);
     }
-    
+
     @Override
     public PTableRef getTableRef(PTableKey key) throws TableNotFoundException {
         PTableRef ref = metaData.get(key);
@@ -91,7 +91,7 @@ public class PMetaDataImpl implements PMetaData {
 
     @Override
     public void updateResolvedTimestamp(PTable table, long resolvedTimestamp) throws SQLException {
-    	metaData.put(table.getKey(), tableRefFactory.makePTableRef(table, this.timeKeeper.getCurrentTime(), resolvedTimestamp));
+        metaData.put(table.getKey(), tableRefFactory.makePTableRef(table, this.timeKeeper.getCurrentTime(), resolvedTimestamp));
     }
 
     @Override
@@ -137,7 +137,7 @@ public class PMetaDataImpl implements PMetaData {
         }
         long overage = metaData.getCurrentSize() + netGain - metaData.getMaxSize();
         metaData = overage <= 0 ? metaData : metaData.cloneMinusOverage(overage);
-        
+
         if (newParentTable != null) { // Upsert new index table into parent data table list
             metaData.put(newParentTable.getKey(), newParentTableRef);
             metaData.put(table.getKey(), tableRef);
@@ -172,7 +172,7 @@ public class PMetaDataImpl implements PMetaData {
         // also remove its reference from parent table
         if (parentTableRef != null) {
             List<PTable> oldIndexes = parentTableRef.getTable().getIndexes();
-            if(oldIndexes != null && !oldIndexes.isEmpty()) {
+            if (oldIndexes != null && !oldIndexes.isEmpty()) {
                 List<PTable> newIndexes = Lists.newArrayListWithExpectedSize(oldIndexes.size());
                 newIndexes.addAll(oldIndexes);
                 for (int i = 0; i < newIndexes.size(); i++) {
@@ -182,7 +182,7 @@ public class PMetaDataImpl implements PMetaData {
                         PTableImpl.Builder parentTableBuilder =
                                 PTableImpl.builderWithColumns(parentTableRef.getTable(),
                                         getColumnsToClone(parentTableRef.getTable()))
-                                .setIndexes(newIndexes == null ? Collections.emptyList() : newIndexes);
+                                        .setIndexes(newIndexes == null ? Collections.emptyList() : newIndexes);
                         if (tableTimeStamp != HConstants.LATEST_TIMESTAMP) {
                             parentTableBuilder.setTimeStamp(tableTimeStamp);
                         }
@@ -194,7 +194,7 @@ public class PMetaDataImpl implements PMetaData {
             }
         }
     }
-    
+
     @Override
     public void removeColumn(PName tenantId, String tableName, List<PColumn> columnsToRemove, long tableTimeStamp, long tableSeqNum, long resolvedTime) throws SQLException {
         PTableRef tableRef = metaData.get(new PTableKey(tenantId, tableName));
@@ -222,10 +222,10 @@ public class PMetaDataImpl implements PMetaData {
             List<PColumn> columns = Lists.newArrayListWithExpectedSize(oldColumns.size() - 1);
             columns.addAll(oldColumns.subList(0, position));
             // Update position of columns that follow removed column
-            for (int i = position+1; i < oldColumns.size(); i++) {
+            for (int i = position + 1; i < oldColumns.size(); i++) {
                 PColumn oldColumn = oldColumns.get(i);
-                PColumn newColumn = new PColumnImpl(oldColumn.getName(), oldColumn.getFamilyName(), oldColumn.getDataType(), oldColumn.getMaxLength(), oldColumn.getScale(), oldColumn.isNullable(), i-1+positionOffset, oldColumn.getSortOrder(), oldColumn.getArraySize(), oldColumn.getViewConstant(), oldColumn.isViewReferenced(), oldColumn.getExpressionStr(), oldColumn.isRowTimestamp(), oldColumn.isDynamic(), oldColumn.getColumnQualifierBytes(),
-                    oldColumn.getTimestamp());
+                PColumn newColumn = new PColumnImpl(oldColumn.getName(), oldColumn.getFamilyName(), oldColumn.getDataType(), oldColumn.getMaxLength(), oldColumn.getScale(), oldColumn.isNullable(), i - 1 + positionOffset, oldColumn.getSortOrder(), oldColumn.getArraySize(), oldColumn.getViewConstant(), oldColumn.isViewReferenced(), oldColumn.getExpressionStr(), oldColumn.isRowTimestamp(), oldColumn.isDynamic(), oldColumn.getColumnQualifierBytes(),
+                        oldColumn.getTimestamp());
                 columns.add(newColumn);
             }
             table = PTableImpl.builderWithColumns(table, columns)
@@ -295,7 +295,9 @@ public class PMetaDataImpl implements PMetaData {
     @Override
     public PSchema getSchema(PTableKey key) throws SchemaNotFoundException {
         PSchema schema = metaData.schemas.get(key);
-        if (schema == null) { throw new SchemaNotFoundException(key.getName()); }
+        if (schema == null) {
+            throw new SchemaNotFoundException(key.getName());
+        }
         return schema;
     }
 

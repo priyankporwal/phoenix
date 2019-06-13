@@ -136,7 +136,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
         try (Connection conn = DriverManager.getConnection(getUrl(), props);) {
             conn.createStatement().execute(ddl);
             assertNotEquals(null, admin.getDescriptor(TableName.valueOf(
-                SchemaUtil.getPhysicalTableName(tableName.getBytes(), true).getName())));
+                    SchemaUtil.getPhysicalTableName(tableName.getBytes(), true).getName())));
         } finally {
             admin.close();
         }
@@ -195,23 +195,23 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
     public void testCreatingTooManyIndexesIsNotAllowed() throws Exception {
         String tableName = generateUniqueName();
         String ddl = "CREATE TABLE " + tableName + " (\n"
-            + "ID VARCHAR(15) PRIMARY KEY,\n"
-            + "COL1 BIGINT,"
-            + "COL2 BIGINT,"
-            + "COL3 BIGINT,"
-            + "COL4 BIGINT) ";
+                + "ID VARCHAR(15) PRIMARY KEY,\n"
+                + "COL1 BIGINT,"
+                + "COL2 BIGINT,"
+                + "COL3 BIGINT,"
+                + "COL4 BIGINT) ";
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.createStatement().execute(ddl);
-        
+
         int maxIndexes = conn.unwrap(PhoenixConnection.class).getQueryServices().getProps().getInt(
-        		QueryServices.MAX_INDEXES_PER_TABLE, QueryServicesOptions.DEFAULT_MAX_INDEXES_PER_TABLE);
+                QueryServices.MAX_INDEXES_PER_TABLE, QueryServicesOptions.DEFAULT_MAX_INDEXES_PER_TABLE);
 
         // Use local indexes since there's only one physical table for all of them.
         for (int i = 0; i < maxIndexes; i++) {
             conn.createStatement().execute("CREATE LOCAL INDEX I_" + i + tableName + " ON " + tableName + "(COL1) INCLUDE (COL2,COL3,COL4)");
         }
-        
+
         // here we ensure we get a too many indexes error
         try {
             conn.createStatement().execute("CREATE LOCAL INDEX I_" + maxIndexes + tableName + " ON " + tableName + "(COL1) INCLUDE (COL2,COL3,COL4)");
@@ -392,6 +392,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
 
     /**
      * Test to ensure that NOT NULL constraint isn't added to a non primary key column.
+     *
      * @throws Exception
      */
     @Test
@@ -416,7 +417,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             fail(" Non pk column ENTRY_POINT_NAME has a NOT NULL constraint");
         } catch (SQLException sqle) {
             assertEquals(SQLExceptionCode.KEY_VALUE_NOT_NULL.getErrorCode(),
-                sqle.getErrorCode());
+                    sqle.getErrorCode());
         }
     }
 
@@ -432,7 +433,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             fail(" Non pk column V has a NOT NULL constraint");
         } catch (SQLException sqle) {
             assertEquals(SQLExceptionCode.KEY_VALUE_NOT_NULL.getErrorCode(),
-                sqle.getErrorCode());
+                    sqle.getErrorCode());
         }
     }
 
@@ -450,7 +451,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             conn.createStatement().execute(ddl);
         } catch (SQLException sqle) {
             assertEquals(SQLExceptionCode.COLUMN_FAMILY_NOT_ALLOWED_FOR_PROPERTY.getErrorCode(),
-                sqle.getErrorCode());
+                    sqle.getErrorCode());
         }
     }
 
@@ -497,7 +498,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.createStatement().execute(createTableDDL);
             assertColumnEncodingMetadata(QualifierEncodingScheme.TWO_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
         }
         // Execute the ddl again
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -505,7 +506,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
             assertFalse(rs.next());
             assertColumnEncodingMetadata(QualifierEncodingScheme.TWO_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
         }
         // Now execute the ddl with a different COLUMN_ENCODED_BYTES. This shouldn't change the
         // original encoded bytes setting.
@@ -514,7 +515,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
             assertFalse(rs.next());
             assertColumnEncodingMetadata(QualifierEncodingScheme.TWO_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
         }
         // Now execute the ddl where COLUMN_ENCODED_BYTES=0. This shouldn't change the original
         // encoded bytes setting.
@@ -523,13 +524,13 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
             assertFalse(rs.next());
             assertColumnEncodingMetadata(QualifierEncodingScheme.TWO_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN, tableName, conn);
         }
 
     }
 
     private void assertColumnEncodingMetadata(QualifierEncodingScheme expectedEncodingScheme,
-            ImmutableStorageScheme expectedStorageScheme, String tableName, Connection conn)
+                                              ImmutableStorageScheme expectedStorageScheme, String tableName, Connection conn)
             throws Exception {
         PhoenixConnection phxConn = conn.unwrap(PhoenixConnection.class);
         PTable table = phxConn.getTable(new PTableKey(null, tableName));
@@ -554,8 +555,8 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                             + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)) MULTI_TENANT=true, COLUMN_ENCODED_BYTES=0";
             conn.createStatement().execute(createTableDDL);
             assertColumnEncodingMetadata(QualifierEncodingScheme.NON_ENCODED_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN,
-                nonEncodedOneCellPerColumnMultiTenantTable, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN,
+                    nonEncodedOneCellPerColumnMultiTenantTable, conn);
         }
         props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -567,8 +568,8 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                             + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)) MULTI_TENANT=true";
             conn.createStatement().execute(createTableDDL);
             assertColumnEncodingMetadata(QualifierEncodingScheme.TWO_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN,
-                twoByteQualifierEncodedOneCellPerColumnMultiTenantTable, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN,
+                    twoByteQualifierEncodedOneCellPerColumnMultiTenantTable, conn);
         }
         props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -580,8 +581,8 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                             + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)) MULTI_TENANT=true, COLUMN_ENCODED_BYTES = 1";
             conn.createStatement().execute(createTableDDL);
             assertColumnEncodingMetadata(QualifierEncodingScheme.ONE_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.ONE_CELL_PER_COLUMN,
-                oneByteQualifierEncodedOneCellPerColumnMultiTenantTable, conn);
+                    ImmutableStorageScheme.ONE_CELL_PER_COLUMN,
+                    oneByteQualifierEncodedOneCellPerColumnMultiTenantTable, conn);
         }
         props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -593,8 +594,8 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                             + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)) MULTI_TENANT=true, IMMUTABLE_STORAGE_SCHEME=SINGLE_CELL_ARRAY_WITH_OFFSETS";
             conn.createStatement().execute(createTableDDL);
             assertColumnEncodingMetadata(QualifierEncodingScheme.TWO_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS,
-                twoByteQualifierSingleCellArrayWithOffsetsMultitenantTable, conn);
+                    ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS,
+                    twoByteQualifierSingleCellArrayWithOffsetsMultitenantTable, conn);
         }
         props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -606,8 +607,8 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                             + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1, col2)) MULTI_TENANT=true, IMMUTABLE_STORAGE_SCHEME=SINGLE_CELL_ARRAY_WITH_OFFSETS, COLUMN_ENCODED_BYTES=1";
             conn.createStatement().execute(createTableDDL);
             assertColumnEncodingMetadata(QualifierEncodingScheme.ONE_BYTE_QUALIFIERS,
-                ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS,
-                oneByteQualifierSingleCellArrayWithOffsetsMultitenantTable, conn);
+                    ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS,
+                    oneByteQualifierSingleCellArrayWithOffsetsMultitenantTable, conn);
 
         }
     }
@@ -622,7 +623,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
 
             // Assert update cache frequency to default value zero
             connection.createStatement().execute(
-                "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)");
+                    "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)");
             String readSysCatQuery =
                     "select TABLE_NAME,UPDATE_CACHE_FREQUENCY from SYSTEM.CATALOG where "
                             + "TABLE_NAME = '" + tableName + "'  AND TABLE_TYPE='u'";
@@ -635,10 +636,10 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             // Assert update cache frequency to configured default value 10sec
             int defaultUpdateCacheFrequency = 10000;
             props.put(QueryServices.DEFAULT_UPDATE_CACHE_FREQUENCY_ATRRIB,
-                "" + defaultUpdateCacheFrequency);
+                    "" + defaultUpdateCacheFrequency);
             connection = DriverManager.getConnection(getUrl(), props);
             connection.createStatement().execute(
-                "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)");
+                    "create table " + tableName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)");
             rs = connection.createStatement().executeQuery(readSysCatQuery);
             Assert.assertTrue(rs.next());
             Assert.assertEquals(defaultUpdateCacheFrequency, rs.getLong(2));
@@ -677,11 +678,11 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             {
                 String table = NS + "." + TBL;
                 conn.createStatement().execute(
-                    "CREATE TABLE " + table + " (PK VARCHAR PRIMARY KEY, " + CF + ".COL VARCHAR)");
+                        "CREATE TABLE " + table + " (PK VARCHAR PRIMARY KEY, " + CF + ".COL VARCHAR)");
 
                 assertTrue(QueryUtil
                         .getExplainPlan(
-                            conn.createStatement().executeQuery("explain select * from " + table))
+                                conn.createStatement().executeQuery("explain select * from " + table))
                         .contains(NS + ":" + TBL));
 
                 conn.createStatement().execute("DROP TABLE " + table);
@@ -691,11 +692,11 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             {
                 String table = "\"" + NS + "." + TBL + "\"";
                 conn.createStatement().execute(
-                    "CREATE TABLE " + table + " (PK VARCHAR PRIMARY KEY, " + CF + ".COL VARCHAR)");
+                        "CREATE TABLE " + table + " (PK VARCHAR PRIMARY KEY, " + CF + ".COL VARCHAR)");
 
                 assertTrue(QueryUtil
                         .getExplainPlan(
-                            conn.createStatement().executeQuery("explain select * from " + table))
+                                conn.createStatement().executeQuery("explain select * from " + table))
                         .contains(NS + "." + TBL));
 
                 conn.createStatement().execute("DROP TABLE " + table);
@@ -705,11 +706,11 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
             {
                 String table = NS + ".\"" + NS + "." + TBL + "\"";
                 conn.createStatement().execute(
-                    "CREATE TABLE " + table + " (PK VARCHAR PRIMARY KEY, " + CF + ".COL VARCHAR)");
+                        "CREATE TABLE " + table + " (PK VARCHAR PRIMARY KEY, " + CF + ".COL VARCHAR)");
 
                 assertTrue(QueryUtil
                         .getExplainPlan(
-                            conn.createStatement().executeQuery("explain select * from " + table))
+                                conn.createStatement().executeQuery("explain select * from " + table))
                         .contains(NS + ":" + NS + "." + TBL));
 
                 conn.createStatement().execute("DROP TABLE " + table);
@@ -763,7 +764,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute(ddl);
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_SET_GUIDE_POST_WIDTH.getErrorCode(),
-                    e.getErrorCode());
+                        e.getErrorCode());
             }
 
             // let the view creation go through
@@ -778,7 +779,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute(ddl);
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_SET_GUIDE_POST_WIDTH.getErrorCode(),
-                    e.getErrorCode());
+                        e.getErrorCode());
             }
             String localIndex = "LI_" + generateUniqueName();
             ddl =
@@ -788,7 +789,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute(ddl);
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_SET_GUIDE_POST_WIDTH.getErrorCode(),
-                    e.getErrorCode());
+                        e.getErrorCode());
             }
             String viewIndex = "VI_" + generateUniqueName();
             ddl =
@@ -798,7 +799,7 @@ public class CreateTableIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute(ddl);
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.CANNOT_SET_GUIDE_POST_WIDTH.getErrorCode(),
-                    e.getErrorCode());
+                        e.getErrorCode());
             }
         }
     }

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,15 +41,16 @@ public class GuidePostsCacheProviderTest {
     static GuidePostsCache testCache = null;
     static PhoenixStatsLoader phoenixStatsLoader = null;
 
-    public static class TestGuidePostsCacheFactory implements  GuidePostsCacheFactory {
+    public static class TestGuidePostsCacheFactory implements GuidePostsCacheFactory {
 
-        public static volatile int count=0;
+        public static volatile int count = 0;
 
         public TestGuidePostsCacheFactory() {
             count++;
         }
 
-        @Override public PhoenixStatsLoader getPhoenixStatsLoader(
+        @Override
+        public PhoenixStatsLoader getPhoenixStatsLoader(
                 ConnectionQueryServices clientConnectionQueryServices, ReadOnlyProps readOnlyProps,
                 Configuration config) {
             return phoenixStatsLoader;
@@ -57,36 +58,37 @@ public class GuidePostsCacheProviderTest {
 
         @Override
         public GuidePostsCache getGuidePostsCache(PhoenixStatsLoader phoenixStatsLoader,
-                Configuration config) {
+                                                  Configuration config) {
             return testCache;
         }
     }
 
     private GuidePostsCacheProvider helper;
 
-    @Before public void init(){
+    @Before
+    public void init() {
         TestGuidePostsCacheFactory.count = 0;
         helper = new GuidePostsCacheProvider();
     }
 
 
     @Test(expected = java.lang.NullPointerException.class)
-    public void loadAndGetGuidePostsCacheFactoryNullStringFailure(){
-            helper.loadAndGetGuidePostsCacheFactory(null);
+    public void loadAndGetGuidePostsCacheFactoryNullStringFailure() {
+        helper.loadAndGetGuidePostsCacheFactory(null);
     }
 
     @Test(expected = PhoenixNonRetryableRuntimeException.class)
-    public void loadAndGetGuidePostsCacheFactoryBadStringFailure(){
+    public void loadAndGetGuidePostsCacheFactoryBadStringFailure() {
         helper.loadAndGetGuidePostsCacheFactory("not a class");
     }
 
     @Test(expected = PhoenixNonRetryableRuntimeException.class)
-    public void loadAndGetGuidePostsCacheFactoryNonImplementingClassFailure(){
+    public void loadAndGetGuidePostsCacheFactoryNonImplementingClassFailure() {
         helper.loadAndGetGuidePostsCacheFactory(Object.class.getTypeName());
     }
 
     @Test
-    public void loadAndGetGuidePostsCacheFactoryTestFactory(){
+    public void loadAndGetGuidePostsCacheFactoryTestFactory() {
         GuidePostsCacheFactory factory = helper.loadAndGetGuidePostsCacheFactory(
                 TestGuidePostsCacheFactory.class.getTypeName());
         assertTrue(factory instanceof TestGuidePostsCacheFactory);
@@ -94,7 +96,7 @@ public class GuidePostsCacheProviderTest {
 
 
     @Test
-    public void getSingletonSimpleTest(){
+    public void getSingletonSimpleTest() {
         GuidePostsCacheFactory factory1 = helper.loadAndGetGuidePostsCacheFactory(
                 TestGuidePostsCacheFactory.class.getTypeName());
         assertTrue(factory1 instanceof TestGuidePostsCacheFactory);
@@ -103,12 +105,12 @@ public class GuidePostsCacheProviderTest {
                 TestGuidePostsCacheFactory.class.getTypeName());
         assertTrue(factory2 instanceof TestGuidePostsCacheFactory);
 
-        assertEquals(factory1,factory2);
-        assertEquals(1,TestGuidePostsCacheFactory.count);
+        assertEquals(factory1, factory2);
+        assertEquals(1, TestGuidePostsCacheFactory.count);
     }
 
     @Test
-    public void getGuidePostsCacheWrapper(){
+    public void getGuidePostsCacheWrapper() {
         testCache = Mockito.mock(GuidePostsCache.class);
         ConnectionQueryServices mockQueryServices = Mockito.mock(ConnectionQueryServices.class);
         Configuration mockConfiguration = Mockito.mock(Configuration.class);
@@ -117,6 +119,6 @@ public class GuidePostsCacheProviderTest {
                 helper.getGuidePostsCache(TestGuidePostsCacheFactory.class.getTypeName(),
                         mockQueryServices, mockConfiguration);
         value.invalidateAll();
-        Mockito.verify(testCache,Mockito.atLeastOnce()).invalidateAll();
+        Mockito.verify(testCache, Mockito.atLeastOnce()).invalidateAll();
     }
 }

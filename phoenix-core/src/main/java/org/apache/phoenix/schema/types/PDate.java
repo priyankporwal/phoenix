@@ -80,7 +80,7 @@ public class PDate extends PDataType<Date> {
         if (l == 0) {
             return null;
         }
-        if (actualType.getCodec() != null ) {
+        if (actualType.getCodec() != null) {
             return new Date(actualType.getCodec().decodeLong(b, o, sortOrder));
         } else if (actualType == PTimestamp.INSTANCE) {
             return new Date(PDate.INSTANCE.getCodec().decodeLong(b, o, sortOrder));
@@ -169,8 +169,8 @@ public class PDate extends PDataType<Date> {
 
     @Override
     public void coerceBytes(ImmutableBytesWritable ptr, Object object, PDataType actualType,
-            Integer maxLength, Integer scale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier) {
+                            Integer maxLength, Integer scale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier) {
         // Decrease size of TIMESTAMP to size of DATE and continue coerce
         if (ptr.getLength() > getByteSize()) {
             ptr.set(ptr.get(), ptr.getOffset(), getByteSize());

@@ -33,7 +33,7 @@ public class PhoenixMRJobCallable implements Callable<Boolean> {
     private Configuration conf;
 
     public PhoenixMRJobCallable(Configuration conf, final PhoenixAsyncIndex indexInfo,
-            String basePath) {
+                                String basePath) {
         this.conf = conf;
         this.indexInfo = indexInfo;
         this.basePath = basePath;

@@ -101,14 +101,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- *
  * Implementation of ConnectionQueryServices used in testing where no connection to
  * an hbase cluster is necessary.
- * 
- * 
+ *
  * @since 0.1
  */
-public class ConnectionlessQueryServicesImpl extends DelegateQueryServices implements ConnectionQueryServices  {
+public class ConnectionlessQueryServicesImpl extends DelegateQueryServices implements ConnectionQueryServices {
     private static ServerName SERVER_NAME = ServerName.parseServerName(HConstants.LOCALHOST + Addressing.HOSTNAME_PORT_SEPARATOR + HConstants.DEFAULT_ZOOKEPER_CLIENT_PORT);
     private static final GuidePostsCacheProvider
             GUIDE_POSTS_CACHE_PROVIDER = new GuidePostsCacheProvider();
@@ -124,7 +122,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     private final Configuration config;
 
     private User user;
-    
+
     public ConnectionlessQueryServicesImpl(QueryServices services, ConnectionInfo connInfo, Properties info) {
         super(services);
         userName = connInfo.getPrincipal();
@@ -134,7 +132,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
         // Use KeyValueBuilder that builds real KeyValues, as our test utils require this
         this.kvBuilder = GenericKeyValueBuilder.INSTANCE;
         Configuration config = HBaseFactoryProvider.getConfigurationFactory().getConfiguration();
-        for (Entry<String,String> entry : services.getProps()) {
+        for (Entry<String, String> entry : services.getProps()) {
             config.set(entry.getKey(), entry.getValue());
         }
         if (info != null) {
@@ -142,7 +140,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
                 config.set((String) key, info.getProperty((String) key));
             }
         }
-        for (Entry<String,String> entry : connInfo.asProps()) {
+        for (Entry<String, String> entry : connInfo.asProps()) {
             config.set(entry.getKey(), entry.getValue());
         }
 
@@ -178,16 +176,16 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     protected String getLogTableDDL() {
         return setSystemLogDDLProperties(QueryConstants.CREATE_LOG_METADATA);
     }
-    
+
     private String setSystemLogDDLProperties(String ddl) {
         return String.format(ddl, props.getInt(LOG_SALT_BUCKETS_ATTRIB, QueryServicesOptions.DEFAULT_LOG_SALT_BUCKETS));
 
     }
-    
+
     protected String getChildLinkDDL() {
         return setSystemDDLProperties(QueryConstants.CREATE_CHILD_LINK_METADATA);
     }
-    
+
     protected String getMutexDDL() {
         return setSystemDDLProperties(QueryConstants.CREATE_MUTEX_METADTA);
     }
@@ -198,8 +196,8 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     private String setSystemDDLProperties(String ddl) {
         return String.format(ddl,
-          props.getInt(DEFAULT_SYSTEM_MAX_VERSIONS_ATTRIB, QueryServicesOptions.DEFAULT_SYSTEM_MAX_VERSIONS),
-          props.getBoolean(DEFAULT_SYSTEM_KEEP_DELETED_CELLS_ATTRIB, QueryServicesOptions.DEFAULT_SYSTEM_KEEP_DELETED_CELLS));
+                props.getInt(DEFAULT_SYSTEM_MAX_VERSIONS_ATTRIB, QueryServicesOptions.DEFAULT_SYSTEM_MAX_VERSIONS),
+                props.getBoolean(DEFAULT_SYSTEM_KEEP_DELETED_CELLS_ATTRIB, QueryServicesOptions.DEFAULT_SYSTEM_KEEP_DELETED_CELLS));
     }
 
     @Override
@@ -229,7 +227,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     public void addTable(PTable table, long resolvedTime) throws SQLException {
         metaData.addTable(table, resolvedTime);
     }
-    
+
     @Override
     public void updateResolvedTimestamp(PTable table, long resolvedTimestamp) throws SQLException {
         metaData.updateResolvedTimestamp(table, resolvedTimestamp);
@@ -243,11 +241,11 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public void removeColumn(PName tenantId, String tableName, List<PColumn> columnsToRemove, long tableTimeStamp,
-            long tableSeqNum, long resolvedTime) throws SQLException {
+                             long tableSeqNum, long resolvedTime) throws SQLException {
         metaData.removeColumn(tenantId, tableName, columnsToRemove, tableTimeStamp, tableSeqNum, resolvedTime);
     }
 
-    
+
     @Override
     public PhoenixConnection connect(String url, Properties info) throws SQLException {
         return new PhoenixConnection(this, url, info, metaData.clone());
@@ -278,7 +276,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
         byte[] tableBytes = rowKeyMetadata[PhoenixDatabaseMetaData.TABLE_NAME_INDEX];
         return SchemaUtil.getTableNameAsBytes(schemaBytes, tableBytes);
     }
-    
+
     private static List<HRegionLocation> generateRegionLocations(byte[] physicalName, byte[][] splits) {
         byte[] startKey = HConstants.EMPTY_START_ROW;
         List<HRegionLocation> regions = Lists.newArrayListWithExpectedSize(splits.length);
@@ -293,11 +291,11 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
                 .setEndKey(HConstants.EMPTY_END_ROW).build(), SERVER_NAME, -1));
         return regions;
     }
-    
+
     @Override
     public MetaDataMutationResult createTable(List<Mutation> tableMetaData, byte[] physicalName, PTableType tableType,
-            Map<String, Object> tableProps, List<Pair<byte[], Map<String, Object>>> families, byte[][] splits,
-            boolean isNamespaceMapped, boolean allocateIndexId, boolean isDoNotUpgradePropSet) throws SQLException {
+                                              Map<String, Object> tableProps, List<Pair<byte[], Map<String, Object>>> families, byte[][] splits,
+                                              boolean isNamespaceMapped, boolean allocateIndexId, boolean isDoNotUpgradePropSet) throws SQLException {
         if (tableType == PTableType.INDEX && IndexUtil.isLocalIndexFamily(Bytes.toString(families.iterator().next().getFirst()))) {
             Object dataTableName = tableProps.get(PhoenixDatabaseMetaData.DATA_TABLE_NAME);
             List<HRegionLocation> regionLocations = tableSplits.get(dataTableName);
@@ -322,7 +320,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     }
 
     @Override
-    public MetaDataMutationResult addColumn(List<Mutation> tableMetaData, PTable table, Map<String, List<Pair<String,Object>>> properties, Set<String> colFamiliesForPColumnsToBeAdded, List<PColumn> columnsToBeAdded) throws SQLException {
+    public MetaDataMutationResult addColumn(List<Mutation> tableMetaData, PTable table, Map<String, List<Pair<String, Object>>> properties, Set<String> colFamiliesForPColumnsToBeAdded, List<PColumn> columnsToBeAdded) throws SQLException {
         List<PColumn> columns = Lists.newArrayList(table.getColumns());
         columns.addAll(columnsToBeAdded);
         return new MetaDataMutationResult(MutationCode.TABLE_ALREADY_EXISTS, 0,
@@ -333,10 +331,12 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     public MetaDataMutationResult dropColumn(List<Mutation> tableMetadata, PTableType tableType) throws SQLException {
         return new MetaDataMutationResult(MutationCode.TABLE_ALREADY_EXISTS, 0, null);
     }
-    
+
     @Override
     public void clearTableFromCache(byte[] tenantId, byte[] schemaName, byte[] tableName, long clientTS)
-            throws SQLException {}
+            throws SQLException {
+    }
+
     // TODO: share this with ConnectionQueryServicesImpl
     @Override
     public void init(String url, Properties props) throws SQLException {
@@ -371,7 +371,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
                 try {
                     int nSaltBuckets = getSequenceSaltBuckets();
                     String createTableStatement = getSystemSequenceTableDDL(nSaltBuckets);
-                   metaConnection.createStatement().executeUpdate(createTableStatement);
+                    metaConnection.createStatement().executeUpdate(createTableStatement);
                 } catch (NewerTableAlreadyExistsException ignore) {
                     // Ignore, as this will happen if the SYSTEM.SEQUENCE already exists at this fixed timestamp.
                     // A TableAlreadyExistsException is not thrown, since the table only exists *after* this fixed timestamp.
@@ -384,14 +384,15 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
                     // A TableAlreadyExistsException is not thrown, since the table only exists *after* this
                     // fixed timestamp.
                 }
-                
+
                 try {
                     metaConnection.createStatement().executeUpdate(getFunctionTableDDL());
                 } catch (NewerTableAlreadyExistsException ignore) {
                 }
                 try {
                     metaConnection.createStatement().executeUpdate(getLogTableDDL());
-                } catch (NewerTableAlreadyExistsException ignore) {}
+                } catch (NewerTableAlreadyExistsException ignore) {
+                }
                 try {
                     metaConnection.createStatement()
                             .executeUpdate(getChildLinkDDL());
@@ -411,7 +412,9 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
                 sqlE = e;
             } finally {
                 try {
-                    if (metaConnection != null) metaConnection.close();
+                    if (metaConnection != null) {
+                        metaConnection.close();
+                    }
                 } catch (SQLException e) {
                     if (sqlE != null) {
                         sqlE.setNextException(e);
@@ -456,7 +459,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
         if (!MetaDataUtil.getMutationValue(m, INDEX_STATE_BYTES, kvBuilder, ptr)) {
             throw new IllegalStateException();
         }
-        PIndexState newState =  PIndexState.fromSerializedValue(ptr.get()[ptr.getOffset()]);
+        PIndexState newState = PIndexState.fromSerializedValue(ptr.get()[ptr.getOffset()]);
         byte[] tenantIdBytes = rowKeyMetadata[PhoenixDatabaseMetaData.TENANT_ID_INDEX];
         String schemaName = Bytes.toString(rowKeyMetadata[PhoenixDatabaseMetaData.SCHEMA_NAME_INDEX]);
         String indexName = Bytes.toString(rowKeyMetadata[PhoenixDatabaseMetaData.TABLE_NAME_INDEX]);
@@ -472,9 +475,9 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public MetaDataMutationResult updateIndexState(List<Mutation> tableMetadata,
-            String parentTableName, Map<String, List<Pair<String, Object>>> stmtProperties,
-            PTable table) throws SQLException {
-        return updateIndexState(tableMetadata,parentTableName);
+                                                   String parentTableName, Map<String, List<Pair<String, Object>>> stmtProperties,
+                                                   PTable table) throws SQLException {
+        return updateIndexState(tableMetadata, parentTableName);
     }
 
     @Override
@@ -493,13 +496,13 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public long createSequence(String tenantId, String schemaName, String sequenceName,
-            long startWith, long incrementBy, long cacheSize, long minValue, long maxValue,
-            boolean cycle, long timestamp) throws SQLException {
+                               long startWith, long incrementBy, long cacheSize, long minValue, long maxValue,
+                               boolean cycle, long timestamp) throws SQLException {
         SequenceKey key = new SequenceKey(tenantId, schemaName, sequenceName, getSequenceSaltBuckets());
         if (sequenceMap.get(key) != null) {
             throw new SequenceAlreadyExistsException(schemaName, sequenceName);
         }
-        sequenceMap.put(key, new SequenceInfo(startWith, incrementBy, minValue, maxValue, 1l, cycle)) ;
+        sequenceMap.put(key, new SequenceInfo(startWith, incrementBy, minValue, maxValue, 1l, cycle));
         return timestamp;
     }
 
@@ -514,14 +517,14 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public void validateSequences(List<SequenceAllocation> sequenceAllocations, long timestamp,
-            long[] values, SQLException[] exceptions, Sequence.ValueOp action) throws SQLException {
+                                  long[] values, SQLException[] exceptions, Sequence.ValueOp action) throws SQLException {
         int i = 0;
         for (SequenceAllocation sequenceAllocation : sequenceAllocations) {
             SequenceInfo info = sequenceMap.get(sequenceAllocation.getSequenceKey());
             if (info == null) {
                 exceptions[i] = new SequenceNotFoundException(sequenceAllocation.getSequenceKey().getSchemaName(), sequenceAllocation.getSequenceKey().getSequenceName());
             } else {
-                values[i] = info.sequenceValue;          
+                values[i] = info.sequenceValue;
             }
             i++;
         }
@@ -529,32 +532,32 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public void incrementSequences(List<SequenceAllocation> sequenceAllocations, long timestamp,
-            long[] values, SQLException[] exceptions) throws SQLException {
+                                   long[] values, SQLException[] exceptions) throws SQLException {
         int i = 0;
-		for (SequenceAllocation sequenceAllocation : sequenceAllocations) {
-		    SequenceKey key = sequenceAllocation.getSequenceKey();
-			SequenceInfo info = sequenceMap.get(key);
-			if (info == null) {
-				exceptions[i] = new SequenceNotFoundException(
-						key.getSchemaName(), key.getSequenceName());
-			} else {
-				boolean increaseSeq = info.incrementBy > 0;
-				if (info.limitReached) {
-					SQLExceptionCode code = increaseSeq ? SQLExceptionCode.SEQUENCE_VAL_REACHED_MAX_VALUE
-							: SQLExceptionCode.SEQUENCE_VAL_REACHED_MIN_VALUE;
-					exceptions[i] = new SQLExceptionInfo.Builder(code).build().buildException();
-				} else {
-					values[i] = info.sequenceValue;
-					info.sequenceValue += info.incrementBy * info.cacheSize;
-					info.limitReached = SequenceUtil.checkIfLimitReached(info);
-					if (info.limitReached && info.cycle) {
-						info.sequenceValue = increaseSeq ? info.minValue : info.maxValue;
-						info.limitReached = false;
-					}
-				}
-			}
-			i++;
-		}
+        for (SequenceAllocation sequenceAllocation : sequenceAllocations) {
+            SequenceKey key = sequenceAllocation.getSequenceKey();
+            SequenceInfo info = sequenceMap.get(key);
+            if (info == null) {
+                exceptions[i] = new SequenceNotFoundException(
+                        key.getSchemaName(), key.getSequenceName());
+            } else {
+                boolean increaseSeq = info.incrementBy > 0;
+                if (info.limitReached) {
+                    SQLExceptionCode code = increaseSeq ? SQLExceptionCode.SEQUENCE_VAL_REACHED_MAX_VALUE
+                            : SQLExceptionCode.SEQUENCE_VAL_REACHED_MIN_VALUE;
+                    exceptions[i] = new SQLExceptionInfo.Builder(code).build().buildException();
+                } else {
+                    values[i] = info.sequenceValue;
+                    info.sequenceValue += info.incrementBy * info.cacheSize;
+                    info.limitReached = SequenceUtil.checkIfLimitReached(info);
+                    if (info.limitReached && info.cycle) {
+                        info.sequenceValue = increaseSeq ? info.minValue : info.maxValue;
+                        info.limitReached = false;
+                    }
+                }
+            }
+            i++;
+        }
         i = 0;
         for (SQLException e : exceptions) {
             if (e != null) {
@@ -569,8 +572,8 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
         SequenceInfo info = sequenceMap.get(sequenceKey);
         if (info == null) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.CANNOT_CALL_CURRENT_BEFORE_NEXT_VALUE)
-            .setSchemaName(sequenceKey.getSchemaName()).setTableName(sequenceKey.getSequenceName())
-            .build().buildException();
+                    .setSchemaName(sequenceKey.getSchemaName()).setTableName(sequenceKey.getSequenceName())
+                    .build().buildException();
         }
         return info.sequenceValue;
     }
@@ -608,11 +611,11 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
         GuidePostsInfo info = null;
         try {
             info = guidePostsCache.get(key);
-        } catch(ExecutionException e){
+        } catch (ExecutionException e) {
             return GuidePostsInfo.NO_GUIDEPOST;
         }
         if (null == info) {
-          return GuidePostsInfo.NO_GUIDEPOST;
+            return GuidePostsInfo.NO_GUIDEPOST;
         }
         return info;
     }
@@ -646,10 +649,10 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public MetaDataMutationResult getFunctions(PName tenantId,
-            List<Pair<byte[], Long>> functionNameAndTimeStampPairs, long clientTimestamp)
+                                               List<Pair<byte[], Long>> functionNameAndTimeStampPairs, long clientTimestamp)
             throws SQLException {
         List<PFunction> functions = new ArrayList<PFunction>(functionNameAndTimeStampPairs.size());
-        for(Pair<byte[], Long> functionInfo: functionNameAndTimeStampPairs) {
+        for (Pair<byte[], Long> functionInfo : functionNameAndTimeStampPairs) {
             try {
                 PFunction function2 = metaData.getFunction(new PTableKey(tenantId, Bytes.toString(functionInfo.getFirst())));
                 functions.add(function2);
@@ -657,7 +660,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
                 return new MetaDataMutationResult(MutationCode.FUNCTION_NOT_FOUND, 0, null);
             }
         }
-        if(functions.isEmpty()) {
+        if (functions.isEmpty()) {
             return null;
         }
         return new MetaDataMutationResult(MutationCode.FUNCTION_ALREADY_EXISTS, 0, functions, true);
@@ -680,15 +683,15 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     }
 
     public HRegionLocation getTableRegionLocation(byte[] tableName, byte[] row) throws SQLException {
-       List<HRegionLocation> regions = tableSplits.get(Bytes.toString(tableName));
-       if (regions != null) {
+        List<HRegionLocation> regions = tableSplits.get(Bytes.toString(tableName));
+        if (regions != null) {
             for (HRegionLocation region : regions) {
                 if (Bytes.compareTo(region.getRegion().getStartKey(), row) <= 0
                         && Bytes.compareTo(region.getRegion().getEndKey(), row) > 0) {
                     return region;
                 }
             }
-       }
+        }
         return new HRegionLocation(RegionInfoBuilder.newBuilder(TableName.valueOf(tableName))
                 .setStartKey(HConstants.EMPTY_START_ROW).setEndKey(HConstants.EMPTY_END_ROW)
                 .build(), SERVER_NAME, -1);
@@ -709,7 +712,8 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
         try {
             PSchema schema = metaData.getSchema(new PTableKey(null, schemaName));
             new MetaDataMutationResult(MutationCode.SCHEMA_ALREADY_EXISTS, schema, 0);
-        } catch (SchemaNotFoundException e) {}
+        } catch (SchemaNotFoundException e) {
+        }
         return new MetaDataMutationResult(MutationCode.SCHEMA_NOT_FOUND, 0, null);
     }
 
@@ -728,7 +732,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
      * {@link ConnectionQueryServices} method. Exposed for testing purposes.
      *
      * @param tableName Table name
-     * @param stats Stats instance
+     * @param stats     Stats instance
      */
     public void addTableStats(GuidePostsKey key, GuidePostsInfo info) {
         this.guidePostsCache.put(Objects.requireNonNull(key), info);
@@ -740,7 +744,8 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     }
 
     @Override
-    public void upgradeSystemTables(String url, Properties props) throws SQLException {}
+    public void upgradeSystemTables(String url, Properties props) throws SQLException {
+    }
 
     @Override
     public boolean isUpgradeRequired() {
@@ -761,7 +766,7 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
     public QueryLoggerDisruptor getQueryDisruptor() {
         return null;
     }
-    
+
     @Override
     public PhoenixTransactionClient initTransactionClient(Provider provider) {
         return null; // Client is not necessary
@@ -769,12 +774,12 @@ public class ConnectionlessQueryServicesImpl extends DelegateQueryServices imple
 
     @Override
     public boolean writeMutexCell(String tenantId, String schemaName, String tableName,
-            String columnName, String familyName) throws SQLException {
+                                  String columnName, String familyName) throws SQLException {
         return true;
     }
 
     @Override
     public void deleteMutexCell(String tenantId, String schemaName, String tableName,
-            String columnName, String familyName) throws SQLException {
+                                String columnName, String familyName) throws SQLException {
     }
 }

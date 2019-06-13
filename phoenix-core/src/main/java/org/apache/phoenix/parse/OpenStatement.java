@@ -22,19 +22,19 @@ import org.apache.phoenix.jdbc.PhoenixStatement.Operation;
 public class OpenStatement implements BindableStatement {
     private final CursorName cursorName;
 
-    public OpenStatement(CursorName cursorName){
+    public OpenStatement(CursorName cursorName) {
         this.cursorName = cursorName;
     }
 
-    public String getCursorName(){
+    public String getCursorName() {
         return cursorName.getName();
     }
 
-    public int getBindCount(){
+    public int getBindCount() {
         return 0;
     }
 
-    public Operation getOperation(){
+    public Operation getOperation() {
         return Operation.UPSERT;
     }
 }

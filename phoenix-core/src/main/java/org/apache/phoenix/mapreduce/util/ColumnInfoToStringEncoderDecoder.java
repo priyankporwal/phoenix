@@ -32,33 +32,33 @@ public class ColumnInfoToStringEncoderDecoder {
 
     static final String CONFIGURATION_VALUE_PREFIX = "phoenix.colinfo.encoder.decoeder.value";
     static final String CONFIGURATION_COUNT = "phoenix.colinfo.encoder.decoder.count";
-    
+
     private ColumnInfoToStringEncoderDecoder() {
-        
+
     }
-    
+
     public static void encode(Configuration configuration, List<ColumnInfo> columnInfos) {
-    	Preconditions.checkNotNull(configuration);
+        Preconditions.checkNotNull(configuration);
         Preconditions.checkNotNull(columnInfos);
-        int count=0;
-        for (int i=0; i<columnInfos.size(); ++i) {
-        	if (columnInfos.get(i)!=null) {
-        		configuration.set(String.format("%s_%d", CONFIGURATION_VALUE_PREFIX, i), columnInfos.get(i).toString());
-        		++count;
-        	}
+        int count = 0;
+        for (int i = 0; i < columnInfos.size(); ++i) {
+            if (columnInfos.get(i) != null) {
+                configuration.set(String.format("%s_%d", CONFIGURATION_VALUE_PREFIX, i), columnInfos.get(i).toString());
+                ++count;
+            }
         }
         configuration.setInt(CONFIGURATION_COUNT, count);
     }
-    
+
     public static List<ColumnInfo> decode(Configuration configuration) {
         Preconditions.checkNotNull(configuration);
         int numCols = configuration.getInt(CONFIGURATION_COUNT, 0);
         List<ColumnInfo> columnInfos = Lists.newArrayListWithExpectedSize(numCols);
-        for (int i=0; i<numCols; ++i) {
-        	columnInfos.add(ColumnInfo.fromString(configuration.get(String.format("%s_%d", CONFIGURATION_VALUE_PREFIX, i))));
+        for (int i = 0; i < numCols; ++i) {
+            columnInfos.add(ColumnInfo.fromString(configuration.get(String.format("%s_%d", CONFIGURATION_VALUE_PREFIX, i))));
         }
         return columnInfos;
     }
 
-    
+
 }

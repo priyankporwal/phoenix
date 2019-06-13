@@ -83,7 +83,7 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
     private final boolean useTenantId;
 
     public IndexToolIT(String transactionProvider, boolean mutable, boolean localIndex,
-            boolean directApi, boolean useSnapshot, boolean useTenantId) {
+                       boolean directApi, boolean useSnapshot, boolean useTenantId) {
         this.localIndex = localIndex;
         this.transactional = transactionProvider != null;
         this.directApi = directApi;
@@ -109,31 +109,31 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
         serverProps.put(QueryServices.STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB, Long.toString(20));
         serverProps.put(QueryServices.MAX_SERVER_METADATA_CACHE_TIME_TO_LIVE_MS_ATTRIB, Long.toString(5));
         serverProps.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
         Map<String, String> clientProps = Maps.newHashMapWithExpectedSize(2);
         clientProps.put(QueryServices.USE_STATS_FOR_PARALLELIZATION, Boolean.toString(true));
         clientProps.put(QueryServices.STATS_UPDATE_FREQ_MS_ATTRIB, Long.toString(5));
         clientProps.put(QueryServices.TRANSACTIONS_ENABLED, Boolean.TRUE.toString());
         clientProps.put(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, Boolean.TRUE.toString());
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()),
-            new ReadOnlyProps(clientProps.entrySet().iterator()));
+                new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
 
     @Parameters(
             name = "transactionProvider={0},mutable={1},localIndex={2},directApi={3},useSnapshot={4}")
     public static Collection<Object[]> data() {
         List<Object[]> list = Lists.newArrayListWithExpectedSize(48);
-        boolean[] Booleans = new boolean[] { false, true };
+        boolean[] Booleans = new boolean[] {false, true};
         for (String transactionProvider : new String[] {"TEPHRA", "OMID", null}) {
             for (boolean mutable : Booleans) {
                 for (boolean localIndex : Booleans) {
-                    if (!localIndex 
-                            || transactionProvider == null 
+                    if (!localIndex
+                            || transactionProvider == null
                             || !TransactionFactory.getTransactionProvider(
-                                    TransactionFactory.Provider.valueOf(transactionProvider))
-                                .isUnsupported(Feature.ALLOW_LOCAL_INDEX)) {
+                            TransactionFactory.Provider.valueOf(transactionProvider))
+                            .isUnsupported(Feature.ALLOW_LOCAL_INDEX)) {
                         for (boolean directApi : Booleans) {
-                            list.add(new Object[] { transactionProvider, mutable, localIndex,
+                            list.add(new Object[] {transactionProvider, mutable, localIndex,
                                     directApi, false, false});
                         }
                     }
@@ -141,10 +141,10 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
             }
         }
         // Add the usetenantId
-        list.add(new Object[] { null, false, false, true, false, true});
+        list.add(new Object[] {null, false, false, true, false, true});
         // do one run over snapshots
-        list.add(new Object[] { null, false, false, true, true, false});
-        return TestUtil.filterTxParamData(list,0);
+        list.add(new Object[] {null, false, false, true, true, false});
+        return TestUtil.filterTxParamData(list, 0);
     }
 
     @Test
@@ -195,23 +195,23 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
 
             String stmtString2 =
                     String.format(
-                        "CREATE %s INDEX %s ON %s  (LPAD(UPPER(NAME, 'en_US'),8,'x')||'_xyz') ASYNC ",
-                        (localIndex ? "LOCAL" : ""), indexTableName, dataTableFullName);
+                            "CREATE %s INDEX %s ON %s  (LPAD(UPPER(NAME, 'en_US'),8,'x')||'_xyz') ASYNC ",
+                            (localIndex ? "LOCAL" : ""), indexTableName, dataTableFullName);
             conn.createStatement().execute(stmtString2);
 
             // verify rows are fetched from data table.
             String selectSql =
                     String.format(
-                        "SELECT ID FROM %s WHERE LPAD(UPPER(NAME, 'en_US'),8,'x')||'_xyz' = 'xxUNAME2_xyz'",
-                        dataTableFullName);
+                            "SELECT ID FROM %s WHERE LPAD(UPPER(NAME, 'en_US'),8,'x')||'_xyz' = 'xxUNAME2_xyz'",
+                            dataTableFullName);
             ResultSet rs = conn.createStatement().executeQuery("EXPLAIN " + selectSql);
             String actualExplainPlan = QueryUtil.getExplainPlan(rs);
 
             // assert we are pulling from data table.
             assertEquals(String.format(
-                "CLIENT PARALLEL 1-WAY FULL SCAN OVER %s\n"
-                        + "    SERVER FILTER BY (LPAD(UPPER(NAME, 'en_US'), 8, 'x') || '_xyz') = 'xxUNAME2_xyz'",
-                dataTableFullName), actualExplainPlan);
+                    "CLIENT PARALLEL 1-WAY FULL SCAN OVER %s\n"
+                            + "    SERVER FILTER BY (LPAD(UPPER(NAME, 'en_US'), 8, 'x') || '_xyz') = 'xxUNAME2_xyz'",
+                    dataTableFullName), actualExplainPlan);
 
             rs = stmt1.executeQuery(selectSql);
             assertTrue(rs.next());
@@ -243,7 +243,9 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
 
     @Test
     public void testIndexToolWithTenantId() throws Exception {
-        if (!useTenantId) { return;}
+        if (!useTenantId) {
+            return;
+        }
         String tenantId = generateUniqueName();
         String schemaName = generateUniqueName();
         String dataTableName = generateUniqueName();
@@ -299,7 +301,7 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
             runIndexTool(true, false, "", viewTenantName, indexNameTenant,
                     tenantId, 0, new String[0]);
 
-            Table htable= queryServices.getTable(Bytes.toBytes(viewIndexTableName));
+            Table htable = queryServices.getTable(Bytes.toBytes(viewIndexTableName));
             int count = getUtility().countRows(htable);
             // Confirm index has rows
             assertTrue(count == 1);
@@ -333,7 +335,7 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
         String dataTableFullName = SchemaUtil.getTableName(schemaName, dataTableName);
         String indexTableName = generateUniqueName();
         try (Connection conn =
-                DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES))) {
+                     DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES))) {
             String dataDDL =
                     "CREATE TABLE " + dataTableFullName + "(\n"
                             + "ID VARCHAR NOT NULL PRIMARY KEY,\n"
@@ -350,16 +352,16 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
 
             String indexDDL =
                     String.format(
-                        "CREATE %s INDEX %s on %s (\"info\".CAR_NUM,\"info\".CAP_DATE) ASYNC",
-                        (localIndex ? "LOCAL" : ""), indexTableName, dataTableFullName);
+                            "CREATE %s INDEX %s on %s (\"info\".CAR_NUM,\"info\".CAP_DATE) ASYNC",
+                            (localIndex ? "LOCAL" : ""), indexTableName, dataTableFullName);
             conn.createStatement().execute(indexDDL);
 
             runIndexTool(directApi, useSnapshot, schemaName, dataTableName, indexTableName);
 
             ResultSet rs =
                     conn.createStatement().executeQuery(
-                        "SELECT ORG_ID,CAP_DATE,CAR_NUM,ORG_NAME FROM " + dataTableFullName
-                                + " WHERE CAR_NUM='car1' AND CAP_DATE>='2016-01-01' AND CAP_DATE<='2016-05-02' LIMIT 10");
+                            "SELECT ORG_ID,CAP_DATE,CAR_NUM,ORG_NAME FROM " + dataTableFullName
+                                    + " WHERE CAR_NUM='car1' AND CAP_DATE>='2016-01-01' AND CAP_DATE<='2016-05-02' LIMIT 10");
             assertTrue(rs.next());
             int orgId = rs.getInt(1);
             assertEquals(11, orgId);
@@ -371,7 +373,9 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
      */
     @Test
     public void testSplitIndex() throws Exception {
-        if (localIndex) return; // can't split local indexes
+        if (localIndex) {
+            return; // can't split local indexes
+        }
         String schemaName = generateUniqueName();
         String dataTableName = generateUniqueName();
         String dataTableFullName = SchemaUtil.getTableName(schemaName, dataTableName);
@@ -380,8 +384,8 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
         String indexTableFullName = SchemaUtil.getTableName(schemaName, indexTableName);
         TableName indexTN = TableName.valueOf(indexTableFullName);
         try (Connection conn =
-                DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES));
-                Admin admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin()) {
+                     DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES));
+             Admin admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin()) {
             String dataDDL =
                     "CREATE TABLE " + dataTableFullName + "(\n"
                             + "ID VARCHAR NOT NULL PRIMARY KEY,\n"
@@ -410,7 +414,7 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
             // insert data where index column values start with a, b, c, d
             int idCounter = 1;
             try (PreparedStatement ps = conn.prepareStatement("UPSERT INTO " + dataTableFullName
-                + "(ID,\"info\".CAR_NUM,\"test\".CAR_NUM,CAP_DATE,ORG_ID,ORG_NAME) VALUES(?,?,?,'2016-01-01 00:00:00',11,'orgname1')")){
+                    + "(ID,\"info\".CAR_NUM,\"test\".CAR_NUM,CAP_DATE,ORG_ID,ORG_NAME) VALUES(?,?,?,'2016-01-01 00:00:00',11,'orgname1')")) {
                 for (String carNum : carNumPrefixes) {
                     for (int i = 0; i < 100; i++) {
                         ps.setString(1, idCounter++ + "");
@@ -425,12 +429,12 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
 
             String indexDDL =
                     String.format(
-                        "CREATE INDEX %s on %s (\"info\".CAR_NUM,\"test\".CAR_NUM,\"info\".CAP_DATE) ASYNC",
-                        indexTableName, dataTableFullName);
+                            "CREATE INDEX %s on %s (\"info\".CAR_NUM,\"test\".CAR_NUM,\"info\".CAP_DATE) ASYNC",
+                            indexTableName, dataTableFullName);
             conn.createStatement().execute(indexDDL);
 
             // run with 50% sampling rate, split if data table more than 3 regions
-            runIndexTool(directApi, useSnapshot, schemaName, dataTableName, indexTableName,"-sp", "50", "-spa", "3");
+            runIndexTool(directApi, useSnapshot, schemaName, dataTableName, indexTableName, "-sp", "50", "-spa", "3");
 
             assertEquals(targetNumRegions, admin.getTableRegions(indexTN).size());
             List<Cell> values = new ArrayList<>();
@@ -447,7 +451,7 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
     }
 
     public static void assertExplainPlan(boolean localIndex, String actualExplainPlan,
-            String dataTableFullName, String indexTableFullName) {
+                                         String dataTableFullName, String indexTableFullName) {
         String expectedExplainPlan;
         if (localIndex) {
             expectedExplainPlan = String.format(" RANGE SCAN OVER %s [1,", dataTableFullName);
@@ -455,11 +459,11 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
             expectedExplainPlan = String.format(" RANGE SCAN OVER %s", indexTableFullName);
         }
         assertTrue(actualExplainPlan + "\n expected to contain \n" + expectedExplainPlan,
-            actualExplainPlan.contains(expectedExplainPlan));
+                actualExplainPlan.contains(expectedExplainPlan));
     }
 
     public static String[] getArgValues(boolean directApi, boolean useSnapshot, String schemaName,
-            String dataTable, String indxTable, String tenantId) {
+                                        String dataTable, String indxTable, String tenantId) {
         final List<String> args = Lists.newArrayList();
         if (schemaName != null) {
             args.add("-s");
@@ -498,12 +502,12 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
     }
 
     public static void runIndexTool(boolean directApi, boolean useSnapshot, String schemaName,
-            String dataTableName, String indexTableName) throws Exception {
+                                    String dataTableName, String indexTableName) throws Exception {
         runIndexTool(directApi, useSnapshot, schemaName, dataTableName, indexTableName, new String[0]);
     }
 
     private static void verifyMapper(Job job, boolean directApi, boolean useSnapshot, String schemaName,
-                                  String dataTableName, String indexTableName, String tenantId) throws Exception {
+                                     String dataTableName, String indexTableName, String tenantId) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         if (tenantId != null) {
             props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
@@ -521,21 +525,20 @@ public class IndexToolIT extends BaseUniqueNamesOwnClusterIT {
                 } else {
                     assertEquals(job.getMapperClass(), PhoenixIndexImportDirectMapper.class);
                 }
-            }
-            else {
+            } else {
                 assertEquals(job.getMapperClass(), PhoenixIndexImportMapper.class);
             }
         }
     }
 
     public static void runIndexTool(boolean directApi, boolean useSnapshot, String schemaName,
-            String dataTableName, String indexTableName, String... additionalArgs) throws Exception {
+                                    String dataTableName, String indexTableName, String... additionalArgs) throws Exception {
         runIndexTool(directApi, useSnapshot, schemaName, dataTableName, indexTableName, null, 0, additionalArgs);
     }
 
     public static void runIndexTool(boolean directApi, boolean useSnapshot, String schemaName,
-            String dataTableName, String indexTableName, String tenantId, int expectedStatus,
-            String... additionalArgs) throws Exception {
+                                    String dataTableName, String indexTableName, String tenantId, int expectedStatus,
+                                    String... additionalArgs) throws Exception {
         IndexTool indexingTool = new IndexTool();
         Configuration conf = new Configuration(getUtility().getConfiguration());
         conf.set(QueryServices.TRANSACTIONS_ENABLED, Boolean.TRUE.toString());

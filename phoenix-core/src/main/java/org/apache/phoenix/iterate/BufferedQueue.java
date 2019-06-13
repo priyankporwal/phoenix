@@ -44,16 +44,16 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
 
     public BufferedQueue(long thresholdBytes) {
         this.thresholdBytes = thresholdBytes;
-        this.queues = Lists.<BufferedSegmentQueue<T>> newArrayList();
+        this.queues = Lists.<BufferedSegmentQueue<T>>newArrayList();
         this.currentIndex = -1;
         this.currentQueue = null;
         this.mergedQueue = null;
     }
-    
+
     abstract protected BufferedSegmentQueue<T> createSegmentQueue(int index, long thresholdBytes);
-    
+
     abstract protected Comparator<BufferedSegmentQueue<T>> getSegmentQueueComparator();
-    
+
     protected final List<BufferedSegmentQueue<T>> getSegmentQueues() {
         return queues.subList(0, currentIndex + 1);
     }
@@ -96,7 +96,7 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
         }
         return null;
     }
-    
+
     @Override
     public void clear() {
         for (BufferedSegmentQueue<T> queue : getSegmentQueues()) {
@@ -120,7 +120,7 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
         }
         return size;
     }
-    
+
     @Override
     public long getByteSize() {
         return currentQueue == null ? 0 : currentQueue.getInMemByteSize();
@@ -133,10 +133,10 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
         }
         queues.clear();
     }
-    
+
     private void initMergedQueue() {
         if (mergedQueue == null && currentIndex >= 0) {
-            mergedQueue = MinMaxPriorityQueue.<BufferedSegmentQueue<T>> orderedBy(
+            mergedQueue = MinMaxPriorityQueue.<BufferedSegmentQueue<T>>orderedBy(
                     getSegmentQueueComparator()).maximumSize(currentIndex + 1).create();
             for (BufferedSegmentQueue<T> queue : getSegmentQueues()) {
                 T re = queue.peek();
@@ -144,12 +144,12 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                     mergedQueue.add(queue);
                 }
             }
-        }        
+        }
     }
 
     public abstract static class BufferedSegmentQueue<T> extends AbstractQueue<T> {
         protected static final int EOF = -1;
-        
+
         private final int index;
         private final long thresholdBytes;
         private final boolean hasMaxQueueSize;
@@ -168,40 +168,46 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
             this.index = index;
             this.thresholdBytes = thresholdBytes;
             this.hasMaxQueueSize = hasMaxQueueSize;
-            this.iterators = Lists.<SegmentQueueFileIterator> newArrayList();
+            this.iterators = Lists.<SegmentQueueFileIterator>newArrayList();
         }
-        
+
         abstract protected Queue<T> getInMemoryQueue();
+
         abstract protected long sizeOf(T e);
+
         abstract protected void writeToStream(DataOutputStream out, T e) throws IOException;
+
         abstract protected T readFromStream(DataInputStream in) throws IOException;
-        
+
         public int index() {
             return this.index;
         }
-        
+
         @Override
         public int size() {
-            if (flushBuffer)
+            if (flushBuffer) {
                 return flushedCount;
+            }
             return getInMemoryQueue().size();
         }
-        
+
         public long getInMemByteSize() {
-            if (flushBuffer)
+            if (flushBuffer) {
                 return 0;
+            }
             return totalResultSize;
         }
-        
+
         public boolean isFlushed() {
             return flushBuffer;
         }
 
         @Override
         public boolean offer(T e) {
-            if (isClosed || flushBuffer)
+            if (isClosed || flushBuffer) {
                 return false;
-            
+            }
+
             boolean added = getInMemoryQueue().add(e);
             if (added) {
                 try {
@@ -210,19 +216,19 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                     throw new RuntimeException(ex);
                 }
             }
-            
+
             return added;
         }
-        
+
         @Override
         public T peek() {
             if (current == null && !isClosed) {
                 current = next();
             }
-            
+
             return current;
         }
-        
+
         @Override
         public T poll() {
             T ret = peek();
@@ -231,18 +237,20 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
             } else {
                 current = null;
             }
-            
+
             return ret;
         }
 
         @Override
         public Iterator<T> iterator() {
-            if (isClosed)
+            if (isClosed) {
                 return null;
-            
-            if (!flushBuffer)
+            }
+
+            if (!flushBuffer) {
                 return getInMemoryQueue().iterator();
-            
+            }
+
             SegmentQueueFileIterator iterator = new SegmentQueueFileIterator(thisIterator);
             iterators.add(iterator);
             return iterator;
@@ -269,16 +277,16 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                 file = null;
             }
         }
-        
+
         public void close() {
             if (!isClosed) {
                 clear();
                 this.isClosed = true;
             }
         }
-        
+
         private T next() {
-            T ret = null;            
+            T ret = null;
             if (!flushBuffer) {
                 ret = getInMemoryQueue().poll();
             } else {
@@ -287,11 +295,11 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                 }
                 ret = thisIterator.next();
             }
-            
+
             if (ret == null) {
                 close();
             }
-            
+
             return ret;
         }
 
@@ -316,17 +324,17 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                 }
             }
         }
-        
+
         private class SegmentQueueFileIterator implements Iterator<T>, Closeable {
             private boolean isEnd;
             private long readIndex;
             private DataInputStream in;
             private T next;
-            
+
             public SegmentQueueFileIterator() {
                 init(0);
             }
-            
+
             public SegmentQueueFileIterator(SegmentQueueFileIterator iterator) {
                 if (iterator != null && iterator.isEnd) {
                     this.isEnd = true;
@@ -334,7 +342,7 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                     init(iterator == null ? 0 : iterator.readIndex);
                 }
             }
-            
+
             private void init(long readIndex) {
                 this.isEnd = false;
                 this.readIndex = readIndex;
@@ -352,29 +360,31 @@ public abstract class BufferedQueue<T> extends AbstractQueue<T> implements SizeA
                 if (!isEnd && next == null) {
                     next = readNext();
                 }
-                
+
                 return next != null;
             }
 
             @Override
             public T next() {
-                if (!hasNext())
+                if (!hasNext()) {
                     return null;
-                
+                }
+
                 T ret = next;
                 next = readNext();
                 return ret;
             }
-            
+
             private T readNext() {
-                if (isEnd)
+                if (isEnd) {
                     return null;
+                }
 
                 T e = null;
                 try {
                     e = readFromStream(in);
                 } catch (IOException ex) {
-                  throw new RuntimeException(ex);
+                    throw new RuntimeException(ex);
                 }
                 if (e == null) {
                     close();

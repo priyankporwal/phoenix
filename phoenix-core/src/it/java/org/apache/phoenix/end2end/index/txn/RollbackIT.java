@@ -43,36 +43,37 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class RollbackIT extends ParallelStatsDisabledIT {
-	
-	private final boolean localIndex;
+
+    private final boolean localIndex;
     private final String tableDDLOptions;
 
-	public RollbackIT(boolean localIndex, boolean mutable, String transactionProvider) {
-		this.localIndex = localIndex;
+    public RollbackIT(boolean localIndex, boolean mutable, String transactionProvider) {
+        this.localIndex = localIndex;
         StringBuilder optionBuilder = new StringBuilder();
         optionBuilder.append(" TRANSACTION_PROVIDER='" + transactionProvider + "'");
         if (!mutable) {
             optionBuilder.append(",IMMUTABLE_ROWS=true");
         }
         this.tableDDLOptions = optionBuilder.toString();
-	}
-	
+    }
+
     private static Connection getConnection() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         props.put(QueryServices.DEFAULT_TABLE_ISTRANSACTIONAL_ATTRIB, Boolean.toString(true));
         Connection conn = DriverManager.getConnection(getUrl(), props);
         return conn;
     }
-    
-	@Parameters(name="RollbackIT_localIndex={0},mutable={1},transactionProvider={2}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "RollbackIT_localIndex={0},mutable={1},transactionProvider={2}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
-        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {     
-                 { false, false, "TEPHRA" }, { false, true, "TEPHRA"  },
-                 { true, false, "TEPHRA"  }, { true, true, "TEPHRA"  },
-                 { false, false, "OMID" }, { false, true, "OMID"  },
-           }),2);
+        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {
+                {false, false, "TEPHRA"}, {false, true, "TEPHRA"},
+                {true, false, "TEPHRA"}, {true, true, "TEPHRA"},
+                {false, false, "OMID"}, {false, true, "OMID"},
+        }), 2);
     }
-    
+
     @Test
     public void testRollbackOfUncommittedKeyValueIndexInsert() throws Exception {
         String tableName = "TBL_" + generateUniqueName();
@@ -82,11 +83,11 @@ public class RollbackIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(false);
         try {
             Statement stmt = conn.createStatement();
-            stmt.execute("CREATE TABLE " + fullTableName + "(k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)"+tableDDLOptions);
-            stmt.execute("CREATE "+(localIndex? "LOCAL " : "")+"INDEX " + indexName + " ON " + fullTableName + " (v1) INCLUDE(v2)");
-            
+            stmt.execute("CREATE TABLE " + fullTableName + "(k VARCHAR PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)" + tableDDLOptions);
+            stmt.execute("CREATE " + (localIndex ? "LOCAL " : "") + "INDEX " + indexName + " ON " + fullTableName + " (v1) INCLUDE(v2)");
+
             stmt.executeUpdate("upsert into " + fullTableName + " values('x', 'y', 'a')");
-            
+
             //assert values in data table
             ResultSet rs = stmt.executeQuery("select /*+ NO_INDEX */ k, v1, v2 from " + fullTableName);
             assertTrue(rs.next());
@@ -94,7 +95,7 @@ public class RollbackIT extends ParallelStatsDisabledIT {
             assertEquals("y", rs.getString(2));
             assertEquals("a", rs.getString(3));
             assertFalse(rs.next());
-            
+
             //assert values in index table
             rs = stmt.executeQuery("select /*+ INDEX(" + indexName + ")*/ k, v1, v2  from " + fullTableName);
             assertTrue(rs.next());
@@ -102,13 +103,13 @@ public class RollbackIT extends ParallelStatsDisabledIT {
             assertEquals("y", rs.getString(2));
             assertEquals("a", rs.getString(3));
             assertFalse(rs.next());
-            
+
             conn.rollback();
-            
+
             //assert values in data table
             rs = stmt.executeQuery("select /*+ NO_INDEX */ k, v1, v2 from " + fullTableName);
             assertFalse(rs.next());
-            
+
             //assert values in index table
             rs = stmt.executeQuery("select /*+ INDEX(" + indexName + ")*/ k, v1, v2 from " + fullTableName);
             assertFalse(rs.next());
@@ -116,7 +117,7 @@ public class RollbackIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRollbackOfUncommittedRowKeyIndexInsert() throws Exception {
         Connection conn = getConnection();
@@ -126,33 +127,33 @@ public class RollbackIT extends ParallelStatsDisabledIT {
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         try {
             Statement stmt = conn.createStatement();
-            stmt.execute("CREATE TABLE " + fullTableName + "(k VARCHAR, v1 VARCHAR, v2 VARCHAR, CONSTRAINT pk PRIMARY KEY (v1, v2))"+tableDDLOptions);
-            stmt.execute("CREATE "+(localIndex? "LOCAL " : "")+"INDEX " + indexName + " ON " + fullTableName + "(v1, k)");
-            
+            stmt.execute("CREATE TABLE " + fullTableName + "(k VARCHAR, v1 VARCHAR, v2 VARCHAR, CONSTRAINT pk PRIMARY KEY (v1, v2))" + tableDDLOptions);
+            stmt.execute("CREATE " + (localIndex ? "LOCAL " : "") + "INDEX " + indexName + " ON " + fullTableName + "(v1, k)");
+
             stmt.executeUpdate("upsert into " + fullTableName + " values('x', 'y', 'a')");
 
             ResultSet rs = stmt.executeQuery("select /*+ NO_INDEX */ k, v1, v2 from " + fullTableName);
-            
+
             //assert values in data table
             assertTrue(rs.next());
             assertEquals("x", rs.getString(1));
             assertEquals("y", rs.getString(2));
             assertEquals("a", rs.getString(3));
             assertFalse(rs.next());
-            
+
             //assert values in index table
             rs = stmt.executeQuery("select /*+ INDEX(" + indexName + ")*/ k, v1 from " + fullTableName);
             assertTrue(rs.next());
             assertEquals("x", rs.getString(1));
             assertEquals("y", rs.getString(2));
             assertFalse(rs.next());
-            
+
             conn.rollback();
-            
+
             //assert values in data table
             rs = stmt.executeQuery("select /*+ NO_INDEX */ k, v1, v2 from " + fullTableName);
             assertFalse(rs.next());
-            
+
             //assert values in index table
             rs = stmt.executeQuery("select /*+ INDEX(" + indexName + ")*/ k, v1 from " + fullTableName);
             assertFalse(rs.next());
@@ -160,6 +161,6 @@ public class RollbackIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
 }
 

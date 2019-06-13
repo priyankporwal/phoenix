@@ -25,33 +25,31 @@ import org.apache.phoenix.util.ServerUtil;
 
 
 /**
- * 
  * Result iterator that concatenates a list of other iterators.
  *
- * 
  * @since 0.1
  */
 public class ConcatResultIterator implements PeekingResultIterator {
     private final ResultIterators resultIterators;
     private List<PeekingResultIterator> iterators;
     private int index;
-    
+
     public ConcatResultIterator(ResultIterators iterators) {
         this.resultIterators = iterators;
     }
-    
+
     private ConcatResultIterator(List<PeekingResultIterator> iterators) {
         this.resultIterators = null;
         this.iterators = iterators;
     }
-    
+
     private List<PeekingResultIterator> getIterators() throws SQLException {
         if (iterators == null && resultIterators != null) {
             iterators = resultIterators.getIterators();
         }
         return iterators;
     }
-    
+
     @Override
     public void close() throws SQLException {
         SQLException toThrow = null;
@@ -60,11 +58,11 @@ public class ConcatResultIterator implements PeekingResultIterator {
                 resultIterators.close();
             }
         } catch (Exception e) {
-           toThrow = ServerUtil.parseServerException(e);
+            toThrow = ServerUtil.parseServerException(e);
         } finally {
             try {
                 if (iterators != null) {
-                    for (;index < iterators.size(); index++) {
+                    for (; index < iterators.size(); index++) {
                         PeekingResultIterator iterator = iterators.get(index);
                         try {
                             iterator.close();
@@ -106,7 +104,7 @@ public class ConcatResultIterator implements PeekingResultIterator {
         }
         return EMPTY_ITERATOR;
     }
-    
+
     @Override
     public Tuple peek() throws SQLException {
         return currentIterator().peek();
@@ -121,17 +119,17 @@ public class ConcatResultIterator implements PeekingResultIterator {
         return next;
     }
 
-	@Override
-	public String toString() {
-		return "ConcatResultIterator [" + resultIterators == null ? ("iterators=" + iterators) : ("resultIterators=" + resultIterators) 
-				+ ", index=" + index + "]";
-	}
+    @Override
+    public String toString() {
+        return "ConcatResultIterator [" + resultIterators == null ? ("iterators=" + iterators) : ("resultIterators=" + resultIterators)
+                + ", index=" + index + "]";
+    }
 
     public static PeekingResultIterator newIterator(final List<PeekingResultIterator> concatIterators) {
         if (concatIterators.isEmpty()) {
             return PeekingResultIterator.EMPTY_ITERATOR;
-        } 
-        
+        }
+
         if (concatIterators.size() == 1) {
             return concatIterators.get(0);
         }

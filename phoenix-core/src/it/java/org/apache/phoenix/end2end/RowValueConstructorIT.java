@@ -63,7 +63,7 @@ import com.google.common.collect.Lists;
 
 
 public class RowValueConstructorIT extends ParallelStatsDisabledIT {
-    
+
     @Test
     public void testRowValueConstructorInWhereWithEqualsExpression() throws Exception {
         String tenantId = getOrganizationId();
@@ -76,7 +76,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getInt(1) == 7);
                 assertTrue(rs.getInt(2) == 5);
                 count++;
@@ -99,13 +99,13 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getInt(1) >= 4);
                 assertTrue(rs.getInt(1) == 4 ? rs.getInt(2) >= 4 : rs.getInt(2) >= 0);
                 count++;
             }
             // we have 6 values for a_integer present in the atable where a >= 4. x_integer is null for a_integer = 4. So the query should have returned 5 rows.
-            assertEquals(5, count);   
+            assertEquals(5, count);
         } finally {
             conn.close();
         }
@@ -123,13 +123,13 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getInt(1) >= 7);
                 assertTrue(rs.getInt(1) == 7 ? rs.getInt(2) >= 5 : rs.getInt(2) >= 0);
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertTrue(count == 3); 
+            assertTrue(count == 3);
         } finally {
             conn.close();
         }
@@ -149,12 +149,12 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setInt(3, 5);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getInt(1) == 7);
                 assertTrue(rs.getInt(2) == 5);
                 count++;
             }
-            assertTrue(count == 1); 
+            assertTrue(count == 1);
         } finally {
             conn.close();
         }
@@ -172,11 +172,11 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertTrue(count == 3); 
+            assertTrue(count == 3);
         } finally {
             conn.close();
         }
@@ -194,11 +194,11 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertTrue(count == 3); 
+            assertTrue(count == 3);
         } finally {
             conn.close();
         }
@@ -216,11 +216,11 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertEquals(3, count); 
+            assertEquals(3, count);
         } finally {
             conn.close();
         }
@@ -238,11 +238,11 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertEquals(3, count); 
+            assertEquals(3, count);
         } finally {
             conn.close();
         }
@@ -300,11 +300,11 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertTrue(count == 3); 
+            assertTrue(count == 3);
         } finally {
             conn.close();
         }
@@ -362,16 +362,16 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             // we have key values (7,5) (8,4) and (9,3) present in aTable. So the query should return the 3 records.
-            assertTrue(count == 3); 
+            assertTrue(count == 3);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testQueryMoreWithInListRowValueConstructor() throws Exception {
         String tenantId = getOrganizationId();
@@ -379,9 +379,9 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tableName = initEntityHistoryTableValues(null, tenantId, getDefaultSplits(tenantId), date, null);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-        
-        PreparedStatement statement = conn.prepareStatement("select parent_id from " + tableName + 
-                     " WHERE (organization_id, parent_id, created_date, entity_history_id) IN ((?, ?, ?, ?),(?,?,?,?))");
+
+        PreparedStatement statement = conn.prepareStatement("select parent_id from " + tableName +
+                " WHERE (organization_id, parent_id, created_date, entity_history_id) IN ((?, ?, ?, ?),(?,?,?,?))");
         statement.setString(1, tenantId);
         statement.setString(2, PARENTID3);
         statement.setDate(3, date);
@@ -391,14 +391,14 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         statement.setDate(7, date);
         statement.setString(8, ENTITYHISTID7);
         ResultSet rs = statement.executeQuery();
-        
+
         assertTrue(rs.next());
         assertEquals(PARENTID3, rs.getString(1));
         assertTrue(rs.next());
         assertEquals(PARENTID7, rs.getString(1));
         assertFalse(rs.next());
-     }
-    
+    }
+
     @Test
     public void testQueryMoreFunctionalityUsingAllPKColsInRowValueConstructor() throws Exception {
         _testQueryMoreFunctionalityUsingAllPkColsInRowValueConstructor(false);
@@ -413,20 +413,20 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantId = getOrganizationId();
         Date date = new Date(System.currentTimeMillis());
         String tableName;
-        if(salted) {
+        if (salted) {
             tableName = initSaltedEntityHistoryTableValues(null, tenantId, null, date, null);
         } else {
             tableName = initEntityHistoryTableValues(null, tenantId, getDefaultSplits(tenantId), date, null);
         }
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-        
+
         String startingOrgId = tenantId;
         String startingParentId = PARENTID1;
         Date startingDate = date;
         String startingEntityHistId = ENTITYHISTID1;
         PreparedStatement statement = null;
-        statement = conn.prepareStatement("select organization_id, parent_id, created_date, entity_history_id, old_value, new_value from " + tableName + 
+        statement = conn.prepareStatement("select organization_id, parent_id, created_date, entity_history_id, old_value, new_value from " + tableName +
                 " WHERE (organization_id, parent_id, created_date, entity_history_id) > (?, ?, ?, ?) ORDER BY organization_id, parent_id, created_date, entity_history_id LIMIT 3 ");
         statement.setString(1, startingOrgId);
         statement.setString(2, startingParentId);
@@ -437,12 +437,12 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         int count = 0;
         int i = 1;
         //this loop should work on rows 2, 3, 4.
-        while(rs.next()) {
+        while (rs.next()) {
             assertTrue(rs.getString(2).equals(PARENTIDS.get(i)));
             assertTrue(rs.getString(4).equals(ENTITYHISTIDS.get(i)));
             count++;
             i++;
-            if(count == 3) {
+            if (count == 3) {
                 startingOrgId = rs.getString(1);
                 startingParentId = rs.getString(2);
                 startingDate = rs.getDate(3);
@@ -458,7 +458,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         statement.setString(4, startingEntityHistId);
         rs = statement.executeQuery();
         //this loop now should work on rows 5, 6, 7.
-        while(rs.next()) {
+        while (rs.next()) {
             assertTrue(rs.getString(2).equals(PARENTIDS.get(i)));
             assertTrue(rs.getString(4).equals(ENTITYHISTIDS.get(i)));
             i++;
@@ -479,16 +479,17 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
 
     /**
      * Entity History table has primary keys defined in the order
-     * PRIMARY KEY (organization_id, parent_id, created_date, entity_history_id). 
+     * PRIMARY KEY (organization_id, parent_id, created_date, entity_history_id).
      * This test uses (organization_id, parent_id, entity_history_id) in RVC and checks if the query more functionality
-     * still works. 
+     * still works.
+     *
      * @throws Exception
      */
     private void _testQueryMoreWithSubsetofPKColsInRowValueConstructor(boolean salted) throws Exception {
         String tenantId = getOrganizationId();
         Date date = new Date(System.currentTimeMillis());
         String tableName;
-        if(salted) {
+        if (salted) {
             tableName = initSaltedEntityHistoryTableValues(null, tenantId, null, date, null);
         } else {
             tableName = initEntityHistoryTableValues(null, tenantId, getDefaultSplits(tenantId), date, null);
@@ -503,7 +504,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String startingEntityHistId = ENTITYHISTID1;
 
         PreparedStatement statement = null;
-        statement = conn.prepareStatement("select organization_id, parent_id, created_date, entity_history_id, old_value, new_value from " + tableName + 
+        statement = conn.prepareStatement("select organization_id, parent_id, created_date, entity_history_id, old_value, new_value from " + tableName +
                 " WHERE (organization_id, parent_id, entity_history_id) > (?, ?, ?) ORDER BY organization_id, parent_id, entity_history_id LIMIT 3 ");
         statement.setString(1, startingOrgId);
         statement.setString(2, startingParentId);
@@ -512,12 +513,12 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         int count = 0;
         //this loop should work on rows 2, 3, 4.
         int i = 1;
-        while(rs.next()) {
+        while (rs.next()) {
             assertTrue(rs.getString(2).equals(PARENTIDS.get(i)));
             assertTrue(rs.getString(4).equals(ENTITYHISTIDS.get(i)));
             i++;
             count++;
-            if(count == 3) {
+            if (count == 3) {
                 startingOrgId = rs.getString(1);
                 startingParentId = rs.getString(2);
                 startingEntityHistId = rs.getString(4);
@@ -530,7 +531,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         statement.setString(3, startingEntityHistId);
         rs = statement.executeQuery();
         //this loop now should work on rows 5, 6, 7.
-        while(rs.next()) {
+        while (rs.next()) {
             assertTrue(rs.getString(2).equals(PARENTIDS.get(i)));
             assertTrue(rs.getString(4).equals(ENTITYHISTIDS.get(i)));
             i++;
@@ -551,17 +552,18 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
 
     /**
      * Entity History table has primary keys defined in the order
-     * PRIMARY KEY (organization_id, parent_id, created_date, entity_history_id). 
+     * PRIMARY KEY (organization_id, parent_id, created_date, entity_history_id).
      * This test skips the leading column organization_id and uses (parent_id, created_date, entity_history_id) in RVC.
      * In such a case Phoenix won't be able to optimize the hbase scan. However, the query more functionality
-     * should still work. 
+     * should still work.
+     *
      * @throws Exception
      */
     private void _testQueryMoreWithLeadingPKColSkippedInRowValueConstructor(boolean salted) throws Exception {
         String tenantId = getOrganizationId();
         Date date = new Date(System.currentTimeMillis());
         String tableName;
-        if(salted) {
+        if (salted) {
             tableName = initSaltedEntityHistoryTableValues(null, tenantId, null, date, null);
         } else {
             tableName = initEntityHistoryTableValues(null, tenantId, getDefaultSplits(tenantId), date, null);
@@ -572,7 +574,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         Date startingDate = date;
         String startingEntityHistId = ENTITYHISTID1;
         PreparedStatement statement = null;
-        statement = conn.prepareStatement("select organization_id, parent_id, created_date, entity_history_id, old_value, new_value from " + tableName + 
+        statement = conn.prepareStatement("select organization_id, parent_id, created_date, entity_history_id, old_value, new_value from " + tableName +
                 " WHERE (parent_id, created_date, entity_history_id) > (?, ?, ?) ORDER BY parent_id, created_date, entity_history_id LIMIT 3 ");
         statement.setString(1, startingParentId);
         statement.setDate(2, startingDate);
@@ -581,12 +583,12 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         int count = 0;
         //this loop should work on rows 2, 3, 4.
         int i = 1;
-        while(rs.next()) {
+        while (rs.next()) {
             assertTrue(rs.getString(2).equals(PARENTIDS.get(i)));
             assertTrue(rs.getString(4).equals(ENTITYHISTIDS.get(i)));
             i++;
             count++;
-            if(count == 3) {
+            if (count == 3) {
                 startingParentId = rs.getString(2);
                 startingDate = rs.getDate(3);
                 startingEntityHistId = rs.getString(4);
@@ -599,15 +601,15 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         statement.setString(3, startingEntityHistId);
         rs = statement.executeQuery();
         //this loop now should work on rows 5, 6, 7.
-        while(rs.next()) {
+        while (rs.next()) {
             assertTrue(rs.getString(2).equals(PARENTIDS.get(i)));
             assertTrue(rs.getString(4).equals(ENTITYHISTIDS.get(i)));
             i++;
             count++;
         }
         assertTrue("Number of rows returned: " + count, count == 6);
-    } 
-    
+    }
+
     @Test
     public void testRVCWithNonLeadingPkColsOfTypesIntegerAndString() throws Exception {
         String tenantId = getOrganizationId();
@@ -621,7 +623,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             ResultSet rs = statement.executeQuery();
             int count = 0;
             //we have 4 rows present in a table with (a_integer, a_string) <= (5, 'a'). All have a_string set to "a".
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getInt(1) <= 5);
                 assertTrue(rs.getString(2).compareTo("a") == 0);
                 count++;
@@ -631,18 +633,18 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRVCWithNonLeadingPkColsOfTypesTimeStampAndString() throws Exception {
         String tenantId = getOrganizationId();
         String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(), null);
-        String updateStmt = 
-            "upsert into " +
-            tableName + "(" +
-            "    ORGANIZATION_ID, " +
-            "    ENTITY_ID, " +
-            "    A_TIMESTAMP) " +
-            "VALUES (?, ?, ?)";
+        String updateStmt =
+                "upsert into " +
+                        tableName + "(" +
+                        "    ORGANIZATION_ID, " +
+                        "    ENTITY_ID, " +
+                        "    A_TIMESTAMP) " +
+                        "VALUES (?, ?, ?)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection upsertConn = DriverManager.getConnection(getUrl(), props);
         upsertConn.setAutoCommit(true);
@@ -652,7 +654,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         Timestamp tsValue = new Timestamp(System.nanoTime());
         stmt.setTimestamp(3, tsValue);
         stmt.execute();
-        
+
         String query = "SELECT a_timestamp, a_string FROM " + tableName + " WHERE ?=organization_id  AND (a_timestamp, a_string) = (?, 'a')";
         props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -662,7 +664,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setTimestamp(2, tsValue);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 assertTrue(rs.getTimestamp(1).equals(tsValue));
                 assertTrue(rs.getString(2).compareTo("a") == 0);
                 count++;
@@ -672,35 +674,35 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNestedRVCBasic() throws Exception {
         String tenantId = getOrganizationId();
         String tableName = initATableValues(null, tenantId, getDefaultSplits(tenantId), null, null, getUrl(), null);
         //all the three queries should return the same rows.
         String[] queries = {"SELECT organization_id, entity_id, a_string FROM " + tableName + " WHERE ((organization_id, entity_id), a_string) >= ((?, ?), ?)",
-                            "SELECT organization_id, entity_id, a_string FROM " + tableName + " WHERE (organization_id, entity_id, a_string) >= (?, ?, ?)",
-                            "SELECT organization_id, entity_id, a_string FROM " + tableName + " WHERE (organization_id, (entity_id, a_string)) >= (?, (?, ?))"
-                           };
+                "SELECT organization_id, entity_id, a_string FROM " + tableName + " WHERE (organization_id, entity_id, a_string) >= (?, ?, ?)",
+                "SELECT organization_id, entity_id, a_string FROM " + tableName + " WHERE (organization_id, (entity_id, a_string)) >= (?, (?, ?))"
+        };
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         PreparedStatement statement = null;
         try {
             try {
-                for (int i = 0; i <=2; i++) {
+                for (int i = 0; i <= 2; i++) {
                     statement = conn.prepareStatement(queries[i]);
                     statement.setString(1, tenantId);
                     statement.setString(2, ROW1);
                     statement.setString(3, "a");
                     ResultSet rs = statement.executeQuery();
                     int count = 0;
-                    while(rs.next()) {
+                    while (rs.next()) {
                         count++;
                     }
                     assertEquals(9, count);
-                } 
+                }
             } finally {
-                if(statement != null) {
+                if (statement != null) {
                     statement.close();
                 }
             }
@@ -708,7 +710,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRVCWithInListClausePossibleNullValues() throws Exception {
         String tenantId = getOrganizationId();
@@ -728,7 +730,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRVCWithInListClauseUsingSubsetOfPKColsInOrder() throws Exception {
         String tenantId = getOrganizationId();
@@ -746,17 +748,17 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
                 ResultSet rs = statement.executeQuery();
                 assertFalse(rs.next());
             } finally {
-                if(statement != null) {
+                if (statement != null) {
                     statement.close();
                 }
             }
         } finally {
-            if(conn != null) {
+            if (conn != null) {
                 conn.close();
             }
         }
     }
-    
+
     @Test
     public void testRVCWithCeilAndFloorNeededForDecimal() throws Exception {
         String tenantId = getOrganizationId();
@@ -769,17 +771,17 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
                 assertEquals(7, rs.getInt(1));
                 assertEquals(5, rs.getInt(2));
             }
-            assertEquals(1, count); 
+            assertEquals(1, count);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRVCWithCeilAndFloorNeededForTimestamp() throws Exception {
         String tenantId = getOrganizationId();
@@ -798,21 +800,21 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             statement.setTimestamp(3, timestampWithNanos);
             ResultSet rs = statement.executeQuery();
             int count = 0;
-            while(rs.next()) {
+            while (rs.next()) {
                 count++;
             }
             /*
              * We have following rows with values for (a_integer, a_date) present:
              * (7, date), (8, date + TestUtil.MILLIS_IN_DAY), (9, date 2 * TestUtil.MILLIS_IN_DAY) among others present.
              * Above query should return 3 rows since the CEIL operation on timestamp with non-zero nanoseconds
-             * will bump up the milliseconds. That is (a_integer, a_date) < (6, CEIL(timestampWithNanos)).   
+             * will bump up the milliseconds. That is (a_integer, a_date) < (6, CEIL(timestampWithNanos)).
              */
             assertEquals(3, count);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRVCWithMultiCompKeysForIn() throws Exception {
         String tableName = generateUniqueName();
@@ -826,23 +828,23 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a','a')");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('b','b')");
         conn.close();
-        
+
         conn = DriverManager.getConnection(getUrl(), props);
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE (pk1,pk2) IN (('a','a'),('b','b'))");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("a",rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals("a", rs.getString(2));
         assertTrue(rs.next());
-        assertEquals("b",rs.getString(1));
-        assertEquals("b",rs.getString(2));
+        assertEquals("b", rs.getString(1));
+        assertEquals("b", rs.getString(2));
         assertFalse(rs.next());
     }
-    
+
     private Connection nextConnection(String url) throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         return DriverManager.getConnection(url, props);
     }
-    
+
     //Table type - multi-tenant. Salted - No. Query against - tenant specific view. Connection used for running IN list query - tenant specific. 
     @Test
     public void testInListOfRVC1() throws Exception {
@@ -852,7 +854,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantSpecificUrl = getUrl() + ";" + PhoenixRuntime.TENANT_ID_ATTRIB + '=' + tenantId;
         String baseTableDDL = "CREATE TABLE " + tableName + " (tenantId varchar(5) NOT NULL, pk2 varchar(5) NOT NULL, pk3 INTEGER NOT NULL, c1 INTEGER constraint pk primary key (tenantId,pk2,pk3)) MULTI_TENANT=true";
         createTestTable(getUrl(), baseTableDDL, null, null);
-        String tenantTableDDL = "CREATE VIEW " + viewName + " (tenant_col VARCHAR) AS SELECT *\n" + 
+        String tenantTableDDL = "CREATE VIEW " + viewName + " (tenant_col VARCHAR) AS SELECT *\n" +
                 "                FROM " + tableName;
         createTestTable(tenantSpecificUrl, tenantTableDDL, null, null);
 
@@ -882,7 +884,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(5, rs.getInt(2));
         conn.close();
     }
-    
+
     //Table type - multi-tenant. Salted - No. Query against - base table. Connection used for running IN list query - global. 
     @Test
     public void testInListOfRVC2() throws Exception {
@@ -892,7 +894,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantSpecificUrl = getUrl() + ";" + PhoenixRuntime.TENANT_ID_ATTRIB + '=' + tenantId;
         String baseTableDDL = "CREATE TABLE " + tableName + " (tenantId varchar(5) NOT NULL, pk2 varchar(5) NOT NULL, pk3 INTEGER NOT NULL, c1 INTEGER constraint pk primary key (tenantId,pk2,pk3)) MULTI_TENANT=true";
         createTestTable(getUrl(), baseTableDDL, null, null);
-        String tenantTableDDL = "CREATE VIEW " + viewName + " (tenant_col VARCHAR) AS SELECT *\n" + 
+        String tenantTableDDL = "CREATE VIEW " + viewName + " (tenant_col VARCHAR) AS SELECT *\n" +
                 "                FROM " + tableName;
         createTestTable(tenantSpecificUrl, tenantTableDDL, null, null);
 
@@ -924,7 +926,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(5, rs.getInt(2));
         conn.close();
     }
-    
+
     //Table type - non multi-tenant. Salted - No. Query against - Table. Connection used for running IN list query - global. 
     @Test
     public void testInListOfRVC3() throws Exception {
@@ -961,9 +963,9 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(5, rs.getInt(2));
         conn.close();
     }
-    
+
     //Table type - multi-tenant. Salted - Yes. Query against - base table. Connection used for running IN list query - global. 
-    @Test 
+    @Test
     public void testInListOfRVC4() throws Exception {
         String tenantId = "ABC";
         String tableName = generateUniqueName();
@@ -971,7 +973,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tenantSpecificUrl = getUrl() + ";" + PhoenixRuntime.TENANT_ID_ATTRIB + '=' + tenantId;
         String baseTableDDL = "CREATE TABLE " + tableName + " (tenantId varchar(5) NOT NULL, pk2 varchar(5) NOT NULL, pk3 INTEGER NOT NULL, c1 INTEGER constraint pk primary key (tenantId,pk2,pk3)) SALT_BUCKETS=4, MULTI_TENANT=true";
         createTestTable(getUrl(), baseTableDDL, null, null);
-        String tenantTableDDL = "CREATE VIEW " + viewName + " (tenant_col VARCHAR) AS SELECT *\n" + 
+        String tenantTableDDL = "CREATE VIEW " + viewName + " (tenant_col VARCHAR) AS SELECT *\n" +
                 "                FROM " + tableName;
         createTestTable(tenantSpecificUrl, tenantTableDDL, null, null);
 
@@ -1003,9 +1005,9 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(5, rs.getInt(2));
         conn.close();
     }
-    
+
     //Table type - non multi-tenant. Salted - Yes. Query against - regular table. Connection used for running IN list query - global. 
-    @Test 
+    @Test
     public void testInListOfRVC5() throws Exception {
         String tenantId = "ABC";
         String tableName = generateUniqueName();
@@ -1040,8 +1042,8 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(5, rs.getInt(2));
         conn.close();
     }
-    
-    @Test 
+
+    @Test
     public void testInListOfRVCColumnValuesSmallerLengthThanSchema() throws Exception {
         String tenantId = "ABC";
         String tableName = generateUniqueName();
@@ -1076,17 +1078,17 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(5, rs.getInt(2));
         conn.close();
     }
-    
+
     @Test
     public void testRVCWithColumnValuesOfSmallerLengthThanSchema() throws Exception {
         testRVCWithComparisonOps(true);
     }
-    
+
     @Test
     public void testRVCWithColumnValuesEqualToLengthInSchema() throws Exception {
         testRVCWithComparisonOps(false);
     }
-    
+
     private void testRVCWithComparisonOps(boolean columnValueLengthSmaller) throws Exception {
         String tenantId = "ABC";
         String tableName = generateUniqueName();
@@ -1109,13 +1111,13 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         conn.close();
 
         conn = nextConnection(getUrl());
-        
+
         // >
         PreparedStatement stmt = conn.prepareStatement("select pk2, pk3 from " + tableName + " WHERE (tenantId, pk2, pk3) > (?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, "helo3");
         stmt.setInt(3, 3);
-        
+
         ResultSet rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals("helo4", rs.getString(1));
@@ -1124,13 +1126,13 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals("helo5", rs.getString(1));
         assertEquals(5, rs.getInt(2));
         assertFalse(rs.next());
-        
+
         // >=
         stmt = conn.prepareStatement("select pk2, pk3 from " + tableName + " WHERE (tenantId, pk2, pk3) >= (?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, "helo4");
         stmt.setInt(3, 4);
-        
+
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals("helo4", rs.getString(1));
@@ -1139,26 +1141,26 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals("helo5", rs.getString(1));
         assertEquals(5, rs.getInt(2));
         assertFalse(rs.next());
-        
+
         // <
         stmt = conn.prepareStatement("select pk2, pk3 from " + tableName + " WHERE (tenantId, pk2, pk3) < (?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, "helo2");
         stmt.setInt(3, 2);
-        
+
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals("helo1", rs.getString(1));
         assertEquals(1, rs.getInt(2));
         assertFalse(rs.next());
-        
+
         // <=
         stmt = conn.prepareStatement("select pk2, pk3 from " + tableName + " WHERE (tenantId, pk2, pk3) <= (?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, "helo2");
         stmt.setInt(3, 2);
-        rs = stmt.executeQuery(); 
-        
+        rs = stmt.executeQuery();
+
         assertTrue(rs.next());
         assertEquals("helo1", rs.getString(1));
         assertEquals(1, rs.getInt(2));
@@ -1166,13 +1168,13 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals("helo2", rs.getString(1));
         assertEquals(2, rs.getInt(2));
         assertFalse(rs.next());
-        
+
         // =
         stmt = conn.prepareStatement("select pk2, pk3 from " + tableName + " WHERE (tenantId, pk2, pk3) = (?, ?, ?)");
         stmt.setString(1, tenantId);
         stmt.setString(2, "helo4");
         stmt.setInt(3, 4);
-        
+
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals("helo4", rs.getString(1));
@@ -1225,7 +1227,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
 
             String plan = "CLIENT PARALLEL 4-WAY SKIP SCAN ON 12 KEYS OVER " + tempTableWithCompositePK + " [0,2] - [3,4]\n" +
-                          "CLIENT MERGE SORT";
+                    "CLIENT MERGE SORT";
             String explainQuery = "EXPLAIN " + query;
             rs = conn.createStatement().executeQuery(explainQuery);
             assertEquals(query, plan, QueryUtil.getExplainPlan(rs));
@@ -1233,11 +1235,11 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     // query against non-multitenant table. Salted - yes 
     @Test
     public void testComparisonAgainstRVCCombinedWithOrAnd_1() throws Exception {
-    	String tableDDL = "CREATE TABLE RVC1 (tenantId char(15) NOT NULL, pk2 char(15) NOT NULL, pk3 INTEGER NOT NULL, c1 INTEGER constraint pk primary key (tenantId,pk2,pk3)) SALT_BUCKETS = 4";
+        String tableDDL = "CREATE TABLE RVC1 (tenantId char(15) NOT NULL, pk2 char(15) NOT NULL, pk3 INTEGER NOT NULL, c1 INTEGER constraint pk primary key (tenantId,pk2,pk3)) SALT_BUCKETS = 4";
         createTestTable(getUrl(), tableDDL, null, null);
 
         Connection conn = nextConnection(getUrl());
@@ -1251,12 +1253,12 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         PreparedStatement stmt = conn.prepareStatement("select pk2, pk3 from RVC1 WHERE (tenantId = ? OR tenantId = ?) AND (tenantId, pk2, pk3) > (?, ?, ?) LIMIT 100");
         stmt.setString(1, "ABC");
         stmt.setString(2, "DEF");
-        
+
         // give back all rows after row 1 - ABC|helo1|1
         stmt.setString(3, "ABC");
         stmt.setString(4, "helo1");
         stmt.setInt(5, 1);
-        
+
         ResultSet rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals("helo2", rs.getString(1));
@@ -1265,7 +1267,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals("helo3", rs.getString(1));
         assertEquals(3, rs.getInt(2));
         assertFalse(rs.next());
-        
+
         stmt = conn.prepareStatement("select pk2, pk3 from RVC1 WHERE tenantId = ? AND (tenantId, pk2, pk3) BETWEEN (?, ?, ?) AND (?, ?, ?) LIMIT 100");
         stmt.setString(1, "ABC");
         stmt.setString(2, "ABC");
@@ -1274,14 +1276,14 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt.setString(5, "DEF");
         stmt.setString(6, "helo3");
         stmt.setInt(7, 3);
-        
+
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals("helo2", rs.getString(1));
         assertEquals(2, rs.getInt(2));
         assertFalse(rs.next());
     }
-    
+
     // query against tenant specific view. Salted base table.
     @Test
     public void testComparisonAgainstRVCCombinedWithOrAnd_2() throws Exception {
@@ -1303,7 +1305,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         PreparedStatement stmt = conn.prepareStatement("select pk2, pk3 from t_view WHERE (pk2 = ? OR pk2 = ?) AND (pk2, pk3) > (?, ?) LIMIT 100");
         stmt.setString(1, "helo1");
         stmt.setString(2, "helo3");
-        
+
         // return rows after helo1|1 
         stmt.setString(3, "helo1");
         stmt.setInt(4, 1);
@@ -1352,10 +1354,10 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
     @Test
     public void testRVCInView() throws Exception {
         Connection conn = nextConnection(getUrl());
-        conn.createStatement().execute("CREATE TABLE TEST_TABLE.TEST1 (\n" + 
-                "PK1 CHAR(3) NOT NULL, \n" + 
-                "PK2 CHAR(3) NOT NULL,\n" + 
-                "DATA1 CHAR(10)\n" + 
+        conn.createStatement().execute("CREATE TABLE TEST_TABLE.TEST1 (\n" +
+                "PK1 CHAR(3) NOT NULL, \n" +
+                "PK2 CHAR(3) NOT NULL,\n" +
+                "DATA1 CHAR(10)\n" +
                 "CONSTRAINT PK PRIMARY KEY (PK1, PK2))");
         conn.close();
         conn = nextConnection(getUrl());
@@ -1369,8 +1371,8 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("UPSERT INTO TEST_TABLE.TEST1 VALUES('FOO','005','SOMEDATA')");
         conn.commit();
         conn.close();
-        
-        conn = nextConnection(getUrl());        
+
+        conn = nextConnection(getUrl());
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM TEST_TABLE.FOO WHERE PK2 < '004' AND (PK1,PK2) > ('FOO','002') LIMIT 2");
         assertTrue(rs.next());
         assertEquals("003", rs.getString("PK2"));
@@ -1384,7 +1386,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         String ddl = "CREATE TABLE " + tableName + " (region_name VARCHAR PRIMARY KEY, a INTEGER, b INTEGER)";
         conn.createStatement().execute(ddl);
-        
+
         conn = nextConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " (region_name, a, b) VALUES('a', 6,3)");
         stmt.execute();
@@ -1409,7 +1411,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String ddl = "CREATE TABLE  " + tableName + "  (region_name VARCHAR PRIMARY KEY, a VARCHAR, b VARCHAR)";
         conn.createStatement().execute(ddl);
         conn.commit();
-        
+
         conn = nextConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " (region_name, a, b) VALUES('a', 'fooo','abc')");
         stmt.execute();
@@ -1432,7 +1434,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tableName = "testCountDistinct3rvc";
         String ddl = "CREATE TABLE  " + tableName + "  (region_name VARCHAR PRIMARY KEY, a Boolean, b Boolean)";
         conn.createStatement().execute(ddl);
-        
+
         conn = nextConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " (region_name, a, b) VALUES('a', true, true)");
         stmt.execute();
@@ -1457,7 +1459,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         String ddl = "CREATE TABLE  " + tableName + "  (region_name VARCHAR PRIMARY KEY, a VARCHAR, b VARCHAR)";
         conn.createStatement().execute(ddl);
-        
+
         conn = nextConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " (region_name, a, b) VALUES('a', 'fooo','abc')");
         stmt.execute();
@@ -1466,7 +1468,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " (region_name, a, b) VALUES('c', 'foo', 'abc')");
         stmt.execute();
         conn.commit();
-        
+
         conn = nextConnection(getUrl());
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT COUNT(DISTINCT (a,b)) from  " + tableName);
@@ -1480,7 +1482,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         String ddl = "CREATE TABLE  " + tableName + "  (k1 VARCHAR, k2 VARCHAR, k3 VARCHAR, k4 VARCHAR, CONSTRAINT pk PRIMARY KEY (k1,k2,k3,k4))";
         conn.createStatement().execute(ddl);
-        
+
         conn = nextConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " VALUES('a','b','c','d')");
         stmt.execute();
@@ -1489,7 +1491,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " VALUES('c', 'b','c','f')");
         stmt.execute();
         conn.commit();
-        
+
         conn = nextConnection(getUrl());
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT k1 from  " + tableName + " WHERE k1 IN ('a','c') AND (k2,k3) IN (('b','c'),('f','g')) AND k4 > 'c'");
@@ -1506,7 +1508,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         String ddl = "CREATE TABLE  " + tableName + "  (k1 VARCHAR, k2 VARCHAR, k3 VARCHAR, k4 VARCHAR, CONSTRAINT pk PRIMARY KEY (k1,k2,k3,k4))";
         conn.createStatement().execute(ddl);
-        
+
         conn = nextConnection(getUrl());
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " VALUES('','','a')");
         stmt.execute();
@@ -1521,7 +1523,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         stmt = conn.prepareStatement("UPSERT INTO  " + tableName + " VALUES('a', '','c', 'a')");
         stmt.execute();
         conn.commit();
-        
+
         conn = nextConnection(getUrl());
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT k1,k3,k4 from  " + tableName + " WHERE (k1,k2,k3) IN (('','','a'),('','','b'),('a','','c')) AND k4 is not null");
@@ -1529,94 +1531,94 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         assertEquals(null, rs.getString(1));
         assertEquals("a", rs.getString(2));
         assertEquals("a", rs.getString(3));
-        
+
         assertTrue(rs.next());
         assertEquals(null, rs.getString(1));
         assertEquals("b", rs.getString(2));
         assertEquals("a", rs.getString(3));
-        
+
         assertTrue(rs.next());
         assertEquals("a", rs.getString(1));
         assertEquals("c", rs.getString(2));
         assertEquals("a", rs.getString(3));
-        
+
         assertFalse(rs.next());
     }
 
-	/**
-	 * PHOENIX-2327
-	 * 
-	 * Table's pks are (pk1, pk2, ... , pkn), n >= 3
-	 * Index's pks are (pk2, ... , pkn, pk1), n >= 3
-	 * RVC is (pk2, ... , pkn, pk1), n >= 3
-	 * 
-	 * Expalin select * from " + tableName + " where (pk2, ... , pkn, pk1) > ('201', ..., 'n01', '101') and pk[2-n] = '[2-n]03'
-	 * 
-	 * You will Get "DEGENERATE SCAN OVER TABLE_NAME"
-	 * 
-	 * @throws java.lang.Exception
-	 */
-	@Test
-	public void testRVCLastPkIsTable1stPkIndex() throws Exception {
-		Connection conn = nextConnection(getUrl());
-		String tableName = generateUniqueName();
-		String ddl = "CREATE TABLE " + tableName 
-				+ " (k1 VARCHAR, k2 VARCHAR, k3 VARCHAR, k4 VARCHAR,"
-				+ " CONSTRAINT pk PRIMARY KEY (k1,k2,k3,k4))";
-		conn.createStatement().execute(ddl);
+    /**
+     * PHOENIX-2327
+     * <p>
+     * Table's pks are (pk1, pk2, ... , pkn), n >= 3
+     * Index's pks are (pk2, ... , pkn, pk1), n >= 3
+     * RVC is (pk2, ... , pkn, pk1), n >= 3
+     * <p>
+     * Expalin select * from " + tableName + " where (pk2, ... , pkn, pk1) > ('201', ..., 'n01', '101') and pk[2-n] = '[2-n]03'
+     * <p>
+     * You will Get "DEGENERATE SCAN OVER TABLE_NAME"
+     *
+     * @throws java.lang.Exception
+     */
+    @Test
+    public void testRVCLastPkIsTable1stPkIndex() throws Exception {
+        Connection conn = nextConnection(getUrl());
+        String tableName = generateUniqueName();
+        String ddl = "CREATE TABLE " + tableName
+                + " (k1 VARCHAR, k2 VARCHAR, k3 VARCHAR, k4 VARCHAR,"
+                + " CONSTRAINT pk PRIMARY KEY (k1,k2,k3,k4))";
+        conn.createStatement().execute(ddl);
 
-		conn = nextConnection(getUrl());
-		ddl = "CREATE INDEX  " + tableName + "_idx"
-				+ " ON " + tableName + " (k2, k3, k4, k1)";
-		conn.createStatement().execute(ddl);
-		
-		conn = nextConnection(getUrl());
-		String upsert = "UPSERT INTO " + tableName + " VALUES(?, ?, ?, ?)";
-		PreparedStatement stmt = conn.prepareStatement(upsert);
-		for (int i = 0; i < 5; i++) {
-			stmt.setString(1, "10" + i);
-			stmt.setString(2, "20" + i);
-			stmt.setString(3, "30" + i);
-			stmt.setString(4, "40" + i);
-			stmt.execute();
-		}
-		conn.commit();
+        conn = nextConnection(getUrl());
+        ddl = "CREATE INDEX  " + tableName + "_idx"
+                + " ON " + tableName + " (k2, k3, k4, k1)";
+        conn.createStatement().execute(ddl);
 
-		conn = nextConnection(getUrl());
-		String query = "SELECT k1, k2, k3, k4 FROM " + tableName + " WHERE k2 = '203'";
-		ResultSet rs = conn.createStatement().executeQuery(query);
-		assertTrue(rs.next());
-		assertEquals("103", rs.getString(1));
-		assertEquals("203", rs.getString(2));
-		assertEquals("303", rs.getString(3));
-		assertEquals("403", rs.getString(4));
+        conn = nextConnection(getUrl());
+        String upsert = "UPSERT INTO " + tableName + " VALUES(?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(upsert);
+        for (int i = 0; i < 5; i++) {
+            stmt.setString(1, "10" + i);
+            stmt.setString(2, "20" + i);
+            stmt.setString(3, "30" + i);
+            stmt.setString(4, "40" + i);
+            stmt.execute();
+        }
+        conn.commit();
 
-		conn = nextConnection(getUrl());
-		query = "SELECT k1, k2, k3, k4 FROM " + tableName 
-				+ " WHERE (k2, k3, k4, k1) > ('201', '301', '401', '101')"
-				+ " AND k2 = '203'";
-		rs = conn.createStatement().executeQuery(query);
-		assertTrue(rs.next());
-		assertEquals("103", rs.getString(1));
-		assertEquals("203", rs.getString(2));
-		assertEquals("303", rs.getString(3));
-		assertEquals("403", rs.getString(4));
-	}
+        conn = nextConnection(getUrl());
+        String query = "SELECT k1, k2, k3, k4 FROM " + tableName + " WHERE k2 = '203'";
+        ResultSet rs = conn.createStatement().executeQuery(query);
+        assertTrue(rs.next());
+        assertEquals("103", rs.getString(1));
+        assertEquals("203", rs.getString(2));
+        assertEquals("303", rs.getString(3));
+        assertEquals("403", rs.getString(4));
+
+        conn = nextConnection(getUrl());
+        query = "SELECT k1, k2, k3, k4 FROM " + tableName
+                + " WHERE (k2, k3, k4, k1) > ('201', '301', '401', '101')"
+                + " AND k2 = '203'";
+        rs = conn.createStatement().executeQuery(query);
+        assertTrue(rs.next());
+        assertEquals("103", rs.getString(1));
+        assertEquals("203", rs.getString(2));
+        assertEquals("303", rs.getString(3));
+        assertEquals("403", rs.getString(4));
+    }
 
     @Test
     public void testMultiTenantRVC() throws Exception {
         Connection conn = nextConnection(getUrl());
         String tableName = "mtRVC";
-        String ddl = "CREATE TABLE " + tableName 
-                + " (\n" + 
-                "    pk1 VARCHAR NOT NULL,\n" + 
-                "    pk2 DECIMAL NOT NULL,\n" + 
-                "    v1 VARCHAR\n" + 
-                "    CONSTRAINT PK PRIMARY KEY \n" + 
-                "    (\n" + 
-                "        pk1,\n" + 
-                "        pk2\n" + 
-                "    )\n" + 
+        String ddl = "CREATE TABLE " + tableName
+                + " (\n" +
+                "    pk1 VARCHAR NOT NULL,\n" +
+                "    pk2 DECIMAL NOT NULL,\n" +
+                "    v1 VARCHAR\n" +
+                "    CONSTRAINT PK PRIMARY KEY \n" +
+                "    (\n" +
+                "        pk1,\n" +
+                "        pk2\n" +
+                "    )\n" +
                 ") MULTI_TENANT=true,IMMUTABLE_ROWS=true";
         conn.createStatement().execute(ddl);
 
@@ -1624,7 +1626,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         ddl = "CREATE INDEX  " + tableName + "_idx"
                 + " ON " + tableName + " (v1)";
         conn.createStatement().execute(ddl);
-        
+
         conn = nextConnection(getUrl());
         String upsert = "UPSERT INTO " + tableName + " VALUES(?, ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(upsert);
@@ -1639,9 +1641,9 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         conn.commit();
 
         conn = nextConnection(getUrl());
-        String query = "SELECT pk1, pk2, v1 FROM " + tableName + " WHERE pk1 = 'a' AND\n" + 
-                "(pk1, pk2) > ('a', 1)\n" + 
-                "ORDER BY PK1, PK2\n" + 
+        String query = "SELECT pk1, pk2, v1 FROM " + tableName + " WHERE pk1 = 'a' AND\n" +
+                "(pk1, pk2) > ('a', 1)\n" +
+                "ORDER BY PK1, PK2\n" +
                 "LIMIT 2";
         ResultSet rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
@@ -1681,13 +1683,13 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
             assertEquals("v1000", objectId);
             ps.setString(numItemsInClause + 1, "z00");
             ps.setString(numItemsInClause + 2, "v1000"); // This value must match or be
-                                                         // lexographically higher than the highest
-                                                         // value in the IN clause
+            // lexographically higher than the highest
+            // value in the IN clause
             // Query should execute and return 0 results
             ResultSet rs = ps.executeQuery();
             assertFalse(
-                "Query should return no results as IN clause and RVC clause are disjoint sets",
-                rs.next());
+                    "Query should return no results as IN clause and RVC clause are disjoint sets",
+                    rs.next());
         }
     }
 
@@ -1706,7 +1708,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
     }
 
     private List<String> selectObjectIdsForInClause(Connection tenantConn, String fullViewName,
-            int numItemsInClause) throws SQLException {
+                                                    int numItemsInClause) throws SQLException {
         String sqlForObjIds =
                 "SELECT OBJECT_ID FROM " + fullViewName + " ORDER BY OBJECT_ID LIMIT "
                         + numItemsInClause;
@@ -1738,7 +1740,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
         // Validate Data was loaded correctly
         PreparedStatement selectStatement =
                 tenantConn.prepareStatement(
-                    "SELECT OBJECT_ID FROM " + fullViewName + " ORDER BY OBJECT_ID");
+                        "SELECT OBJECT_ID FROM " + fullViewName + " ORDER BY OBJECT_ID");
         ResultSet rs = selectStatement.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -1748,7 +1750,7 @@ public class RowValueConstructorIT extends ParallelStatsDisabledIT {
     }
 
     private void createBaseTableAndTenantView(Connection tenantConn, String fulTableName,
-            String fullViewName) throws SQLException {
+                                              String fullViewName) throws SQLException {
         String ddl =
                 "CREATE TABLE IF NOT EXISTS " + fulTableName + " (TENANT_ID CHAR(15) NOT NULL,"
                         + " KEY_PREFIX CHAR(3) NOT NULL," + " CREATED_DATE DATE,"

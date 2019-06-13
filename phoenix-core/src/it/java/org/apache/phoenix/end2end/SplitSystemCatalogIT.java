@@ -36,7 +36,6 @@ import com.google.common.collect.Maps;
 
 /**
  * Base class for tests that run with split SYSTEM.CATALOG.
- * 
  */
 @Category(SplitSystemCatalogTests.class)
 public class SplitSystemCatalogIT extends BaseTest {
@@ -60,7 +59,7 @@ public class SplitSystemCatalogIT extends BaseTest {
             splitSystemCatalog();
         }
     }
-    
+
     protected static void splitSystemCatalog() throws SQLException, Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
         }

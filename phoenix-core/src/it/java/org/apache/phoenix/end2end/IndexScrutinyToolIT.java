@@ -93,7 +93,8 @@ public class IndexScrutinyToolIT {
     abstract public static class SharedIndexToolIT extends BaseTest {
         protected String outputDir;
 
-        @BeforeClass public static void doSetup() throws Exception {
+        @BeforeClass
+        public static void doSetup() throws Exception {
             Map<String, String> serverProps = Maps.newHashMap();
             //disable major compactions
             serverProps.put(HConstants.MAJOR_COMPACTION_PERIOD, "0");
@@ -115,7 +116,7 @@ public class IndexScrutinyToolIT {
         }
 
         protected String[] getArgValues(String schemaName, String dataTable, String indxTable, Long batchSize,
-                SourceTable sourceTable, boolean outputInvalidRows, OutputFormat outputFormat, Long maxOutputRows, String tenantId, Long scrutinyTs) {
+                                        SourceTable sourceTable, boolean outputInvalidRows, OutputFormat outputFormat, Long maxOutputRows, String tenantId, Long scrutinyTs) {
             final List<String> args = Lists.newArrayList();
             if (schemaName != null) {
                 args.add("-s");
@@ -183,7 +184,8 @@ public class IndexScrutinyToolIT {
 
     }
 
-    @RunWith(Parameterized.class) public static class IndexScrutinyToolNonTenantIT extends SharedIndexToolIT {
+    @RunWith(Parameterized.class)
+    public static class IndexScrutinyToolNonTenantIT extends SharedIndexToolIT {
 
         private String dataTableDdl;
         private String indexTableDdl;
@@ -211,11 +213,12 @@ public class IndexScrutinyToolIT {
         private long testTime;
         private Properties props;
 
-        @Parameterized.Parameters public static Collection<Object[]> data() {
-            return Arrays.asList(new Object[][] { { "CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER, EMPLOY_DATE TIMESTAMP, EMPLOYER VARCHAR)",
-                    "CREATE LOCAL INDEX %s ON %s (NAME, EMPLOY_DATE) INCLUDE (ZIP)" }, { "CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER, EMPLOY_DATE TIMESTAMP, EMPLOYER VARCHAR) SALT_BUCKETS=2",
-                    "CREATE INDEX %s ON %s (NAME, EMPLOY_DATE) INCLUDE (ZIP)" }, { "CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER, EMPLOY_DATE TIMESTAMP, EMPLOYER VARCHAR) SALT_BUCKETS=2",
-                    "CREATE LOCAL INDEX %s ON %s (NAME, EMPLOY_DATE) INCLUDE (ZIP)" } });
+        @Parameterized.Parameters
+        public static Collection<Object[]> data() {
+            return Arrays.asList(new Object[][] {{"CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER, EMPLOY_DATE TIMESTAMP, EMPLOYER VARCHAR)",
+                    "CREATE LOCAL INDEX %s ON %s (NAME, EMPLOY_DATE) INCLUDE (ZIP)"}, {"CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER, EMPLOY_DATE TIMESTAMP, EMPLOYER VARCHAR) SALT_BUCKETS=2",
+                    "CREATE INDEX %s ON %s (NAME, EMPLOY_DATE) INCLUDE (ZIP)"}, {"CREATE TABLE %s (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR, ZIP INTEGER, EMPLOY_DATE TIMESTAMP, EMPLOYER VARCHAR) SALT_BUCKETS=2",
+                    "CREATE LOCAL INDEX %s ON %s (NAME, EMPLOY_DATE) INCLUDE (ZIP)"}});
         }
 
         public IndexScrutinyToolNonTenantIT(String dataTableDdl, String indexTableDdl) {
@@ -226,7 +229,8 @@ public class IndexScrutinyToolIT {
         /**
          * Create the test data and index tables
          */
-        @Before public void setup() throws SQLException {
+        @Before
+        public void setup() throws SQLException {
             generateUniqueTableNames();
             createTestTable(getUrl(), String.format(dataTableDdl, dataTableFullName));
             createTestTable(getUrl(), String.format(indexTableDdl, indexTableName, dataTableFullName));
@@ -241,7 +245,8 @@ public class IndexScrutinyToolIT {
 
         }
 
-        @After public void teardown() throws SQLException {
+        @After
+        public void teardown() throws SQLException {
             if (conn != null) {
                 conn.close();
             }
@@ -250,7 +255,8 @@ public class IndexScrutinyToolIT {
         /**
          * Tests a data table that is correctly indexed. Scrutiny should report all rows as valid.
          */
-        @Test public void testValidIndex() throws Exception {
+        @Test
+        public void testValidIndex() throws Exception {
             // insert two rows
             upsertRow(dataTableUpsertStmt, 1, "name-1", 94010);
             upsertRow(dataTableUpsertStmt, 2, "name-2", 95123);
@@ -276,7 +282,8 @@ public class IndexScrutinyToolIT {
          * Tests running a scrutiny while updates and deletes are happening.
          * Since CURRENT_SCN is set, the scrutiny shouldn't report any issue.
          */
-        @Test @Ignore("PHOENIX-4378 Unable to set KEEP_DELETED_CELLS to true on RS scanner")
+        @Test
+        @Ignore("PHOENIX-4378 Unable to set KEEP_DELETED_CELLS to true on RS scanner")
         public void testScrutinyWhileTakingWrites() throws Exception {
             int id = 0;
             while (id < 1000) {
@@ -296,7 +303,8 @@ public class IndexScrutinyToolIT {
             // launch background upserts and deletes
             final Random random = new Random(0);
             Runnable backgroundUpserts = new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     int idToUpsert = random.nextInt(1000);
                     try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
                         PreparedStatement dataPS =
@@ -309,7 +317,8 @@ public class IndexScrutinyToolIT {
                 }
             };
             Runnable backgroundDeletes = new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     int idToDelete = random.nextInt(1000);
                     try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
                         String deleteSql =
@@ -342,7 +351,8 @@ public class IndexScrutinyToolIT {
          * Tests an index with the same # of rows as the data table, but one of the index rows is
          * incorrect Scrutiny should report the invalid rows.
          */
-        @Test public void testEqualRowCountIndexIncorrect() throws Exception {
+        @Test
+        public void testEqualRowCountIndexIncorrect() throws Exception {
             // insert one valid row
             upsertRow(dataTableUpsertStmt, 1, "name-1", 94010);
             conn.commit();
@@ -369,7 +379,8 @@ public class IndexScrutinyToolIT {
          * Tests an index where the index pk is correct (indexed col values are indexed correctly), but
          * a covered index value is incorrect. Scrutiny should report the invalid row
          */
-        @Test public void testCoveredValueIncorrect() throws Exception {
+        @Test
+        public void testCoveredValueIncorrect() throws Exception {
             // insert one valid row
             upsertRow(dataTableUpsertStmt, 1, "name-1", 94010);
             conn.commit();
@@ -397,7 +408,8 @@ public class IndexScrutinyToolIT {
          * Test batching of row comparisons Inserts 1001 rows, with some random bad rows, and runs
          * scrutiny with batchsize of 10,
          */
-        @Test public void testBatching() throws Exception {
+        @Test
+        public void testBatching() throws Exception {
             // insert 1001 data and index rows
             int numTestRows = 1001;
             for (int i = 0; i < numTestRows; i++) {
@@ -432,7 +444,8 @@ public class IndexScrutinyToolIT {
          * Tests when there are more data table rows than index table rows Scrutiny should report the
          * number of incorrect rows
          */
-        @Test public void testMoreDataRows() throws Exception {
+        @Test
+        public void testMoreDataRows() throws Exception {
             upsertRow(dataTableUpsertStmt, 1, "name-1", 95123);
             conn.commit();
             disableIndex();
@@ -453,7 +466,8 @@ public class IndexScrutinyToolIT {
          * Tests when there are more index table rows than data table rows Scrutiny should report the
          * number of incorrect rows when run with the index as the source table
          */
-        @Test public void testMoreIndexRows() throws Exception {
+        @Test
+        public void testMoreIndexRows() throws Exception {
             upsertRow(dataTableUpsertStmt, 1, "name-1", 95123);
             conn.commit();
             disableIndex();
@@ -475,7 +489,8 @@ public class IndexScrutinyToolIT {
          * Tests running with both the index and data tables as the source table If we have an
          * incorrectly indexed row, it should be reported in each direction
          */
-        @Test public void testBothDataAndIndexAsSource() throws Exception {
+        @Test
+        public void testBothDataAndIndexAsSource() throws Exception {
             // insert one valid row
             upsertRow(dataTableUpsertStmt, 1, "name-1", 94010);
             conn.commit();
@@ -503,7 +518,8 @@ public class IndexScrutinyToolIT {
         /**
          * Tests that with the output to file option set, the scrutiny tool outputs invalid rows to file
          */
-        @Test public void testOutputInvalidRowsToFile() throws Exception {
+        @Test
+        public void testOutputInvalidRowsToFile() throws Exception {
             insertOneValid_OneBadVal_OneMissingTarget();
 
             String[] argValues =
@@ -552,7 +568,8 @@ public class IndexScrutinyToolIT {
         /**
          * Tests writing of results to the output table
          */
-        @Test public void testOutputInvalidRowsToTable() throws Exception {
+        @Test
+        public void testOutputInvalidRowsToTable() throws Exception {
             insertOneValid_OneBadVal_OneMissingTarget();
             String[] argValues =
                     getArgValues(schemaName, dataTableName, indexTableName, 10L, SourceTable.DATA_TABLE_SOURCE, true, OutputFormat.TABLE, null);
@@ -589,7 +606,8 @@ public class IndexScrutinyToolIT {
         /**
          * Tests that the config for max number of output rows is observed
          */
-        @Test public void testMaxOutputRows() throws Exception {
+        @Test
+        public void testMaxOutputRows() throws Exception {
             insertOneValid_OneBadVal_OneMissingTarget();
             // set max to 1.  There are two bad rows, but only 1 should get written to output table
             String[] argValues =
@@ -638,7 +656,7 @@ public class IndexScrutinyToolIT {
         }
 
         private void assertMetadataTableValues(String[] argValues, long scrutinyTimeMillis,
-                String invalidRowsQuery) throws SQLException {
+                                               String invalidRowsQuery) throws SQLException {
             ResultSet rs;
             ResultSet metadataRs =
                     IndexScrutinyTableOutput
@@ -707,7 +725,7 @@ public class IndexScrutinyToolIT {
         }
 
         private String[] getArgValues(String schemaName, String dataTable, String indxTable, Long batchSize,
-                SourceTable sourceTable, boolean outputInvalidRows, OutputFormat outputFormat, Long maxOutputRows) {
+                                      SourceTable sourceTable, boolean outputInvalidRows, OutputFormat outputFormat, Long maxOutputRows) {
             return getArgValues(schemaName, dataTable, indxTable, batchSize, sourceTable,
                     outputInvalidRows, outputFormat, maxOutputRows, null, Long.MAX_VALUE);
         }
@@ -723,12 +741,12 @@ public class IndexScrutinyToolIT {
         }
 
         private List<Job> runScrutiny(String schemaName, String dataTableName, String indexTableName,
-                Long batchSize) throws Exception {
+                                      Long batchSize) throws Exception {
             return runScrutiny(schemaName, dataTableName, indexTableName, batchSize, null);
         }
 
         private List<Job> runScrutiny(String schemaName, String dataTableName, String indexTableName,
-                Long batchSize, SourceTable sourceTable) throws Exception {
+                                      Long batchSize, SourceTable sourceTable) throws Exception {
             final String[] cmdArgs =
                     getArgValues(schemaName, dataTableName, indexTableName, batchSize, sourceTable,
                             false, null, null, null, Long.MAX_VALUE);
@@ -773,7 +791,8 @@ public class IndexScrutinyToolIT {
         /**
          * Create the test data
          */
-        @Before public void setup() throws SQLException {
+        @Before
+        public void setup() throws SQLException {
             tenantId = generateUniqueName();
             tenantViewName = generateUniqueName();
             indexNameTenant = generateUniqueName();
@@ -798,7 +817,8 @@ public class IndexScrutinyToolIT {
             connTenant.createStatement().execute(idxStmtTenant);
         }
 
-        @After public void teardown() throws SQLException {
+        @After
+        public void teardown() throws SQLException {
             if (connGlobal != null) {
                 connGlobal.close();
             }
@@ -810,7 +830,8 @@ public class IndexScrutinyToolIT {
         /**
          * Tests that the config for max number of output rows is observed
          */
-        @Test public void testTenantViewAndIndexEqual() throws Exception {
+        @Test
+        public void testTenantViewAndIndexEqual() throws Exception {
             connTenant.createStatement()
                     .execute(String.format(upsertQueryStr, tenantViewName, tenantId, 1, "x"));
             connTenant.commit();
@@ -833,8 +854,9 @@ public class IndexScrutinyToolIT {
 
         /**
          * Tests global view on multi-tenant table should work too
-        **/
-        @Test public void testGlobalViewOnMultiTenantTable() throws Exception {
+         **/
+        @Test
+        public void testGlobalViewOnMultiTenantTable() throws Exception {
             String globalViewName = generateUniqueName();
             String indexNameGlobal = generateUniqueName();
 
@@ -897,15 +919,17 @@ public class IndexScrutinyToolIT {
         }
 
         /**
-        * Add 3 rows to Tenant view.
-        * Empty index table and observe they are not equal.
-        * Use data table as source and output to file.
-        **/
-        @Test public void testWithEmptyIndexTableOutputToFile() throws Exception{
+         * Add 3 rows to Tenant view.
+         * Empty index table and observe they are not equal.
+         * Use data table as source and output to file.
+         **/
+        @Test
+        public void testWithEmptyIndexTableOutputToFile() throws Exception {
             testWithOutput(OutputFormat.FILE);
         }
 
-        @Test public void testWithEmptyIndexTableOutputToTable() throws Exception{
+        @Test
+        public void testWithEmptyIndexTableOutputToTable() throws Exception {
             testWithOutput(OutputFormat.TABLE);
             assertEquals(3, countRows(connGlobal, OUTPUT_TABLE_NAME));
         }

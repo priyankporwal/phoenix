@@ -20,17 +20,17 @@ public class PVarcharArrayToStringTest extends BasePhoenixArrayToStringTest {
     @Test
     public void testUnicodeString() {
         helpTestToString(
-            getBaseType(), //
-            new String[] { "a" + "\u00ea" + "\u00f1" + "b", "c" + "\u00a0" + "\u00ff" + "d" },
-            "['aêñb', 'c ÿd']");
+                getBaseType(), //
+                new String[] {"a" + "\u00ea" + "\u00f1" + "b", "c" + "\u00a0" + "\u00ff" + "d"},
+                "['aêñb', 'c ÿd']");
     }
 
     @Test
     public void testStringWithSeparators() {
         helpTestToString(
-            getBaseType(), //
-            new String[] { "a,b,c", "d\"e\"f\"", "'g'h'i'" },
-            "['a,b,c', 'd\"e\"f\"', '''g''h''i''']");
+                getBaseType(), //
+                new String[] {"a,b,c", "d\"e\"f\"", "'g'h'i'"},
+                "['a,b,c', 'd\"e\"f\"', '''g''h''i''']");
     }
 
     @Override

@@ -59,7 +59,7 @@ public class PBinaryArray extends PArrayDataType<byte[][]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                           Integer maxLength, Integer scale) {
         return toObject(bytes, offset, length, PBinary.INSTANCE, sortOrder, maxLength, scale, PBinary.INSTANCE);
     }
 
@@ -70,11 +70,15 @@ public class PBinaryArray extends PArrayDataType<byte[][]> {
 
     @Override
     public boolean isCoercibleTo(PDataType targetType, Object value) {
-        if (value == null) { return true; }
-        PhoenixArray pArr = (PhoenixArray)value;
-        Object[] charArr = (Object[])pArr.array;
+        if (value == null) {
+            return true;
+        }
+        PhoenixArray pArr = (PhoenixArray) value;
+        Object[] charArr = (Object[]) pArr.array;
         for (Object i : charArr) {
-            if (!super.isCoercibleTo(PBinary.INSTANCE, i)) { return false; }
+            if (!super.isCoercibleTo(PBinary.INSTANCE, i)) {
+                return false;
+            }
         }
         return true;
     }

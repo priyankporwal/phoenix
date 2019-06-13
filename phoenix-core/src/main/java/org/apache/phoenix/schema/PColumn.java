@@ -21,7 +21,6 @@ package org.apache.phoenix.schema;
 /**
  * Definition of a Phoenix column
  *
- * 
  * @since 0.1
  */
 public interface PColumn extends PDatum {
@@ -40,18 +39,18 @@ public interface PColumn extends PDatum {
      * @return the zero-based ordinal position of the column
      */
     int getPosition();
-    
+
     /**
      * @return the declared array size or zero if this is not an array
      */
     Integer getArraySize();
-    
+
     byte[] getViewConstant();
-    
+
     boolean isViewReferenced();
-    
+
     int getEstimatedSize();
-    
+
     String getExpressionStr();
 
     /**
@@ -65,13 +64,13 @@ public interface PColumn extends PDatum {
     boolean isDerived();
 
     boolean isExcluded();
-    
+
     /**
      * @return whether this column represents/stores the hbase cell timestamp.
      */
     boolean isRowTimestamp();
-    
+
     boolean isDynamic();
-    
+
     byte[] getColumnQualifierBytes();
 }

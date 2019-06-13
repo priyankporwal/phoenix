@@ -42,52 +42,54 @@ import org.slf4j.LoggerFactory;
  */
 public class IndexTestingUtils {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(IndexTestingUtils.class);
-  private static final String MASTER_INFO_PORT_KEY = "hbase.master.info.port";
-  private static final String RS_INFO_PORT_KEY = "hbase.regionserver.info.port";
-  
-  private IndexTestingUtils() {
-    // private ctor for util class
-  }
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexTestingUtils.class);
+    private static final String MASTER_INFO_PORT_KEY = "hbase.master.info.port";
+    private static final String RS_INFO_PORT_KEY = "hbase.regionserver.info.port";
 
-  public static void setupConfig(Configuration conf) {
-      conf.setInt(MASTER_INFO_PORT_KEY, -1);
-      conf.setInt(RS_INFO_PORT_KEY, -1);
-    // setup our codec, so we get proper replay/write
-      conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-  }
-  /**
-   * Verify the state of the index table between the given key and time ranges against the list of
-   * expected keyvalues.
-   * @throws IOException
-   */
-  @SuppressWarnings("javadoc")
-  public static void verifyIndexTableAtTimestamp(Table index1, List<KeyValue> expected,
-      long start, long end, byte[] startKey, byte[] endKey) throws IOException {
-    LOGGER.debug("Scanning " + index1.getName().getNameAsString() + " between times (" + start
-        + ", " + end + "] and keys: [" + Bytes.toString(startKey) + ", " + Bytes.toString(endKey)
-        + "].");
-    Scan s = new Scan(startKey, endKey);
-    // s.setRaw(true);
-    s.setMaxVersions();
-    s.setTimeRange(start, end);
-    List<Cell> received = new ArrayList<Cell>();
-    ResultScanner scanner = index1.getScanner(s);
-    for (Result r : scanner) {
-      received.addAll(r.listCells());
-      LOGGER.debug("Received: " + r.listCells());
+    private IndexTestingUtils() {
+        // private ctor for util class
     }
-    scanner.close();
-    assertEquals("Didn't get the expected kvs from the index table!", expected, received);
-  }
 
-  public static void verifyIndexTableAtTimestamp(Table index1, List<KeyValue> expected, long ts,
-      byte[] startKey) throws IOException {
-    IndexTestingUtils.verifyIndexTableAtTimestamp(index1, expected, ts, startKey, HConstants.EMPTY_END_ROW);
-  }
+    public static void setupConfig(Configuration conf) {
+        conf.setInt(MASTER_INFO_PORT_KEY, -1);
+        conf.setInt(RS_INFO_PORT_KEY, -1);
+        // setup our codec, so we get proper replay/write
+        conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
+    }
 
-  public static void verifyIndexTableAtTimestamp(Table index1, List<KeyValue> expected, long start,
-      byte[] startKey, byte[] endKey) throws IOException {
-    verifyIndexTableAtTimestamp(index1, expected, start, start + 1, startKey, endKey);
-  }
+    /**
+     * Verify the state of the index table between the given key and time ranges against the list of
+     * expected keyvalues.
+     *
+     * @throws IOException
+     */
+    @SuppressWarnings("javadoc")
+    public static void verifyIndexTableAtTimestamp(Table index1, List<KeyValue> expected,
+                                                   long start, long end, byte[] startKey, byte[] endKey) throws IOException {
+        LOGGER.debug("Scanning " + index1.getName().getNameAsString() + " between times (" + start
+                + ", " + end + "] and keys: [" + Bytes.toString(startKey) + ", " + Bytes.toString(endKey)
+                + "].");
+        Scan s = new Scan(startKey, endKey);
+        // s.setRaw(true);
+        s.setMaxVersions();
+        s.setTimeRange(start, end);
+        List<Cell> received = new ArrayList<Cell>();
+        ResultScanner scanner = index1.getScanner(s);
+        for (Result r : scanner) {
+            received.addAll(r.listCells());
+            LOGGER.debug("Received: " + r.listCells());
+        }
+        scanner.close();
+        assertEquals("Didn't get the expected kvs from the index table!", expected, received);
+    }
+
+    public static void verifyIndexTableAtTimestamp(Table index1, List<KeyValue> expected, long ts,
+                                                   byte[] startKey) throws IOException {
+        IndexTestingUtils.verifyIndexTableAtTimestamp(index1, expected, ts, startKey, HConstants.EMPTY_END_ROW);
+    }
+
+    public static void verifyIndexTableAtTimestamp(Table index1, List<KeyValue> expected, long start,
+                                                   byte[] startKey, byte[] endKey) throws IOException {
+        verifyIndexTableAtTimestamp(index1, expected, start, start + 1, startKey, endKey);
+    }
 }

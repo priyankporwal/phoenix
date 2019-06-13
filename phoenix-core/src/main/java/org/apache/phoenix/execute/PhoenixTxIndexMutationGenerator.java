@@ -138,10 +138,10 @@ public class PhoenixTxIndexMutationGenerator {
         }
 
         Mutation m = mutationIterator.next();
-        Map<String,byte[]> updateAttributes = m.getAttributesMap();
+        Map<String, byte[]> updateAttributes = m.getAttributesMap();
         byte[] txRollbackAttribute = updateAttributes.get(PhoenixTransactionContext.TX_ROLLBACK_ATTRIBUTE_KEY);
-        boolean isRollback = txRollbackAttribute!=null;
-        
+        boolean isRollback = txRollbackAttribute != null;
+
         boolean isImmutable = indexMetaData.isImmutableRows();
         Map<ImmutableBytesPtr, MultiMutation> findPriorValueMutations;
         if (isImmutable && !isRollback) {
@@ -149,22 +149,22 @@ public class PhoenixTxIndexMutationGenerator {
         } else {
             findPriorValueMutations = mutations;
         }
-        
+
         while (true) {
             // add the mutation to the batch set
             ImmutableBytesPtr row = new ImmutableBytesPtr(m.getRow());
             // if we have no non PK columns, no need to find the prior values
-            if ( mutations != findPriorValueMutations && indexMetaData.requiresPriorRowState(m) ) {
+            if (mutations != findPriorValueMutations && indexMetaData.requiresPriorRowState(m)) {
                 addMutation(findPriorValueMutations, row, m);
             }
             addMutation(mutations, row, m);
-            
+
             if (!mutationIterator.hasNext()) {
                 break;
             }
             m = mutationIterator.next();
         }
-        
+
         Collection<Pair<Mutation, byte[]>> indexUpdates = new ArrayList<Pair<Mutation, byte[]>>(mutations.size() * 2 * indexMaintainers.size());
         // Track if we have row keys with Delete mutations (or Puts that are
         // Tephra's Delete marker). If there are none, we don't need to do the scan for
@@ -187,7 +187,7 @@ public class PhoenixTxIndexMutationGenerator {
              * table.
              */
             byte[] emptyKeyValueQualifier = indexMaintainers.get(0).getEmptyKeyValueQualifier();
-            
+
             // Project empty key value column
             scan.addColumn(indexMaintainers.get(0).getDataEmptyKeyValueCF(), emptyKeyValueQualifier);
             ScanRanges scanRanges = ScanRanges.create(SchemaUtil.VAR_BINARY_SCHEMA, Collections.singletonList(keys), ScanUtil.SINGLE_COLUMN_SLOT_SPAN, null, true, -1);
@@ -198,7 +198,7 @@ public class PhoenixTxIndexMutationGenerator {
             // checkpointed versions.
             SkipScanFilter filter = scanRanges.getSkipScanFilter();
             if (isRollback) {
-                filter = new SkipScanFilter(filter,true);
+                filter = new SkipScanFilter(filter, true);
                 indexMetaData.getTransactionContext().setVisibilityLevel(PhoenixVisibilityLevel.SNAPSHOT_ALL);
             }
             scan.setFilter(filter);
@@ -209,16 +209,16 @@ public class PhoenixTxIndexMutationGenerator {
         } else {
             processMutation(indexMetaData, txRollbackAttribute, currentScanner, mutableColumns, indexUpdates, mutations, findPriorValueMutations);
         }
-        
+
         return indexUpdates;
     }
 
     private void processMutation(PhoenixIndexMetaData indexMetaData, byte[] txRollbackAttribute,
-            ResultScanner scanner,
-            Set<ColumnReference> upsertColumns, 
-            Collection<Pair<Mutation, byte[]>> indexUpdates,
-            Map<ImmutableBytesPtr, MultiMutation> mutations,
-            Map<ImmutableBytesPtr, MultiMutation> mutationsToFindPreviousValue) throws IOException {
+                                 ResultScanner scanner,
+                                 Set<ColumnReference> upsertColumns,
+                                 Collection<Pair<Mutation, byte[]>> indexUpdates,
+                                 Map<ImmutableBytesPtr, MultiMutation> mutations,
+                                 Map<ImmutableBytesPtr, MultiMutation> mutationsToFindPreviousValue) throws IOException {
         List<IndexMaintainer> indexMaintainers = indexMetaData.getIndexMaintainers();
         if (scanner != null) {
             Result result;
@@ -241,10 +241,10 @@ public class PhoenixTxIndexMutationGenerator {
     }
 
     private void processRollback(PhoenixIndexMetaData indexMetaData, byte[] txRollbackAttribute,
-            ResultScanner scanner,
-            Set<ColumnReference> mutableColumns,
-            Collection<Pair<Mutation, byte[]>> indexUpdates,
-            Map<ImmutableBytesPtr, MultiMutation> mutations) throws IOException {
+                                 ResultScanner scanner,
+                                 Set<ColumnReference> mutableColumns,
+                                 Collection<Pair<Mutation, byte[]>> indexUpdates,
+                                 Map<ImmutableBytesPtr, MultiMutation> mutations) throws IOException {
         if (scanner != null) {
             long readPtr = indexMetaData.getTransactionContext().getReadPointer();
             Result result;
@@ -263,14 +263,20 @@ public class PhoenixTxIndexMutationGenerator {
                     @Override
                     public int compare(Cell o1, Cell o2) {
                         int c = Longs.compare(o1.getTimestamp(), o2.getTimestamp());
-                        if (c != 0) return c;
+                        if (c != 0) {
+                            return c;
+                        }
                         c = o1.getTypeByte() - o2.getTypeByte();
-                        if (c != 0) return c;
+                        if (c != 0) {
+                            return c;
+                        }
                         c = Bytes.compareTo(o1.getFamilyArray(), o1.getFamilyOffset(), o1.getFamilyLength(), o1.getFamilyArray(), o1.getFamilyOffset(), o1.getFamilyLength());
-                        if (c != 0) return c;
+                        if (c != 0) {
+                            return c;
+                        }
                         return Bytes.compareTo(o1.getQualifierArray(), o1.getQualifierOffset(), o1.getQualifierLength(), o1.getQualifierArray(), o1.getQualifierOffset(), o1.getQualifierLength());
                     }
-                    
+
                 });
                 int i = 0;
                 int nCells = cells.size();
@@ -291,9 +297,10 @@ public class PhoenixTxIndexMutationGenerator {
                             // still want to add Cells in the expected order for each time
                             // bound as otherwise we won't find it in our old state.
                             it.add(cell);
-                        } while (++i < nCells && (cell=cells.get(i)).getTimestamp() == writePtr);
+                        }
+                        while (++i < nCells && (cell = cells.get(i)).getTimestamp() == writePtr);
                     } while (i < nCells && cell.getTimestamp() <= readPtr);
-                    
+
                     // Generate point delete markers for the prior row deletion of the old index value.
                     // The write timestamp is the next timestamp, not the current timestamp,
                     // as the earliest cells are the current values for the row (and we don't
@@ -324,8 +331,8 @@ public class PhoenixTxIndexMutationGenerator {
     }
 
     private void generateDeletes(PhoenixIndexMetaData indexMetaData,
-            Collection<Pair<Mutation, byte[]>> indexUpdates,
-            byte[] attribValue, TxTableState state) throws IOException {
+                                 Collection<Pair<Mutation, byte[]>> indexUpdates,
+                                 byte[] attribValue, TxTableState state) throws IOException {
         byte[] regionStartKey = this.regionStartKey;
         byte[] regionEndKey = this.regionEndKey;
         if (services != null && indexMetaData.hasLocalIndexes()) {
@@ -341,7 +348,7 @@ public class PhoenixTxIndexMutationGenerator {
         for (IndexUpdate delete : deletes) {
             if (delete.isValid()) {
                 delete.getUpdate().setAttribute(PhoenixTransactionContext.TX_ROLLBACK_ATTRIBUTE_KEY, attribValue);
-                indexUpdates.add(new Pair<Mutation, byte[]>(delete.getUpdate(),delete.getTableName()));
+                indexUpdates.add(new Pair<Mutation, byte[]>(delete.getUpdate(), delete.getTableName()));
             }
         }
     }
@@ -367,7 +374,7 @@ public class PhoenixTxIndexMutationGenerator {
         boolean validPut = false;
         for (IndexUpdate put : puts) {
             if (put.isValid()) {
-                indexUpdates.add(new Pair<Mutation, byte[]>(put.getUpdate(),put.getTableName()));
+                indexUpdates.add(new Pair<Mutation, byte[]>(put.getUpdate(), put.getTableName()));
                 validPut = true;
             }
         }
@@ -381,7 +388,7 @@ public class PhoenixTxIndexMutationGenerator {
         private final List<Cell> pendingUpdates;
         private final Set<ColumnReference> indexedColumns;
         private final Map<ColumnReference, ImmutableBytesWritable> valueMap;
-        
+
         private TxTableState(Set<ColumnReference> indexedColumns, long currentTimestamp, Mutation mutation) {
             this.currentTimestamp = currentTimestamp;
             this.indexedColumns = indexedColumns;
@@ -399,7 +406,7 @@ public class PhoenixTxIndexMutationGenerator {
                 throw new RuntimeException(e); // Impossible
             }
         }
-        
+
         public TxTableState(Set<ColumnReference> indexedColumns, long currentTimestamp, Mutation m, ColumnReference emptyColRef, Result r) {
             this(indexedColumns, currentTimestamp, m);
 
@@ -412,7 +419,7 @@ public class PhoenixTxIndexMutationGenerator {
                 }
             }
         }
-        
+
         @Override
         public long getCurrentTimestamp() {
             return currentTimestamp;
@@ -439,7 +446,7 @@ public class PhoenixTxIndexMutationGenerator {
                             valueMap.remove(ref);
                         }
                     }
-                } else if (cell.getTypeByte() == KeyValue.Type.Put.getCode()){
+                } else if (cell.getTypeByte() == KeyValue.Type.Put.getCode()) {
                     ColumnReference ref = new ColumnReference(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength(), cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                     if (indexedColumns.contains(ref)) {
                         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
@@ -451,7 +458,7 @@ public class PhoenixTxIndexMutationGenerator {
                 }
             }
         }
-        
+
         @Override
         public Collection<Cell> getPendingUpdate() {
             return pendingUpdates;
@@ -473,15 +480,15 @@ public class PhoenixTxIndexMutationGenerator {
                 public byte[] getRowKey() {
                     return mutation.getRow();
                 }
-                
+
             };
             Pair<ValueGetter, IndexUpdate> pair = new Pair<ValueGetter, IndexUpdate>(getter, new IndexUpdate(tracker));
             return pair;
         }
     }
-    
+
     public static PhoenixTxIndexMutationGenerator newGenerator(final PhoenixConnection connection, PTable table, List<PTable> indexes,
-            Map<String, byte[]> attributes) {
+                                                               Map<String, byte[]> attributes) {
         final List<IndexMaintainer> indexMaintainers = Lists.newArrayListWithExpectedSize(indexes.size());
         for (PTable index : indexes) {
             IndexMaintainer maintainer = index.getIndexMaintainer(table, connection);
@@ -490,7 +497,8 @@ public class PhoenixTxIndexMutationGenerator {
         IndexMetaDataCache indexMetaDataCache = new IndexMetaDataCache() {
 
             @Override
-            public void close() throws IOException {}
+            public void close() throws IOException {
+            }
 
             @Override
             public List<IndexMaintainer> getIndexMaintainers() {
@@ -511,7 +519,7 @@ public class PhoenixTxIndexMutationGenerator {
         };
         try {
             PhoenixIndexMetaData indexMetaData = new PhoenixIndexMetaData(indexMetaDataCache, attributes);
-            return new PhoenixTxIndexMutationGenerator(connection.getQueryServices(),connection.getQueryServices().getConfiguration(), indexMetaData,
+            return new PhoenixTxIndexMutationGenerator(connection.getQueryServices(), connection.getQueryServices().getConfiguration(), indexMetaData,
                     table.getPhysicalName().getBytes(), null, null);
         } catch (IOException e) {
             throw new RuntimeException(e); // Impossible

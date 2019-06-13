@@ -22,14 +22,14 @@ package org.apache.phoenix.util;
  * Default implementation of an environment edge.
  */
 public class DefaultEnvironmentEdge extends EnvironmentEdge {
-  /**
-   * {@inheritDoc}
-   * <p/>
-   * This implementation returns {@link System#currentTimeMillis()}
-   */
-  @Override
-  public long currentTime() {
-    return System.currentTimeMillis();
-  }
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * This implementation returns {@link System#currentTimeMillis()}
+     */
+    @Override
+    public long currentTime() {
+        return System.currentTimeMillis();
+    }
 
 }

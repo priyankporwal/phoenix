@@ -61,7 +61,7 @@ public class PDecimalArray extends PArrayDataType<BigDecimal[]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                           Integer maxLength, Integer scale) {
         return toObject(bytes, offset, length, PDecimal.INSTANCE, sortOrder, maxLength, scale, PDecimal.INSTANCE);
     }
 
@@ -72,11 +72,15 @@ public class PDecimalArray extends PArrayDataType<BigDecimal[]> {
 
     @Override
     public boolean isCoercibleTo(PDataType targetType, Object value) {
-        if (value == null) { return true; }
-        PhoenixArray pArr = (PhoenixArray)value;
-        Object[] decimalArr = (Object[])pArr.array;
+        if (value == null) {
+            return true;
+        }
+        PhoenixArray pArr = (PhoenixArray) value;
+        Object[] decimalArr = (Object[]) pArr.array;
         for (Object i : decimalArr) {
-            if (!super.isCoercibleTo(PDecimal.INSTANCE, i)) { return false; }
+            if (!super.isCoercibleTo(PDecimal.INSTANCE, i)) {
+                return false;
+            }
         }
         return true;
     }

@@ -66,12 +66,12 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
             name = "async={0},encoded={1}")
     public static Collection<Object[]> data() {
         List<Object[]> list = Lists.newArrayListWithExpectedSize(4);
-        boolean[] Booleans = new boolean[]{true, false};
-            for (boolean async : Booleans) {
-                for (boolean encoded : Booleans) {
-                    list.add(new Object[]{async, encoded});
-                }
+        boolean[] Booleans = new boolean[] {true, false};
+        for (boolean async : Booleans) {
+            for (boolean encoded : Booleans) {
+                list.add(new Object[] {async, encoded});
             }
+        }
         return list;
     }
 
@@ -105,7 +105,7 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
             // run the index MR job.
             IndexToolIT.runIndexTool(true, false, null, dataTableName, indexName);
         }
-        String selectSql =  "SELECT id from " + dataTableName + " WHERE val1  = 'ab'";
+        String selectSql = "SELECT id from " + dataTableName + " WHERE val1  = 'ab'";
         ResultSet rs = conn.createStatement().executeQuery(selectSql);
         assertTrue(rs.next());
         assertEquals("a", rs.getString(1));
@@ -125,7 +125,7 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
         // result in deleting these rows since the corresponding data table rows are deleted already. So, the number of
         // rows to be deleted by the "DELETE" DML will be zero since the rows deleted by read repair will not be visible
         // to the DML
-        assertEquals(0,conn.createStatement().executeUpdate(dml));
+        assertEquals(0, conn.createStatement().executeUpdate(dml));
 
         // Count the number of index rows
         String query = "SELECT COUNT(*) from " + indexName;
@@ -152,7 +152,7 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
         conn.commit();
         conn.createStatement().execute("upsert into " + dataTableName + " (id, val2) values ('c', 'cde')");
         conn.commit();
-        String selectSql =  "SELECT * from " + dataTableName + " WHERE val1  = 'ab'";
+        String selectSql = "SELECT * from " + dataTableName + " WHERE val1  = 'ab'";
         // Verify that we will read from the index table
         assertExplainPlan(conn, selectSql, dataTableName, indexName);
         ResultSet rs = conn.createStatement().executeQuery(selectSql);
@@ -196,7 +196,7 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
         conn.commit();
         conn.createStatement().execute("upsert into " + dataTableName + " (id, val1, val2) values ('c', 'cd','cde')");
         conn.commit();
-        String selectSql =  "SELECT val2, val3 from " + dataTableName + " WHERE val1  = 'ab'";
+        String selectSql = "SELECT val2, val3 from " + dataTableName + " WHERE val1  = 'ab'";
         // Verify that we will read from the index table
         assertExplainPlan(conn, selectSql, dataTableName, indexName);
         ResultSet rs = conn.createStatement().executeQuery(selectSql);
@@ -232,7 +232,7 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
         IndexRegionObserver.setSkipPostIndexUpdatesForTesting(false);
         conn.createStatement().execute("upsert into " + dataTableName + " (id, val3) values ('a', 'abcdd')");
         conn.commit();
-        String selectSql =  "SELECT val2, val3 from " + dataTableName + " WHERE val1  = 'ab'";
+        String selectSql = "SELECT val2, val3 from " + dataTableName + " WHERE val1  = 'ab'";
         // Verify that we will read from the first index table
         assertExplainPlan(conn, selectSql, dataTableName, indexName + "1");
         ResultSet rs = conn.createStatement().executeQuery(selectSql);
@@ -240,7 +240,7 @@ public class GlobalIndexCheckerIT extends BaseUniqueNamesOwnClusterIT {
         assertEquals("abc", rs.getString(1));
         assertEquals("abcdd", rs.getString(2));
         assertFalse(rs.next());
-        selectSql =  "SELECT val2, val3 from " + dataTableName + " WHERE val2  = 'abc'";
+        selectSql = "SELECT val2, val3 from " + dataTableName + " WHERE val2  = 'abc'";
         // Verify that we will read from the second index table
         assertExplainPlan(conn, selectSql, dataTableName, indexName + "2");
         rs = conn.createStatement().executeQuery(selectSql);

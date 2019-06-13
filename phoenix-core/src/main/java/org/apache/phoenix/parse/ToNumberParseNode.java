@@ -35,17 +35,17 @@ import org.apache.phoenix.schema.types.PTimestamp;
 public class ToNumberParseNode extends FunctionParseNode {
 
     ToNumberParseNode(String name, List<ParseNode> children,
-            BuiltInFunctionInfo info) {
+                      BuiltInFunctionInfo info) {
         super(name, children, info);
     }
 
     @Override
     public FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException {
         PDataType dataType = children.get(0).getDataType();
-        String formatString = (String)((LiteralExpression)children.get(1)).getValue(); // either date or number format string
-        Format formatter =  null;
+        String formatString = (String) ((LiteralExpression) children.get(1)).getValue(); // either date or number format string
+        Format formatter = null;
         FunctionArgumentType type;
-        
+
         if (dataType.isCoercibleTo(PTimestamp.INSTANCE)) {
             if (formatString == null) {
                 formatString = context.getDateFormat();
@@ -54,14 +54,12 @@ public class ToNumberParseNode extends FunctionParseNode {
                 formatter = FunctionArgumentType.TEMPORAL.getFormatter(formatString);
             }
             type = FunctionArgumentType.TEMPORAL;
-        }
-        else if (dataType.isCoercibleTo(PChar.INSTANCE)) {
+        } else if (dataType.isCoercibleTo(PChar.INSTANCE)) {
             if (formatString != null) {
                 formatter = FunctionArgumentType.CHAR.getFormatter(formatString);
             }
             type = FunctionArgumentType.CHAR;
-        }
-        else {
+        } else {
             throw new SQLException(dataType + " type is unsupported for TO_NUMBER().  Numeric and temporal types are supported.");
         }
         return new ToNumberFunction(children, type, formatString, formatter);

@@ -60,7 +60,7 @@ public class ScannerLeaseRenewalIT {
     private static final long LEASE_TIMEOUT_PERIOD_MILLIS =
             HConstants.DEFAULT_HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD / 10;
     private static String url;
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
         Configuration conf = HBaseConfiguration.create();
@@ -74,16 +74,16 @@ public class ScannerLeaseRenewalIT {
 
         Properties driverProps = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         driverProps.put(RENEW_LEASE_THREAD_POOL_SIZE, Long.toString(4));
-        
+
         // if this property is false, tests will fail with UnknownScannerException errors. 
         driverProps.put(RENEW_LEASE_ENABLED, Boolean.toString(true));
-        
+
         driverProps.put(RENEW_LEASE_THRESHOLD_MILLISECONDS,
-            Long.toString(LEASE_TIMEOUT_PERIOD_MILLIS / 2));
+                Long.toString(LEASE_TIMEOUT_PERIOD_MILLIS / 2));
         driverProps.put(RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS,
-            Long.toString(LEASE_TIMEOUT_PERIOD_MILLIS / 4));
+                Long.toString(LEASE_TIMEOUT_PERIOD_MILLIS / 4));
         driverProps.put(HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD,
-            Long.toString(LEASE_TIMEOUT_PERIOD_MILLIS));
+                Long.toString(LEASE_TIMEOUT_PERIOD_MILLIS));
         // use round robin iterator
         driverProps.put(FORCE_ROW_KEY_ORDER_ATTRIB, Boolean.toString(false));
         DriverManager.registerDriver(PhoenixDriver.INSTANCE);
@@ -92,14 +92,14 @@ public class ScannerLeaseRenewalIT {
             Assume.assumeTrue(phxConn.getQueryServices().supportsFeature(Feature.RENEW_LEASE));
         }
     }
-    
+
     @Test
     public void testRenewLeasePreventsSelectQueryFromFailing() throws Exception {
         String tableName = "testRenewLeasePreventsSelectQueryFromFailing";
         int numRecords = 5;
         try (Connection conn = DriverManager.getConnection(url)) {
             conn.createStatement().execute(
-                "CREATE TABLE " + tableName + " (PK1 INTEGER NOT NULL PRIMARY KEY, KV1 VARCHAR)");
+                    "CREATE TABLE " + tableName + " (PK1 INTEGER NOT NULL PRIMARY KEY, KV1 VARCHAR)");
             int i = 0;
             String upsert = "UPSERT INTO " + tableName + " VALUES (?, ?)";
             Random random = new Random();
@@ -114,7 +114,7 @@ public class ScannerLeaseRenewalIT {
         }
 
         try (PhoenixConnection phxConn =
-                DriverManager.getConnection(url).unwrap(PhoenixConnection.class)) {
+                     DriverManager.getConnection(url).unwrap(PhoenixConnection.class)) {
             String sql = "SELECT * FROM " + tableName;
             // at every next call wait for this period. This will cause lease to expire.
             long delayOnNext = 2 * LEASE_TIMEOUT_PERIOD_MILLIS;
@@ -137,9 +137,9 @@ public class ScannerLeaseRenewalIT {
 
         try (Connection conn = DriverManager.getConnection(url)) {
             conn.createStatement().execute(
-                "CREATE TABLE " + table1 + " (PK1 INTEGER NOT NULL PRIMARY KEY, KV1 VARCHAR)");
+                    "CREATE TABLE " + table1 + " (PK1 INTEGER NOT NULL PRIMARY KEY, KV1 VARCHAR)");
             conn.createStatement().execute(
-                "CREATE TABLE " + table2 + " (PK1 INTEGER NOT NULL PRIMARY KEY, KV1 VARCHAR)");
+                    "CREATE TABLE " + table2 + " (PK1 INTEGER NOT NULL PRIMARY KEY, KV1 VARCHAR)");
             int numRecords = 5;
             int i = 0;
             String upsert = "UPSERT INTO " + table1 + " VALUES (?, ?)";
@@ -155,7 +155,7 @@ public class ScannerLeaseRenewalIT {
         }
 
         try (PhoenixConnection phxConn =
-                DriverManager.getConnection(url).unwrap(PhoenixConnection.class)) {
+                     DriverManager.getConnection(url).unwrap(PhoenixConnection.class)) {
             String upsertSelect = "UPSERT INTO " + table2 + " SELECT PK1, KV1 FROM " + table1;
             // at every next call wait for this period. This will cause lease to expire.
             long delayAfterInit = 2 * LEASE_TIMEOUT_PERIOD_MILLIS;

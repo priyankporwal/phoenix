@@ -79,27 +79,27 @@ public class IndexRebuildIncrementDisableCountIT extends BaseUniqueNamesOwnClust
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(10);
         serverProps.put(QueryServices.INDEX_FAILURE_HANDLING_REBUILD_ATTRIB,
-            Boolean.TRUE.toString());
+                Boolean.TRUE.toString());
         serverProps.put(QueryServices.INDEX_FAILURE_HANDLING_REBUILD_INTERVAL_ATTRIB,
-            Long.toString(REBUILD_INTERVAL));
+                Long.toString(REBUILD_INTERVAL));
         serverProps.put(QueryServices.INDEX_REBUILD_DISABLE_TIMESTAMP_THRESHOLD, "50000000");
         serverProps.put(QueryServices.INDEX_FAILURE_HANDLING_REBUILD_PERIOD,
-            Long.toString(REBUILD_PERIOD)); // batch at 50 seconds
+                Long.toString(REBUILD_PERIOD)); // batch at 50 seconds
         serverProps.put(QueryServices.INDEX_FAILURE_HANDLING_REBUILD_OVERLAP_FORWARD_TIME_ATTRIB,
-            Long.toString(WAIT_AFTER_DISABLED));
+                Long.toString(WAIT_AFTER_DISABLED));
         Map<String, String> clientProps = Maps.newHashMapWithExpectedSize(1);
         clientProps.put(HConstants.HBASE_CLIENT_RETRIES_NUMBER, "2");
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()),
-            new ReadOnlyProps(clientProps.entrySet().iterator()));
+                new ReadOnlyProps(clientProps.entrySet().iterator()));
         indexRebuildTaskRegionEnvironment =
                 (RegionCoprocessorEnvironment) getUtility()
                         .getRSForFirstRegionInTable(
-                            PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
+                                PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
                         .getRegions(PhoenixDatabaseMetaData.SYSTEM_CATALOG_HBASE_TABLE_NAME)
                         .get(0).getCoprocessorHost()
                         .findCoprocessorEnvironment(MetaDataRegionObserver.class.getName());
         MetaDataRegionObserver.initRebuildIndexConnectionProps(
-            indexRebuildTaskRegionEnvironment.getConfiguration());
+                indexRebuildTaskRegionEnvironment.getConfiguration());
         schemaName = generateUniqueName();
         tableName = generateUniqueName();
         fullTableName = SchemaUtil.getTableName(schemaName, tableName);
@@ -119,11 +119,11 @@ public class IndexRebuildIncrementDisableCountIT extends BaseUniqueNamesOwnClust
             pendingDisableCountResult =
                     conn.getQueryServices()
                             .getTable(SchemaUtil.getPhysicalTableName(
-                                PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME,
-                                conn.getQueryServices().getProps()).getName())
+                                    PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME,
+                                    conn.getQueryServices().getProps()).getName())
                             .get(get);
             return Bytes.toLong(pendingDisableCountResult.getValue(TABLE_FAMILY_BYTES,
-                PhoenixDatabaseMetaData.PENDING_DISABLE_COUNT_BYTES));
+                    PhoenixDatabaseMetaData.PENDING_DISABLE_COUNT_BYTES));
         } catch (Exception e) {
             LOGGER.error("Exception in getPendingDisableCount: " + e);
             return 0;
@@ -131,19 +131,19 @@ public class IndexRebuildIncrementDisableCountIT extends BaseUniqueNamesOwnClust
     }
 
     private static void checkIndexPendingDisableCount(final PhoenixConnection conn,
-            final String indexTableName) throws Exception {
+                                                      final String indexTableName) throws Exception {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
                     while (!TestUtil.checkIndexState(conn, indexTableName, PIndexState.ACTIVE,
-                        0L)) {
+                            0L)) {
                         long count = getPendingDisableCount(conn, indexTableName);
                         if (count > 0) {
                             indexState =
                                     new String(
                                             pendingDisableCountResult.getValue(TABLE_FAMILY_BYTES,
-                                                PhoenixDatabaseMetaData.INDEX_STATE_BYTES));
+                                                    PhoenixDatabaseMetaData.INDEX_STATE_BYTES));
                             pendingDisableCount = count;
                         }
                         Thread.sleep(100);
@@ -171,8 +171,8 @@ public class IndexRebuildIncrementDisableCountIT extends BaseUniqueNamesOwnClust
             Statement stmt = conn.createStatement();
             for (int i = 0; i < 10000; i++) {
                 stmt.executeUpdate(
-                    "UPSERT INTO " + tableName + " VALUES('" + getRandomOrgId(maxOrgId) + "'," + i
-                            + "," + (i + 1) + "," + (i + 2) + ")");
+                        "UPSERT INTO " + tableName + " VALUES('" + getRandomOrgId(maxOrgId) + "'," + i
+                                + "," + (i + 1) + "," + (i + 2) + ")");
             }
             conn.commit();
         } catch (Exception e) {
@@ -181,7 +181,7 @@ public class IndexRebuildIncrementDisableCountIT extends BaseUniqueNamesOwnClust
     }
 
     private static MutationCode updateIndexState(PhoenixConnection phoenixConn,
-            String fullIndexName, PIndexState state) throws Throwable {
+                                                 String fullIndexName, PIndexState state) throws Throwable {
         Table metaTable =
                 phoenixConn.getQueryServices()
                         .getTable(PhoenixDatabaseMetaData.SYSTEM_CATALOG_NAME_BYTES);
@@ -205,17 +205,18 @@ public class IndexRebuildIncrementDisableCountIT extends BaseUniqueNamesOwnClust
         checkIndexPendingDisableCount(phoenixConn, fullIndexName);
         try {
             do {
-                runIndexRebuilder(Collections.<String> singletonList(fullTableName));
-            } while (!TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));
+                runIndexRebuilder(Collections.<String>singletonList(fullTableName));
+            }
+            while (!TestUtil.checkIndexState(conn, fullIndexName, PIndexState.ACTIVE, 0L));
         } finally {
             cancel[0] = true;
         }
         assertTrue("Index state is inactive ", indexState.equals("i"));
         assertTrue("pendingDisable count is incremented when index is inactive",
-            pendingDisableCount == MetaDataRegionObserver.PENDING_DISABLE_INACTIVE_STATE_COUNT);
+                pendingDisableCount == MetaDataRegionObserver.PENDING_DISABLE_INACTIVE_STATE_COUNT);
         assertTrue("pending disable count is 0 when index is active: ", getPendingDisableCount(phoenixConn, fullIndexName) == 0);
     }
-    
+
     @Test
     public void checkIndexPendingDisableResetCounter() throws Throwable {
         IndexUtil.incrementCounterForIndex(phoenixConn, fullIndexName, MetaDataRegionObserver.PENDING_DISABLE_INACTIVE_STATE_COUNT);

@@ -29,7 +29,7 @@ import org.apache.phoenix.schema.MetaDataClient;
 public class CreateFunctionCompiler {
 
     private final PhoenixStatement statement;
-    
+
     public CreateFunctionCompiler(PhoenixStatement statement) {
         this.statement = statement;
     }
@@ -39,7 +39,7 @@ public class CreateFunctionCompiler {
         PhoenixConnection connectionToBe = connection;
         final StatementContext context = new StatementContext(statement);
         final MetaDataClient client = new MetaDataClient(connectionToBe);
-        
+
         return new BaseMutationPlan(context, create.getOperation()) {
 
             @Override

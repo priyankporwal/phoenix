@@ -40,7 +40,7 @@ public class BinaryRowKeyIT extends ParallelStatsDisabledIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(false);
-        
+
         try {
 
             String ddl = "CREATE TABLE " + tableName +
@@ -49,24 +49,24 @@ public class BinaryRowKeyIT extends ParallelStatsDisabledIT {
                     "    b_binary varbinary \n" +
                     "    CONSTRAINT pk PRIMARY KEY (a_binary, a_string))\n";
             createTestTable(getUrl(), ddl);
-            
+
             String query;
             PreparedStatement stmt;
-            
+
             query = "UPSERT INTO " + tableName
                     + "(a_binary, a_string) "
                     + "VALUES(?,?)";
             stmt = conn.prepareStatement(query);
-            
-            stmt.setBytes(1, new byte[] {0,0,0,0,0,0,0,0,0,1});
+
+            stmt.setBytes(1, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
             stmt.setString(2, "a");
             stmt.execute();
-            
-            stmt.setBytes(1, new byte[] {0,0,0,0,0,0,0,0,0,2});
+
+            stmt.setBytes(1, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 2});
             stmt.setString(2, "b");
             stmt.execute();
             conn.commit();
-            
+
         } finally {
             conn.close();
         }
@@ -80,19 +80,19 @@ public class BinaryRowKeyIT extends ParallelStatsDisabledIT {
             String tableName = generateUniqueName();
             initTableValues(tableName);
             conn.setAutoCommit(true);
-            conn.createStatement().execute("DELETE FROM " + tableName );
-           
+            conn.createStatement().execute("DELETE FROM " + tableName);
+
             String query = "UPSERT INTO " + tableName
                     + "(a_binary, a_string) "
                     + "VALUES(?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setBytes(1, new byte[] {0,0,0,0,0,0,0,0,1});
+            stmt.setBytes(1, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 1});
             stmt.setString(2, "a");
             stmt.execute();
-            
+
             ResultSet rs = conn.createStatement().executeQuery("SELECT a_string FROM " + tableName);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
+            assertEquals("a", rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -103,22 +103,22 @@ public class BinaryRowKeyIT extends ParallelStatsDisabledIT {
     public void testSelectValues() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-        
+
         try {
             String tableName = generateUniqueName();
             initTableValues(tableName);
             String query = "SELECT * FROM " + tableName;
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
-            
+
             assertTrue(rs.next());
-            assertArrayEquals(new byte[] {0,0,0,0,0,0,0,0,0,1}, rs.getBytes(1));
+            assertArrayEquals(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, rs.getBytes(1));
             assertEquals("a", rs.getString(2));
-            
+
             assertTrue(rs.next());
-            assertArrayEquals(new byte[] {0,0,0,0,0,0,0,0,0,2}, rs.getBytes(1));
+            assertArrayEquals(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, rs.getBytes(1));
             assertEquals("b", rs.getString(2));
-            
+
             assertFalse(rs.next());
         } finally {
             conn.close();
@@ -129,28 +129,28 @@ public class BinaryRowKeyIT extends ParallelStatsDisabledIT {
     public void testUpsertSelectValues() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
-        
+
         try {
             String tableName = generateUniqueName();
             initTableValues(tableName);
-            
+
             String query = "UPSERT INTO " + tableName + " (a_binary, a_string, b_binary) "
                     + " SELECT a_binary, a_string, a_binary FROM " + tableName;
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.execute();
             conn.commit();
-            
+
             query = "SELECT a_binary, b_binary FROM " + tableName;
             stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
-            
+
             assertTrue(rs.next());
-            assertArrayEquals(new byte[] {0,0,0,0,0,0,0,0,0,1}, rs.getBytes(1));
-            assertArrayEquals(new byte[] {0,0,0,0,0,0,0,0,0,1}, rs.getBytes(2));
-            
+            assertArrayEquals(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, rs.getBytes(1));
+            assertArrayEquals(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, rs.getBytes(2));
+
             assertTrue(rs.next());
-            assertArrayEquals(new byte[] {0,0,0,0,0,0,0,0,0,2}, rs.getBytes(1));
-            assertArrayEquals(new byte[] {0,0,0,0,0,0,0,0,0,2}, rs.getBytes(2));
+            assertArrayEquals(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, rs.getBytes(1));
+            assertArrayEquals(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, rs.getBytes(2));
             assertFalse(rs.next());
         } finally {
             conn.close();

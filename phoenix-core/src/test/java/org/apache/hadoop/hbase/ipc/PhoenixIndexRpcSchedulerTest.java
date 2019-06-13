@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,19 +47,19 @@ public class PhoenixIndexRpcSchedulerTest {
     private static final Configuration conf = HBaseConfiguration.create();
     private static final InetSocketAddress isa = new InetSocketAddress("localhost", 0);
 
-    
+
     private class AbortServer implements Abortable {
-      private boolean aborted = false;
+        private boolean aborted = false;
 
-      @Override
-      public void abort(String why, Throwable e) {
-        aborted = true;
-      }
+        @Override
+        public void abort(String why, Throwable e) {
+            aborted = true;
+        }
 
-      @Override
-      public boolean isAborted() {
-        return aborted;
-      }
+        @Override
+        public boolean isAborted() {
+            return aborted;
+        }
     }
 
     @Test
@@ -67,8 +67,8 @@ public class PhoenixIndexRpcSchedulerTest {
         RpcScheduler mock = Mockito.mock(RpcScheduler.class);
         PriorityFunction qosFunction = Mockito.mock(PriorityFunction.class);
         Abortable abortable = new AbortServer();
-        PhoenixRpcScheduler scheduler = new PhoenixRpcScheduler(conf, mock, 200, 250,qosFunction,abortable);
-        BalancedQueueRpcExecutor executor = new BalancedQueueRpcExecutor("test-queue", 1, 1,qosFunction,conf,abortable);
+        PhoenixRpcScheduler scheduler = new PhoenixRpcScheduler(conf, mock, 200, 250, qosFunction, abortable);
+        BalancedQueueRpcExecutor executor = new BalancedQueueRpcExecutor("test-queue", 1, 1, qosFunction, conf, abortable);
         scheduler.setIndexExecutorForTesting(executor);
         dispatchCallWithPriority(scheduler, 200);
         List<BlockingQueue<CallRunner>> queues = executor.getQueues();
@@ -77,7 +77,7 @@ public class PhoenixIndexRpcSchedulerTest {
         queue.poll(20, TimeUnit.SECONDS);
 
         // try again, this time we tweak the ranges we support
-        scheduler = new PhoenixRpcScheduler(conf, mock, 101, 110,qosFunction,abortable);
+        scheduler = new PhoenixRpcScheduler(conf, mock, 101, 110, qosFunction, abortable);
         scheduler.setIndexExecutorForTesting(executor);
         dispatchCallWithPriority(scheduler, 101);
         queue.poll(20, TimeUnit.SECONDS);
@@ -97,12 +97,12 @@ public class PhoenixIndexRpcSchedulerTest {
         PriorityFunction qosFunction = Mockito.mock(PriorityFunction.class);
         Abortable abortable = new AbortServer();
         RpcScheduler mock = Mockito.mock(RpcScheduler.class);
-        PhoenixRpcScheduler scheduler = new PhoenixRpcScheduler(conf, mock, 200, 250,qosFunction,abortable);
+        PhoenixRpcScheduler scheduler = new PhoenixRpcScheduler(conf, mock, 200, 250, qosFunction, abortable);
         dispatchCallWithPriority(scheduler, 100);
         dispatchCallWithPriority(scheduler, 251);
 
         // try again, this time we tweak the ranges we support
-        scheduler = new PhoenixRpcScheduler(conf, mock, 101, 110,qosFunction,abortable);
+        scheduler = new PhoenixRpcScheduler(conf, mock, 101, 110, qosFunction, abortable);
         dispatchCallWithPriority(scheduler, 200);
         dispatchCallWithPriority(scheduler, 111);
 

@@ -49,11 +49,12 @@ public class UngroupedIT extends BaseQueryIT {
         super(idxDdl, columnEncoded, false);
     }
 
-    @Parameters(name="UngroupedIT_{index}") // name is used by failsafe as file name in reports
+    @Parameters(name = "UngroupedIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
-    
+
     @Test
     public void testUngroupedAggregation() throws Exception {
         String query = "SELECT count(1) FROM " + tableName + " WHERE organization_id=? and a_string = ?";
@@ -136,7 +137,7 @@ public class UngroupedIT extends BaseQueryIT {
         stmt.setString(3, E_VALUE);
         stmt.execute();
         upsertConn.close();
-        
+
         long queryTime = upsert1Time + timeDelta / 2;
         String query =
                 "SELECT count(1) FROM " + tableName + " WHERE organization_id=? and a_string = ?";
@@ -177,7 +178,7 @@ public class UngroupedIT extends BaseQueryIT {
         long upsert1Time = System.currentTimeMillis();
         long timeDelta = 100;
         Thread.sleep(timeDelta);
-        
+
         upsertConn = DriverManager.getConnection(url, props);
         upsertConn.setAutoCommit(true); // Test auto commit
         stmt = upsertConn.prepareStatement(updateStmt);
@@ -203,7 +204,7 @@ public class UngroupedIT extends BaseQueryIT {
         assertFalse(rs.next());
         conn.close();
     }
-    
+
     @Test
     public void testSumOverNullIntegerColumn() throws Exception {
         String query = "SELECT sum(a_integer) FROM " + tableName + " a";
@@ -218,7 +219,7 @@ public class UngroupedIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(42, rs.getInt(1));
             assertFalse(rs.next());
         } finally {
@@ -232,7 +233,7 @@ public class UngroupedIT extends BaseQueryIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
             assertTrue(rs.wasNull());
             assertFalse(rs.next());
@@ -240,5 +241,5 @@ public class UngroupedIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
 }

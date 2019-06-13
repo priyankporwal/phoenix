@@ -34,7 +34,7 @@ import org.junit.Test;
 
 public class MetaDataEndPointIT extends ParallelStatsDisabledIT {
     @Test
-	public void testUpdateIndexState() throws Throwable {
+    public void testUpdateIndexState() throws Throwable {
         String schemaName = generateUniqueName();
         String tableName = generateUniqueName();
         String indexName1 = generateUniqueName();
@@ -51,5 +51,5 @@ public class MetaDataEndPointIT extends ParallelStatsDisabledIT {
             code = IndexUtil.updateIndexState(fullIndexName1, ts, metaTable, PIndexState.INACTIVE).getMutationCode();
             assertEquals(MutationCode.UNALLOWED_TABLE_MUTATION, code);
         }
-	}
+    }
 }

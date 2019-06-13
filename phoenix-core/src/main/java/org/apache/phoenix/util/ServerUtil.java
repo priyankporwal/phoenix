@@ -62,14 +62,15 @@ import org.slf4j.LoggerFactory;
 public class ServerUtil {
     private static final int COPROCESSOR_SCAN_WORKS = VersionUtil.encodeVersion("0.98.6");
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerUtil.class);
-    
+
     private static final String FORMAT = "ERROR %d (%s): %s";
     private static final Pattern PATTERN = Pattern.compile("ERROR (\\d+) \\((\\w+)\\): (.*)");
     private static final Pattern HASH_JOIN_EXCEPTION_PATTERN = Pattern.compile("joinId: (-?\\d+)");
     private static final Pattern PATTERN_FOR_TS = Pattern.compile(",serverTimestamp=(\\d+),");
     private static final String FORMAT_FOR_TIMESTAMP = ",serverTimestamp=%d,";
     private static final Map<Class<? extends Exception>, SQLExceptionCode> errorcodeMap
-        = new HashMap<Class<? extends Exception>, SQLExceptionCode>();
+            = new HashMap<Class<? extends Exception>, SQLExceptionCode>();
+
     static {
         // Map a normal exception into a corresponding SQLException.
         errorcodeMap.put(ArithmeticException.class, SQLExceptionCode.SERVER_ARITHMETIC_ERROR);
@@ -93,9 +94,9 @@ public class ServerUtil {
         } else if (t instanceof IOException) {
             // If the IOException does not wrap any exception, then bubble it up.
             Throwable cause = t.getCause();
-            if (cause instanceof RetriesExhaustedWithDetailsException)
-            	return new DoNotRetryIOException(t.getMessage(), cause);
-            else if (cause == null || cause instanceof IOException) {
+            if (cause instanceof RetriesExhaustedWithDetailsException) {
+                return new DoNotRetryIOException(t.getMessage(), cause);
+            } else if (cause == null || cause instanceof IOException) {
                 return (IOException) t;
             }
             // Else assume it's been wrapped, so throw as DoNotRetryIOException to prevent client hanging while retrying
@@ -141,6 +142,7 @@ public class ServerUtil {
      * Return the first SQLException in the exception chain, otherwise parse it.
      * When we're receiving an exception locally, there's no need to string parse,
      * as the SQLException will already be part of the chain.
+     *
      * @param t
      * @return the SQLException, or null if none found
      */
@@ -155,7 +157,7 @@ public class ServerUtil {
         }
         return parseRemoteException(t);
     }
-    
+
     public static SQLException parseServerExceptionOrNull(Throwable t) {
         while (t.getCause() != null) {
             if (t instanceof NotServingRegionException) {
@@ -167,7 +169,7 @@ public class ServerUtil {
     }
 
     private static SQLException parseRemoteException(Throwable t) {
-        
+
         String message = t.getLocalizedMessage();
         if (message != null) {
             // If the message matches the standard pattern, recover the SQLException and throw it.
@@ -175,9 +177,11 @@ public class ServerUtil {
             if (matcher.find()) {
                 int statusCode = Integer.parseInt(matcher.group(1));
                 SQLExceptionCode code = SQLExceptionCode.fromErrorCode(statusCode);
-                if(code.equals(SQLExceptionCode.HASH_JOIN_CACHE_NOT_FOUND)){
+                if (code.equals(SQLExceptionCode.HASH_JOIN_CACHE_NOT_FOUND)) {
                     Matcher m = HASH_JOIN_EXCEPTION_PATTERN.matcher(t.getLocalizedMessage());
-                    if (m.find()) { return new HashJoinCacheNotFoundException(Long.parseLong(m.group(1))); }
+                    if (m.find()) {
+                        return new HashJoinCacheNotFoundException(Long.parseLong(m.group(1)));
+                    }
                 }
                 return new SQLExceptionInfo.Builder(code).setMessage(matcher.group()).setRootCause(t).build().buildException();
             }
@@ -188,7 +192,7 @@ public class ServerUtil {
     private static boolean coprocessorScanWorks(RegionCoprocessorEnvironment env) {
         return (VersionUtil.encodeVersion(env.getHBaseVersion()) >= COPROCESSOR_SCAN_WORKS);
     }
-    
+
     /*
      * This code works around HBASE-11837 which causes HTableInterfaces retrieved from
      * RegionCoprocessorEnvironment to not read local data.
@@ -202,29 +206,29 @@ public class ServerUtil {
             return conn.getTable(tableName);
         } catch (RuntimeException t) {
             // handle cases that an IOE is wrapped inside a RuntimeException like HTableInterface#createHTableInterface
-            if(t.getCause() instanceof IOException) {
-                throw (IOException)t.getCause();
+            if (t.getCause() instanceof IOException) {
+                throw (IOException) t.getCause();
             } else {
                 throw t;
             }
         }
     }
-    
-    public static Table getHTableForCoprocessorScan (RegionCoprocessorEnvironment env,
-                                                               Table writerTable) throws IOException {
+
+    public static Table getHTableForCoprocessorScan(RegionCoprocessorEnvironment env,
+                                                    Table writerTable) throws IOException {
         if (coprocessorScanWorks(env)) {
             return writerTable;
         }
         return getTableFromSingletonPool(env, writerTable.getName());
     }
-    
-    public static Table getHTableForCoprocessorScan (RegionCoprocessorEnvironment env, TableName tableName) throws IOException {
+
+    public static Table getHTableForCoprocessorScan(RegionCoprocessorEnvironment env, TableName tableName) throws IOException {
         if (coprocessorScanWorks(env)) {
             return env.getConnection().getTable(tableName);
         }
         return getTableFromSingletonPool(env, tableName);
     }
-    
+
     public static long parseServerTimestamp(Throwable t) {
         while (t.getCause() != null) {
             t = t.getCause();
@@ -257,18 +261,18 @@ public class ServerUtil {
         msg += String.format(FORMAT_FOR_TIMESTAMP, timestamp);
         return new DoNotRetryIOException(msg, t);
     }
-    
+
     public static boolean readyToCommit(int rowCount, long mutationSize, int maxBatchSize, long maxBatchSizeBytes) {
         return maxBatchSize > 0 && rowCount >= maxBatchSize
                 || (maxBatchSizeBytes > 0 && mutationSize >= maxBatchSizeBytes);
     }
-    
+
     public static boolean isKeyInRegion(byte[] key, Region region) {
         byte[] startKey = region.getRegionInfo().getStartKey();
         byte[] endKey = region.getRegionInfo().getEndKey();
         return (Bytes.compareTo(startKey, key) <= 0
                 && (Bytes.compareTo(HConstants.LAST_ROW, endKey) == 0 || Bytes.compareTo(key,
-                    endKey) < 0));
+                endKey) < 0));
     }
 
     public static RowLock acquireLock(Region region, byte[] key, List<RowLock> locks)
@@ -292,27 +296,29 @@ public class ServerUtil {
         }
     }
 
-    public static enum ConnectionType {
+    public static enum ConnectionType
+
+    {
         COMPACTION_CONNECTION,
-        INDEX_WRITER_CONNECTION,
-        INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS,
-        INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS_NO_RETRIES,
-        DEFAULT_SERVER_CONNECTION;
+                INDEX_WRITER_CONNECTION,
+                INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS,
+                INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS_NO_RETRIES,
+                DEFAULT_SERVER_CONNECTION;
     }
 
     public static class ConnectionFactory {
-        
+
         private static Map<ConnectionType, Connection> connections =
                 new ConcurrentHashMap<ConnectionType, Connection>();
 
         public static Connection getConnection(final ConnectionType connectionType, final RegionCoprocessorEnvironment env) {
             return connections.computeIfAbsent(connectionType, new Function<ConnectionType, Connection>() {
                 @Override
-                    public Connection apply(ConnectionType t) {
+                public Connection apply(ConnectionType t) {
                     try {
                         return env.createConnection(getTypeSpecificConfiguration(connectionType, env.getConfiguration()));
                     } catch (IOException e) {
-                       throw new RuntimeException(e);
+                        throw new RuntimeException(e);
                     }
                 }
             });
@@ -320,21 +326,21 @@ public class ServerUtil {
 
         public static Configuration getTypeSpecificConfiguration(ConnectionType connectionType, Configuration conf) {
             switch (connectionType) {
-            case COMPACTION_CONNECTION:
-                return getCompactionConfig(conf);
-            case DEFAULT_SERVER_CONNECTION:
-                return conf;
-            case INDEX_WRITER_CONNECTION:
-                return getIndexWriterConnection(conf);
-            case INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS:
-                return getIndexWriterConfigurationWithCustomThreads(conf);
-            case INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS_NO_RETRIES:
-                return getNoRetriesIndexWriterConfigurationWithCustomThreads(conf);
-            default:
-                return conf;
+                case COMPACTION_CONNECTION:
+                    return getCompactionConfig(conf);
+                case DEFAULT_SERVER_CONNECTION:
+                    return conf;
+                case INDEX_WRITER_CONNECTION:
+                    return getIndexWriterConnection(conf);
+                case INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS:
+                    return getIndexWriterConfigurationWithCustomThreads(conf);
+                case INDEX_WRITER_CONNECTION_WITH_CUSTOM_THREADS_NO_RETRIES:
+                    return getNoRetriesIndexWriterConfigurationWithCustomThreads(conf);
+                default:
+                    return conf;
             }
-         }
-        
+        }
+
         public static void shutdown() {
             synchronized (ConnectionFactory.class) {
                 for (Connection connection : connections.values()) {
@@ -352,17 +358,17 @@ public class ServerUtil {
             return connections.size();
         }
 
-     }
+    }
 
     public static Configuration getCompactionConfig(Configuration conf) {
         Configuration compactionConfig = PropertiesUtil.cloneConfig(conf);
         // lower the number of rpc retries, so we don't hang the compaction
         compactionConfig.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER,
-            conf.getInt(QueryServices.METADATA_WRITE_RETRIES_NUMBER,
-                QueryServicesOptions.DEFAULT_METADATA_WRITE_RETRIES_NUMBER));
+                conf.getInt(QueryServices.METADATA_WRITE_RETRIES_NUMBER,
+                        QueryServicesOptions.DEFAULT_METADATA_WRITE_RETRIES_NUMBER));
         compactionConfig.setInt(HConstants.HBASE_CLIENT_PAUSE,
-            conf.getInt(QueryServices.METADATA_WRITE_RETRY_PAUSE,
-                QueryServicesOptions.DEFAULT_METADATA_WRITE_RETRY_PAUSE));
+                conf.getInt(QueryServices.METADATA_WRITE_RETRY_PAUSE,
+                        QueryServicesOptions.DEFAULT_METADATA_WRITE_RETRY_PAUSE));
         return compactionConfig;
     }
 
@@ -377,10 +383,10 @@ public class ServerUtil {
         // lower the number of rpc retries.  We inherit config from HConnectionManager#setServerSideHConnectionRetries,
         // which by default uses a multiplier of 10.  That is too many retries for our synchronous index writes
         clonedConfig.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER,
-            conf.getInt(INDEX_WRITER_RPC_RETRIES_NUMBER,
-                DEFAULT_INDEX_WRITER_RPC_RETRIES_NUMBER));
+                conf.getInt(INDEX_WRITER_RPC_RETRIES_NUMBER,
+                        DEFAULT_INDEX_WRITER_RPC_RETRIES_NUMBER));
         clonedConfig.setInt(HConstants.HBASE_CLIENT_PAUSE, conf
-            .getInt(INDEX_WRITER_RPC_PAUSE, DEFAULT_INDEX_WRITER_RPC_PAUSE));
+                .getInt(INDEX_WRITER_RPC_PAUSE, DEFAULT_INDEX_WRITER_RPC_PAUSE));
         return clonedConfig;
     }
 
@@ -394,10 +400,10 @@ public class ServerUtil {
         // set the number of threads allowed per table.
         int htableThreads =
                 conf.getInt(IndexWriterUtils.INDEX_WRITER_PER_TABLE_THREADS_CONF_KEY,
-                    IndexWriterUtils.DEFAULT_NUM_PER_TABLE_THREADS);
+                        IndexWriterUtils.DEFAULT_NUM_PER_TABLE_THREADS);
         IndexManagementUtil.setIfNotSet(conf, IndexWriterUtils.HTABLE_THREAD_KEY, htableThreads);
     }
-    
+
     public static Configuration getNoRetriesIndexWriterConfigurationWithCustomThreads(Configuration conf) {
         Configuration clonedConf = getIndexWriterConfigurationWithCustomThreads(conf);
         // note in HBase 2+, numTries = numRetries + 1
@@ -405,5 +411,5 @@ public class ServerUtil {
         clonedConf.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER, 1);
         return clonedConf;
 
-    }    
+    }
 }

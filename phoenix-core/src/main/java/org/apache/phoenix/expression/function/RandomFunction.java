@@ -58,7 +58,7 @@ import org.apache.phoenix.schema.types.PLong;
  * 2 rows selected (0.098 seconds)
  * </pre>
  */
-@BuiltInFunction(name = RandomFunction.NAME, args = {@Argument(allowedTypes={PLong.class},defaultValue="null",isConstant=true)})
+@BuiltInFunction(name = RandomFunction.NAME, args = {@Argument(allowedTypes = {PLong.class}, defaultValue = "null", isConstant = true)})
 public class RandomFunction extends ScalarFunction {
     public static final String NAME = "RAND";
     private Random random;
@@ -74,7 +74,7 @@ public class RandomFunction extends ScalarFunction {
     }
 
     private void init() {
-        Number seed = (Number)((LiteralExpression)children.get(0)).getValue();
+        Number seed = (Number) ((LiteralExpression) children.get(0)).getValue();
         random = seed == null ? new Random() : new Random(seed.longValue());
         hasSeed = seed != null;
         current = null;
@@ -118,7 +118,7 @@ public class RandomFunction extends ScalarFunction {
     }
 
     @Override
-    public boolean isCloneExpression()  {
+    public boolean isCloneExpression() {
         return isCloneExpressionByDeterminism(this);
     }
 
@@ -138,18 +138,20 @@ public class RandomFunction extends ScalarFunction {
     // RAND() calls into a single one.
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj) && (hasSeed || random.equals(((RandomFunction)obj).random));
+        return super.equals(obj) && (hasSeed || random.equals(((RandomFunction) obj).random));
     }
 
     // make sure we do not show the default 'null' parameter
     @Override
     public final String toString() {
         StringBuilder buf = new StringBuilder(getName() + "(");
-        if (!hasSeed) return buf.append(")").toString();
+        if (!hasSeed) {
+            return buf.append(")").toString();
+        }
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + ", ");
         }
-        buf.append(children.get(children.size()-1) + ")");
+        buf.append(children.get(children.size() - 1) + ")");
         return buf.toString();
     }
 }

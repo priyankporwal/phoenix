@@ -121,32 +121,32 @@ public abstract class BaseExpressionVisitor<E> implements ExpressionVisitor<E> {
     public Iterator<Expression> visitEnter(DivideExpression node) {
         return null;
     }
-    
+
     @Override
     public Iterator<Expression> visitEnter(StringConcatExpression node) {
         return null;
     }
-    
+
     @Override
     public Iterator<Expression> visitEnter(RowValueConstructorExpression node) {
         return null;
     }
-    
+
     @Override
     public Iterator<Expression> visitEnter(CoerceExpression node) {
         return null;
     }
-    
+
     @Override
     public Iterator<Expression> visitEnter(ArrayConstructorExpression node) {
         return null;
     }
-    
+
     @Override
     public Iterator<Expression> visitEnter(SingleCellConstructorExpression node) {
         return null;
     }
-    
+
     @Override
     public Iterator<Expression> visitEnter(ModulusExpression modulusExpression) {
         return null;

@@ -97,30 +97,31 @@ import com.sun.istack.NotNull;
 
 public class DeleteCompiler {
     private static ParseNodeFactory FACTORY = new ParseNodeFactory();
-    
+
     private final PhoenixStatement statement;
     private final Operation operation;
-    
+
     public DeleteCompiler(PhoenixStatement statement, Operation operation) {
         this.statement = statement;
         this.operation = operation;
     }
-    
+
     /**
      * Handles client side deletion of rows for a DELETE statement. We determine the "best" plan to drive the query using
      * our standard optimizer. The plan may be based on using an index, in which case we need to translate the index row
      * key to get the data row key used to form the delete mutation. We always collect up the data table mutations, but we
      * only collect and send the index mutations for global, immutable indexes. Local indexes and mutable indexes are always
      * maintained on the server side.
-     * @param context StatementContext for the scan being executed
-     * @param iterator ResultIterator for the scan being executed
-     * @param bestPlan QueryPlan used to produce the iterator
+     *
+     * @param context           StatementContext for the scan being executed
+     * @param iterator          ResultIterator for the scan being executed
+     * @param bestPlan          QueryPlan used to produce the iterator
      * @param projectedTableRef TableRef containing all indexed and covered columns across all indexes on the data table
-     * @param otherTableRefs other TableRefs needed to be maintained apart from the one over which the scan is executing.
-     *  Might be other index tables (if we're driving off of the data table table), the data table (if we're driving off of
-     *  an index table), or a mix of the data table and additional index tables.
+     * @param otherTableRefs    other TableRefs needed to be maintained apart from the one over which the scan is executing.
+     *                          Might be other index tables (if we're driving off of the data table table), the data table (if we're driving off of
+     *                          an index table), or a mix of the data table and additional index tables.
      * @return MutationState representing the uncommitted data across the data table and indexes. Will be joined with the
-     *  MutationState on the connection over which the delete is occurring.
+     * MutationState on the connection over which the delete is occurring.
      * @throws SQLException
      */
     private static MutationState deleteRows(StatementContext context, ResultIterator iterator, QueryPlan bestPlan, TableRef projectedTableRef, List<TableRef> otherTableRefs) throws SQLException {
@@ -138,8 +139,8 @@ public class DeleteCompiler {
         // the target table is transactional (in that case changes are not visible until we commit)
         final boolean autoFlush = connection.getAutoCommit() || tableRef.getTable().isTransactional();
         ConnectionQueryServices services = connection.getQueryServices();
-        final int maxSize = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_ATTRIB,QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE);
-        final int maxSizeBytes = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_BYTES_ATTRIB,QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE_BYTES);
+        final int maxSize = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_ATTRIB, QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE);
+        final int maxSizeBytes = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_BYTES_ATTRIB, QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE_BYTES);
         final int batchSize = Math.min(connection.getMutateBatchSize(), maxSize);
         MultiRowMutationState mutations = new MultiRowMutationState(batchSize);
         List<MultiRowMutationState> otherMutations = null;
@@ -169,7 +170,7 @@ public class DeleteCompiler {
                 getter = new ValueGetter() {
                     final ImmutableBytesWritable valuePtr = new ImmutableBytesWritable();
                     final ImmutableBytesWritable rowKeyPtr = new ImmutableBytesWritable();
-    
+
                     @Override
                     public ImmutableBytesWritable getLatestValue(ColumnReference ref, long ts) throws IOException {
                         Cell cell = rs.getCurrentRow().getValue(ref.getFamily(), ref.getQualifier());
@@ -179,7 +180,7 @@ public class DeleteCompiler {
                         valuePtr.set(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                         return valuePtr;
                     }
-    
+
                     @Override
                     public byte[] getRowKey() {
                         rs.getCurrentRow().getKey(rowKeyPtr);
@@ -194,7 +195,7 @@ public class DeleteCompiler {
                 if (!otherTableRefs.isEmpty()) {
                     // The data table is always the last one in the list if it's
                     // not chosen as the best of the possible plans.
-                    dataTable = otherTableRefs.get(otherTableRefs.size()-1).getTable();
+                    dataTable = otherTableRefs.get(otherTableRefs.size() - 1).getTable();
                     scannedIndexMaintainer = IndexMaintainer.create(dataTable, table, connection);
                 }
                 maintainers = new IndexMaintainer[otherTableRefs.size()];
@@ -276,16 +277,16 @@ public class DeleteCompiler {
             return state;
         }
     }
-    
+
     private static class DeletingParallelIteratorFactory extends MutatingParallelIteratorFactory {
         private QueryPlan queryPlan;
         private List<TableRef> otherTableRefs;
         private TableRef projectedTableRef;
-        
+
         private DeletingParallelIteratorFactory(PhoenixConnection connection) {
             super(connection);
         }
-        
+
         @Override
         protected MutationState mutate(StatementContext parentContext, ResultIterator iterator, PhoenixConnection connection) throws SQLException {
             PhoenixStatement statement = new PhoenixStatement(connection);
@@ -298,20 +299,20 @@ public class DeleteCompiler {
             MutationState state = deleteRows(context, iterator, queryPlan, projectedTableRef, otherTableRefs);
             return state;
         }
-        
+
         public void setQueryPlan(QueryPlan queryPlan) {
             this.queryPlan = queryPlan;
         }
-        
+
         public void setOtherTableRefs(List<TableRef> otherTableRefs) {
             this.otherTableRefs = otherTableRefs;
         }
-        
+
         public void setProjectedTableRef(TableRef projectedTableRef) {
             this.projectedTableRef = projectedTableRef;
         }
     }
-    
+
     private List<PTable> getClientSideMaintainedIndexes(TableRef tableRef) {
         PTable table = tableRef.getTable();
         if (!table.getIndexes().isEmpty()) {
@@ -325,7 +326,7 @@ public class DeleteCompiler {
         }
         return Collections.emptyList();
     }
-    
+
     private class MultiRowDeleteMutationPlan implements MutationPlan {
         private final List<MutationPlan> plans;
         private final MutationPlan firstPlan;
@@ -337,7 +338,7 @@ public class DeleteCompiler {
             this.firstPlan = plans.get(0);
             this.dataPlan = dataPlan;
         }
-        
+
         @Override
         public StatementContext getContext() {
             return firstPlan.getContext();
@@ -373,10 +374,10 @@ public class DeleteCompiler {
             return firstPlan.getSourceRefs();
         }
 
-		    @Override
-		    public Operation getOperation() {
-			return operation;
-		}
+        @Override
+        public Operation getOperation() {
+            return operation;
+        }
 
         @Override
         public Long getEstimatedRowsToScan() throws SQLException {
@@ -456,13 +457,12 @@ public class DeleteCompiler {
         // - transactional table with a connection having an SCN
         // TODO: SchemaUtil.isReadOnly(PTable, connection)?
         if (table.getType() == PTableType.VIEW && table.getViewType().isReadOnly()) {
-            throw new ReadOnlyTableException(schemaName,tableName);
+            throw new ReadOnlyTableException(schemaName, tableName);
+        } else if (table.isTransactional() && connection.getSCN() != null) {
+            throw new SQLExceptionInfo.Builder(SQLExceptionCode.CANNOT_SPECIFY_SCN_FOR_TXN_TABLE).setSchemaName(schemaName)
+                    .setTableName(tableName).build().buildException();
         }
-        else if (table.isTransactional() && connection.getSCN() != null) {
-           throw new SQLExceptionInfo.Builder(SQLExceptionCode.CANNOT_SPECIFY_SCN_FOR_TXN_TABLE).setSchemaName(schemaName)
-           .setTableName(tableName).build().buildException();
-        }
-        
+
         List<PTable> clientSideIndexes = getClientSideMaintainedIndexes(targetTableRef);
         final boolean hasClientSideIndexes = !clientSideIndexes.isEmpty();
 
@@ -490,13 +490,13 @@ public class DeleteCompiler {
         for (PTable index : table.getIndexes()) {
             IndexMaintainer maintainer = index.getIndexMaintainer(table, connection);
             // Go through maintainer as it handles functional indexes correctly
-            for (Pair<String,String> columnInfo : maintainer.getIndexedColumnInfo()) {
+            for (Pair<String, String> columnInfo : maintainer.getIndexedColumnInfo()) {
                 String familyName = columnInfo.getFirst();
                 if (familyName != null) {
                     String columnName = columnInfo.getSecond();
                     boolean hasNoColumnFamilies = table.getColumnFamilies().isEmpty();
                     PColumn column = hasNoColumnFamilies ? table.getColumnForColumnName(columnName) : table.getColumnFamily(familyName).getPColumnForColumnName(columnName);
-                    if(!projectedColumns.contains(column)) {
+                    if (!projectedColumns.contains(column)) {
                         projectedColumns.add(column);
                         aliasedNodes.add(FACTORY.aliasedNode(null, FACTORY.column(hasNoColumnFamilies ? null : TableName.create(null, familyName), '"' + columnName + '"', null)));
                     }
@@ -504,11 +504,11 @@ public class DeleteCompiler {
             }
         }
         select = FACTORY.select(delete.getTable(), delete.getHint(), false, aliasedNodes, delete.getWhere(),
-                Collections.<ParseNode> emptyList(), null, delete.getOrderBy(), delete.getLimit(), null,
-                delete.getBindCount(), false, false, Collections.<SelectStatement> emptyList(),
+                Collections.<ParseNode>emptyList(), null, delete.getOrderBy(), delete.getLimit(), null,
+                delete.getBindCount(), false, false, Collections.<SelectStatement>emptyList(),
                 delete.getUdfParseNodes());
         select = StatementNormalizer.normalize(select, resolverToBe);
-        
+
         SelectStatement transformedSelect = SubqueryRewriter.transform(select, resolverToBe, connection);
         boolean hasPreProcessing = transformedSelect != select;
         if (transformedSelect != select) {
@@ -527,7 +527,7 @@ public class DeleteCompiler {
         if (runOnServer && !delete.getHint().hasHint(Hint.USE_INDEX_OVER_DATA_TABLE)) {
             select = SelectStatement.create(select, HintNode.create(hint, Hint.USE_DATA_OVER_INDEX_TABLE));
         }
-        
+
         parallelIteratorFactoryToBe = hasPreOrPostProcessing ? null : new DeletingParallelIteratorFactory(connection);
         QueryOptimizer optimizer = new QueryOptimizer(services);
         QueryCompiler compiler = new QueryCompiler(statement, select, resolverToBe, Collections.<PColumn>emptyList(), parallelIteratorFactoryToBe, new SequenceManager(statement));
@@ -548,12 +548,12 @@ public class DeleteCompiler {
                 if (!plan.getContext().getDataColumns().isEmpty()) {
                     iterator.remove();
                 }
-            }            
+            }
         }
         if (queryPlans.isEmpty()) {
             queryPlans = Collections.singletonList(dataPlan);
         }
-        
+
         runOnServer &= queryPlans.get(0).getTableRef().getTable().getType() != PTableType.INDEX;
         runOnServer &= allowServerMutations;
 
@@ -571,12 +571,12 @@ public class DeleteCompiler {
             StatementContext context = plan.getContext();
             noQueryReqd &= (!context.getScan().hasFilter()
                     || context.getScan().getFilter() instanceof SkipScanFilter)
-                && context.getScanRanges().isPointLookup();
+                    && context.getScanRanges().isPointLookup();
         }
 
-        final int maxSize = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_ATTRIB,QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE);
-        final int maxSizeBytes = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_BYTES_ATTRIB,QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE_BYTES);
- 
+        final int maxSize = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_ATTRIB, QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE);
+        final int maxSizeBytes = services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_BYTES_ATTRIB, QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE_BYTES);
+
         // If we're doing a query for a set of rows with no where clause, then we don't need to contact the server at all.
         if (noQueryReqd) {
             // Create a mutationPlan for each queryPlan. One plan will be for the deletion of the rows
@@ -599,7 +599,7 @@ public class DeleteCompiler {
             RowProjector projectorToBe = ProjectionCompiler.compile(context, aggSelect, GroupBy.EMPTY_GROUP_BY);
             context.getAggregationManager().compile(context, GroupBy.EMPTY_GROUP_BY);
             if (dataPlan.getProjector().projectEveryRow()) {
-                projectorToBe = new RowProjector(projectorToBe,true);
+                projectorToBe = new RowProjector(projectorToBe, true);
             }
             final RowProjector projector = projectorToBe;
             final QueryPlan aggPlan = new AggregatePlan(context, select, dataPlan.getTableRef(), projector, null, null,
@@ -611,7 +611,7 @@ public class DeleteCompiler {
             final int offset = table.getBucketNum() == null ? 0 : 1;
             Iterator<PColumn> projectedColsItr = projectedColumns.iterator();
             int i = 0;
-            while(projectedColsItr.hasNext()) {
+            while (projectedColsItr.hasNext()) {
                 final int position = i++;
                 adjustedProjectedColumns.add(new DelegateColumn(projectedColsItr.next()) {
                     @Override
@@ -634,13 +634,13 @@ public class DeleteCompiler {
                 }
             }
             final QueryPlan bestPlan = bestPlanToBe;
-            final List<TableRef>otherTableRefs = Lists.newArrayListWithExpectedSize(clientSideIndexes.size());
+            final List<TableRef> otherTableRefs = Lists.newArrayListWithExpectedSize(clientSideIndexes.size());
             for (PTable index : clientSideIndexes) {
                 if (!bestPlan.getTableRef().getTable().equals(index)) {
                     otherTableRefs.add(new TableRef(index, targetTableRef.getLowerBoundTimeStamp(), targetTableRef.getTimeStamp()));
                 }
             }
-            
+
             if (!bestPlan.getTableRef().getTable().equals(targetTableRef.getTable())) {
                 otherTableRefs.add(projectedTableRef);
             }
@@ -713,7 +713,7 @@ public class DeleteCompiler {
 
         @Override
         public Operation getOperation() {
-          return operation;
+            return operation;
         }
 
         @Override
@@ -774,7 +774,7 @@ public class DeleteCompiler {
 
         @Override
         public Operation getOperation() {
-          return operation;
+            return operation;
         }
 
         @Override
@@ -815,8 +815,8 @@ public class DeleteCompiler {
 
         @Override
         public ExplainPlan getExplainPlan() throws SQLException {
-            List<String> queryPlanSteps =  aggPlan.getExplainPlan().getPlanSteps();
-            List<String> planSteps = Lists.newArrayListWithExpectedSize(queryPlanSteps.size()+1);
+            List<String> queryPlanSteps = aggPlan.getExplainPlan().getPlanSteps();
+            List<String> planSteps = Lists.newArrayListWithExpectedSize(queryPlanSteps.size() + 1);
             planSteps.add("DELETE ROWS");
             planSteps.addAll(queryPlanSteps);
             return new ExplainPlan(planSteps);
@@ -896,7 +896,7 @@ public class DeleteCompiler {
 
         @Override
         public Operation getOperation() {
-          return operation;
+            return operation;
         }
 
         @Override
@@ -913,7 +913,7 @@ public class DeleteCompiler {
                         parallelIteratorFactory.setOtherTableRefs(otherTableRefs);
                         parallelIteratorFactory.setProjectedTableRef(projectedTableRef);
                     }
-                    while ((tuple=iterator.next()) != null) {// Runs query
+                    while ((tuple = iterator.next()) != null) {// Runs query
                         Cell kv = tuple.getValue(0);
                         totalRowCount += PLong.INSTANCE.getCodec().decodeLong(kv.getValueArray(), kv.getValueOffset(), SortOrder.getDefault());
                     }
@@ -933,7 +933,7 @@ public class DeleteCompiler {
                             totalTablesUpdateClientSide++;
                         }
                     }
-                    MutationState state = new MutationState(maxSize, maxSizeBytes, connection, totalRowCount/totalTablesUpdateClientSide);
+                    MutationState state = new MutationState(maxSize, maxSizeBytes, connection, totalRowCount / totalTablesUpdateClientSide);
 
                     // set the read metrics accumulated in the parent context so that it can be published when the mutations are committed.
                     state.setReadMetricQueue(context.getReadMetricsQueue());
@@ -951,8 +951,8 @@ public class DeleteCompiler {
 
         @Override
         public ExplainPlan getExplainPlan() throws SQLException {
-            List<String> queryPlanSteps =  bestPlan.getExplainPlan().getPlanSteps();
-            List<String> planSteps = Lists.newArrayListWithExpectedSize(queryPlanSteps.size()+1);
+            List<String> queryPlanSteps = bestPlan.getExplainPlan().getPlanSteps();
+            List<String> planSteps = Lists.newArrayListWithExpectedSize(queryPlanSteps.size() + 1);
             planSteps.add("DELETE ROWS");
             planSteps.addAll(queryPlanSteps);
             return new ExplainPlan(planSteps);
@@ -978,13 +978,13 @@ public class DeleteCompiler {
             return bestPlan;
         }
     }
-    
+
     private static boolean isMaintainedOnClient(PTable table) {
         // Test for not being local (rather than being GLOBAL) so that this doesn't fail
         // when tested with our projected table.
         return (table.getIndexType() != IndexType.LOCAL && (table.isTransactional() || table.isImmutableRows())) ||
-               (table.getIndexType() == IndexType.LOCAL && (table.isTransactional() &&
-                table.getTransactionProvider().getTransactionProvider().isUnsupported(Feature.MAINTAIN_LOCAL_INDEX_ON_SERVER) ) );
+                (table.getIndexType() == IndexType.LOCAL && (table.isTransactional() &&
+                        table.getTransactionProvider().getTransactionProvider().isUnsupported(Feature.MAINTAIN_LOCAL_INDEX_ON_SERVER)));
     }
-    
+
 }

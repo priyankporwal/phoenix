@@ -24,25 +24,24 @@ import java.util.List;
 import java.util.Set;
 
 
-
 /**
- * 
  * Class that creates a new select statement by filtering out nodes.
  * Currently only supports filtering out boolean nodes (i.e. nodes
  * that may be ANDed and ORed together.
- *
+ * <p>
  * TODO: generize this
- * 
+ *
  * @since 0.1
  */
 public class SelectStatementRewriter extends ParseNodeRewriter {
-    
+
     /**
      * Rewrite the select statement by filtering out expression nodes from the WHERE clause
-     * @param statement the select statement from which to filter.
+     *
+     * @param statement   the select statement from which to filter.
      * @param removeNodes expression nodes to filter out of WHERE clause.
      * @return new select statement
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static SelectStatement removeFromWhereClause(SelectStatement statement, Set<ParseNode> removeNodes) throws SQLException {
         if (removeNodes.isEmpty()) {
@@ -54,14 +53,15 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
         // Return new SELECT statement with updated WHERE clause
         return NODE_FACTORY.select(statement, where);
     }
-    
+
     /**
      * Rewrite the select statement by filtering out expression nodes from the HAVING clause
      * and anding them with the WHERE clause.
+     *
      * @param statement the select statement from which to move the nodes.
      * @param moveNodes expression nodes to filter out of HAVING clause and add to WHERE clause.
      * @return new select statement
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static SelectStatement moveFromHavingToWhereClause(SelectStatement statement, Set<ParseNode> moveNodes) throws SQLException {
         if (moveNodes.isEmpty()) {
@@ -75,31 +75,31 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
         if (where == null) {
             where = andNode;
         } else {
-            where = NODE_FACTORY.and(Arrays.asList(where,andNode));
+            where = NODE_FACTORY.and(Arrays.asList(where, andNode));
         }
         // Return new SELECT statement with updated WHERE and HAVING clauses
         return NODE_FACTORY.select(statement, where, having);
     }
-    
+
     private static final ParseNodeFactory NODE_FACTORY = new ParseNodeFactory();
 
     private final Set<ParseNode> removeNodes;
-    
+
     private SelectStatementRewriter(Set<ParseNode> removeNodes) {
         this.removeNodes = removeNodes;
     }
-    
+
     private static interface CompoundNodeFactory {
         ParseNode createNode(List<ParseNode> children);
     }
-    
+
     private boolean enterCompoundNode(ParseNode node) {
         if (removeNodes.contains(node)) {
             return false;
         }
         return true;
     }
-    
+
     private ParseNode leaveCompoundNode(CompoundParseNode node, List<ParseNode> children, CompoundNodeFactory factory) {
         int newSize = children.size();
         int oldSize = node.getChildren().size();
@@ -109,12 +109,12 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
             return factory.createNode(children);
         } else if (newSize == 1) {
             // TODO: keep or collapse? Maybe be helpful as context of where a problem occurs if a node could not be consumed
-            return(children.get(0));
+            return (children.get(0));
         } else {
             return null;
         }
     }
-    
+
     @Override
     public boolean visitEnter(AndParseNode node) throws SQLException {
         return enterCompoundNode(node);
@@ -144,7 +144,7 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
             }
         });
     }
-    
+
     @Override
     public boolean visitEnter(ComparisonParseNode node) throws SQLException {
         if (removeNodes.contains(node)) {
@@ -157,7 +157,7 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
     public ParseNode visitLeave(ComparisonParseNode node, List<ParseNode> c) throws SQLException {
         return c.isEmpty() ? null : node;
     }
-    
+
     @Override
     public boolean visitEnter(LikeParseNode node) throws SQLException {
         if (removeNodes.contains(node)) {
@@ -165,12 +165,12 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
         }
         return true;
     }
-    
+
     @Override
     public ParseNode visitLeave(LikeParseNode node, List<ParseNode> c) throws SQLException {
         return c.isEmpty() ? null : node;
     }
-    
+
     @Override
     public boolean visitEnter(InListParseNode node) throws SQLException {
         if (removeNodes.contains(node)) {
@@ -178,12 +178,12 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
         }
         return true;
     }
-    
+
     @Override
     public ParseNode visitLeave(InListParseNode node, List<ParseNode> c) throws SQLException {
         return c.isEmpty() ? null : node;
     }
-    
+
     @Override
     public boolean visitEnter(InParseNode node) throws SQLException {
         if (removeNodes.contains(node)) {
@@ -191,7 +191,7 @@ public class SelectStatementRewriter extends ParseNodeRewriter {
         }
         return true;
     }
-    
+
     @Override
     public ParseNode visitLeave(InParseNode node, List<ParseNode> c) throws SQLException {
         return c.isEmpty() ? null : node;

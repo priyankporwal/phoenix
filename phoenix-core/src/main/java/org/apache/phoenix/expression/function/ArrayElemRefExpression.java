@@ -36,7 +36,7 @@ public class ArrayElemRefExpression extends BaseCompoundExpression {
 
     public ArrayElemRefExpression() {
     }
-    
+
     public ArrayElemRefExpression(List<Expression> children) {
         super(children);
     }
@@ -60,12 +60,12 @@ public class ArrayElemRefExpression extends BaseCompoundExpression {
     public PDataType getDataType() {
         return PDataType.fromTypeId(children.get(0).getDataType().getSqlType() - PDataType.ARRAY_TYPE_BASE);
     }
-    
+
     @Override
     public void write(DataOutput output) throws IOException {
         super.write(output);
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);

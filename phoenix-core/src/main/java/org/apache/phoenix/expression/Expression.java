@@ -27,35 +27,35 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Interface for general expression evaluation
  *
- * 
  * @since 0.1
  */
 public interface Expression extends PDatum, Writable {
-	
+
     /**
      * Access the value by setting a pointer to it (as opposed to making
      * a copy of it which can be expensive)
+     *
      * @param tuple Single row result during scan iteration
-     * @param ptr Pointer to byte value being accessed
+     * @param ptr   Pointer to byte value being accessed
      * @return true if the expression could be evaluated (i.e. ptr was set)
      * and false otherwise
      */
     boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr);
-    
+
     /**
      * Means of traversing expression tree through visitor.
+     *
      * @param visitor
      */
     <T> T accept(ExpressionVisitor<T> visitor);
-    
+
     /**
      * @return the child expressions
      */
     List<Expression> getChildren();
-    
+
     /**
      * Resets the state of a expression back to its initial state and
      * enables the expession to be evaluated incrementally (which
@@ -66,7 +66,7 @@ public interface Expression extends PDatum, Writable {
      * processing a new row.
      */
     void reset();
-    
+
     /**
      * @return true if the expression can be evaluated on the client
      * side with out server state. If a sequence is involved, you
@@ -74,23 +74,25 @@ public interface Expression extends PDatum, Writable {
      * but otherwise the Tuple may be null.
      */
     boolean isStateless();
-    
+
     /**
-     * @return Determinism enum 
+     * @return Determinism enum
      */
     Determinism getDeterminism();
-    
+
     /**
      * Determines if an evaluate is required after partial evaluation
      * is run. For example, in the case of an IS NULL expression, we
      * only know we can return TRUE after all KeyValues have been seen
      * while an expression is used in the context of a filter.
+     *
      * @return
      */
     boolean requiresFinalEvaluation();
 
     /**
      * Determines if expression needs to be cloned in {@link org.apache.phoenix.compile.RowProjector}
+     *
      * @return
      */
     boolean isCloneExpression();

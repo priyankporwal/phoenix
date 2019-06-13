@@ -52,142 +52,142 @@ import com.google.common.collect.Lists;
  */
 public class ScannerBuilder {
 
-  private KeyValueStore memstore;
-  private Mutation update;
+    private KeyValueStore memstore;
+    private Mutation update;
 
 
-  public ScannerBuilder(KeyValueStore memstore, Mutation update) {
-    this.memstore = memstore;
-    this.update = update;
-  }
-
-  public CoveredDeleteScanner buildIndexedColumnScanner(Collection<? extends ColumnReference> indexedColumns, ColumnTracker tracker, long ts, boolean returnNullIfRowNotFound) {
-
-    Filter columnFilters = getColumnFilters(indexedColumns);
-    FilterList filters = new FilterList(Lists.newArrayList(columnFilters));
-
-    // skip to the right TS. This needs to come before the deletes since the deletes will hide any
-    // state that comes before the actual kvs, so we need to capture those TS as they change the row
-    // state.
-    filters.addFilter(new ColumnTrackingNextLargestTimestampFilter(ts, tracker));
-
-    // filter out kvs based on deletes
-    ApplyAndFilterDeletesFilter deleteFilter = new ApplyAndFilterDeletesFilter(getAllFamilies(indexedColumns));
-    filters.addFilter(deleteFilter);
-    
-    // combine the family filters and the rest of the filters as a
-    return getFilteredScanner(filters, returnNullIfRowNotFound, deleteFilter.getDeleteTracker());
-  }
-
-  /**
-   * @param columns columns to filter
-   * @return filter that will skip any {@link KeyValue} that doesn't match one of the passed columns
-   *         and the
-   */
-  private Filter
-      getColumnFilters(Collection<? extends ColumnReference> columns) {
-    // each column needs to be added as an OR, so we need to separate them out
-    FilterList columnFilters = new FilterList(FilterList.Operator.MUST_PASS_ONE);
-
-    // create a filter that matches each column reference
-    for (ColumnReference ref : columns) {
-      Filter columnFilter =
-          new FamilyFilter(CompareOp.EQUAL, new BinaryComparator(ref.getFamily()));
-      // combine with a match for the qualifier, if the qualifier is a specific qualifier
-      // in that case we *must* let empty qualifiers through for family delete markers
-      if (!Bytes.equals(ColumnReference.ALL_QUALIFIERS, ref.getQualifier())) {
-        columnFilter =
-            new FilterList(columnFilter,
-                    new FilterList(Operator.MUST_PASS_ONE,
-                            new QualifierFilter(CompareOp.EQUAL, new BinaryComparator(ref.getQualifier())),
-                            new QualifierFilter(CompareOp.EQUAL, new BinaryComparator(HConstants.EMPTY_BYTE_ARRAY))));
-      }
-      columnFilters.addFilter(columnFilter);
+    public ScannerBuilder(KeyValueStore memstore, Mutation update) {
+        this.memstore = memstore;
+        this.update = update;
     }
-    
-    if(columns.isEmpty()){
-        columnFilters.addFilter(new FilterBase(){
-            @Override
-            public boolean filterAllRemaining() throws IOException {
-                return true;
+
+    public CoveredDeleteScanner buildIndexedColumnScanner(Collection<? extends ColumnReference> indexedColumns, ColumnTracker tracker, long ts, boolean returnNullIfRowNotFound) {
+
+        Filter columnFilters = getColumnFilters(indexedColumns);
+        FilterList filters = new FilterList(Lists.newArrayList(columnFilters));
+
+        // skip to the right TS. This needs to come before the deletes since the deletes will hide any
+        // state that comes before the actual kvs, so we need to capture those TS as they change the row
+        // state.
+        filters.addFilter(new ColumnTrackingNextLargestTimestampFilter(ts, tracker));
+
+        // filter out kvs based on deletes
+        ApplyAndFilterDeletesFilter deleteFilter = new ApplyAndFilterDeletesFilter(getAllFamilies(indexedColumns));
+        filters.addFilter(deleteFilter);
+
+        // combine the family filters and the rest of the filters as a
+        return getFilteredScanner(filters, returnNullIfRowNotFound, deleteFilter.getDeleteTracker());
+    }
+
+    /**
+     * @param columns columns to filter
+     * @return filter that will skip any {@link KeyValue} that doesn't match one of the passed columns
+     * and the
+     */
+    private Filter
+    getColumnFilters(Collection<? extends ColumnReference> columns) {
+        // each column needs to be added as an OR, so we need to separate them out
+        FilterList columnFilters = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+
+        // create a filter that matches each column reference
+        for (ColumnReference ref : columns) {
+            Filter columnFilter =
+                    new FamilyFilter(CompareOp.EQUAL, new BinaryComparator(ref.getFamily()));
+            // combine with a match for the qualifier, if the qualifier is a specific qualifier
+            // in that case we *must* let empty qualifiers through for family delete markers
+            if (!Bytes.equals(ColumnReference.ALL_QUALIFIERS, ref.getQualifier())) {
+                columnFilter =
+                        new FilterList(columnFilter,
+                                new FilterList(Operator.MUST_PASS_ONE,
+                                        new QualifierFilter(CompareOp.EQUAL, new BinaryComparator(ref.getQualifier())),
+                                        new QualifierFilter(CompareOp.EQUAL, new BinaryComparator(HConstants.EMPTY_BYTE_ARRAY))));
             }
-        });
-    }
-    return columnFilters;
-  }
+            columnFilters.addFilter(columnFilter);
+        }
 
-  private Set<ImmutableBytesPtr>
-      getAllFamilies(Collection<? extends ColumnReference> columns) {
-    Set<ImmutableBytesPtr> families = new HashSet<ImmutableBytesPtr>();
-    for (ColumnReference ref : columns) {
-      families.add(ref.getFamilyWritable());
-    }
-    return families;
-  }
-
-  public static interface CoveredDeleteScanner extends Scanner {
-      public DeleteTracker getDeleteTracker();
-  }
-  
-  private CoveredDeleteScanner getFilteredScanner(Filter filters, boolean returnNullIfRowNotFound, final DeleteTracker deleteTracker) {
-    // create a scanner and wrap it as an iterator, meaning you can only go forward
-    final FilteredKeyValueScanner kvScanner = new FilteredKeyValueScanner(filters, memstore);
-    // seek the scanner to initialize it
-    KeyValue start = KeyValueUtil.createFirstOnRow(update.getRow());
-    try {
-      if (!kvScanner.seek(start)) {
-        return returnNullIfRowNotFound ? null : new EmptyScanner(deleteTracker);
-      }
-    } catch (IOException e) {
-      // This should never happen - everything should explode if so.
-      throw new RuntimeException(
-          "Failed to seek to first key from update on the memstore scanner!", e);
+        if (columns.isEmpty()) {
+            columnFilters.addFilter(new FilterBase() {
+                @Override
+                public boolean filterAllRemaining() throws IOException {
+                    return true;
+                }
+            });
+        }
+        return columnFilters;
     }
 
-    // we have some info in the scanner, so wrap it in an iterator and return.
-    return new CoveredDeleteScanner() {
+    private Set<ImmutableBytesPtr>
+    getAllFamilies(Collection<? extends ColumnReference> columns) {
+        Set<ImmutableBytesPtr> families = new HashSet<ImmutableBytesPtr>();
+        for (ColumnReference ref : columns) {
+            families.add(ref.getFamilyWritable());
+        }
+        return families;
+    }
 
-      @Override
-      public Cell next() {
+    public static interface CoveredDeleteScanner extends Scanner {
+        public DeleteTracker getDeleteTracker();
+    }
+
+    private CoveredDeleteScanner getFilteredScanner(Filter filters, boolean returnNullIfRowNotFound, final DeleteTracker deleteTracker) {
+        // create a scanner and wrap it as an iterator, meaning you can only go forward
+        final FilteredKeyValueScanner kvScanner = new FilteredKeyValueScanner(filters, memstore);
+        // seek the scanner to initialize it
+        KeyValue start = KeyValueUtil.createFirstOnRow(update.getRow());
         try {
-          return kvScanner.next();
+            if (!kvScanner.seek(start)) {
+                return returnNullIfRowNotFound ? null : new EmptyScanner(deleteTracker);
+            }
         } catch (IOException e) {
-          throw new RuntimeException("Error reading kvs from local memstore!");
+            // This should never happen - everything should explode if so.
+            throw new RuntimeException(
+                    "Failed to seek to first key from update on the memstore scanner!", e);
         }
-      }
 
-      @Override
-      public boolean seek(Cell next) throws IOException {
-        // check to see if the next kv is after the current key, in which case we can use reseek,
-        // which will be more efficient
-        Cell peek = kvScanner.peek();
-        // there is another value and its before the requested one - we can do a reseek!
-        if (peek != null) {
-          int compare = KeyValue.COMPARATOR.compare(peek, next);
-          if (compare < 0) {
-            return kvScanner.reseek(next);
-          } else if (compare == 0) {
-            // we are already at the given key!
-            return true;
-          }
-        }
-        return kvScanner.seek(next);
-      }
+        // we have some info in the scanner, so wrap it in an iterator and return.
+        return new CoveredDeleteScanner() {
 
-      @Override
-      public Cell peek() throws IOException {
-        return kvScanner.peek();
-      }
+            @Override
+            public Cell next() {
+                try {
+                    return kvScanner.next();
+                } catch (IOException e) {
+                    throw new RuntimeException("Error reading kvs from local memstore!");
+                }
+            }
 
-      @Override
-      public void close() throws IOException {
-        kvScanner.close();
-      }
+            @Override
+            public boolean seek(Cell next) throws IOException {
+                // check to see if the next kv is after the current key, in which case we can use reseek,
+                // which will be more efficient
+                Cell peek = kvScanner.peek();
+                // there is another value and its before the requested one - we can do a reseek!
+                if (peek != null) {
+                    int compare = KeyValue.COMPARATOR.compare(peek, next);
+                    if (compare < 0) {
+                        return kvScanner.reseek(next);
+                    } else if (compare == 0) {
+                        // we are already at the given key!
+                        return true;
+                    }
+                }
+                return kvScanner.seek(next);
+            }
 
-      @Override
-      public DeleteTracker getDeleteTracker() {
-        return deleteTracker;
-      }
-    };
-  }
+            @Override
+            public Cell peek() throws IOException {
+                return kvScanner.peek();
+            }
+
+            @Override
+            public void close() throws IOException {
+                kvScanner.close();
+            }
+
+            @Override
+            public DeleteTracker getDeleteTracker() {
+                return deleteTracker;
+            }
+        };
+    }
 }

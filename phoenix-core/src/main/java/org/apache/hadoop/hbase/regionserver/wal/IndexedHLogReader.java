@@ -21,7 +21,6 @@ package org.apache.hadoop.hbase.regionserver.wal;
 import java.io.IOException;
 
 
-
 /**
  * A WALReader that can also deserialize custom {@link WALEdit}s that contain index information.
  * <p>
@@ -41,9 +40,9 @@ import java.io.IOException;
  */
 public class IndexedHLogReader extends ProtobufLogReader {
 
-  @Override
-  protected void initAfterCompression() throws IOException {
-      conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-      super.initAfterCompression();
-  }
+    @Override
+    protected void initAfterCompression() throws IOException {
+        conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
+        super.initAfterCompression();
+    }
 }

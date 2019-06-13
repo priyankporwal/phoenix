@@ -47,23 +47,22 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 
 /**
- * 
  * JDBC Driver implementation of Phoenix for production.
  * To use this driver, specify the following URL:
- *     jdbc:phoenix:<zookeeper quorum server name>;
+ * jdbc:phoenix:<zookeeper quorum server name>;
  * Only an embedded driver is currently supported (Phoenix client
  * runs in the same JVM as the driver). Connections are lightweight
  * and are not pooled. The last part of the URL, the hbase zookeeper
  * quorum server name, determines the hbase cluster to which queries
  * will be routed.
- * 
- * 
+ *
  * @since 0.1
  */
 public final class PhoenixDriver extends PhoenixEmbeddedDriver {
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoenixDriver.class);
     public static final PhoenixDriver INSTANCE;
     private static volatile String driverShutdownMsg;
+
     static {
         try {
             INSTANCE = new PhoenixDriver();
@@ -92,7 +91,7 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
                             // Pull the timeout value (default 5s).
                             long millisBeforeShutdown =
                                     config.getLong(QueryServices.DRIVER_SHUTDOWN_TIMEOUT_MS,
-                                        QueryServicesOptions.DEFAULT_DRIVER_SHUTDOWN_TIMEOUT_MS);
+                                            QueryServicesOptions.DEFAULT_DRIVER_SHUTDOWN_TIMEOUT_MS);
 
                             // Close with a timeout. If this is running, we know the JVM wants to
                             // go down. There may be other threads running that are holding the
@@ -124,7 +123,7 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
                 throw e;
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("Unable to register " + PhoenixDriver.class.getName() + ": "+ e.getMessage());
+            throw new IllegalStateException("Unable to register " + PhoenixDriver.class.getName() + ": " + e.getMessage());
         }
     }
 
@@ -140,7 +139,7 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
 
     // One entry per cluster here
     private final Cache<ConnectionInfo, ConnectionQueryServices> connectionQueryServicesCache =
-        initializeConnectionCache();
+            initializeConnectionCache();
 
     public PhoenixDriver() { // for Squirrel
         // Use production services implementation
@@ -150,36 +149,35 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
     private Cache<ConnectionInfo, ConnectionQueryServices> initializeConnectionCache() {
         Configuration config = HBaseFactoryProvider.getConfigurationFactory().getConfiguration();
         int maxCacheDuration = config.getInt(QueryServices.CLIENT_CONNECTION_CACHE_MAX_DURATION_MILLISECONDS,
-            QueryServicesOptions.DEFAULT_CLIENT_CONNECTION_CACHE_MAX_DURATION);
+                QueryServicesOptions.DEFAULT_CLIENT_CONNECTION_CACHE_MAX_DURATION);
         RemovalListener<ConnectionInfo, ConnectionQueryServices> cacheRemovalListener =
-            new RemovalListener<ConnectionInfo, ConnectionQueryServices>() {
-                @Override
-                public void onRemoval(RemovalNotification<ConnectionInfo, ConnectionQueryServices> notification) {
-                    String connInfoIdentifier = notification.getKey().toString();
-                    LOGGER.debug("Expiring " + connInfoIdentifier + " because of "
-                        + notification.getCause().name());
+                new RemovalListener<ConnectionInfo, ConnectionQueryServices>() {
+                    @Override
+                    public void onRemoval(RemovalNotification<ConnectionInfo, ConnectionQueryServices> notification) {
+                        String connInfoIdentifier = notification.getKey().toString();
+                        LOGGER.debug("Expiring " + connInfoIdentifier + " because of "
+                                + notification.getCause().name());
 
-                    try {
-                        notification.getValue().close();
+                        try {
+                            notification.getValue().close();
+                        } catch (SQLException se) {
+                            LOGGER.error("Error while closing expired cache connection " + connInfoIdentifier, se);
+                        }
                     }
-                    catch (SQLException se) {
-                        LOGGER.error("Error while closing expired cache connection " + connInfoIdentifier, se);
-                    }
-                }
-            };
+                };
         return CacheBuilder.newBuilder()
-            .expireAfterAccess(maxCacheDuration, TimeUnit.MILLISECONDS)
-            .removalListener(cacheRemovalListener)
-            .build();
+                .expireAfterAccess(maxCacheDuration, TimeUnit.MILLISECONDS)
+                .removalListener(cacheRemovalListener)
+                .build();
     }
 
     // writes guarded by "this"
     private volatile QueryServices services;
-    
+
     @GuardedBy("closeLock")
     private volatile boolean closed = false;
     private final ReadWriteLock closeLock = new ReentrantReadWriteLock();
-    
+
 
     @Override
     public QueryServices getQueryServices() throws SQLException {
@@ -191,9 +189,9 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
             // made at driver initialization time which is too early for some systems.
             QueryServices result = services;
             if (result == null) {
-                synchronized(this) {
+                synchronized (this) {
                     result = services;
-                    if(result == null) {
+                    if (result == null) {
                         services = result = new QueryServicesImpl(getDefaultProps());
                     }
                 }
@@ -209,11 +207,11 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
         // Accept the url only if test=true attribute not set
         return super.acceptsURL(url) && !isTestUrl(url);
     }
-    
+
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (!acceptsURL(url)) {
-          return null;
+            return null;
         }
         try {
             lockInterruptibly(LockMode.READ);
@@ -223,7 +221,7 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
             unlock(LockMode.READ);
         }
     }
-    
+
     @Override
     protected ConnectionQueryServices getConnectionQueryServices(String url, final Properties info) throws SQLException {
         try {
@@ -238,33 +236,31 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
             final ConnectionInfo normalizedConnInfo = connInfo.normalize(services.getProps(), info);
             try {
                 connectionQueryServices =
-                    connectionQueryServicesCache.get(normalizedConnInfo, new Callable<ConnectionQueryServices>() {
-                        @Override
-                        public ConnectionQueryServices call() throws Exception {
-                            ConnectionQueryServices connectionQueryServices;
-                            if (normalizedConnInfo.isConnectionless()) {
-                                connectionQueryServices = new ConnectionlessQueryServicesImpl(services, normalizedConnInfo, info);
-                            } else {
-                                connectionQueryServices = new ConnectionQueryServicesImpl(services, normalizedConnInfo, info);
-                            }
+                        connectionQueryServicesCache.get(normalizedConnInfo, new Callable<ConnectionQueryServices>() {
+                            @Override
+                            public ConnectionQueryServices call() throws Exception {
+                                ConnectionQueryServices connectionQueryServices;
+                                if (normalizedConnInfo.isConnectionless()) {
+                                    connectionQueryServices = new ConnectionlessQueryServicesImpl(services, normalizedConnInfo, info);
+                                } else {
+                                    connectionQueryServices = new ConnectionQueryServicesImpl(services, normalizedConnInfo, info);
+                                }
 
-                            return connectionQueryServices;
-                        }
-                    });
+                                return connectionQueryServices;
+                            }
+                        });
 
                 connectionQueryServices.init(url, info);
                 success = true;
-            } catch (ExecutionException ee){
-                if (ee.getCause() instanceof  SQLException) {
+            } catch (ExecutionException ee) {
+                if (ee.getCause() instanceof SQLException) {
                     sqlE = (SQLException) ee.getCause();
                 } else {
                     throw new SQLException(ee);
                 }
-            }
-              catch (SQLException e) {
+            } catch (SQLException e) {
                 sqlE = e;
-            }
-            finally {
+            } finally {
                 if (!success) {
                     // Remove from map, as initialization failed
                     connectionQueryServicesCache.invalidate(normalizedConnInfo);
@@ -278,14 +274,14 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
             unlock(LockMode.READ);
         }
     }
-    
+
     @GuardedBy("closeLock")
     private void checkClosed() {
         if (closed) {
             throwDriverClosedException();
         }
     }
-    
+
     private void throwDriverClosedException() {
         throw new IllegalStateException(driverShutdownMsg != null ? driverShutdownMsg : "The Phoenix jdbc driver has been closed.");
     }
@@ -310,42 +306,46 @@ public final class PhoenixDriver extends PhoenixEmbeddedDriver {
             }
         }
     }
-    
-    private enum LockMode {
+
+    private enum LockMode
+
+    {
         READ, WRITE
-    };
+    }
+
+    ;
 
     private void lockInterruptibly(LockMode mode) throws SQLException {
         checkNotNull(mode);
         switch (mode) {
-        case READ:
-            try {
-                closeLock.readLock().lockInterruptibly();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new SQLExceptionInfo.Builder(SQLExceptionCode.INTERRUPTED_EXCEPTION)
-                        .setRootCause(e).build().buildException();
-            }
-            break;
-        case WRITE:
-            try {
-                closeLock.writeLock().lockInterruptibly();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new SQLExceptionInfo.Builder(SQLExceptionCode.INTERRUPTED_EXCEPTION)
-                        .setRootCause(e).build().buildException();
-            }
+            case READ:
+                try {
+                    closeLock.readLock().lockInterruptibly();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new SQLExceptionInfo.Builder(SQLExceptionCode.INTERRUPTED_EXCEPTION)
+                            .setRootCause(e).build().buildException();
+                }
+                break;
+            case WRITE:
+                try {
+                    closeLock.writeLock().lockInterruptibly();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new SQLExceptionInfo.Builder(SQLExceptionCode.INTERRUPTED_EXCEPTION)
+                            .setRootCause(e).build().buildException();
+                }
         }
     }
 
     private void unlock(LockMode mode) {
         checkNotNull(mode);
         switch (mode) {
-        case READ:
-            closeLock.readLock().unlock();
-            break;
-        case WRITE:
-            closeLock.writeLock().unlock();
+            case READ:
+                closeLock.readLock().unlock();
+                break;
+            case WRITE:
+                closeLock.writeLock().unlock();
         }
     }
 

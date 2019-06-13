@@ -22,10 +22,8 @@ import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 
 
 /**
- * 
  * Node representing the less than operator (<) in SQL
  *
- * 
  * @since 0.1
  */
 public class LessThanParseNode extends ComparisonParseNode {

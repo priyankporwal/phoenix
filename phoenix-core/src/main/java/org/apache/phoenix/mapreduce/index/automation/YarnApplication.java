@@ -27,7 +27,9 @@ public class YarnApplication {
     private String amContainerLogs;
     private String trackingUI;
 
-    public enum state {
+    public enum state
+
+    {
         NEW, ACCEPTED, SUBMITTED, RUNNING, FINISHED
     }
 
@@ -35,7 +37,9 @@ public class YarnApplication {
     private String id;
     private String clusterId;
 
-    public enum finalStatus {
+    public enum finalStatus
+
+    {
         SUCCEEDED, FAILED, KILLED, UNDEFINED
     }
 

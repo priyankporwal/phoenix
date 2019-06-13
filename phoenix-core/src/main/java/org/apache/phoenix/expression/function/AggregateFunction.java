@@ -23,13 +23,9 @@ import org.apache.phoenix.expression.Determinism;
 import org.apache.phoenix.expression.Expression;
 
 
-
-
 /**
- * 
- * Compiled representation of a built-in aggregate function 
+ * Compiled representation of a built-in aggregate function
  *
- * 
  * @since 0.1
  */
 abstract public class AggregateFunction extends FunctionExpression {
@@ -40,7 +36,7 @@ abstract public class AggregateFunction extends FunctionExpression {
     public AggregateFunction(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     public boolean isStateless() {
         return false;

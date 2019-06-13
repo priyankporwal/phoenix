@@ -40,18 +40,16 @@ import org.apache.phoenix.util.DateUtil;
 
 
 /**
- *
  * Implementation of the {@code TO_DATE(<string>,[<format-string>,[<timezone-string>]])} built-in function.
  * The second argument is optional and defaults to the phoenix.query.dateFormat value
  * from the HBase config. If present it must be a constant string. The third argument is either a
  * valid (constant) timezone id, or the string "local". The third argument is also optional, and
  * it defaults to GMT.
- *
  */
-@BuiltInFunction(name=ToDateFunction.NAME, nodeClass=ToDateParseNode.class,
-        args={@Argument(allowedTypes={PVarchar.class}),
-                @Argument(allowedTypes={PVarchar.class},isConstant=true,defaultValue="null"),
-                @Argument(allowedTypes={PVarchar.class}, isConstant=true, defaultValue = "null") } )
+@BuiltInFunction(name = ToDateFunction.NAME, nodeClass = ToDateParseNode.class,
+        args = {@Argument(allowedTypes = {PVarchar.class}),
+                @Argument(allowedTypes = {PVarchar.class}, isConstant = true, defaultValue = "null"),
+                @Argument(allowedTypes = {PVarchar.class}, isConstant = true, defaultValue = "null")})
 public class ToDateFunction extends ScalarFunction {
     public static final String NAME = "TO_DATE";
     private DateUtil.DateTimeParser dateParser;
@@ -79,16 +77,16 @@ public class ToDateFunction extends ScalarFunction {
         super(children);
         init(dateFormat, timeZoneId);
     }
-    
+
     @Override
     public ToDateFunction clone(List<Expression> children) {
-    	try {
+        try {
             return new ToDateFunction(children, dateFormat, timeZoneId);
         } catch (Exception e) {
             throw new RuntimeException(e); // Impossible, since it was originally constructed this way
         }
     }
-    
+
     private void init(String dateFormat, String timeZoneId) {
         this.dateFormat = dateFormat;
         this.dateParser = DateUtil.getDateTimeParser(dateFormat, getDataType(), timeZoneId);
@@ -110,17 +108,31 @@ public class ToDateFunction extends ScalarFunction {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (getClass() != obj.getClass()) return false;
-        ToDateFunction other = (ToDateFunction)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ToDateFunction other = (ToDateFunction) obj;
         // Only compare first child, as the other two are potentially resolved on the fly.
-        if (!this.getChildren().get(0).equals(other.getChildren().get(0))) return false;
+        if (!this.getChildren().get(0).equals(other.getChildren().get(0))) {
+            return false;
+        }
         if (dateFormat == null) {
-            if (other.dateFormat != null) return false;
-        } else if (!dateFormat.equals(other.dateFormat)) return false;
+            if (other.dateFormat != null) {
+                return false;
+            }
+        } else if (!dateFormat.equals(other.dateFormat)) {
+            return false;
+        }
         if (timeZoneId == null) {
-            if (other.timeZoneId != null) return false;
-        } else if (!timeZoneId.equals(other.timeZoneId)) return false;
+            if (other.timeZoneId != null) {
+                return false;
+            }
+        } else if (!timeZoneId.equals(other.timeZoneId)) {
+            return false;
+        }
         return true;
     }
 
@@ -134,14 +146,14 @@ public class ToDateFunction extends ScalarFunction {
             return true;
         }
         PDataType type = expression.getDataType();
-        String dateStr = (String)type.toObject(ptr, expression.getSortOrder());
+        String dateStr = (String) type.toObject(ptr, expression.getSortOrder());
         long epochTime = dateParser.parseDateTime(dateStr);
         PDataType returnType = getDataType();
         byte[] byteValue = new byte[returnType.getByteSize()];
         codec.encodeLong(epochTime, byteValue, 0);
         ptr.set(byteValue);
         return true;
-     }
+    }
 
     @Override
     public PDataType getDataType() {
@@ -156,29 +168,29 @@ public class ToDateFunction extends ScalarFunction {
     private String getTimeZoneIdArg() {
         return children.size() < 3 ? null : (String) ((LiteralExpression) children.get(2)).getValue();
     }
-    
+
     private String getDateFormatArg() {
         return children.size() < 2 ? null : (String) ((LiteralExpression) children.get(1)).getValue();
     }
-    
+
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
         String timeZoneId;
-        String dateFormat = WritableUtils.readString(input);  
+        String dateFormat = WritableUtils.readString(input);
         if (dateFormat.length() != 0) { // pre 4.3
-            timeZoneId = DateUtil.DEFAULT_TIME_ZONE_ID;         
+            timeZoneId = DateUtil.DEFAULT_TIME_ZONE_ID;
         } else {
             int nChildren = children.size();
             if (nChildren == 1) {
-                dateFormat = WritableUtils.readString(input); 
-                timeZoneId =  WritableUtils.readString(input);
+                dateFormat = WritableUtils.readString(input);
+                timeZoneId = WritableUtils.readString(input);
             } else if (nChildren == 2 || DateUtil.LOCAL_TIME_ZONE_ID.equalsIgnoreCase(getTimeZoneIdArg())) {
                 dateFormat = getDateFormatArg();
-                timeZoneId =  WritableUtils.readString(input);
+                timeZoneId = WritableUtils.readString(input);
             } else {
                 dateFormat = getDateFormatArg();
-                timeZoneId =  getTimeZoneIdArg();
+                timeZoneId = getTimeZoneIdArg();
             }
         }
         init(dateFormat, timeZoneId);

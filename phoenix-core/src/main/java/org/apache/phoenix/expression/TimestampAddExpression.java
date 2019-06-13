@@ -34,10 +34,8 @@ import org.apache.phoenix.schema.types.PUnsignedTimestamp;
 import org.apache.phoenix.util.DateUtil;
 
 /**
- * 
  * Class to encapsulate addition arithmetic for {@link org.apache.phoenix.schema.types.PTimestamp}.
  *
- * 
  * @since 2.1.3
  */
 
@@ -53,8 +51,8 @@ public class TimestampAddExpression extends AddExpression {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         BigDecimal finalResult = BigDecimal.ZERO;
-        
-        for(int i=0; i<children.size(); i++) {
+
+        for (int i = 0; i < children.size(); i++) {
             if (!children.get(i).evaluate(tuple, ptr)) {
                 return false;
             }
@@ -64,15 +62,15 @@ public class TimestampAddExpression extends AddExpression {
             BigDecimal value;
             PDataType type = children.get(i).getDataType();
             SortOrder sortOrder = children.get(i).getSortOrder();
-            if(type == PTimestamp.INSTANCE || type == PUnsignedTimestamp.INSTANCE) {
-                value = (BigDecimal)(PDecimal.INSTANCE.toObject(ptr, type, sortOrder));
+            if (type == PTimestamp.INSTANCE || type == PUnsignedTimestamp.INSTANCE) {
+                value = (BigDecimal) (PDecimal.INSTANCE.toObject(ptr, type, sortOrder));
             } else if (type.isCoercibleTo(PDecimal.INSTANCE)) {
                 value = (((BigDecimal) PDecimal.INSTANCE.toObject(ptr, type, sortOrder)).multiply(QueryConstants.BD_MILLIS_IN_DAY)).setScale(6, RoundingMode.HALF_UP);
             } else if (type.isCoercibleTo(PDouble.INSTANCE)) {
                 value = ((BigDecimal.valueOf(type.getCodec().decodeDouble(ptr, sortOrder))).multiply(QueryConstants.BD_MILLIS_IN_DAY)).setScale(6, RoundingMode.HALF_UP);
             } else {
                 value = BigDecimal.valueOf(type.getCodec().decodeLong(ptr, sortOrder));
-            } 
+            }
             finalResult = finalResult.add(value);
         }
         Timestamp ts = DateUtil.getTimestamp(finalResult);

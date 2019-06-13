@@ -28,13 +28,13 @@ public abstract class ArithmeticParseNode extends CompoundParseNode {
     }
 
     public abstract String getOperator();
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append('(');
         List<ParseNode> children = getChildren();
         children.get(0).toSQL(resolver, buf);
-        for (int i = 1 ; i < children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             buf.append(" " + getOperator() + " ");
             children.get(i).toSQL(resolver, buf);
         }

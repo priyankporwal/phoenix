@@ -38,15 +38,15 @@ import com.google.common.collect.Lists;
 
 public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
 
-    private static final long INTEGER_MIN_MINUS_ONE = (long)Integer.MIN_VALUE - 1;
-    private static final long INTEGER_MAX_PLUS_ONE = (long)Integer.MAX_VALUE + 1;
+    private static final long INTEGER_MIN_MINUS_ONE = (long) Integer.MIN_VALUE - 1;
+    private static final long INTEGER_MAX_PLUS_ONE = (long) Integer.MAX_VALUE + 1;
 
     @Test
     public void testIntegerPK() throws Exception {
         int[] testNumbers = {Integer.MIN_VALUE, Integer.MIN_VALUE + 1,
                 -2, -1, 0, 1, 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE};
         String tableName = generateUniqueName();
-        ensureTableCreated(getUrl(), tableName,"PKIntValueTest");
+        ensureTableCreated(getUrl(), tableName, "PKIntValueTest");
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String upsert = "UPSERT INTO " + tableName + " VALUES(?)";
@@ -56,13 +56,13 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             stmt.execute();
         }
         conn.commit();
-        
-        String select = "SELECT COUNT(*) from " + tableName ;
+
+        String select = "SELECT COUNT(*) from " + tableName;
         ResultSet rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
         assertEquals(testNumbers.length, rs.getInt(1));
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where pk >= " + Integer.MIN_VALUE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -76,7 +76,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             assertEquals(testNumbers[i], rs.getInt(1));
         }
         assertFalse(rs.next());
-        
+
         // NOTE: This case currently fails with an error message:
         // "Overflow trying to get next key for [-1, -1, -1, -1]"
         select = "SELECT count(*) FROM " + tableName + " where pk <= " + Integer.MAX_VALUE;
@@ -92,7 +92,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             assertEquals(testNumbers[i], rs.getInt(1));
         }
         assertFalse(rs.next());
-        
+
         // NOTE: This case currently fails since it is not retrieving the negative values.
         select = "SELECT count(*) FROM " + tableName + " where pk >= " + INTEGER_MIN_MINUS_ONE;
         rs = conn.createStatement().executeQuery(select);
@@ -107,7 +107,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             assertEquals(testNumbers[i], rs.getInt(1));
         }
         assertFalse(rs.next());
-        
+
         // NOTE: This test case fails because it is not retrieving positive values.
         select = "SELECT count(*) FROM " + tableName + " where pk <= " + INTEGER_MAX_PLUS_ONE;
         rs = conn.createStatement().executeQuery(select);
@@ -127,29 +127,29 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testBigIntPK() throws Exception {
-      // NOTE: Due to how we parse negative long, -9223372036854775808L, the minimum value of 
-      // bigint is not recognizable in the current version. As a result, we start with 
-      // Long.MIN_VALUE+1 as the smallest value.
+        // NOTE: Due to how we parse negative long, -9223372036854775808L, the minimum value of
+        // bigint is not recognizable in the current version. As a result, we start with
+        // Long.MIN_VALUE+1 as the smallest value.
         String tableName = generateUniqueName();
-        long[] testNumbers = {Long.MIN_VALUE+1 , Long.MIN_VALUE+2 , 
-                -2L, -1L, 0L, 1L, 2L, Long.MAX_VALUE-1, Long.MAX_VALUE};
-        ensureTableCreated(getUrl(), tableName, "PKBigIntValueTest" );
+        long[] testNumbers = {Long.MIN_VALUE + 1, Long.MIN_VALUE + 2,
+                -2L, -1L, 0L, 1L, 2L, Long.MAX_VALUE - 1, Long.MAX_VALUE};
+        ensureTableCreated(getUrl(), tableName, "PKBigIntValueTest");
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String upsert = "UPSERT INTO " + tableName + " VALUES(?)";
         PreparedStatement stmt = conn.prepareStatement(upsert);
-        for (int i=0; i<testNumbers.length; i++) {
+        for (int i = 0; i < testNumbers.length; i++) {
             stmt.setLong(1, testNumbers[i]);
             stmt.execute();
         }
         conn.commit();
-        
-        String select = "SELECT COUNT(*) from " + tableName ;
+
+        String select = "SELECT COUNT(*) from " + tableName;
         ResultSet rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
         assertEquals(testNumbers.length, rs.getInt(1));
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where pk >= " + (Long.MIN_VALUE + 1);
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -163,7 +163,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             assertEquals(testNumbers[i], rs.getLong(1));
         }
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where pk <= " + Long.MAX_VALUE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -215,26 +215,26 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
     @Test
     public void testIntegerKV() throws Exception {
         String tableName = generateUniqueName();
-        int[] testNumbers = {Integer.MIN_VALUE, Integer.MIN_VALUE + 1, 
+        int[] testNumbers = {Integer.MIN_VALUE, Integer.MIN_VALUE + 1,
                 -2, -1, 0, 1, 2, Integer.MAX_VALUE - 1, Integer.MAX_VALUE};
-        ensureTableCreated(getUrl(), tableName, "KVIntValueTest" );
+        ensureTableCreated(getUrl(), tableName, "KVIntValueTest");
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String upsert = "UPSERT INTO " + tableName + " VALUES(?, ?)";
         PreparedStatement stmt = conn.prepareStatement(upsert);
-        for (int i=0; i<testNumbers.length; i++) {
+        for (int i = 0; i < testNumbers.length; i++) {
             stmt.setInt(1, i);
             stmt.setInt(2, testNumbers[i]);
             stmt.execute();
         }
         conn.commit();
-        
-        String select = "SELECT COUNT(*) from " + tableName ;
+
+        String select = "SELECT COUNT(*) from " + tableName;
         ResultSet rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
         assertEquals(testNumbers.length, rs.getInt(1));
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where kv >= " + Integer.MIN_VALUE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -243,12 +243,12 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         select = "SELECT kv FROM " + tableName + " WHERE kv >= " + Integer.MIN_VALUE +
                 " GROUP BY kv ORDER BY kv ASC NULLS LAST";
         rs = conn.createStatement().executeQuery(select);
-        for (int i=0; i<testNumbers.length; i++) {
+        for (int i = 0; i < testNumbers.length; i++) {
             assertTrue(rs.next());
             assertEquals(testNumbers[i], rs.getInt(1));
         }
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where kv <= " + Integer.MAX_VALUE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -257,12 +257,12 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         select = "SELECT kv FROM " + tableName + " WHERE kv <= " + Integer.MAX_VALUE +
                 " GROUP BY kv ORDER BY kv DESC NULLS LAST";
         rs = conn.createStatement().executeQuery(select);
-        for (int i=testNumbers.length-1; i>=0; i--) {
+        for (int i = testNumbers.length - 1; i >= 0; i--) {
             assertTrue(rs.next());
             assertEquals(testNumbers[i], rs.getInt(1));
         }
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where kv >= " + INTEGER_MIN_MINUS_ONE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -271,12 +271,12 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         select = "SELECT kv FROM " + tableName + " WHERE kv >= " + INTEGER_MIN_MINUS_ONE +
                 " GROUP BY kv ORDER BY kv ASC NULLS LAST ";
         rs = conn.createStatement().executeQuery(select);
-        for (int i=0; i<testNumbers.length; i++) {
+        for (int i = 0; i < testNumbers.length; i++) {
             assertTrue(rs.next());
             assertEquals(testNumbers[i], rs.getInt(1));
         }
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where kv <= " + INTEGER_MAX_PLUS_ONE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -285,7 +285,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         select = "SELECT kv FROM " + tableName + " WHERE kv <= " + INTEGER_MAX_PLUS_ONE +
                 " GROUP BY kv ORDER BY kv DESC NULLS LAST";
         rs = conn.createStatement().executeQuery(select);
-        for (int i=testNumbers.length-1; i>=0; i--) {
+        for (int i = testNumbers.length - 1; i >= 0; i--) {
             assertTrue(rs.next());
             assertEquals(testNumbers[i], rs.getInt(1));
         }
@@ -299,9 +299,9 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         // bigint is not recognizable in the current version. As a result, we start with 
         // Long.MIN_VALUE+1 as the smallest value.
         String tableName = generateUniqueName();
-        long[] testNumbers = {Long.MIN_VALUE+1, Long.MIN_VALUE+2, 
-                -2L, -1L, 0L, 1L, 2L, Long.MAX_VALUE-1, Long.MAX_VALUE};
-        ensureTableCreated(getUrl(), tableName, "KVBigIntValueTest" );
+        long[] testNumbers = {Long.MIN_VALUE + 1, Long.MIN_VALUE + 2,
+                -2L, -1L, 0L, 1L, 2L, Long.MAX_VALUE - 1, Long.MAX_VALUE};
+        ensureTableCreated(getUrl(), tableName, "KVBigIntValueTest");
         Properties props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String upsert = "UPSERT INTO " + tableName + " VALUES(?,?)";
@@ -312,19 +312,19 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             stmt.execute();
         }
         conn.commit();
-        
-        String select = "SELECT COUNT(*) from " + tableName ;
+
+        String select = "SELECT COUNT(*) from " + tableName;
         ResultSet rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
         assertEquals(testNumbers.length, rs.getInt(1));
         assertFalse(rs.next());
-        
-        select = "SELECT count(*) FROM " + tableName + " where kv >= " + (Long.MIN_VALUE+1);
+
+        select = "SELECT count(*) FROM " + tableName + " where kv >= " + (Long.MIN_VALUE + 1);
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
         assertEquals(testNumbers.length, rs.getInt(1));
         assertFalse(rs.next());
-        select = "SELECT kv FROM " + tableName + " WHERE kv >= " + (Long.MIN_VALUE+1) + 
+        select = "SELECT kv FROM " + tableName + " WHERE kv >= " + (Long.MIN_VALUE + 1) +
                 " GROUP BY kv ORDER BY kv ASC NULLS LAST";
         rs = conn.createStatement().executeQuery(select);
         for (int i = 0; i < testNumbers.length; i++) {
@@ -332,7 +332,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
             assertEquals(testNumbers[i], rs.getLong(1));
         }
         assertFalse(rs.next());
-        
+
         select = "SELECT count(*) FROM " + tableName + " where kv <= " + Long.MAX_VALUE;
         rs = conn.createStatement().executeQuery(select);
         assertTrue(rs.next());
@@ -341,7 +341,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         select = "SELECT kv FROM " + tableName + " WHERE kv <= " + Long.MAX_VALUE +
                 " GROUP BY kv ORDER BY kv DESC NULLS LAST";
         rs = conn.createStatement().executeQuery(select);
-        for (int i = testNumbers.length-1; i >= 0; i--) {
+        for (int i = testNumbers.length - 1; i >= 0; i--) {
             assertTrue(rs.next());
             assertEquals(testNumbers[i], rs.getLong(1));
         }
@@ -385,7 +385,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
     public void testShort() throws Exception {
         List<Short> testData =
                 Arrays.asList(Short.MIN_VALUE, Short.MAX_VALUE, (short) (Short.MIN_VALUE + 1),
-                    (short) (Short.MAX_VALUE - 1), (short) 0, (short) 1, (short) -1);
+                        (short) (Short.MAX_VALUE - 1), (short) 0, (short) 1, (short) -1);
         testValues(false, PSmallint.INSTANCE, testData);
         testValues(true, PSmallint.INSTANCE, testData);
     }
@@ -394,7 +394,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
     public void testBigInt() throws Exception {
         List<Long> testData =
                 Arrays.asList(Long.MIN_VALUE, Long.MAX_VALUE, Long.MIN_VALUE + 1L,
-                    Long.MAX_VALUE - 1L, 0L, 1L, -1L);
+                        Long.MAX_VALUE - 1L, 0L, 1L, -1L);
         testValues(false, PLong.INSTANCE, testData);
         testValues(true, PLong.INSTANCE, testData);
     }
@@ -403,7 +403,7 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
         String tableName = generateUniqueName();
         String ddl =
                 String.format("CREATE %s TABLE %s (K INTEGER PRIMARY KEY, V1 %s)",
-                    immutable ? "IMMUTABLE" : "", tableName, dataType.getSqlTypeName());
+                        immutable ? "IMMUTABLE" : "", tableName, dataType.getSqlTypeName());
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute(ddl);
             String upsert = "UPSERT INTO " + tableName + " VALUES(?, ?)";
@@ -425,13 +425,13 @@ public class UpsertBigValuesIT extends ParallelStatsDisabledIT {
                 T testVal = testData.get(index++);
                 if (!testVal.equals(resultVal)) {
                     errors.add(String.format("[expected=%s actual=%s] ",
-                        testVal, resultVal));
+                            testVal, resultVal));
                     failed = true;
                 }
             }
             String errorMsg =
                     String.format("Data in table didn't match input: immutable=%s, dataType=%s, %s",
-                        immutable, dataType.getSqlTypeName(), errors);
+                            immutable, dataType.getSqlTypeName(), errors);
             assertFalse(errorMsg, failed);
         }
     }

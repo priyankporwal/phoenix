@@ -112,7 +112,7 @@ public class ConfigurationParserTest extends ResultBaseTest {
             DataOverride override = scenario.getDataOverride();
             for (Column column : override.getColumn()) {
                 assertTrue("Could not lookup Column (" + column.getName()
-                        + ") in DataMapping columns: " + dataMappingColumns,
+                                + ") in DataMapping columns: " + dataMappingColumns,
                         dataMappingColumns.contains(column));
             }
 
@@ -201,10 +201,10 @@ public class ConfigurationParserTest extends ResultBaseTest {
             Scenario scenario = new Scenario();
             scenario.setName("scenario1");
             scenario.setTenantId("00DXXXXXX");
-        	List<Ddl> preScenarioDdls = new ArrayList<Ddl>();
-        	preScenarioDdls.add(new Ddl("CREATE INDEX IF NOT EXISTS ? ON FHA (NEWVAL_NUMBER) ASYNC", "FHAIDX_NEWVAL_NUMBER"));
-        	preScenarioDdls.add(new Ddl("CREATE LOCAL INDEX IF NOT EXISTS ? ON FHA (NEWVAL_NUMBER)", "FHAIDX_NEWVAL_NUMBER"));
-			scenario.setPreScenarioDdls(preScenarioDdls);
+            List<Ddl> preScenarioDdls = new ArrayList<Ddl>();
+            preScenarioDdls.add(new Ddl("CREATE INDEX IF NOT EXISTS ? ON FHA (NEWVAL_NUMBER) ASYNC", "FHAIDX_NEWVAL_NUMBER"));
+            preScenarioDdls.add(new Ddl("CREATE LOCAL INDEX IF NOT EXISTS ? ON FHA (NEWVAL_NUMBER)", "FHAIDX_NEWVAL_NUMBER"));
+            scenario.setPreScenarioDdls(preScenarioDdls);
             scenario.setPhoenixProperties(new HashMap<String, String>());
             scenario.getPhoenixProperties().put("phoenix.query.threadPoolSize", "200");
             scenario.setDataOverride(new DataOverride());

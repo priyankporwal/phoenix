@@ -32,7 +32,7 @@ public class SizeTrackingServerAggregators extends ServerAggregators {
     private long memoryUsed = 0;
 
     public SizeTrackingServerAggregators(SingleAggregateFunction[] functions, Aggregator[] aggregators,
-            Expression[] expressions, int minNullableIndex, MemoryChunk chunk, int sizeIncrease) {
+                                         Expression[] expressions, int minNullableIndex, MemoryChunk chunk, int sizeIncrease) {
         super(functions, aggregators, expressions, minNullableIndex);
         this.chunk = chunk;
         this.sizeIncrease = sizeIncrease;
@@ -49,11 +49,11 @@ public class SizeTrackingServerAggregators extends ServerAggregators {
             }
             expressions[i].reset();
         }
-        while(dsize > chunk.getSize()) {
+        while (dsize > chunk.getSize()) {
             LOGGER.info("Request: {}, resizing {} by 1024*1024", dsize, chunk.getSize());
             chunk.resize(chunk.getSize() + sizeIncrease);
         }
         memoryUsed = dsize;
     }
-    
+
 }

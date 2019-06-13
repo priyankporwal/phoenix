@@ -87,7 +87,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(1234,integers) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{1234, 2345, 46345, 23234, 456};
+        Integer[] integers = new Integer[] {1234, 2345, 46345, 23234, 456};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -105,7 +105,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND('34567',varchars) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"34567", "2345", "46345", "23234"};
+        String[] strings = new String[] {"34567", "2345", "46345", "23234"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -116,10 +116,10 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testArrayPrependFunctionNulls1() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String[] s = new String[]{null, null, "1", "2"};
+        String[] s = new String[] {null, null, "1", "2"};
         String tableName = generateUniqueName();
         initTableWithVarArray(conn, tableName, "VARCHAR", s, null);
-        String[] s2 = new String[]{null, null, null, "1", "2"};
+        String[] s2 = new String[] {null, null, null, "1", "2"};
         PhoenixArray array2 = (PhoenixArray) conn.createArrayOf("VARCHAR", s2);
         conn = DriverManager.getConnection(getUrl());
         ResultSet rs;
@@ -131,10 +131,10 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testArrayPrependFunctionNulls2() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String[] s = new String[]{"1", "2"};
+        String[] s = new String[] {"1", "2"};
         String tableName = generateUniqueName();
         initTableWithVarArray(conn, tableName, "VARCHAR", s, null);
-        String[] s2 = new String[]{null, "1", "2"};
+        String[] s2 = new String[] {null, "1", "2"};
         PhoenixArray array2 = (PhoenixArray) conn.createArrayOf("VARCHAR", s2);
         conn = DriverManager.getConnection(getUrl());
         ResultSet rs;
@@ -146,10 +146,10 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testArrayPrependFunctionNulls3() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String[] s = new String[]{"176", null, "212"};
+        String[] s = new String[] {"176", null, "212"};
         String tableName = generateUniqueName();
         initTableWithVarArray(conn, tableName, "VARCHAR", s, null);
-        String[] s2 = new String[]{null, "176", null, "212"};
+        String[] s2 = new String[] {null, "176", null, "212"};
         PhoenixArray array2 = (PhoenixArray) conn.createArrayOf("VARCHAR", s2);
         conn = DriverManager.getConnection(getUrl());
         ResultSet rs;
@@ -161,10 +161,10 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testArrayPrependFunctionNulls4() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String[] s = new String[]{"176", null, "212"};
+        String[] s = new String[] {"176", null, "212"};
         String tableName = generateUniqueName();
         initTableWithVarArray(conn, tableName, "VARCHAR", s, "'foo'");
-        String[] s2 = new String[]{"foo", "176", null, "212"};
+        String[] s2 = new String[] {"foo", "176", null, "212"};
         PhoenixArray array2 = (PhoenixArray) conn.createArrayOf("VARCHAR", s2);
         conn = DriverManager.getConnection(getUrl());
         ResultSet rs;
@@ -183,7 +183,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(double1,doubles) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{23.45, 23.45, 46.345, 23.234, 45.6, 5.78};
+        Double[] doubles = new Double[] {23.45, 23.45, 46.345, 23.234, 45.6, 5.78};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -201,7 +201,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(23,doubles) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{new Double(23), 23.45, 46.345, 23.234, 45.6, 5.78};
+        Double[] doubles = new Double[] {new Double(23), 23.45, 46.345, 23.234, 45.6, 5.78};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -218,7 +218,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(1112,bigints) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Long[] longs = new Long[]{1112l, 12l, 34l, 56l, 78l, 910l};
+        Long[] longs = new Long[] {1112l, 12l, 34l, 56l, 78l, 910l};
 
         Array array = conn.createArrayOf("BIGINT", longs);
 
@@ -235,7 +235,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND('fac',chars) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"fac", "a", "bbbb", "c", "ddd", "e"};
+        String[] strings = new String[] {"fac", "a", "bbbb", "c", "ddd", "e"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -285,7 +285,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(45,doubles) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{45.0, 23.45, 46.345, 23.234, 45.6, 5.78};
+        Double[] doubles = new Double[] {45.0, 23.45, 46.345, 23.234, 45.6, 5.78};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -303,7 +303,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(integers[1],ARRAY[23,45]) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2345, 23, 45};
+        Integer[] integers = new Integer[] {2345, 23, 45};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -318,10 +318,10 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         initTables(conn, tableName);
 
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(ARRAY_ELEM(ARRAY[2,4],1),integers) FROM " + tableName+ " WHERE region_name = 'SF Bay Area'");
+        rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(ARRAY_ELEM(ARRAY[2,4],1),integers) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{2, 2345, 46345, 23234, 456};
+        Integer[] integers = new Integer[] {2, 2345, 46345, 23234, 456};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -339,7 +339,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(ARRAY_ELEM(doubles,2),doubles) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{46.345, 23.45, 46.345, 23.234, 45.6, 5.78};
+        Double[] doubles = new Double[] {46.345, 23.45, 46.345, 23.234, 45.6, 5.78};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -362,7 +362,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{":-)", "hello", "world"};
+        String[] strings = new String[] {":-)", "hello", "world"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -386,7 +386,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT integers FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{6, 4, 5};
+        Integer[] integers = new Integer[] {6, 4, 5};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -409,7 +409,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT doubles FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{new Double(9), 5.67, 7.87};
+        Double[] doubles = new Double[] {new Double(9), 5.67, 7.87};
 
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
@@ -444,13 +444,13 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT doubles FROM " + target);
         assertTrue(rs.next());
 
-        Double[] doubles = new Double[]{new Double(5), new Double(9), 5.67, 7.87};
+        Double[] doubles = new Double[] {new Double(5), new Double(9), 5.67, 7.87};
         Array array = conn.createArrayOf("DOUBLE", doubles);
 
         assertEquals(array, rs.getArray(1));
         assertTrue(rs.next());
 
-        doubles = new Double[]{new Double(5), new Double(9.2), 56.7, 7.87};
+        doubles = new Double[] {new Double(5), new Double(9.2), 56.7, 7.87};
         array = conn.createArrayOf("DOUBLE", doubles);
 
         assertEquals(array, rs.getArray(1));
@@ -484,13 +484,13 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT varchars FROM " + target);
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"stu", "c", "abcd", "b"};
+        String[] strings = new String[] {"stu", "c", "abcd", "b"};
         Array array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
         assertTrue(rs.next());
 
-        strings = new String[]{"stu", "something", "d", "fgh"};
+        strings = new String[] {"stu", "something", "d", "fgh"};
         array = conn.createArrayOf("VARCHAR", strings);
 
         assertEquals(array, rs.getArray(1));
@@ -584,7 +584,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testArrayPrependFunctionInWhere7() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String  tableName = generateUniqueName();
+        String tableName = generateUniqueName();
         initTables(conn, tableName);
 
         ResultSet rs;
@@ -605,7 +605,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(char1,chars) FROM " + tableName + " WHERE region_name = 'SF Bay Area'");
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"wert", "a", "bbbb", "c", "ddd", "e"};
+        String[] strings = new String[] {"wert", "a", "bbbb", "c", "ddd", "e"};
 
         Array array = conn.createArrayOf("CHAR", strings);
 
@@ -623,7 +623,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(pk,integers) FROM " + tableName);
         assertTrue(rs.next());
 
-        Integer[] integers = new Integer[]{23, 2345, 46345, 23234, 456};
+        Integer[] integers = new Integer[] {23, 2345, 46345, 23234, 456};
 
         Array array = conn.createArrayOf("INTEGER", integers);
 
@@ -642,7 +642,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(pk,varchars) FROM " + tableName);
         assertTrue(rs.next());
 
-        String[] strings = new String[]{"e", "2345", "46345", "23234"};
+        String[] strings = new String[] {"e", "2345", "46345", "23234"};
 
         Array array = conn.createArrayOf("VARCHAR", strings);
 
@@ -653,13 +653,13 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testArrayPrependFunctionBigIntDesc() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String  tableName = generateUniqueName();
+        String tableName = generateUniqueName();
         initTablesDesc(conn, tableName, "BIGINT", "1112");
         ResultSet rs;
-        rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(pk,bigints) FROM " +  tableName);
+        rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(pk,bigints) FROM " + tableName);
         assertTrue(rs.next());
 
-        Long[] longs = new Long[]{1112l, 12l, 34l, 56l, 78l, 910l};
+        Long[] longs = new Long[] {1112l, 12l, 34l, 56l, 78l, 910l};
 
         Array array = conn.createArrayOf("BIGINT", longs);
 
@@ -676,7 +676,7 @@ public class ArrayPrependFunctionIT extends ParallelStatsDisabledIT {
         rs = conn.createStatement().executeQuery("SELECT ARRAY_PREPEND(pk,bools) FROM " + tableName);
         assertTrue(rs.next());
 
-        Boolean[] booleans = new Boolean[]{false, true, false};
+        Boolean[] booleans = new Boolean[] {false, true, false};
 
         Array array = conn.createArrayOf("BOOLEAN", booleans);
 

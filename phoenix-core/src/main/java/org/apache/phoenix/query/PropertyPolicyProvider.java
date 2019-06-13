@@ -24,16 +24,15 @@ import org.apache.phoenix.util.InstanceResolver;
  * <p/>
  * Dependent modules may register their own implementations of the following using {@link java.util.ServiceLoader}:
  * <ul>
- *     <li>{@link PropertyPolicy}</li>
+ * <li>{@link PropertyPolicy}</li>
  * </ul>
- *
+ * <p>
  * If a custom implementation is not registered, the default implementations will be used.
- *
  */
 public class PropertyPolicyProvider {
     private static final PropertyPolicy DEFAULT_PROPERTY_POLICY = new PropertyPolicy.PropertyPolicyImpl();
 
-    public static PropertyPolicy getPropertyPolicy(){
+    public static PropertyPolicy getPropertyPolicy() {
         return InstanceResolver.getSingleton(PropertyPolicy.class, DEFAULT_PROPERTY_POLICY);
     }
 }

@@ -42,11 +42,11 @@ import org.apache.phoenix.schema.PTableType;
 
 
 public class PhoenixMetaDataCoprocessorHost
-        extends CoprocessorHost<PhoenixCoprocessor,PhoenixMetaDataCoprocessorHost.PhoenixMetaDataControllerEnvironment> {
+        extends CoprocessorHost<PhoenixCoprocessor, PhoenixMetaDataCoprocessorHost.PhoenixMetaDataControllerEnvironment> {
     private RegionCoprocessorEnvironment env;
     public static final String PHOENIX_META_DATA_COPROCESSOR_CONF_KEY =
             "hbase.coprocessor.phoenix.classes";
-    public static final String DEFAULT_PHOENIX_META_DATA_COPROCESSOR_CONF_KEY="org.apache.phoenix.coprocessor.PhoenixAccessController";
+    public static final String DEFAULT_PHOENIX_META_DATA_COPROCESSOR_CONF_KEY = "org.apache.phoenix.coprocessor.PhoenixAccessController";
 
     public PhoenixMetaDataCoprocessorHost(RegionCoprocessorEnvironment env) throws IOException {
         super(null);
@@ -54,7 +54,7 @@ public class PhoenixMetaDataCoprocessorHost
         this.conf = new Configuration();
         Iterator<Entry<String, String>> iterator = env.getConfiguration().iterator();
         while (iterator.hasNext()) {
-            Entry<String,String> entry = iterator.next();
+            Entry<String, String> entry = iterator.next();
             conf.set(entry.getKey(), entry.getValue());
         }
         boolean accessCheckEnabled = this.conf.getBoolean(QueryServices.PHOENIX_ACLS_ENABLED,
@@ -62,12 +62,12 @@ public class PhoenixMetaDataCoprocessorHost
         if (this.conf.get(PHOENIX_META_DATA_COPROCESSOR_CONF_KEY) == null && accessCheckEnabled) {
             this.conf.set(PHOENIX_META_DATA_COPROCESSOR_CONF_KEY, DEFAULT_PHOENIX_META_DATA_COPROCESSOR_CONF_KEY);
         }
-       loadSystemCoprocessors(conf, PHOENIX_META_DATA_COPROCESSOR_CONF_KEY);
+        loadSystemCoprocessors(conf, PHOENIX_META_DATA_COPROCESSOR_CONF_KEY);
     }
 
     private ObserverGetter<PhoenixCoprocessor, MetaDataEndpointObserver> phoenixObserverGetter =
             PhoenixCoprocessor::getPhoenixObserver;
-    
+
     private abstract class PhoenixObserverOperation extends ObserverOperationWithoutResult<MetaDataEndpointObserver> {
         public PhoenixObserverOperation() {
             super(phoenixObserverGetter);
@@ -80,7 +80,7 @@ public class PhoenixMetaDataCoprocessorHost
         public PhoenixObserverOperation(User user, boolean bypassable) {
             super(phoenixObserverGetter, user, bypassable);
         }
-        
+
         void callObserver() throws IOException {
             Optional<MetaDataEndpointObserver> observer = phoenixObserverGetter.apply(getEnvironment().getInstance());
             if (observer.isPresent()) {
@@ -89,13 +89,16 @@ public class PhoenixMetaDataCoprocessorHost
         }
 
         @Override
-        protected void postEnvCall() {}
+        protected void postEnvCall() {
+        }
     }
 
     private boolean execOperation(
             final PhoenixObserverOperation ctx)
             throws IOException {
-        if (ctx == null) return false;
+        if (ctx == null) {
+            return false;
+        }
         boolean bypass = false;
         for (PhoenixMetaDataControllerEnvironment env : coprocEnvironments) {
             if (env.getInstance() instanceof MetaDataEndpointObserver) {
@@ -119,12 +122,14 @@ public class PhoenixMetaDataCoprocessorHost
         }
         return bypass;
     }
-    
+
     @Override
     protected void handleCoprocessorThrowable(final PhoenixMetaDataControllerEnvironment env, final Throwable e)
             throws IOException {
         if (e instanceof IOException) {
-            if (e.getCause() instanceof DoNotRetryIOException) { throw (IOException)e.getCause(); }
+            if (e.getCause() instanceof DoNotRetryIOException) {
+                throw (IOException) e.getCause();
+            }
         }
         super.handleCoprocessorThrowable(env, e);
     }
@@ -138,16 +143,16 @@ public class PhoenixMetaDataCoprocessorHost
         private RegionCoprocessorEnvironment env;
 
         public PhoenixMetaDataControllerEnvironment(RegionCoprocessorEnvironment env, PhoenixCoprocessor instance,
-                int priority, int sequence, Configuration conf) {
+                                                    int priority, int sequence, Configuration conf) {
             super(instance, priority, sequence, conf);
             this.env = env;
         }
-        
+
         public RegionCoprocessorHost getCoprocessorHost() {
-            return ((HRegion)env.getRegion()).getCoprocessorHost();
+            return ((HRegion) env.getRegion()).getCoprocessorHost();
         }
     }
-    
+
 
     public void preGetTable(final String tenantId, final String tableName, final TableName physicalTableName)
             throws IOException {
@@ -160,7 +165,7 @@ public class PhoenixMetaDataCoprocessorHost
     }
 
     public void preCreateTable(final String tenantId, final String tableName, final TableName physicalTableName,
-            final TableName parentPhysicalTableName, final PTableType tableType, final Set<byte[]> familySet, final Set<TableName> indexes)
+                               final TableName parentPhysicalTableName, final PTableType tableType, final Set<byte[]> familySet, final Set<TableName> indexes)
             throws IOException {
         execOperation(new PhoenixObserverOperation() {
             @Override
@@ -172,7 +177,7 @@ public class PhoenixMetaDataCoprocessorHost
     }
 
     public void preDropTable(final String tenantId, final String tableName, final TableName physicalTableName,
-            final TableName parentPhysicalTableName, final PTableType tableType, final List<PTable> indexes) throws IOException {
+                             final TableName parentPhysicalTableName, final PTableType tableType, final List<PTable> indexes) throws IOException {
         execOperation(new PhoenixObserverOperation() {
             @Override
             public void call(MetaDataEndpointObserver observer) throws IOException {
@@ -182,7 +187,7 @@ public class PhoenixMetaDataCoprocessorHost
     }
 
     public void preAlterTable(final String tenantId, final String tableName, final TableName physicalTableName,
-            final TableName parentPhysicalTableName, final PTableType type) throws IOException {
+                              final TableName parentPhysicalTableName, final PTableType type) throws IOException {
         execOperation(new PhoenixObserverOperation() {
             @Override
             public void call(MetaDataEndpointObserver observer) throws IOException {
@@ -220,7 +225,7 @@ public class PhoenixMetaDataCoprocessorHost
     }
 
     public void preIndexUpdate(final String tenantId, final String indexName, final TableName physicalTableName,
-            final TableName parentPhysicalTableName, final PIndexState newState) throws IOException {
+                               final TableName parentPhysicalTableName, final PIndexState newState) throws IOException {
         execOperation(new PhoenixObserverOperation() {
             @Override
             public void call(MetaDataEndpointObserver observer) throws IOException {
@@ -234,13 +239,15 @@ public class PhoenixMetaDataCoprocessorHost
     public PhoenixCoprocessor checkAndGetInstance(Class<?> implClass)
             throws InstantiationException, IllegalAccessException {
         if (PhoenixCoprocessor.class
-                .isAssignableFrom(implClass)) { return (PhoenixCoprocessor)implClass.newInstance(); }
+                .isAssignableFrom(implClass)) {
+            return (PhoenixCoprocessor) implClass.newInstance();
+        }
         return null;
     }
 
     @Override
     public PhoenixMetaDataControllerEnvironment createEnvironment(PhoenixCoprocessor instance, int priority,
-            int sequence, Configuration conf) {
+                                                                  int sequence, Configuration conf) {
         return new PhoenixMetaDataControllerEnvironment(env, instance, priority, sequence, conf);
     }
 }

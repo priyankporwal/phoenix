@@ -84,9 +84,7 @@ import com.google.common.collect.Sets;
 
 
 /**
- *
  * Class used to build an executable query plan
- *
  *
  * @since 0.1
  */
@@ -141,15 +139,16 @@ public class QueryCompiler {
 
     /**
      * Builds an executable query plan from a parsed SQL statement
+     *
      * @return executable query plan
-     * @throws SQLException if mismatched types are found, bind value do not match binds,
-     * or invalid function arguments are encountered.
+     * @throws SQLException                    if mismatched types are found, bind value do not match binds,
+     *                                         or invalid function arguments are encountered.
      * @throws SQLFeatureNotSupportedException if an unsupported construct is encountered
-     * @throws TableNotFoundException if table name not found in schema
-     * @throws ColumnNotFoundException if column name could not be resolved
-     * @throws AmbiguousColumnException if an unaliased column name is ambiguous across multiple tables
+     * @throws TableNotFoundException          if table name not found in schema
+     * @throws ColumnNotFoundException         if column name could not be resolved
+     * @throws AmbiguousColumnException        if an unaliased column name is ambiguous across multiple tables
      */
-    public QueryPlan compile() throws SQLException{
+    public QueryPlan compile() throws SQLException {
         QueryPlan plan;
         if (select.isUnion()) {
             plan = compileUnionAll(select);
@@ -159,11 +158,11 @@ public class QueryCompiler {
         return plan;
     }
 
-    public QueryPlan compileUnionAll(SelectStatement select) throws SQLException { 
+    public QueryPlan compileUnionAll(SelectStatement select) throws SQLException {
         List<SelectStatement> unionAllSelects = select.getSelects();
         List<QueryPlan> plans = new ArrayList<QueryPlan>();
 
-        for (int i=0; i < unionAllSelects.size(); i++ ) {
+        for (int i = 0; i < unionAllSelects.size(); i++) {
             SelectStatement subSelect = unionAllSelects.get(i);
             // Push down order-by and limit into sub-selects.
             if (!select.getOrderBy().isEmpty() || select.getLimit() != null) {
@@ -177,7 +176,7 @@ public class QueryCompiler {
             plans.add(subPlan);
         }
         TableRef tableRef = UnionCompiler.contructSchemaTable(statement, plans,
-            select.hasWildcard() ? null : select.getSelect());
+                select.hasWildcard() ? null : select.getSelect());
         ColumnResolver resolver = FromCompiler.getResolver(tableRef);
         StatementContext context = new StatementContext(statement, resolver, scan, sequenceManager);
         QueryPlan plan = compileSingleFlatQuery(
@@ -188,12 +187,12 @@ public class QueryCompiler {
                 false,
                 null);
         plan = new UnionPlan(context, select, tableRef, plan.getProjector(), plan.getLimit(),
-            plan.getOffset(), plan.getOrderBy(), GroupBy.EMPTY_GROUP_BY, plans,
-            context.getBindManager().getParameterMetaData());
+                plan.getOffset(), plan.getOrderBy(), GroupBy.EMPTY_GROUP_BY, plans,
+                context.getBindManager().getParameterMetaData());
         return plan;
     }
 
-    public QueryPlan compileSelect(SelectStatement select) throws SQLException{
+    public QueryPlan compileSelect(SelectStatement select) throws SQLException {
         List<Object> binds = statement.getParameters();
         StatementContext context = new StatementContext(statement, resolver, scan, sequenceManager);
         if (select.isJoin()) {
@@ -207,10 +206,11 @@ public class QueryCompiler {
     /**
      * Call compileJoinQuery() for join queries recursively down to the leaf JoinTable nodes.
      * If it is a leaf node, call compileSingleFlatQuery() or compileSubquery(), otherwise:
-     *      1) If option COST_BASED_OPTIMIZER_ENABLED is on and stats are available, return the
-     *         join plan with the best cost. Note that the "best" plan is only locally optimal,
-     *         and might or might not be globally optimal.
-     *      2) Otherwise, return the join plan compiled with the default strategy.
+     * 1) If option COST_BASED_OPTIMIZER_ENABLED is on and stats are available, return the
+     * join plan with the best cost. Note that the "best" plan is only locally optimal,
+     * and might or might not be globally optimal.
+     * 2) Otherwise, return the join plan compiled with the default strategy.
+     *
      * @see JoinCompiler.JoinTable#getApplicableJoinStrategies()
      */
     protected QueryPlan compileJoinQuery(StatementContext context, List<Object> binds, JoinTable joinTable, boolean asSubquery, boolean projectPKColumns, List<OrderByNode> orderBy) throws SQLException {
@@ -394,7 +394,7 @@ public class QueryCompiler {
                 }
                 context.setCurrentTable(rhsTableRef);
                 context.setResolver(FromCompiler.getResolverForProjectedTable(rhsProjTable, context.getConnection(), rhs.getUdfParseNodes()));
-                ImmutableBytesPtr[] joinIds = new ImmutableBytesPtr[]{new ImmutableBytesPtr(emptyByteArray)};
+                ImmutableBytesPtr[] joinIds = new ImmutableBytesPtr[] {new ImmutableBytesPtr(emptyByteArray)};
                 Pair<List<Expression>, List<Expression>> joinConditions = lastJoinSpec.compileJoinConditions(lhsCtx, context, strategy);
                 List<Expression> joinExpressions = joinConditions.getSecond();
                 List<Expression> hashExpressions = joinConditions.getFirst();
@@ -419,13 +419,13 @@ public class QueryCompiler {
                     limit = rhsPlan.getLimit();
                     offset = rhsPlan.getOffset();
                 }
-                HashJoinInfo joinInfo = new HashJoinInfo(projectedTable, joinIds, new List[]{joinExpressions},
-                        new JoinType[]{type == JoinType.Right ? JoinType.Left : type}, new boolean[]{true},
-                        new PTable[]{lhsTable}, new int[]{fieldPosition}, postJoinFilterExpression, QueryUtil.getOffsetLimit(limit, offset));
+                HashJoinInfo joinInfo = new HashJoinInfo(projectedTable, joinIds, new List[] {joinExpressions},
+                        new JoinType[] {type == JoinType.Right ? JoinType.Left : type}, new boolean[] {true},
+                        new PTable[] {lhsTable}, new int[] {fieldPosition}, postJoinFilterExpression, QueryUtil.getOffsetLimit(limit, offset));
                 boolean usePersistentCache = joinTable.getStatement().getHint().hasHint(Hint.USE_PERSISTENT_CACHE);
                 Pair<Expression, Expression> keyRangeExpressions = new Pair<Expression, Expression>(null, null);
                 getKeyExpressionCombinations(keyRangeExpressions, context, joinTable.getStatement(), rhsTableRef, type, joinExpressions, hashExpressions);
-                return HashJoinPlan.create(joinTable.getStatement(), rhsPlan, joinInfo, new HashSubPlan[]{new HashSubPlan(0, lhsPlan, hashExpressions, false, usePersistentCache, keyRangeExpressions.getFirst(), keyRangeExpressions.getSecond())});
+                return HashJoinPlan.create(joinTable.getStatement(), rhsPlan, joinInfo, new HashSubPlan[] {new HashSubPlan(0, lhsPlan, hashExpressions, false, usePersistentCache, keyRangeExpressions.getFirst(), keyRangeExpressions.getSecond())});
             }
             case SORT_MERGE: {
                 JoinTable lhsJoin = joinTable.getSubJoinTableWithoutPostFilters();
@@ -476,14 +476,14 @@ public class QueryCompiler {
                         type == JoinType.Right ? JoinType.Left : type,
                         lhsPlan,
                         rhsPlan,
-                        new Pair<List<Expression>,List<Expression>>(lhsKeyExpressions, rhsKeyExpressions),
+                        new Pair<List<Expression>, List<Expression>>(lhsKeyExpressions, rhsKeyExpressions),
                         rhsKeyExpressions,
                         projectedTable,
                         lhsProjTable,
                         needsMerge ? rhsProjTable : null,
                         fieldPosition,
                         lastJoinSpec.isSingleValueOnly(),
-                        new Pair<List<OrderByNode>,List<OrderByNode>>(lhsOrderBy, rhsOrderBy));
+                        new Pair<List<OrderByNode>, List<OrderByNode>>(lhsOrderBy, rhsOrderBy));
                 context.setCurrentTable(tableRef);
                 context.setResolver(resolver);
                 TableNode from = NODE_FACTORY.namedTable(tableRef.getTableAlias(), NODE_FACTORY.table(tableRef.getTable().getSchemaName().getString(), tableRef.getTable().getTableName().getString()));
@@ -509,16 +509,18 @@ public class QueryCompiler {
     }
 
     private boolean getKeyExpressionCombinations(Pair<Expression, Expression> combination, StatementContext context, SelectStatement select, TableRef table, JoinType type, final List<Expression> joinExpressions, final List<Expression> hashExpressions) throws SQLException {
-        if ((type != JoinType.Inner && type != JoinType.Semi) || this.noChildParentJoinOptimization)
+        if ((type != JoinType.Inner && type != JoinType.Semi) || this.noChildParentJoinOptimization) {
             return false;
+        }
 
         Scan scanCopy = ScanUtil.newScan(context.getScan());
         StatementContext contextCopy = new StatementContext(statement, context.getResolver(), scanCopy, new SequenceManager(statement));
         contextCopy.setCurrentTable(table);
-        List<Expression> lhsCombination = Lists.<Expression> newArrayList();
+        List<Expression> lhsCombination = Lists.<Expression>newArrayList();
         boolean complete = WhereOptimizer.getKeyExpressionCombination(lhsCombination, contextCopy, select, joinExpressions);
-        if (lhsCombination.isEmpty())
+        if (lhsCombination.isEmpty()) {
             return false;
+        }
 
         List<Expression> rhsCombination = Lists.newArrayListWithExpectedSize(lhsCombination.size());
         for (int i = 0; i < lhsCombination.size(); i++) {
@@ -562,7 +564,7 @@ public class QueryCompiler {
         return plan;
     }
 
-    protected QueryPlan compileSingleQuery(StatementContext context, SelectStatement select, List<Object> binds, boolean asSubquery, boolean allowPageFilter) throws SQLException{
+    protected QueryPlan compileSingleQuery(StatementContext context, SelectStatement select, List<Object> binds, boolean asSubquery, boolean allowPageFilter) throws SQLException {
         SelectStatement innerSelect = select.getInnerSelectStatement();
         if (innerSelect == null) {
             return compileSingleFlatQuery(context, select, binds, asSubquery, allowPageFilter, null);
@@ -597,7 +599,7 @@ public class QueryCompiler {
                 context.setResolver(FromCompiler.getResolverForProjectedTable(projectedTable, context.getConnection(), select.getUdfParseNodes()));
             }
         }
-        
+
         ColumnResolver resolver = context.getResolver();
         TableRef tableRef = context.getCurrentTable();
         PTable table = tableRef.getTable();
@@ -617,9 +619,9 @@ public class QueryCompiler {
         // Don't pass groupBy when building where clause expression, because we do not want to wrap these
         // expressions as group by key expressions since they're pre, not post filtered.
         if (innerPlan == null && !tableRef.equals(resolver.getTables().get(0))) {
-        	context.setResolver(FromCompiler.getResolver(context.getConnection(), tableRef, select.getUdfParseNodes()));
+            context.setResolver(FromCompiler.getResolver(context.getConnection(), tableRef, select.getUdfParseNodes()));
         }
-        Set<SubqueryParseNode> subqueries = Sets.<SubqueryParseNode> newHashSet();
+        Set<SubqueryParseNode> subqueries = Sets.<SubqueryParseNode>newHashSet();
         Expression where = WhereCompiler.compile(context, select, viewWhere, subqueries);
         // Recompile GROUP BY now that we've figured out our ScanRanges so we know
         // definitively whether or not we'll traverse in row key order.
@@ -658,19 +660,19 @@ public class QueryCompiler {
                     new TupleProjector(projectedTable), wildcardIncludesDynamicCols &&
                             projector.projectDynColsInWildcardQueries());
         }
-        
+
         QueryPlan plan = innerPlan;
         QueryPlan dataPlan = dataPlans.get(tableRef);
         if (plan == null) {
             ParallelIteratorFactory parallelIteratorFactory = asSubquery ? null : this.parallelIteratorFactory;
             plan = select.getFrom() == null
                     ? new LiteralResultIterationPlan(context, select, tableRef, projector, limit, offset, orderBy,
-                            parallelIteratorFactory)
+                    parallelIteratorFactory)
                     : (select.isAggregate() || select.isDistinct()
-                            ? new AggregatePlan(context, select, tableRef, projector, limit, offset, orderBy,
-                                    parallelIteratorFactory, groupBy, having, dataPlan)
-                            : new ScanPlan(context, select, tableRef, projector, limit, offset, orderBy,
-                                    parallelIteratorFactory, allowPageFilter, dataPlan));
+                    ? new AggregatePlan(context, select, tableRef, projector, limit, offset, orderBy,
+                    parallelIteratorFactory, groupBy, having, dataPlan)
+                    : new ScanPlan(context, select, tableRef, projector, limit, offset, orderBy,
+                    parallelIteratorFactory, allowPageFilter, dataPlan));
         }
         SelectStatement planSelect = asSubquery ? select : this.select;
         if (!subqueries.isEmpty()) {
@@ -690,7 +692,7 @@ public class QueryCompiler {
             }
             plan = select.isAggregate() || select.isDistinct()
                     ? new ClientAggregatePlan(context, planSelect, tableRef, projector, limit, offset, where, orderBy,
-                            groupBy, having, plan)
+                    groupBy, having, plan)
                     : new ClientScanPlan(context, planSelect, tableRef, projector, limit, offset, where, orderBy, plan);
 
         }

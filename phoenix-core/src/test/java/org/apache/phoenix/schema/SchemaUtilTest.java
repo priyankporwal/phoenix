@@ -31,7 +31,7 @@ public class SchemaUtilTest {
         SQLExceptionCode code = SQLExceptionCode.fromErrorCode(SQLExceptionCode.AGGREGATE_IN_GROUP_BY.getErrorCode());
         assertEquals(SQLExceptionCode.AGGREGATE_IN_GROUP_BY, code);
     }
-    
+
     @Test
     public void testGetTableName() {
         String tableDisplayName = SchemaUtil.getTableName("schemaName", "tableName");
@@ -54,7 +54,7 @@ public class SchemaUtilTest {
         columnDisplayName = SchemaUtil.getMetaDataEntityName(null, null, null, "columnName");
         assertEquals(columnDisplayName, "columnName");
     }
-    
+
     @Test
     public void testEscapingColumnName() {
         assertEquals("\"ID\"", SchemaUtil.getEscapedFullColumnName("ID"));

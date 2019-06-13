@@ -38,23 +38,22 @@ import org.apache.phoenix.parse.FunctionParseNode.FunctionClassType;
 import com.google.common.collect.Lists;
 
 /**
- *
  * Class encapsulating the CEIL operation on a {@link org.apache.phoenix.schema.types.PDecimal}
- *
  *
  * @since 3.0.0
  */
 @BuiltInFunction(name = CeilFunction.NAME,
         args = {
-                @Argument(allowedTypes={PDecimal.class}),
-                @Argument(allowedTypes={PVarchar.class, PInteger.class}, defaultValue = "null", isConstant=true),
-                @Argument(allowedTypes={PInteger.class}, defaultValue="1", isConstant=true)
+                @Argument(allowedTypes = {PDecimal.class}),
+                @Argument(allowedTypes = {PVarchar.class, PInteger.class}, defaultValue = "null", isConstant = true),
+                @Argument(allowedTypes = {PInteger.class}, defaultValue = "1", isConstant = true)
         },
         classType = FunctionClassType.DERIVED
 )
 public class CeilDecimalExpression extends RoundDecimalExpression {
 
-    public CeilDecimalExpression() {}
+    public CeilDecimalExpression() {
+    }
 
     public CeilDecimalExpression(List<Expression> children) {
         super(children);
@@ -62,10 +61,9 @@ public class CeilDecimalExpression extends RoundDecimalExpression {
 
     /**
      * Creates a {@link CeilDecimalExpression} with rounding scale given by @param scale.
-     *
      */
     public static Expression create(Expression expr, int scale) throws SQLException {
-       if (expr.getDataType().isCoercibleTo(PLong.INSTANCE)) {
+        if (expr.getDataType().isCoercibleTo(PLong.INSTANCE)) {
             return expr;
         }
         Expression scaleExpr = LiteralExpression.newConstant(scale, PInteger.INSTANCE, Determinism.ALWAYS);
@@ -75,10 +73,10 @@ public class CeilDecimalExpression extends RoundDecimalExpression {
 
     public static Expression create(List<Expression> exprs) throws SQLException {
         Expression expr = exprs.get(0);
-       if (expr.getDataType().isCoercibleTo(PLong.INSTANCE)) {
+        if (expr.getDataType().isCoercibleTo(PLong.INSTANCE)) {
             return expr;
         }
-       if (exprs.size() == 1) {
+        if (exprs.size() == 1) {
             Expression scaleExpr = LiteralExpression.newConstant(0, PInteger.INSTANCE, Determinism.ALWAYS);
             exprs = Lists.newArrayList(expr, scaleExpr);
         }
@@ -87,7 +85,6 @@ public class CeilDecimalExpression extends RoundDecimalExpression {
 
     /**
      * Creates a {@link CeilDecimalExpression} with a default scale of 0 used for rounding.
-     *
      */
     public static Expression create(Expression expr) throws SQLException {
         return create(expr, 0);
@@ -102,15 +99,15 @@ public class CeilDecimalExpression extends RoundDecimalExpression {
     public String getName() {
         return CeilFunction.NAME;
     }
-    
+
     /**
      * {@inheritDoc }
      */
     @Override
     protected KeyRange getInputRangeProducing(BigDecimal result) {
-        if(!hasEnoughPrecisionToProduce(result)) {
-            throw new IllegalArgumentException("Cannot produce input range for decimal " + result 
-                + ", not enough precision with scale " + getRoundingScale());
+        if (!hasEnoughPrecisionToProduce(result)) {
+            throw new IllegalArgumentException("Cannot produce input range for decimal " + result
+                    + ", not enough precision with scale " + getRoundingScale());
         }
         byte[] lowerRange = PDecimal.INSTANCE.toBytes(stepPrevInScale(result));
         byte[] upperRange = PDecimal.INSTANCE.toBytes(result);

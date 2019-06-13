@@ -40,29 +40,27 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Implementation of the TO_CHAR(&lt;date&gt;/&lt;number&gt;,[&lt;format-string&gt;] built-in function.
- * The first argument must be of type DATE or TIME or TIMESTAMP or DECIMAL or INTEGER, and the second argument must be a constant string. 
+ * The first argument must be of type DATE or TIME or TIMESTAMP or DECIMAL or INTEGER, and the second argument must be a constant string.
  *
- * 
  * @since 0.1
  */
-@BuiltInFunction(name=ToCharFunction.NAME, nodeClass=ToCharParseNode.class, args={
-    @Argument(allowedTypes={PTimestamp.class, PDecimal.class}),
-    @Argument(allowedTypes={PVarchar.class},isConstant=true,defaultValue="null") } )
+@BuiltInFunction(name = ToCharFunction.NAME, nodeClass = ToCharParseNode.class, args = {
+        @Argument(allowedTypes = {PTimestamp.class, PDecimal.class}),
+        @Argument(allowedTypes = {PVarchar.class}, isConstant = true, defaultValue = "null")})
 public class ToCharFunction extends ScalarFunction {
     public static final String NAME = "TO_CHAR";
     private String formatString;
     private Format formatter;
     private FunctionArgumentType type;
-    
+
     public ToCharFunction() {
     }
 
     public ToCharFunction(List<Expression> children, StatementContext context) throws SQLException {
         super(children.subList(0, 1));
         PDataType dataType = children.get(0).getDataType();
-        String formatString = (String)((LiteralExpression)children.get(1)).getValue(); // either date or number format string
+        String formatString = (String) ((LiteralExpression) children.get(1)).getValue(); // either date or number format string
         Format formatter;
         FunctionArgumentType type;
         if (dataType.isCoercibleTo(PTimestamp.INSTANCE)) {
@@ -73,14 +71,13 @@ public class ToCharFunction extends ScalarFunction {
                 formatter = FunctionArgumentType.TEMPORAL.getFormatter(formatString);
             }
             type = FunctionArgumentType.TEMPORAL;
-        }
-        else if (dataType.isCoercibleTo(PDecimal.INSTANCE)) {
-            if (formatString == null)
+        } else if (dataType.isCoercibleTo(PDecimal.INSTANCE)) {
+            if (formatString == null) {
                 formatString = context.getNumberFormat();
+            }
             formatter = FunctionArgumentType.NUMERIC.getFormatter(formatString);
             type = FunctionArgumentType.NUMERIC;
-        }
-        else {
+        } else {
             throw new SQLException(dataType + " type is unsupported for TO_CHAR().  Numeric and temporal types are supported.");
         }
         Preconditions.checkNotNull(formatString);
@@ -100,16 +97,16 @@ public class ToCharFunction extends ScalarFunction {
         this.formatString = formatString;
         this.formatter = formatter;
     }
-    
+
     @Override
     public ToCharFunction clone(List<Expression> children) {
-    	try {
+        try {
             return new ToCharFunction(children, type, formatString, formatter);
         } catch (Exception e) {
             throw new RuntimeException(e); // Impossible, since it was originally constructed this way
         }
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -121,12 +118,22 @@ public class ToCharFunction extends ScalarFunction {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ToCharFunction other = (ToCharFunction)obj;
-        if (!getExpression().equals(other.getExpression())) return false;
-        if (!formatString.equals(other.formatString)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ToCharFunction other = (ToCharFunction) obj;
+        if (!getExpression().equals(other.getExpression())) {
+            return false;
+        }
+        if (!formatString.equals(other.formatString)) {
+            return false;
+        }
         return true;
     }
 
@@ -144,7 +151,7 @@ public class ToCharFunction extends ScalarFunction {
         byte[] b = getDataType().toBytes(value);
         ptr.set(b);
         return true;
-     }
+    }
 
     @Override
     public PDataType getDataType() {

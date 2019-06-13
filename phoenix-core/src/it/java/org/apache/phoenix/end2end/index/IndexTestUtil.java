@@ -61,10 +61,10 @@ public class IndexTestUtil {
     // index table test.
     private static final String SELECT_DATA_INDEX_ROW = "SELECT " + COLUMN_FAMILY
             + " FROM "
-            + "\""+SYSTEM_CATALOG_SCHEMA +"\""+ ".\"" + SYSTEM_CATALOG_TABLE
+            + "\"" + SYSTEM_CATALOG_SCHEMA + "\"" + ".\"" + SYSTEM_CATALOG_TABLE
             + "\" WHERE "
             + TENANT_ID + " IS NULL AND " + TABLE_SCHEM + "=? AND " + TABLE_NAME + "=? AND " + COLUMN_NAME + " IS NULL AND " + COLUMN_FAMILY + "=?";
-    
+
     public static ResultSet readDataTableIndexRow(Connection conn, String schemaName, String tableName, String indexName) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(SELECT_DATA_INDEX_ROW);
         stmt.setString(1, schemaName);
@@ -72,8 +72,8 @@ public class IndexTestUtil {
         stmt.setString(3, indexName);
         return stmt.executeQuery();
     }
-    
-    
+
+
     private static void coerceDataValueToIndexValue(PColumn dataColumn, PColumn indexColumn, ImmutableBytesWritable ptr) {
         PDataType dataType = dataColumn.getDataType();
         // TODO: push to RowKeySchema? 
@@ -84,9 +84,9 @@ public class IndexTestUtil {
         // alter an index table.
         indexType.coerceBytes(ptr, dataType, dataModifier, indexModifier);
     }
-    
+
     public static List<Mutation> generateIndexData(PTable index, PTable table,
-            List<Mutation> dataMutations, ImmutableBytesWritable ptr, KeyValueBuilder builder)
+                                                   List<Mutation> dataMutations, ImmutableBytesWritable ptr, KeyValueBuilder builder)
             throws SQLException {
         List<Mutation> indexMutations = Lists.newArrayListWithExpectedSize(dataMutations.size());
         for (Mutation dataMutation : dataMutations) {
@@ -96,7 +96,7 @@ public class IndexTestUtil {
     }
 
     public static List<Mutation> generateIndexData(PTable indexTable, PTable dataTable,
-            Mutation dataMutation, ImmutableBytesWritable ptr, KeyValueBuilder builder)
+                                                   Mutation dataMutation, ImmutableBytesWritable ptr, KeyValueBuilder builder)
             throws SQLException {
         byte[] dataRowKey = dataMutation.getRow();
         RowKeySchema dataRowKeySchema = dataTable.getRowKeySchema();
@@ -118,7 +118,7 @@ public class IndexTestUtil {
                 PColumn dataColumn = dataPKColumns.get(i);
                 PColumn indexColumn = indexTable.getColumnForColumnName(IndexUtil.getIndexColumnName(dataColumn));
                 coerceDataValueToIndexValue(dataColumn, indexColumn, ptr);
-                indexValues[indexColumn.getPosition()-indexOffset] = ptr.copyBytes();
+                indexValues[indexColumn.getPosition() - indexOffset] = ptr.copyBytes();
             }
             i++;
         }
@@ -131,7 +131,7 @@ public class IndexTestUtil {
         } else {
             // If no column families in table, then nothing to look for 
             if (!dataTable.getColumnFamilies().isEmpty()) {
-                for (Map.Entry<byte[],List<Cell>> entry : dataMutation.getFamilyCellMap().entrySet()) {
+                for (Map.Entry<byte[], List<Cell>> entry : dataMutation.getFamilyCellMap().entrySet()) {
                     PColumnFamily family = dataTable.getColumnFamily(entry.getKey());
                     for (Cell kv : entry.getValue()) {
                         byte[] cq = CellUtil.cloneQualifier(kv);
@@ -140,11 +140,11 @@ public class IndexTestUtil {
                             try {
                                 PColumn dataColumn = family.getPColumnForColumnQualifier(cq);
                                 PColumn indexColumn = indexTable.getColumnForColumnName(IndexUtil.getIndexColumnName(family.getName().getString(), dataColumn.getName().getString()));
-                                ptr.set(kv.getValueArray(),kv.getValueOffset(),kv.getValueLength());
+                                ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
                                 coerceDataValueToIndexValue(dataColumn, indexColumn, ptr);
-                                indexValues[indexPKColumns.indexOf(indexColumn)-indexOffset] = ptr.copyBytes();
+                                indexValues[indexPKColumns.indexOf(indexColumn) - indexOffset] = ptr.copyBytes();
                                 if (!SchemaUtil.isPKColumn(indexColumn)) {
-                                    indexValuesSet.set(indexColumn.getPosition()-nIndexColumns-indexOffset);
+                                    indexValuesSet.set(indexColumn.getPosition() - nIndexColumns - indexOffset);
                                 }
                             } catch (ColumnNotFoundException e) {
                                 // Ignore as this means that the data column isn't in the index

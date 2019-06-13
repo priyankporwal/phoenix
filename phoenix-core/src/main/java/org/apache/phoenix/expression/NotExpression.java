@@ -29,11 +29,9 @@ import org.apache.phoenix.schema.types.PDataType;
 
 
 /**
- * 
  * Implementation of the NOT operator that negates it's
  * single boolean child expression.
  *
- * 
  * @since 0.1
  */
 public class NotExpression extends BaseSingleExpression {
@@ -50,7 +48,7 @@ public class NotExpression extends BaseSingleExpression {
         }
         return new NotExpression(child);
     }
-    
+
     public NotExpression() {
     }
 
@@ -70,7 +68,7 @@ public class NotExpression extends BaseSingleExpression {
         if (ptr.getLength() == 0) {
             return true;
         }
-        
+
         ptr.set(Boolean.TRUE.equals(PBoolean.INSTANCE.toObject(ptr)) ? PDataType.FALSE_BYTES : PDataType.TRUE_BYTES);
         return true;
     }
@@ -79,7 +77,7 @@ public class NotExpression extends BaseSingleExpression {
     public PDataType getDataType() {
         return PBoolean.INSTANCE;
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         List<T> l = acceptChildren(visitor, visitor.visitEnter(this));
@@ -89,7 +87,7 @@ public class NotExpression extends BaseSingleExpression {
         }
         return t;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder("NOT (");

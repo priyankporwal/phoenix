@@ -44,61 +44,61 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class ConnectionCachingIT extends ParallelStatsEnabledIT {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionCachingIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionCachingIT.class);
 
-  @Parameters(name= "phoenix.scanner.lease.renew.enabled={0}")
-  public static Iterable<String> data() {
-    return Arrays.asList("true", "false");
-  }
-
-  private String leaseRenewal;
-
-  public ConnectionCachingIT(String leaseRenewalValue) {
-    this.leaseRenewal = leaseRenewalValue;
-  }
-
-  @Test
-  public void test() throws Exception {
-    Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-    props.put("phoenix.scanner.lease.renew.enabled", leaseRenewal);
-
-    // The test driver works correctly, the real one doesn't.
-    String url = getUrl();
-    url = url.replace(";" + PhoenixRuntime.PHOENIX_TEST_DRIVER_URL_PARAM, "");
-    LOGGER.info("URL to use is: {}", url);
-
-    Connection conn = DriverManager.getConnection(url, props);
-    long before = getNumCachedConnections(conn);
-    for (int i = 0; i < 10_000; i++) {
-      Connection c = DriverManager.getConnection(url, props);
-      c.close();
+    @Parameters(name = "phoenix.scanner.lease.renew.enabled={0}")
+    public static Iterable<String> data() {
+        return Arrays.asList("true", "false");
     }
-    Thread.sleep(QueryServicesOptions.DEFAULT_RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS / 2);
-    long after = getNumCachedConnections(conn);
-    for (int i = 0; i < 6; i++) {
-      LOGGER.info("Found {} connections cached", after);
-      if (after <= before) {
-        break;
-      }
-      Thread.sleep(QueryServicesOptions.DEFAULT_RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS / 2);
-      after = getNumCachedConnections(conn);
-    }
-    assertTrue("Saw " + before + " connections, but ended with " + after, after <= before);
-  }
 
-  long getNumCachedConnections(Connection conn) throws Exception {
-    PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
-    ConnectionQueryServices cqs = pConn.getQueryServices();
-    // For whatever reason, we sometimes get a delegate here, and sometimes the real thing.
-    if (cqs instanceof DelegateConnectionQueryServices) {
-      cqs = ((DelegateConnectionQueryServices) cqs).getDelegate();
+    private String leaseRenewal;
+
+    public ConnectionCachingIT(String leaseRenewalValue) {
+        this.leaseRenewal = leaseRenewalValue;
     }
-    assertTrue("ConnectionQueryServices was a " + cqs.getClass(), cqs instanceof ConnectionQueryServicesImpl);
-    ConnectionQueryServicesImpl cqsi = (ConnectionQueryServicesImpl) cqs;
-    long cachedConnections = 0L;
-    for (LinkedBlockingQueue<WeakReference<PhoenixConnection>> queue : cqsi.getCachedConnections()) {
-      cachedConnections += queue.size();
+
+    @Test
+    public void test() throws Exception {
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        props.put("phoenix.scanner.lease.renew.enabled", leaseRenewal);
+
+        // The test driver works correctly, the real one doesn't.
+        String url = getUrl();
+        url = url.replace(";" + PhoenixRuntime.PHOENIX_TEST_DRIVER_URL_PARAM, "");
+        LOGGER.info("URL to use is: {}", url);
+
+        Connection conn = DriverManager.getConnection(url, props);
+        long before = getNumCachedConnections(conn);
+        for (int i = 0; i < 10_000; i++) {
+            Connection c = DriverManager.getConnection(url, props);
+            c.close();
+        }
+        Thread.sleep(QueryServicesOptions.DEFAULT_RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS / 2);
+        long after = getNumCachedConnections(conn);
+        for (int i = 0; i < 6; i++) {
+            LOGGER.info("Found {} connections cached", after);
+            if (after <= before) {
+                break;
+            }
+            Thread.sleep(QueryServicesOptions.DEFAULT_RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS / 2);
+            after = getNumCachedConnections(conn);
+        }
+        assertTrue("Saw " + before + " connections, but ended with " + after, after <= before);
     }
-    return cachedConnections;
-  }
+
+    long getNumCachedConnections(Connection conn) throws Exception {
+        PhoenixConnection pConn = conn.unwrap(PhoenixConnection.class);
+        ConnectionQueryServices cqs = pConn.getQueryServices();
+        // For whatever reason, we sometimes get a delegate here, and sometimes the real thing.
+        if (cqs instanceof DelegateConnectionQueryServices) {
+            cqs = ((DelegateConnectionQueryServices) cqs).getDelegate();
+        }
+        assertTrue("ConnectionQueryServices was a " + cqs.getClass(), cqs instanceof ConnectionQueryServicesImpl);
+        ConnectionQueryServicesImpl cqsi = (ConnectionQueryServicesImpl) cqs;
+        long cachedConnections = 0L;
+        for (LinkedBlockingQueue<WeakReference<PhoenixConnection>> queue : cqsi.getCachedConnections()) {
+            cachedConnections += queue.size();
+        }
+        return cachedConnections;
+    }
 }

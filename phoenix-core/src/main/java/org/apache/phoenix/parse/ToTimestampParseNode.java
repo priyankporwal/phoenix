@@ -27,7 +27,7 @@ import org.apache.phoenix.expression.function.FunctionExpression;
 import org.apache.phoenix.expression.function.ToTimestampFunction;
 
 
-public class ToTimestampParseNode extends FunctionParseNode { 
+public class ToTimestampParseNode extends FunctionParseNode {
 
     public ToTimestampParseNode(String name, List<ParseNode> children, BuiltInFunctionInfo info) {
         super(name, children, info);

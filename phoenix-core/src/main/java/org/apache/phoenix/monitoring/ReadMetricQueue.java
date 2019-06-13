@@ -96,7 +96,9 @@ public class ReadMetricQueue {
 
     private static CombinableMetric combine(Collection<CombinableMetric> metrics) {
         int size = metrics.size();
-        if (size == 0) { throw new IllegalArgumentException("Metrics collection needs to have at least one element"); }
+        if (size == 0) {
+            throw new IllegalArgumentException("Metrics collection needs to have at least one element");
+        }
         Iterator<CombinableMetric> itr = metrics.iterator();
         //Clone first metric for combining so that aggregate always give consistent result
         CombinableMetric combinedMetric = itr.next().clone();
@@ -160,11 +162,19 @@ public class ReadMetricQueue {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (getClass() != obj.getClass()) return false;
-            MetricKey other = (MetricKey)obj;
-            if (tableName.equals(other.tableName) && type == other.type) return true;
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            MetricKey other = (MetricKey) obj;
+            if (tableName.equals(other.tableName) && type == other.type) {
+                return true;
+            }
             return false;
         }
 
@@ -182,16 +192,16 @@ public class ReadMetricQueue {
         return q;
     }
 
-    public void addScanHolder(ScanMetricsHolder holder){
+    public void addScanHolder(ScanMetricsHolder holder) {
         scanMetricsHolderList.add(holder);
     }
 
     public List<ScanMetricsHolder> getScanMetricsHolderList() {
         return scanMetricsHolderList;
     }
-    
+
     public boolean isRequestMetricsEnabled() {
         return isRequestMetricsEnabled;
-    }    
+    }
 
 }

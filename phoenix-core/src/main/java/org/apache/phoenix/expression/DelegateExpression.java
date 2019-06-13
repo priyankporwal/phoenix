@@ -30,7 +30,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 public class DelegateExpression implements Expression {
     private final Expression delegate;
-    
+
     public DelegateExpression(Expression delegate) {
         this.delegate = delegate;
     }

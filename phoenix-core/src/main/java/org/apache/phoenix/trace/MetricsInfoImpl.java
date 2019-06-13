@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,9 @@
 package org.apache.phoenix.trace;
 
 import com.google.common.base.Objects;
+
 import static com.google.common.base.Preconditions.*;
+
 import org.apache.hadoop.metrics2.MetricsInfo;
 
 /**
@@ -27,37 +29,42 @@ import org.apache.hadoop.metrics2.MetricsInfo;
  * Just a copy of the same from Hadoop, but exposed for usage.
  */
 public class MetricsInfoImpl implements MetricsInfo {
-  private final String name, description;
+    private final String name, description;
 
-  MetricsInfoImpl(String name, String description) {
-    this.name = checkNotNull(name, "name");
-    this.description = checkNotNull(description, "description");
-  }
-
-  @Override public String name() {
-    return name;
-  }
-
-  @Override public String description() {
-    return description;
-  }
-
-  @Override public boolean equals(Object obj) {
-    if (obj instanceof MetricsInfo) {
-      MetricsInfo other = (MetricsInfo) obj;
-      return Objects.equal(name, other.name()) &&
-             Objects.equal(description, other.description());
+    MetricsInfoImpl(String name, String description) {
+        this.name = checkNotNull(name, "name");
+        this.description = checkNotNull(description, "description");
     }
-    return false;
-  }
 
-  @Override public int hashCode() {
-    return Objects.hashCode(name, description);
-  }
+    @Override
+    public String name() {
+        return name;
+    }
 
-  @Override public String toString() {
-    return Objects.toStringHelper(this)
-        .add("name", name).add("description", description)
-        .toString();
-  }
+    @Override
+    public String description() {
+        return description;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MetricsInfo) {
+            MetricsInfo other = (MetricsInfo) obj;
+            return Objects.equal(name, other.name()) &&
+                    Objects.equal(description, other.description());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name, description);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("name", name).add("description", description)
+                .toString();
+    }
 }

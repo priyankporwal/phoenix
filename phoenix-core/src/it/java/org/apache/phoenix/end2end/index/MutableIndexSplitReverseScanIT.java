@@ -29,5 +29,5 @@ public class MutableIndexSplitReverseScanIT extends MutableIndexSplitIT {
     public void testSplitDuringIndexScan() throws Exception {
         testSplitDuringIndexScan(true);
     }
-    
+
 }

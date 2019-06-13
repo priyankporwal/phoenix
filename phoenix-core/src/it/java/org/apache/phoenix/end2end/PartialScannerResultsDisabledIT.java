@@ -92,7 +92,7 @@ public class PartialScannerResultsDisabledIT extends ParallelStatsDisabledIT {
         createTestTable(getUrl(), String.format(TEST_TABLE_DDL, dataTableFullName));
         createTestTable(getUrl(), String.format(INDEX_1_DDL, indexTableName, dataTableFullName));
     }
-    
+
     @Test
     public void testWithEnoughData() throws Exception {
         try (Connection conn = DriverManager.getConnection(getUrl())) {
@@ -104,17 +104,18 @@ public class PartialScannerResultsDisabledIT extends ParallelStatsDisabledIT {
             // Scutunize index to see if partial results are silently returned
             // In that case we'll get a false positive on the scrutiny run.
             long rowCount = IndexScrutiny.scrutinizeIndex(conn, dataTableFullName, indexTableFullName);
-            assertEquals(2000,rowCount);
+            assertEquals(2000, rowCount);
         }
     }
 
     /**
      * Simple select query with fetch size that exceed the result size. In that case scan would start to produce
      * partial result sets that from Phoenix perspective are the rows with NULL values.
+     *
      * @throws SQLException
      */
     @Test
-    public void partialResultDuringSelect () throws SQLException {
+    public void partialResultDuringSelect() throws SQLException {
         String tableName = generateUniqueName();
         Properties props = new Properties();
         props.setProperty(HConstants.HBASE_CLIENT_SCANNER_MAX_RESULT_SIZE_KEY, "5");
@@ -140,8 +141,9 @@ public class PartialScannerResultsDisabledIT extends ParallelStatsDisabledIT {
             ResultSet rs = s.executeQuery(sql);
             int count = 0;
             while (rs.next()) {
-                if (rs.getString(2) == null)
+                if (rs.getString(2) == null) {
                     fail("Null value because of partial row scan");
+                }
             }
             count++;
         }
@@ -151,11 +153,11 @@ public class PartialScannerResultsDisabledIT extends ParallelStatsDisabledIT {
     private static String randString(int length, Random random) {
         return RandomStringUtils.randomAlphabetic(length);
     }
-    
+
     public static void writeSingleBatch(Connection connection, int batchSize, int numBatches, String tableName) throws Exception {
         for (int j = 0; j < numBatches; j++) {
             try (PreparedStatement statement =
-                    connection.prepareStatement(String.format(UPSERT_INTO_DATA_TABLE, tableName))) {
+                         connection.prepareStatement(String.format(UPSERT_INTO_DATA_TABLE, tableName))) {
                 for (int i = 0; i < batchSize; i++) {
                     int index = 0;
                     String id = "" + upsertIdCounter.getAndIncrement();
@@ -182,7 +184,7 @@ public class PartialScannerResultsDisabledIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     private void generateUniqueTableNames() {
         schemaName = generateUniqueName();
         dataTableName = generateUniqueName() + "_DATA";

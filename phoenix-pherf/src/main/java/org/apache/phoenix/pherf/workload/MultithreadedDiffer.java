@@ -56,8 +56,8 @@ class MultithreadedDiffer implements Callable<Void> {
         boolean verifyResult = queryVerifier.doDiff(query, newCSV);
         String explainPlan = pUtil.getExplainPlan(query);
         getThreadTime().getRunTimesInMs().add(new RunTime(
-                        verifyResult == true ? PherfConstants.DIFF_PASS : PherfConstants.DIFF_FAIL,
-                        explainPlan, startDate, -1L, (int) (System.currentTimeMillis() - start)));
+                verifyResult == true ? PherfConstants.DIFF_PASS : PherfConstants.DIFF_FAIL,
+                explainPlan, startDate, -1L, (int) (System.currentTimeMillis() - start)));
     }
 
     /**
@@ -71,7 +71,7 @@ class MultithreadedDiffer implements Callable<Void> {
      * @param executionDurationInMs
      */
     MultithreadedDiffer(String threadName, Query query, ThreadTime threadTime,
-            long numberOfExecutions, long executionDurationInMs) {
+                        long numberOfExecutions, long executionDurationInMs) {
         this.query = query;
         this.threadTime = threadTime;
         this.numberOfExecutions = numberOfExecutions;
@@ -93,7 +93,7 @@ class MultithreadedDiffer implements Callable<Void> {
                 e.printStackTrace();
             }
         }
-            LOGGER.info("\n\nThread exiting." + t.getName() + "\n\n");
+        LOGGER.info("\n\nThread exiting." + t.getName() + "\n\n");
         return null;
     }
 }

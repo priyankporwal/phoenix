@@ -21,35 +21,33 @@ import org.apache.phoenix.compile.ColumnResolver;
 
 
 /**
- * 
  * Node representing an ORDER BY clause (including asc/desc and nulls first/last) in SQL
  *
- * 
  * @since 0.1
  */
 public final class OrderByNode {
     private final ParseNode child;
     private final boolean nullsLast;
     private final boolean orderAscending;
-    
+
     OrderByNode(ParseNode child, boolean nullsLast, boolean orderAscending) {
         this.child = child;
         this.nullsLast = nullsLast;
         this.orderAscending = orderAscending;
     }
-    
+
     public boolean isNullsLast() {
         return nullsLast;
     }
-    
+
     public boolean isAscending() {
         return orderAscending;
     }
-    
+
     public ParseNode getNode() {
         return child;
     }
- 
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -62,15 +60,29 @@ public final class OrderByNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        OrderByNode other = (OrderByNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        OrderByNode other = (OrderByNode) obj;
         if (child == null) {
-            if (other.child != null) return false;
-        } else if (!child.equals(other.child)) return false;
-        if (nullsLast != other.nullsLast) return false;
-        if (orderAscending != other.orderAscending) return false;
+            if (other.child != null) {
+                return false;
+            }
+        } else if (!child.equals(other.child)) {
+            return false;
+        }
+        if (nullsLast != other.nullsLast) {
+            return false;
+        }
+        if (orderAscending != other.orderAscending) {
+            return false;
+        }
         return true;
     }
 
@@ -81,7 +93,11 @@ public final class OrderByNode {
 
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         child.toSQL(resolver, buf);
-        if (!orderAscending) buf.append(" DESC");
-        if (nullsLast) buf.append(" NULLS LAST ");
+        if (!orderAscending) {
+            buf.append(" DESC");
+        }
+        if (nullsLast) {
+            buf.append(" NULLS LAST ");
+        }
     }
 }

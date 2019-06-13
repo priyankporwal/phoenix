@@ -24,18 +24,15 @@ package org.apache.phoenix.hbase.index.builder;
 public class FatalIndexBuildingFailureException extends RuntimeException {
 
     /**
-     * @param msg
-     *            reason for the failure
+     * @param msg reason for the failure
      */
     public FatalIndexBuildingFailureException(String msg) {
         super(msg);
     }
 
     /**
-     * @param msg
-     *            reason
-     * @param cause
-     *            underlying cause for the failure
+     * @param msg   reason
+     * @param cause underlying cause for the failure
      */
     public FatalIndexBuildingFailureException(String msg, Throwable cause) {
         super(msg, cause);

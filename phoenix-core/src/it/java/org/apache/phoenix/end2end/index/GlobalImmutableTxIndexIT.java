@@ -29,13 +29,14 @@ public class GlobalImmutableTxIndexIT extends BaseIndexIT {
         super(localIndex, mutable, transactionProvider, columnEncoded);
     }
 
-    @Parameters(name="GlobalImmutableTxIndexIT_localIndex={0},mutable={1},transactionProvider={2},columnEncoded={3}") // name is used by failsafe as file name in reports
+    @Parameters(name = "GlobalImmutableTxIndexIT_localIndex={0},mutable={1},transactionProvider={2},columnEncoded={3}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
         return TestUtil.filterTxParamData(
                 Arrays.asList(new Object[][] {
-                    { false, false, "TEPHRA", false }, { false, false, "TEPHRA", true }, 
-                    { false, false, "OMID", false },
-               }), 2);
+                        {false, false, "TEPHRA", false}, {false, false, "TEPHRA", true},
+                        {false, false, "OMID", false},
+                }), 2);
     }
 
 }

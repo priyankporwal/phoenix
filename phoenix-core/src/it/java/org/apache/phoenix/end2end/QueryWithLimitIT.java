@@ -44,18 +44,18 @@ import com.google.common.collect.Maps;
 
 
 public class QueryWithLimitIT extends BaseUniqueNamesOwnClusterIT {
-    
+
     private String tableName;
-    
+
     @Before
     public void generateTableName() {
         tableName = generateUniqueName();
     }
-    
+
 
     @BeforeClass
     public static void doSetup() throws Exception {
-        Map<String,String> props = Maps.newHashMapWithExpectedSize(3);
+        Map<String, String> props = Maps.newHashMapWithExpectedSize(3);
         // Must update config before starting server
         props.put(QueryServices.STATS_GUIDEPOST_WIDTH_BYTES_ATTRIB, Long.toString(50));
         props.put(QueryServices.QUEUE_SIZE_ATTRIB, Integer.toString(1));
@@ -64,33 +64,33 @@ public class QueryWithLimitIT extends BaseUniqueNamesOwnClusterIT {
         props.put(QueryServices.LOG_SALT_BUCKETS_ATTRIB, Integer.toString(0)); // Prevents RejectedExecutionException when creating log table
         setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
     }
-    
+
     @Test
     public void testQueryWithLimitAndStats() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             conn.createStatement().execute("create table " + tableName + "\n" +
-                "   (i1 integer not null, i2 integer not null\n" +
-                "    CONSTRAINT pk PRIMARY KEY (i1,i2))");
+                    "   (i1 integer not null, i2 integer not null\n" +
+                    "    CONSTRAINT pk PRIMARY KEY (i1,i2))");
             initTableValues(conn, 100);
-            
-            String query = "SELECT i1 FROM " + tableName +" LIMIT 1";
+
+            String query = "SELECT i1 FROM " + tableName + " LIMIT 1";
             ResultSet rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
             assertEquals(0, rs.getInt(1));
             assertFalse(rs.next());
-            
+
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            assertEquals("CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName + "\n" + 
-                    "    SERVER FILTER BY FIRST KEY ONLY\n" + 
-                    "    SERVER 1 ROW LIMIT\n" + 
+            assertEquals("CLIENT SERIAL 1-WAY FULL SCAN OVER " + tableName + "\n" +
+                    "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                    "    SERVER 1 ROW LIMIT\n" +
                     "CLIENT 1 ROW LIMIT", QueryUtil.getExplainPlan(rs));
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testQueryWithoutLimitFails() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
@@ -101,7 +101,7 @@ public class QueryWithLimitIT extends BaseUniqueNamesOwnClusterIT {
                 "    CONSTRAINT pk PRIMARY KEY (i1,i2))");
         initTableValues(conn, 100);
         conn.createStatement().execute("UPDATE STATISTICS " + tableName);
-        
+
         String query = "SELECT i1 FROM " + tableName;
         try {
             ResultSet rs = conn.createStatement().executeQuery(query);
@@ -112,17 +112,17 @@ public class QueryWithLimitIT extends BaseUniqueNamesOwnClusterIT {
         }
         conn.close();
     }
-    
+
     protected void initTableValues(Connection conn, int nRows) throws Exception {
         PreparedStatement stmt = conn.prepareStatement(
-            "upsert into " + tableName + 
-            " VALUES (?, ?)");
+                "upsert into " + tableName +
+                        " VALUES (?, ?)");
         for (int i = 0; i < nRows; i++) {
             stmt.setInt(1, i);
-            stmt.setInt(2, i+1);
+            stmt.setInt(2, i + 1);
             stmt.execute();
         }
-        
+
         conn.commit();
     }
 

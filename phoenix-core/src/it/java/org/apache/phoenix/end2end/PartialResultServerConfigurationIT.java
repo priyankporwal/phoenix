@@ -91,6 +91,7 @@ public class PartialResultServerConfigurationIT {
     /**
      * This test creates two tables with a single record at the end of each tables that match the join condition
      * if scanner context is used during the scan, it would produce a partial row with NULL values.
+     *
      * @throws Exception
      */
     @Test
@@ -137,8 +138,9 @@ public class PartialResultServerConfigurationIT {
             ResultSet rs = s.executeQuery(sql);
             int count = 0;
             while (rs.next()) {
-                if (rs.getString(2) == null || rs.getString(4) == null)
+                if (rs.getString(2) == null || rs.getString(4) == null) {
                     fail("Null value because of partial result from scan");
+                }
                 count++;
             }
             assertEquals(count, 1);

@@ -82,7 +82,7 @@ public class CloneExpressionVisitor extends TraverseAllExpressionVisitor<Express
     public Expression visit(KeyValueColumnExpression node) {
         return node;
     }
-    
+
     @Override
     public Expression visit(SingleCellColumnExpression node) {
         return node;
@@ -125,14 +125,14 @@ public class CloneExpressionVisitor extends TraverseAllExpressionVisitor<Express
 
     @Override
     public Expression visitLeave(LikeExpression node, List<Expression> l) {
-        return isCloneNode(node, l) ? node.clone(l): node;
+        return isCloneNode(node, l) ? node.clone(l) : node;
     }
 
     @Override
     public Expression visitLeave(SingleAggregateFunction node, List<Expression> l) {
         // Do not clone aggregate functions, as they're executed on the server side,
         // so any state for evaluation will live there.
-        return isCloneNode(node, l) ? node :  node;
+        return isCloneNode(node, l) ? node : node;
     }
 
     @Override
@@ -189,7 +189,7 @@ public class CloneExpressionVisitor extends TraverseAllExpressionVisitor<Express
     public Expression visitLeave(ArrayConstructorExpression node, List<Expression> l) {
         return isCloneNode(node, l) ? node.clone(l) : node;
     }
-    
+
     @Override
     public Expression visitLeave(SingleCellConstructorExpression node, List<Expression> l) {
         return isCloneNode(node, l) ? node.clone(l) : node;

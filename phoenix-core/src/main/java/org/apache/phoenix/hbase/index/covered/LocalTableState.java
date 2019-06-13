@@ -60,12 +60,16 @@ public class LocalTableState implements TableState {
     }
 
     public void addPendingUpdates(Cell... kvs) {
-        if (kvs == null) return;
+        if (kvs == null) {
+            return;
+        }
         addPendingUpdates(Arrays.asList(kvs));
     }
 
     public void addPendingUpdates(List<Cell> kvs) {
-        if (kvs == null) return;
+        if (kvs == null) {
+            return;
+        }
         setPendingUpdates(kvs);
         addUpdate(kvs);
     }
@@ -75,14 +79,18 @@ public class LocalTableState implements TableState {
     }
 
     private void addUpdate(List<Cell> list, boolean overwrite) {
-        if (list == null) return;
+        if (list == null) {
+            return;
+        }
         for (Cell kv : list) {
             this.memstore.add(kv, overwrite);
         }
     }
 
     private void addUpdateCells(List<Cell> list, boolean overwrite) {
-        if (list == null) return;
+        if (list == null) {
+            return;
+        }
         // Avoid a copy of the Cell into a KeyValue if it's already a KeyValue
         for (Cell c : list) {
             this.memstore.add(c, overwrite);
@@ -97,12 +105,13 @@ public class LocalTableState implements TableState {
     /**
      * Set the current timestamp up to which the table should allow access to the underlying table.
      * This overrides the timestamp view provided by the indexer - use with care!
+     *
      * @param timestamp timestamp up to which the table should allow access.
      */
     public void setCurrentTimestamp(long timestamp) {
         this.ts = timestamp;
     }
-    
+
     public void resetTrackedColumns() {
         this.trackedColumns.clear();
     }
@@ -132,22 +141,23 @@ public class LocalTableState implements TableState {
      * As a side-effect, we update a timestamp for the next-most-recent timestamp for the columns you
      * request - you will never see a column with the timestamp we are tracking, but the next oldest
      * timestamp for that column.
-     * @param indexedColumns the columns to that will be indexed
+     *
+     * @param indexedColumns       the columns to that will be indexed
      * @param ignoreNewerMutations ignore mutations newer than m when determining current state. Useful
-     *        when replaying mutation state for partial index rebuild where writes succeeded to the data
-     *        table, but not to the index table.
-     * @param indexMetaData TODO
+     *                             when replaying mutation state for partial index rebuild where writes succeeded to the data
+     *                             table, but not to the index table.
+     * @param indexMetaData        TODO
      * @return an iterator over the columns and the {@link IndexUpdate} that should be passed back to
-     *         the builder. Even if no update is necessary for the requested columns, you still need
-     *         to return the {@link IndexUpdate}, just don't set the update for the
-     *         {@link IndexUpdate}.
+     * the builder. Even if no update is necessary for the requested columns, you still need
+     * to return the {@link IndexUpdate}, just don't set the update for the
+     * {@link IndexUpdate}.
      * @throws IOException
      */
     public Pair<CoveredDeleteScanner, IndexUpdate> getIndexedColumnsTableState(
-        Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean isStateForDeletes, IndexMetaData indexMetaData) throws IOException {
+            Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean isStateForDeletes, IndexMetaData indexMetaData) throws IOException {
         // check to see if we haven't initialized any columns yet
         Collection<? extends ColumnReference> toCover = this.columnSet.findNonCoveredColumns(indexedColumns);
-        
+
         // add the covered columns to the set
         for (ColumnReference ref : toCover) {
             this.columnSet.addColumn(ref);
@@ -185,7 +195,7 @@ public class LocalTableState implements TableState {
         return new Pair<CoveredDeleteScanner, IndexUpdate>(scanner, new IndexUpdate(tracker));
     }
 
- 
+
     private static boolean insertingData(Mutation m) {
         for (Collection<Cell> cells : m.getFamilyCellMap().values()) {
             for (Cell cell : cells) {
@@ -222,15 +232,14 @@ public class LocalTableState implements TableState {
     /**
      * Set the {@link KeyValue}s in the update for which we are currently building an index update, but don't actually
      * apply them.
-     * 
-     * @param update
-     *            pending {@link KeyValue}s
+     *
+     * @param update pending {@link KeyValue}s
      */
     public void setPendingUpdates(Collection<Cell> update) {
         this.kvs.clear();
         this.kvs.addAll(update);
     }
-    
+
     /**
      * Apply the {@link KeyValue}s set in {@link #setPendingUpdates(Collection)}.
      */
@@ -240,7 +249,7 @@ public class LocalTableState implements TableState {
 
     /**
      * Rollback all the given values from the underlying state.
-     * 
+     *
      * @param values
      */
     public void rollback(Collection<KeyValue> values) {

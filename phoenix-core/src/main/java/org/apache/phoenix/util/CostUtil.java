@@ -23,7 +23,7 @@ import org.apache.phoenix.query.QueryServices;
 
 /**
  * Utilities for computing costs.
- *
+ * <p>
  * Some of the methods here should eventually be replaced by a metadata framework which
  * estimates output metrics for each QueryPlan or operation, e.g. row count, byte count,
  * etc.
@@ -32,9 +32,10 @@ public class CostUtil {
 
     /**
      * Estimate the cost of an aggregate.
-     * @param inputBytes the number of input bytes
-     * @param outputBytes the number of output bytes
-     * @param groupBy the compiled GroupBy object
+     *
+     * @param inputBytes    the number of input bytes
+     * @param outputBytes   the number of output bytes
+     * @param groupBy       the compiled GroupBy object
      * @param parallelLevel number of parallel workers or threads
      * @return the cost
      */
@@ -46,9 +47,10 @@ public class CostUtil {
 
     /**
      * Estimate the cost of an order-by
-     * @param inputBytes the number of input bytes
-     * @param outputBytes the number of output bytes, which may be different from inputBytes
-     *                    depending on whether there is a LIMIT
+     *
+     * @param inputBytes    the number of input bytes
+     * @param outputBytes   the number of output bytes, which may be different from inputBytes
+     *                      depending on whether there is a LIMIT
      * @param parallelLevel number of parallel workers or threads
      * @return the cost
      */
@@ -62,9 +64,10 @@ public class CostUtil {
 
     /**
      * Estimate the cost of a hash-join
-     * @param lhsBytes the number of left input bytes
-     * @param rhsBytes the number of right input bytes
-     * @param outputBytes the number of output bytes
+     *
+     * @param lhsBytes      the number of left input bytes
+     * @param rhsBytes      the number of right input bytes
+     * @param outputBytes   the number of output bytes
      * @param parallelLevel number of parallel workers or threads
      * @return the cost
      */
@@ -80,8 +83,9 @@ public class CostUtil {
 
     /**
      * Estimate the parallel level of an operation
+     *
      * @param runningOnServer if the operation will be running on server side
-     * @param services the QueryServices object
+     * @param services        the QueryServices object
      * @return the parallel level
      */
     public static int estimateParallelLevel(boolean runningOnServer, QueryServices services) {

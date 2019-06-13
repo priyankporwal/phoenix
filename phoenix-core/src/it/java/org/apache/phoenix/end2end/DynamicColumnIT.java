@@ -51,8 +51,7 @@ import org.junit.Test;
 
 /**
  * Basic tests for Phoenix dynamic upserting
- * 
- * 
+ *
  * @since 1.3
  */
 
@@ -100,13 +99,13 @@ public class DynamicColumnIT extends ParallelStatsDisabledIT {
 
                 // Create Phoenix table after HBase table was created through the native APIs
                 // The timestamp of the table creation must be later than the timestamp of the data
-                pconn.createStatement().execute("create table " + tableName + 
-                "   (entry varchar not null," +
-                "    F varchar," +
-                "    A.F1v1 varchar," +
-                "    A.F1v2 varchar," +
-                "    B.F2v1 varchar" +
-                "    CONSTRAINT pk PRIMARY KEY (entry)) COLUMN_ENCODED_BYTES=NONE");
+                pconn.createStatement().execute("create table " + tableName +
+                        "   (entry varchar not null," +
+                        "    F varchar," +
+                        "    A.F1v1 varchar," +
+                        "    A.F1v2 varchar," +
+                        "    B.F2v1 varchar" +
+                        "    CONSTRAINT pk PRIMARY KEY (entry)) COLUMN_ENCODED_BYTES=NONE");
             }
 
         }
@@ -213,17 +212,17 @@ public class DynamicColumnIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDynamicColumnOnNewTable() throws Exception {
         String tableName = generateUniqueName();
-        String ddl = "create table " + tableName + 
-            "   (entry varchar not null," +
-            "    F varchar," +
-            "    A.F1v1 varchar," +
-            "    A.F1v2 varchar," +
-            "    B.F2v1 varchar" +
-            "    CONSTRAINT pk PRIMARY KEY (entry))";
+        String ddl = "create table " + tableName +
+                "   (entry varchar not null," +
+                "    F varchar," +
+                "    A.F1v1 varchar," +
+                "    A.F1v2 varchar," +
+                "    B.F2v1 varchar" +
+                "    CONSTRAINT pk PRIMARY KEY (entry))";
         String dml = "UPSERT INTO " + tableName + " values (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             conn.createStatement().execute(ddl);
@@ -248,7 +247,7 @@ public class DynamicColumnIT extends ParallelStatsDisabledIT {
                 stmt.executeUpdate();
                 conn.commit();
             }
-            
+
             // test dynamic column in where clause
             String query = "SELECT entry, F from " + tableName + " (DYNCOL1 VARCHAR, DYNCOL2 VARCHAR) " + " WHERE DYNCOL1 = ?";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -259,7 +258,7 @@ public class DynamicColumnIT extends ParallelStatsDisabledIT {
                 assertEquals("a", rs.getString(2));
                 assertFalse(rs.next());
             }
-            
+
             // test dynamic column with projection
             query = "SELECT entry, dyncol1, dyncol2 from " + tableName + " (DYNCOL1 VARCHAR, DYNCOL2 VARCHAR) ";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {

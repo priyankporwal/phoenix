@@ -26,23 +26,24 @@ import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.SizedUtil;
 
 import com.google.common.primitives.Longs;
+
 /**
- *  A class that holds the guidePosts of a region and also allows combining the 
- *  guidePosts of different regions when the GuidePostsInfo is formed for a table.
+ * A class that holds the guidePosts of a region and also allows combining the
+ * guidePosts of different regions when the GuidePostsInfo is formed for a table.
  */
 public class GuidePostsInfo {
     public final static GuidePostsInfo NO_GUIDEPOST =
-            new GuidePostsInfo(Collections.<Long> emptyList(),
+            new GuidePostsInfo(Collections.<Long>emptyList(),
                     new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY),
-                    Collections.<Long> emptyList(), 0, 0, Collections.<Long> emptyList()) {
+                    Collections.<Long>emptyList(), 0, 0, Collections.<Long>emptyList()) {
                 @Override
                 public int getEstimatedSize() {
                     return 0;
                 }
             };
-    
+
     public final static byte[] EMPTY_GUIDEPOST_KEY = ByteUtil.EMPTY_BYTE_ARRAY;
-    
+
     /**
      * the total number of guidePosts for the table combining all the guidePosts per region per cf.
      */
@@ -74,22 +75,16 @@ public class GuidePostsInfo {
 
     /**
      * Constructor that creates GuidePostsInfo per region
-     * 
-     * @param byteCounts
-     *            The bytecounts of each guidePost traversed
-     * @param guidePosts
-     *            Prefix byte encoded guidePosts
-     * @param rowCounts
-     *            The rowCounts of each guidePost traversed
-     * @param maxLength
-     *            Maximum length of a guidePost collected
-     * @param guidePostsCount
-     *            Number of guidePosts
-     * @param gpTimestamps
-     *            Times at which guidePosts were updated/created
+     *
+     * @param byteCounts      The bytecounts of each guidePost traversed
+     * @param guidePosts      Prefix byte encoded guidePosts
+     * @param rowCounts       The rowCounts of each guidePost traversed
+     * @param maxLength       Maximum length of a guidePost collected
+     * @param guidePostsCount Number of guidePosts
+     * @param gpTimestamps    Times at which guidePosts were updated/created
      */
     public GuidePostsInfo(List<Long> byteCounts, ImmutableBytesWritable guidePosts, List<Long> rowCounts, int maxLength,
-            int guidePostsCount, List<Long> updateTimes) {
+                          int guidePostsCount, List<Long> updateTimes) {
         this.guidePosts = new ImmutableBytesWritable(guidePosts);
         this.maxLength = maxLength;
         this.guidePostsCount = guidePostsCount;
@@ -107,7 +102,7 @@ public class GuidePostsInfo {
                 + SizedUtil.INT_SIZE; // estimatedSize
         this.estimatedSize = estimatedSize;
     }
-    
+
     public ImmutableBytesWritable getGuidePosts() {
         return guidePosts;
     }
@@ -115,7 +110,7 @@ public class GuidePostsInfo {
     public int getGuidePostsCount() {
         return guidePostsCount;
     }
-    
+
     public int getMaxLength() {
         return maxLength;
     }
@@ -143,10 +138,10 @@ public class GuidePostsInfo {
 
     public static GuidePostsInfo createEmptyGuidePost(long byteCount, long guidePostUpdateTime) {
         return new GuidePostsInfo(Collections.singletonList(byteCount),
-                new ImmutableBytesWritable(EMPTY_GUIDEPOST_KEY), Collections.<Long> emptyList(), 0,
-                0, Collections.<Long> singletonList(guidePostUpdateTime));
+                new ImmutableBytesWritable(EMPTY_GUIDEPOST_KEY), Collections.<Long>emptyList(), 0,
+                0, Collections.<Long>singletonList(guidePostUpdateTime));
     }
-    
+
     public static boolean isEmptyGpsKey(byte[] key) {
         return Bytes.equals(key, GuidePostsInfo.EMPTY_GUIDEPOST_KEY);
     }

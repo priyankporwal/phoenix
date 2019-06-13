@@ -71,7 +71,7 @@ public class AbsFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void testSignedNumberSpec(Connection conn, double data) throws Exception {
         updateSignedTable(conn, data);
-        ResultSet rs = conn.createStatement() .executeQuery("SELECT ABS(\"DEC\"),ABS(doub),ABS(fl),ABS(inte),ABS(lon),ABS(smalli),ABS(tinyi) FROM " + TABLE_NAME);
+        ResultSet rs = conn.createStatement().executeQuery("SELECT ABS(\"DEC\"),ABS(doub),ABS(fl),ABS(inte),ABS(lon),ABS(smalli),ABS(tinyi) FROM " + TABLE_NAME);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertEquals(rs.getBigDecimal(1).compareTo(BigDecimal.valueOf(data).abs()), 0);

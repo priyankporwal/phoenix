@@ -31,13 +31,10 @@ import org.apache.phoenix.schema.tuple.SingleKeyValueTuple;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 
-
 /**
- *
  * Modeled after {@link org.apache.hadoop.hbase.filter.SingleColumnValueFilter},
  * but for general expression evaluation in the case where only a single KeyValue
  * column is referenced in the expression.
- *
  */
 public abstract class SingleKeyValueComparisonFilter extends BooleanExpressionFilter {
     private final SingleKeyValueTuple inputTuple = new SingleKeyValueTuple();
@@ -74,12 +71,12 @@ public abstract class SingleKeyValueComparisonFilter extends BooleanExpressionFi
     @Override
     public ReturnCode filterKeyValue(Cell keyValue) {
         if (this.matchedColumn) {
-          // We already found and matched the single column, all keys now pass
-          return ReturnCode.INCLUDE_AND_NEXT_COL;
+            // We already found and matched the single column, all keys now pass
+            return ReturnCode.INCLUDE_AND_NEXT_COL;
         }
         if (this.foundColumn()) {
-          // We found all the columns, but did not match the expression, so skip to next row
-          return ReturnCode.NEXT_ROW;
+            // We found all the columns, but did not match the expression, so skip to next row
+            return ReturnCode.NEXT_ROW;
         }
         if (compare(keyValue.getFamilyArray(), keyValue.getFamilyOffset(), keyValue.getFamilyLength(),
                 keyValue.getQualifierArray(), keyValue.getQualifierOffset(), keyValue.getQualifierLength()) != 0) {

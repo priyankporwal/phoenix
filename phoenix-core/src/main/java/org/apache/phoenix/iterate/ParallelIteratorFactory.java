@@ -31,5 +31,6 @@ public interface ParallelIteratorFactory {
             return LookAheadResultIterator.wrap(scanner);
         }
     };
+
     PeekingResultIterator newIterator(StatementContext context, ResultIterator scanner, Scan scan, String physicalTableName, QueryPlan plan) throws SQLException;
 }

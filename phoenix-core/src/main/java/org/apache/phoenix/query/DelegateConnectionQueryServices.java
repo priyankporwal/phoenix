@@ -59,12 +59,12 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
     public DelegateConnectionQueryServices(ConnectionQueryServices delegate) {
         super(delegate);
     }
-    
+
     @Override
     protected ConnectionQueryServices getDelegate() {
-        return (ConnectionQueryServices)super.getDelegate();
+        return (ConnectionQueryServices) super.getDelegate();
     }
-    
+
     @Override
     public ConnectionQueryServices getChildQueryServices(ImmutableBytesWritable tenantId) {
         return getDelegate().getChildQueryServices(tenantId);
@@ -84,7 +84,7 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
     public void addTable(PTable table, long resolvedTime) throws SQLException {
         getDelegate().addTable(table, resolvedTime);
     }
-    
+
     @Override
     public void updateResolvedTimestamp(PTable table, long resolvedTimestamp) throws SQLException {
         getDelegate().updateResolvedTimestamp(table, resolvedTimestamp);
@@ -98,7 +98,7 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
 
     @Override
     public void removeColumn(PName tenantId, String tableName, List<PColumn> columnsToRemove, long tableTimeStamp,
-            long tableSeqNum, long resolvedTime) throws SQLException {
+                             long tableSeqNum, long resolvedTime) throws SQLException {
         getDelegate().removeColumn(tenantId, tableName, columnsToRemove, tableTimeStamp, tableSeqNum, resolvedTime);
     }
 
@@ -114,8 +114,8 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
 
     @Override
     public MetaDataMutationResult createTable(List<Mutation> tableMetaData, byte[] physicalName, PTableType tableType,
-            Map<String, Object> tableProps, List<Pair<byte[], Map<String, Object>>> families, byte[][] splits,
-            boolean isNamespaceMapped, boolean allocateIndexId, boolean isDoNotUpgradePropSet) throws SQLException {
+                                              Map<String, Object> tableProps, List<Pair<byte[], Map<String, Object>>> families, byte[][] splits,
+                                              boolean isNamespaceMapped, boolean allocateIndexId, boolean isDoNotUpgradePropSet) throws SQLException {
         return getDelegate().createTable(tableMetaData, physicalName, tableType, tableProps, families, splits,
                 isNamespaceMapped, allocateIndexId, isDoNotUpgradePropSet);
     }
@@ -126,7 +126,7 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
     }
 
     @Override
-    public MetaDataMutationResult addColumn(List<Mutation> tableMetaData, PTable table, Map<String, List<Pair<String,Object>>> properties, Set<String> colFamiliesForPColumnsToBeAdded, List<PColumn> columns) throws SQLException {
+    public MetaDataMutationResult addColumn(List<Mutation> tableMetaData, PTable table, Map<String, List<Pair<String, Object>>> properties, Set<String> colFamiliesForPColumnsToBeAdded, List<PColumn> columns) throws SQLException {
         return getDelegate().addColumn(tableMetaData, table, properties, colFamiliesForPColumnsToBeAdded, columns);
     }
 
@@ -141,10 +141,11 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
         return getDelegate().updateIndexState(tableMetadata, parentTableName);
     }
 
-    @Override public MetaDataMutationResult updateIndexState(List<Mutation> tableMetadata,
-            String parentTableName, Map<String, List<Pair<String, Object>>> stmtProperties,
-            PTable table) throws SQLException {
-        return getDelegate().updateIndexState(tableMetadata, parentTableName, stmtProperties,table);
+    @Override
+    public MetaDataMutationResult updateIndexState(List<Mutation> tableMetadata,
+                                                   String parentTableName, Map<String, List<Pair<String, Object>>> stmtProperties,
+                                                   PTable table) throws SQLException {
+        return getDelegate().updateIndexState(tableMetadata, parentTableName, stmtProperties, table);
     }
 
     @Override
@@ -184,10 +185,10 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
 
     @Override
     public long createSequence(String tenantId, String schemaName, String sequenceName,
-            long startWith, long incrementBy, long cacheSize, long minValue, long maxValue,
-            boolean cycle, long timestamp) throws SQLException {
+                               long startWith, long incrementBy, long cacheSize, long minValue, long maxValue,
+                               boolean cycle, long timestamp) throws SQLException {
         return getDelegate().createSequence(tenantId, schemaName, sequenceName, startWith,
-            incrementBy, cacheSize, minValue, maxValue, cycle, timestamp);
+                incrementBy, cacheSize, minValue, maxValue, cycle, timestamp);
     }
 
     @Override
@@ -198,13 +199,13 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
 
     @Override
     public void validateSequences(List<SequenceAllocation> sequenceAllocations, long timestamp,
-            long[] values, SQLException[] exceptions, Sequence.ValueOp action) throws SQLException {
+                                  long[] values, SQLException[] exceptions, Sequence.ValueOp action) throws SQLException {
         getDelegate().validateSequences(sequenceAllocations, timestamp, values, exceptions, action);
     }
 
     @Override
     public void incrementSequences(List<SequenceAllocation> sequenceAllocations, long timestamp,
-            long[] values, SQLException[] exceptions) throws SQLException {
+                                   long[] values, SQLException[] exceptions) throws SQLException {
         getDelegate().incrementSequences(sequenceAllocations, timestamp, values, exceptions);
     }
 
@@ -243,7 +244,7 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
     public String getUserName() {
         return getDelegate().getUserName();
     }
-    
+
     @Override
     public void clearTableFromCache(byte[] tenantId, byte[] schemaName, byte[] tableName, long clientTS)
             throws SQLException {
@@ -285,7 +286,7 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
 
     @Override
     public MetaDataMutationResult getFunctions(PName tenantId,
-            List<Pair<byte[], Long>> functionNameAndTimeStampPairs, long clientTimestamp)
+                                               List<Pair<byte[], Long>> functionNameAndTimeStampPairs, long clientTimestamp)
             throws SQLException {
         return getDelegate().getFunctions(tenantId, functionNameAndTimeStampPairs, clientTimestamp);
     }
@@ -366,7 +367,7 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
     public QueryLoggerDisruptor getQueryDisruptor() {
         return getDelegate().getQueryDisruptor();
     }
-    
+
     @Override
     public PhoenixTransactionClient initTransactionClient(Provider provider) throws SQLException {
         return getDelegate().initTransactionClient(provider);
@@ -374,12 +375,12 @@ public class DelegateConnectionQueryServices extends DelegateQueryServices imple
 
     @Override
     public boolean writeMutexCell(String tenantId, String schemaName, String tableName,
-            String columnName, String familyName) throws SQLException {
+                                  String columnName, String familyName) throws SQLException {
         return true;
     }
 
     @Override
     public void deleteMutexCell(String tenantId, String schemaName, String tableName,
-            String columnName, String familyName) throws SQLException {
+                                String columnName, String familyName) throws SQLException {
     }
 }

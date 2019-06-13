@@ -46,30 +46,30 @@ public class GenericKeyValueBuilder extends KeyValueBuilder {
 
     @Override
     public KeyValue buildPut(ImmutableBytesWritable row, ImmutableBytesWritable family,
-            ImmutableBytesWritable qualifier, long ts, ImmutableBytesWritable value) {
+                             ImmutableBytesWritable qualifier, long ts, ImmutableBytesWritable value) {
         return build(row, family, qualifier, ts, Type.Put, value);
     }
 
     @Override
     public KeyValue buildDeleteFamily(ImmutableBytesWritable row, ImmutableBytesWritable family,
-            ImmutableBytesWritable qualifier, long ts) {
+                                      ImmutableBytesWritable qualifier, long ts) {
         return build(row, family, qualifier, ts, Type.DeleteFamily, null);
     }
 
     @Override
     public KeyValue buildDeleteColumns(ImmutableBytesWritable row, ImmutableBytesWritable family,
-            ImmutableBytesWritable qualifier, long ts) {
+                                       ImmutableBytesWritable qualifier, long ts) {
         return build(row, family, qualifier, ts, Type.DeleteColumn, null);
     }
 
     @Override
     public KeyValue buildDeleteColumn(ImmutableBytesWritable row, ImmutableBytesWritable family,
-            ImmutableBytesWritable qualifier, long ts) {
+                                      ImmutableBytesWritable qualifier, long ts) {
         return build(row, family, qualifier, ts, Type.Delete, null);
     }
 
     private KeyValue build(ImmutableBytesWritable row, ImmutableBytesWritable family, ImmutableBytesWritable qualifier,
-            long ts, KeyValue.Type type, ImmutableBytesWritable value) {
+                           long ts, KeyValue.Type type, ImmutableBytesWritable value) {
         return new KeyValue(copyBytesIfNecessary(row), copyBytesIfNecessary(family), copyBytesIfNecessary(qualifier),
                 ts, type, value == null ? null : copyBytesIfNecessary(value));
     }

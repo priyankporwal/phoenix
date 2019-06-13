@@ -128,7 +128,7 @@ public abstract class DropIndexDuringUpsertIT extends BaseTest {
 
         // Verify the metadata for index is correct.
         rs = conn.getMetaData().getTables(null, StringUtil.escapeLike(SCHEMA_NAME), INDEX_TABLE_NAME,
-                new String[] { PTableType.INDEX.toString() });
+                new String[] {PTableType.INDEX.toString()});
         assertTrue(rs.next());
         assertEquals(INDEX_TABLE_NAME, rs.getString(3));
         assertEquals(PIndexState.ACTIVE.toString(), rs.getString("INDEX_STATE"));

@@ -42,7 +42,7 @@ public class BufferedSortedQueue extends BufferedQueue<ResultEntry> {
     private final int limit;
 
     public BufferedSortedQueue(Comparator<ResultEntry> comparator,
-            Integer limit, long thresholdBytes) throws IOException {
+                               Integer limit, long thresholdBytes) throws IOException {
         super(thresholdBytes);
         this.comparator = comparator;
         this.limit = limit == null ? -1 : limit;
@@ -59,20 +59,21 @@ public class BufferedSortedQueue extends BufferedQueue<ResultEntry> {
         return new Comparator<BufferedSegmentQueue<ResultEntry>>() {
             @Override
             public int compare(BufferedSegmentQueue<ResultEntry> q1,
-                    BufferedSegmentQueue<ResultEntry> q2) {
+                               BufferedSegmentQueue<ResultEntry> q2) {
                 return comparator.compare(q1.peek(), q2.peek());
-            }};
+            }
+        };
     }
 
     private static class BufferedResultEntryPriorityQueue extends BufferedSegmentQueue<ResultEntry> {
         private MinMaxPriorityQueue<ResultEntry> results = null;
-        
+
         public BufferedResultEntryPriorityQueue(int index,
-                long thresholdBytes, int limit, Comparator<ResultEntry> comparator) {
+                                                long thresholdBytes, int limit, Comparator<ResultEntry> comparator) {
             super(index, thresholdBytes, limit >= 0);
-            this.results = limit < 0 ? 
-                    MinMaxPriorityQueue.<ResultEntry> orderedBy(comparator).create()
-                  : MinMaxPriorityQueue.<ResultEntry> orderedBy(comparator).maximumSize(limit).create();
+            this.results = limit < 0 ?
+                    MinMaxPriorityQueue.<ResultEntry>orderedBy(comparator).create()
+                    : MinMaxPriorityQueue.<ResultEntry>orderedBy(comparator).maximumSize(limit).create();
         }
 
         @Override
@@ -114,8 +115,9 @@ public class BufferedSortedQueue extends BufferedQueue<ResultEntry> {
         @Override
         protected ResultEntry readFromStream(DataInputStream is) throws IOException {
             int length = is.readInt();
-            if (length < 0)
+            if (length < 0) {
                 return null;
+            }
 
             byte[] rb = new byte[length];
             is.readFully(rb);

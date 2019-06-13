@@ -57,7 +57,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 
-
 public class BaseConnectionlessQueryTest extends BaseTest {
 
     public static PTable ATABLE;
@@ -70,17 +69,17 @@ public class BaseConnectionlessQueryTest extends BaseTest {
     public static Expression A_TIME;
     public static Expression A_TIMESTAMP;
     public static Expression X_DECIMAL;
-    
+
     protected static String getUrl() {
         return TestUtil.PHOENIX_CONNECTIONLESS_JDBC_URL;
     }
-    
+
     protected static String getUrl(String tenantId) {
         return getUrl() + ';' + TENANT_ID_ATTRIB + '=' + tenantId;
     }
-    
+
     protected static PhoenixTestDriver driver;
-    
+
     private static void startServer(String url) throws Exception {
         assertNull(driver);
         // only load the test driver if we are testing locally - for integration tests, we want to
@@ -91,7 +90,7 @@ public class BaseConnectionlessQueryTest extends BaseTest {
             driver.connect(url, PropertiesUtil.deepCopy(TEST_PROPERTIES));
         }
     }
-    
+
     protected static synchronized PhoenixTestDriver initDriver(ReadOnlyProps props) throws Exception {
         if (driver == null) {
             driver = new PhoenixTestDriver(props);
@@ -99,7 +98,7 @@ public class BaseConnectionlessQueryTest extends BaseTest {
         }
         return driver;
     }
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         startServer(getUrl());
@@ -111,8 +110,8 @@ public class BaseConnectionlessQueryTest extends BaseTest {
         ensureTableCreated(getUrl(), PTSDB3_NAME);
         ensureTableCreated(getUrl(), MULTI_CF_NAME);
         ensureTableCreated(getUrl(), TABLE_WITH_ARRAY);
-        
-        
+
+
         Properties props = new Properties();
         props.setProperty(PhoenixRuntime.CURRENT_SCN_ATTRIB, Long.toString(HConstants.LATEST_TIMESTAMP));
         PhoenixConnection conn = DriverManager.getConnection(PHOENIX_CONNECTIONLESS_JDBC_URL, props).unwrap(PhoenixConnection.class);
@@ -132,7 +131,7 @@ public class BaseConnectionlessQueryTest extends BaseTest {
             conn.close();
         }
     }
-    
+
     @AfterClass
     public static void doTeardown() throws Exception {
         if (driver != null) {

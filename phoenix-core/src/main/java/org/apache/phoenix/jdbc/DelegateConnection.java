@@ -33,7 +33,7 @@ import java.util.concurrent.Executor;
  * Simple {@link Connection} that just delegates to an underlying {@link Connection}.
  */
 public class DelegateConnection implements Connection {
-    
+
     protected Connection conn;
 
     public DelegateConnection(Connection conn) {
@@ -153,7 +153,7 @@ public class DelegateConnection implements Connection {
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-            int resultSetConcurrency) throws SQLException {
+                                              int resultSetConcurrency) throws SQLException {
         return conn.prepareStatement(sql, resultSetType, resultSetConcurrency);
     }
 
@@ -205,20 +205,20 @@ public class DelegateConnection implements Connection {
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability) throws SQLException {
+                                     int resultSetHoldability) throws SQLException {
         return conn.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType,
-            int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+                                              int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         return conn.prepareStatement(sql, resultSetType, resultSetConcurrency,
-            resultSetHoldability);
+                resultSetHoldability);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability) throws SQLException {
+                                         int resultSetHoldability) throws SQLException {
         return conn.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
     }
 

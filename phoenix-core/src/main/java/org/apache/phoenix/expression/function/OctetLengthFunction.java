@@ -31,8 +31,8 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PVarbinary;
 
-@BuiltInFunction(name = OctetLengthFunction.NAME, args = { @Argument(allowedTypes = {
-        PBinary.class, PVarbinary.class }), })
+@BuiltInFunction(name = OctetLengthFunction.NAME, args = {@Argument(allowedTypes = {
+        PBinary.class, PVarbinary.class}),})
 public class OctetLengthFunction extends ScalarFunction {
 
     public static final String NAME = "OCTET_LENGTH";
@@ -53,8 +53,12 @@ public class OctetLengthFunction extends ScalarFunction {
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         // get binary data parameter
         Expression dataExpr = children.get(0);
-        if (!dataExpr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength()==0) return true;
+        if (!dataExpr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         // set result
         ((PBinaryBase) dataExpr.getDataType()).octetLength(ptr, dataExpr.getSortOrder(), ptr);
         return true;

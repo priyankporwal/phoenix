@@ -24,6 +24,6 @@ public interface TimeKeeper {
             return System.currentTimeMillis();
         }
     };
-    
+
     long getCurrentTime();
 }

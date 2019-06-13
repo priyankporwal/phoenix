@@ -32,22 +32,22 @@ import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
  */
 class FakeTableFactory implements HTableFactory {
 
-  boolean shutdown = false;
-  private Map<ImmutableBytesPtr, Table> tables;
+    boolean shutdown = false;
+    private Map<ImmutableBytesPtr, Table> tables;
 
-  public FakeTableFactory(Map<ImmutableBytesPtr, Table> tables) {
-    this.tables = tables;
-  }
+    public FakeTableFactory(Map<ImmutableBytesPtr, Table> tables) {
+        this.tables = tables;
+    }
 
-  @Override
-  public Table getTable(ImmutableBytesPtr tablename) throws IOException {
-    return getTable(tablename, null);
-  }
+    @Override
+    public Table getTable(ImmutableBytesPtr tablename) throws IOException {
+        return getTable(tablename, null);
+    }
 
-  @Override
-  public void shutdown() {
-    shutdown = true;
-  }
+    @Override
+    public void shutdown() {
+        shutdown = true;
+    }
 
     @Override
     public Table getTable(ImmutableBytesPtr tablename, ExecutorService pool) throws IOException {

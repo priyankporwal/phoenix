@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,31 +25,31 @@ import org.apache.phoenix.jdbc.PhoenixConnection;
  */
 abstract class ConfigurationAdapter {
 
-  public abstract String get(String key, String defaultValue);
+    public abstract String get(String key, String defaultValue);
 
-  public static class ConnectionConfigurationAdapter extends ConfigurationAdapter {
-    private PhoenixConnection conn;
+    public static class ConnectionConfigurationAdapter extends ConfigurationAdapter {
+        private PhoenixConnection conn;
 
-    public ConnectionConfigurationAdapter(PhoenixConnection connection) {
-      this.conn = connection;
+        public ConnectionConfigurationAdapter(PhoenixConnection connection) {
+            this.conn = connection;
+        }
+
+        @Override
+        public String get(String key, String defaultValue) {
+            return conn.getQueryServices().getProps().get(key, defaultValue);
+        }
     }
 
-    @Override
-    public String get(String key, String defaultValue) {
-      return conn.getQueryServices().getProps().get(key, defaultValue);
-    }
-  }
+    public static class HadoopConfigConfigurationAdapter extends ConfigurationAdapter {
+        private Configuration conf;
 
-  public static class HadoopConfigConfigurationAdapter extends ConfigurationAdapter {
-    private Configuration conf;
+        public HadoopConfigConfigurationAdapter(Configuration conf) {
+            this.conf = conf;
+        }
 
-    public HadoopConfigConfigurationAdapter(Configuration conf) {
-      this.conf = conf;
+        @Override
+        public String get(String key, String defaultValue) {
+            return conf.get(key, defaultValue);
+        }
     }
-
-    @Override
-    public String get(String key, String defaultValue) {
-      return conf.get(key, defaultValue);
-    }
-  }
 }

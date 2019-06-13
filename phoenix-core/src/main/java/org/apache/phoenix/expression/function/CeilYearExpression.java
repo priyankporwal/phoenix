@@ -23,11 +23,10 @@ import org.apache.phoenix.expression.Expression;
 import org.joda.time.DateTime;
 
 /**
- * 
- * Ceil function that rounds up the {@link DateTime} to next year. 
+ * Ceil function that rounds up the {@link DateTime} to next year.
  */
 public class CeilYearExpression extends RoundJodaDateExpression {
-    
+
     public CeilYearExpression() {
         super();
     }
@@ -38,7 +37,7 @@ public class CeilYearExpression extends RoundJodaDateExpression {
 
     @Override
     public long roundDateTime(DateTime dateTime) {
-       return dateTime.year().roundCeilingCopy().getMillis();
+        return dateTime.year().roundCeilingCopy().getMillis();
     }
 
 }

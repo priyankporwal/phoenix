@@ -47,8 +47,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Validates ORDER BY clause and builds up a list of referenced columns.
- * 
- * 
+ *
  * @since 0.1
  */
 public class OrderByCompiler {
@@ -56,13 +55,13 @@ public class OrderByCompiler {
         public static final OrderBy EMPTY_ORDER_BY = new OrderBy(Collections.<OrderByExpression>emptyList());
         /**
          * Used to indicate that there was an ORDER BY, but it was optimized out because
-         * rows are already returned in this order. 
+         * rows are already returned in this order.
          */
         public static final OrderBy FWD_ROW_KEY_ORDER_BY = new OrderBy(Collections.<OrderByExpression>emptyList());
         public static final OrderBy REV_ROW_KEY_ORDER_BY = new OrderBy(Collections.<OrderByExpression>emptyList());
-        
+
         private final List<OrderByExpression> orderByExpressions;
-        
+
         public OrderBy(List<OrderByExpression> orderByExpressions) {
             this.orderByExpressions = ImmutableList.copyOf(orderByExpressions);
         }
@@ -76,11 +75,12 @@ public class OrderByCompiler {
         }
 
         public static List<OrderBy> wrapForOutputOrderBys(OrderBy orderBy) {
-            assert orderBy != OrderBy.FWD_ROW_KEY_ORDER_BY && orderBy != OrderBy.REV_ROW_KEY_ORDER_BY;
-            if(orderBy == null || orderBy == OrderBy.EMPTY_ORDER_BY) {
-                return Collections.<OrderBy> emptyList();
+            assert orderBy !=
+            OrderBy.FWD_ROW_KEY_ORDER_BY && orderBy != OrderBy.REV_ROW_KEY_ORDER_BY;
+            if (orderBy == null || orderBy == OrderBy.EMPTY_ORDER_BY) {
+                return Collections.<OrderBy>emptyList();
             }
-            return Collections.<OrderBy> singletonList(orderBy);
+            return Collections.<OrderBy>singletonList(orderBy);
         }
 
         /**
@@ -88,15 +88,16 @@ public class OrderByCompiler {
          * to get the compiled {@link OrderByExpression} for using it in {@link OrderedResultIterator}, but for {@link QueryPlan#getOutputOrderBys()},
          * the returned {@link OrderByExpression} is used for {@link OrderPreservingTracker}, so we should invoke {@link OrderByExpression#createByCheckIfExpressionSortOrderDesc}
          * again to the actual {@link OrderByExpression}.
+         *
          * @return
          */
         public static OrderBy convertCompiledOrderByToOutputOrderBy(OrderBy orderBy) {
-            if(orderBy.isEmpty()) {
+            if (orderBy.isEmpty()) {
                 return orderBy;
             }
             List<OrderByExpression> orderByExpressions = orderBy.getOrderByExpressions();
             List<OrderByExpression> newOrderByExpressions = new ArrayList<OrderByExpression>(orderByExpressions.size());
-            for(OrderByExpression orderByExpression : orderByExpressions) {
+            for (OrderByExpression orderByExpression : orderByExpressions) {
                 OrderByExpression newOrderByExpression =
                         OrderByExpression.convertIfExpressionSortOrderDesc(orderByExpression);
                 newOrderByExpressions.add(newOrderByExpression);
@@ -104,13 +105,15 @@ public class OrderByCompiler {
             return new OrderBy(newOrderByExpressions);
         }
     }
+
     /**
      * Gets a list of columns in the ORDER BY clause
-     * @param context the query context for tracking various states
-     * associated with the given select statement
+     *
+     * @param context   the query context for tracking various states
+     *                  associated with the given select statement
      * @param statement TODO
-     * @param groupBy the list of columns in the GROUP BY clause
-     * @param limit the row limit or null if no limit
+     * @param groupBy   the list of columns in the GROUP BY clause
+     * @param limit     the row limit or null if no limit
      * @return the compiled ORDER BY clause
      * @throws SQLException
      */
@@ -134,30 +137,30 @@ public class OrderByCompiler {
             compiler = new ExpressionCompiler(context, groupBy);
         }
         OrderPreservingTracker tracker = null;
-        if(isTrackOrderByPreserving(statement)) {
+        if (isTrackOrderByPreserving(statement)) {
             // accumulate columns in ORDER BY
             tracker = new OrderPreservingTracker(
-                            context,
-                            groupBy,
-                            Ordering.ORDERED,
-                            orderByNodes.size(),
-                            null,
-                            innerQueryPlan,
-                            whereExpression);
+                    context,
+                    groupBy,
+                    Ordering.ORDERED,
+                    orderByNodes.size(),
+                    null,
+                    innerQueryPlan,
+                    whereExpression);
         }
 
         LinkedHashSet<OrderByExpression> orderByExpressions = Sets.newLinkedHashSetWithExpectedSize(orderByNodes.size());
         for (OrderByNode node : orderByNodes) {
             ParseNode parseNode = node.getNode();
             Expression expression = null;
-            if (parseNode instanceof LiteralParseNode && ((LiteralParseNode)parseNode).getType() == PInteger.INSTANCE){
-                Integer index = (Integer)((LiteralParseNode)parseNode).getValue();
+            if (parseNode instanceof LiteralParseNode && ((LiteralParseNode) parseNode).getType() == PInteger.INSTANCE) {
+                Integer index = (Integer) ((LiteralParseNode) parseNode).getValue();
                 int size = rowProjector.getColumnProjectors().size();
-                if (index > size || index <= 0 ) {
+                if (index > size || index <= 0) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.PARAM_INDEX_OUT_OF_BOUND)
-                    .build().buildException();
+                            .build().buildException();
                 }
-                expression = rowProjector.getColumnProjector(index-1).getExpression();
+                expression = rowProjector.getColumnProjector(index - 1).getExpression();
             } else {
                 expression = node.getNode().accept(compiler);
                 // Detect mix of aggregate and non aggregates (i.e. ORDER BY txns, SUM(txns)
@@ -166,7 +169,7 @@ public class OrderByCompiler {
                         // Detect ORDER BY not in SELECT DISTINCT: SELECT DISTINCT count(*) FROM t ORDER BY x
                         if (statement.isDistinct()) {
                             throw new SQLExceptionInfo.Builder(SQLExceptionCode.ORDER_BY_NOT_IN_SELECT_DISTINCT)
-                            .setMessage(expression.toString()).build().buildException();
+                                    .setMessage(expression.toString()).build().buildException();
                         }
                         ExpressionCompiler.throwNonAggExpressionInAggException(expression.toString());
                     }
@@ -175,7 +178,7 @@ public class OrderByCompiler {
             if (!expression.isStateless()) {
                 boolean isAscending = node.isAscending();
                 boolean isNullsLast = node.isNullsLast();
-                if(tracker != null) {
+                if (tracker != null) {
                     tracker.track(expression, isAscending, isNullsLast);
                 }
                 /**

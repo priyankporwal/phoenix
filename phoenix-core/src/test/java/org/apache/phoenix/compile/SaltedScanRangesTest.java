@@ -55,7 +55,7 @@ public class SaltedScanRangesTest {
     private final boolean expectedResult;
 
     public SaltedScanRangesTest(ScanRanges scanRanges, int[] widths,
-            KeyRange keyRange, boolean expectedResult) {
+                                KeyRange keyRange, boolean expectedResult) {
         this.keyRange = keyRange;
         this.scanRanges = scanRanges;
         this.expectedResult = expectedResult;
@@ -77,103 +77,103 @@ public class SaltedScanRangesTest {
             // incrementing the key too much.
             upperExclusiveKey = ByteUtil.nextKey(upperExclusiveKey);
         }
-        assertEquals(expectedResult, scanRanges.intersectRegion(lowerInclusiveKey,upperExclusiveKey,false));
+        assertEquals(expectedResult, scanRanges.intersectRegion(lowerInclusiveKey, upperExclusiveKey, false));
     }
 
-    @Parameters(name="{0} {2}")
+    @Parameters(name = "{0} {2}")
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(KeyRange.UNBOUND, new byte[]{1}),
-                    false,
-                    true));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(KeyRange.UNBOUND, new byte[] {1}),
+                        false,
+                        true));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(new byte[]{1},new byte[]{2}),
-                    false,
-                    true));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(new byte[] {1}, new byte[] {2}),
+                        false,
+                        true));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(new byte[]{2},KeyRange.UNBOUND),
-                    false,
-                    true));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(new byte[] {2}, KeyRange.UNBOUND),
+                        false,
+                        true));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(new byte[]{1},ByteUtil.concat(new byte[]{1}, Bytes.toBytes("c"))),
-                    false,
-                    false));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(new byte[] {1}, ByteUtil.concat(new byte[] {1}, Bytes.toBytes("c"))),
+                        false,
+                        false));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(ByteUtil.concat(new byte[]{1}, Bytes.toBytes("e")), new byte[]{2}),
-                    false,
-                    false));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(ByteUtil.concat(new byte[] {1}, Bytes.toBytes("e")), new byte[] {2}),
+                        false,
+                        false));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(ByteUtil.concat(new byte[]{1}, Bytes.toBytes("d")), new byte[]{2}),
-                    false,
-                    true));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(ByteUtil.concat(new byte[] {1}, Bytes.toBytes("d")), new byte[] {2}),
+                        false,
+                        true));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("h"), true, Bytes.toBytes("i"), false),
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("m"), true, Bytes.toBytes("p"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(ByteUtil.concat(new byte[]{1}, Bytes.toBytes("f")), ByteUtil.concat(new byte[]{1}, Bytes.toBytes("g"))),
-                    false,
-                    true));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("h"), true, Bytes.toBytes("i"), false),
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("m"), true, Bytes.toBytes("p"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(ByteUtil.concat(new byte[] {1}, Bytes.toBytes("f")), ByteUtil.concat(new byte[] {1}, Bytes.toBytes("g"))),
+                        false,
+                        true));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("h"), true, Bytes.toBytes("i"), false),
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("m"), true, Bytes.toBytes("p"), false),
-                    }},
-                    new int[] {0},
-                    KeyRange.getKeyRange(ByteUtil.concat(new byte[]{1}, Bytes.toBytes("f")), ByteUtil.concat(new byte[]{1}, Bytes.toBytes("g"))),
-                    true,
-                    false));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, Bytes.toBytes("e"), false),
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("h"), true, Bytes.toBytes("i"), false),
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("m"), true, Bytes.toBytes("p"), false),
+                        }},
+                        new int[] {0},
+                        KeyRange.getKeyRange(ByteUtil.concat(new byte[] {1}, Bytes.toBytes("f")), ByteUtil.concat(new byte[] {1}, Bytes.toBytes("g"))),
+                        true,
+                        false));
         testCases.addAll(
-                foreach(new KeyRange[][]{{
-                        PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, KeyRange.UNBOUND, false),
-                    }},
-                    new int[] {1},
-                    KeyRange.getKeyRange(new byte[]{1,0},new byte[]{2,0}),
-                    false,
-                    true));
+                foreach(new KeyRange[][] {{
+                                PVarchar.INSTANCE.getKeyRange(Bytes.toBytes("c"), true, KeyRange.UNBOUND, false),
+                        }},
+                        new int[] {1},
+                        KeyRange.getKeyRange(new byte[] {1, 0}, new byte[] {2, 0}),
+                        false,
+                        true));
         return testCases;
     }
 
     private static Collection<?> foreach(ScanRanges ranges, int[] widths, KeyRange keyRange,
-            boolean expectedResult) {
+                                         boolean expectedResult) {
         List<Object> ret = Lists.newArrayList();
         ret.add(new Object[] {ranges, widths, keyRange, expectedResult});
         return ret;
     }
 
     private static Collection<?> foreach(KeyRange[][] ranges, int[] widths, KeyRange keyRange, boolean useSkipScan,
-            boolean expectedResult) {
+                                         boolean expectedResult) {
         List<List<KeyRange>> slots = Lists.transform(Lists.newArrayList(ranges), ARRAY_TO_LIST);
         slots = new ArrayList<>(slots);
-        slots.add(0, Collections.singletonList(KeyRange.getKeyRange(new byte[]{0})));
+        slots.add(0, Collections.singletonList(KeyRange.getKeyRange(new byte[] {0})));
         RowKeySchemaBuilder builder = new RowKeySchemaBuilder(10);
         builder.addField(SaltingUtil.SALTING_COLUMN, false, SortOrder.getDefault());
         for (final int width : widths) {
@@ -183,18 +183,22 @@ public class SaltedScanRangesTest {
                     public boolean isNullable() {
                         return false;
                     }
+
                     @Override
                     public PDataType getDataType() {
                         return PChar.INSTANCE;
                     }
+
                     @Override
                     public Integer getMaxLength() {
                         return width;
                     }
+
                     @Override
                     public Integer getScale() {
                         return null;
                     }
+
                     @Override
                     public SortOrder getSortOrder() {
                         return SortOrder.getDefault();
@@ -206,18 +210,22 @@ public class SaltedScanRangesTest {
                     public boolean isNullable() {
                         return false;
                     }
+
                     @Override
                     public PDataType getDataType() {
                         return PVarchar.INSTANCE;
                     }
+
                     @Override
                     public Integer getMaxLength() {
                         return width;
                     }
+
                     @Override
                     public Integer getScale() {
                         return null;
                     }
+
                     @Override
                     public SortOrder getSortOrder() {
                         return SortOrder.getDefault();
@@ -225,15 +233,15 @@ public class SaltedScanRangesTest {
                 }, false, SortOrder.getDefault());
             }
         }
-        ScanRanges scanRanges = ScanRanges.createSingleSpan(builder.build(), slots, nBuckets , useSkipScan);
+        ScanRanges scanRanges = ScanRanges.createSingleSpan(builder.build(), slots, nBuckets, useSkipScan);
         return foreach(scanRanges, widths, keyRange, expectedResult);
     }
 
-    private static final Function<KeyRange[], List<KeyRange>> ARRAY_TO_LIST = 
+    private static final Function<KeyRange[], List<KeyRange>> ARRAY_TO_LIST =
             new Function<KeyRange[], List<KeyRange>>() {
-                @Override 
+                @Override
                 public List<KeyRange> apply(KeyRange[] input) {
                     return Lists.newArrayList(input);
                 }
-    };
+            };
 }

@@ -37,15 +37,17 @@ public class PositionBasedMultiKeyValueTuple extends BaseTuple {
 
     public PositionBasedMultiKeyValueTuple(List<Cell> values) {
         checkArgument(values instanceof EncodedColumnQualiferCellsList,
-            "PositionBasedMultiKeyValueTuple only works with lists of type EncodedColumnQualiferCellsList");
+                "PositionBasedMultiKeyValueTuple only works with lists of type EncodedColumnQualiferCellsList");
         this.values = (EncodedColumnQualiferCellsList) values;
     }
 
-    /** Caller must not modify the list that is passed here */
+    /**
+     * Caller must not modify the list that is passed here
+     */
     @Override
     public void setKeyValues(List<Cell> values) {
         checkArgument(values instanceof EncodedColumnQualiferCellsList,
-            "PositionBasedMultiKeyValueTuple only works with lists of type EncodedColumnQualiferCellsList");
+                "PositionBasedMultiKeyValueTuple only works with lists of type EncodedColumnQualiferCellsList");
         this.values = (EncodedColumnQualiferCellsList) values;
     }
 
@@ -83,7 +85,9 @@ public class PositionBasedMultiKeyValueTuple extends BaseTuple {
     @Override
     public boolean getValue(byte[] family, byte[] qualifier, ImmutableBytesWritable ptr) {
         Cell kv = getValue(family, qualifier);
-        if (kv == null) return false;
+        if (kv == null) {
+            return false;
+        }
         ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
         return true;
     }

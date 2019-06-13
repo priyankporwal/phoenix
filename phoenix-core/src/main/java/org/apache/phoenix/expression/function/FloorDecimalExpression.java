@@ -38,24 +38,23 @@ import org.apache.phoenix.parse.FunctionParseNode.FunctionClassType;
 import com.google.common.collect.Lists;
 
 /**
- *
- * Class encapsulating the FLOOR operation on 
+ * Class encapsulating the FLOOR operation on
  * a column/literal of type {@link org.apache.phoenix.schema.types.PDecimal}.
- *
  *
  * @since 3.0.0
  */
 @BuiltInFunction(name = FloorFunction.NAME,
         args = {
-                @Argument(allowedTypes={PDecimal.class}),
-                @Argument(allowedTypes={PVarchar.class, PInteger.class}, defaultValue = "null", isConstant=true),
-                @Argument(allowedTypes={PInteger.class}, defaultValue="1", isConstant=true)
+                @Argument(allowedTypes = {PDecimal.class}),
+                @Argument(allowedTypes = {PVarchar.class, PInteger.class}, defaultValue = "null", isConstant = true),
+                @Argument(allowedTypes = {PInteger.class}, defaultValue = "1", isConstant = true)
         },
         classType = FunctionClassType.DERIVED
 )
 public class FloorDecimalExpression extends RoundDecimalExpression {
 
-    public FloorDecimalExpression() {}
+    public FloorDecimalExpression() {
+    }
 
     public FloorDecimalExpression(List<Expression> children) {
         super(children);
@@ -63,7 +62,6 @@ public class FloorDecimalExpression extends RoundDecimalExpression {
 
     /**
      * Creates a {@link FloorDecimalExpression} with rounding scale given by @param scale.
-     *
      */
     public static Expression create(Expression expr, int scale) throws SQLException {
         if (expr.getDataType().isCoercibleTo(PLong.INSTANCE)) {
@@ -88,7 +86,6 @@ public class FloorDecimalExpression extends RoundDecimalExpression {
 
     /**
      * Creates a {@link FloorDecimalExpression} with a default scale of 0 used for rounding.
-     *
      */
     public static Expression create(Expression expr) throws SQLException {
         return create(expr, 0);
@@ -109,9 +106,9 @@ public class FloorDecimalExpression extends RoundDecimalExpression {
      */
     @Override
     protected KeyRange getInputRangeProducing(BigDecimal result) {
-        if(!hasEnoughPrecisionToProduce(result)) {
-            throw new IllegalArgumentException("Cannot produce input range for decimal " + result 
-                + ", not enough precision with scale " + getRoundingScale());
+        if (!hasEnoughPrecisionToProduce(result)) {
+            throw new IllegalArgumentException("Cannot produce input range for decimal " + result
+                    + ", not enough precision with scale " + getRoundingScale());
         }
         byte[] lowerRange = PDecimal.INSTANCE.toBytes(result);
         byte[] upperRange = PDecimal.INSTANCE.toBytes(stepNextInScale(result));

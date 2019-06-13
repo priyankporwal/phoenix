@@ -30,10 +30,10 @@ import org.apache.phoenix.schema.TableRef;
 
 public class DefaultTableResultIteratorFactory implements TableResultIteratorFactory {
 
-       @Override
+    @Override
     public TableResultIterator newIterator(MutationState mutationState, TableRef tableRef,
-            Scan scan, ScanMetricsHolder scanMetricsHolder, long renewLeaseThreshold,
-            QueryPlan plan, ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr,ServerCache> caches) throws SQLException {
+                                           Scan scan, ScanMetricsHolder scanMetricsHolder, long renewLeaseThreshold,
+                                           QueryPlan plan, ParallelScanGrouper scanGrouper, Map<ImmutableBytesPtr, ServerCache> caches) throws SQLException {
         return new TableResultIterator(mutationState, scan, scanMetricsHolder, renewLeaseThreshold,
                 plan, scanGrouper, caches);
     }

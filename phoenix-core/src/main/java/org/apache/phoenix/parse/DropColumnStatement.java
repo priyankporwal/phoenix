@@ -24,7 +24,7 @@ import org.apache.phoenix.schema.PTableType;
 public class DropColumnStatement extends AlterTableStatement {
     private final List<ColumnName> columnRefs;
     private final boolean ifExists;
-    
+
     protected DropColumnStatement(NamedTableNode table, PTableType tableType, List<ColumnName> columnRefs, boolean ifExists) {
         super(table, tableType);
         this.columnRefs = columnRefs;

@@ -26,23 +26,20 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.util.SchemaUtil;
 
 /**
- * 
  * Node representing the CAST operator in SQL.
- * 
- * 
- * @since 0.1
  *
+ * @since 0.1
  */
 public class CastParseNode extends UnaryParseNode {
-	private final PDataType dt;
+    private final PDataType dt;
     private final Integer maxLength;
     private final Integer scale;
-	
-	CastParseNode(ParseNode expr, String dataType, Integer maxLength, Integer scale, boolean arr) {
-        this(expr, PDataType.fromSqlTypeName(SchemaUtil.normalizeIdentifier(dataType)), maxLength, scale, arr);
-	}
 
-	CastParseNode(ParseNode expr, PDataType dataType, Integer maxLength, Integer scale, boolean arr) {
+    CastParseNode(ParseNode expr, String dataType, Integer maxLength, Integer scale, boolean arr) {
+        this(expr, PDataType.fromSqlTypeName(SchemaUtil.normalizeIdentifier(dataType)), maxLength, scale, arr);
+    }
+
+    CastParseNode(ParseNode expr, PDataType dataType, Integer maxLength, Integer scale, boolean arr) {
         super(expr);
         if (arr == true) {
             dt = PDataType.fromTypeId(dataType.getSqlType() + PDataType.ARRAY_TYPE_BASE);
@@ -51,9 +48,9 @@ public class CastParseNode extends UnaryParseNode {
         }
         this.maxLength = maxLength;
         this.scale = scale;
-	}
+    }
 
-	@Override
+    @Override
     public <T> T accept(ParseNodeVisitor<T> visitor) throws SQLException {
         List<T> l = Collections.emptyList();
         if (visitor.visitEnter(this)) {
@@ -62,9 +59,9 @@ public class CastParseNode extends UnaryParseNode {
         return visitor.visitLeave(this, l);
     }
 
-	public PDataType getDataType() {
-		return dt;
-	}
+    public PDataType getDataType() {
+        return dt;
+    }
 
     public Integer getMaxLength() {
         return maxLength;
@@ -74,43 +71,52 @@ public class CastParseNode extends UnaryParseNode {
         return scale;
     }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((dt == null) ? 0 : dt.hashCode());
-		result = prime * result
-				+ ((maxLength == null) ? 0 : maxLength.hashCode());
-		result = prime * result + ((scale == null) ? 0 : scale.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((dt == null) ? 0 : dt.hashCode());
+        result = prime * result
+                + ((maxLength == null) ? 0 : maxLength.hashCode());
+        result = prime * result + ((scale == null) ? 0 : scale.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CastParseNode other = (CastParseNode) obj;
-		if (dt == null) {
-			if (other.dt != null)
-				return false;
-		} else if (!dt.equals(other.dt))
-			return false;
-		if (maxLength == null) {
-			if (other.maxLength != null)
-				return false;
-		} else if (!maxLength.equals(other.maxLength))
-			return false;
-		if (scale == null) {
-			if (other.scale != null)
-				return false;
-		} else if (!scale.equals(other.scale))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CastParseNode other = (CastParseNode) obj;
+        if (dt == null) {
+            if (other.dt != null) {
+                return false;
+            }
+        } else if (!dt.equals(other.dt)) {
+            return false;
+        }
+        if (maxLength == null) {
+            if (other.maxLength != null) {
+                return false;
+            }
+        } else if (!maxLength.equals(other.maxLength)) {
+            return false;
+        }
+        if (scale == null) {
+            if (other.scale != null) {
+                return false;
+            }
+        } else if (!scale.equals(other.scale)) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
@@ -125,11 +131,11 @@ public class CastParseNode extends UnaryParseNode {
             buf.append('(');
             buf.append(maxLength);
             if (scale != null) {
-              buf.append(',');
-              buf.append(scale); // has both max length and scale. For ex- decimal(10,2)
-            }       
+                buf.append(',');
+                buf.append(scale); // has both max length and scale. For ex- decimal(10,2)
+            }
             buf.append(')');
-       }
+        }
         if (isArray) {
             buf.append(' ');
             buf.append(PDataType.ARRAY_TYPE_SUFFIX);

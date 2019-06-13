@@ -53,7 +53,7 @@ public class DropMetadataIT extends ParallelStatsDisabledIT {
     private Connection getConnection() throws Exception {
         return getConnection(PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES));
     }
-    
+
     private Connection getConnection(Properties props) throws Exception {
         props.setProperty(QueryServices.DROP_METADATA_ATTRIB, Boolean.toString(true));
         // Force real driver to be used as the test one doesn't handle creating
@@ -89,7 +89,7 @@ public class DropMetadataIT extends ParallelStatsDisabledIT {
 
         byte[] hbaseNativeBytes = SchemaUtil.getTableNameAsBytes(HBASE_NATIVE_SCHEMA_NAME, hbaseNativeViewName);
         try {
-             TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(TableName.valueOf(hbaseNativeBytes));
+            TableDescriptorBuilder builder = TableDescriptorBuilder.newBuilder(TableName.valueOf(hbaseNativeBytes));
             ColumnFamilyDescriptor columnDescriptor = ColumnFamilyDescriptorBuilder.newBuilder(FAMILY_NAME)
                     .setKeepDeletedCells(KeepDeletedCells.TRUE).build();
             builder.addColumnFamily(columnDescriptor);
@@ -97,8 +97,8 @@ public class DropMetadataIT extends ParallelStatsDisabledIT {
         } finally {
             admin.close();
         }
-        
-        conn.createStatement().execute("create view " + hbaseNativeViewName+
+
+        conn.createStatement().execute("create view " + hbaseNativeViewName +
                 "   (uint_key unsigned_int not null," +
                 "    ulong_key unsigned_long not null," +
                 "    string_key varchar not null,\n" +

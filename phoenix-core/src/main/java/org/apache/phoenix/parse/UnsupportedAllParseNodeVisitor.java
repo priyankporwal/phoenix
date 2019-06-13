@@ -23,13 +23,11 @@ import java.util.List;
 
 
 /**
- * 
  * Visitor that throws UnsupportedOperationException for every
  * node.  Meant to be sub-classed for the case of a small subset
  * of nodes being supported, in which case only those applicable
  * methods would be overridden.
  *
- * 
  * @since 0.1
  */
 abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVisitor<E> {
@@ -44,16 +42,16 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
         throw new SQLFeatureNotSupportedException(node.toString());
     }
 
-	@Override
-	public boolean visitEnter(ArrayConstructorNode node) throws SQLException {
-		throw new SQLFeatureNotSupportedException(node.toString());
-	}
+    @Override
+    public boolean visitEnter(ArrayConstructorNode node) throws SQLException {
+        throw new SQLFeatureNotSupportedException(node.toString());
+    }
 
-	@Override
-	public E visitLeave(ArrayConstructorNode node, List<E> l)
-			throws SQLException {
-		throw new SQLFeatureNotSupportedException(node.toString());
-	}
+    @Override
+    public E visitLeave(ArrayConstructorNode node, List<E> l)
+            throws SQLException {
+        throw new SQLFeatureNotSupportedException(node.toString());
+    }
 
     @Override
     public E visit(BindParseNode node) throws SQLException {
@@ -99,17 +97,17 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
     public boolean visitEnter(ComparisonParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
-    public boolean visitEnter(BetweenParseNode node) throws SQLException{
+    public boolean visitEnter(BetweenParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public E visitLeave(AndParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public E visitLeave(OrParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
@@ -139,7 +137,7 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
     public E visitLeave(NotParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public boolean visitEnter(NotParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
@@ -149,27 +147,27 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
     public E visitLeave(ExistsParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public boolean visitEnter(ExistsParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public E visitLeave(CastParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public boolean visitEnter(CastParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public E visitLeave(InListParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public E visitLeave(InParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
@@ -179,12 +177,12 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
     public E visitLeave(BetweenParseNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public boolean visitEnter(InListParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public boolean visitEnter(InParseNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
@@ -258,11 +256,11 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
     @Override
     public void addElement(List<E> a, E element) {
     }
-    
+
     @Override
-    public E visit(SequenceValueParseNode node) throws SQLException {			
-		return null;
-	}
+    public E visit(SequenceValueParseNode node) throws SQLException {
+        return null;
+    }
 
     @Override
     public boolean visitEnter(ArrayAnyComparisonNode node) throws SQLException {
@@ -273,7 +271,7 @@ abstract public class UnsupportedAllParseNodeVisitor<E> extends BaseParseNodeVis
     public E visitLeave(ArrayAnyComparisonNode node, List<E> l) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());
     }
-    
+
     @Override
     public boolean visitEnter(ArrayAllComparisonNode node) throws SQLException {
         throw new SQLFeatureNotSupportedException(node.toString());

@@ -31,9 +31,9 @@ public class MaxAggregateParseNode extends DelegateConstantToCountParseNode {
     public MaxAggregateParseNode(String name, List<ParseNode> children, BuiltInFunctionInfo info) {
         super(name, children, info);
     }
-    
+
     @Override
     public FunctionExpression create(List<Expression> children, StatementContext context) throws SQLException {
-        return new MaxAggregateFunction(children, getDelegateFunction(children,context));
+        return new MaxAggregateFunction(children, getDelegateFunction(children, context));
     }
 }

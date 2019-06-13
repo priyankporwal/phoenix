@@ -35,13 +35,12 @@ import org.apache.phoenix.schema.types.PInteger;
 /**
  * Built-in function for FIRST_VALUES(<expression>, <expression>) WITHIN GROUP (ORDER BY <expression> ASC/DESC) aggregate
  * function
- *
  */
 @FunctionParseNode.BuiltInFunction(name = LastValuesFunction.NAME, nodeClass = LastValuesAggregateParseNode.class, args = {
-    @FunctionParseNode.Argument(),
-    @FunctionParseNode.Argument(allowedTypes = { PBoolean.class }, isConstant = true),
-    @FunctionParseNode.Argument(),
-    @FunctionParseNode.Argument(allowedTypes = { PInteger.class }, isConstant = true)})
+        @FunctionParseNode.Argument(),
+        @FunctionParseNode.Argument(allowedTypes = {PBoolean.class}, isConstant = true),
+        @FunctionParseNode.Argument(),
+        @FunctionParseNode.Argument(allowedTypes = {PInteger.class}, isConstant = true)})
 public class LastValuesFunction extends FirstLastValueBaseFunction {
     public static final String NAME = "LAST_VALUES";
     private int offset;

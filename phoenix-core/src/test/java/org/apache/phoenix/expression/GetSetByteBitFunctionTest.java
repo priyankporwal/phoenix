@@ -50,12 +50,12 @@ public class GetSetByteBitFunctionTest {
         getByteFunction.evaluate(null, ptr);
         Integer result =
                 (Integer) getByteFunction.getDataType().toObject(ptr,
-                    getByteFunction.getSortOrder());
+                        getByteFunction.getSortOrder());
         assertEquals(expected, result.intValue());
     }
 
     private void testSetByteExpression(Expression data, Expression offset, Expression newValue,
-            byte[] expected) throws SQLException {
+                                       byte[] expected) throws SQLException {
         List<Expression> expressions = Lists.newArrayList(data, offset, newValue);
         Expression setByteFunction = new SetByteFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
@@ -78,7 +78,7 @@ public class GetSetByteBitFunctionTest {
     }
 
     private void testSetByte(byte[] bytes, int offset, int newValue, PBinaryBase dataType,
-            byte[] expected) throws SQLException {
+                             byte[] expected) throws SQLException {
         LiteralExpression dataExpr, offsetExpr, newValueExpr;
         dataExpr = LiteralExpression.newConstant(bytes, dataType, SortOrder.ASC);
         offsetExpr = LiteralExpression.newConstant(offset, PInteger.INSTANCE, SortOrder.ASC);
@@ -103,13 +103,14 @@ public class GetSetByteBitFunctionTest {
             testGetByte(bytes, offset, PBinary.INSTANCE, bytes[offset]);
             testGetByte(bytes, offset, PVarbinary.INSTANCE, bytes[offset]);
         }
-        for (int offset = 0; offset < 256; ++offset)
+        for (int offset = 0; offset < 256; ++offset) {
             for (int tmp = Byte.MIN_VALUE; tmp <= Byte.MAX_VALUE; ++tmp) {
                 byte[] expected = new byte[bytes.length];
                 System.arraycopy(bytes, 0, expected, 0, bytes.length);
                 expected[offset] = (byte) (tmp & 0xff);
                 testSetByte(bytes, offset, tmp, PBinary.INSTANCE, expected);
             }
+        }
     }
 
     private void testGetBitExpression(Expression data, Expression offset, int expected)
@@ -124,7 +125,7 @@ public class GetSetByteBitFunctionTest {
     }
 
     private void testSetBitExpression(Expression data, Expression offset, Expression newValue,
-            byte[] expected) throws SQLException {
+                                      byte[] expected) throws SQLException {
         List<Expression> expressions = Lists.newArrayList(data, offset, newValue);
         Expression setBitFunction = new SetBitFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
@@ -146,7 +147,7 @@ public class GetSetByteBitFunctionTest {
     }
 
     private void testSetBit(byte[] bytes, int offset, int newValue, PBinaryBase dataType,
-            byte[] expected) throws SQLException {
+                            byte[] expected) throws SQLException {
         LiteralExpression dataExpr, offsetExpr, newValueExpr;
         dataExpr = LiteralExpression.newConstant(bytes, dataType, SortOrder.ASC);
         offsetExpr = LiteralExpression.newConstant(offset, PInteger.INSTANCE, SortOrder.ASC);
@@ -174,7 +175,7 @@ public class GetSetByteBitFunctionTest {
             testGetBit(bytes, offset, PBinary.INSTANCE, expected);
             testGetBit(bytes, offset, PVarbinary.INSTANCE, expected);
         }
-        for (int offset = 0; offset < 256 * Byte.SIZE; ++offset)
+        for (int offset = 0; offset < 256 * Byte.SIZE; ++offset) {
             for (int tmp = 0; tmp <= 1; ++tmp) {
                 byte[] expected = new byte[bytes.length];
                 System.arraycopy(bytes, 0, expected, 0, bytes.length);
@@ -185,5 +186,6 @@ public class GetSetByteBitFunctionTest {
                 }
                 testSetBit(bytes, offset, tmp, PBinary.INSTANCE, expected);
             }
+        }
     }
 }

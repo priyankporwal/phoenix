@@ -29,7 +29,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * Container for data transfer between server and client aggregation (FIRST|LAST|NTH)_VALUE functions
- *
  */
 public class FirstLastNthValueDataContainer {
 
@@ -96,7 +95,7 @@ public class FirstLastNthValueDataContainer {
                 payloadOffset += l;
             }
 
-            if(!data.containsKey(key)) {
+            if (!data.containsKey(key)) {
                 data.put(key, new LinkedList<byte[]>());
             }
             data.get(key).add(value);
@@ -152,7 +151,7 @@ public class FirstLastNthValueDataContainer {
 
         for (Map.Entry<byte[], LinkedList<byte[]>> entry : data.entrySet()) {
             ListIterator<byte[]> it = entry.getValue().listIterator();
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 valuesCount++;
                 byte[] itemValue = it.next();
 

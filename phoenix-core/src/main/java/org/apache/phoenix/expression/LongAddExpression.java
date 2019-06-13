@@ -36,9 +36,9 @@ public class LongAddExpression extends AddExpression {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        long finalResult=0;
-        
-        for(int i=0;i<children.size();i++) {
+        long finalResult = 0;
+
+        for (int i = 0; i < children.size(); i++) {
             Expression child = children.get(i);
             if (!child.evaluate(tuple, ptr) || ptr.getLength() == 0) {
                 return false;
@@ -46,7 +46,7 @@ public class LongAddExpression extends AddExpression {
             long childvalue = child.getDataType().getCodec().decodeLong(ptr, child.getSortOrder());
             finalResult += childvalue;
         }
-        byte[] resultPtr=new byte[PLong.INSTANCE.getByteSize()];
+        byte[] resultPtr = new byte[PLong.INSTANCE.getByteSize()];
         getDataType().getCodec().encodeLong(finalResult, resultPtr, 0);
         ptr.set(resultPtr);
         return true;

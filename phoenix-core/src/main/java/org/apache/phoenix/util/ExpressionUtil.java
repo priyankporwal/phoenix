@@ -48,20 +48,21 @@ import org.apache.phoenix.schema.types.PBoolean;
 import org.apache.phoenix.schema.types.PDataType;
 
 public class ExpressionUtil {
-	private ExpressionUtil() {
-	}
+    private ExpressionUtil() {
+    }
 
-	public static boolean isConstant(Expression expression) {
-		return (expression.isStateless() && isContantForStatement(expression));
-	}
+    public static boolean isConstant(Expression expression) {
+        return (expression.isStateless() && isContantForStatement(expression));
+    }
 
-   /**
-    * this method determines if expression is constant if all children of it are constants.
-    * @param expression
-    * @return
-    */
+    /**
+     * this method determines if expression is constant if all children of it are constants.
+     *
+     * @param expression
+     * @return
+     */
     public static boolean isContantForStatement(Expression expression) {
-        return  (expression.getDeterminism() == Determinism.ALWAYS
+        return (expression.getDeterminism() == Determinism.ALWAYS
                 || expression.getDeterminism() == Determinism.PER_STATEMENT);
     }
 
@@ -82,7 +83,7 @@ public class ExpressionUtil {
     public static LiteralExpression getNullExpression(Expression expression) throws SQLException {
         return LiteralExpression.newConstant(null, expression.getDataType(), expression.getDeterminism());
     }
-    
+
     public static boolean evaluatesToTrue(Expression expression) {
         if (isConstant(expression)) {
             ImmutableBytesWritable ptr = new ImmutableBytesWritable();
@@ -97,7 +98,9 @@ public class ExpressionUtil {
             PColumn column = tableRef.getTable().getPKColumns().get(i);
             Expression source = projectedExpressions.get(i);
             if (source == null || !source
-                    .equals(new ColumnRef(tableRef, column.getPosition()).newColumnExpression())) { return true; }
+                    .equals(new ColumnRef(tableRef, column.getPosition()).newColumnExpression())) {
+                return true;
+            }
         }
         return false;
     }
@@ -105,12 +108,13 @@ public class ExpressionUtil {
     /**
      * check the whereExpression to see if the columnExpression is constant.
      * eg. for "where a =3 and b > 9", a is constant,but b is not.
+     *
      * @param columnExpression
      * @param whereExpression
      * @return
      */
     public static boolean isColumnExpressionConstant(ColumnExpression columnExpression, Expression whereExpression) {
-        if(whereExpression == null) {
+        if (whereExpression == null) {
             return false;
         }
         IsColumnConstantExpressionVisitor isColumnConstantExpressionVisitor =
@@ -120,7 +124,7 @@ public class ExpressionUtil {
     }
 
     private static class IsColumnConstantExpressionVisitor extends StatelessTraverseNoExpressionVisitor<Void> {
-        private final Expression columnExpression ;
+        private final Expression columnExpression;
         private Expression firstRhsConstantExpression = null;
         private int rhsConstantCount = 0;
         private boolean isNullExpressionVisited = false;
@@ -128,16 +132,18 @@ public class ExpressionUtil {
         public IsColumnConstantExpressionVisitor(Expression columnExpression) {
             this.columnExpression = columnExpression;
         }
+
         /**
          * only consider and,for "where a = 3 or b = 9", neither a or b is constant.
          */
         @Override
         public Iterator<Expression> visitEnter(AndExpression andExpression) {
-            if(rhsConstantCount > 1) {
+            if (rhsConstantCount > 1) {
                 return null;
             }
             return andExpression.getChildren().iterator();
         }
+
         /**
          * <pre>
          * We just consider {@link ComparisonExpression} because:
@@ -151,22 +157,22 @@ public class ExpressionUtil {
          */
         @Override
         public Iterator<Expression> visitEnter(ComparisonExpression comparisonExpression) {
-            if(rhsConstantCount > 1) {
+            if (rhsConstantCount > 1) {
                 return null;
             }
-            if(comparisonExpression.getFilterOp() != CompareOp.EQUAL) {
+            if (comparisonExpression.getFilterOp() != CompareOp.EQUAL) {
                 return null;
             }
             Expression lhsExpresssion = comparisonExpression.getChildren().get(0);
-            if(!this.columnExpression.equals(lhsExpresssion)) {
+            if (!this.columnExpression.equals(lhsExpresssion)) {
                 return null;
             }
             Expression rhsExpression = comparisonExpression.getChildren().get(1);
-            if(rhsExpression == null) {
+            if (rhsExpression == null) {
                 return null;
             }
             Boolean isConstant = rhsExpression.accept(new IsCompositeLiteralExpressionVisitor());
-            if(isConstant != null && isConstant.booleanValue()) {
+            if (isConstant != null && isConstant.booleanValue()) {
                 checkConstantValue(rhsExpression);
             }
             return null;
@@ -178,14 +184,14 @@ public class ExpressionUtil {
 
         @Override
         public Iterator<Expression> visitEnter(IsNullExpression isNullExpression) {
-            if(rhsConstantCount > 1) {
+            if (rhsConstantCount > 1) {
                 return null;
             }
-            if(isNullExpression.isNegate()) {
+            if (isNullExpression.isNegate()) {
                 return null;
             }
             Expression lhsExpresssion = isNullExpression.getChildren().get(0);
-            if(!this.columnExpression.equals(lhsExpresssion)) {
+            if (!this.columnExpression.equals(lhsExpresssion)) {
                 return null;
             }
             this.checkConstantValue(null);
@@ -193,29 +199,29 @@ public class ExpressionUtil {
         }
 
         private void checkConstantValue(Expression rhsExpression) {
-            if(!this.isNullExpressionVisited && this.firstRhsConstantExpression == null) {
+            if (!this.isNullExpressionVisited && this.firstRhsConstantExpression == null) {
                 this.firstRhsConstantExpression = rhsExpression;
                 rhsConstantCount++;
-                if(rhsExpression == null) {
+                if (rhsExpression == null) {
                     this.isNullExpressionVisited = true;
                 }
                 return;
             }
 
-            if(!isExpressionEquals(this.isNullExpressionVisited ? null : this.firstRhsConstantExpression, rhsExpression)) {
+            if (!isExpressionEquals(this.isNullExpressionVisited ? null : this.firstRhsConstantExpression, rhsExpression)) {
                 rhsConstantCount++;
                 return;
             }
         }
 
-        private static boolean isExpressionEquals(Expression oldExpression,Expression newExpression) {
-            if(oldExpression == null) {
-                if(newExpression == null) {
+        private static boolean isExpressionEquals(Expression oldExpression, Expression newExpression) {
+            if (oldExpression == null) {
+                if (newExpression == null) {
                     return true;
                 }
                 return ExpressionUtil.isNull(newExpression, new ImmutableBytesWritable());
             }
-            if(newExpression == null) {
+            if (newExpression == null) {
                 return ExpressionUtil.isNull(oldExpression, new ImmutableBytesWritable());
             }
             return oldExpression.equals(newExpression);
@@ -236,6 +242,7 @@ public class ExpressionUtil {
             }
             return Boolean.TRUE;
         }
+
         @Override
         public Boolean visit(LiteralExpression literalExpression) {
             return Boolean.TRUE;
@@ -249,54 +256,56 @@ public class ExpressionUtil {
      * The second part of the return pair is the rowkey column offset we must skip when we create OrderBys, because for table with salted/multiTenant/viewIndexId,
      * some leading rowkey columns should be skipped.
      * </pre>
+     *
      * @param tableRef
      * @param phoenixConnection
      * @param orderByReverse
      * @return
      * @throws SQLException
      */
-    public static Pair<OrderBy,Integer> getOrderByFromTable(
+    public static Pair<OrderBy, Integer> getOrderByFromTable(
             TableRef tableRef,
             PhoenixConnection phoenixConnection,
             boolean orderByReverse) throws SQLException {
 
         PTable table = tableRef.getTable();
-        Pair<OrderBy,Integer> orderByAndRowKeyColumnOffset =
+        Pair<OrderBy, Integer> orderByAndRowKeyColumnOffset =
                 getOrderByFromTableByRowKeyColumn(table, phoenixConnection, orderByReverse);
-        if(orderByAndRowKeyColumnOffset.getFirst() != OrderBy.EMPTY_ORDER_BY) {
+        if (orderByAndRowKeyColumnOffset.getFirst() != OrderBy.EMPTY_ORDER_BY) {
             return orderByAndRowKeyColumnOffset;
         }
-        if(table.getType() == PTableType.PROJECTED) {
+        if (table.getType() == PTableType.PROJECTED) {
             orderByAndRowKeyColumnOffset =
                     getOrderByFromProjectedTable(tableRef, phoenixConnection, orderByReverse);
-            if(orderByAndRowKeyColumnOffset.getFirst() != OrderBy.EMPTY_ORDER_BY) {
+            if (orderByAndRowKeyColumnOffset.getFirst() != OrderBy.EMPTY_ORDER_BY) {
                 return orderByAndRowKeyColumnOffset;
             }
         }
-        return new Pair<OrderBy,Integer>(OrderBy.EMPTY_ORDER_BY, 0);
+        return new Pair<OrderBy, Integer>(OrderBy.EMPTY_ORDER_BY, 0);
     }
 
     /**
      * Infer OrderBys from the rowkey columns of {@link PTable}.
      * The second part of the return pair is the rowkey column offset we must skip when we create OrderBys, because for table with salted/multiTenant/viewIndexId,
      * some leading rowkey columns should be skipped.
+     *
      * @param table
      * @param phoenixConnection
      * @param orderByReverse
      * @return
      */
-    public static Pair<OrderBy,Integer> getOrderByFromTableByRowKeyColumn(
+    public static Pair<OrderBy, Integer> getOrderByFromTableByRowKeyColumn(
             PTable table,
             PhoenixConnection phoenixConnection,
             boolean orderByReverse) {
-        Pair<List<RowKeyColumnExpression>,Integer> rowKeyColumnExpressionsAndRowKeyColumnOffset =
+        Pair<List<RowKeyColumnExpression>, Integer> rowKeyColumnExpressionsAndRowKeyColumnOffset =
                 ExpressionUtil.getRowKeyColumnExpressionsFromTable(table, phoenixConnection);
         List<RowKeyColumnExpression> rowKeyColumnExpressions = rowKeyColumnExpressionsAndRowKeyColumnOffset.getFirst();
         int rowKeyColumnOffset = rowKeyColumnExpressionsAndRowKeyColumnOffset.getSecond();
-        if(rowKeyColumnExpressions.isEmpty()) {
-            return new Pair<OrderBy,Integer>(OrderBy.EMPTY_ORDER_BY,0);
+        if (rowKeyColumnExpressions.isEmpty()) {
+            return new Pair<OrderBy, Integer>(OrderBy.EMPTY_ORDER_BY, 0);
         }
-        return new Pair<OrderBy,Integer>(
+        return new Pair<OrderBy, Integer>(
                 convertRowKeyColumnExpressionsToOrderBy(rowKeyColumnExpressions, orderByReverse),
                 rowKeyColumnOffset);
     }
@@ -306,13 +315,14 @@ public class ExpressionUtil {
      * so we should move forward to inspect {@link ProjectedColumn} to check if the source column is rowkey column.
      * The second part of the return pair is the rowkey column offset we must skip when we create OrderBys, because for table with salted/multiTenant/viewIndexId,
      * some leading rowkey columns should be skipped.
+     *
      * @param projectedTableRef
      * @param phoenixConnection
      * @param orderByReverse
      * @return
      * @throws SQLException
      */
-    public static Pair<OrderBy,Integer> getOrderByFromProjectedTable(
+    public static Pair<OrderBy, Integer> getOrderByFromProjectedTable(
             TableRef projectedTableRef,
             PhoenixConnection phoenixConnection,
             boolean orderByReverse) throws SQLException {
@@ -320,24 +330,23 @@ public class ExpressionUtil {
         PTable projectedTable = projectedTableRef.getTable();
         assert projectedTable.getType() == PTableType.PROJECTED;
         TableRef sourceTableRef = null;
-        TreeMap<Integer,ColumnRef> sourceRowKeyColumnIndexToProjectedColumnRef =
+        TreeMap<Integer, ColumnRef> sourceRowKeyColumnIndexToProjectedColumnRef =
                 new TreeMap<Integer, ColumnRef>();
 
-        for(PColumn column : projectedTable.getColumns()) {
-            if(!(column instanceof ProjectedColumn)) {
+        for (PColumn column : projectedTable.getColumns()) {
+            if (!(column instanceof ProjectedColumn)) {
                 continue;
             }
-            ProjectedColumn projectedColumn = (ProjectedColumn)column;
+            ProjectedColumn projectedColumn = (ProjectedColumn) column;
             ColumnRef sourceColumnRef = projectedColumn.getSourceColumnRef();
             TableRef currentSourceTableRef = sourceColumnRef.getTableRef();
-            if(sourceTableRef == null) {
+            if (sourceTableRef == null) {
                 sourceTableRef = currentSourceTableRef;
-            }
-            else if(!sourceTableRef.equals(currentSourceTableRef)) {
-                return new Pair<OrderBy,Integer>(OrderBy.EMPTY_ORDER_BY, 0);
+            } else if (!sourceTableRef.equals(currentSourceTableRef)) {
+                return new Pair<OrderBy, Integer>(OrderBy.EMPTY_ORDER_BY, 0);
             }
             int sourceRowKeyColumnIndex = sourceColumnRef.getPKSlotPosition();
-            if(sourceRowKeyColumnIndex >= 0) {
+            if (sourceRowKeyColumnIndex >= 0) {
                 ColumnRef projectedColumnRef =
                         new ColumnRef(projectedTableRef, projectedColumn.getPosition());
                 sourceRowKeyColumnIndexToProjectedColumnRef.put(
@@ -345,22 +354,20 @@ public class ExpressionUtil {
             }
         }
 
-        if(sourceTableRef == null) {
-            return new Pair<OrderBy,Integer>(OrderBy.EMPTY_ORDER_BY, 0);
+        if (sourceTableRef == null) {
+            return new Pair<OrderBy, Integer>(OrderBy.EMPTY_ORDER_BY, 0);
         }
 
         final int sourceRowKeyColumnOffset = getRowKeyColumnOffset(sourceTableRef.getTable(), phoenixConnection);
         List<OrderByExpression> orderByExpressions = new LinkedList<OrderByExpression>();
         int matchedSourceRowKeyColumnOffset = sourceRowKeyColumnOffset;
-        for(Entry<Integer,ColumnRef> entry : sourceRowKeyColumnIndexToProjectedColumnRef.entrySet()) {
+        for (Entry<Integer, ColumnRef> entry : sourceRowKeyColumnIndexToProjectedColumnRef.entrySet()) {
             int currentRowKeyColumnOffset = entry.getKey();
-            if(currentRowKeyColumnOffset < matchedSourceRowKeyColumnOffset) {
+            if (currentRowKeyColumnOffset < matchedSourceRowKeyColumnOffset) {
                 continue;
-            }
-            else if(currentRowKeyColumnOffset == matchedSourceRowKeyColumnOffset) {
+            } else if (currentRowKeyColumnOffset == matchedSourceRowKeyColumnOffset) {
                 matchedSourceRowKeyColumnOffset++;
-            }
-            else {
+            } else {
                 break;
             }
 
@@ -371,14 +378,15 @@ public class ExpressionUtil {
             orderByExpressions.add(orderByExpression);
         }
 
-        if(orderByExpressions.isEmpty()) {
-            return new Pair<OrderBy,Integer>(OrderBy.EMPTY_ORDER_BY, 0);
+        if (orderByExpressions.isEmpty()) {
+            return new Pair<OrderBy, Integer>(OrderBy.EMPTY_ORDER_BY, 0);
         }
-        return new Pair<OrderBy,Integer>(new OrderBy(orderByExpressions), sourceRowKeyColumnOffset);
+        return new Pair<OrderBy, Integer>(new OrderBy(orderByExpressions), sourceRowKeyColumnOffset);
     }
 
     /**
      * For table with salted/multiTenant/viewIndexId,some leading rowkey columns should be skipped.
+     *
      * @param table
      * @param phoenixConnection
      * @return
@@ -394,40 +402,43 @@ public class ExpressionUtil {
      * Create {@link RowKeyColumnExpression} from {@link PTable}.
      * The second part of the return pair is the rowkey column offset we must skip when we create OrderBys, because for table with salted/multiTenant/viewIndexId,
      * some leading rowkey columns should be skipped.
+     *
      * @param table
      * @param phoenixConnection
      * @return
      */
-    public static Pair<List<RowKeyColumnExpression>,Integer> getRowKeyColumnExpressionsFromTable(PTable table, PhoenixConnection phoenixConnection) {
+    public static Pair<List<RowKeyColumnExpression>, Integer> getRowKeyColumnExpressionsFromTable(PTable table, PhoenixConnection phoenixConnection) {
         int pkPositionOffset = getRowKeyColumnOffset(table, phoenixConnection);
         List<PColumn> pkColumns = table.getPKColumns();
-        if(pkPositionOffset >= pkColumns.size()) {
-            return new Pair<List<RowKeyColumnExpression>,Integer>(Collections.<RowKeyColumnExpression> emptyList(), 0);
+        if (pkPositionOffset >= pkColumns.size()) {
+            return new Pair<List<RowKeyColumnExpression>, Integer>(Collections.<RowKeyColumnExpression>emptyList(), 0);
         }
         List<RowKeyColumnExpression> rowKeyColumnExpressions = new ArrayList<RowKeyColumnExpression>(pkColumns.size() - pkPositionOffset);
-        for(int index = pkPositionOffset; index < pkColumns.size(); index++) {
+        for (int index = pkPositionOffset; index < pkColumns.size(); index++) {
             RowKeyColumnExpression rowKeyColumnExpression =
                     new RowKeyColumnExpression(pkColumns.get(index), new RowKeyValueAccessor(pkColumns, index));
             rowKeyColumnExpressions.add(rowKeyColumnExpression);
         }
-        return new Pair<List<RowKeyColumnExpression>,Integer>(rowKeyColumnExpressions, pkPositionOffset);
+        return new Pair<List<RowKeyColumnExpression>, Integer>(rowKeyColumnExpressions, pkPositionOffset);
     }
 
     /**
      * Create OrderByExpression by RowKeyColumnExpression,isNullsLast is the default value "false",isAscending is based on {@link Expression#getSortOrder()}.
      * If orderByReverse is true, reverse the isNullsLast and isAscending.
+     *
      * @param rowKeyColumnExpressions
      * @param orderByReverse
      * @return
      */
     public static OrderBy convertRowKeyColumnExpressionsToOrderBy(List<RowKeyColumnExpression> rowKeyColumnExpressions, boolean orderByReverse) {
         return convertRowKeyColumnExpressionsToOrderBy(
-                rowKeyColumnExpressions, Collections.<Info> emptyList(), orderByReverse);
+                rowKeyColumnExpressions, Collections.<Info>emptyList(), orderByReverse);
     }
 
     /**
      * Create OrderByExpression by RowKeyColumnExpression, if the orderPreservingTrackInfos is not null, use isNullsLast and isAscending from orderPreservingTrackInfos.
      * If orderByReverse is true, reverse the isNullsLast and isAscending.
+     *
      * @param rowKeyColumnExpressions
      * @param orderPreservingTrackInfos
      * @param orderByReverse
@@ -437,22 +448,22 @@ public class ExpressionUtil {
             List<RowKeyColumnExpression> rowKeyColumnExpressions,
             List<Info> orderPreservingTrackInfos,
             boolean orderByReverse) {
-        if(rowKeyColumnExpressions.isEmpty()) {
+        if (rowKeyColumnExpressions.isEmpty()) {
             return OrderBy.EMPTY_ORDER_BY;
         }
         List<OrderByExpression> orderByExpressions = new ArrayList<OrderByExpression>(rowKeyColumnExpressions.size());
         Iterator<Info> orderPreservingTrackInfosIter = null;
-        if(orderPreservingTrackInfos != null && orderPreservingTrackInfos.size() > 0) {
-            if(orderPreservingTrackInfos.size() != rowKeyColumnExpressions.size()) {
+        if (orderPreservingTrackInfos != null && orderPreservingTrackInfos.size() > 0) {
+            if (orderPreservingTrackInfos.size() != rowKeyColumnExpressions.size()) {
                 throw new IllegalStateException(
                         "orderPreservingTrackInfos.size():[" + orderPreservingTrackInfos.size() +
-                        "] should equals rowKeyColumnExpressions.size():[" + rowKeyColumnExpressions.size()+"]!");
+                                "] should equals rowKeyColumnExpressions.size():[" + rowKeyColumnExpressions.size() + "]!");
             }
             orderPreservingTrackInfosIter = orderPreservingTrackInfos.iterator();
         }
-        for(RowKeyColumnExpression rowKeyColumnExpression : rowKeyColumnExpressions) {
+        for (RowKeyColumnExpression rowKeyColumnExpression : rowKeyColumnExpressions) {
             Info orderPreservingTrackInfo = null;
-            if(orderPreservingTrackInfosIter != null) {
+            if (orderPreservingTrackInfosIter != null) {
                 assert orderPreservingTrackInfosIter.hasNext();
                 orderPreservingTrackInfo = orderPreservingTrackInfosIter.next();
             }
@@ -465,17 +476,18 @@ public class ExpressionUtil {
 
     /**
      * Convert the GroupBy to OrderBy, expressions in GroupBy should be converted to {@link RowKeyColumnExpression}.
+     *
      * @param groupBy
      * @param orderByReverse
      * @return
      */
     public static OrderBy convertGroupByToOrderBy(GroupBy groupBy, boolean orderByReverse) {
-        if(groupBy.isEmpty()) {
+        if (groupBy.isEmpty()) {
             return OrderBy.EMPTY_ORDER_BY;
         }
         List<RowKeyColumnExpression> rowKeyColumnExpressions = convertGroupByToRowKeyColumnExpressions(groupBy);
-        List<Info> orderPreservingTrackInfos = Collections.<Info> emptyList();
-        if(groupBy.isOrderPreserving()) {
+        List<Info> orderPreservingTrackInfos = Collections.<Info>emptyList();
+        if (groupBy.isOrderPreserving()) {
             orderPreservingTrackInfos = groupBy.getOrderPreservingTrackInfos();
         }
         return convertRowKeyColumnExpressionsToOrderBy(rowKeyColumnExpressions, orderPreservingTrackInfos, orderByReverse);
@@ -483,17 +495,18 @@ public class ExpressionUtil {
 
     /**
      * Convert the expressions in GroupBy to {@link RowKeyColumnExpression}, the convert logic is same as {@link ExpressionCompiler#wrapGroupByExpression}.
+     *
      * @param groupBy
      * @return
      */
     public static List<RowKeyColumnExpression> convertGroupByToRowKeyColumnExpressions(GroupBy groupBy) {
-        if(groupBy.isEmpty()) {
-            return Collections.<RowKeyColumnExpression> emptyList();
+        if (groupBy.isEmpty()) {
+            return Collections.<RowKeyColumnExpression>emptyList();
         }
         List<Expression> groupByExpressions = groupBy.getExpressions();
         List<RowKeyColumnExpression> rowKeyColumnExpressions = new ArrayList<RowKeyColumnExpression>(groupByExpressions.size());
         int columnIndex = 0;
-        for(Expression groupByExpression : groupByExpressions) {
+        for (Expression groupByExpression : groupByExpressions) {
             RowKeyColumnExpression rowKeyColumnExpression =
                     convertGroupByExpressionToRowKeyColumnExpression(groupBy, groupByExpression, columnIndex++);
             rowKeyColumnExpressions.add(rowKeyColumnExpression);
@@ -503,6 +516,7 @@ public class ExpressionUtil {
 
     /**
      * Convert the expressions in GroupBy to {@link RowKeyColumnExpression}, a typical case is in {@link ExpressionCompiler#wrapGroupByExpression}.
+     *
      * @param groupBy
      * @param originalExpression
      * @param groupByColumnIndex

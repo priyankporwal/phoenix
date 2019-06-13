@@ -34,9 +34,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *
  * Filter for use when expressions only reference row key columns
- *
  */
 public class RowKeyComparisonFilter extends BooleanExpressionFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RowKeyComparisonFilter.class);
@@ -122,7 +120,7 @@ public class RowKeyComparisonFilter extends BooleanExpressionFilter {
 
         @Override
         public boolean getValue(byte[] family, byte[] qualifier,
-                ImmutableBytesWritable ptr) {
+                                ImmutableBytesWritable ptr) {
             return false;
         }
     }
@@ -151,10 +149,10 @@ public class RowKeyComparisonFilter extends BooleanExpressionFilter {
         super.write(output);
         WritableUtils.writeCompressedByteArray(output, this.essentialCF);
     }
-    
-    public static RowKeyComparisonFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+
+    public static RowKeyComparisonFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (RowKeyComparisonFilter)Writables.getWritable(pbBytes, new RowKeyComparisonFilter());
+            return (RowKeyComparisonFilter) Writables.getWritable(pbBytes, new RowKeyComparisonFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }

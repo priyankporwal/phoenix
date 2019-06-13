@@ -26,20 +26,20 @@ import org.apache.phoenix.schema.PTable.ImmutableStorageScheme;
  * that was used.
  */
 public interface ColumnValueEncoder {
-    
+
     /**
      * append a column value to the array
      */
     void appendValue(byte[] bytes, int offset, int length);
-    
+
     /**
      * append a value that is not present to the array (used to support DEFAULT expressions)
      */
     void appendAbsentValue();
-    
+
     /**
      * @return the encoded byte[] that contains the serialized column values
      */
     byte[] encode();
-    
+
 }

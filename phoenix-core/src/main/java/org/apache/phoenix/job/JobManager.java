@@ -41,32 +41,32 @@ import javax.annotation.Nullable;
 import org.apache.phoenix.monitoring.TaskExecutionMetricsHolder;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 /**
- * 
  * Thread pool executor that executes scans in parallel
  *
- * 
  * @since 0.1
  */
 @SuppressWarnings("rawtypes")
 public class JobManager<T> extends AbstractRoundRobinQueue<T> {
-	
+
     private static final AtomicLong PHOENIX_POOL_INDEX = new AtomicLong(1);
-	
+
     public JobManager(int maxSize) {
         super(maxSize, true); // true -> new producers move to front of queue; this reduces latency.
     }
 
-	@Override
+    @Override
     protected Object extractProducer(T o) {
-        if( o instanceof  JobFutureTask){
-            return ((JobFutureTask)o).getJobId();
+        if (o instanceof JobFutureTask) {
+            return ((JobFutureTask) o).getJobId();
         }
         return o;
-    }        
+    }
 
     public static interface JobRunnable<T> extends Runnable {
         public Object getJobId();
+
         public TaskExecutionMetricsHolder getTaskExecutionMetric();
     }
 
@@ -92,7 +92,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
                 protected <T> RunnableFuture<T> newTaskFor(Callable<T> call) {
                     return new InstrumentedJobFutureTask<T>(call);
                 }
-        
+
                 @Override
                 protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
                     return new InstrumentedJobFutureTask<T>(runnable, value);
@@ -106,7 +106,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
                     // Override this so we can create a JobFutureTask so we can extract out the parentJobId (otherwise, in the default FutureTask, it is private). 
                     return new JobFutureTask<T>(call);
                 }
-        
+
                 @Override
                 protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
                     return new JobFutureTask<T>(runnable, value);
@@ -124,18 +124,18 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
         private final Object jobId;
         @Nullable
         private final TaskExecutionMetricsHolder taskMetric;
-        
+
         public JobFutureTask(Runnable r, T t) {
             super(r, t);
-            if(r instanceof JobRunnable){
-              	this.jobId = ((JobRunnable)r).getJobId();
-              	this.taskMetric = ((JobRunnable)r).getTaskExecutionMetric();
+            if (r instanceof JobRunnable) {
+                this.jobId = ((JobRunnable) r).getJobId();
+                this.taskMetric = ((JobRunnable) r).getTaskExecutionMetric();
             } else {
-            	this.jobId = this;
-            	this.taskMetric = null;
+                this.jobId = this;
+                this.taskMetric = null;
             }
         }
-        
+
         public JobFutureTask(Callable<T> c) {
             super(c);
             // FIXME: this fails when executor used by hbase
@@ -147,12 +147,12 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
                 this.taskMetric = null;
             }
         }
-        
+
         public Object getJobId() {
             return jobId;
         }
     }
-    
+
     /**
      * Instrumented version of {@link JobFutureTask} that measures time spent by a task at various stages in the queue
      * and when executed.
@@ -176,28 +176,29 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
             super(c);
             this.taskSubmissionTime = System.currentTimeMillis();
         }
-        
+
         @Override
         public void run() {
             this.taskExecutionStartTime = System.currentTimeMillis();
             super.run();
         }
-        
+
         public long getTaskSubmissionTime() {
             return taskSubmissionTime;
         }
-        
+
         public long getTaskExecutionStartTime() {
             return taskExecutionStartTime;
         }
 
     }
-    
+
     /**
-     * Delegating callable implementation that preserves the parentJobId and sets up thread tracker stuff before delegating to the actual command. 
+     * Delegating callable implementation that preserves the parentJobId and sets up thread tracker stuff before delegating to the actual command.
      */
     public static interface JobCallable<T> extends Callable<T> {
         public Object getJobId();
+
         public TaskExecutionMetricsHolder getTaskExecutionMetric();
     }
 
@@ -226,7 +227,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
             return t;
         }
     }
-    
+
     /**
      * Thread pool executor that instruments the various characteristics of the backing pool of threads and queue. This
      * executor assumes that all the tasks handled are of type {@link JobManager.InstrumentedJobFutureTask}
@@ -246,7 +247,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
         };
 
         public InstrumentedThreadPoolExecutor(String threadPoolName, int corePoolSize, int maximumPoolSize,
-                long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+                                              long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
             setRejectedExecutionHandler(rejectedExecHandler);
         }
@@ -263,7 +264,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
 
         @Override
         protected void beforeExecute(Thread worker, Runnable task) {
-            InstrumentedJobFutureTask instrumentedTask = (InstrumentedJobFutureTask)task;
+            InstrumentedJobFutureTask instrumentedTask = (InstrumentedJobFutureTask) task;
             long queueWaitTime = System.currentTimeMillis() - instrumentedTask.getTaskSubmissionTime();
             GLOBAL_TASK_QUEUE_WAIT_TIME.update(queueWaitTime);
             TaskExecutionMetricsHolder metrics = getRequestMetric(task);
@@ -275,7 +276,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
 
         @Override
         protected void afterExecute(Runnable task, Throwable t) {
-            InstrumentedJobFutureTask instrumentedTask = (InstrumentedJobFutureTask)task;
+            InstrumentedJobFutureTask instrumentedTask = (InstrumentedJobFutureTask) task;
             try {
                 super.afterExecute(instrumentedTask, t);
             } finally {
@@ -292,7 +293,7 @@ public class JobManager<T> extends AbstractRoundRobinQueue<T> {
         }
 
         private static TaskExecutionMetricsHolder getRequestMetric(Runnable task) {
-            return ((JobFutureTask)task).taskMetric;
+            return ((JobFutureTask) task).taskMetric;
         }
     }
 }

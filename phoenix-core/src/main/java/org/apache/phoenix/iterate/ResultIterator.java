@@ -42,11 +42,12 @@ public interface ResultIterator extends SQLCloseable {
 
     /**
      * Grab the next row's worth of values. The iterator will return a Tuple.
+     *
      * @return Tuple object if there is another row, null if the scanner is
      * exhausted.
      * @throws SQLException e
      */
     public Tuple next() throws SQLException;
-    
+
     public void explain(List<String> planSteps);
 }

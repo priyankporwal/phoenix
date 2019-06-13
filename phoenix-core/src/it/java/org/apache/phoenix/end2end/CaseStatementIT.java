@@ -56,12 +56,13 @@ public class CaseStatementIT extends BaseQueryIT {
     public CaseStatementIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
-    @Parameters(name="CaseStatementIT_{index}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "CaseStatementIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
-    }    
-    
+    }
+
     @Test
     public void testSimpleCaseStatement() throws Exception {
         String query = "SELECT CASE a_integer WHEN 1 THEN 'a' WHEN 2 THEN 'b' WHEN 3 THEN 'c' ELSE 'd' END, entity_id AS a FROM " + tableName + " WHERE organization_id=? AND a_integer < 6";
@@ -74,17 +75,17 @@ public class CaseStatementIT extends BaseQueryIT {
             ResultSet rs = statement.executeQuery();
             @SuppressWarnings("unchecked")
             List<List<Object>> expectedResults = Lists.newArrayList(
-                Arrays.<Object>asList("a",ROW1),
-                Arrays.<Object>asList( "b",ROW2), 
-                Arrays.<Object>asList("c",ROW3),
-                Arrays.<Object>asList("d",ROW4),
-                Arrays.<Object>asList("d",ROW5));
+                    Arrays.<Object>asList("a", ROW1),
+                    Arrays.<Object>asList("b", ROW2),
+                    Arrays.<Object>asList("c", ROW3),
+                    Arrays.<Object>asList("d", ROW4),
+                    Arrays.<Object>asList("d", ROW5));
             assertValuesEqualsResultSet(rs, expectedResults);
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testMultiCondCaseStatement() throws Exception {
         String query = "SELECT CASE WHEN a_integer <= 2 THEN 1.5 WHEN a_integer = 3 THEN 2 WHEN a_integer <= 6 THEN 4.5 ELSE 5 END AS a FROM " + tableName + " WHERE organization_id=?";
@@ -118,7 +119,7 @@ public class CaseStatementIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testPartialEvalCaseStatement() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and CASE WHEN 1234 = a_integer THEN 1 WHEN x_integer = 5 THEN 2 ELSE 3 END = 2";
@@ -136,7 +137,7 @@ public class CaseStatementIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testFoundIndexOnPartialEvalCaseStatement() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and CASE WHEN a_integer = 1234 THEN 1 WHEN x_integer = 3 THEN y_integer ELSE 3 END = 300";
@@ -154,7 +155,7 @@ public class CaseStatementIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     // TODO: we need some tests that have multiple versions of key values
     @Test
     public void testUnfoundMultiColumnCaseStatement() throws Exception {
@@ -174,7 +175,7 @@ public class CaseStatementIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNonNullMultiCondCaseStatement() throws Exception {
         String query = "SELECT CASE WHEN entity_id = '000000000000000' THEN 1 WHEN entity_id = '000000000000001' THEN 2 ELSE 3 END FROM " + tableName + " WHERE organization_id=?";
@@ -186,12 +187,12 @@ public class CaseStatementIT extends BaseQueryIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             ResultSetMetaData rsm = rs.getMetaData();
-            assertEquals(ResultSetMetaData.columnNoNulls,rsm.isNullable(1));
+            assertEquals(ResultSetMetaData.columnNoNulls, rsm.isNullable(1));
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNullMultiCondCaseStatement() throws Exception {
         String query = "SELECT CASE WHEN entity_id = '000000000000000' THEN 1 WHEN entity_id = '000000000000001' THEN 2 END FROM " + tableName + " WHERE organization_id=?";
@@ -203,12 +204,12 @@ public class CaseStatementIT extends BaseQueryIT {
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
             ResultSetMetaData rsm = rs.getMetaData();
-            assertEquals(ResultSetMetaData.columnNullable,rsm.isNullable(1));
+            assertEquals(ResultSetMetaData.columnNullable, rsm.isNullable(1));
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNullabilityMultiCondCaseStatement() throws Exception {
         String query = "SELECT CASE WHEN a_integer <= 2 THEN ? WHEN a_integer = 3 THEN ? WHEN a_integer <= ? THEN ? ELSE 5 END AS a FROM " + tableName + " WHERE organization_id=?";
@@ -217,10 +218,10 @@ public class CaseStatementIT extends BaseQueryIT {
         Connection conn = DriverManager.getConnection(url, props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setBigDecimal(1,BigDecimal.valueOf(1.5));
-            statement.setInt(2,2);
-            statement.setInt(3,6);
-            statement.setBigDecimal(4,BigDecimal.valueOf(4.5));
+            statement.setBigDecimal(1, BigDecimal.valueOf(1.5));
+            statement.setInt(2, 2);
+            statement.setInt(3, 6);
+            statement.setBigDecimal(4, BigDecimal.valueOf(4.5));
             statement.setString(5, tenantId);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
@@ -258,18 +259,18 @@ public class CaseStatementIT extends BaseQueryIT {
         // fire.
         Connection upsertConn = DriverManager.getConnection(url, props);
         String upsertStmt =
-            "upsert into " + tableName +
-            " (" +
-            "    ENTITY_ID, " +
-            "    ORGANIZATION_ID, " +
-            "    A_INTEGER) " +
-            "VALUES ('" + ROW5 + "','" + tenantId + "', null)";
+                "upsert into " + tableName +
+                        " (" +
+                        "    ENTITY_ID, " +
+                        "    ORGANIZATION_ID, " +
+                        "    A_INTEGER) " +
+                        "VALUES ('" + ROW5 + "','" + tenantId + "', null)";
         upsertConn.setAutoCommit(true); // Test auto commit
         // Insert all rows at ts
         PreparedStatement stmt = upsertConn.prepareStatement(upsertStmt);
         stmt.execute(); // should commit too
         upsertConn.close();
-        
+
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, tenantId);
         ResultSet rs = statement.executeQuery();
@@ -278,5 +279,5 @@ public class CaseStatementIT extends BaseQueryIT {
         assertFalse(rs.next());
         conn.close();
     }
-   
+
 }

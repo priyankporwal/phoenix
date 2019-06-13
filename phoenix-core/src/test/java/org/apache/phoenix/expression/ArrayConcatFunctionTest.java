@@ -82,9 +82,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testChar1() throws SQLException {
-        Object[] o1 = new Object[]{"aa", "bb"};
-        Object[] o2 = new Object[]{"c", "d"};
-        Object[] e = new Object[]{"aa", "bb", "c", "d"};
+        Object[] o1 = new Object[] {"aa", "bb"};
+        Object[] o2 = new Object[] {"c", "d"};
+        Object[] e = new Object[] {"aa", "bb", "c", "d"};
         PDataType type = PCharArray.INSTANCE;
         PDataType base = PChar.INSTANCE;
 
@@ -100,9 +100,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testChar2() throws SQLException {
-        Object[] o1 = new Object[]{"aa", "bb"};
-        Object[] o2 = new Object[]{"cc", "dc", "ee"};
-        Object[] e = new Object[]{"aa", "bb", "cc", "dc", "ee"};
+        Object[] o1 = new Object[] {"aa", "bb"};
+        Object[] o2 = new Object[] {"cc", "dc", "ee"};
+        Object[] e = new Object[] {"aa", "bb", "cc", "dc", "ee"};
         PDataType type = PCharArray.INSTANCE;
         PDataType base = PChar.INSTANCE;
 
@@ -118,9 +118,9 @@ public class ArrayConcatFunctionTest {
 
     @Test(expected = DataExceedsCapacityException.class)
     public void testChar3() throws SQLException {
-        Object[] o1 = new Object[]{"c", "d"};
-        Object[] o2 = new Object[]{"aa", "bb"};
-        Object[] e = new Object[]{"aa", "bb", "c", "d"};
+        Object[] o1 = new Object[] {"c", "d"};
+        Object[] o2 = new Object[] {"aa", "bb"};
+        Object[] e = new Object[] {"aa", "bb", "c", "d"};
         PDataType type = PCharArray.INSTANCE;
         PDataType base = PChar.INSTANCE;
 
@@ -135,9 +135,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testInt1() throws SQLException {
-        Object[] o1 = new Object[]{1, 2};
-        Object[] o2 = new Object[]{5, 6, 7};
-        Object[] e = new Object[]{1, 2, 5, 6, 7};
+        Object[] o1 = new Object[] {1, 2};
+        Object[] o2 = new Object[] {5, 6, 7};
+        Object[] e = new Object[] {1, 2, 5, 6, 7};
         PDataType type = PIntegerArray.INSTANCE;
         PDataType base = PInteger.INSTANCE;
 
@@ -152,9 +152,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testFloat1() throws SQLException {
-        Object[] o1 = new Object[]{(float) 1.2, (float) 2};
-        Object[] o2 = new Object[]{(float) 5, (float) 6, (float) 7};
-        Object[] e = new Object[]{(float) 1.2, (float) 2, (float) 5, (float) 6, (float) 7};
+        Object[] o1 = new Object[] {(float) 1.2, (float) 2};
+        Object[] o2 = new Object[] {(float) 5, (float) 6, (float) 7};
+        Object[] e = new Object[] {(float) 1.2, (float) 2, (float) 5, (float) 6, (float) 7};
         PDataType type = PFloatArray.INSTANCE;
         PDataType base = PFloat.INSTANCE;
 
@@ -166,9 +166,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testDouble1() throws SQLException {
-        Object[] o1 = new Object[]{(double) 1.2, (double) 2};
-        Object[] o2 = new Object[]{(double) 5.2, (double) 6, (double) 7};
-        Object[] e = new Object[]{(double) 1.2, (double) 2, (double) 5.2, (double) 6, (double) 7};
+        Object[] o1 = new Object[] {(double) 1.2, (double) 2};
+        Object[] o2 = new Object[] {(double) 5.2, (double) 6, (double) 7};
+        Object[] e = new Object[] {(double) 1.2, (double) 2, (double) 5.2, (double) 6, (double) 7};
         PDataType type = PDoubleArray.INSTANCE;
         PDataType base = PDouble.INSTANCE;
 
@@ -180,9 +180,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testLong1() throws SQLException {
-        Object[] o1 = new Object[]{(long) 1, (long) 2};
-        Object[] o2 = new Object[]{(long) 5, (long) 6, (long) 7};
-        Object[] e = new Object[]{(long) 1, (long) 2, (long) 5, (long) 6, (long) 7};
+        Object[] o1 = new Object[] {(long) 1, (long) 2};
+        Object[] o2 = new Object[] {(long) 5, (long) 6, (long) 7};
+        Object[] e = new Object[] {(long) 1, (long) 2, (long) 5, (long) 6, (long) 7};
         PDataType type = PLongArray.INSTANCE;
         PDataType base = PLong.INSTANCE;
 
@@ -197,9 +197,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testShort1() throws SQLException {
-        Object[] o1 = new Object[]{(short) 1, (short) 2};
-        Object[] o2 = new Object[]{(short) 5, (short) 6, (short) 7};
-        Object[] e = new Object[]{(short) 1, (short) 2, (short) 5, (short) 6, (short) 7};
+        Object[] o1 = new Object[] {(short) 1, (short) 2};
+        Object[] o2 = new Object[] {(short) 5, (short) 6, (short) 7};
+        Object[] e = new Object[] {(short) 1, (short) 2, (short) 5, (short) 6, (short) 7};
         PDataType type = PSmallintArray.INSTANCE;
         PDataType base = PSmallint.INSTANCE;
 
@@ -214,9 +214,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testBoolean1() throws SQLException {
-        Object[] o1 = new Object[]{true, true};
-        Object[] o2 = new Object[]{false, false, false};
-        Object[] e = new Object[]{true, true, false, false, false};
+        Object[] o1 = new Object[] {true, true};
+        Object[] o2 = new Object[] {false, false, false};
+        Object[] e = new Object[] {true, true, false, false, false};
         PDataType type = PBooleanArray.INSTANCE;
         PDataType base = PBoolean.INSTANCE;
 
@@ -228,9 +228,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testTinyInt1() throws SQLException {
-        Object[] o1 = new Object[]{(byte) 2, (byte) 2};
-        Object[] o2 = new Object[]{(byte) 5, (byte) 6, (byte) 7};
-        Object[] e = new Object[]{(byte) 2, (byte) 2, (byte) 5, (byte) 6, (byte) 7};
+        Object[] o1 = new Object[] {(byte) 2, (byte) 2};
+        Object[] o2 = new Object[] {(byte) 5, (byte) 6, (byte) 7};
+        Object[] e = new Object[] {(byte) 2, (byte) 2, (byte) 5, (byte) 6, (byte) 7};
         PDataType type = PTinyintArray.INSTANCE;
         PDataType base = PTinyint.INSTANCE;
 
@@ -245,9 +245,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testDate1() throws SQLException {
-        Object[] o1 = new Object[]{new Date(0l), new Date(0l)};
-        Object[] o2 = new Object[]{new Date(0l), new Date(0l), new Date(0l)};
-        Object[] e = new Object[]{new Date(0l), new Date(0l), new Date(0l), new Date(0l), new Date(0l)};
+        Object[] o1 = new Object[] {new Date(0l), new Date(0l)};
+        Object[] o2 = new Object[] {new Date(0l), new Date(0l), new Date(0l)};
+        Object[] e = new Object[] {new Date(0l), new Date(0l), new Date(0l), new Date(0l), new Date(0l)};
         PDataType type = PDateArray.INSTANCE;
         PDataType base = PDate.INSTANCE;
 
@@ -262,9 +262,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testDecimal1() throws SQLException {
-        Object[] o1 = new Object[]{BigDecimal.valueOf(32.4), BigDecimal.valueOf(34)};
-        Object[] o2 = new Object[]{BigDecimal.valueOf(32.4), BigDecimal.valueOf(34)};
-        Object[] e = new Object[]{BigDecimal.valueOf(32.4), BigDecimal.valueOf(34), BigDecimal.valueOf(32.4), BigDecimal.valueOf(34)};
+        Object[] o1 = new Object[] {BigDecimal.valueOf(32.4), BigDecimal.valueOf(34)};
+        Object[] o2 = new Object[] {BigDecimal.valueOf(32.4), BigDecimal.valueOf(34)};
+        Object[] e = new Object[] {BigDecimal.valueOf(32.4), BigDecimal.valueOf(34), BigDecimal.valueOf(32.4), BigDecimal.valueOf(34)};
         PDataType type = PDecimalArray.INSTANCE;
         PDataType base = PDecimal.INSTANCE;
 
@@ -279,9 +279,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar1() throws SQLException {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] o2 = new Object[]{"c", "d"};
-        Object[] e = new Object[]{"a", "b", "c", "d"};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] o2 = new Object[] {"c", "d"};
+        Object[] e = new Object[] {"a", "b", "c", "d"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -296,9 +296,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar2() throws SQLException {
-        Object[] o1 = new Object[]{"a"};
-        Object[] o2 = new Object[]{"c", "d"};
-        Object[] e = new Object[]{"a", "c", "d"};
+        Object[] o1 = new Object[] {"a"};
+        Object[] o2 = new Object[] {"c", "d"};
+        Object[] e = new Object[] {"a", "c", "d"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -313,9 +313,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar3() throws SQLException {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] o2 = new Object[]{"c"};
-        Object[] e = new Object[]{"a", "b", "c"};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] o2 = new Object[] {"c"};
+        Object[] e = new Object[] {"a", "b", "c"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -330,9 +330,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar4() throws SQLException {
-        Object[] o1 = new Object[]{"a"};
-        Object[] o2 = new Object[]{null, "c"};
-        Object[] e = new Object[]{"a", null, "c"};
+        Object[] o1 = new Object[] {"a"};
+        Object[] o2 = new Object[] {null, "c"};
+        Object[] e = new Object[] {"a", null, "c"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -347,9 +347,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar5() throws SQLException {
-        Object[] o1 = new Object[]{"a", null , null};
-        Object[] o2 = new Object[]{null, null, "c"};
-        Object[] e = new Object[]{"a", null, null, null, null, "c"};
+        Object[] o1 = new Object[] {"a", null, null};
+        Object[] o2 = new Object[] {null, null, "c"};
+        Object[] e = new Object[] {"a", null, null, null, null, "c"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -364,8 +364,8 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar6() throws SQLException {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] e = new Object[]{"a", "b"};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] e = new Object[] {"a", "b"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -380,7 +380,7 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar7() throws SQLException {
-        Object[] o2 = new Object[]{"a", "b"};
+        Object[] o2 = new Object[] {"a", "b"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -395,9 +395,9 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testVarchar8() throws SQLException {
-        Object[] o1 = new Object[]{"a", null, null, "b"};
-        Object[] o2 = new Object[]{"c", null, "d", null, "e"};
-        Object[] e = new Object[]{"a", null, null, "b", "c", null, "d", null, "e"};
+        Object[] o1 = new Object[] {"a", null, null, "b"};
+        Object[] o2 = new Object[] {"c", null, "d", null, "e"};
+        Object[] e = new Object[] {"a", null, null, "b", "c", null, "d", null, "e"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -412,8 +412,8 @@ public class ArrayConcatFunctionTest {
 
     @Test(expected = TypeMismatchException.class)
     public void testVarchar9() throws SQLException {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] o2 = new Object[]{1, 2};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] o2 = new Object[] {1, 2};
 
         PhoenixArray arr1 = new PhoenixArray(PVarchar.INSTANCE, o1);
         PhoenixArray arr2 = new PhoenixArray.PrimitiveIntPhoenixArray(PInteger.INSTANCE, o2);
@@ -426,7 +426,7 @@ public class ArrayConcatFunctionTest {
     @Test
     public void testWithIntOffsetArray() throws SQLException {
         Object[] o1 = new Object[Short.MAX_VALUE + 7];
-        Object[] o2 = new Object[]{"b", "b"};
+        Object[] o2 = new Object[] {"b", "b"};
         Object[] e = new Object[Short.MAX_VALUE + 9];
         for (int i = 0; i < o1.length; i++) {
             o1[i] = "a";
@@ -449,7 +449,7 @@ public class ArrayConcatFunctionTest {
     @Test
     public void testWithShortToIntOffsetArray() throws SQLException {
         Object[] o1 = new Object[Short.MAX_VALUE + 1];
-        Object[] o2 = new Object[]{"b", "b"};
+        Object[] o2 = new Object[] {"b", "b"};
         Object[] e = new Object[Short.MAX_VALUE + 3];
         for (int i = 0; i < o1.length; i++) {
             o1[i] = "a";
@@ -472,7 +472,7 @@ public class ArrayConcatFunctionTest {
     @Test
     public void testWithShortToIntOffsetArray2() throws SQLException {
         Object[] o1 = new Object[Short.MAX_VALUE + 1];
-        Object[] o2 = new Object[]{null, "b"};
+        Object[] o2 = new Object[] {null, "b"};
         Object[] e = new Object[Short.MAX_VALUE + 3];
         for (int i = 0; i < o1.length; i++) {
             o1[i] = "a";
@@ -493,7 +493,7 @@ public class ArrayConcatFunctionTest {
     }
 
     @Test
-    public void testWith10NullsAnd246Nulls()throws SQLException{
+    public void testWith10NullsAnd246Nulls() throws SQLException {
         Object[] o1 = new Object[11];
         Object[] o2 = new Object[247];
         Object[] e = new Object[258];
@@ -515,7 +515,7 @@ public class ArrayConcatFunctionTest {
     }
 
     @Test
-    public void testWith0NullsAnd256Nulls()throws SQLException{
+    public void testWith0NullsAnd256Nulls() throws SQLException {
         Object[] o1 = new Object[1];
         Object[] o2 = new Object[257];
         Object[] e = new Object[258];
@@ -537,7 +537,7 @@ public class ArrayConcatFunctionTest {
     }
 
     @Test
-    public void testWith256NullsAnd0Nulls()throws SQLException{
+    public void testWith256NullsAnd0Nulls() throws SQLException {
         Object[] o1 = new Object[257];
         Object[] o2 = new Object[1];
         Object[] e = new Object[258];
@@ -559,7 +559,7 @@ public class ArrayConcatFunctionTest {
     }
 
     @Test
-    public void testWith255NullsAnd0Nulls()throws SQLException{
+    public void testWith255NullsAnd0Nulls() throws SQLException {
         Object[] o1 = new Object[256];
         Object[] o2 = new Object[1];
         Object[] e = new Object[257];
@@ -581,7 +581,7 @@ public class ArrayConcatFunctionTest {
     }
 
     @Test
-    public void testWith0NullsAnd255Nulls()throws SQLException{
+    public void testWith0NullsAnd255Nulls() throws SQLException {
         Object[] o1 = new Object[1];
         Object[] o2 = new Object[256];
         Object[] e = new Object[257];
@@ -603,7 +603,7 @@ public class ArrayConcatFunctionTest {
     }
 
     @Test
-    public void testWith10NullsAnd245Nulls()throws SQLException{
+    public void testWith10NullsAnd245Nulls() throws SQLException {
         Object[] o1 = new Object[11];
         Object[] o2 = new Object[246];
         Object[] e = new Object[257];
@@ -626,8 +626,8 @@ public class ArrayConcatFunctionTest {
 
     @Test
     public void testForCorrectSeparatorBytes1() throws Exception {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] o2 = new Object[]{"c", "d", "e"};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] o2 = new Object[] {"c", "d", "e"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -642,14 +642,14 @@ public class ArrayConcatFunctionTest {
         Expression arrayConcatFunction = new ArrayConcatFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayConcatFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{97, 0, 98, 0, 99, 0, 100, 0, 101, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 7, -128, 9, 0, 0, 0, 12, 0, 0, 0, 5, 1};
+        byte[] expected = new byte[] {97, 0, 98, 0, 99, 0, 100, 0, 101, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 7, -128, 9, 0, 0, 0, 12, 0, 0, 0, 5, 1};
         assertArrayEquals(expected, ptr.get());
     }
 
     @Test
     public void testForCorrectSeparatorBytes2() throws Exception {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] o2 = new Object[]{"c", "d", "e"};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] o2 = new Object[] {"c", "d", "e"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -664,14 +664,14 @@ public class ArrayConcatFunctionTest {
         Expression arrayConcatFunction = new ArrayConcatFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayConcatFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{97, 0, 98, 0, 99, 0, 100, 0, 101, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 7, -128, 9, 0, 0, 0, 12, 0, 0, 0, 5, 1};
+        byte[] expected = new byte[] {97, 0, 98, 0, 99, 0, 100, 0, 101, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 7, -128, 9, 0, 0, 0, 12, 0, 0, 0, 5, 1};
         assertArrayEquals(expected, ptr.get());
     }
 
     @Test
     public void testForCorrectSeparatorBytes3() throws Exception {
-        Object[] o1 = new Object[]{"a", "b"};
-        Object[] o2 = new Object[]{"c", "d", "e"};
+        Object[] o1 = new Object[] {"a", "b"};
+        Object[] o2 = new Object[] {"c", "d", "e"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -686,14 +686,14 @@ public class ArrayConcatFunctionTest {
         Expression arrayConcatFunction = new ArrayConcatFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayConcatFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{-98, -1, -99, -1, -100, -1, -101, -1, -102, -1, -1, -1, -128, 1, -128, 3, -128, 5, -128, 7, -128, 9, 0, 0, 0, 12, 0, 0, 0, 5, 1};
+        byte[] expected = new byte[] {-98, -1, -99, -1, -100, -1, -101, -1, -102, -1, -1, -1, -128, 1, -128, 3, -128, 5, -128, 7, -128, 9, 0, 0, 0, 12, 0, 0, 0, 5, 1};
         assertArrayEquals(expected, ptr.get());
     }
 
     @Test
     public void testForCorrectSeparatorBytes4() throws Exception {
-        Object[] o1 = new Object[]{"a", "b", null};
-        Object[] o2 = new Object[]{null, "c", "d", "e"};
+        Object[] o1 = new Object[] {"a", "b", null};
+        Object[] o2 = new Object[] {null, "c", "d", "e"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -708,14 +708,14 @@ public class ArrayConcatFunctionTest {
         Expression arrayConcatFunction = new ArrayConcatFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayConcatFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{97, 0, 98, 0, 0, -2, 99, 0, 100, 0, 101, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 5, -128, 7, -128, 9, -128, 11, 0, 0, 0, 14, 0, 0, 0, 7, 1};
+        byte[] expected = new byte[] {97, 0, 98, 0, 0, -2, 99, 0, 100, 0, 101, 0, 0, 0, -128, 1, -128, 3, -128, 5, -128, 5, -128, 7, -128, 9, -128, 11, 0, 0, 0, 14, 0, 0, 0, 7, 1};
         assertArrayEquals(expected, ptr.get());
     }
 
     @Test
     public void testForCorrectSeparatorBytes5() throws Exception {
-        Object[] o1 = new Object[]{"a", "b", null, null};
-        Object[] o2 = new Object[]{null, "c", "d", "e"};
+        Object[] o1 = new Object[] {"a", "b", null, null};
+        Object[] o2 = new Object[] {null, "c", "d", "e"};
         PDataType type = PVarcharArray.INSTANCE;
         PDataType base = PVarchar.INSTANCE;
 
@@ -730,7 +730,7 @@ public class ArrayConcatFunctionTest {
         Expression arrayConcatFunction = new ArrayConcatFunction(expressions);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         arrayConcatFunction.evaluate(null, ptr);
-        byte[] expected = new byte[]{-98, -1, -99, -1, 0, -3, -100, -1, -101, -1, -102, -1, -1, -1, -128, 1, -128, 3, -128, 5, -128, 5, -128, 5, -128, 7, -128, 9, -128, 11, 0, 0, 0, 14, 0, 0, 0, 8, 1};
+        byte[] expected = new byte[] {-98, -1, -99, -1, 0, -3, -100, -1, -101, -1, -102, -1, -1, -1, -128, 1, -128, 3, -128, 5, -128, 5, -128, 5, -128, 7, -128, 9, -128, 11, 0, 0, 0, 14, 0, 0, 0, 8, 1};
         assertArrayEquals(expected, ptr.get());
     }
 }

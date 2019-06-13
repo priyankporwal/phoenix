@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 package org.apache.hadoop.hbase.client;
-  
+
 public class RegionInfoUtil {
     public static byte[] toByteArray(RegionInfo regionInfo) {
         return RegionInfo.toByteArray(regionInfo);

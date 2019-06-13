@@ -43,10 +43,8 @@ import org.apache.phoenix.util.SchemaUtil;
 
 
 /**
- * 
  * Class that represents a reference to a PColumn in a PTable
  *
- * 
  * @since 0.1
  */
 @Immutable
@@ -54,7 +52,7 @@ public class ColumnRef {
     private final TableRef tableRef;
     private final int columnPosition;
     private final int pkSlotPosition;
-    
+
     protected ColumnRef(ColumnRef columnRef, long timeStamp) {
         this.tableRef = new TableRef(columnRef.tableRef, timeStamp);
         this.columnPosition = columnRef.columnPosition;
@@ -98,12 +96,22 @@ public class ColumnRef {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ColumnRef other = (ColumnRef)obj;
-        if (columnPosition != other.columnPosition) return false;
-        if (!tableRef.equals(other.tableRef)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ColumnRef other = (ColumnRef) obj;
+        if (columnPosition != other.columnPosition) {
+            return false;
+        }
+        if (!tableRef.equals(other.tableRef)) {
+            return false;
+        }
         return true;
     }
 
@@ -117,19 +125,19 @@ public class ColumnRef {
         String displayName = tableRef.getColumnDisplayName(this, schemaNameCaseSensitive, colNameCaseSensitive);
         if (SchemaUtil.isPKColumn(column)) {
             return new RowKeyColumnExpression(
-                    column, 
+                    column,
                     new RowKeyValueAccessor(table.getPKColumns(), pkSlotPosition),
                     displayName);
         }
-        
+
         if (table.getType() == PTableType.PROJECTED || table.getType() == PTableType.SUBQUERY) {
-        	return new ProjectedColumnExpression(column, table, displayName);
+            return new ProjectedColumnExpression(column, table, displayName);
         }
 
-        Expression expression = table.getImmutableStorageScheme() == ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS ? 
-                        new SingleCellColumnExpression(column, displayName,
-                                table.getEncodingScheme(), table.getImmutableStorageScheme())
-                        : new KeyValueColumnExpression(column, displayName);
+        Expression expression = table.getImmutableStorageScheme() == ImmutableStorageScheme.SINGLE_CELL_ARRAY_WITH_OFFSETS ?
+                new SingleCellColumnExpression(column, displayName,
+                        table.getEncodingScheme(), table.getImmutableStorageScheme())
+                : new KeyValueColumnExpression(column, displayName);
 
         if (column.getExpressionStr() != null) {
             String url = PhoenixRuntime.JDBC_PROTOCOL
@@ -156,11 +164,11 @@ public class ColumnRef {
     public int getColumnPosition() {
         return columnPosition;
     }
-    
+
     public int getPKSlotPosition() {
         return pkSlotPosition;
     }
-    
+
     public PColumn getColumn() {
         return tableRef.getTable().getColumns().get(columnPosition);
     }
@@ -168,7 +176,7 @@ public class ColumnRef {
     public PTable getTable() {
         return tableRef.getTable();
     }
-    
+
     public TableRef getTableRef() {
         return tableRef;
     }

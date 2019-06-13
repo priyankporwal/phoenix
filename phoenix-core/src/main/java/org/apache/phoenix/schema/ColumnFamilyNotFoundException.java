@@ -21,10 +21,8 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 
 /**
- * 
  * Exception thrown when a family name could not be found in the schema
  *
- * 
  * @since 0.1
  */
 public class ColumnFamilyNotFoundException extends MetaDataEntityNotFoundException {
@@ -34,7 +32,7 @@ public class ColumnFamilyNotFoundException extends MetaDataEntityNotFoundExcepti
 
     public ColumnFamilyNotFoundException(String schemaName, String tableName, String familyName) {
         super(new SQLExceptionInfo.Builder(code).setFamilyName(familyName).build().toString(),
-                code.getSQLState(), code.getErrorCode(), schemaName, tableName,null);
+                code.getSQLState(), code.getErrorCode(), schemaName, tableName, null);
         this.familyName = familyName;
     }
 

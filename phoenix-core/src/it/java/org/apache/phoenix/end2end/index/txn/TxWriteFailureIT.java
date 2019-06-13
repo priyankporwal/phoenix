@@ -58,28 +58,28 @@ import com.google.common.collect.Maps;
 
 @RunWith(Parameterized.class)
 public class TxWriteFailureIT extends BaseUniqueNamesOwnClusterIT {
-	
+
     private String schemaName;
     private String dataTableName;
     private String indexName;
     private String dataTableFullName;
     private String indexFullName;
     private static final String ROW_TO_FAIL = "fail";
-    
+
     private final boolean localIndex;
     private final String tableDDLOptions;
 
-	public TxWriteFailureIT(boolean localIndex, boolean mutable, String transactionProvider) {
-		this.localIndex = localIndex;
+    public TxWriteFailureIT(boolean localIndex, boolean mutable, String transactionProvider) {
+        this.localIndex = localIndex;
         StringBuilder optionBuilder = new StringBuilder();
         optionBuilder.append(" TRANSACTION_PROVIDER='" + transactionProvider + "'");
         if (!mutable) {
             optionBuilder.append(",IMMUTABLE_ROWS=true");
         }
         this.tableDDLOptions = optionBuilder.toString();
-	}
-	
-	@BeforeClass
+    }
+
+    @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(3);
         serverProps.put("hbase.coprocessor.region.classes", FailingRegionObserver.class.getName());
@@ -90,47 +90,48 @@ public class TxWriteFailureIT extends BaseUniqueNamesOwnClusterIT {
         clientProps.put(QueryServices.TRANSACTIONS_ENABLED, "true");
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
-	
-	@Parameters(name="TxWriteFailureIT_localIndex={0},mutable={1},transactionProvider={2}") // name is used by failsafe as file name in reports
+
+    @Parameters(name = "TxWriteFailureIT_localIndex={0},mutable={1},transactionProvider={2}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
         return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {
-                 { false, false, "TEPHRA" }, { false, true, "TEPHRA" }, { true, false, "TEPHRA" }, { true, true, "TEPHRA" },
-                 { false, false, "OMID" }, { false, true, "OMID" }, 
-           }), 2);
+                {false, false, "TEPHRA"}, {false, true, "TEPHRA"}, {true, false, "TEPHRA"}, {true, true, "TEPHRA"},
+                {false, false, "OMID"}, {false, true, "OMID"},
+        }), 2);
     }
-    
+
     @Before
     public void generateTableNames() throws SQLException {
         schemaName = generateUniqueName();
         dataTableName = generateUniqueName();
         indexName = generateUniqueName();
         dataTableFullName = SchemaUtil.getTableName(schemaName, dataTableName);
-        indexFullName = SchemaUtil.getTableName(schemaName, indexName); 
+        indexFullName = SchemaUtil.getTableName(schemaName, indexName);
     }
-	
-	@Test
+
+    @Test
     public void testIndexTableWriteFailure() throws Exception {
-	    if (!localIndex) { // We cannot fail the index write for local indexes because of the way they're written
-	        helpTestWriteFailure(true);
-	    }
-	}
-	
-	@Test
+        if (!localIndex) { // We cannot fail the index write for local indexes because of the way they're written
+            helpTestWriteFailure(true);
+        }
+    }
+
+    @Test
     public void testDataTableWriteFailure() throws Exception {
         helpTestWriteFailure(false);
-	}
+    }
 
-	private void helpTestWriteFailure(boolean indexTableWriteFailure) throws SQLException {
-		ResultSet rs;
+    private void helpTestWriteFailure(boolean indexTableWriteFailure) throws SQLException {
+        ResultSet rs;
 
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = driver.connect(url, props);
         conn.setAutoCommit(false);
         conn.createStatement().execute(
-                "CREATE TABLE " + dataTableFullName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR)"+tableDDLOptions);
+                "CREATE TABLE " + dataTableFullName + " (k VARCHAR PRIMARY KEY, v1 VARCHAR)" + tableDDLOptions);
         conn.createStatement().execute(
-                "CREATE "+(localIndex? "LOCAL " : "")+"INDEX " + indexName + " ON " + dataTableFullName + " (v1)");
-        
+                "CREATE " + (localIndex ? "LOCAL " : "") + "INDEX " + indexName + " ON " + dataTableFullName + " (v1)");
+
         PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + dataTableFullName + " VALUES(?,?)");
         // to create a data table write failure set k as the ROW_TO_FAIL, to create an index table write failure set v1 as the ROW_TO_FAIL, 
         // FailingRegionObserver will throw an exception if the put contains ROW_TO_FAIL
@@ -141,21 +142,20 @@ public class TxWriteFailureIT extends BaseUniqueNamesOwnClusterIT {
         stmt.setString(2, "v2");
         stmt.execute();
         try {
-        	conn.commit();
-        	fail();
-        }
-        catch (Exception e) {
-        	conn.rollback();
+            conn.commit();
+            fail();
+        } catch (Exception e) {
+            conn.rollback();
         }
         stmt.setString(1, "k3");
         stmt.setString(2, "v3");
         stmt.execute();
         //this should pass
         conn.commit();
-        
+
         // verify that only k3,v3 exists in the data table
         String dataSql = "SELECT k, v1 FROM " + dataTableFullName + " order by k";
-        rs = conn.createStatement().executeQuery("EXPLAIN "+dataSql);
+        rs = conn.createStatement().executeQuery("EXPLAIN " + dataSql);
         assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + dataTableFullName,
                 QueryUtil.getExplainPlan(rs));
         rs = conn.createStatement().executeQuery(dataSql);
@@ -166,29 +166,29 @@ public class TxWriteFailureIT extends BaseUniqueNamesOwnClusterIT {
 
         // verify the only k3,v3  exists in the index table
         String indexSql = "SELECT k, v1 FROM " + dataTableFullName + " order by v1";
-        rs = conn.createStatement().executeQuery("EXPLAIN "+indexSql);
-        if(localIndex) {
+        rs = conn.createStatement().executeQuery("EXPLAIN " + indexSql);
+        if (localIndex) {
             assertEquals(
-                "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + dataTableFullName + " [1]\n" + 
-                "    SERVER FILTER BY FIRST KEY ONLY\n" +
-                "CLIENT MERGE SORT",
-                QueryUtil.getExplainPlan(rs));
+                    "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + dataTableFullName + " [1]\n" +
+                            "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                            "CLIENT MERGE SORT",
+                    QueryUtil.getExplainPlan(rs));
         } else {
-	        assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + indexFullName + "\n    SERVER FILTER BY FIRST KEY ONLY",
-	                QueryUtil.getExplainPlan(rs));
+            assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + indexFullName + "\n    SERVER FILTER BY FIRST KEY ONLY",
+                    QueryUtil.getExplainPlan(rs));
         }
         rs = conn.createStatement().executeQuery(indexSql);
         assertTrue(rs.next());
         assertEquals("k3", rs.getString(1));
         assertEquals("v3", rs.getString(2));
         assertFalse(rs.next());
-	}
-	
-	
-	public static class FailingRegionObserver extends SimpleRegionObserver {
+    }
+
+
+    public static class FailingRegionObserver extends SimpleRegionObserver {
         @Override
         public void prePut(org.apache.hadoop.hbase.coprocessor.ObserverContext<RegionCoprocessorEnvironment> c, Put put,
-                org.apache.hadoop.hbase.wal.WALEdit edit, Durability durability) throws java.io.IOException {
+                           org.apache.hadoop.hbase.wal.WALEdit edit, Durability durability) throws java.io.IOException {
             if (shouldFailUpsert(c, put)) {
                 // throwing anything other than instances of IOException result
                 // in this coprocessor being unloaded
@@ -197,11 +197,11 @@ public class TxWriteFailureIT extends BaseUniqueNamesOwnClusterIT {
                 throw new DoNotRetryIOException();
             }
         }
-        
+
         private boolean shouldFailUpsert(ObserverContext<RegionCoprocessorEnvironment> c, Put put) {
             return Bytes.contains(put.getRow(), Bytes.toBytes(ROW_TO_FAIL));
         }
-        
-	}
-	
+
+    }
+
 }

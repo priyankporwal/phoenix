@@ -22,12 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 
-
 /**
- * 
  * Node representing addition in a SQL expression
  *
- * 
  * @since 0.1
  */
 public class AddParseNode extends ArithmeticParseNode {
@@ -37,7 +34,7 @@ public class AddParseNode extends ArithmeticParseNode {
     public String getOperator() {
         return OPERATOR;
     }
-    
+
     AddParseNode(List<ParseNode> children) {
         super(children);
     }

@@ -43,11 +43,11 @@ public class ChangePermsStatement implements BindableStatement {
         // PHOENIX-672 HBase API doesn't allow to revoke specific permissions, hence this parameter will be ignored here.
         // To comply with SQL standards, we may support the user given permissions to revoke specific permissions in future.
         // GRANT permissions statement requires this parameter and the parsing will fail if it is not specified in SQL
-        if(permsString != null) {
+        if (permsString != null) {
             Permission permission = new Permission(permsString.getBytes());
             permsList = permission.getActions();
         }
-        if(isSchemaName) {
+        if (isSchemaName) {
             this.schemaName = SchemaUtil.normalizeIdentifier(schemaName);
         } else {
             this.tableName = tableName;

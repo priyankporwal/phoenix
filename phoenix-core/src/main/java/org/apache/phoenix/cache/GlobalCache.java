@@ -46,23 +46,21 @@ import com.google.common.cache.Weigher;
 
 
 /**
- * 
  * Global root cache for the server. Each tenant is managed as a child tenant cache of this one. Queries
  * not associated with a particular tenant use this as their tenant cache.
  *
- * 
  * @since 0.1
  */
 public class GlobalCache extends TenantCacheImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalCache.class);
-    private static volatile GlobalCache INSTANCE; 
-    
+    private static volatile GlobalCache INSTANCE;
+
     private final Configuration config;
     // TODO: Use Guava cache with auto removal after lack of access 
-    private final ConcurrentMap<ImmutableBytesWritable,TenantCache> perTenantCacheMap = new ConcurrentHashMap<ImmutableBytesWritable,TenantCache>();
+    private final ConcurrentMap<ImmutableBytesWritable, TenantCache> perTenantCacheMap = new ConcurrentHashMap<ImmutableBytesWritable, TenantCache>();
     // Cache for lastest PTable for a given Phoenix table
-    private volatile Cache<ImmutableBytesPtr,PMetaDataEntity> metaDataCache;
-    
+    private volatile Cache<ImmutableBytesPtr, PMetaDataEntity> metaDataCache;
+
     public long clearTenantCache() {
         long unfreedBytes = getMemoryManager().getMaxMemory() - getMemoryManager().getAvailableMemory();
         if (unfreedBytes != 0 && LOGGER.isDebugEnabled()) {
@@ -85,16 +83,16 @@ public class GlobalCache extends TenantCacheImpl {
         perTenantCacheMap.clear();
         return unfreedBytes;
     }
-    
-    public Cache<ImmutableBytesPtr,PMetaDataEntity> getMetaDataCache() {
+
+    public Cache<ImmutableBytesPtr, PMetaDataEntity> getMetaDataCache() {
         // Lazy initialize QueryServices so that we only attempt to create an HBase Configuration
         // object upon the first attempt to connect to any cluster. Otherwise, an attempt will be
         // made at driver initialization time which is too early for some systems.
-        Cache<ImmutableBytesPtr,PMetaDataEntity> result = metaDataCache;
+        Cache<ImmutableBytesPtr, PMetaDataEntity> result = metaDataCache;
         if (result == null) {
-            synchronized(this) {
+            synchronized (this) {
                 result = metaDataCache;
-                if(result == null) {
+                if (result == null) {
                     long maxTTL = config.getLong(
                             QueryServices.MAX_SERVER_METADATA_CACHE_TIME_TO_LIVE_MS_ATTRIB,
                             QueryServicesOptions.DEFAULT_MAX_SERVER_METADATA_CACHE_TIME_TO_LIVE_MS);
@@ -119,53 +117,55 @@ public class GlobalCache extends TenantCacheImpl {
     public static GlobalCache getInstance(RegionCoprocessorEnvironment env) {
         GlobalCache result = INSTANCE;
         if (result == null) {
-            synchronized(GlobalCache.class) {
+            synchronized (GlobalCache.class) {
                 result = INSTANCE;
-                if(result == null) {
+                if (result == null) {
                     INSTANCE = result = new GlobalCache(env.getConfiguration());
                 }
             }
         }
         return result;
     }
-    
+
     /**
      * Get the tenant cache associated with the tenantId. If tenantId is not applicable, null may be
      * used in which case a global tenant cache is returned.
-     * @param env the HBase configuration
+     *
+     * @param env      the HBase configuration
      * @param tenantId the tenant ID or null if not applicable.
      * @return TenantCache
      */
     public static TenantCache getTenantCache(RegionCoprocessorEnvironment env, ImmutableBytesPtr tenantId) {
         GlobalCache globalCache = GlobalCache.getInstance(env);
-        TenantCache tenantCache = tenantId == null ? globalCache : globalCache.getChildTenantCache(tenantId);      
+        TenantCache tenantCache = tenantId == null ? globalCache : globalCache.getChildTenantCache(tenantId);
         return tenantCache;
     }
-    
+
     private static long getMaxMemorySize(Configuration config) {
-        long maxSize = Runtime.getRuntime().maxMemory() * 
+        long maxSize = Runtime.getRuntime().maxMemory() *
                 config.getInt(MAX_MEMORY_PERC_ATTRIB, QueryServicesOptions.DEFAULT_MAX_MEMORY_PERC) / 100;
         maxSize = Math.min(maxSize, config.getLong(MAX_MEMORY_SIZE_ATTRIB, Long.MAX_VALUE));
         return maxSize;
     }
-    
+
     private GlobalCache(Configuration config) {
         super(new GlobalMemoryManager(getMaxMemorySize(config)),
-              config.getInt(
-                      QueryServices.MAX_SERVER_CACHE_TIME_TO_LIVE_MS_ATTRIB,
-                      QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_TIME_TO_LIVE_MS),
-              config.getInt(
-                      QueryServices.MAX_SERVER_CACHE_PERSISTENCE_TIME_TO_LIVE_MS_ATTRIB,
-                      QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_PERSISTENCE_TIME_TO_LIVE_MS));
+                config.getInt(
+                        QueryServices.MAX_SERVER_CACHE_TIME_TO_LIVE_MS_ATTRIB,
+                        QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_TIME_TO_LIVE_MS),
+                config.getInt(
+                        QueryServices.MAX_SERVER_CACHE_PERSISTENCE_TIME_TO_LIVE_MS_ATTRIB,
+                        QueryServicesOptions.DEFAULT_MAX_SERVER_CACHE_PERSISTENCE_TIME_TO_LIVE_MS));
         this.config = config;
     }
-    
+
     public Configuration getConfig() {
         return config;
     }
-    
+
     /**
      * Retrieve the tenant cache given an tenantId.
+     *
      * @param tenantId the ID that identifies the tenant
      * @return the existing or newly created TenantCache
      */
@@ -200,7 +200,9 @@ public class GlobalCache extends TenantCacheImpl {
 
         @Override
         public boolean equals(Object obj) {
-            if(obj instanceof FunctionBytesPtr) return super.equals(obj);
+            if (obj instanceof FunctionBytesPtr) {
+                return super.equals(obj);
+            }
             return false;
         }
 

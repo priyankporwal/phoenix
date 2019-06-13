@@ -80,10 +80,8 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 /**
- * 
  * Various utilities for scans
  *
- * 
  * @since 0.1
  */
 public class ScanUtil {
@@ -95,9 +93,11 @@ public class ScanUtil {
      * into a exclusive key.
      */
     private static final byte[] MAX_FILL_LENGTH_FOR_PREVIOUS_KEY = new byte[16];
+
     static {
-        Arrays.fill(MAX_FILL_LENGTH_FOR_PREVIOUS_KEY, (byte)-1);
+        Arrays.fill(MAX_FILL_LENGTH_FOR_PREVIOUS_KEY, (byte) -1);
     }
+
     private static final byte[] ZERO_BYTE_ARRAY = new byte[1024];
 
     private ScanUtil() {
@@ -122,7 +122,7 @@ public class ScanUtil {
     // Designates a "simple scan", i.e. a scan that does not need to be scoped
     // to a single region.
     public static boolean isSimpleScan(Scan scan) {
-        return  ScanUtil.isNonAggregateScan(scan) &&
+        return ScanUtil.isNonAggregateScan(scan) &&
                 scan.getAttribute(BaseScannerRegionObserver.TOPN) == null &&
                 scan.getAttribute(BaseScannerRegionObserver.SCAN_OFFSET) == null;
     }
@@ -138,13 +138,13 @@ public class ScanUtil {
         }
         return new ImmutableBytesPtr(tenantId);
     }
-    
+
     public static void setCustomAnnotations(Scan scan, byte[] annotations) {
-    	scan.setAttribute(CUSTOM_ANNOTATIONS, annotations);
+        scan.setAttribute(CUSTOM_ANNOTATIONS, annotations);
     }
-    
+
     public static byte[] getCustomAnnotations(Scan scan) {
-    	return scan.getAttribute(CUSTOM_ANNOTATIONS);
+        return scan.getAttribute(CUSTOM_ANNOTATIONS);
     }
 
     public static Scan newScan(Scan scan) {
@@ -153,8 +153,8 @@ public class ScanUtil {
             // Clone the underlying family map instead of sharing it between
             // the existing and cloned Scan (which is the retarded default
             // behavior).
-            TreeMap<byte [], NavigableSet<byte []>> existingMap = (TreeMap<byte[], NavigableSet<byte[]>>)scan.getFamilyMap();
-            Map<byte [], NavigableSet<byte []>> clonedMap = new TreeMap<byte [], NavigableSet<byte []>>(existingMap);
+            TreeMap<byte[], NavigableSet<byte[]>> existingMap = (TreeMap<byte[], NavigableSet<byte[]>>) scan.getFamilyMap();
+            Map<byte[], NavigableSet<byte[]>> clonedMap = new TreeMap<byte[], NavigableSet<byte[]>>(existingMap);
             newScan.setFamilyMap(clonedMap);
             // Carry over the reversed attribute
             newScan.setReversed(scan.isReversed());
@@ -164,8 +164,10 @@ public class ScanUtil {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * Intersects the scan start/stop row with the startKey and stopKey
+     *
      * @param scan
      * @param startKey
      * @param stopKey
@@ -202,7 +204,7 @@ public class ScanUtil {
         if (offset > 0 && useSkipScan) {
             byte[] temp = null;
             if (startKey.length != 0) {
-                temp =new byte[startKey.length - offset];
+                temp = new byte[startKey.length - offset];
                 System.arraycopy(startKey, offset, temp, 0, startKey.length - offset);
                 startKey = temp;
             }
@@ -213,12 +215,12 @@ public class ScanUtil {
             }
         }
         mayHaveRows = mayHaveRows || Bytes.compareTo(scan.getStartRow(), scan.getStopRow()) < 0;
-        
+
         // If the scan is using skip scan filter, intersect and replace the filter.
         if (mayHaveRows && useSkipScan) {
             Filter filter = scan.getFilter();
             if (filter instanceof SkipScanFilter) {
-                SkipScanFilter oldFilter = (SkipScanFilter)filter;
+                SkipScanFilter oldFilter = (SkipScanFilter) filter;
                 SkipScanFilter newFilter = oldFilter.intersect(startKey, stopKey);
                 if (newFilter == null) {
                     return false;
@@ -226,11 +228,11 @@ public class ScanUtil {
                 // Intersect found: replace skip scan with intersected one
                 scan.setFilter(newFilter);
             } else if (filter instanceof FilterList) {
-                FilterList oldList = (FilterList)filter;
+                FilterList oldList = (FilterList) filter;
                 FilterList newList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
                 for (Filter f : oldList.getFilters()) {
                     if (f instanceof SkipScanFilter) {
-                        SkipScanFilter newFilter = ((SkipScanFilter)f).intersect(startKey, stopKey);
+                        SkipScanFilter newFilter = ((SkipScanFilter) f).intersect(startKey, stopKey);
                         if (newFilter == null) {
                             return false;
                         }
@@ -240,7 +242,7 @@ public class ScanUtil {
                     }
                 }
                 scan.setFilter(newList);
-           }
+            }
         }
         return mayHaveRows;
     }
@@ -251,15 +253,15 @@ public class ScanUtil {
         }
         Filter filter = scan.getFilter();
         if (filter == null) {
-            scan.setFilter(andWithFilter); 
-        } else if (filter instanceof FilterList && ((FilterList)filter).getOperator() == FilterList.Operator.MUST_PASS_ALL) {
-            FilterList filterList = (FilterList)filter;
+            scan.setFilter(andWithFilter);
+        } else if (filter instanceof FilterList && ((FilterList) filter).getOperator() == FilterList.Operator.MUST_PASS_ALL) {
+            FilterList filterList = (FilterList) filter;
             List<Filter> allFilters = new ArrayList<Filter>(filterList.getFilters().size() + 1);
             allFilters.add(andWithFilter);
             allFilters.addAll(filterList.getFilters());
-            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL,allFilters));
+            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL, allFilters));
         } else {
-            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL,Arrays.asList(andWithFilter, filter)));
+            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL, Arrays.asList(andWithFilter, filter)));
         }
     }
 
@@ -269,29 +271,29 @@ public class ScanUtil {
         }
         Filter filter = scan.getFilter();
         if (filter == null) {
-            scan.setFilter(andWithFilter); 
-        } else if (filter instanceof FilterList && ((FilterList)filter).getOperator() == FilterList.Operator.MUST_PASS_ALL) {
-            FilterList filterList = (FilterList)filter;
+            scan.setFilter(andWithFilter);
+        } else if (filter instanceof FilterList && ((FilterList) filter).getOperator() == FilterList.Operator.MUST_PASS_ALL) {
+            FilterList filterList = (FilterList) filter;
             List<Filter> allFilters = new ArrayList<Filter>(filterList.getFilters().size() + 1);
             allFilters.addAll(filterList.getFilters());
             allFilters.add(andWithFilter);
-            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL,allFilters));
+            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL, allFilters));
         } else {
-            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL,Arrays.asList(filter, andWithFilter)));
+            scan.setFilter(new FilterList(FilterList.Operator.MUST_PASS_ALL, Arrays.asList(filter, andWithFilter)));
         }
     }
-    
+
     public static void setQualifierRangesOnFilter(Scan scan, Pair<Integer, Integer> minMaxQualifiers) {
         Filter filter = scan.getFilter();
         if (filter != null) {
             if (filter instanceof FilterList) {
-                for (Filter f : ((FilterList)filter).getFilters()) {
+                for (Filter f : ((FilterList) filter).getFilters()) {
                     if (f instanceof MultiEncodedCQKeyValueComparisonFilter) {
-                        ((MultiEncodedCQKeyValueComparisonFilter)f).setMinMaxQualifierRange(minMaxQualifiers);
+                        ((MultiEncodedCQKeyValueComparisonFilter) f).setMinMaxQualifierRange(minMaxQualifiers);
                     }
                 }
             } else if (filter instanceof MultiEncodedCQKeyValueComparisonFilter) {
-                ((MultiEncodedCQKeyValueComparisonFilter)filter).setMinMaxQualifierRange(minMaxQualifiers);
+                ((MultiEncodedCQKeyValueComparisonFilter) filter).setMinMaxQualifierRange(minMaxQualifiers);
             }
         }
     }
@@ -311,14 +313,14 @@ public class ScanUtil {
             throw new RuntimeException(e);
         }
     }
-    
-	public static void setTimeRange(Scan scan, long minStamp, long maxStamp) {
-		try {
-			scan.setTimeRange(minStamp, maxStamp);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+
+    public static void setTimeRange(Scan scan, long minStamp, long maxStamp) {
+        try {
+            scan.setTimeRange(minStamp, maxStamp);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static byte[] getMinKey(RowKeySchema schema, List<List<KeyRange>> slots, int[] slotSpan) {
         return getKey(schema, slots, slotSpan, Bound.LOWER);
@@ -335,7 +337,7 @@ public class ScanUtil {
         int[] position = new int[slots.size()];
         int maxLength = 0;
         for (int i = 0; i < position.length; i++) {
-            position[i] = bound == Bound.LOWER ? 0 : slots.get(i).size()-1;
+            position[i] = bound == Bound.LOWER ? 0 : slots.get(i).size() - 1;
             KeyRange range = slots.get(i).get(position[i]);
             Field field = schema.getField(i + slotSpan[i]);
             int keyLength = range.getRange(bound).length;
@@ -362,7 +364,7 @@ public class ScanUtil {
 
     /*
      * Set the key by appending the keyRanges inside slots at positions as specified by the position array.
-     * 
+     *
      * We need to increment part of the key range, or increment the whole key at the end, depending on the
      * bound we are setting and whether the key range is inclusive or exclusive. The logic for determining
      * whether to increment or not is:
@@ -375,12 +377,12 @@ public class ScanUtil {
      *  single         inclusive      upper         yes, at the end if it is the last slots.
      */
     public static int setKey(RowKeySchema schema, List<List<KeyRange>> slots, int[] slotSpan, int[] position,
-            Bound bound, byte[] key, int byteOffset, int slotStartIndex, int slotEndIndex) {
+                             Bound bound, byte[] key, int byteOffset, int slotStartIndex, int slotEndIndex) {
         return setKey(schema, slots, slotSpan, position, bound, key, byteOffset, slotStartIndex, slotEndIndex, slotStartIndex);
     }
 
     public static int setKey(RowKeySchema schema, List<List<KeyRange>> slots, int[] slotSpan, int[] position,
-            Bound bound, byte[] key, int byteOffset, int slotStartIndex, int slotEndIndex, int schemaStartIndex) {
+                             Bound bound, byte[] key, int byteOffset, int slotStartIndex, int slotEndIndex, int schemaStartIndex) {
         int offset = byteOffset;
         boolean lastInclusiveUpperSingleKey = false;
         boolean anyInclusiveUpperRangeKey = false;
@@ -410,15 +412,15 @@ public class ScanUtil {
              *    information to the key after that.
              */
             lastUnboundUpper = false;
-            if (  range.isUnbound(bound) &&
-                ( bound == Bound.UPPER || isFixedWidth || range == KeyRange.EVERYTHING_RANGE) ){
+            if (range.isUnbound(bound) &&
+                    (bound == Bound.UPPER || isFixedWidth || range == KeyRange.EVERYTHING_RANGE)) {
                 lastUnboundUpper = (bound == Bound.UPPER);
                 break;
             }
             byte[] bytes = range.getRange(bound);
             System.arraycopy(bytes, 0, key, offset, bytes.length);
             offset += bytes.length;
-            
+
             /*
              * We must add a terminator to a variable length key even for the last PK column if
              * the lower key is non inclusive or the upper key is inclusive. Otherwise, we'd be
@@ -441,10 +443,10 @@ public class ScanUtil {
             anyInclusiveUpperRangeKey |= !range.isSingleKey() && inclusiveUpper;
             // A null or empty byte array is always represented as a zero byte
             byte sepByte = SchemaUtil.getSeparatorByte(schema.rowKeyOrderOptimizable(), bytes.length == 0, field);
-            
-            if ( !isFixedWidth && ( sepByte == QueryConstants.DESC_SEPARATOR_BYTE 
-                                    || ( !exclusiveUpper 
-                                         && (fieldIndex < schema.getMaxFields() || inclusiveUpper || exclusiveLower) ) ) ) {
+
+            if (!isFixedWidth && (sepByte == QueryConstants.DESC_SEPARATOR_BYTE
+                    || (!exclusiveUpper
+                    && (fieldIndex < schema.getMaxFields() || inclusiveUpper || exclusiveLower)))) {
                 key[offset++] = sepByte;
                 // Set lastInclusiveUpperSingleKey back to false if this is the last pk column
                 // as we don't want to increment the QueryConstants.SEPARATOR_BYTE byte in this case.
@@ -453,8 +455,8 @@ public class ScanUtil {
                 // But if last field of rowKey is variable length and also DESC, the trailing 0xFF
                 // is not removed when stored in HBASE, so for such case, we should not set
                 // lastInclusiveUpperSingleKey back to false.
-                if(sepByte != QueryConstants.DESC_SEPARATOR_BYTE) {
-                    lastInclusiveUpperSingleKey &= (fieldIndex + slotSpan[i]) < schema.getMaxFields()-1;
+                if (sepByte != QueryConstants.DESC_SEPARATOR_BYTE) {
+                    lastInclusiveUpperSingleKey &= (fieldIndex + slotSpan[i]) < schema.getMaxFields() - 1;
                 }
             }
             if (exclusiveUpper) {
@@ -479,12 +481,12 @@ public class ScanUtil {
                 // terminator, since DESC keys ignore the last byte as it's expected to be 
                 // the terminator. Without this, we'd ignore the separator byte that was
                 // just added and incremented.
-                if (!isFixedWidth && bytes.length == 0 
-                    && SchemaUtil.getSeparatorByte(schema.rowKeyOrderOptimizable(), false, field) == QueryConstants.DESC_SEPARATOR_BYTE) {
+                if (!isFixedWidth && bytes.length == 0
+                        && SchemaUtil.getSeparatorByte(schema.rowKeyOrderOptimizable(), false, field) == QueryConstants.DESC_SEPARATOR_BYTE) {
                     key[offset++] = QueryConstants.DESC_SEPARATOR_BYTE;
                 }
             }
-            
+
             fieldIndex += slotSpan[i] + 1;
         }
         if (lastInclusiveUpperSingleKey || anyInclusiveUpperRangeKey || lastUnboundUpper) {
@@ -501,20 +503,22 @@ public class ScanUtil {
         // after the table has data, in which case there won't be a separator
         // byte.
         if (bound == Bound.LOWER) {
-            while (--i >= schemaStartIndex && offset > byteOffset && 
-                    !(field=schema.getField(--fieldIndex)).getDataType().isFixedWidth() && 
+            while (--i >= schemaStartIndex && offset > byteOffset &&
+                    !(field = schema.getField(--fieldIndex)).getDataType().isFixedWidth() &&
                     field.getSortOrder() == SortOrder.ASC &&
-                    key[offset-1] == QueryConstants.SEPARATOR_BYTE) {
+                    key[offset - 1] == QueryConstants.SEPARATOR_BYTE) {
                 offset--;
                 fieldIndex -= slotSpan[i];
             }
         }
         return offset - byteOffset;
     }
-    
+
     public static interface BytesComparator {
         public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2);
-    };
+    }
+
+    ;
 
     private static final BytesComparator DESC_VAR_WIDTH_COMPARATOR = new BytesComparator() {
 
@@ -522,28 +526,32 @@ public class ScanUtil {
         public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
             return DescVarLengthFastByteComparisons.compareTo(b1, s1, l1, b2, s2, l2);
         }
-        
+
     };
-    
+
     private static final BytesComparator ASC_FIXED_WIDTH_COMPARATOR = new BytesComparator() {
 
         @Override
         public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
             return WritableComparator.compareBytes(b1, s1, l1, b2, s2, l2);
         }
-        
+
     };
+
     public static BytesComparator getComparator(boolean isFixedWidth, SortOrder sortOrder) {
         return isFixedWidth || sortOrder == SortOrder.ASC ? ASC_FIXED_WIDTH_COMPARATOR : DESC_VAR_WIDTH_COMPARATOR;
     }
+
     public static BytesComparator getComparator(Field field) {
-        return getComparator(field.getDataType().isFixedWidth(),field.getSortOrder());
+        return getComparator(field.getDataType().isFixedWidth(), field.getSortOrder());
     }
+
     /**
      * Perform a binary lookup on the list of KeyRange for the tightest slot such that the slotBound
-     * of the current slot is higher or equal than the slotBound of our range. 
-     * @return  the index of the slot whose slot bound equals or are the tightest one that is 
-     *          smaller than rangeBound of range, or slots.length if no bound can be found.
+     * of the current slot is higher or equal than the slotBound of our range.
+     *
+     * @return the index of the slot whose slot bound equals or are the tightest one that is
+     * smaller than rangeBound of range, or slots.length if no bound can be found.
      */
     public static int searchClosestKeyRangeWithUpperHigherThanPtr(List<KeyRange> slots, ImmutableBytesWritable ptr, int lower, Field field) {
         int upper = slots.size() - 1;
@@ -567,7 +575,7 @@ public class ScanUtil {
             return ++mid;
         }
     }
-    
+
     public static ScanRanges newScanRanges(List<? extends Mutation> mutations) throws SQLException {
         List<KeyRange> keys = Lists.newArrayListWithExpectedSize(mutations.size());
         for (Mutation m : mutations) {
@@ -582,7 +590,7 @@ public class ScanUtil {
      * inclusive lower bound and an exclusive upper bound, widening
      * as necessary.
      */
-    public static KeyRange convertToInclusiveExclusiveRange (KeyRange partialRange, RowKeySchema schema, ImmutableBytesWritable ptr) {
+    public static KeyRange convertToInclusiveExclusiveRange(KeyRange partialRange, RowKeySchema schema, ImmutableBytesWritable ptr) {
         // Ensure minMaxRange is lower inclusive and upper exclusive, as that's
         // what we need to intersect against for the HBase scan.
         byte[] lowerRange = partialRange.getLowerRange();
@@ -591,7 +599,7 @@ public class ScanUtil {
                 lowerRange = ScanUtil.nextKey(lowerRange, schema, ptr);
             }
         }
-        
+
         byte[] upperRange = partialRange.getUpperRange();
         if (!partialRange.upperUnbound()) {
             if (partialRange.isUpperInclusive()) {
@@ -603,7 +611,7 @@ public class ScanUtil {
         }
         return partialRange;
     }
-    
+
     private static byte[] nextKey(byte[] key, RowKeySchema schema, ImmutableBytesWritable ptr) {
         int pos = 0;
         int maxOffset = schema.iterator(key, ptr);
@@ -614,7 +622,7 @@ public class ScanUtil {
         if (!field.getDataType().isFixedWidth()) {
             byte[] newLowerRange = new byte[key.length + 1];
             System.arraycopy(key, 0, newLowerRange, 0, key.length);
-            newLowerRange[key.length] = SchemaUtil.getSeparatorByte(schema.rowKeyOrderOptimizable(), key.length==0, field);
+            newLowerRange[key.length] = SchemaUtil.getSeparatorByte(schema.rowKeyOrderOptimizable(), key.length == 0, field);
             key = newLowerRange;
         } else {
             key = Arrays.copyOf(key, key.length);
@@ -626,7 +634,7 @@ public class ScanUtil {
     public static boolean isReversed(Scan scan) {
         return scan.getAttribute(BaseScannerRegionObserver.REVERSE_SCAN) != null;
     }
-    
+
     public static void setReversed(Scan scan) {
         scan.setAttribute(BaseScannerRegionObserver.REVERSE_SCAN, PDataType.TRUE_BYTES);
         scan.setLoadColumnFamiliesOnDemand(false);
@@ -672,69 +680,72 @@ public class ScanUtil {
 
     /**
      * prefix region start key to the start row/stop row suffix and set as scan boundaries.
+     *
      * @param scan
      * @param lowerInclusiveRegionKey
      * @param upperExclusiveRegionKey
      */
     public static void setupLocalIndexScan(Scan scan) {
-        byte[] prefix = scan.getStartRow().length == 0 ? new byte[scan.getStopRow().length]: scan.getStartRow();
-        int prefixLength = scan.getStartRow().length == 0? scan.getStopRow().length: scan.getStartRow().length;
-        if(scan.getAttribute(SCAN_START_ROW_SUFFIX)!=null) {
+        byte[] prefix = scan.getStartRow().length == 0 ? new byte[scan.getStopRow().length] : scan.getStartRow();
+        int prefixLength = scan.getStartRow().length == 0 ? scan.getStopRow().length : scan.getStartRow().length;
+        if (scan.getAttribute(SCAN_START_ROW_SUFFIX) != null) {
             scan.setStartRow(ScanRanges.prefixKey(scan.getAttribute(SCAN_START_ROW_SUFFIX), 0, prefix, prefixLength));
         }
-        if(scan.getAttribute(SCAN_STOP_ROW_SUFFIX)!=null) {
+        if (scan.getAttribute(SCAN_STOP_ROW_SUFFIX) != null) {
             scan.setStopRow(ScanRanges.prefixKey(scan.getAttribute(SCAN_STOP_ROW_SUFFIX), 0, prefix, prefixLength));
         }
     }
 
     public static byte[] getActualStartRow(Scan localIndexScan, RegionInfo regionInfo) {
         return localIndexScan.getAttribute(SCAN_START_ROW_SUFFIX) == null ? localIndexScan
-                .getStartRow() : ScanRanges.prefixKey(localIndexScan.getAttribute(SCAN_START_ROW_SUFFIX), 0 ,
-            regionInfo.getStartKey().length == 0 ? new byte[regionInfo.getEndKey().length]
-                    : regionInfo.getStartKey(),
-            regionInfo.getStartKey().length == 0 ? regionInfo.getEndKey().length : regionInfo
-                    .getStartKey().length);
+                .getStartRow() : ScanRanges.prefixKey(localIndexScan.getAttribute(SCAN_START_ROW_SUFFIX), 0,
+                regionInfo.getStartKey().length == 0 ? new byte[regionInfo.getEndKey().length]
+                        : regionInfo.getStartKey(),
+                regionInfo.getStartKey().length == 0 ? regionInfo.getEndKey().length : regionInfo
+                        .getStartKey().length);
     }
 
     /**
      * Set all attributes required and boundaries for local index scan.
+     *
      * @param keyOffset
      * @param regionStartKey
      * @param regionEndKey
      * @param newScan
      */
     public static void setLocalIndexAttributes(Scan newScan, int keyOffset, byte[] regionStartKey, byte[] regionEndKey, byte[] startRowSuffix, byte[] stopRowSuffix) {
-        if(ScanUtil.isLocalIndex(newScan)) {
-             newScan.setAttribute(SCAN_ACTUAL_START_ROW, regionStartKey);
-             newScan.setStartRow(regionStartKey);
-             newScan.setStopRow(regionEndKey);
-             if (keyOffset > 0 ) {
-                 newScan.setAttribute(SCAN_START_ROW_SUFFIX, ScanRanges.stripPrefix(startRowSuffix, keyOffset));
-             } else {
-                 newScan.setAttribute(SCAN_START_ROW_SUFFIX, startRowSuffix);
-             }
-             if (keyOffset > 0) {
-                 newScan.setAttribute(SCAN_STOP_ROW_SUFFIX, ScanRanges.stripPrefix(stopRowSuffix, keyOffset));
-             } else {
-                 newScan.setAttribute(SCAN_STOP_ROW_SUFFIX, stopRowSuffix);
-             }
-         }
+        if (ScanUtil.isLocalIndex(newScan)) {
+            newScan.setAttribute(SCAN_ACTUAL_START_ROW, regionStartKey);
+            newScan.setStartRow(regionStartKey);
+            newScan.setStopRow(regionEndKey);
+            if (keyOffset > 0) {
+                newScan.setAttribute(SCAN_START_ROW_SUFFIX, ScanRanges.stripPrefix(startRowSuffix, keyOffset));
+            } else {
+                newScan.setAttribute(SCAN_START_ROW_SUFFIX, startRowSuffix);
+            }
+            if (keyOffset > 0) {
+                newScan.setAttribute(SCAN_STOP_ROW_SUFFIX, ScanRanges.stripPrefix(stopRowSuffix, keyOffset));
+            } else {
+                newScan.setAttribute(SCAN_STOP_ROW_SUFFIX, stopRowSuffix);
+            }
+        }
     }
 
     public static boolean isContextScan(Scan scan, StatementContext context) {
         return Bytes.compareTo(context.getScan().getStartRow(), scan.getStartRow()) == 0 && Bytes
                 .compareTo(context.getScan().getStopRow(), scan.getStopRow()) == 0;
     }
+
     public static int getRowKeyOffset(byte[] regionStartKey, byte[] regionEndKey) {
         return regionStartKey.length > 0 ? regionStartKey.length : regionEndKey.length;
     }
-    
+
     private static void setRowKeyOffset(Filter filter, int offset) {
         if (filter instanceof BooleanExpressionFilter) {
-            BooleanExpressionFilter boolFilter = (BooleanExpressionFilter)filter;
+            BooleanExpressionFilter boolFilter = (BooleanExpressionFilter) filter;
             IndexUtil.setRowKeyExpressionOffset(boolFilter.getExpression(), offset);
         } else if (filter instanceof SkipScanFilter) {
-            SkipScanFilter skipScanFilter = (SkipScanFilter)filter;
+            SkipScanFilter skipScanFilter = (SkipScanFilter) filter;
             skipScanFilter.setOffset(offset);
         } else if (filter instanceof DistinctPrefixFilter) {
             DistinctPrefixFilter prefixFilter = (DistinctPrefixFilter) filter;
@@ -748,7 +759,7 @@ public class ScanUtil {
             return;
         }
         if (filter instanceof FilterList) {
-            FilterList filterList = (FilterList)filter;
+            FilterList filterList = (FilterList) filter;
             for (Filter childFilter : filterList.getFilters()) {
                 setRowKeyOffset(childFilter, offset);
             }
@@ -767,14 +778,15 @@ public class ScanUtil {
      * that the slot at index 2 has a slot index of 2 but a row key index of 3.
      * To calculate the "adjusted position" index, we simply add up the number of extra slots spanned and offset
      * the slotPosition by that much.
-     * @param slotSpan  the extra span per skip scan slot. corresponds to {@link ScanRanges#slotSpan}
-     * @param slotPosition  the index of a slot in the SkipScan slots list.
-     * @return  the equivalent row key position in the RowKeySchema
+     *
+     * @param slotSpan     the extra span per skip scan slot. corresponds to {@link ScanRanges#slotSpan}
+     * @param slotPosition the index of a slot in the SkipScan slots list.
+     * @return the equivalent row key position in the RowKeySchema
      */
     public static int getRowKeyPosition(int[] slotSpan, int slotPosition) {
         int offset = 0;
 
-        for(int i = 0; i < slotPosition; i++) {
+        for (int i = 0; i < slotPosition; i++) {
             offset += slotSpan[i];
         }
 
@@ -815,13 +827,13 @@ public class ScanUtil {
     public static byte[] getTenantIdBytes(RowKeySchema schema, boolean isSalted, PName tenantId, boolean isMultiTenantTable, boolean isSharedIndex)
             throws SQLException {
         return isMultiTenantTable ?
-                  getTenantIdBytes(schema, isSalted, tenantId, isSharedIndex)
+                getTenantIdBytes(schema, isSalted, tenantId, isSharedIndex)
                 : tenantId.getBytes();
     }
 
     public static byte[] getTenantIdBytes(RowKeySchema schema, boolean isSalted, PName tenantId, boolean isSharedIndex)
             throws SQLException {
-        int pkPos = (isSalted ? 1 : 0) + (isSharedIndex ? 1 : 0); 
+        int pkPos = (isSalted ? 1 : 0) + (isSharedIndex ? 1 : 0);
         Field field = schema.getField(pkPos);
         PDataType dataType = field.getDataType();
         byte[] convertedValue;
@@ -831,7 +843,7 @@ public class ScanUtil {
             ImmutableBytesWritable ptr = new ImmutableBytesWritable(convertedValue);
             dataType.pad(ptr, field.getMaxLength(), field.getSortOrder());
             convertedValue = ByteUtil.copyKeyBytesIfNecessary(ptr);
-        } catch(IllegalDataException ex) {
+        } catch (IllegalDataException ex) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.TENANTID_IS_OF_WRONG_TYPE)
                     .build().buildException();
         }
@@ -850,7 +862,7 @@ public class ScanUtil {
         }
         return filterIterator;
     }
-    
+
     /**
      * Selecting underlying scanners in a round-robin fashion is possible if there is no ordering of
      * rows needed, not even row key order. Also no point doing round robin of scanners if fetch
@@ -862,16 +874,16 @@ public class ScanUtil {
         return fetchSize > 1 && !shouldRowsBeInRowKeyOrder(orderBy, context)
                 && orderBy.getOrderByExpressions().isEmpty();
     }
-    
+
     public static boolean forceRowKeyOrder(StatementContext context) {
         return context.getConnection().getQueryServices().getProps()
                 .getBoolean(QueryServices.FORCE_ROW_KEY_ORDER_ATTRIB, QueryServicesOptions.DEFAULT_FORCE_ROW_KEY_ORDER);
     }
-    
+
     public static boolean shouldRowsBeInRowKeyOrder(OrderBy orderBy, StatementContext context) {
         return forceRowKeyOrder(context) || orderBy == FWD_ROW_KEY_ORDER_BY || orderBy == REV_ROW_KEY_ORDER_BY;
     }
-    
+
     public static TimeRange intersectTimeRange(TimeRange rowTimestampColRange, TimeRange scanTimeRange, Long scn) throws IOException, SQLException {
         long scnToUse = scn == null ? HConstants.LATEST_TIMESTAMP : scn;
         long lowerRangeToBe = 0;
@@ -900,17 +912,17 @@ public class ScanUtil {
         }
         return new TimeRange(lowerRangeToBe, upperRangeToBe);
     }
-    
+
     public static boolean isDefaultTimeRange(TimeRange range) {
         return range.getMin() == 0 && range.getMax() == Long.MAX_VALUE;
     }
-    
+
     /**
      * @return true if scanners could be left open and records retrieved by simply advancing them on
-     *         the server side. To make sure HBase doesn't cancel the leases and close the open
-     *         scanners, we need to periodically renew leases. To look at the earliest HBase version
-     *         that supports renewing leases, see
-     *         {@link MetaDataProtocol#MIN_RENEW_LEASE_VERSION}
+     * the server side. To make sure HBase doesn't cancel the leases and close the open
+     * scanners, we need to periodically renew leases. To look at the earliest HBase version
+     * that supports renewing leases, see
+     * {@link MetaDataProtocol#MIN_RENEW_LEASE_VERSION}
      */
     public static boolean isPacingScannersPossible(StatementContext context) {
         return context.getConnection().getQueryServices().isRenewingLeasesEnabled();
@@ -919,7 +931,7 @@ public class ScanUtil {
     public static void addOffsetAttribute(Scan scan, Integer offset) {
         scan.setAttribute(BaseScannerRegionObserver.SCAN_OFFSET, Bytes.toBytes(offset));
     }
-    
+
     public static final boolean canQueryBeExecutedSerially(PTable table, OrderBy orderBy, StatementContext context) {
         /*
          * If ordering by columns not on the PK axis, we can't execute a query serially because we
@@ -930,12 +942,12 @@ public class ScanUtil {
          */
         if (!orderBy.getOrderByExpressions().isEmpty()
                 || ((table.getBucketNum() != null || table.getIndexType() == IndexType.LOCAL) && shouldRowsBeInRowKeyOrder(
-                    orderBy, context))) {
+                orderBy, context))) {
             return false;
         }
         return true;
     }
-    
+
     public static boolean hasDynamicColumns(PTable table) {
         for (PColumn col : table.getColumns()) {
             if (col.isDynamic()) {
@@ -948,7 +960,7 @@ public class ScanUtil {
     public static boolean isIndexRebuild(Scan scan) {
         return scan.getAttribute((BaseScannerRegionObserver.REBUILD_INDEXES)) != null;
     }
- 
+
     public static int getClientVersion(Scan scan) {
         int clientVersion = UNKNOWN_CLIENT_VERSION;
         byte[] clientVersionBytes = scan.getAttribute(BaseScannerRegionObserver.CLIENT_VERSION);
@@ -957,7 +969,7 @@ public class ScanUtil {
         }
         return clientVersion;
     }
-    
+
     public static void setClientVersion(Scan scan, int version) {
         scan.setAttribute(BaseScannerRegionObserver.CLIENT_VERSION, Bytes.toBytes(version));
     }

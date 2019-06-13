@@ -20,24 +20,24 @@ package org.apache.phoenix.schema;
 import org.apache.phoenix.util.SizedUtil;
 
 public class DelegateColumn extends DelegateDatum implements PColumn {
-    
+
     public DelegateColumn(PColumn delegate) {
         super(delegate);
     }
-    
+
     @Override
     protected PColumn getDelegate() {
-        return (PColumn)super.getDelegate();
+        return (PColumn) super.getDelegate();
     }
-    
+
     @Override
     public PName getName() {
         return getDelegate().getName();
     }
-    
+
     @Override
     public SortOrder getSortOrder() {
-    	return getDelegate().getSortOrder();
+        return getDelegate().getSortOrder();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class DelegateColumn extends DelegateDatum implements PColumn {
     public boolean isViewReferenced() {
         return getDelegate().isViewReferenced();
     }
-    
+
     @Override
     public String getExpressionStr() {
         return getDelegate().getExpressionStr();
@@ -93,27 +93,28 @@ public class DelegateColumn extends DelegateDatum implements PColumn {
     @Override
     public boolean isRowTimestamp() {
         return getDelegate().isRowTimestamp();
-    }    
-    
+    }
+
     @Override
     public String toString() {
         return getDelegate().toString();
     }
 
-	@Override
-	public boolean isDynamic() {
-		return getDelegate().isDynamic();
-	}
+    @Override
+    public boolean isDynamic() {
+        return getDelegate().isDynamic();
+    }
 
-	@Override
-	public int hashCode() {
-	    return getDelegate().hashCode();
-	}
-	
-	@Override
+    @Override
+    public int hashCode() {
+        return getDelegate().hashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
-	    return getDelegate().equals(o);
-	}
+        return getDelegate().equals(o);
+    }
+
     @Override
     public byte[] getColumnQualifierBytes() {
         return getDelegate().getColumnQualifierBytes();

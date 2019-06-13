@@ -39,15 +39,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
-
 /**
  * Base class for tests whose methods run in parallel with
  * 1. Statistics enabled on server side (QueryServices#STATS_COLLECTION_ENABLED is true)
  * 2. Guide Post Width for all relevant tables is 0. Stats are disabled at table level.
- *
+ * <p>
  * See {@link org.apache.phoenix.schema.stats.NoOpStatsCollectorIT} for tests that disable
  * stats collection from server side.
- *
+ * <p>
  * You must create unique names using {@link #generateUniqueName()} for each
  * table and sequence used to prevent collisions.
  */
@@ -72,13 +71,12 @@ public abstract class ParallelStatsDisabledIT extends BaseTest {
     }
 
     protected ResultSet executeQueryThrowsException(Connection conn, QueryBuilder queryBuilder,
-            String expectedPhoenixExceptionMsg, String expectedSparkExceptionMsg) {
+                                                    String expectedPhoenixExceptionMsg, String expectedSparkExceptionMsg) {
         ResultSet rs = null;
         try {
             rs = executeQuery(conn, queryBuilder);
             fail();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             assertTrue(e.getMessage().contains(expectedPhoenixExceptionMsg));
         }
         return rs;

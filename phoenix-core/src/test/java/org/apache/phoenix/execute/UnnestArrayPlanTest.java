@@ -70,8 +70,9 @@ import com.google.common.collect.Lists;
 
 @SuppressWarnings("rawtypes")
 public class UnnestArrayPlanTest {
-    
+
     private static final StatementContext CONTEXT;
+
     static {
         try {
             PhoenixConnection connection = DriverManager.getConnection(JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + CONNECTIONLESS).unwrap(PhoenixConnection.class);
@@ -82,51 +83,51 @@ public class UnnestArrayPlanTest {
             throw new RuntimeException(e);
         }
     }
-    
-    @Test 
+
+    @Test
     public void testUnnestIntegerArrays() throws Exception {
         testUnnestArrays(PIntegerArray.INSTANCE, Arrays.asList(new Object[] {1, 10}, new Object[] {2, 20}), false);
     }
-    
-    @Test 
+
+    @Test
     public void testUnnestIntegerArraysWithOrdinality() throws Exception {
         testUnnestArrays(PIntegerArray.INSTANCE, Arrays.asList(new Object[] {1, 10}, new Object[] {2, 20}), true);
     }
-    
-    @Test 
+
+    @Test
     public void testUnnestVarcharArrays() throws Exception {
         testUnnestArrays(PVarcharArray.INSTANCE, Arrays.asList(new Object[] {"1", "10"}, new Object[] {"2", "20"}), false);
     }
-    
-    @Test 
+
+    @Test
     public void testUnnestVarcharArraysWithOrdinality() throws Exception {
         testUnnestArrays(PVarcharArray.INSTANCE, Arrays.asList(new Object[] {"1", "10"}, new Object[] {"2", "20"}), true);
     }
-    
-    @Test 
+
+    @Test
     public void testUnnestEmptyArrays() throws Exception {
-        testUnnestArrays(PIntegerArray.INSTANCE, Arrays.asList(new Object[] {1, 10}, new Object[]{}, new Object[] {2, 20}), false);
+        testUnnestArrays(PIntegerArray.INSTANCE, Arrays.asList(new Object[] {1, 10}, new Object[] {}, new Object[] {2, 20}), false);
     }
-    
-    @Test 
+
+    @Test
     public void testUnnestEmptyArraysWithOrdinality() throws Exception {
-        testUnnestArrays(PIntegerArray.INSTANCE, Arrays.asList(new Object[] {1, 10}, new Object[]{}, new Object[] {2, 20}), true);
+        testUnnestArrays(PIntegerArray.INSTANCE, Arrays.asList(new Object[] {1, 10}, new Object[] {}, new Object[] {2, 20}), true);
     }
-    
+
     private void testUnnestArrays(PArrayDataType arrayType, List<Object[]> arrays, boolean withOrdinality) throws Exception {
         PDataType baseType = PDataType.fromTypeId(arrayType.getSqlType() - PDataType.ARRAY_TYPE_BASE);
         List<Tuple> tuples = toTuples(arrayType, arrays);
-		LiteralResultIterationPlan subPlan = new LiteralResultIterationPlan(tuples, CONTEXT, SelectStatement.SELECT_ONE,
-				TableRef.EMPTY_TABLE_REF, RowProjector.EMPTY_PROJECTOR, null, null, OrderBy.EMPTY_ORDER_BY, null);
+        LiteralResultIterationPlan subPlan = new LiteralResultIterationPlan(tuples, CONTEXT, SelectStatement.SELECT_ONE,
+                TableRef.EMPTY_TABLE_REF, RowProjector.EMPTY_PROJECTOR, null, null, OrderBy.EMPTY_ORDER_BY, null);
         LiteralExpression dummy = LiteralExpression.newConstant(null, arrayType);
         RowKeyValueAccessor accessor = new RowKeyValueAccessor(Arrays.asList(dummy), 0);
         UnnestArrayPlan plan = new UnnestArrayPlan(subPlan, new RowKeyColumnExpression(dummy, accessor), withOrdinality);
         PName colName = PNameFactory.newName("ELEM");
         PColumn elemColumn = new PColumnImpl(PNameFactory.newName("ELEM"), PNameFactory.newName(VALUE_COLUMN_FAMILY), baseType, null, null, true, 0, SortOrder.getDefault(), null, null, false, "", false, false, colName.getBytes(),
-            HConstants.LATEST_TIMESTAMP);
+                HConstants.LATEST_TIMESTAMP);
         colName = PNameFactory.newName("IDX");
         PColumn indexColumn = withOrdinality ? new PColumnImpl(colName, PNameFactory.newName(VALUE_COLUMN_FAMILY), PInteger.INSTANCE, null, null, true, 0, SortOrder.getDefault(), null, null, false, "", false, false, colName.getBytes(),
-            HConstants.LATEST_TIMESTAMP) : null;
+                HConstants.LATEST_TIMESTAMP) : null;
         List<PColumn> columns = withOrdinality ? Arrays.asList(elemColumn, indexColumn) : Arrays.asList(elemColumn);
         ProjectedColumnExpression elemExpr = new ProjectedColumnExpression(elemColumn, columns, 0, elemColumn.getName().getString());
         ProjectedColumnExpression indexExpr = withOrdinality ? new ProjectedColumnExpression(indexColumn, columns, 1, indexColumn.getName().getString()) : null;
@@ -141,12 +142,12 @@ public class UnnestArrayPlanTest {
             if (withOrdinality) {
                 assertTrue(indexExpr.evaluate(tuple, ptr));
                 Object index = PInteger.INSTANCE.toObject(ptr);
-                assertEquals(o[1], index);                
+                assertEquals(o[1], index);
             }
         }
         assertNull(iterator.next());
     }
-    
+
     private List<Object[]> flatten(List<Object[]> arrays) {
         List<Object[]> ret = Lists.newArrayList();
         for (Object[] array : arrays) {
@@ -156,16 +157,16 @@ public class UnnestArrayPlanTest {
         }
         return ret;
     }
-    
+
     private List<Tuple> toTuples(PArrayDataType arrayType, List<Object[]> arrays) {
         List<Tuple> tuples = Lists.newArrayListWithExpectedSize(arrays.size());
         PDataType baseType = PDataType.fromTypeId(arrayType.getSqlType() - PDataType.ARRAY_TYPE_BASE);
         for (Object[] array : arrays) {
             PhoenixArray pArray = new PhoenixArray(baseType, array);
-            byte[] bytes = arrayType.toBytes(pArray);            
+            byte[] bytes = arrayType.toBytes(pArray);
             tuples.add(new SingleKeyValueTuple(PhoenixKeyValueUtil.newKeyValue(bytes, 0, bytes.length, bytes, 0, 0, bytes, 0, 0, 0, bytes, 0, 0, Cell.Type.Put)));
         }
-        
+
         return tuples;
     }
 }

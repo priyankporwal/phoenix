@@ -47,16 +47,16 @@ import com.google.common.collect.Lists;
  * rows as we scan
  */
 public class PostLocalIndexDDLCompiler {
-	private final PhoenixConnection connection;
+    private final PhoenixConnection connection;
     private final String tableName;
-    
+
     public PostLocalIndexDDLCompiler(PhoenixConnection connection, String tableName) {
         this.connection = connection;
         this.tableName = tableName;
     }
 
-	public MutationPlan compile(PTable index) throws SQLException {
-		try (final PhoenixStatement statement = new PhoenixStatement(connection)) {
+    public MutationPlan compile(PTable index) throws SQLException {
+        try (final PhoenixStatement statement = new PhoenixStatement(connection)) {
             String query = "SELECT count(*) FROM " + tableName;
             final QueryPlan plan = statement.compileQuery(query);
             TableRef tableRef = plan.getTableRef();
@@ -116,6 +116,6 @@ public class PostLocalIndexDDLCompiler {
 
             };
         }
-	}
-	
+    }
+
 }

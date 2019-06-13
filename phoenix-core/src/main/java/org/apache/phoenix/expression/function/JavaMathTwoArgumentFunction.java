@@ -43,13 +43,19 @@ public abstract class JavaMathTwoArgumentFunction extends ScalarFunction {
         PDataType returnType = getDataType();
 
         Expression arg1Expr = children.get(0);
-        if (!arg1Expr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength() == 0) return true;
+        if (!arg1Expr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         double arg1 = JavaMathOneArgumentFunction.getArg(arg1Expr, ptr);
 
         Expression arg2Expr = (children.size() <= 1) ? null : children.get(1);
         double arg2;
-        if (arg2Expr != null && !arg2Expr.evaluate(tuple, ptr)) return false;
+        if (arg2Expr != null && !arg2Expr.evaluate(tuple, ptr)) {
+            return false;
+        }
         if (arg2Expr == null || ptr.getLength() == 0) {
             ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
             return true;

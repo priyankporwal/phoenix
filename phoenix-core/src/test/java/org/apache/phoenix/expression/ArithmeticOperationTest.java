@@ -89,7 +89,7 @@ public class ArithmeticOperationTest {
             fail("Evaluation should have failed");
         } catch (DataExceedsCapacityException ex) {
         }
-        
+
         // Decimal with no precision and scale.
         op1 = LiteralExpression.newConstant(new BigDecimal("9999.1"), PDecimal.INSTANCE);
         op2 = LiteralExpression.newConstant(new BigDecimal("1.1111"), PDecimal.INSTANCE, 5, 4);
@@ -162,7 +162,7 @@ public class ArithmeticOperationTest {
             fail("Evaluation should have failed");
         } catch (DataExceedsCapacityException ex) {
         }
-        
+
         // Decimal with no precision and scale.
         op1 = LiteralExpression.newConstant(new BigDecimal("1111.1"), PDecimal.INSTANCE);
         op2 = LiteralExpression.newConstant(new BigDecimal("1.1111"), PDecimal.INSTANCE, 5, 4);
@@ -207,7 +207,7 @@ public class ArithmeticOperationTest {
             fail("Evaluation should have failed");
         } catch (DataExceedsCapacityException ex) {
         }
-        
+
         // Decimal with no precision and scale.
         op1 = LiteralExpression.newConstant(new BigDecimal("1111.1"), PDecimal.INSTANCE);
         assertNull(op1.getScale());
@@ -245,11 +245,11 @@ public class ArithmeticOperationTest {
             fail("Evaluation should have failed");
         } catch (DataExceedsCapacityException ex) {
         }
-        
+
         // Decimal with no precision and scale.
         op1 = LiteralExpression.newConstant(new BigDecimal("10"), PDecimal.INSTANCE);
         op2 = LiteralExpression.newConstant(new BigDecimal("3"), PDecimal.INSTANCE, 5, 4);
-        assertEquals(Integer.valueOf(4),op2.getScale());
+        assertEquals(Integer.valueOf(4), op2.getScale());
         children = Arrays.<Expression>asList(op1, op2);
         e = new DecimalDivideExpression(children);
         assertEqualValue(e, PDecimal.INSTANCE, new BigDecimal("3.3333333333333333333333333333333333333"));
@@ -279,7 +279,7 @@ public class ArithmeticOperationTest {
         e4.evaluate(null, ptr1);
         clone.evaluate(null, ptr2);
         assertNotEquals(ptr1, ptr2);
-        
+
         e4 = new DoubleAddExpression(Arrays.<Expression>asList(new RandomFunction(Arrays.<Expression>asList(LiteralExpression.newConstant(1))), e3));
         visitor = new CloneExpressionVisitor();
         clone = e4.accept(visitor);

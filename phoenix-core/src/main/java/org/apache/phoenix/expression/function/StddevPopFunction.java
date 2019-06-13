@@ -33,13 +33,11 @@ import org.apache.phoenix.schema.types.PDecimal;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * Built-in function for STDDEV_POP(<expression>) aggregate function
- * 
- * 
+ *
  * @since 1.2.1
  */
-@BuiltInFunction(name = StddevPopFunction.NAME, args = { @Argument(allowedTypes={PDecimal.class})})
+@BuiltInFunction(name = StddevPopFunction.NAME, args = {@Argument(allowedTypes = {PDecimal.class})})
 public class StddevPopFunction extends DistinctValueWithCountAggregateFunction {
     public static final String NAME = "STDDEV_POP";
 
@@ -64,7 +62,7 @@ public class StddevPopFunction extends DistinctValueWithCountAggregateFunction {
         }
         return new StddevPopAggregator(children, getAggregatorExpression().getSortOrder());
     }
-    
+
     @Override
     public String getName() {
         return NAME;

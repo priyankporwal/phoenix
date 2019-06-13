@@ -22,12 +22,9 @@ import java.sql.SQLException;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
 /**
- * 
  * Abstract base class for FROM clause data sources
  *
- * 
  * @since 0.1
  */
 public abstract class TableNode {
@@ -44,11 +41,12 @@ public abstract class TableNode {
     @Override
     public final String toString() {
         StringBuilder buf = new StringBuilder();
-        toSQL(null,buf);
+        toSQL(null, buf);
         return buf.toString();
     }
 
     public abstract <T> T accept(TableNodeVisitor<T> visitor) throws SQLException;
+
     public abstract void toSQL(ColumnResolver resolver, StringBuilder buf);
 }
 

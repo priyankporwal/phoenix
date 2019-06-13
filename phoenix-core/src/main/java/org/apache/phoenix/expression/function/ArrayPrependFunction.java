@@ -31,7 +31,7 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PVarbinary;
 import org.apache.phoenix.schema.types.PVarbinaryArray;
 
-@FunctionParseNode.BuiltInFunction(name = ArrayPrependFunction.NAME, nodeClass=ArrayModifierParseNode.class, args = {
+@FunctionParseNode.BuiltInFunction(name = ArrayPrependFunction.NAME, nodeClass = ArrayModifierParseNode.class, args = {
         @FunctionParseNode.Argument(allowedTypes = {PVarbinary.class}),
         @FunctionParseNode.Argument(allowedTypes = {PBinaryArray.class, PVarbinaryArray.class})})
 public class ArrayPrependFunction extends ArrayModifierFunction {

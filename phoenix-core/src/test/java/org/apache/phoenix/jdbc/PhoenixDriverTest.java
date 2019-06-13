@@ -62,8 +62,8 @@ public class PhoenixDriverTest extends BaseConnectionlessQueryTest {
     @Test
     public void testMaxMutationSizeSetCorrectly() throws SQLException {
         Properties connectionProperties = new Properties();
-        connectionProperties.setProperty(QueryServices.MAX_MUTATION_SIZE_ATTRIB,"100");
-        connectionProperties.setProperty(QueryServices.IMMUTABLE_ROWS_ATTRIB,"100");
+        connectionProperties.setProperty(QueryServices.MAX_MUTATION_SIZE_ATTRIB, "100");
+        connectionProperties.setProperty(QueryServices.IMMUTABLE_ROWS_ATTRIB, "100");
         Connection connection = DriverManager.getConnection(getUrl(), connectionProperties);
 
         PreparedStatement stmt = connection.prepareStatement("upsert into " + ATABLE + " (organization_id, entity_id, a_integer) values (?,?,?)");
@@ -83,12 +83,12 @@ public class PhoenixDriverTest extends BaseConnectionlessQueryTest {
     @Test
     public void testMaxMutationSizeInBytesSetCorrectly() throws Exception {
         Properties connectionProperties = new Properties();
-        connectionProperties.setProperty(QueryServices.MUTATE_BATCH_SIZE_BYTES_ATTRIB,"100");
+        connectionProperties.setProperty(QueryServices.MUTATE_BATCH_SIZE_BYTES_ATTRIB, "100");
         PhoenixConnection connection = (PhoenixConnection) DriverManager.getConnection(getUrl(), connectionProperties);
         assertEquals(100L, connection.getMutateBatchSizeBytes());
         assertEquals(100L, connection.getMutationState().getBatchSizeBytes());
     }
-    
+
     @Test
     public void testDisallowNegativeScn() {
         Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
@@ -96,11 +96,11 @@ public class PhoenixDriverTest extends BaseConnectionlessQueryTest {
         try {
             DriverManager.getConnection(getUrl(), props);
             fail("Creating a phoenix connection with negative scn is not allowed");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.INVALID_SCN.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     @Ignore
     @Test
     public void testDisallowIsolationLevel() throws SQLException {
@@ -112,14 +112,14 @@ public class PhoenixDriverTest extends BaseConnectionlessQueryTest {
             conn = DriverManager.getConnection(getUrl());
             conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
             fail();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             assertEquals(SQLExceptionCode.TX_MUST_BE_ENABLED_TO_SET_ISOLATION_LEVEL.getErrorCode(), e.getErrorCode());
         }
         try {
             conn = DriverManager.getConnection(getUrl());
             conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             fail();
-        } catch(SQLFeatureNotSupportedException e) {
+        } catch (SQLFeatureNotSupportedException e) {
         }
         Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         props.setProperty(QueryServices.TRANSACTIONS_ENABLED, Boolean.toString(true));
@@ -128,17 +128,17 @@ public class PhoenixDriverTest extends BaseConnectionlessQueryTest {
         try {
             conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             fail();
-        } catch(SQLFeatureNotSupportedException e) {
+        } catch (SQLFeatureNotSupportedException e) {
         }
     }
 
     @Test
     public void testInvalidURL() throws Exception {
-      Class.forName(PhoenixDriver.class.getName());
-      try {
-      DriverManager.getConnection("any text whatever you want to put here");
-      fail("Should have failed due to invalid driver");
-      } catch(Exception e) {
-      }
+        Class.forName(PhoenixDriver.class.getName());
+        try {
+            DriverManager.getConnection("any text whatever you want to put here");
+            fail("Should have failed due to invalid driver");
+        } catch (Exception e) {
+        }
     }
 }

@@ -110,7 +110,7 @@ public class InvalidIndexStateClientSideIT extends ParallelStatsDisabledIT {
                         builder.setTableTimestamp(tableTimestamp);
                         builder.setClientTimestamp(resolvedTimestamp);
                         builder.setClientVersion(VersionUtil.encodeVersion(PHOENIX_MAJOR_VERSION,
-                            13, PHOENIX_PATCH_NUMBER));
+                                13, PHOENIX_PATCH_NUMBER));
                         builder.setSkipAddingParentColumns(false);
                         builder.setSkipAddingIndexes(false);
                         instance.getTable(controller, builder.build(), rpcCallback);
@@ -128,10 +128,10 @@ public class InvalidIndexStateClientSideIT extends ParallelStatsDisabledIT {
             final Map<byte[], MetaDataResponse> results =
                     ht.coprocessorService(MetaDataService.class, tableKey, tableKey, callable);
 
-            assert (results.size() == 1);
+            assert(results.size() == 1);
             MetaDataResponse result = results.values().iterator().next();
-            assert (result.getTable().getIndexesCount() == 1);
-            assert (PIndexState.valueOf(result.getTable().getIndexes(0).getIndexState())
+            assert(result.getTable().getIndexesCount() == 1);
+            assert(PIndexState.valueOf(result.getTable().getIndexes(0).getIndexState())
                     .equals(PIndexState.DISABLE));
         } catch (Exception e) {
             LOGGER.error("Exception Occurred: " + e);

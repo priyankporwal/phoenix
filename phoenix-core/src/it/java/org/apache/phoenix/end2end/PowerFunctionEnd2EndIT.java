@@ -48,10 +48,10 @@ public class PowerFunctionEnd2EndIT extends ParallelStatsDisabledIT {
             conn = DriverManager.getConnection(getUrl());
             String ddl;
             ddl = "CREATE TABLE " + signedTableName
-                + " (k VARCHAR NOT NULL PRIMARY KEY, doub DOUBLE, fl FLOAT, inte INTEGER, lon BIGINT, smalli SMALLINT, tinyi TINYINT)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, doub DOUBLE, fl FLOAT, inte INTEGER, lon BIGINT, smalli SMALLINT, tinyi TINYINT)";
             conn.createStatement().execute(ddl);
             ddl = "CREATE TABLE " + unsignedTableName
-                + " (k VARCHAR NOT NULL PRIMARY KEY, doub UNSIGNED_DOUBLE, fl UNSIGNED_FLOAT, inte UNSIGNED_INT, lon UNSIGNED_LONG, smalli UNSIGNED_SMALLINT, tinyi UNSIGNED_TINYINT)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, doub UNSIGNED_DOUBLE, fl UNSIGNED_FLOAT, inte UNSIGNED_INT, lon UNSIGNED_LONG, smalli UNSIGNED_SMALLINT, tinyi UNSIGNED_TINYINT)";
             conn.createStatement().execute(ddl);
             conn.commit();
         } finally {
@@ -79,8 +79,8 @@ public class PowerFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         ResultSet rs =
                 conn.createStatement()
                         .executeQuery(
-                            "SELECT POWER(doub, 1.5),POWER(fl, 1.5),POWER(inte, 1.5),POWER(lon, 1.5),POWER(smalli, 1.5),POWER(tinyi, 1.5) FROM "
-                                    + tableName);
+                                "SELECT POWER(doub, 1.5),POWER(fl, 1.5),POWER(inte, 1.5),POWER(lon, 1.5),POWER(smalli, 1.5),POWER(tinyi, 1.5) FROM "
+                                        + tableName);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.pow(d.doubleValue(), 1.5)));
@@ -94,8 +94,8 @@ public class PowerFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         rs =
                 conn.createStatement()
                         .executeQuery(
-                            "SELECT POWER(doub, 2),POWER(fl, 2),POWER(inte, 2),POWER(lon, 2),POWER(smalli, 2),POWER(tinyi, 2) FROM "
-                                    + tableName);
+                                "SELECT POWER(doub, 2),POWER(fl, 2),POWER(inte, 2),POWER(lon, 2),POWER(smalli, 2),POWER(tinyi, 2) FROM "
+                                        + tableName);
         assertTrue(rs.next());
         d = Double.valueOf(data);
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.pow(d.doubleValue(), 2)));
@@ -108,8 +108,8 @@ public class PowerFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
         rs =
                 conn.createStatement().executeQuery(
-                    "SELECT POWER(doub,3),POWER(fl,3),POWER(inte,3),POWER(lon,3),POWER(smalli,3),POWER(tinyi,3) FROM "
-                            + tableName);
+                        "SELECT POWER(doub,3),POWER(fl,3),POWER(inte,3),POWER(lon,3),POWER(smalli,3),POWER(tinyi,3) FROM "
+                                + tableName);
         assertTrue(rs.next());
         d = Double.valueOf(data);
         assertTrue(twoDoubleEquals(rs.getDouble(1), Math.pow(d.doubleValue(), 3)));
@@ -124,9 +124,11 @@ public class PowerFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void test() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, -1.0, 123.1234, -123.1234 }) {
+        for (double d : new double[] {0.0, 1.0, -1.0, 123.1234, -123.1234}) {
             testNumberSpec(conn, d, signedTableName);
-            if (d >= 0) testNumberSpec(conn, d, unsignedTableName);
+            if (d >= 0) {
+                testNumberSpec(conn, d, unsignedTableName);
+            }
         }
     }
 }

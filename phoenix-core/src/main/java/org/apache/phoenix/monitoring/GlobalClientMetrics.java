@@ -75,96 +75,97 @@ import org.slf4j.LoggerFactory;
  * to the above two which are collected for every phoenix request.
  */
 
-public enum GlobalClientMetrics {
-    GLOBAL_MUTATION_BATCH_SIZE(MUTATION_BATCH_SIZE),
-    GLOBAL_MUTATION_BYTES(MUTATION_BYTES),
-    GLOBAL_MUTATION_COMMIT_TIME(MUTATION_COMMIT_TIME),
-    GLOBAL_MUTATION_BATCH_FAILED_COUNT(MUTATION_BATCH_FAILED_SIZE),
-    GLOBAL_QUERY_TIME(QUERY_TIME),
-    GLOBAL_NUM_PARALLEL_SCANS(NUM_PARALLEL_SCANS),
-    GLOBAL_SCAN_BYTES(SCAN_BYTES),
-    GLOBAL_SPOOL_FILE_SIZE(SPOOL_FILE_SIZE),
-    GLOBAL_MEMORY_CHUNK_BYTES(MEMORY_CHUNK_BYTES),
-    GLOBAL_MEMORY_WAIT_TIME(MEMORY_WAIT_TIME),
-    GLOBAL_TASK_QUEUE_WAIT_TIME(TASK_QUEUE_WAIT_TIME),
-    GLOBAL_TASK_END_TO_END_TIME(TASK_END_TO_END_TIME),
-    GLOBAL_TASK_EXECUTION_TIME(TASK_EXECUTION_TIME),
-    GLOBAL_MUTATION_SQL_COUNTER(MUTATION_SQL_COUNTER),
-    GLOBAL_SELECT_SQL_COUNTER(SELECT_SQL_COUNTER),
-    GLOBAL_TASK_EXECUTED_COUNTER(TASK_EXECUTED_COUNTER),
-    GLOBAL_REJECTED_TASK_COUNTER(TASK_REJECTED_COUNTER),
-    GLOBAL_QUERY_TIMEOUT_COUNTER(QUERY_TIMEOUT_COUNTER),
-    GLOBAL_FAILED_QUERY_COUNTER(QUERY_FAILED_COUNTER),
-    GLOBAL_SPOOL_FILE_COUNTER(SPOOL_FILE_COUNTER),
-    GLOBAL_OPEN_PHOENIX_CONNECTIONS(OPEN_PHOENIX_CONNECTIONS_COUNTER),
-    GLOBAL_QUERY_SERVICES_COUNTER(QUERY_SERVICES_COUNTER),
-    GLOBAL_HCONNECTIONS_COUNTER(HCONNECTIONS_COUNTER),
-    GLOBAL_PHOENIX_CONNECTIONS_THROTTLED_COUNTER(PHOENIX_CONNECTIONS_THROTTLED_COUNTER),
-    GLOBAL_PHOENIX_CONNECTIONS_ATTEMPTED_COUNTER(PHOENIX_CONNECTIONS_ATTEMPTED_COUNTER),
+public enum GlobalClientMetrics{
+        GLOBAL_MUTATION_BATCH_SIZE(MUTATION_BATCH_SIZE),
+        GLOBAL_MUTATION_BYTES(MUTATION_BYTES),
+        GLOBAL_MUTATION_COMMIT_TIME(MUTATION_COMMIT_TIME),
+        GLOBAL_MUTATION_BATCH_FAILED_COUNT(MUTATION_BATCH_FAILED_SIZE),
+        GLOBAL_QUERY_TIME(QUERY_TIME),
+        GLOBAL_NUM_PARALLEL_SCANS(NUM_PARALLEL_SCANS),
+        GLOBAL_SCAN_BYTES(SCAN_BYTES),
+        GLOBAL_SPOOL_FILE_SIZE(SPOOL_FILE_SIZE),
+        GLOBAL_MEMORY_CHUNK_BYTES(MEMORY_CHUNK_BYTES),
+        GLOBAL_MEMORY_WAIT_TIME(MEMORY_WAIT_TIME),
+        GLOBAL_TASK_QUEUE_WAIT_TIME(TASK_QUEUE_WAIT_TIME),
+        GLOBAL_TASK_END_TO_END_TIME(TASK_END_TO_END_TIME),
+        GLOBAL_TASK_EXECUTION_TIME(TASK_EXECUTION_TIME),
+        GLOBAL_MUTATION_SQL_COUNTER(MUTATION_SQL_COUNTER),
+        GLOBAL_SELECT_SQL_COUNTER(SELECT_SQL_COUNTER),
+        GLOBAL_TASK_EXECUTED_COUNTER(TASK_EXECUTED_COUNTER),
+        GLOBAL_REJECTED_TASK_COUNTER(TASK_REJECTED_COUNTER),
+        GLOBAL_QUERY_TIMEOUT_COUNTER(QUERY_TIMEOUT_COUNTER),
+        GLOBAL_FAILED_QUERY_COUNTER(QUERY_FAILED_COUNTER),
+        GLOBAL_SPOOL_FILE_COUNTER(SPOOL_FILE_COUNTER),
+        GLOBAL_OPEN_PHOENIX_CONNECTIONS(OPEN_PHOENIX_CONNECTIONS_COUNTER),
+        GLOBAL_QUERY_SERVICES_COUNTER(QUERY_SERVICES_COUNTER),
+        GLOBAL_HCONNECTIONS_COUNTER(HCONNECTIONS_COUNTER),
+        GLOBAL_PHOENIX_CONNECTIONS_THROTTLED_COUNTER(PHOENIX_CONNECTIONS_THROTTLED_COUNTER),
+        GLOBAL_PHOENIX_CONNECTIONS_ATTEMPTED_COUNTER(PHOENIX_CONNECTIONS_ATTEMPTED_COUNTER),
 
-    GLOBAL_HBASE_COUNT_RPC_CALLS(COUNT_RPC_CALLS),
-    GLOBAL_HBASE_COUNT_REMOTE_RPC_CALLS(COUNT_REMOTE_RPC_CALLS),
-    GLOBAL_HBASE_COUNT_MILLS_BETWEEN_NEXTS(COUNT_MILLS_BETWEEN_NEXTS),
-    GLOBAL_HBASE_COUNT_NOT_SERVING_REGION_EXCEPTION(COUNT_NOT_SERVING_REGION_EXCEPTION),
-    GLOBAL_HBASE_COUNT_BYTES_REGION_SERVER_RESULTS(COUNT_BYTES_REGION_SERVER_RESULTS),
-    GLOBAL_HBASE_COUNT_BYTES_IN_REMOTE_RESULTS(COUNT_BYTES_IN_REMOTE_RESULTS),
-    GLOBAL_HBASE_COUNT_SCANNED_REGIONS(COUNT_SCANNED_REGIONS),
-    GLOBAL_HBASE_COUNT_RPC_RETRIES(COUNT_RPC_RETRIES),
-    GLOBAL_HBASE_COUNT_REMOTE_RPC_RETRIES(COUNT_REMOTE_RPC_RETRIES),
-    GLOBAL_HBASE_COUNT_ROWS_SCANNED(COUNT_ROWS_SCANNED),
-    GLOBAL_HBASE_COUNT_ROWS_FILTERED(COUNT_ROWS_FILTERED);
+        GLOBAL_HBASE_COUNT_RPC_CALLS(COUNT_RPC_CALLS),
+        GLOBAL_HBASE_COUNT_REMOTE_RPC_CALLS(COUNT_REMOTE_RPC_CALLS),
+        GLOBAL_HBASE_COUNT_MILLS_BETWEEN_NEXTS(COUNT_MILLS_BETWEEN_NEXTS),
+        GLOBAL_HBASE_COUNT_NOT_SERVING_REGION_EXCEPTION(COUNT_NOT_SERVING_REGION_EXCEPTION),
+        GLOBAL_HBASE_COUNT_BYTES_REGION_SERVER_RESULTS(COUNT_BYTES_REGION_SERVER_RESULTS),
+        GLOBAL_HBASE_COUNT_BYTES_IN_REMOTE_RESULTS(COUNT_BYTES_IN_REMOTE_RESULTS),
+        GLOBAL_HBASE_COUNT_SCANNED_REGIONS(COUNT_SCANNED_REGIONS),
+        GLOBAL_HBASE_COUNT_RPC_RETRIES(COUNT_RPC_RETRIES),
+        GLOBAL_HBASE_COUNT_REMOTE_RPC_RETRIES(COUNT_REMOTE_RPC_RETRIES),
+        GLOBAL_HBASE_COUNT_ROWS_SCANNED(COUNT_ROWS_SCANNED),
+        GLOBAL_HBASE_COUNT_ROWS_FILTERED(COUNT_ROWS_FILTERED);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalClientMetrics.class);
-    private static final boolean isGlobalMetricsEnabled = QueryServicesOptions.withDefaults().isGlobalMetricsEnabled();
-    private MetricType metricType;
-    private GlobalMetric metric;
+private static final Logger LOGGER=LoggerFactory.getLogger(GlobalClientMetrics.class);
+private static final boolean isGlobalMetricsEnabled=QueryServicesOptions.withDefaults().isGlobalMetricsEnabled();
+private MetricType metricType;
+private GlobalMetric metric;
 
-    static {
+static {
         initPhoenixGlobalClientMetrics();
-        if (isGlobalMetricsEnabled) {
-            MetricRegistry metricRegistry = createMetricRegistry();
-            registerPhoenixMetricsToRegistry(metricRegistry);
-            GlobalMetricRegistriesAdapter.getInstance().registerMetricRegistry(metricRegistry);
+        if(isGlobalMetricsEnabled){
+        MetricRegistry metricRegistry=createMetricRegistry();
+        registerPhoenixMetricsToRegistry(metricRegistry);
+        GlobalMetricRegistriesAdapter.getInstance().registerMetricRegistry(metricRegistry);
         }
-    }
-
-    private static void initPhoenixGlobalClientMetrics() {
-        for (GlobalClientMetrics globalMetric : GlobalClientMetrics.values()) {
-            globalMetric.metric = isGlobalMetricsEnabled ?
-                    new GlobalMetricImpl(globalMetric.metricType) : new NoOpGlobalMetricImpl();
         }
-    }
 
-    private static void registerPhoenixMetricsToRegistry(MetricRegistry metricRegistry) {
-        for (GlobalClientMetrics globalMetric : GlobalClientMetrics.values()) {
-            metricRegistry.register(globalMetric.metricType.columnName(),
-                    new PhoenixGlobalMetricGauge(globalMetric.metric));
+private static void initPhoenixGlobalClientMetrics(){
+        for(GlobalClientMetrics globalMetric:GlobalClientMetrics.values()){
+        globalMetric.metric=isGlobalMetricsEnabled?
+        new GlobalMetricImpl(globalMetric.metricType):new NoOpGlobalMetricImpl();
         }
-    }
+        }
 
-    private static MetricRegistry createMetricRegistry() {
+private static void registerPhoenixMetricsToRegistry(MetricRegistry metricRegistry){
+        for(GlobalClientMetrics globalMetric:GlobalClientMetrics.values()){
+        metricRegistry.register(globalMetric.metricType.columnName(),
+        new PhoenixGlobalMetricGauge(globalMetric.metric));
+        }
+        }
+
+private static MetricRegistry createMetricRegistry(){
         LOGGER.info("Creating Metric Registry for Phoenix Global Metrics");
-        MetricRegistryInfo registryInfo = new MetricRegistryInfo("PHOENIX", "Phoenix Client Metrics",
-                "phoenix", "Phoenix,sub=CLIENT", true);
+        MetricRegistryInfo registryInfo=new MetricRegistryInfo("PHOENIX","Phoenix Client Metrics",
+        "phoenix","Phoenix,sub=CLIENT",true);
         return MetricRegistries.global().create(registryInfo);
-    }
-
-    /**
-     * Class to convert Phoenix Metric objects into HBase Metric objects (Gauge)
-     */
-    private static class PhoenixGlobalMetricGauge implements Gauge<Long> {
-
-        private final GlobalMetric metric;
-
-        public PhoenixGlobalMetricGauge(GlobalMetric metric) {
-            this.metric = metric;
         }
 
-        @Override
-        public Long getValue() {
-            return metric.getValue();
-        }
+/**
+ * Class to convert Phoenix Metric objects into HBase Metric objects (Gauge)
+ */
+private static class PhoenixGlobalMetricGauge implements Gauge<Long> {
+
+    private final GlobalMetric metric;
+
+    public PhoenixGlobalMetricGauge(GlobalMetric metric) {
+        this.metric = metric;
     }
+
+    @Override
+    public Long getValue() {
+        return metric.getValue();
+    }
+
+}
 
     public void update(long value) {
         metric.change(value);
@@ -193,7 +194,7 @@ public enum GlobalClientMetrics {
     public void increment() {
         metric.increment();
     }
-    
+
     public void decrement() {
         metric.decrement();
     }

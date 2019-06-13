@@ -23,9 +23,9 @@ import org.apache.phoenix.util.SchemaUtil;
 public class NamedNode {
     private final String name;
     private final boolean isCaseSensitive;
-    
+
     public static NamedNode caseSensitiveNamedNode(String name) {
-        return new NamedNode(name,true);
+        return new NamedNode(name, true);
     }
 
     NamedNode(String name, boolean isCaseSensitive) {
@@ -45,7 +45,7 @@ public class NamedNode {
     public boolean isCaseSensitive() {
         return isCaseSensitive;
     }
-    
+
     @Override
     public int hashCode() {
         return name.hashCode();
@@ -53,15 +53,21 @@ public class NamedNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        NamedNode other = (NamedNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        NamedNode other = (NamedNode) obj;
         return name.equals(other.name);
     }
-    
+
     @Override
     public String toString() {
-        return (isCaseSensitive ? "\"" : "" ) + name + (isCaseSensitive ? "\"" : "" );
+        return (isCaseSensitive ? "\"" : "") + name + (isCaseSensitive ? "\"" : "");
     }
 }

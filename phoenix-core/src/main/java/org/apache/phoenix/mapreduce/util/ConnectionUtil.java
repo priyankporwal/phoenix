@@ -45,20 +45,20 @@ public class ConnectionUtil {
     public static Connection getInputConnection(final Configuration conf) throws SQLException {
         return getInputConnection(conf, new Properties());
     }
-    
+
     /**
      * Retrieve the configured input Connection.
      *
-     * @param conf configuration containing connection information
+     * @param conf  configuration containing connection information
      * @param props custom connection properties
      * @return the configured input connection
      */
-    public static Connection getInputConnection(final Configuration conf , final Properties props) throws SQLException {
+    public static Connection getInputConnection(final Configuration conf, final Properties props) throws SQLException {
         Preconditions.checkNotNull(conf);
-		return getConnection(PhoenixConfigurationUtil.getInputCluster(conf),
-				PhoenixConfigurationUtil.getClientPort(conf),
-				PhoenixConfigurationUtil.getZNodeParent(conf),
-				PropertiesUtil.combineProperties(props, conf));
+        return getConnection(PhoenixConfigurationUtil.getInputCluster(conf),
+                PhoenixConfigurationUtil.getClientPort(conf),
+                PhoenixConfigurationUtil.getZNodeParent(conf),
+                PropertiesUtil.combineProperties(props, conf));
     }
 
     /**
@@ -70,7 +70,7 @@ public class ConnectionUtil {
     public static Connection getOutputConnection(final Configuration conf) throws SQLException {
         return getOutputConnection(conf, new Properties());
     }
-    
+
     /**
      * Create the configured output Connection.
      *
@@ -80,31 +80,31 @@ public class ConnectionUtil {
     public static Connection getOutputConnectionWithoutTheseProps(final Configuration conf, Set<String> ignoreTheseProps) throws SQLException {
         return getOutputConnection(conf, new Properties(), ignoreTheseProps);
     }
-    
+
     /**
      * Create the configured output Connection.
      *
-     * @param conf configuration containing the connection information
+     * @param conf  configuration containing the connection information
      * @param props custom connection properties
      * @return the configured output connection
      */
     public static Connection getOutputConnection(final Configuration conf, Properties props) throws SQLException {
         return getOutputConnection(conf, props, Collections.<String>emptySet());
     }
-    
+
     public static Connection getOutputConnection(final Configuration conf, Properties props, Set<String> withoutTheseProps) throws SQLException {
         Preconditions.checkNotNull(conf);
-		return getConnection(PhoenixConfigurationUtil.getOutputCluster(conf),
-				PhoenixConfigurationUtil.getClientPort(conf),
-				PhoenixConfigurationUtil.getZNodeParent(conf),
-				PropertiesUtil.combineProperties(props, conf, withoutTheseProps));
+        return getConnection(PhoenixConfigurationUtil.getOutputCluster(conf),
+                PhoenixConfigurationUtil.getClientPort(conf),
+                PhoenixConfigurationUtil.getZNodeParent(conf),
+                PropertiesUtil.combineProperties(props, conf, withoutTheseProps));
     }
 
     /**
      * Returns the {@link Connection} from a ZooKeeper cluster string.
      *
-     * @param quorum a ZooKeeper quorum connection string
-     * @param clientPort a ZooKeeper client port
+     * @param quorum      a ZooKeeper quorum connection string
+     * @param clientPort  a ZooKeeper client port
      * @param znodeParent a zookeeper znode parent
      * @return a Phoenix connection to the given connection string
      */

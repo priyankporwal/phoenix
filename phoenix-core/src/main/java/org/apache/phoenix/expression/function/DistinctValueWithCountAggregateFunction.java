@@ -38,7 +38,7 @@ public abstract class DistinctValueWithCountAggregateFunction extends SingleAggr
 
     @Override
     abstract public DistinctValueWithCountClientAggregator newClientAggregator();
-    
+
     @Override
     public Aggregator newServerAggregator(Configuration config, ImmutableBytesWritable ptr) {
         DistinctValueWithCountClientAggregator clientAgg = newClientAggregator();

@@ -23,8 +23,7 @@ import org.apache.phoenix.expression.Expression;
 import org.joda.time.DateTime;
 
 /**
- * 
- * Floor function that rounds up the {@link DateTime} to start of year. 
+ * Floor function that rounds up the {@link DateTime} to start of year.
  */
 public class FloorYearExpression extends RoundJodaDateExpression {
 

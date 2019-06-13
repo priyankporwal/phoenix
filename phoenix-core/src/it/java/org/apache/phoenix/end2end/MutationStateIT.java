@@ -60,8 +60,8 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
 
     private static final String DDL =
             " (ORGANIZATION_ID CHAR(15) NOT NULL, SCORE DOUBLE, "
-            + "ENTITY_ID CHAR(15) NOT NULL, TAGS VARCHAR, CONSTRAINT PAGE_SNAPSHOT_PK "
-            + "PRIMARY KEY (ORGANIZATION_ID, ENTITY_ID DESC)) MULTI_TENANT=TRUE";
+                    + "ENTITY_ID CHAR(15) NOT NULL, TAGS VARCHAR, CONSTRAINT PAGE_SNAPSHOT_PK "
+                    + "PRIMARY KEY (ORGANIZATION_ID, ENTITY_ID DESC)) MULTI_TENANT=TRUE";
 
     private static final Random RAND = new Random(5);
 
@@ -82,8 +82,8 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
     }
 
     private static void mutateRandomly(final String upsertStmt, final String fullTableName,
-            final int nThreads, final int nRows, final int nIndexValues, final int batchSize,
-            final CountDownLatch doneSignal) {
+                                       final int nThreads, final int nRows, final int nIndexValues, final int batchSize,
+                                       final CountDownLatch doneSignal) {
         Runnable[] runnables = new Runnable[nThreads];
         for (int i = 0; i < nThreads; i++) {
             runnables[i] = new Runnable() {
@@ -102,9 +102,9 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
                             statement.setString(++index, randString(15));
                             statement.setString(++index, randString(15));
                             statement.setTimestamp(++index,
-                                new Timestamp(System.currentTimeMillis()));
+                                    new Timestamp(System.currentTimeMillis()));
                             statement.setTimestamp(++index,
-                                new Timestamp(System.currentTimeMillis()));
+                                    new Timestamp(System.currentTimeMillis()));
                             statement.setString(++index, randString(1));
                             statement.setString(++index, randString(1));
                             statement.setBoolean(++index, false);
@@ -178,65 +178,65 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         String CREATE_INDEX_1 =
                 "CREATE INDEX IF NOT EXISTS " + indexName1 + " \n"
                         + "     ON " + fullTableName + " (\n"
-                    + "     TYPE_ID,\n"
-                    + "     ELEMENT_ID,\n"
-                    + "     ELEMENT_TYPE,\n"
-                    + "     USER_ID,\n"
-                    + "     ELEMENT4_TIME DESC,\n"
-                    + "     ELEMENT1_ID DESC\n"
-                    + "     ) INCLUDE (\n"
-                    + "     ELEMENT2_TYPE,\n"
-                    + "     ELEMENT1_TYPE,\n"
-                    + "     ELEMENT1_IS_SYS_GEN,\n"
-                    + "     ELEMENT1_STATUS,\n"
-                    + "     ELEMENT1_VISIBILITY,\n"
-                    + "     ELEMENT3_ID,\n"
-                    + "     ELEMENT4_BY,\n"
-                    + "     BEST_ELEMENT_ID,\n"
-                    + "     ELEMENT_COUNT\n"
-                    + "     )\n";
+                        + "     TYPE_ID,\n"
+                        + "     ELEMENT_ID,\n"
+                        + "     ELEMENT_TYPE,\n"
+                        + "     USER_ID,\n"
+                        + "     ELEMENT4_TIME DESC,\n"
+                        + "     ELEMENT1_ID DESC\n"
+                        + "     ) INCLUDE (\n"
+                        + "     ELEMENT2_TYPE,\n"
+                        + "     ELEMENT1_TYPE,\n"
+                        + "     ELEMENT1_IS_SYS_GEN,\n"
+                        + "     ELEMENT1_STATUS,\n"
+                        + "     ELEMENT1_VISIBILITY,\n"
+                        + "     ELEMENT3_ID,\n"
+                        + "     ELEMENT4_BY,\n"
+                        + "     BEST_ELEMENT_ID,\n"
+                        + "     ELEMENT_COUNT\n"
+                        + "     )\n";
 
         String CREATE_INDEX_2 =
-                " CREATE INDEX IF NOT EXISTS " + indexName2  + "\n"
+                " CREATE INDEX IF NOT EXISTS " + indexName2 + "\n"
                         + "     ON " + fullTableName + " (\n"
-                    + "     TYPE_ID,\n"
-                    + "     ELEMENT_ID,\n"
-                    + "     ELEMENT_TYPE,\n"
-                    + "     USER_ID,\n"
-                    + "     ELEMENT_UPDATE DESC,\n"
-                    + "     ELEMENT1_ID DESC\n"
-                    + "     ) INCLUDE (\n"
-                    + "     ELEMENT2_TYPE,\n"
-                    + "     ELEMENT1_TYPE,\n"
-                    + "     ELEMENT1_IS_SYS_GEN,\n"
-                    + "     ELEMENT1_STATUS,\n"
-                    + "     ELEMENT1_VISIBILITY,\n"
-                    + "     ELEMENT3_ID,\n"
-                    + "     ELEMENT4_BY,\n"
-                    + "     BEST_ELEMENT_ID,\n"
-                    + "     ELEMENT_COUNT\n"
-                    + "     )\n";
+                        + "     TYPE_ID,\n"
+                        + "     ELEMENT_ID,\n"
+                        + "     ELEMENT_TYPE,\n"
+                        + "     USER_ID,\n"
+                        + "     ELEMENT_UPDATE DESC,\n"
+                        + "     ELEMENT1_ID DESC\n"
+                        + "     ) INCLUDE (\n"
+                        + "     ELEMENT2_TYPE,\n"
+                        + "     ELEMENT1_TYPE,\n"
+                        + "     ELEMENT1_IS_SYS_GEN,\n"
+                        + "     ELEMENT1_STATUS,\n"
+                        + "     ELEMENT1_VISIBILITY,\n"
+                        + "     ELEMENT3_ID,\n"
+                        + "     ELEMENT4_BY,\n"
+                        + "     BEST_ELEMENT_ID,\n"
+                        + "     ELEMENT_COUNT\n"
+                        + "     )\n";
 
         String CREATE_INDEX_3 =
-                "CREATE INDEX IF NOT EXISTS " + indexName3  + "\n"
+                "CREATE INDEX IF NOT EXISTS " + indexName3 + "\n"
                         + "     ON " + fullTableName + " (\n"
-                    + "     TYPE_ID,\n"
-                    + "     ELEMENT_ID,\n"
-                    + "     ELEMENT_TYPE,\n"
-                    + "     USER_ID,\n"
-                    + "     ELEMENT_SCORE DESC,\n"
-                    + "     ELEMENT1_ID DESC\n"
-                    + "     ) INCLUDE (\n"
-                    + "     ELEMENT2_TYPE,\n"
-                    + "     ELEMENT1_TYPE,\n"
-                    + "     ELEMENT1_IS_SYS_GEN,\n"
-                    + "     ELEMENT1_STATUS,\n"
-                    + "     ELEMENT1_VISIBILITY,\n"
-                    + "     ELEMENT3_ID,\n"
-                    + "     ELEMENT4_BY,\n"
-                    + "     BEST_ELEMENT_ID,\n"
-                    + "     ELEMENT_COUNT\n"
-                    + "     )\n";
+                        + "     TYPE_ID,\n"
+                        + "     ELEMENT_ID,\n"
+                        + "     ELEMENT_TYPE,\n"
+                        + "     USER_ID,\n"
+                        + "     ELEMENT_SCORE DESC,\n"
+                        + "     ELEMENT1_ID DESC\n"
+                        + "     ) INCLUDE (\n"
+                        + "     ELEMENT2_TYPE,\n"
+                        + "     ELEMENT1_TYPE,\n"
+                        + "     ELEMENT1_IS_SYS_GEN,\n"
+                        + "     ELEMENT1_STATUS,\n"
+                        + "     ELEMENT1_VISIBILITY,\n"
+                        + "     ELEMENT3_ID,\n"
+                        + "     ELEMENT4_BY,\n"
+                        + "     BEST_ELEMENT_ID,\n"
+                        + "     ELEMENT_COUNT\n"
+                        + "     )\n";
 
         String UPSERT_INTO_DATA_TABLE =
                 "UPSERT INTO " + fullTableName + "\n"
@@ -257,7 +257,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
                         + "    ELEMENT4_BY,\n"
                         + "    BEST_ELEMENT_ID,\n"
                         + "    ELEMENT_COUNT\n" + ")"
-                      + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                        + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         int nThreads = 1;
         int nRows = 5000;
@@ -272,7 +272,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
                 conn.createStatement().execute(CREATE_INDEX_3);
                 conn.commit();
                 mutateRandomly(UPSERT_INTO_DATA_TABLE, fullTableName, nThreads, nRows, nIndexValues,
-                    batchSize, doneSignal);
+                        batchSize, doneSignal);
                 Thread.sleep(200);
                 unassignRegionAsync(fullIndexName1);
                 assertTrue("Ran out of time", doneSignal.await(120, TimeUnit.SECONDS));
@@ -282,7 +282,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
             long dataTableRows = TestUtil.getRowCount(conn, fullTableName);
             ResultSet rs =
                     conn.getMetaData().getTables(null, StringUtil.escapeLike(schemaName), null,
-                        new String[] { PTableType.INDEX.toString() });
+                            new String[] {PTableType.INDEX.toString()});
             while (rs.next()) {
                 String indexState = rs.getString("INDEX_STATE");
                 String indexName = rs.getString(3);
@@ -310,9 +310,9 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         PhoenixConnection conn = (PhoenixConnection) DriverManager.getConnection(getUrl());
         conn.createStatement().execute(ddl);
 
-        for(int i = 0; i < NUMBER_OF_ROWS; i++) {
+        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
             conn.createStatement().execute(
-                    "UPSERT INTO " + tableName + " VALUES (" + i + ", "+ i + ")");
+                    "UPSERT INTO " + tableName + " VALUES (" + i + ", " + i + ")");
             conn.commit();
         }
 
@@ -324,9 +324,9 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         connection.setAutoCommit(false);
 
         try {
-            for(int i = 0; i < NUMBER_OF_ROWS; i++) {
+            for (int i = 0; i < NUMBER_OF_ROWS; i++) {
                 connection.createStatement().execute(
-                        "DELETE FROM " + tableName + " WHERE K = " + i );
+                        "DELETE FROM " + tableName + " WHERE K = " + i);
             }
         } catch (SQLException e) {
             assertTrue(e.getMessage().contains(
@@ -339,7 +339,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         connection.setAutoCommit(false);
 
         try {
-            connection.createStatement().execute("DELETE FROM " + tableName );
+            connection.createStatement().execute("DELETE FROM " + tableName);
         } catch (SQLException e) {
             assertTrue(e.getMessage().contains(
                     SQLExceptionCode.MAX_MUTATION_SIZE_BYTES_EXCEEDED.getMessage()));
@@ -356,14 +356,14 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         String fullTableName = generateUniqueName();
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(
-                "CREATE TABLE " + fullTableName + DDL);
+                    "CREATE TABLE " + fullTableName + DDL);
         }
         try {
             upsertRows(connection, fullTableName);
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.MAX_MUTATION_SIZE_EXCEEDED.getErrorCode(),
-                e.getErrorCode());
+                    e.getErrorCode());
             assertTrue(e.getMessage().contains(
                     SQLExceptionCode.MAX_MUTATION_SIZE_EXCEEDED.getMessage()));
         }
@@ -378,7 +378,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
             fail();
         } catch (SQLException e) {
             assertEquals(SQLExceptionCode.MAX_MUTATION_SIZE_BYTES_EXCEEDED.getErrorCode(),
-                e.getErrorCode());
+                    e.getErrorCode());
             assertTrue(e.getMessage().contains(
                     SQLExceptionCode.MAX_MUTATION_SIZE_BYTES_EXCEEDED.getMessage()));
         }
@@ -391,7 +391,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         String fullTableName = generateUniqueName();
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(
-                "CREATE TABLE " + fullTableName + DDL);
+                    "CREATE TABLE " + fullTableName + DDL);
         }
 
         // upserting rows should increase the mutation state size
@@ -399,17 +399,17 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         long prevEstimatedSize = state.getEstimatedSize();
         upsertRows(conn, fullTableName);
         assertTrue("Mutation state size should have increased",
-            state.getEstimatedSize() > prevEstimatedSize);
-        
-        
+                state.getEstimatedSize() > prevEstimatedSize);
+
+
         // after commit or rollback the size should be zero
         conn.commit();
         assertEquals("Mutation state size should be zero after commit", 0,
-            state.getEstimatedSize());
+                state.getEstimatedSize());
         upsertRows(conn, fullTableName);
         conn.rollback();
         assertEquals("Mutation state size should be zero after rollback", 0,
-            state.getEstimatedSize());
+                state.getEstimatedSize());
 
         // upsert one row
         PreparedStatement stmt =
@@ -419,7 +419,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         stmt.setString(2, "YYYY");
         stmt.setInt(3, 1);
         stmt.execute();
-        assertTrue("Mutation state size should be greater than zero ", state.getEstimatedSize()>0);
+        assertTrue("Mutation state size should be greater than zero ", state.getEstimatedSize() > 0);
 
         prevEstimatedSize = state.getEstimatedSize();
         // upserting the same row twice should not increase the size
@@ -428,9 +428,9 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         stmt.setInt(3, 1);
         stmt.execute();
         assertEquals(
-            "Mutation state size should only increase 4 bytes (size of the new statement index)",
-            prevEstimatedSize + 4, state.getEstimatedSize());
-        
+                "Mutation state size should only increase 4 bytes (size of the new statement index)",
+                prevEstimatedSize + 4, state.getEstimatedSize());
+
         prevEstimatedSize = state.getEstimatedSize();
         // changing the value of one column of a row to a larger value should increase the estimated size 
         stmt =
@@ -441,8 +441,8 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         stmt.setInt(3, 1);
         stmt.setString(4, "random text string random text string random text string");
         stmt.execute();
-        assertTrue("Mutation state size should increase", prevEstimatedSize+4 < state.getEstimatedSize());
-        
+        assertTrue("Mutation state size should increase", prevEstimatedSize + 4 < state.getEstimatedSize());
+
         prevEstimatedSize = state.getEstimatedSize();
         // changing the value of one column of a row to a smaller value should decrease the estimated size 
         stmt =
@@ -453,7 +453,7 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         stmt.setInt(3, 1);
         stmt.setString(4, "");
         stmt.execute();
-        assertTrue("Mutation state size should decrease", prevEstimatedSize+4 > state.getEstimatedSize());
+        assertTrue("Mutation state size should decrease", prevEstimatedSize + 4 > state.getEstimatedSize());
     }
 
     @Test
@@ -465,15 +465,15 @@ public class MutationStateIT extends ParallelStatsDisabledIT {
         try (PhoenixConnection conn = DriverManager.getConnection(getUrl(), props).unwrap(PhoenixConnection.class)) {
             conn.setAutoCommit(false);
             conn.createStatement().executeUpdate(
-                    "CREATE TABLE "  + tableName + " ("
+                    "CREATE TABLE " + tableName + " ("
                             + "A VARCHAR NOT NULL PRIMARY KEY,"
                             + "B VARCHAR,"
                             + "C VARCHAR,"
                             + "D VARCHAR) COLUMN_ENCODED_BYTES = 0");
-            conn.createStatement().executeUpdate("CREATE INDEX " + indexName + " on "  + tableName + " (C) INCLUDE(D)");
+            conn.createStatement().executeUpdate("CREATE INDEX " + indexName + " on " + tableName + " (C) INCLUDE(D)");
 
-            conn.createStatement().executeUpdate("UPSERT INTO "  + tableName + "(A,B,C,D) VALUES ('A2','B2','C2','D2')");
-            conn.createStatement().executeUpdate("UPSERT INTO "  + tableName + "(A,B,C,D) VALUES ('A3','B3', 'C3', null)");
+            conn.createStatement().executeUpdate("UPSERT INTO " + tableName + "(A,B,C,D) VALUES ('A2','B2','C2','D2')");
+            conn.createStatement().executeUpdate("UPSERT INTO " + tableName + "(A,B,C,D) VALUES ('A3','B3', 'C3', null)");
             conn.commit();
 
             Table htable = conn.getQueryServices().getTable(Bytes.toBytes(tableName));

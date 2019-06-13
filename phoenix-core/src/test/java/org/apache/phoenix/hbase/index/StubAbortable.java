@@ -25,17 +25,17 @@ import org.slf4j.LoggerFactory;
  * TEst helper to stub out an {@link Abortable} when needed.
  */
 public class StubAbortable implements Abortable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(StubAbortable.class);
-  private boolean abort;
+    private static final Logger LOGGER = LoggerFactory.getLogger(StubAbortable.class);
+    private boolean abort;
 
-  @Override
-  public void abort(String reason, Throwable e) {
-    LOGGER.info("Aborting: " + reason, e);
-    abort = true;
-  }
+    @Override
+    public void abort(String reason, Throwable e) {
+        LOGGER.info("Aborting: " + reason, e);
+        abort = true;
+    }
 
-  @Override
-  public boolean isAborted() {
-    return abort;
-  }
+    @Override
+    public boolean isAborted() {
+        return abort;
+    }
 }

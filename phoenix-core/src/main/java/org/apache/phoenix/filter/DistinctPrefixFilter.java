@@ -62,7 +62,7 @@ public class DistinctPrefixFilter extends FilterBase implements Writable {
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
 
         // First determine the prefix based on the schema
-        int maxOffset = schema.iterator(v.getRowArray(), v.getRowOffset()+offset, v.getRowLength()-offset, ptr);
+        int maxOffset = schema.iterator(v.getRowArray(), v.getRowOffset() + offset, v.getRowLength() - offset, ptr);
         int position = schema.next(ptr, 0, maxOffset, prefixLength - 1);
 
         // now check whether we have seen this prefix before
@@ -90,8 +90,8 @@ public class DistinctPrefixFilter extends FilterBase implements Writable {
             // (since we're making a copy anyway)
             // We need to pad all null columns, otherwise we'll potentially
             // skip rows.
-            byte[] tmpKey = new byte[offset + lastKey.getLength() + 
-                                     (reversed || type.isFixedWidth() || field.getSortOrder() == SortOrder.DESC ? 0 : 1) + (prefixLength - 1 - lastPosition)];
+            byte[] tmpKey = new byte[offset + lastKey.getLength() +
+                    (reversed || type.isFixedWidth() || field.getSortOrder() == SortOrder.DESC ? 0 : 1) + (prefixLength - 1 - lastPosition)];
             System.arraycopy(v.getRowArray(), v.getRowOffset(), tmpKey, 0, offset);
             System.arraycopy(lastKey.get(), lastKey.getOffset(), tmpKey, offset, lastKey.getLength());
             tmp = new ImmutableBytesWritable(tmpKey);
@@ -119,7 +119,7 @@ public class DistinctPrefixFilter extends FilterBase implements Writable {
                     // Otherwise, in both cases we'd potentially be seeking to a row before
                     // our current key.
                     if (field.getSortOrder() == SortOrder.DESC || prefixLength - lastPosition > 1) {
-                        tmp.set(tmp.get(),tmp.getOffset(),tmp.getLength()-1);
+                        tmp.set(tmp.get(), tmp.getOffset(), tmp.getLength() - 1);
                     }
                 }
                 // calculate the next key
@@ -134,7 +134,7 @@ public class DistinctPrefixFilter extends FilterBase implements Writable {
 
     @Override
     public boolean filterAllRemaining() throws IOException {
-      return filterAll;
+        return filterAll;
     }
 
     @Override

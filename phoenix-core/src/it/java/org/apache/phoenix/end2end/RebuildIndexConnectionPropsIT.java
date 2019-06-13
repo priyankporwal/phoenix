@@ -68,62 +68,62 @@ public class RebuildIndexConnectionPropsIT extends BaseUniqueNamesOwnClusterIT {
         Properties driverProps = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         DriverManager.registerDriver(PhoenixDriver.INSTANCE);
         try (PhoenixConnection phxConn =
-                DriverManager.getConnection(url, driverProps).unwrap(PhoenixConnection.class)) {
+                     DriverManager.getConnection(url, driverProps).unwrap(PhoenixConnection.class)) {
         }
     }
 
     @Test
     public void testRebuildIndexConnectionProperties() throws Exception {
         try (PhoenixConnection rebuildIndexConnection =
-                MetaDataRegionObserver.getRebuildIndexConnection(hbaseTestUtil.getMiniHBaseCluster().getConfiguration())) {
+                     MetaDataRegionObserver.getRebuildIndexConnection(hbaseTestUtil.getMiniHBaseCluster().getConfiguration())) {
             try (PhoenixConnection regularConnection =
-                    DriverManager.getConnection(url).unwrap(PhoenixConnection.class)) {
+                         DriverManager.getConnection(url).unwrap(PhoenixConnection.class)) {
                 String rebuildUrl = rebuildIndexConnection.getURL();
                 // assert that we are working with non-test urls
                 assertFalse(PhoenixEmbeddedDriver.isTestUrl(url));
                 assertFalse(PhoenixEmbeddedDriver.isTestUrl(rebuildUrl));
                 // assert that the url ends with expected string
                 assertTrue(
-                    rebuildUrl.contains(MetaDataRegionObserver.REBUILD_INDEX_APPEND_TO_URL_STRING));
+                        rebuildUrl.contains(MetaDataRegionObserver.REBUILD_INDEX_APPEND_TO_URL_STRING));
                 // assert that the url for regular connection vs the rebuild connection is different
                 assertFalse(rebuildUrl.equals(regularConnection.getURL()));
                 Configuration rebuildQueryServicesConfig =
                         rebuildIndexConnection.getQueryServices().getConfiguration();
                 // assert that the properties are part of the query services config
                 assertEquals(
-                    Long.toString(QueryServicesOptions.DEFAULT_INDEX_REBUILD_QUERY_TIMEOUT),
-                    rebuildQueryServicesConfig.get(QueryServices.THREAD_TIMEOUT_MS_ATTRIB));
+                        Long.toString(QueryServicesOptions.DEFAULT_INDEX_REBUILD_QUERY_TIMEOUT),
+                        rebuildQueryServicesConfig.get(QueryServices.THREAD_TIMEOUT_MS_ATTRIB));
                 assertEquals(
-                    Long.toString(
-                        QueryServicesOptions.DEFAULT_INDEX_REBUILD_CLIENT_SCANNER_TIMEOUT),
-                    rebuildQueryServicesConfig.get(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD));
+                        Long.toString(
+                                QueryServicesOptions.DEFAULT_INDEX_REBUILD_CLIENT_SCANNER_TIMEOUT),
+                        rebuildQueryServicesConfig.get(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD));
                 assertEquals(Long.toString(QueryServicesOptions.DEFAULT_INDEX_REBUILD_RPC_TIMEOUT),
-                    rebuildQueryServicesConfig.get(HConstants.HBASE_RPC_TIMEOUT_KEY));
+                        rebuildQueryServicesConfig.get(HConstants.HBASE_RPC_TIMEOUT_KEY));
                 assertEquals(
-                    Long.toString(NUM_RPC_RETRIES),
-                    rebuildQueryServicesConfig.get(HConstants.HBASE_CLIENT_RETRIES_NUMBER));
+                        Long.toString(NUM_RPC_RETRIES),
+                        rebuildQueryServicesConfig.get(HConstants.HBASE_CLIENT_RETRIES_NUMBER));
                 ConnectionQueryServices rebuildQueryServices = rebuildIndexConnection.getQueryServices();
                 Connection rebuildIndexHConnection =
                         (Connection) Whitebox.getInternalState(rebuildQueryServices,
-                            "connection");
+                                "connection");
                 Connection regularHConnection =
                         (Connection) Whitebox.getInternalState(
-                            regularConnection.getQueryServices(), "connection");
+                                regularConnection.getQueryServices(), "connection");
                 // assert that a new HConnection was created
                 assertFalse(
-                    regularHConnection.toString().equals(rebuildIndexHConnection.toString()));
+                        regularHConnection.toString().equals(rebuildIndexHConnection.toString()));
                 Configuration rebuildHConnectionConfig = rebuildIndexHConnection.getConfiguration();
                 // assert that the HConnection has the desired properties needed for rebuilding
                 // indices
                 assertEquals(
-                    Long.toString(
-                        QueryServicesOptions.DEFAULT_INDEX_REBUILD_CLIENT_SCANNER_TIMEOUT),
-                    rebuildHConnectionConfig.get(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD));
+                        Long.toString(
+                                QueryServicesOptions.DEFAULT_INDEX_REBUILD_CLIENT_SCANNER_TIMEOUT),
+                        rebuildHConnectionConfig.get(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD));
                 assertEquals(Long.toString(QueryServicesOptions.DEFAULT_INDEX_REBUILD_RPC_TIMEOUT),
-                    rebuildHConnectionConfig.get(HConstants.HBASE_RPC_TIMEOUT_KEY));
+                        rebuildHConnectionConfig.get(HConstants.HBASE_RPC_TIMEOUT_KEY));
                 assertEquals(
-                    Long.toString(NUM_RPC_RETRIES),
-                    rebuildHConnectionConfig.get(HConstants.HBASE_CLIENT_RETRIES_NUMBER));
+                        Long.toString(NUM_RPC_RETRIES),
+                        rebuildHConnectionConfig.get(HConstants.HBASE_CLIENT_RETRIES_NUMBER));
             }
         }
     }

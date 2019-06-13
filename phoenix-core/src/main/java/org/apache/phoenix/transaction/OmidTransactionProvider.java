@@ -70,11 +70,11 @@ public class OmidTransactionProvider implements PhoenixTransactionProvider {
     public String toString() {
         return getProvider().toString();
     }
-    
+
     @Override
     public PhoenixTransactionContext getTransactionContext(byte[] txnBytes) throws IOException {
         // Remove last byte (which is used to identify transaction provider)
-        return new OmidTransactionContext(Arrays.copyOf(txnBytes,txnBytes.length-1));
+        return new OmidTransactionContext(Arrays.copyOf(txnBytes, txnBytes.length - 1));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class OmidTransactionProvider implements PhoenixTransactionProvider {
     }
 
     @Override
-    public PhoenixTransactionClient getTransactionClient(Configuration config, ConnectionInfo connectionInfo) throws SQLException{
+    public PhoenixTransactionClient getTransactionClient(Configuration config, ConnectionInfo connectionInfo) throws SQLException {
         if (transactionManager == null) {
             try {
                 HBaseOmidClientConfiguration clientConf = new HBaseOmidClientConfiguration();
@@ -112,7 +112,8 @@ public class OmidTransactionProvider implements PhoenixTransactionProvider {
         }
 
         @Override
-        public void close() throws IOException {}
+        public void close() throws IOException {
+        }
     }
 
     // For testing only
@@ -121,7 +122,7 @@ public class OmidTransactionProvider implements PhoenixTransactionProvider {
     }
 
     @Override
-    public PhoenixTransactionService getTransactionService(Configuration config, ConnectionInfo connectionInfo, int port) throws  SQLException{
+    public PhoenixTransactionService getTransactionService(Configuration config, ConnectionInfo connectionInfo, int port) throws SQLException {
         TSOServerConfig tsoConfig = new TSOServerConfig();
         TSOServer tso;
 

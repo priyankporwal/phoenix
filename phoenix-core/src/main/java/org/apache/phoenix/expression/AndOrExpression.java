@@ -27,23 +27,21 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Abstract expression implementation for compound AND and OR expressions
  *
- * 
  * @since 0.1
  */
 public abstract class AndOrExpression extends BaseCompoundExpression {
     // Remember evaluation of child expression for partial evaluation
     private BitSet partialEvalState;
-   
+
     public AndOrExpression() {
     }
-    
+
     public AndOrExpression(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     public PDataType getDataType() {
         return PBoolean.INSTANCE;
@@ -58,7 +56,7 @@ public abstract class AndOrExpression extends BaseCompoundExpression {
         }
         super.reset();
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         boolean isNull = false;

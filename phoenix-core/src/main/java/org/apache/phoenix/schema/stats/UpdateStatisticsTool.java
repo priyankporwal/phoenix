@@ -61,6 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.hadoop.fs.CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY;
+
 import java.sql.Connection;
 
 import static org.apache.phoenix.query.QueryServices.IS_NAMESPACE_MAPPING_ENABLED;
@@ -123,7 +124,7 @@ public class UpdateStatisticsTool extends Configured implements Tool {
             Admin admin = conn.unwrap(PhoenixConnection.class).getQueryServices().getAdmin();
             boolean namespaceMapping = getConf().getBoolean(IS_NAMESPACE_MAPPING_ENABLED,
                     DEFAULT_IS_NAMESPACE_MAPPING_ENABLED);
-            String physicalTableName =  SchemaUtil.getPhysicalTableName(tableName.getBytes(),
+            String physicalTableName = SchemaUtil.getPhysicalTableName(tableName.getBytes(),
                     namespaceMapping).getNameAsString();
             admin.snapshot(snapshotName, TableName.valueOf(physicalTableName));
             LOGGER.info("Successfully created snapshot " + snapshotName + " for " + physicalTableName);
@@ -182,19 +183,24 @@ public class UpdateStatisticsTool extends Configured implements Tool {
 
     private JobPriority getJobPriority(CommandLine cmdLine) {
         String jobPriorityOption = cmdLine.getOptionValue(JOB_PRIORITY_OPTION.getOpt());
-         if (jobPriorityOption == null) {
-             return JobPriority.NORMAL;
-         }
+        if (jobPriorityOption == null) {
+            return JobPriority.NORMAL;
+        }
 
-         switch (jobPriorityOption) {
-             case "0" : return JobPriority.VERY_HIGH;
-             case "1" : return JobPriority.HIGH;
-             case "2" : return JobPriority.NORMAL;
-             case "3" : return JobPriority.LOW;
-             case "4" : return JobPriority.VERY_LOW;
-             default:
-                 return JobPriority.NORMAL;
-         }
+        switch (jobPriorityOption) {
+            case "0":
+                return JobPriority.VERY_HIGH;
+            case "1":
+                return JobPriority.HIGH;
+            case "2":
+                return JobPriority.NORMAL;
+            case "3":
+                return JobPriority.LOW;
+            case "4":
+                return JobPriority.VERY_LOW;
+            default:
+                return JobPriority.NORMAL;
+        }
     }
 
     private void configureJob() throws Exception {
@@ -256,6 +262,7 @@ public class UpdateStatisticsTool extends Configured implements Tool {
     /**
      * Parses the commandline arguments, throws IllegalStateException if mandatory arguments are
      * missing.
+     *
      * @param args supplied command line arguments
      * @return the parsed command line
      */

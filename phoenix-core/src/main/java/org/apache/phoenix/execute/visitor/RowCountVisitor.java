@@ -197,7 +197,7 @@ public class RowCountVisitor implements QueryPlanVisitor<Double> {
             }
         }
 
-        return limit(union(true, inputRows),plan.getLimit());
+        return limit(union(true, inputRows), plan.getLimit());
     }
 
     @Override

@@ -103,11 +103,12 @@ public class SpillManager implements Closeable {
 
     /**
      * SpillManager takes care of spilling and loading tuples from spilled data structs
+     *
      * @param numSpillFiles
      * @param serverAggregators
      */
     public SpillManager(int numSpillFiles, ServerAggregators serverAggregators,
-            Configuration conf, SpillableGroupByCache.QueryCache cache) {
+                        Configuration conf, SpillableGroupByCache.QueryCache cache) {
         try {
             int estValueSize = serverAggregators.getEstimatedByteSize();
             spillMaps = Lists.newArrayList();
@@ -115,8 +116,8 @@ public class SpillManager implements Closeable {
             this.aggregators = serverAggregators;
             this.conf = conf;
             File spillFilesDir = conf.get(QueryServices.SPOOL_DIRECTORY) != null ?
-                new File(conf.get(QueryServices.SPOOL_DIRECTORY)) : null;
-            
+                    new File(conf.get(QueryServices.SPOOL_DIRECTORY)) : null;
+
             // Ensure that a single element fits onto a page!!!
             Preconditions.checkArgument(SpillFile.DEFAULT_PAGE_SIZE > estValueSize);
 
@@ -134,7 +135,7 @@ public class SpillManager implements Closeable {
     // serialize a key/value tuple into a byte array
     // WARNING: expensive
     private byte[] serialize(ImmutableBytesPtr key, Aggregator[] aggs,
-            ServerAggregators serverAggs) throws IOException {
+                             ServerAggregators serverAggs) throws IOException {
 
         DataOutputStream output = null;
         ByteArrayOutputStream bai = null;
@@ -166,6 +167,7 @@ public class SpillManager implements Closeable {
 
     /**
      * Helper method to deserialize the key part from a serialized byte array
+     *
      * @param data
      * @return
      * @throws IOException
@@ -187,7 +189,7 @@ public class SpillManager implements Closeable {
         }
     }
 
-    
+
     // Instantiate Aggregators from a serialized byte array
     private Aggregator[] getAggregators(byte[] data) throws IOException {
         DataInputStream input = null;
@@ -204,8 +206,8 @@ public class SpillManager implements Closeable {
             int vIntValLength = WritableUtils.getVIntSize(keyLength);
             Cell keyValue =
                     PhoenixKeyValueUtil.newKeyValue(ptr.get(), ptr.getOffset(), ptr.getLength(),
-                        QueryConstants.SINGLE_COLUMN_FAMILY, QueryConstants.SINGLE_COLUMN,
-                        QueryConstants.AGG_TIMESTAMP, data, vIntKeyLength + keyLength + vIntValLength, valueLength);
+                            QueryConstants.SINGLE_COLUMN_FAMILY, QueryConstants.SINGLE_COLUMN,
+                            QueryConstants.AGG_TIMESTAMP, data, vIntKeyLength + keyLength + vIntValLength, valueLength);
             Tuple result = new SingleKeyValueTuple(keyValue);
             TupleUtil.getAggregateValue(result, ptr);
             KeyValueSchema schema = aggregators.getValueSchema();
@@ -233,6 +235,7 @@ public class SpillManager implements Closeable {
 
     /**
      * Helper function to deserialize a byte array into a CacheEntry
+     *
      * @param <K>
      * @param bytes
      * @throws IOException
@@ -255,6 +258,7 @@ public class SpillManager implements Closeable {
     /**
      * Function that spills a key/value groupby tuple into a partition Spilling always triggers a
      * serialize call
+     *
      * @param key
      * @param value
      * @throws IOException
@@ -269,6 +273,7 @@ public class SpillManager implements Closeable {
     /**
      * Function that loads a spilled key/value groupby tuple from one of the spill partitions into
      * the LRU cache. Loading always involves deserialization
+     *
      * @throws IOException
      */
     public Aggregator[] loadEntry(ImmutableBytesWritable key) throws IOException {

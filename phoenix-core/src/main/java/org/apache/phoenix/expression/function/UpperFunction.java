@@ -35,9 +35,9 @@ import com.force.i18n.LocaleUtils;
 
 import org.apache.phoenix.schema.tuple.Tuple;
 
-@FunctionParseNode.BuiltInFunction(name=UpperFunction.NAME,  args={
-        @FunctionParseNode.Argument(allowedTypes={PVarchar.class}),
-        @FunctionParseNode.Argument(allowedTypes={PVarchar.class}, defaultValue="null", isConstant=true)} )
+@FunctionParseNode.BuiltInFunction(name = UpperFunction.NAME, args = {
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}),
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}, defaultValue = "null", isConstant = true)})
 public class UpperFunction extends ScalarFunction {
     public static final String NAME = "UPPER";
 
@@ -52,7 +52,7 @@ public class UpperFunction extends ScalarFunction {
     }
 
     private void initialize() {
-        if(children.size() > 1) {
+        if (children.size() > 1) {
             String localeISOCode = getLiteralValue(1, String.class);
             locale = LocaleUtils.get().getLocaleByIsoCode(localeISOCode);
         }

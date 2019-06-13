@@ -88,7 +88,7 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
         StringBuilder optionBuilder = new StringBuilder("IMMUTABLE_ROWS=true");
         this.localIndex = localIndex;
         if (!columnEncoded) {
-            optionBuilder.append(",COLUMN_ENCODED_BYTES=0,IMMUTABLE_STORAGE_SCHEME="+PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
+            optionBuilder.append(",COLUMN_ENCODED_BYTES=0,IMMUTABLE_STORAGE_SCHEME=" + PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
         }
         if (transactional) {
             optionBuilder.append(",TRANSACTIONAL=true, TRANSACTION_PROVIDER='" + transactionProvider + "'");
@@ -110,15 +110,16 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
 
-    @Parameters(name="ImmutableIndexIT_localIndex={0},transactional={1},transactionProvider={2},columnEncoded={3}") // name is used by failsafe as file name in reports
+    @Parameters(name = "ImmutableIndexIT_localIndex={0},transactional={1},transactionProvider={2},columnEncoded={3}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
-		return TestUtil.filterTxParamData(
-		        Arrays.asList(new Object[][] { 
-    				{ false, false, null, false }, { false, false, null, true },
-    				{ false, true, "OMID", false }, 
-                    { false, true, "TEPHRA", false }, { false, true, "TEPHRA", true },
-    				{ true, false, null, false }, { true, false, null, true },
-                    { true, true, "TEPHRA", false }, { true, true, "TEPHRA", true },
+        return TestUtil.filterTxParamData(
+                Arrays.asList(new Object[][] {
+                        {false, false, null, false}, {false, false, null, true},
+                        {false, true, "OMID", false},
+                        {false, true, "TEPHRA", false}, {false, true, "TEPHRA", true},
+                        {true, false, null, false}, {true, false, null, true},
+                        {true, true, "TEPHRA", false}, {true, true, "TEPHRA", true},
                 }), 2);
     }
 
@@ -197,7 +198,7 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
             conn.createStatement().execute(dml);
             assertIndexMutations(conn);
             conn.commit();
-            
+
             rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX*/ COUNT(*) FROM " + fullTableName);
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
@@ -239,9 +240,9 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
             conn.createStatement().execute(dml);
             assertIndexMutations(conn);
             conn.commit();
-            
+
             TestUtil.dumpTable(conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(fullTableName)));
-            
+
             rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX*/ COUNT(*) FROM " + fullTableName);
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
@@ -255,11 +256,11 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
         Iterator<Pair<byte[], List<Cell>>> iterator = PhoenixRuntime.getUncommittedDataIterator(conn);
         assertTrue(iterator.hasNext());
         iterator.next();
-        assertEquals(!localIndex || 
-                (transactionProvider != null && 
-                 transactionProvider.isUnsupported(Feature.MAINTAIN_LOCAL_INDEX_ON_SERVER)), iterator.hasNext());
+        assertEquals(!localIndex ||
+                (transactionProvider != null &&
+                        transactionProvider.isUnsupported(Feature.MAINTAIN_LOCAL_INDEX_ON_SERVER)), iterator.hasNext());
     }
-    
+
 
     // This test is know to flap. We need PHOENIX-2582 to be fixed before enabling this back.
     @Ignore
@@ -274,7 +275,7 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
         String indexName = "IND_" + generateUniqueName();
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         TABLE_NAME = fullTableName;
-        String ddl ="CREATE TABLE " + TABLE_NAME + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+        String ddl = "CREATE TABLE " + TABLE_NAME + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
         INDEX_DDL = "CREATE " + (localIndex ? "LOCAL" : "") + " INDEX IF NOT EXISTS " + indexName + " ON " + TABLE_NAME
                 + " (long_pk, varchar_pk)"
                 + " INCLUDE (long_col1, long_col2)";
@@ -290,16 +291,16 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
             // run the upsert select and also create an index
             conn.setAutoCommit(true);
             String upsertSelect = "UPSERT INTO " + TABLE_NAME + "(varchar_pk, char_pk, int_pk, long_pk, decimal_pk, date_pk) " +
-                    "SELECT varchar_pk||'_upsert_select', char_pk, int_pk, long_pk, decimal_pk, date_pk FROM "+ TABLE_NAME;
+                    "SELECT varchar_pk||'_upsert_select', char_pk, int_pk, long_pk, decimal_pk, date_pk FROM " + TABLE_NAME;
             conn.createStatement().execute(upsertSelect);
             TestUtil.waitForIndexRebuild(conn, indexName, PIndexState.ACTIVE);
             ResultSet rs;
             rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ COUNT(*) FROM " + TABLE_NAME);
             assertTrue(rs.next());
-            assertEquals(440,rs.getInt(1));
+            assertEquals(440, rs.getInt(1));
             rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + indexName);
             assertTrue(rs.next());
-            assertEquals(440,rs.getInt(1));
+            assertEquals(440, rs.getInt(1));
         }
     }
 
@@ -307,7 +308,7 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
     public static class CreateIndexRegionObserver extends SimpleRegionObserver {
         @Override
         public void postPut(org.apache.hadoop.hbase.coprocessor.ObserverContext<RegionCoprocessorEnvironment> c,
-                Put put, org.apache.hadoop.hbase.wal.WALEdit edit, Durability durability) throws java.io.IOException {
+                            Put put, org.apache.hadoop.hbase.wal.WALEdit edit, Durability durability) throws java.io.IOException {
             String tableName = c.getEnvironment().getRegion().getRegionInfo().getTable().getNameAsString();
             if (tableName.equalsIgnoreCase(TABLE_NAME)
                     // create the index after the second batch  
@@ -323,9 +324,9 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
                             // query from adding the missing rows.
                             conn.createStatement().execute(INDEX_DDL);
                         } catch (SQLException e) {
-                        } 
+                        }
                     }
-                    
+
                 };
                 new Thread(r).start();
             }
@@ -347,7 +348,7 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
                 while (!stopThreads) {
                     // write a large batch of rows
                     boolean fistRowInBatch = true;
-                    for (int i=0; i<NUM_ROWS_IN_BATCH && !stopThreads; ++i) {
+                    for (int i = 0; i < NUM_ROWS_IN_BATCH && !stopThreads; ++i) {
                         BaseTest.upsertRow(conn, fullTableName, NUM_ROWS.incrementAndGet(), fistRowInBatch);
                         fistRowInBatch = false;
                     }
@@ -370,7 +371,7 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
         String indexName = "IND_" + generateUniqueName();
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         String fullIndexName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, indexName);
-        String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+        String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
         String indexDDL = "CREATE " + (localIndex ? "LOCAL" : "") + " INDEX " + indexName + " ON " + fullTableName
                 + " (long_pk, varchar_pk)"
                 + " INCLUDE (long_col1, long_col2)";
@@ -393,10 +394,10 @@ public class ImmutableIndexIT extends BaseUniqueNamesOwnClusterIT {
             rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ COUNT(*) FROM " + fullTableName);
             assertTrue(rs.next());
             int dataTableRowCount = rs.getInt(1);
-            assertEquals(0,dataTableRowCount);
+            assertEquals(0, dataTableRowCount);
 
             List<Future<?>> futureList = Lists.newArrayListWithExpectedSize(numThreads);
-            for (int i =0; i<numThreads; ++i) {
+            for (int i = 0; i < numThreads; ++i) {
                 futureList.add(executorService.submit(new UpsertRunnable(fullTableName)));
             }
             // upsert some rows before creating the index 

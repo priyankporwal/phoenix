@@ -60,7 +60,7 @@ public interface SourceTargetColumnNames {
     public static class DataSourceColNames extends IndexColumnNames
             implements SourceTargetColumnNames {
         /**
-         * @param pdataTable the data table
+         * @param pdataTable  the data table
          * @param pindexTable the index table for the data table
          */
         public DataSourceColNames(PTable pdataTable, PTable pindexTable) {
@@ -130,7 +130,7 @@ public interface SourceTargetColumnNames {
     public static class IndexSourceColNames extends IndexColumnNames
             implements SourceTargetColumnNames {
         /**
-         * @param pdataTable the data table
+         * @param pdataTable  the data table
          * @param pindexTable the index table for the data table
          */
         public IndexSourceColNames(PTable pdataTable, PTable pindexTable) {

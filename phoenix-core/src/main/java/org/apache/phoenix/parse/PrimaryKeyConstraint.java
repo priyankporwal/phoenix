@@ -35,7 +35,7 @@ public class PrimaryKeyConstraint extends NamedNode {
     private final Map<ColumnName, Pair<ColumnName, SortOrder>> columnNameToSortOrder;
     private final Map<ColumnName, Pair<ColumnName, Boolean>> columnNameToRowTimestamp;
     private final int numColumnsWithRowTimestamp;
-    
+
     PrimaryKeyConstraint(String name, List<ColumnDefInPkConstraint> columnDefs) {
         super(name);
         if (columnDefs == null) {
@@ -58,30 +58,30 @@ public class PrimaryKeyConstraint extends NamedNode {
                 }
             }
             this.numColumnsWithRowTimestamp = numRowTimestampCols;
-            this.columns = ImmutableList.copyOf(l); 
+            this.columns = ImmutableList.copyOf(l);
         }
     }
 
     public List<Pair<ColumnName, SortOrder>> getColumnNames() {
         return columns;
     }
-    
+
     public Pair<ColumnName, SortOrder> getColumnWithSortOrder(ColumnName columnName) {
-    	return columnNameToSortOrder.get(columnName);
+        return columnNameToSortOrder.get(columnName);
     }
-    
+
     public boolean isColumnRowTimestamp(ColumnName columnName) {
         return columnNameToRowTimestamp.get(columnName) != null && columnNameToRowTimestamp.get(columnName).getSecond() == Boolean.TRUE;
     }
-    
+
     public boolean contains(ColumnName columnName) {
         return columnNameToSortOrder.containsKey(columnName);
     }
-    
+
     public int getNumColumnsWithRowTimestamp() {
         return numColumnsWithRowTimestamp;
     }
-    
+
     @Override
     public int hashCode() {
         return super.hashCode();
@@ -91,5 +91,5 @@ public class PrimaryKeyConstraint extends NamedNode {
     public boolean equals(Object obj) {
         return super.equals(obj);
     }
-    
+
 }

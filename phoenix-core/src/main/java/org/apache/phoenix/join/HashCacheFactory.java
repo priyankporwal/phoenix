@@ -74,7 +74,7 @@ public class HashCacheFactory implements ServerCacheFactory {
             int uncompressedLen = Snappy.getUncompressedLength(cachePtr.get(), cachePtr.getOffset());
             byte[] uncompressed = new byte[uncompressedLen];
             Snappy.uncompress(cachePtr.get(), cachePtr.getOffset(), cachePtr.getLength(),
-                uncompressed, 0);
+                    uncompressed, 0);
             return new HashCacheImpl(uncompressed, chunk, clientVersion);
         } catch (CorruptionException e) {
             throw ServerUtil.parseServerException(e);
@@ -83,11 +83,11 @@ public class HashCacheFactory implements ServerCacheFactory {
 
     @Immutable
     private class HashCacheImpl implements HashCache {
-        private final Map<ImmutableBytesPtr,List<Tuple>> hashCache;
+        private final Map<ImmutableBytesPtr, List<Tuple>> hashCache;
         private final MemoryChunk memoryChunk;
         private final boolean singleValueOnly;
         private final int clientVersion;
-        
+
         private HashCacheImpl(byte[] hashCacheBytes, MemoryChunk memoryChunk, int clientVersion) {
             try {
                 this.memoryChunk = memoryChunk;
@@ -102,7 +102,7 @@ public class HashCacheFactory implements ServerCacheFactory {
                     int expressionOrdinal = WritableUtils.readVInt(dataInput);
                     Expression expression = ExpressionType.values()[expressionOrdinal].newInstance();
                     expression.readFields(dataInput);
-                    onExpressions.add(expression);                        
+                    onExpressions.add(expression);
                 }
                 boolean singleValueOnly = false;
                 int exprSizeAndSingleValueOnly = dataInput.readInt();
@@ -116,13 +116,13 @@ public class HashCacheFactory implements ServerCacheFactory {
                 int nRows = dataInput.readInt();
                 long estimatedSize = SizedUtil.sizeOfMap(nRows, SizedUtil.IMMUTABLE_BYTES_WRITABLE_SIZE, SizedUtil.RESULT_SIZE) + hashCacheBytes.length;
                 this.memoryChunk.resize(estimatedSize);
-                HashMap<ImmutableBytesPtr,List<Tuple>> hashCacheMap = new HashMap<ImmutableBytesPtr,List<Tuple>>(nRows * 5 / 4);
+                HashMap<ImmutableBytesPtr, List<Tuple>> hashCacheMap = new HashMap<ImmutableBytesPtr, List<Tuple>>(nRows * 5 / 4);
                 offset += Bytes.SIZEOF_INT;
                 // Build Map with evaluated hash key as key and row as value
                 for (int i = 0; i < nRows; i++) {
-                    int resultSize = (int)Bytes.readVLong(hashCacheByteArray, offset);
+                    int resultSize = (int) Bytes.readVLong(hashCacheByteArray, offset);
                     offset += WritableUtils.decodeVIntSize(hashCacheByteArray[offset]);
-                    ImmutableBytesWritable value = new ImmutableBytesWritable(hashCacheByteArray,offset,resultSize);
+                    ImmutableBytesWritable value = new ImmutableBytesWritable(hashCacheByteArray, offset, resultSize);
                     Tuple result = new ResultTuple(ResultUtil.toResult(value));
                     ImmutableBytesPtr key = TupleUtil.getConcatenatedValue(result, onExpressions);
                     List<Tuple> tuples = hashCacheMap.get(key);
@@ -153,7 +153,7 @@ public class HashCacheFactory implements ServerCacheFactory {
         public void close() {
             memoryChunk.close();
         }
-        
+
         @Override
         public List<Tuple> get(ImmutableBytesPtr hashKey) throws IOException {
             List<Tuple> ret = hashCache.get(hashKey);
@@ -161,7 +161,7 @@ public class HashCacheFactory implements ServerCacheFactory {
                 SQLException ex = new SQLExceptionInfo.Builder(SQLExceptionCode.SINGLE_ROW_SUBQUERY_RETURNS_MULTIPLE_ROWS).build().buildException();
                 ServerUtil.throwIOException(ex.getMessage(), ex);
             }
-            
+
             return ret;
         }
 

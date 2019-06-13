@@ -21,6 +21,7 @@ public class DropFunctionStatement extends MutableStatement {
 
     private final String functionName;
     private final boolean ifExists;
+
     public DropFunctionStatement(String functionName, boolean ifExists) {
         this.functionName = functionName;
         this.ifExists = ifExists;

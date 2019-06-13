@@ -64,7 +64,7 @@ public class AtomicMetric implements Metric {
 
     @Override
     public void decrement() {
-        value.decrementAndGet();        
+        value.decrementAndGet();
     }
 
 }

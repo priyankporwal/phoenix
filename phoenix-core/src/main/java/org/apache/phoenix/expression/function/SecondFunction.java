@@ -30,13 +30,11 @@ import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.schema.types.PTimestamp;
 
 /**
- * 
  * Implementation of the Second() buildin. Input Date/Timestamp/Time.
  * Returns an integer from 0 to 59 representing the second component of time
- * 
  */
-@BuiltInFunction(name=SecondFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = SecondFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class SecondFunction extends DateScalarFunction {
     public static final String NAME = "SECOND";
 
@@ -53,11 +51,11 @@ public class SecondFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());
-        int sec = (int)((dateTime/1000) % 60);
+        int sec = (int) ((dateTime / 1000) % 60);
         PDataType returnType = getDataType();
         byte[] byteValue = new byte[returnType.getByteSize()];
         returnType.getCodec().encodeInt(sec, byteValue, 0);

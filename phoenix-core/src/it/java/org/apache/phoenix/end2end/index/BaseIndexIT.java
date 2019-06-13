@@ -104,22 +104,25 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         this.mutable = mutable;
         StringBuilder optionBuilder = new StringBuilder();
         if (!columnEncoded) {
-            if (optionBuilder.length()!=0)
+            if (optionBuilder.length() != 0) {
                 optionBuilder.append(",");
+            }
             optionBuilder.append("COLUMN_ENCODED_BYTES=0");
         }
         if (!mutable) {
-            if (optionBuilder.length()!=0)
+            if (optionBuilder.length() != 0) {
                 optionBuilder.append(",");
+            }
             optionBuilder.append("IMMUTABLE_ROWS=true");
             if (!columnEncoded) {
-                optionBuilder.append(",IMMUTABLE_STORAGE_SCHEME="+PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
+                optionBuilder.append(",IMMUTABLE_STORAGE_SCHEME=" + PTableImpl.ImmutableStorageScheme.ONE_CELL_PER_COLUMN);
             }
         }
         transactional = transactionProvider != null;
         if (transactional) {
-            if (optionBuilder.length()!=0)
+            if (optionBuilder.length() != 0) {
                 optionBuilder.append(",");
+            }
             optionBuilder.append(" TRANSACTIONAL=true,TRANSACTION_PROVIDER='" + transactionProvider + "'");
             this.transactionProvider = TransactionFactory.Provider.valueOf(transactionProvider);
         } else {
@@ -138,7 +141,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
@@ -149,12 +152,12 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             String query = "SELECT d.char_col1, int_col1 from " + fullTableName + " as d";
             ResultSet rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex) {
+            if (localIndex) {
                 assertEquals(
                         "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\n" +
                                 "    SERVER FILTER BY FIRST KEY ONLY\n" +
                                 "CLIENT MERGE SORT",
-                                QueryUtil.getExplainPlan(rs));
+                        QueryUtil.getExplainPlan(rs));
             } else {
                 assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + fullIndexName + "\n"
                         + "    SERVER FILTER BY FIRST KEY ONLY", QueryUtil.getExplainPlan(rs));
@@ -179,8 +182,8 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
 
-            query = "SELECT char_col1, int_col1 from "+fullIndexName;
-            try{
+            query = "SELECT char_col1, int_col1 from " + fullIndexName;
+            try {
                 rs = conn.createStatement().executeQuery(query);
                 fail();
             } catch (SQLException e) {
@@ -198,26 +201,26 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullIndexName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, indexName);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
             ddl = "CREATE " + (localIndex ? "LOCAL" : "") + " INDEX " + indexName + " ON " + fullTableName
-                        + " (long_pk, varchar_pk)"
-                        + " INCLUDE (long_col1, long_col2)";
+                    + " (long_pk, varchar_pk)"
+                    + " INCLUDE (long_col1, long_col2)";
             stmt.execute(ddl);
 
             ResultSet rs;
 
             rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ COUNT(*) FROM " + fullTableName);
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
+            assertEquals(3, rs.getInt(1));
             rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + fullIndexName);
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
+            assertEquals(3, rs.getInt(1));
 
             String dml = "DELETE from " + fullTableName + " WHERE long_col2 = 4";
-            assertEquals(1,conn.createStatement().executeUpdate(dml));
+            assertEquals(1, conn.createStatement().executeUpdate(dml));
             assertNoClientSideIndexMutations(conn);
             conn.commit();
 
@@ -250,24 +253,24 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
     }
 
     private void assertNoClientSideIndexMutations(Connection conn) throws SQLException {
-        Iterator<Pair<byte[],List<Cell>>> iterator = PhoenixRuntime.getUncommittedDataIterator(conn);
+        Iterator<Pair<byte[], List<Cell>>> iterator = PhoenixRuntime.getUncommittedDataIterator(conn);
         if (iterator.hasNext()) {
             byte[] tableName = iterator.next().getFirst(); // skip data table mutations
             PTable table = PhoenixRuntime.getTable(conn, Bytes.toString(tableName));
-            boolean clientSideUpdate = (!localIndex || (transactional && table.getTransactionProvider().getTransactionProvider().isUnsupported(Feature.MAINTAIN_LOCAL_INDEX_ON_SERVER))) 
+            boolean clientSideUpdate = (!localIndex || (transactional && table.getTransactionProvider().getTransactionProvider().isUnsupported(Feature.MAINTAIN_LOCAL_INDEX_ON_SERVER)))
                     && (!mutable || transactional);
             if (!clientSideUpdate) {
                 assertTrue(table.getType() == PTableType.TABLE); // should be data table
             }
             boolean hasIndexData = iterator.hasNext();
             // global immutable and global transactional tables are processed client side
-            assertEquals(clientSideUpdate, hasIndexData); 
+            assertEquals(clientSideUpdate, hasIndexData);
         }
     }
 
     @Test
     public void testCreateIndexAfterUpsertStarted() throws Exception {
-        testCreateIndexAfterUpsertStarted(transactional, 
+        testCreateIndexAfterUpsertStarted(transactional,
                 SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, generateUniqueName()),
                 SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, generateUniqueName()));
     }
@@ -276,7 +279,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn1 = DriverManager.getConnection(getUrl(), props)) {
             conn1.setAutoCommit(true);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             Statement stmt1 = conn1.createStatement();
             stmt1.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
@@ -285,7 +288,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             rs = conn1.createStatement().executeQuery("SELECT COUNT(*) FROM " + fullTableName);
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
+            assertEquals(3, rs.getInt(1));
 
             try (Connection conn2 = DriverManager.getConnection(getUrl(), props)) {
 
@@ -342,7 +345,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
                 stmt1 = conn1.createStatement();
                 rs = stmt1.executeQuery("SELECT COUNT(*) FROM " + fullTableName);
                 assertTrue(rs.next());
-                assertEquals(4,rs.getInt(1));
+                assertEquals(4, rs.getInt(1));
                 assertEquals(fullIndexName, stmt1.unwrap(PhoenixStatement.class).getQueryPlan().getTableRef().getTable().getName().getString());
 
                 String query = "SELECT /*+ NO_INDEX */ long_pk FROM " + fullTableName;
@@ -368,15 +371,15 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         String fullIndexName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, indexName);
 
-        String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+        String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
             ddl = "CREATE " + (localIndex ? "LOCAL" : "") + " INDEX " + indexName + " ON " + fullTableName
-                        + " (long_col1, long_col2)"
-                        + " INCLUDE (decimal_col1, decimal_col2)";
+                    + " (long_col1, long_col2)"
+                    + " INCLUDE (decimal_col1, decimal_col2)";
             stmt.execute(ddl);
         }
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
@@ -384,13 +387,13 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + fullTableName);
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
+            assertEquals(3, rs.getInt(1));
             rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + fullIndexName);
             assertTrue(rs.next());
-            assertEquals(3,rs.getInt(1));
+            assertEquals(3, rs.getInt(1));
 
             String dml = "DELETE from " + fullTableName + " WHERE long_col2 = 4";
-            assertEquals(1,conn.createStatement().executeUpdate(dml));
+            assertEquals(1, conn.createStatement().executeUpdate(dml));
             assertNoClientSideIndexMutations(conn);
             conn.commit();
 
@@ -424,7 +427,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
@@ -433,7 +436,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             ResultSet rs;
             rs = conn.createStatement().executeQuery("SELECT int_col2, COUNT(*) FROM " + fullTableName + " GROUP BY int_col2");
             assertTrue(rs.next());
-            assertEquals(1,rs.getInt(2));
+            assertEquals(1, rs.getInt(2));
         }
     }
 
@@ -445,7 +448,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
@@ -470,7 +473,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
             BaseTest.populateTestTable(fullTableName);
@@ -498,7 +501,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             conn.setAutoCommit(false);
             String query;
             ResultSet rs;
-            String ddl ="CREATE TABLE " + fullTableName
+            String ddl = "CREATE TABLE " + fullTableName
                     + " (k VARCHAR NOT NULL PRIMARY KEY, v1 VARCHAR, v2 VARCHAR) DEFAULT_COLUMN_FAMILY='A'" + (!tableDDLOptions.isEmpty() ? "," + tableDDLOptions : "");
             Statement stmt = conn.createStatement();
             stmt.execute(ddl);
@@ -523,7 +526,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             assertNull(indexTable.getDefaultFamilyName());
             assertFalse(indexTable.isMultiTenant());
             assertEquals(mutable, !indexTable.isImmutableRows()); // Should match table
-            if(localIndex) {
+            if (localIndex) {
                 assertEquals(10, indexTable.getBucketNum().intValue());
                 assertTrue(indexTable.isWALDisabled());
             }
@@ -546,10 +549,10 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             String ddl = "CREATE " + (localIndex ? " LOCAL " : "") + " INDEX " + indexName + " ON " + fullTableName + " (date_col)";
             conn.createStatement().execute(ddl);
 
-            String query = "SELECT int_pk from " + fullTableName ;
+            String query = "SELECT int_pk from " + fullTableName;
             ResultSet rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             if (localIndex) {
-                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName +" [1]\n"
+                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\n"
                         + "    SERVER FILTER BY FIRST KEY ONLY\n"
                         + "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             } else {
@@ -566,7 +569,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             assertEquals(3, rs.getInt(1));
             assertFalse(rs.next());
 
-            query = "SELECT date_col from " + fullTableName + " order by date_col" ;
+            query = "SELECT date_col from " + fullTableName + " order by date_col";
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             if (localIndex) {
                 assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\n"
@@ -612,11 +615,11 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
 
             PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + fullTableName + " VALUES(?,?,?)");
-            stmt.setString(1,"a");
+            stmt.setString(1, "a");
             stmt.setString(2, "x");
             stmt.setString(3, "1");
             stmt.execute();
-            stmt.setString(1,"b");
+            stmt.setString(1, "b");
             stmt.setString(2, "y");
             stmt.setString(3, "2");
             stmt.execute();
@@ -624,45 +627,45 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             query = "SELECT * FROM " + fullTableName;
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex){
-                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName+" [1]\nCLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
+            if (localIndex) {
+                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\nCLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             } else {
                 assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + fullIndexName, QueryUtil.getExplainPlan(rs));
             }
 
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("b",rs.getString(1));
-            assertEquals("y",rs.getString(2));
-            assertEquals("2",rs.getString(3));
-            assertEquals("b",rs.getString("k"));
-            assertEquals("y",rs.getString("v1"));
-            assertEquals("2",rs.getString("v2"));
+            assertEquals("b", rs.getString(1));
+            assertEquals("y", rs.getString(2));
+            assertEquals("2", rs.getString(3));
+            assertEquals("b", rs.getString("k"));
+            assertEquals("y", rs.getString("v1"));
+            assertEquals("2", rs.getString("v2"));
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals("x",rs.getString(2));
-            assertEquals("1",rs.getString(3));
-            assertEquals("a",rs.getString("k"));
-            assertEquals("x",rs.getString("v1"));
-            assertEquals("1",rs.getString("v2"));
+            assertEquals("a", rs.getString(1));
+            assertEquals("x", rs.getString(2));
+            assertEquals("1", rs.getString(3));
+            assertEquals("a", rs.getString("k"));
+            assertEquals("x", rs.getString("v1"));
+            assertEquals("1", rs.getString("v2"));
             assertFalse(rs.next());
 
             query = "SELECT v1 as foo FROM " + fullTableName + " WHERE v2 = '1' ORDER BY foo";
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex){
-                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " +fullTableName + " [1,~'1']\n" +
+            if (localIndex) {
+                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1,~'1']\n" +
                         "    SERVER SORTED BY [\"V1\"]\n" +
                         "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             } else {
-                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " +fullIndexName + " [~'1']\n" +
+                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullIndexName + " [~'1']\n" +
                         "    SERVER SORTED BY [\"V1\"]\n" +
                         "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             }
 
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("x",rs.getString(1));
-            assertEquals("x",rs.getString("foo"));
+            assertEquals("x", rs.getString(1));
+            assertEquals("x", rs.getString("foo"));
             assertFalse(rs.next());
         }
     }
@@ -690,12 +693,12 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
 
             PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + fullTableName + " VALUES(?,?,?,?)");
-            stmt.setString(1,"a");
+            stmt.setString(1, "a");
             stmt.setString(2, "x");
             stmt.setString(3, "1");
             stmt.setString(4, "A");
             stmt.execute();
-            stmt.setString(1,"b");
+            stmt.setString(1, "b");
             stmt.setString(2, "y");
             stmt.setString(3, "2");
             stmt.setString(4, "B");
@@ -708,22 +711,22 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             query = "SELECT a.* FROM " + fullTableName;
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex) {
-                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName+" [1]\nCLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
+            if (localIndex) {
+                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\nCLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             } else {
                 assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + fullIndexName, QueryUtil.getExplainPlan(rs));
             }
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("y",rs.getString(1));
-            assertEquals("2",rs.getString(2));
-            assertEquals("y",rs.getString("v1"));
-            assertEquals("2",rs.getString("v2"));
+            assertEquals("y", rs.getString(1));
+            assertEquals("2", rs.getString(2));
+            assertEquals("y", rs.getString("v1"));
+            assertEquals("2", rs.getString("v2"));
             assertTrue(rs.next());
-            assertEquals("x",rs.getString(1));
-            assertEquals("1",rs.getString(2));
-            assertEquals("x",rs.getString("v1"));
-            assertEquals("1",rs.getString("v2"));
+            assertEquals("x", rs.getString(1));
+            assertEquals("1", rs.getString(2));
+            assertEquals("x", rs.getString("v1"));
+            assertEquals("1", rs.getString("v2"));
             assertFalse(rs.next());
         }
     }
@@ -742,7 +745,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             // make sure that the tables are empty, but reachable
             conn.createStatement().execute(
                     "CREATE TABLE " + fullTableName
-                    + " (k VARCHAR NOT NULL PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)" + tableDDLOptions);
+                            + " (k VARCHAR NOT NULL PRIMARY KEY, v1 VARCHAR, v2 VARCHAR)" + tableDDLOptions);
             query = "SELECT * FROM " + fullTableName;
             rs = conn.createStatement().executeQuery(query);
             assertFalse(rs.next());
@@ -776,21 +779,21 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             stmt = conn.prepareStatement("UPSERT INTO " + fullTableName + "(k, v1) VALUES(?,?)");
             if (mutable) {
-	            stmt.setString(1, "a");
-	            stmt.setString(2, "y");
-	            stmt.execute();
-	            conn.commit();
+                stmt.setString(1, "a");
+                stmt.setString(2, "y");
+                stmt.execute();
+                conn.commit();
             }
             stmt.setString(1, "b");
             stmt.setString(2, "x");
             stmt.execute();
             conn.commit();
-	            
+
             // the index table is one row
             HTable table = (HTable) conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(fullTableName.getBytes());
             ResultScanner resultScanner = table.getScanner(new Scan());
             for (Result result : resultScanner) {
-            	System.out.println(result);
+                System.out.println(result);
             }
             resultScanner.close();
             table.close();
@@ -808,8 +811,8 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             assertEquals("x", rs.getString(2));
             assertNull(rs.getString(3));
             assertFalse(rs.next());
-            }
         }
+    }
 
     @Test
     public void testMultipleUpdatesAcrossRegions() throws Exception {
@@ -819,7 +822,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullTableName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, tableName);
         String fullIndexName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, indexName);
 
-        String testTable = fullTableName+"_MULTIPLE_UPDATES";
+        String testTable = fullTableName + "_MULTIPLE_UPDATES";
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             conn.setAutoCommit(false);
             String query;
@@ -827,8 +830,8 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             // make sure that the tables are empty, but reachable
             conn.createStatement().execute(
                     "CREATE TABLE " + testTable
-                    + " (k VARCHAR NOT NULL PRIMARY KEY, v1 VARCHAR, v2 VARCHAR) "
-                    + (!tableDDLOptions.isEmpty() ? tableDDLOptions : "") + " SPLIT ON ('b')");
+                            + " (k VARCHAR NOT NULL PRIMARY KEY, v1 VARCHAR, v2 VARCHAR) "
+                            + (!tableDDLOptions.isEmpty() ? tableDDLOptions : "") + " SPLIT ON ('b')");
             query = "SELECT * FROM " + testTable;
             rs = conn.createStatement().executeQuery(query);
             assertFalse(rs.next());
@@ -871,18 +874,18 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             assertEquals("z", rs.getString(2));
             assertEquals("3", rs.getString(3));
             assertFalse(rs.next());
-            
+
             // make sure the index is working as expected
             query = "SELECT * FROM " + testTable;
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             if (localIndex) {
-                assertEquals("CLIENT PARALLEL 2-WAY RANGE SCAN OVER " + testTable+" [1]\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY\n"
-                        + "CLIENT MERGE SORT",
+                assertEquals("CLIENT PARALLEL 2-WAY RANGE SCAN OVER " + testTable + " [1]\n"
+                                + "    SERVER FILTER BY FIRST KEY ONLY\n"
+                                + "CLIENT MERGE SORT",
                         QueryUtil.getExplainPlan(rs));
             } else {
                 assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + fullIndexName + "\n"
-                        + "    SERVER FILTER BY FIRST KEY ONLY",
+                                + "    SERVER FILTER BY FIRST KEY ONLY",
                         QueryUtil.getExplainPlan(rs));
             }
 
@@ -915,23 +918,23 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             conn.setAutoCommit(false);
             String query;
             ResultSet rs;
-            conn.createStatement().execute("CREATE TABLE " + fullTableName + " (k VARCHAR NOT NULL PRIMARY KEY, \"V1\" VARCHAR, \"v2\" VARCHAR)"+tableDDLOptions);
-            query = "SELECT * FROM "+fullTableName;
+            conn.createStatement().execute("CREATE TABLE " + fullTableName + " (k VARCHAR NOT NULL PRIMARY KEY, \"V1\" VARCHAR, \"v2\" VARCHAR)" + tableDDLOptions);
+            query = "SELECT * FROM " + fullTableName;
             rs = conn.createStatement().executeQuery(query);
-            long ts = conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null,fullTableName)).getTimeStamp();
+            long ts = conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, fullTableName)).getTimeStamp();
             assertFalse(rs.next());
             conn.createStatement().execute(
                     "CREATE " + (localIndex ? "LOCAL " : "") + "INDEX " + indexName + " ON " + fullTableName + "(\"v2\") INCLUDE (\"V1\")");
-            query = "SELECT * FROM "+fullIndexName;
+            query = "SELECT * FROM " + fullIndexName;
             rs = conn.createStatement().executeQuery(query);
             assertFalse(rs.next());
 
             PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + fullTableName + " VALUES(?,?,?)");
-            stmt.setString(1,"a");
+            stmt.setString(1, "a");
             stmt.setString(2, "x");
             stmt.setString(3, "1");
             stmt.execute();
-            stmt.setString(1,"b");
+            stmt.setString(1, "b");
             stmt.setString(2, "y");
             stmt.setString(3, "2");
             stmt.execute();
@@ -941,21 +944,21 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             query = "SELECT * FROM " + fullTableName + " WHERE \"v2\" = '1'";
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex){
+            if (localIndex) {
                 assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1,'1']\n"
                         + "CLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             } else {
                 assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullIndexName + " ['1']", QueryUtil.getExplainPlan(rs));
             }
-            
+
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("a",rs.getString(1));
-            assertEquals("x",rs.getString(2));
-            assertEquals("1",rs.getString(3));
-            assertEquals("a",rs.getString("k"));
-            assertEquals("x",rs.getString("V1"));
-            assertEquals("1",rs.getString("v2"));
+            assertEquals("a", rs.getString(1));
+            assertEquals("x", rs.getString(2));
+            assertEquals("1", rs.getString(3));
+            assertEquals("a", rs.getString("k"));
+            assertEquals("x", rs.getString("V1"));
+            assertEquals("1", rs.getString("v2"));
             assertFalse(rs.next());
 
             // Shadow cells shouldn't exist yet since commit hasn't happened
@@ -972,36 +975,36 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
 
             query = "SELECT \"V1\", \"V1\" as foo1, \"v2\" as foo, \"v2\" as \"Foo1\", \"v2\" FROM " + fullTableName + " ORDER BY foo";
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex){
+            if (localIndex) {
                 assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\nCLIENT MERGE SORT",
                         QueryUtil.getExplainPlan(rs));
             } else {
-                assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER "+fullIndexName, QueryUtil.getExplainPlan(rs));
+                assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + fullIndexName, QueryUtil.getExplainPlan(rs));
             }
 
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
-            assertEquals("x",rs.getString(1));
-            assertEquals("x",rs.getString("V1"));
-            assertEquals("x",rs.getString(2));
-            assertEquals("x",rs.getString("foo1"));
-            assertEquals("1",rs.getString(3));
-            assertEquals("1",rs.getString("Foo"));
-            assertEquals("1",rs.getString(4));
-            assertEquals("1",rs.getString("Foo1"));
-            assertEquals("1",rs.getString(5));
-            assertEquals("1",rs.getString("v2"));
+            assertEquals("x", rs.getString(1));
+            assertEquals("x", rs.getString("V1"));
+            assertEquals("x", rs.getString(2));
+            assertEquals("x", rs.getString("foo1"));
+            assertEquals("1", rs.getString(3));
+            assertEquals("1", rs.getString("Foo"));
+            assertEquals("1", rs.getString(4));
+            assertEquals("1", rs.getString("Foo1"));
+            assertEquals("1", rs.getString(5));
+            assertEquals("1", rs.getString("v2"));
             assertTrue(rs.next());
-            assertEquals("y",rs.getString(1));
-            assertEquals("y",rs.getString("V1"));
-            assertEquals("y",rs.getString(2));
-            assertEquals("y",rs.getString("foo1"));
-            assertEquals("2",rs.getString(3));
-            assertEquals("2",rs.getString("Foo"));
-            assertEquals("2",rs.getString(4));
-            assertEquals("2",rs.getString("Foo1"));
-            assertEquals("2",rs.getString(5));
-            assertEquals("2",rs.getString("v2"));
+            assertEquals("y", rs.getString(1));
+            assertEquals("y", rs.getString("V1"));
+            assertEquals("y", rs.getString(2));
+            assertEquals("y", rs.getString("foo1"));
+            assertEquals("2", rs.getString(3));
+            assertEquals("2", rs.getString("Foo"));
+            assertEquals("2", rs.getString(4));
+            assertEquals("2", rs.getString("Foo1"));
+            assertEquals("2", rs.getString(5));
+            assertEquals("2", rs.getString("v2"));
             assertFalse(rs.next());
 
             assertNoIndexDeletes(conn, ts, fullIndexName);
@@ -1029,7 +1032,8 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
                         assertTrue(CellUtil.isPut(current));
                     }
                 }
-            };
+            }
+            ;
         }
     }
 
@@ -1043,12 +1047,12 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             conn.setAutoCommit(false);
             String query;
             ResultSet rs;
-            String ddl = "CREATE TABLE " + fullTableName +"  (PK1 CHAR(2) NOT NULL PRIMARY KEY, CF1.COL1 BIGINT) " + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + "  (PK1 CHAR(2) NOT NULL PRIMARY KEY, CF1.COL1 BIGINT) " + tableDDLOptions;
             conn.createStatement().execute(ddl);
             ddl = "CREATE " + (localIndex ? "LOCAL " : "") + "INDEX " + indexName + " ON " + fullTableName + "(COL1)";
             conn.createStatement().execute(ddl);
 
-            query = "SELECT COUNT(COL1) FROM " + fullTableName +" WHERE COL1 IN (1,25,50,75,100)";
+            query = "SELECT COUNT(COL1) FROM " + fullTableName + " WHERE COL1 IN (1,25,50,75,100)";
             rs = conn.createStatement().executeQuery(query);
             assertTrue(rs.next());
         }
@@ -1058,12 +1062,12 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
     public void testIndexWithDecimalColServerSideUpsert() throws Exception {
         testIndexWithDecimalCol(true);
     }
-    
+
     @Test
     public void testIndexWithDecimalColClientSideUpsert() throws Exception {
         testIndexWithDecimalCol(false);
     }
-    
+
     private void testIndexWithDecimalCol(boolean enableServerSideUpsert) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         String tableName = "TBL_" + generateUniqueName();
@@ -1082,15 +1086,15 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             String ddl = null;
             ddl = "CREATE " + (localIndex ? "LOCAL " : "") + "INDEX " + indexName + " ON " + fullTableName + " (decimal_pk) INCLUDE (decimal_col1, decimal_col2)";
             conn.createStatement().execute(ddl);
-            
+
             if (transactional && transactionProvider == TransactionFactory.Provider.OMID) {
                 assertShadowCellsExist(conn, fullTableName, fullIndexName);
             }
 
-            query = "SELECT decimal_pk, decimal_col1, decimal_col2 from " + fullTableName ;
+            query = "SELECT decimal_pk, decimal_col1, decimal_col2 from " + fullTableName;
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
-            if(localIndex) {
-                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName+" [1]\nCLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
+            if (localIndex) {
+                assertEquals("CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullTableName + " [1]\nCLIENT MERGE SORT", QueryUtil.getExplainPlan(rs));
             } else {
                 assertEquals("CLIENT PARALLEL 1-WAY FULL SCAN OVER " + fullIndexName, QueryUtil.getExplainPlan(rs));
             }
@@ -1112,18 +1116,18 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         }
     }
 
-    private static void assertShadowCellsDoNotExist(Connection conn, String fullTableName, String fullIndexName) 
+    private static void assertShadowCellsDoNotExist(Connection conn, String fullTableName, String fullIndexName)
             throws Exception {
         assertShadowCells(conn, fullTableName, fullIndexName, false);
     }
-    
+
     private static void assertShadowCellsExist(Connection conn, String fullTableName, String fullIndexName)
             throws Exception {
         assertShadowCells(conn, fullTableName, fullIndexName, true);
     }
-    
-    private static void assertShadowCells(Connection conn, String fullTableName, String fullIndexName, boolean exists) 
-        throws Exception {
+
+    private static void assertShadowCells(Connection conn, String fullTableName, String fullIndexName, boolean exists)
+            throws Exception {
         PTable ptable = conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, fullTableName));
         int nTableKVColumns = ptable.getColumns().size() - ptable.getPKColumns().size();
         Table hTable = conn.unwrap(PhoenixConnection.class).getQueryServices().getTable(Bytes.toBytes(fullTableName));
@@ -1163,10 +1167,10 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
         String fullIndexeName = SchemaUtil.getTableName(TestUtil.DEFAULT_SCHEMA_NAME, indexName);
         // Check system tables priorities.
         try (Admin admin = driver.getConnectionQueryServices(null, null).getAdmin();
-                Connection c = DriverManager.getConnection(getUrl())) {
-            ResultSet rs = c.getMetaData().getTables("", 
-                    "\""+ PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA + "\"", 
-                    null, 
+             Connection c = DriverManager.getConnection(getUrl())) {
+            ResultSet rs = c.getMetaData().getTables("",
+                    "\"" + PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA + "\"",
+                    null,
                     new String[] {PTableType.SYSTEM.toString()});
             ReadOnlyProps p = c.unwrap(PhoenixConnection.class).getQueryServices().getProps();
             while (rs.next()) {
@@ -1180,7 +1184,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
                         >= PhoenixRpcSchedulerFactory.getMetadataPriority(config));
             }
             Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-            String ddl ="CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
+            String ddl = "CREATE TABLE " + fullTableName + TestUtil.TEST_TABLE_SCHEMA + tableDDLOptions;
             try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
                 conn.setAutoCommit(false);
                 Statement stmt = conn.createStatement();
@@ -1232,7 +1236,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
                 ddl += "(p1 desc, p2))";
             }
             stmt.executeUpdate(ddl);
-            ddl = "CREATE "+ (localIndex ? "LOCAL " : "") + " INDEX " + indexName + " on " + fullTableName + "(a)";
+            ddl = "CREATE " + (localIndex ? "LOCAL " : "") + " INDEX " + indexName + " on " + fullTableName + "(a)";
             stmt.executeUpdate(ddl);
 
             // upsert a single row
@@ -1261,8 +1265,8 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             String indexName = generateUniqueName();
             String tableName =
                     initATableValues(generateUniqueName(), tenantId, getDefaultSplits(tenantId),
-                        new Date(System.currentTimeMillis()), null, getUrl(), tableDDLOptions);
-            String ddl = "CREATE "+ (localIndex ? "LOCAL " : "") + " INDEX " + indexName + " on " + tableName + "(A_STRING) INCLUDE (B_STRING)";
+                            new Date(System.currentTimeMillis()), null, getUrl(), tableDDLOptions);
+            String ddl = "CREATE " + (localIndex ? "LOCAL " : "") + " INDEX " + indexName + " on " + tableName + "(A_STRING) INCLUDE (B_STRING)";
             conn.createStatement().executeUpdate(ddl);
             String query = "SELECT ENTITY_ID,A_STRING,B_STRING FROM " + tableName + " WHERE organization_id=? and entity_id=?";
 
@@ -1276,10 +1280,10 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             ddlStatement.setString(2, Integer.toString(Math.abs(RAND.nextInt() % 1000000000)));
             ddlStatement.executeUpdate();
             conn.commit();
- 
+
             statement.setString(2, entityId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertTrue(rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() >= currentTime);
             assertEquals(rs.getString(1).trim(), entityId);
             assertFalse(rs.next());
@@ -1291,10 +1295,10 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
             ddlStatement.setString(2, Integer.toString(Math.abs(RAND.nextInt() % 1000000000)));
             ddlStatement.executeUpdate();
             conn.commit();
-            
+
             statement.setString(2, entityId);
             rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertTrue(rs.unwrap(PhoenixResultSet.class).getCurrentRow().getValue(0).getTimestamp() >= currentTime);
             assertEquals(rs.getString(1).trim(), entityId);
             assertFalse(rs.next());
@@ -1315,7 +1319,7 @@ public abstract class BaseIndexIT extends ParallelStatsDisabledIT {
                     conn.unwrap(PhoenixConnection.class).getQueryServices().getConfiguration();
             int maxIndexes =
                     conf.getInt(QueryServices.MAX_INDEXES_PER_TABLE,
-                        QueryServicesOptions.DEFAULT_MAX_INDEXES_PER_TABLE);
+                            QueryServicesOptions.DEFAULT_MAX_INDEXES_PER_TABLE);
             conn.createStatement()
                     .execute("CREATE TABLE " + fullTableName
                             + " (k VARCHAR NOT NULL PRIMARY KEY, \"V1\" VARCHAR, \"v2\" VARCHAR)"

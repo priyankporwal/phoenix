@@ -50,7 +50,7 @@ public class CsvBulkLoadTool extends AbstractBulkLoadTool {
 
     @Override
     protected void configureOptions(CommandLine cmdLine, List<ColumnInfo> importColumns,
-                                         Configuration conf) throws SQLException {
+                                    Configuration conf) throws SQLException {
 
         // we don't parse ZK_QUORUM_OPT here because we need it in order to
         // create the connection we need to build importColumns.
@@ -81,12 +81,12 @@ public class CsvBulkLoadTool extends AbstractBulkLoadTool {
             }
             escapeChar = escapeString.charAt(0);
         }
-        
+
         String binaryEncoding = null;
         if (cmdLine.hasOption(binaryEncodingOption.getOpt())) {
             binaryEncoding = cmdLine.getOptionValue(binaryEncodingOption.getOpt());
         }
-        
+
         CsvBulkImportUtil.initCsvImportJob(
                 conf,
                 delimiterChar,

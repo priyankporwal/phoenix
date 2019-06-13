@@ -47,11 +47,11 @@ import com.google.common.collect.Lists;
 @RunWith(Parameterized.class)
 public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
     private final String indexDDL;
-    
+
     public OnDuplicateKeyIT(String indexDDL) {
         this.indexDDL = indexDDL;
     }
-    
+
     @Parameters
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
@@ -66,7 +66,7 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
         });
         return testCases;
     }
-    
+
     private void createIndex(Connection conn, String tableName) throws SQLException {
         if (indexDDL == null || indexDDL.length() == 0) {
             return;
@@ -74,7 +74,7 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
         String ddl = String.format(indexDDL, tableName, tableName);
         conn.createStatement().execute(ddl);
     }
-    
+
     @Test
     public void testNewAndUpdateOnSingleNumericColumn() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -89,22 +89,22 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(0,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(0, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute(dml);
         conn.commit();
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(1,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(1, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testNewAndUpdateOnSingleNumericColumnWithOtherColumns() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -113,66 +113,66 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
         String ddl = " create table " + tableName + "(k1 varchar, k2 varchar, counter1 varchar, counter2 date, other1 char(3), other2 varchar default 'f', constraint pk primary key (k1,k2))";
         conn.createStatement().execute(ddl);
         createIndex(conn, tableName);
-        String dml = "UPSERT INTO " + tableName + " VALUES('a','b','c',null,'eee') " + 
-                     "ON DUPLICATE KEY UPDATE counter1 = counter1 || CASE WHEN LENGTH(counter1) < 10 THEN 'SMALL' ELSE 'LARGE' END || k2 || other2 || other1 ";
+        String dml = "UPSERT INTO " + tableName + " VALUES('a','b','c',null,'eee') " +
+                "ON DUPLICATE KEY UPDATE counter1 = counter1 || CASE WHEN LENGTH(counter1) < 10 THEN 'SMALL' ELSE 'LARGE' END || k2 || other2 || other1 ";
         conn.createStatement().execute(dml);
         conn.commit();
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("b",rs.getString(2));
-        assertEquals("c",rs.getString(3));
-        assertEquals(null,rs.getDate(4));
-        assertEquals("eee",rs.getString(5));
-        assertEquals("f",rs.getString(6));
+        assertEquals("a", rs.getString(1));
+        assertEquals("b", rs.getString(2));
+        assertEquals("c", rs.getString(3));
+        assertEquals(null, rs.getDate(4));
+        assertEquals("eee", rs.getString(5));
+        assertEquals("f", rs.getString(6));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute(dml);
         conn.commit();
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("b",rs.getString(2));
-        assertEquals("cSMALLbfeee",rs.getString(3));
-        assertEquals(null,rs.getDate(4));
-        assertEquals("eee",rs.getString(5));
-        assertEquals("f",rs.getString(6));
+        assertEquals("a", rs.getString(1));
+        assertEquals("b", rs.getString(2));
+        assertEquals("cSMALLbfeee", rs.getString(3));
+        assertEquals(null, rs.getDate(4));
+        assertEquals("eee", rs.getString(5));
+        assertEquals("f", rs.getString(6));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute(dml);
         conn.commit();
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("b",rs.getString(2));
-        assertEquals("cSMALLbfeeeLARGEbfeee",rs.getString(3));
-        assertEquals(null,rs.getDate(4));
-        assertEquals("eee",rs.getString(5));
-        assertEquals("f",rs.getString(6));
+        assertEquals("a", rs.getString(1));
+        assertEquals("b", rs.getString(2));
+        assertEquals("cSMALLbfeeeLARGEbfeee", rs.getString(3));
+        assertEquals(null, rs.getDate(4));
+        assertEquals("eee", rs.getString(5));
+        assertEquals("f", rs.getString(6));
         assertFalse(rs.next());
-        
-        conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a','b','c',null,'eee') " + 
+
+        conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a','b','c',null,'eee') " +
                 "ON DUPLICATE KEY UPDATE counter1 = to_char(rand()), counter2 = current_date() + 1");
         conn.commit();
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("b",rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals("b", rs.getString(2));
         double d = Double.parseDouble(rs.getString(3));
         assertTrue(d >= 0.0 && d <= 1.0);
         Date date = rs.getDate(4);
         assertTrue(date.after(new Date(System.currentTimeMillis())));
-        assertEquals("eee",rs.getString(5));
-        assertEquals("f",rs.getString(6));
+        assertEquals("eee", rs.getString(5));
+        assertEquals("f", rs.getString(6));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testNewAndUpdateOnSingleVarcharColumn() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -187,32 +187,32 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE substr(counter1,1,1) = 'b'");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("b",rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals("b", rs.getString(2));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute(dml);
         conn.commit();
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE substr(counter1,1,1) = 'b'");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("bb",rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals("bb", rs.getString(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testDeleteOnSingleVarcharColumnAutoCommit() throws Exception {
         testDeleteOnSingleVarcharColumn(true);
     }
-    
+
     @Test
     public void testDeleteOnSingleVarcharColumnNoAutoCommit() throws Exception {
         testDeleteOnSingleVarcharColumn(false);
     }
-    
+
     private void testDeleteOnSingleVarcharColumn(boolean autoCommit) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -228,10 +228,10 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(null,rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(null, rs.getString(2));
         assertFalse(rs.next());
-        
+
         dml = "UPSERT INTO " + tableName + " VALUES('a','b',0)";
         conn.createStatement().execute(dml);
         dml = "UPSERT INTO " + tableName + " VALUES('a','b', 0) ON DUPLICATE KEY UPDATE counter1 = null, counter2 = counter2 + 1";
@@ -242,14 +242,14 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("c",rs.getString(2));
-        assertEquals(2,rs.getInt(3));
+        assertEquals("a", rs.getString(1));
+        assertEquals("c", rs.getString(2));
+        assertEquals(2, rs.getInt(3));
         assertFalse(rs.next());
 
         conn.close();
     }
-    
+
     @Test
     public void testIgnoreOnSingleColumn() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -263,22 +263,22 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(10,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(10, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a',0) ON DUPLICATE KEY IGNORE");
         conn.commit();
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(10,rs.getLong(2));
-        assertFalse(rs.next()); 
-        
+        assertEquals("a", rs.getString(1));
+        assertEquals(10, rs.getLong(2));
+        assertFalse(rs.next());
+
         conn.close();
     }
-    
+
     @Test
     public void testInitialIgnoreWithUpdateOnSingleColumn() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -294,13 +294,13 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(11,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(11, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testOverrideOnDupKeyUpdateWithUpsert() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -318,23 +318,23 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(10,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(10, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testNewAndMultiUpdateOnSingleColumnAutoCommit() throws Exception {
         testNewAndMultiUpdateOnSingleColumn(true);
     }
-    
+
     @Test
     public void testNewAndMultiUpdateOnSingleColumnNoAutoCommit() throws Exception {
         testNewAndMultiUpdateOnSingleColumn(false);
     }
-    
+
     private void testNewAndMultiUpdateOnSingleColumn(boolean autoCommit) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -351,10 +351,10 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(2,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(2, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a',0) ON DUPLICATE KEY UPDATE counter1 = counter1 + 1");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a',0) ON DUPLICATE KEY UPDATE counter1 = counter1 + 1");
         conn.createStatement().execute("UPSERT INTO " + tableName + " VALUES('a',0) ON DUPLICATE KEY UPDATE counter1 = counter1 + 1");
@@ -364,13 +364,13 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(9,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(9, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testNewAndMultiDifferentUpdateOnSingleColumn() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -389,23 +389,23 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(3,rs.getLong(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(3, rs.getLong(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testNewAndMultiDifferentUpdateOnMultipleColumnsAutoCommit() throws Exception {
         testNewAndMultiDifferentUpdateOnMultipleColumns(true);
     }
-    
+
     @Test
     public void testNewAndMultiDifferentUpdateOnMultipleColumnsNoAutoCommit() throws Exception {
         testNewAndMultiDifferentUpdateOnMultipleColumns(false);
     }
-    
+
     private void testNewAndMultiDifferentUpdateOnMultipleColumns(boolean autoCommit) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -421,38 +421,38 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(1,rs.getLong(2));
-        assertEquals(2,rs.getLong(3));
+        assertEquals("a", rs.getString(1));
+        assertEquals(1, rs.getLong(2));
+        assertEquals(2, rs.getLong(3));
         assertFalse(rs.next());
-        
+
         rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(1,rs.getLong(2));
-        assertEquals(2,rs.getLong(3));
+        assertEquals("a", rs.getString(1));
+        assertEquals(1, rs.getLong(2));
+        assertEquals(2, rs.getLong(3));
         assertFalse(rs.next());
 
         conn.createStatement().execute(dml);
         conn.commit();
-        
+
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(3,rs.getLong(2));
-        assertEquals(3,rs.getLong(3));
+        assertEquals("a", rs.getString(1));
+        assertEquals(3, rs.getLong(2));
+        assertEquals(3, rs.getLong(3));
         assertFalse(rs.next());
-        
+
         rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(3,rs.getLong(2));
-        assertEquals(3,rs.getLong(3));
+        assertEquals("a", rs.getString(1));
+        assertEquals(3, rs.getLong(2));
+        assertEquals(3, rs.getLong(3));
         assertFalse(rs.next());
 
         conn.close();
     }
-    
+
     @Test
     public void testAtomicUpdate() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -501,19 +501,19 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
         //assertEquals(finalResult,resultHolder[0]);
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(finalResult,rs.getInt(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(finalResult, rs.getInt(2));
         assertFalse(rs.next());
 
         rs = conn.createStatement().executeQuery("SELECT /*+ NO_INDEX */ * FROM " + tableName + " WHERE counter1 >= 0");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(finalResult,rs.getInt(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(finalResult, rs.getInt(2));
         assertFalse(rs.next());
-        
+
         conn.close();
     }
-    
+
     @Test
     public void testDeleteOnSingleLowerCaseVarcharColumn() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -529,10 +529,10 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals(null,rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals(null, rs.getString(2));
         assertFalse(rs.next());
-        
+
         dml = "UPSERT INTO " + tableName + " VALUES('a','b',0)";
         conn.createStatement().execute(dml);
         dml = "UPSERT INTO " + tableName + " VALUES('a','b', 0) ON DUPLICATE KEY UPDATE \"counter1\" = null, \"counter2\" = \"counter2\" + 1";
@@ -543,13 +543,14 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
 
         rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("c",rs.getString(2));
-        assertEquals(2,rs.getInt(3));
+        assertEquals("a", rs.getString(1));
+        assertEquals("c", rs.getString(2));
+        assertEquals(2, rs.getInt(3));
         assertFalse(rs.next());
 
         conn.close();
     }
+
     @Test
     public void testDuplicateUpdateWithSaltedTable() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -564,14 +565,14 @@ public class OnDuplicateKeyIT extends ParallelStatsDisabledIT {
             conn.commit();
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
             assertTrue(rs.next());
-            assertEquals("0",rs.getString(3));
-            assertEquals("0",rs.getString(4));
+            assertEquals("0", rs.getString(3));
+            assertEquals("0", rs.getString(4));
             conn.createStatement().execute(dml);
             conn.commit();
             rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
             assertTrue(rs.next());
-            assertEquals("1",rs.getString(3));
-            assertEquals("1",rs.getString(4));
+            assertEquals("1", rs.getString(3));
+            assertEquals("1", rs.getString(4));
 
         } catch (Exception e) {
             fail();

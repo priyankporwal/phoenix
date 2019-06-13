@@ -84,17 +84,17 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
     }
 
     public TephraTransactionContext(PhoenixConnection connection) throws SQLException {
-        PhoenixTransactionClient client = connection.getQueryServices().initTransactionClient(getProvider());  
-        assert (client instanceof TephraTransactionClient);
-        this.txServiceClient = ((TephraTransactionClient)client).getTransactionClient();
+        PhoenixTransactionClient client = connection.getQueryServices().initTransactionClient(getProvider());
+        assert(client instanceof TephraTransactionClient);
+        this.txServiceClient = ((TephraTransactionClient) client).getTransactionClient();
         this.txAwares = Collections.emptyList();
         this.txContext = new TransactionContext(txServiceClient);
     }
 
     private TephraTransactionContext(PhoenixTransactionContext ctx, boolean subTask) {
-        assert (ctx instanceof TephraTransactionContext);
+        assert(ctx instanceof TephraTransactionContext);
         TephraTransactionContext tephraTransactionContext = (TephraTransactionContext) ctx;
-        this.txServiceClient = tephraTransactionContext.txServiceClient;  
+        this.txServiceClient = tephraTransactionContext.txServiceClient;
 
         if (subTask) {
             this.tx = tephraTransactionContext.getTransaction();
@@ -110,7 +110,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
     public TransactionFactory.Provider getProvider() {
         return TransactionFactory.Provider.TEPHRA;
     }
-    
+
     @Override
     public void begin() throws SQLException {
         if (txContext == null) {
@@ -176,7 +176,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
                 if (txContext == null) {
                     tx = txServiceClient.checkpoint(tx);
                 } else {
-                    assert (txContext != null);
+                    assert(txContext != null);
                     txContext.checkpoint();
                     tx = txContext.getCurrentTransaction();
                 }
@@ -192,7 +192,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
         if (txContext == null) {
             tx.setVisibility(VisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT);
         } else {
-            assert (txContext != null);
+            assert(txContext != null);
             txContext.getCurrentTransaction().setVisibility(
                     VisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT);
         }
@@ -237,7 +237,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
         if (table.getType() == PTableType.INDEX) {
             return;
         }
-        
+
         byte[] logicalKey = table.getName().getBytes();
         TransactionAware logicalTxAware = VisibilityFence.create(logicalKey);
 
@@ -264,7 +264,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
         if (ctx == PhoenixTransactionContext.NULL_CONTEXT) {
             return;
         }
-        assert (ctx instanceof TephraTransactionContext);
+        assert(ctx instanceof TephraTransactionContext);
         TephraTransactionContext tephraContext = (TephraTransactionContext) ctx;
 
         if (txContext != null) {
@@ -320,17 +320,17 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
         VisibilityLevel tephraVisibilityLevel = null;
 
         switch (visibilityLevel) {
-        case SNAPSHOT:
-            tephraVisibilityLevel = VisibilityLevel.SNAPSHOT;
-            break;
-        case SNAPSHOT_EXCLUDE_CURRENT:
-            tephraVisibilityLevel = VisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
-            break;
-        case SNAPSHOT_ALL:
-            tephraVisibilityLevel = VisibilityLevel.SNAPSHOT_ALL;
-            break;
-        default:
-            assert (false);
+            case SNAPSHOT:
+                tephraVisibilityLevel = VisibilityLevel.SNAPSHOT;
+                break;
+            case SNAPSHOT_EXCLUDE_CURRENT:
+                tephraVisibilityLevel = VisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
+                break;
+            case SNAPSHOT_ALL:
+                tephraVisibilityLevel = VisibilityLevel.SNAPSHOT_ALL;
+                break;
+            default:
+                assert(false);
         }
 
         Transaction tx = getCurrentTransaction();
@@ -348,16 +348,16 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
 
         PhoenixVisibilityLevel phoenixVisibilityLevel;
         switch (visibilityLevel) {
-        case SNAPSHOT:
-            phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT;
-            break;
-        case SNAPSHOT_EXCLUDE_CURRENT:
-            phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
-            break;
-        case SNAPSHOT_ALL:
-            phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_ALL;
-        default:
-            phoenixVisibilityLevel = null;
+            case SNAPSHOT:
+                phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT;
+                break;
+            case SNAPSHOT_EXCLUDE_CURRENT:
+                phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_EXCLUDE_CURRENT;
+                break;
+            case SNAPSHOT_ALL:
+                phoenixVisibilityLevel = PhoenixVisibilityLevel.SNAPSHOT_ALL;
+            default:
+                phoenixVisibilityLevel = null;
         }
 
         return phoenixVisibilityLevel;
@@ -366,7 +366,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
     @Override
     public byte[] encodeTransaction() throws SQLException {
         Transaction tx = getCurrentTransaction();
-        assert (tx != null);
+        assert(tx != null);
 
         try {
             byte[] encodedTxBytes = CODEC.encode(tx);
@@ -399,7 +399,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
             txContext.addTransactionAware(txAware);
         } else if (this.tx != null) {
             txAwares.add(txAware);
-            assert (tx != null);
+            assert(tx != null);
             txAware.startTx(tx);
         }
     }
@@ -408,7 +408,7 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
     public PhoenixTransactionContext newTransactionContext(PhoenixTransactionContext context, boolean subTask) {
         return new TephraTransactionContext(context, subTask);
     }
-    
+
     @Override
     public Table getTransactionalTable(Table htable, boolean isConflictFree) {
         TransactionAwareHTable transactionAwareHTable = new TransactionAwareHTable(htable, isConflictFree ? TxConstants.ConflictDetection.NONE : TxConstants.ConflictDetection.ROW);
@@ -436,16 +436,14 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
         }
         return transactionAwareHTable;
     }
-    
+
     /**
-     * 
      * Wraps Tephra data table HTables to catch when a rollback occurs so
      * that index Delete mutations can be generated and applied (as
      * opposed to storing them in the Tephra change set). This technique
      * allows the Tephra API to be used directly with HBase APIs and
      * Phoenix APIs since we can detect the rollback as a callback
      * when the Tephra rollback is called.
-     *
      */
     private static class RollbackHookHTableWrapper extends DelegateHTable {
         private final PTable table;
@@ -465,7 +463,9 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
         public void delete(List<Delete> deletes) throws IOException {
             ServerCache cache = null;
             try {
-                if (deletes.isEmpty()) { return; }
+                if (deletes.isEmpty()) {
+                    return;
+                }
                 // Attach meta data for server maintained indexes
                 ImmutableBytesWritable indexMetaDataPtr = new ImmutableBytesWritable();
                 if (table.getIndexMaintainers(indexMetaDataPtr, connection)) {
@@ -506,5 +506,5 @@ public class TephraTransactionContext implements PhoenixTransactionContext {
                 }
             }
         }
-    }    
+    }
 }

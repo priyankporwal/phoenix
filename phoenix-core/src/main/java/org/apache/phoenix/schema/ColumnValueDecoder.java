@@ -20,12 +20,13 @@ package org.apache.phoenix.schema;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 
 /**
- * Interface to decode column values that are stored in a byte[] 
+ * Interface to decode column values that are stored in a byte[]
  */
 public interface ColumnValueDecoder {
     /**
-     * sets the ptr to the column value at the given index  
-     * @return false if the column value is absent (used to support DEFAULT expressions) or else true 
+     * sets the ptr to the column value at the given index
+     *
+     * @return false if the column value is absent (used to support DEFAULT expressions) or else true
      */
     boolean decode(ImmutableBytesWritable ptr, int index);
 }

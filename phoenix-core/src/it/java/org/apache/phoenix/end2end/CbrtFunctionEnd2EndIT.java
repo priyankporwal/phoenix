@@ -50,10 +50,10 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
             conn = DriverManager.getConnection(getUrl());
             String ddl;
             ddl = "CREATE TABLE " + signedTableName
-                + " (k VARCHAR NOT NULL PRIMARY KEY, doub DOUBLE, fl FLOAT, inte INTEGER, lon BIGINT, smalli SMALLINT, tinyi TINYINT)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, doub DOUBLE, fl FLOAT, inte INTEGER, lon BIGINT, smalli SMALLINT, tinyi TINYINT)";
             conn.createStatement().execute(ddl);
             ddl = "CREATE TABLE " + unsignedTableName
-                + " (k VARCHAR NOT NULL PRIMARY KEY, doub UNSIGNED_DOUBLE, fl UNSIGNED_FLOAT, inte UNSIGNED_INT, lon UNSIGNED_LONG, smalli UNSIGNED_SMALLINT, tinyi UNSIGNED_TINYINT)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, doub UNSIGNED_DOUBLE, fl UNSIGNED_FLOAT, inte UNSIGNED_INT, lon UNSIGNED_LONG, smalli UNSIGNED_SMALLINT, tinyi UNSIGNED_TINYINT)";
             conn.createStatement().execute(ddl);
             conn.commit();
         } finally {
@@ -63,7 +63,7 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void updateSignedTable(Connection conn, double data) throws Exception {
         PreparedStatement stmt = conn.prepareStatement(
-            "UPSERT INTO " + signedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)");
+                "UPSERT INTO " + signedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, KEY);
         Double d = Double.valueOf(data);
         stmt.setDouble(2, d.doubleValue());
@@ -78,7 +78,7 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void updateUnsignedTable(Connection conn, double data) throws Exception {
         PreparedStatement stmt = conn.prepareStatement(
-            "UPSERT INTO " + unsignedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)");
+                "UPSERT INTO " + unsignedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, KEY);
         Double d = Double.valueOf(data);
         stmt.setDouble(2, d.doubleValue());
@@ -94,8 +94,8 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     private void testSignedNumberSpec(Connection conn, double data) throws Exception {
         updateSignedTable(conn, data);
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT CBRT(doub),CBRT(fl),CBRT(inte),CBRT(lon),CBRT(smalli),CBRT(tinyi) FROM "
-                + signedTableName);
+                "SELECT CBRT(doub),CBRT(fl),CBRT(inte),CBRT(lon),CBRT(smalli),CBRT(tinyi) FROM "
+                        + signedTableName);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertTrue(Math.abs(rs.getDouble(1) - Math.cbrt(d.doubleValue())) < ZERO);
@@ -106,7 +106,7 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         assertTrue(Math.abs(rs.getDouble(6) - Math.cbrt(d.byteValue())) < ZERO);
         assertTrue(!rs.next());
         PreparedStatement stmt = conn.prepareStatement("SELECT k FROM " + signedTableName
-            + " WHERE CBRT(doub)>0 AND CBRT(fl)>0 AND CBRT(inte)>0 AND CBRT(lon)>0 AND CBRT(smalli)>0 AND CBRT(tinyi)>0");
+                + " WHERE CBRT(doub)>0 AND CBRT(fl)>0 AND CBRT(inte)>0 AND CBRT(lon)>0 AND CBRT(smalli)>0 AND CBRT(tinyi)>0");
         rs = stmt.executeQuery();
         if (data > 0) {
             assertTrue(rs.next());
@@ -118,8 +118,8 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     private void testUnsignedNumberSpec(Connection conn, double data) throws Exception {
         updateUnsignedTable(conn, data);
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT CBRT(doub),CBRT(fl),CBRT(inte),CBRT(lon),CBRT(smalli),CBRT(tinyi) FROM "
-                + unsignedTableName);
+                "SELECT CBRT(doub),CBRT(fl),CBRT(inte),CBRT(lon),CBRT(smalli),CBRT(tinyi) FROM "
+                        + unsignedTableName);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertTrue(Math.abs(rs.getDouble(1) - Math.cbrt(d.doubleValue())) < ZERO);
@@ -130,7 +130,7 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         assertTrue(Math.abs(rs.getDouble(6) - Math.cbrt(d.byteValue())) < ZERO);
         assertTrue(!rs.next());
         PreparedStatement stmt = conn.prepareStatement("SELECT k FROM " + unsignedTableName
-            + " WHERE CBRT(doub)>0 AND CBRT(fl)>0 AND CBRT(inte)>0 AND CBRT(lon)>0 AND CBRT(smalli)>0 AND CBRT(tinyi)>0");
+                + " WHERE CBRT(doub)>0 AND CBRT(fl)>0 AND CBRT(inte)>0 AND CBRT(lon)>0 AND CBRT(smalli)>0 AND CBRT(tinyi)>0");
         rs = stmt.executeQuery();
         if (data > 0) {
             assertTrue(rs.next());
@@ -142,7 +142,7 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void testSignedNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, -1.0, 123.1234, -123.1234 }) {
+        for (double d : new double[] {0.0, 1.0, -1.0, 123.1234, -123.1234}) {
             testSignedNumberSpec(conn, d);
         }
     }
@@ -150,7 +150,7 @@ public class CbrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void testUnsignedNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, 123.1234 }) {
+        for (double d : new double[] {0.0, 1.0, 123.1234}) {
             testUnsignedNumberSpec(conn, d);
         }
     }

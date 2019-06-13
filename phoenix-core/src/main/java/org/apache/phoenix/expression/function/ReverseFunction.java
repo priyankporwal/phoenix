@@ -32,11 +32,11 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.util.StringUtil;
 
-@BuiltInFunction(name=ReverseFunction.NAME,  args={
-        @Argument(allowedTypes={PVarchar.class})} )
+@BuiltInFunction(name = ReverseFunction.NAME, args = {
+        @Argument(allowedTypes = {PVarchar.class})})
 public class ReverseFunction extends ScalarFunction {
     public static final String NAME = "REVERSE";
-    
+
     public ReverseFunction() {
     }
 
@@ -58,7 +58,7 @@ public class ReverseFunction extends ScalarFunction {
 
         byte[] source = ptr.get();
         byte[] target = new byte[targetOffset];
-        int sourceOffset = ptr.getOffset(); 
+        int sourceOffset = ptr.getOffset();
         int endOffset = sourceOffset + ptr.getLength();
         SortOrder sortOrder = arg.getSortOrder();
         while (sourceOffset < endOffset) {

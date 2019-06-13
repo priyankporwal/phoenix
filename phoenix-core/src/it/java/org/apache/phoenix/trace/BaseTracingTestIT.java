@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -72,7 +72,9 @@ public class BaseTracingTestIT extends ParallelStatsDisabledIT {
     @After
     public void cleanUp() {
         Trace.removeReceiver(traceSpanReceiver);
-        if (testTraceWriter != null) testTraceWriter.stop();
+        if (testTraceWriter != null) {
+            testTraceWriter.stop();
+        }
     }
 
     public static Connection getConnectionWithoutTracing() throws SQLException {
@@ -86,11 +88,11 @@ public class BaseTracingTestIT extends ParallelStatsDisabledIT {
     }
 
     public static Connection getTracingConnection() throws Exception {
-        return getTracingConnection(Collections.<String, String> emptyMap(), null);
+        return getTracingConnection(Collections.<String, String>emptyMap(), null);
     }
 
     public static Connection getTracingConnection(Map<String, String> customAnnotations,
-            String tenantId) throws Exception {
+                                                  String tenantId) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         for (Map.Entry<String, String> annot : customAnnotations.entrySet()) {
             props.put(ANNOTATION_ATTRIB_PREFIX + annot.getKey(), annot.getValue());
@@ -102,17 +104,17 @@ public class BaseTracingTestIT extends ParallelStatsDisabledIT {
     }
 
     public static Connection getConnectionWithTracingFrequency(Properties props,
-            Tracing.Frequency frequency) throws SQLException {
+                                                               Tracing.Frequency frequency) throws SQLException {
         Tracing.setSampling(props, frequency);
         return DriverManager.getConnection(getUrl(), props);
     }
 
     protected Span createNewSpan(long traceid, long parentid, long spanid, String description,
-            long startTime, long endTime, String processid, String... tags) {
+                                 long startTime, long endTime, String processid, String... tags) {
 
         Span span =
                 new MilliSpan.Builder().description(description).traceId(traceid)
-                        .parents(new long[] { parentid }).spanId(spanid).processId(processid)
+                        .parents(new long[] {parentid}).spanId(spanid).processId(processid)
                         .begin(startTime).end(endTime).build();
 
         int tagCount = 0;
@@ -165,7 +167,9 @@ public class BaseTracingTestIT extends ParallelStatsDisabledIT {
         }
 
         public void stop() {
-            if (executor == null) return;
+            if (executor == null) {
+                return;
+            }
             try {
                 executor.shutdownNow();
                 executor.awaitTermination(5, TimeUnit.SECONDS);

@@ -48,38 +48,38 @@ import com.google.common.primitives.Longs;
  */
 public class LocalTable implements LocalHBaseState {
 
-  private RegionCoprocessorEnvironment env;
+    private RegionCoprocessorEnvironment env;
 
-  public LocalTable(RegionCoprocessorEnvironment env) {
-    this.env = env;
-  }
-
-  @Override
-  public Result getCurrentRowState(Mutation m, Collection<? extends ColumnReference> columns, boolean ignoreNewerMutations)
-      throws IOException {
-    byte[] row = m.getRow();
-    // need to use a scan here so we can get raw state, which Get doesn't provide.
-    Scan s = IndexManagementUtil.newLocalStateScan(Collections.singletonList(columns));
-    s.setStartRow(row);
-    s.setStopRow(row);
-    if (ignoreNewerMutations) {
-        // Provides a means of client indicating that newer cells should not be considered,
-        // enabling mutations to be replayed to partially rebuild the index when a write fails.
-        // When replaying mutations we want the oldest timestamp (as anything newer we be replayed)
-        long ts = getOldestTimestamp(m.getFamilyCellMap().values());
-        s.setTimeRange(0,ts);
+    public LocalTable(RegionCoprocessorEnvironment env) {
+        this.env = env;
     }
-    Region region = this.env.getRegion();
-    try (RegionScanner scanner = region.getScanner(s)) {
-      List<Cell> kvs = new ArrayList<Cell>(1);
-      boolean more = scanner.next(kvs);
-      assert !more : "Got more than one result when scanning"
-          + " a single row in the primary table!";
 
-      Result r = Result.create(kvs);
-      return r;
+    @Override
+    public Result getCurrentRowState(Mutation m, Collection<? extends ColumnReference> columns, boolean ignoreNewerMutations)
+            throws IOException {
+        byte[] row = m.getRow();
+        // need to use a scan here so we can get raw state, which Get doesn't provide.
+        Scan s = IndexManagementUtil.newLocalStateScan(Collections.singletonList(columns));
+        s.setStartRow(row);
+        s.setStopRow(row);
+        if (ignoreNewerMutations) {
+            // Provides a means of client indicating that newer cells should not be considered,
+            // enabling mutations to be replayed to partially rebuild the index when a write fails.
+            // When replaying mutations we want the oldest timestamp (as anything newer we be replayed)
+            long ts = getOldestTimestamp(m.getFamilyCellMap().values());
+            s.setTimeRange(0, ts);
+        }
+        Region region = this.env.getRegion();
+        try (RegionScanner scanner = region.getScanner(s)) {
+            List<Cell> kvs = new ArrayList<Cell>(1);
+            boolean more = scanner.next(kvs);
+            assert !more :"Got more than one result when scanning"
+                    + " a single row in the primary table!";
+
+            Result r = Result.create(kvs);
+            return r;
+        }
     }
-  }
 
     // Returns the smallest timestamp in the given cell lists.
     // It is assumed that the lists have cells ordered from largest to smallest timestamp
@@ -89,7 +89,7 @@ public class LocalTable implements LocalHBaseState {
             public int compare(List<Cell> left, List<Cell> right) {
                 // compare the last element of each list, since that is the smallest in that list
                 return Longs.compare(Iterables.getLast(left).getTimestamp(),
-                    Iterables.getLast(right).getTimestamp());
+                        Iterables.getLast(right).getTimestamp());
             }
         };
         List<Cell> minList = cellListOrdering.min(cellLists);

@@ -44,6 +44,7 @@ public class RowCalculator {
 
     /**
      * Get the number of row that should fit into each bucket.
+     *
      * @return
      */
     public int getRowsPerBucket() {
@@ -52,6 +53,7 @@ public class RowCalculator {
 
     /**
      * Get the number of extra rows that need to be added if rows don't divide evenly among the buckets.
+     *
      * @return
      */
     public int getExtraRowCount() {

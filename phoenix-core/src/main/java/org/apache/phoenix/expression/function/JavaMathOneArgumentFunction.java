@@ -52,8 +52,12 @@ public abstract class JavaMathOneArgumentFunction extends ScalarFunction {
         PDataType returnType = getDataType();
 
         Expression arg1Expr = children.get(0);
-        if (!arg1Expr.evaluate(tuple, ptr)) return false;
-        if (ptr.getLength() == 0) return true;
+        if (!arg1Expr.evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
         double arg1 = getArg(arg1Expr, ptr);
 
         ptr.set(new byte[returnType.getByteSize()]);

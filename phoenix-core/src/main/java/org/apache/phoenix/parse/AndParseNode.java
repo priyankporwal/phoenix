@@ -24,13 +24,9 @@ import java.util.List;
 import org.apache.phoenix.compile.ColumnResolver;
 
 
-
-
 /**
- * 
  * Node representing AND in a SQL expression
  *
- * 
  * @since 0.1
  */
 public class AndParseNode extends CompoundParseNode {
@@ -48,13 +44,13 @@ public class AndParseNode extends CompoundParseNode {
         }
         return visitor.visitLeave(this, l);
     }
-    
+
     @Override
     public void toSQL(ColumnResolver resolver, StringBuilder buf) {
         buf.append('(');
         List<ParseNode> children = getChildren();
         children.get(0).toSQL(resolver, buf);
-        for (int i = 1 ; i < children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             buf.append(" " + NAME + " ");
             children.get(i).toSQL(resolver, buf);
         }

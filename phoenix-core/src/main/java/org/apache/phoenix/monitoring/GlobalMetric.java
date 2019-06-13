@@ -21,10 +21,10 @@ package org.apache.phoenix.monitoring;
  * Class that exposes the various internal phoenix metrics collected
  * at the JVM level. Because metrics are dynamic in nature, it is not guaranteed that the
  * state exposed will always be in sync with each other. One should use
- * these metrics primarily for monitoring and debugging purposes. 
+ * these metrics primarily for monitoring and debugging purposes.
  */
 public interface GlobalMetric extends Metric {
-    
+
     /**
      * @return Number of samples collected since the last {@link #reset()} call.
      */

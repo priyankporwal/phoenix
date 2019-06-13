@@ -78,10 +78,10 @@ public class HashJoinRegionScanner implements RegionScanner {
                                  HashJoinInfo joinInfo, ImmutableBytesPtr tenantId,
                                  RegionCoprocessorEnvironment env, boolean useQualifierAsIndex,
                                  boolean useNewValueColumnQualifier)
-        throws IOException {
+            throws IOException {
 
         this(env, scanner, null, null, projector, joinInfo,
-             tenantId, useQualifierAsIndex, useNewValueColumnQualifier);
+                tenantId, useQualifierAsIndex, useNewValueColumnQualifier);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,7 +90,7 @@ public class HashJoinRegionScanner implements RegionScanner {
                                  final Expression[] arrayFuncRefs, TupleProjector projector,
                                  HashJoinInfo joinInfo, ImmutableBytesPtr tenantId,
                                  boolean useQualifierAsIndex, boolean useNewValueColumnQualifier)
-        throws IOException {
+            throws IOException {
 
         this.env = env;
         this.scanner = scanner;
@@ -101,8 +101,9 @@ public class HashJoinRegionScanner implements RegionScanner {
         this.count = 0;
         this.limit = Long.MAX_VALUE;
         for (JoinType type : joinInfo.getJoinTypes()) {
-            if (type != JoinType.Inner && type != JoinType.Left && type != JoinType.Semi && type != JoinType.Anti)
+            if (type != JoinType.Inner && type != JoinType.Left && type != JoinType.Semi && type != JoinType.Anti) {
                 throw new DoNotRetryIOException("Got join type '" + type + "'. Expect only INNER or LEFT with hash-joins.");
+            }
         }
         if (joinInfo.getLimit() != null) {
             this.limit = joinInfo.getLimit();
@@ -120,7 +121,7 @@ public class HashJoinRegionScanner implements RegionScanner {
                 tempTuples[i] = null;
                 continue;
             }
-            HashCache hashCache = (HashCache)cache.getServerCache(joinId);
+            HashCache hashCache = (HashCache) cache.getServerCache(joinId);
             if (hashCache == null) {
                 Exception cause = new HashJoinCacheNotFoundException(Bytes.toLong(joinId.get()));
                 throw new DoNotRetryIOException(cause.getMessage(), cause);
@@ -136,12 +137,13 @@ public class HashJoinRegionScanner implements RegionScanner {
         this.useQualifierAsListIndex = useQualifierAsIndex;
         this.useNewValueColumnQualifier = useNewValueColumnQualifier;
         this.addArrayCell = (arrayFuncRefs != null && arrayFuncRefs.length > 0 &&
-                             arrayKVRefs != null && arrayKVRefs.size() > 0);
+                arrayKVRefs != null && arrayKVRefs.size() > 0);
     }
 
     private void processResults(List<Cell> result, boolean hasBatchLimit) throws IOException {
-        if (result.isEmpty())
+        if (result.isEmpty()) {
             return;
+        }
         Tuple tuple = useQualifierAsListIndex ? new PositionBasedResultTuple(result) : new ResultTuple(Result.create(result));
         boolean projected = false;
 
@@ -153,14 +155,16 @@ public class HashJoinRegionScanner implements RegionScanner {
         }
 
         // TODO: fix below Scanner.next() and Scanner.nextRaw() methods as well.
-        if (hasBatchLimit)
+        if (hasBatchLimit) {
             throw new UnsupportedOperationException("Cannot support join operations in scans with limit");
+        }
 
         int count = joinInfo.getJoinIds().length;
         boolean cont = true;
         for (int i = 0; i < count; i++) {
-            if (!(joinInfo.earlyEvaluation()[i]) || hashCaches[i] == null)
+            if (!(joinInfo.earlyEvaluation()[i]) || hashCaches[i] == null) {
                 continue;
+            }
             ImmutableBytesPtr key = TupleUtil.getConcatenatedValue(tuple, joinInfo.getJoinExpressions()[i]);
             tempTuples[i] = hashCaches[i].get(key);
             JoinType type = joinInfo.getJoinTypes()[i];
@@ -189,8 +193,9 @@ public class HashJoinRegionScanner implements RegionScanner {
                 for (int i = 0; i < count; i++) {
                     boolean earlyEvaluation = joinInfo.earlyEvaluation()[i];
                     JoinType type = joinInfo.getJoinTypes()[i];
-                    if (earlyEvaluation && (type == JoinType.Semi || type == JoinType.Anti))
+                    if (earlyEvaluation && (type == JoinType.Semi || type == JoinType.Anti)) {
                         continue;
+                    }
                     int j = resultQueue.size();
                     while (j-- > 0) {
                         Tuple lhs = resultQueue.poll();
@@ -209,18 +214,18 @@ public class HashJoinRegionScanner implements RegionScanner {
                         if (tempTuples[i] == null) {
                             Tuple joined = tempSrcBitSet[i] == ValueBitSet.EMPTY_VALUE_BITSET ?
                                     lhs : mergeProjectedValue(
-                                            lhs, schema, tempDestBitSet, null,
-                                            joinInfo.getSchemas()[i], tempSrcBitSet[i],
-                                            joinInfo.getFieldPositions()[i]);
+                                    lhs, schema, tempDestBitSet, null,
+                                    joinInfo.getSchemas()[i], tempSrcBitSet[i],
+                                    joinInfo.getFieldPositions()[i]);
                             offerResult(joined, projected, result);
                             continue;
                         }
                         for (Tuple t : tempTuples[i]) {
                             Tuple joined = tempSrcBitSet[i] == ValueBitSet.EMPTY_VALUE_BITSET ?
                                     lhs : mergeProjectedValue(
-                                            lhs, schema, tempDestBitSet, t,
-                                            joinInfo.getSchemas()[i], tempSrcBitSet[i],
-                                            joinInfo.getFieldPositions()[i]);
+                                    lhs, schema, tempDestBitSet, t,
+                                    joinInfo.getSchemas()[i], tempSrcBitSet[i],
+                                    joinInfo.getFieldPositions()[i]);
                             offerResult(joined, projected, result);
                         }
                     }
@@ -229,7 +234,7 @@ public class HashJoinRegionScanner implements RegionScanner {
             // apply post-join filter
             Expression postFilter = joinInfo.getPostJoinFilterExpression();
             if (postFilter != null) {
-                for (Iterator<Tuple> iter = resultQueue.iterator(); iter.hasNext();) {
+                for (Iterator<Tuple> iter = resultQueue.iterator(); iter.hasNext(); ) {
                     Tuple t = iter.next();
                     postFilter.reset();
                     ImmutableBytesPtr tempPtr = new ImmutableBytesPtr();
@@ -242,7 +247,7 @@ public class HashJoinRegionScanner implements RegionScanner {
                         iter.remove();
                         continue;
                     }
-                    Boolean b = (Boolean)postFilter.getDataType().toObject(tempPtr);
+                    Boolean b = (Boolean) postFilter.getDataType().toObject(tempPtr);
                     if (!Boolean.TRUE.equals(b)) {
                         iter.remove();
                     }
@@ -252,8 +257,9 @@ public class HashJoinRegionScanner implements RegionScanner {
     }
 
     private boolean shouldAdvance() {
-        if (!resultQueue.isEmpty())
+        if (!resultQueue.isEmpty()) {
             return false;
+        }
 
         return hasMore;
     }
@@ -358,21 +364,21 @@ public class HashJoinRegionScanner implements RegionScanner {
     // PHOENIX-4917 Merge array element cell through hash join.
     // Merge into first cell, then reattach array cell.
     private Tuple mergeProjectedValue(
-        Tuple dest, KeyValueSchema destSchema, ValueBitSet destBitSet, Tuple src,
-        KeyValueSchema srcSchema, ValueBitSet srcBitSet, int offset)
-        throws IOException {
+            Tuple dest, KeyValueSchema destSchema, ValueBitSet destBitSet, Tuple src,
+            KeyValueSchema srcSchema, ValueBitSet srcBitSet, int offset)
+            throws IOException {
 
         if (dest instanceof ProjectedValueTuple) {
             return TupleProjector.mergeProjectedValue(
-                (ProjectedValueTuple) dest, destBitSet, src,
-                srcBitSet, offset, useNewValueColumnQualifier);
+                    (ProjectedValueTuple) dest, destBitSet, src,
+                    srcBitSet, offset, useNewValueColumnQualifier);
         }
 
         ProjectedValueTuple first = projector.projectResults(
-            new SingleKeyValueTuple(dest.getValue(0)));
+                new SingleKeyValueTuple(dest.getValue(0)));
         ProjectedValueTuple merged = TupleProjector.mergeProjectedValue(
-            first, destBitSet, src,
-            srcBitSet, offset, useNewValueColumnQualifier);
+                first, destBitSet, src,
+                srcBitSet, offset, useNewValueColumnQualifier);
 
         int size = dest.size();
         if (size == 1) {

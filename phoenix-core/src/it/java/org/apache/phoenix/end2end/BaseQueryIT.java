@@ -35,12 +35,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 
-
 /**
- * 
  * Basic tests for Phoenix JDBC implementation
  *
- * 
  * @since 0.1
  */
 
@@ -58,7 +55,7 @@ public abstract class BaseQueryIT extends ParallelStatsDisabledIT {
                             + "    A_DATE)",
                     "CREATE INDEX %s ON %s (a_integer) INCLUDE (" + "    A_STRING, "
                             + "    B_STRING, " + "    A_DATE)",
-                    NO_INDEX };
+                    NO_INDEX};
     protected static final String[] LOCAL_INDEX_DDLS =
             new String[] {
                     "CREATE LOCAL INDEX %s ON %s (a_integer DESC) INCLUDE (" + "    A_STRING, "
@@ -66,8 +63,9 @@ public abstract class BaseQueryIT extends ParallelStatsDisabledIT {
                     "CREATE LOCAL INDEX %s ON %s (a_integer, a_string) INCLUDE (" + "    B_STRING, "
                             + "    A_DATE)",
                     "CREATE LOCAL INDEX %s ON %s (a_integer) INCLUDE (" + "    A_STRING, "
-                            + "    B_STRING, " + "    A_DATE)" };
+                            + "    B_STRING, " + "    A_DATE)"};
     protected static String[] INDEX_DDLS;
+
     static {
         INDEX_DDLS = new String[GLOBAL_INDEX_DDLS.length + LOCAL_INDEX_DDLS.length];
         int i = 0;
@@ -78,6 +76,7 @@ public abstract class BaseQueryIT extends ParallelStatsDisabledIT {
             INDEX_DDLS[i++] = s;
         }
     }
+
     protected Date date;
     private String indexDDL;
     private String tableDDLOptions;
@@ -92,15 +91,17 @@ public abstract class BaseQueryIT extends ParallelStatsDisabledIT {
             optionBuilder.append("COLUMN_ENCODED_BYTES=0");
         }
         if (keepDeletedCells) {
-            if (optionBuilder.length() > 0) optionBuilder.append(",");
+            if (optionBuilder.length() > 0) {
+                optionBuilder.append(",");
+            }
             optionBuilder.append("KEEP_DELETED_CELLS=true");
         }
         this.tableDDLOptions = optionBuilder.toString();
         try {
             this.tableName =
                     initATableValues(generateUniqueName(), tenantId, getDefaultSplits(tenantId),
-                        date = new Date(System.currentTimeMillis()), null, getUrl(),
-                        tableDDLOptions);
+                            date = new Date(System.currentTimeMillis()), null, getUrl(),
+                            tableDDLOptions);
         } catch (Exception e) {
             LOGGER.error("Exception when creating aTable ", e);
             throw e;
@@ -122,8 +123,8 @@ public abstract class BaseQueryIT extends ParallelStatsDisabledIT {
     public static Collection<Object> allIndexes() {
         List<Object> testCases = Lists.newArrayList();
         for (String indexDDL : INDEX_DDLS) {
-            for (boolean columnEncoded : new boolean[]{false}) {
-                testCases.add(new Object[] { indexDDL, columnEncoded });
+            for (boolean columnEncoded : new boolean[] {false}) {
+                testCases.add(new Object[] {indexDDL, columnEncoded});
             }
         }
         return testCases;

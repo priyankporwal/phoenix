@@ -38,7 +38,7 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
 
     public static void initTableValues(Connection conn, String tableName) throws Exception {
         conn.createStatement().execute(
-            "create table " + tableName + " (l bigint not null primary key, b boolean)");
+                "create table " + tableName + " (l bigint not null primary key, b boolean)");
         PreparedStatement stmt = conn.prepareStatement(
                 "upsert into " + tableName + " VALUES(?)");
         stmt.setLong(1, 2);
@@ -55,14 +55,14 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(2, rs.getLong(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCompareLongGTEDecimal() throws Exception {
         String tableName = generateUniqueName();
@@ -77,16 +77,16 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(2, rs.getLong(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCompareLongLTDecimal() throws Exception {
         String tableName = generateUniqueName();
@@ -101,7 +101,7 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
             assertFalse(rs.next());
         } finally {
@@ -123,13 +123,14 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
+
     @Test
     public void testCompareLongGTDecimal2() throws Exception {
         String tableName = generateUniqueName();
@@ -144,14 +145,14 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCompareLongGTEDecimal2() throws Exception {
         String tableName = generateUniqueName();
@@ -166,14 +167,14 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testCompareLongLTDecimal2() throws Exception {
         String tableName = generateUniqueName();
@@ -188,9 +189,9 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(2, rs.getLong(1));
             assertFalse(rs.next());
         } finally {
@@ -212,16 +213,16 @@ public class PrimitiveTypeIT extends ParallelStatsDisabledIT {
              *  when forming the start/stop key.
              *  For this case, 1.5 -> 1L
              *  if where l < 1.5 then 1.5 -> 1L and then to 2L because it's not inclusive
-             *  
+             *
              */
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(2, rs.getLong(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testBooleanAsObject() throws Exception {
         String tableName = generateUniqueName();

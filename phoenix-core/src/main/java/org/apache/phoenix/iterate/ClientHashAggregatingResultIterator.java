@@ -48,16 +48,14 @@ import org.apache.phoenix.util.SizedUtil;
 import org.apache.phoenix.util.TupleUtil;
 
 /**
- * 
  * This class implements client-side hash aggregation in memory.
  * Issue https://issues.apache.org/jira/browse/PHOENIX-4751.
- * 
  */
 public class ClientHashAggregatingResultIterator
-    implements AggregatingResultIterator {
+        implements AggregatingResultIterator {
 
-    private static final int HASH_AGG_INIT_SIZE = 64*1024;
-    private static final int CLIENT_HASH_AGG_MEMORY_CHUNK_SIZE = 64*1024;
+    private static final int HASH_AGG_INIT_SIZE = 64 * 1024;
+    private static final int CLIENT_HASH_AGG_MEMORY_CHUNK_SIZE = 64 * 1024;
     private static final byte[] UNITIALIZED_KEY_BUFFER = new byte[0];
     private final ResultIterator resultIterator;
     private final Aggregators aggregators;
@@ -144,10 +142,10 @@ public class ClientHashAggregatingResultIterator
     }
 
     @Override
-        public String toString() {
+    public String toString() {
         return "ClientHashAggregatingResultIterator [resultIterator="
-            + resultIterator + ", aggregators=" + aggregators + ", groupByExpressions="
-            + groupByExpressions + "]";
+                + resultIterator + ", aggregators=" + aggregators + ", groupByExpressions="
+                + groupByExpressions + "]";
     }
 
     // Copied from ClientGroupedAggregatingResultIterator
@@ -163,7 +161,7 @@ public class ClientHashAggregatingResultIterator
 
     // Copied from ClientGroupedAggregatingResultIterator
     protected Tuple wrapKeyValueAsResult(Cell keyValue) {
-        return new MultiKeyValueTuple(Collections.<Cell> singletonList(keyValue));
+        return new MultiKeyValueTuple(Collections.<Cell>singletonList(keyValue));
     }
 
     private HashMap<ImmutableBytesWritable, Aggregator[]> populateHash() throws SQLException {

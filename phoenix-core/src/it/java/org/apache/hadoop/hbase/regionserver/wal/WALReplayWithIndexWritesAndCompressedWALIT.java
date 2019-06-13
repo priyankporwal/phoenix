@@ -91,225 +91,227 @@ import org.slf4j.LoggerFactory;
 @Ignore
 public class WALReplayWithIndexWritesAndCompressedWALIT {
 
-  public static final Logger LOGGER =
-          LoggerFactory.getLogger(WALReplayWithIndexWritesAndCompressedWALIT.class);
-  @Rule
-  public IndexTableName table = new IndexTableName();
-  private String INDEX_TABLE_NAME = table.getTableNameString() + "_INDEX";
+    public static final Logger LOGGER =
+            LoggerFactory.getLogger(WALReplayWithIndexWritesAndCompressedWALIT.class);
+    @Rule
+    public IndexTableName table = new IndexTableName();
+    private String INDEX_TABLE_NAME = table.getTableNameString() + "_INDEX";
 
-  final HBaseTestingUtility UTIL = new HBaseTestingUtility();
-  private Path hbaseRootDir = null;
-  private Path oldLogDir;
-  private Path logDir;
-  private FileSystem fs;
-  private Configuration conf;
+    final HBaseTestingUtility UTIL = new HBaseTestingUtility();
+    private Path hbaseRootDir = null;
+    private Path oldLogDir;
+    private Path logDir;
+    private FileSystem fs;
+    private Configuration conf;
 
-  @Before
-  public void setUp() throws Exception {
-    setupCluster();
-    this.conf = HBaseConfiguration.create(UTIL.getConfiguration());
-    this.conf.setBoolean(QueryServices.INDEX_FAILURE_THROW_EXCEPTION_ATTRIB, false);
-    this.fs = UTIL.getDFSCluster().getFileSystem();
-    this.hbaseRootDir = new Path(this.conf.get(HConstants.HBASE_DIR));
-    this.oldLogDir = new Path(this.hbaseRootDir, HConstants.HREGION_OLDLOGDIR_NAME);
-    this.logDir = new Path(this.hbaseRootDir, HConstants.HREGION_LOGDIR_NAME);
-  }
-
-  private void setupCluster() throws Exception {
-    configureCluster();
-    startCluster();
-  }
-
-  protected void configureCluster() throws Exception {
-    Configuration conf = UTIL.getConfiguration();
-    setDefaults(conf);
-
-    // enable WAL compression
-    conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
-    // set replication required parameter
-    ConfigUtil.setReplicationConfigIfAbsent(conf);
-  }
-
-  protected final void setDefaults(Configuration conf) {
-    // make sure writers fail quickly
-    conf.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER, 3);
-    conf.setInt(HConstants.HBASE_CLIENT_PAUSE, 1000);
-    conf.setInt("zookeeper.recovery.retry", 3);
-    conf.setInt("zookeeper.recovery.retry.intervalmill", 100);
-    conf.setInt(HConstants.ZK_SESSION_TIMEOUT, 30000);
-    conf.setInt(HConstants.HBASE_RPC_TIMEOUT_KEY, 5000);
-    // enable appends
-    conf.setBoolean("dfs.support.append", true);
-    IndexTestingUtils.setupConfig(conf);
-  }
-
-  protected void startCluster() throws Exception {
-    UTIL.startMiniDFSCluster(3);
-    UTIL.startMiniZKCluster();
-
-    Path hbaseRootDir = UTIL.getDFSCluster().getFileSystem().makeQualified(new Path("/hbase"));
-    LOGGER.info("hbase.rootdir=" + hbaseRootDir);
-    UTIL.getConfiguration().set(HConstants.HBASE_DIR, hbaseRootDir.toString());
-    UTIL.startMiniHBaseCluster(1, 1);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    UTIL.shutdownMiniHBaseCluster();
-    UTIL.shutdownMiniDFSCluster();
-    UTIL.shutdownMiniZKCluster();
-  }
-
-
-  private void deleteDir(final Path p) throws IOException {
-    if (this.fs.exists(p)) {
-      if (!this.fs.delete(p, true)) {
-        throw new IOException("Failed remove of " + p);
-      }
+    @Before
+    public void setUp() throws Exception {
+        setupCluster();
+        this.conf = HBaseConfiguration.create(UTIL.getConfiguration());
+        this.conf.setBoolean(QueryServices.INDEX_FAILURE_THROW_EXCEPTION_ATTRIB, false);
+        this.fs = UTIL.getDFSCluster().getFileSystem();
+        this.hbaseRootDir = new Path(this.conf.get(HConstants.HBASE_DIR));
+        this.oldLogDir = new Path(this.hbaseRootDir, HConstants.HREGION_OLDLOGDIR_NAME);
+        this.logDir = new Path(this.hbaseRootDir, HConstants.HREGION_LOGDIR_NAME);
     }
-  }
 
-  /**
-   * Test writing edits into an region, closing it, splitting logs, opening Region again. Verify
-   * seqids.
-   * @throws Exception on failure
-   */
-@Test
-  public void testReplayEditsWrittenViaHRegion() throws Exception {
-    final String tableNameStr = "testReplayEditsWrittenViaHRegion";
-    final RegionInfo hri = RegionInfoBuilder.newBuilder(org.apache.hadoop.hbase.TableName.valueOf(tableNameStr)).setSplit(false).build();
-    final Path basedir = FSUtils.getTableDir(hbaseRootDir, org.apache.hadoop.hbase.TableName.valueOf(tableNameStr));
-    deleteDir(basedir);
-    final TableDescriptor htd = createBasic3FamilyHTD(tableNameStr);
-    
-    //setup basic indexing for the table
-    // enable indexing to a non-existant index table
-    byte[] family = new byte[] { 'a' };
-    ColumnGroup fam1 = new ColumnGroup(INDEX_TABLE_NAME);
-    fam1.add(new CoveredColumn(family, CoveredColumn.ALL_QUALIFIERS));
-    CoveredColumnIndexSpecifierBuilder builder = new CoveredColumnIndexSpecifierBuilder();
-    builder.addIndexGroup(fam1);
-    builder.build(htd);
-    WALFactory walFactory = new WALFactory(this.conf, "localhost,1234");
-
-    WAL wal = createWAL(this.conf, walFactory);
-    // create the region + its WAL
-    HRegion region0 = HRegion.createHRegion(hri, hbaseRootDir, this.conf, htd, wal); // FIXME: Uses private type
-    region0.close();
-    region0.getWAL().close();
-
-    HRegionServer mockRS = Mockito.mock(HRegionServer.class);
-    // mock out some of the internals of the RSS, so we can run CPs
-    when(mockRS.getWAL(null)).thenReturn(wal);
-    RegionServerAccounting rsa = Mockito.mock(RegionServerAccounting.class);
-    when(mockRS.getRegionServerAccounting()).thenReturn(rsa);
-    ServerName mockServerName = Mockito.mock(ServerName.class);
-    when(mockServerName.getServerName()).thenReturn(tableNameStr + ",1234");
-    when(mockRS.getServerName()).thenReturn(mockServerName);
-    HRegion region = spy(new HRegion(basedir, wal, this.fs, this.conf, hri, htd, mockRS));
-    region.initialize();
-
-
-    //make an attempted write to the primary that should also be indexed
-    byte[] rowkey = Bytes.toBytes("indexed_row_key");
-    Put p = new Put(rowkey);
-    p.addColumn(family, Bytes.toBytes("qual"), Bytes.toBytes("value"));
-    region.put(p);
-
-    // we should then see the server go down
-    Mockito.verify(mockRS, Mockito.times(1)).abort(Mockito.anyString(),
-      Mockito.any(Exception.class));
-
-    // then create the index table so we are successful on WAL replay
-    TestIndexManagementUtil.createIndexTable(UTIL.getAdmin(), INDEX_TABLE_NAME);
-
-    // run the WAL split and setup the region
-    runWALSplit(this.conf, walFactory);
-    WAL wal2 = createWAL(this.conf, walFactory);
-    HRegion region1 = new HRegion(basedir, wal2, this.fs, this.conf, hri, htd, mockRS);
-
-    // initialize the region - this should replay the WALEdits from the WAL
-    region1.initialize();
-    org.apache.hadoop.hbase.client.Connection hbaseConn =
-            ConnectionFactory.createConnection(UTIL.getConfiguration());
-
-    // now check to ensure that we wrote to the index table
-    Table index = hbaseConn.getTable(org.apache.hadoop.hbase.TableName.valueOf(INDEX_TABLE_NAME));
-    int indexSize = getKeyValueCount(index);
-    assertEquals("Index wasn't propertly updated from WAL replay!", 1, indexSize);
-    Get g = new Get(rowkey);
-    final Result result = region1.get(g);
-    assertEquals("Primary region wasn't updated from WAL replay!", 1, result.size());
-
-    // cleanup the index table
-    Admin admin = UTIL.getAdmin();
-    admin.disableTable(TableName.valueOf(INDEX_TABLE_NAME));
-    admin.deleteTable(TableName.valueOf(INDEX_TABLE_NAME));
-    admin.close();
-  }
-
-  /**
-   * Create simple HTD with three families: 'a', 'b', and 'c'
-   * @param tableName name of the table descriptor
-   * @return
-   */
-  private TableDescriptor createBasic3FamilyHTD(final String tableName) {
-    TableDescriptorBuilder tableBuilder = TableDescriptorBuilder.newBuilder(TableName.valueOf(tableName));
-    ColumnFamilyDescriptor  a = ColumnFamilyDescriptorBuilder.of(Bytes.toBytes("a"));
-    tableBuilder.addColumnFamily(a);
-    ColumnFamilyDescriptor b = ColumnFamilyDescriptorBuilder.of(Bytes.toBytes("b"));
-    tableBuilder.addColumnFamily(b);
-    ColumnFamilyDescriptor c = ColumnFamilyDescriptorBuilder.of(Bytes.toBytes("c"));
-    tableBuilder.addColumnFamily(c);
-    return tableBuilder.build();
-  }
-
-  /*
-   * @param c
-   * @return WAL with retries set down from 5 to 1 only.
-   * @throws IOException
-   */
-  private WAL createWAL(final Configuration c, WALFactory walFactory) throws IOException {
-    WAL wal = walFactory.getWAL(null);
-
-    // Set down maximum recovery so we dfsclient doesn't linger retrying something
-    // long gone.
-    HBaseTestingUtility.setMaxRecoveryErrorCount(((FSHLog) wal).getOutputStream(), 1);
-    return wal;
-  }
-
-  /*
-   * Run the split. Verify only single split file made.
-   * @param c
-   * @return The single split file made
-   * @throws IOException
-   */
-  private Path runWALSplit(final Configuration c, WALFactory walFactory) throws IOException {
-    FileSystem fs = FileSystem.get(c);
-    
-    List<Path> splits = WALSplitter.split(this.hbaseRootDir, new Path(this.logDir, "localhost,1234"),
-        this.oldLogDir, fs, c, walFactory);
-    // Split should generate only 1 file since there's only 1 region
-    assertEquals("splits=" + splits, 1, splits.size());
-    // Make sure the file exists
-    assertTrue(fs.exists(splits.get(0)));
-    LOGGER.info("Split file=" + splits.get(0));
-    return splits.get(0);
-  }
-
-  @SuppressWarnings("deprecation")
-private int getKeyValueCount(Table table) throws IOException {
-    Scan scan = new Scan();
-    scan.setMaxVersions(Integer.MAX_VALUE - 1);
-
-    ResultScanner results = table.getScanner(scan);
-    int count = 0;
-    for (Result res : results) {
-      count += res.listCells().size();
-      LOGGER.debug(count + ") " + res);
+    private void setupCluster() throws Exception {
+        configureCluster();
+        startCluster();
     }
-    results.close();
 
-    return count;
-  }
+    protected void configureCluster() throws Exception {
+        Configuration conf = UTIL.getConfiguration();
+        setDefaults(conf);
+
+        // enable WAL compression
+        conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
+        // set replication required parameter
+        ConfigUtil.setReplicationConfigIfAbsent(conf);
+    }
+
+    protected final void setDefaults(Configuration conf) {
+        // make sure writers fail quickly
+        conf.setInt(HConstants.HBASE_CLIENT_RETRIES_NUMBER, 3);
+        conf.setInt(HConstants.HBASE_CLIENT_PAUSE, 1000);
+        conf.setInt("zookeeper.recovery.retry", 3);
+        conf.setInt("zookeeper.recovery.retry.intervalmill", 100);
+        conf.setInt(HConstants.ZK_SESSION_TIMEOUT, 30000);
+        conf.setInt(HConstants.HBASE_RPC_TIMEOUT_KEY, 5000);
+        // enable appends
+        conf.setBoolean("dfs.support.append", true);
+        IndexTestingUtils.setupConfig(conf);
+    }
+
+    protected void startCluster() throws Exception {
+        UTIL.startMiniDFSCluster(3);
+        UTIL.startMiniZKCluster();
+
+        Path hbaseRootDir = UTIL.getDFSCluster().getFileSystem().makeQualified(new Path("/hbase"));
+        LOGGER.info("hbase.rootdir=" + hbaseRootDir);
+        UTIL.getConfiguration().set(HConstants.HBASE_DIR, hbaseRootDir.toString());
+        UTIL.startMiniHBaseCluster(1, 1);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        UTIL.shutdownMiniHBaseCluster();
+        UTIL.shutdownMiniDFSCluster();
+        UTIL.shutdownMiniZKCluster();
+    }
+
+
+    private void deleteDir(final Path p) throws IOException {
+        if (this.fs.exists(p)) {
+            if (!this.fs.delete(p, true)) {
+                throw new IOException("Failed remove of " + p);
+            }
+        }
+    }
+
+    /**
+     * Test writing edits into an region, closing it, splitting logs, opening Region again. Verify
+     * seqids.
+     *
+     * @throws Exception on failure
+     */
+    @Test
+    public void testReplayEditsWrittenViaHRegion() throws Exception {
+        final String tableNameStr = "testReplayEditsWrittenViaHRegion";
+        final RegionInfo hri = RegionInfoBuilder.newBuilder(org.apache.hadoop.hbase.TableName.valueOf(tableNameStr)).setSplit(false).build();
+        final Path basedir = FSUtils.getTableDir(hbaseRootDir, org.apache.hadoop.hbase.TableName.valueOf(tableNameStr));
+        deleteDir(basedir);
+        final TableDescriptor htd = createBasic3FamilyHTD(tableNameStr);
+
+        //setup basic indexing for the table
+        // enable indexing to a non-existant index table
+        byte[] family = new byte[] {'a'};
+        ColumnGroup fam1 = new ColumnGroup(INDEX_TABLE_NAME);
+        fam1.add(new CoveredColumn(family, CoveredColumn.ALL_QUALIFIERS));
+        CoveredColumnIndexSpecifierBuilder builder = new CoveredColumnIndexSpecifierBuilder();
+        builder.addIndexGroup(fam1);
+        builder.build(htd);
+        WALFactory walFactory = new WALFactory(this.conf, "localhost,1234");
+
+        WAL wal = createWAL(this.conf, walFactory);
+        // create the region + its WAL
+        HRegion region0 = HRegion.createHRegion(hri, hbaseRootDir, this.conf, htd, wal); // FIXME: Uses private type
+        region0.close();
+        region0.getWAL().close();
+
+        HRegionServer mockRS = Mockito.mock(HRegionServer.class);
+        // mock out some of the internals of the RSS, so we can run CPs
+        when(mockRS.getWAL(null)).thenReturn(wal);
+        RegionServerAccounting rsa = Mockito.mock(RegionServerAccounting.class);
+        when(mockRS.getRegionServerAccounting()).thenReturn(rsa);
+        ServerName mockServerName = Mockito.mock(ServerName.class);
+        when(mockServerName.getServerName()).thenReturn(tableNameStr + ",1234");
+        when(mockRS.getServerName()).thenReturn(mockServerName);
+        HRegion region = spy(new HRegion(basedir, wal, this.fs, this.conf, hri, htd, mockRS));
+        region.initialize();
+
+
+        //make an attempted write to the primary that should also be indexed
+        byte[] rowkey = Bytes.toBytes("indexed_row_key");
+        Put p = new Put(rowkey);
+        p.addColumn(family, Bytes.toBytes("qual"), Bytes.toBytes("value"));
+        region.put(p);
+
+        // we should then see the server go down
+        Mockito.verify(mockRS, Mockito.times(1)).abort(Mockito.anyString(),
+                Mockito.any(Exception.class));
+
+        // then create the index table so we are successful on WAL replay
+        TestIndexManagementUtil.createIndexTable(UTIL.getAdmin(), INDEX_TABLE_NAME);
+
+        // run the WAL split and setup the region
+        runWALSplit(this.conf, walFactory);
+        WAL wal2 = createWAL(this.conf, walFactory);
+        HRegion region1 = new HRegion(basedir, wal2, this.fs, this.conf, hri, htd, mockRS);
+
+        // initialize the region - this should replay the WALEdits from the WAL
+        region1.initialize();
+        org.apache.hadoop.hbase.client.Connection hbaseConn =
+                ConnectionFactory.createConnection(UTIL.getConfiguration());
+
+        // now check to ensure that we wrote to the index table
+        Table index = hbaseConn.getTable(org.apache.hadoop.hbase.TableName.valueOf(INDEX_TABLE_NAME));
+        int indexSize = getKeyValueCount(index);
+        assertEquals("Index wasn't propertly updated from WAL replay!", 1, indexSize);
+        Get g = new Get(rowkey);
+        final Result result = region1.get(g);
+        assertEquals("Primary region wasn't updated from WAL replay!", 1, result.size());
+
+        // cleanup the index table
+        Admin admin = UTIL.getAdmin();
+        admin.disableTable(TableName.valueOf(INDEX_TABLE_NAME));
+        admin.deleteTable(TableName.valueOf(INDEX_TABLE_NAME));
+        admin.close();
+    }
+
+    /**
+     * Create simple HTD with three families: 'a', 'b', and 'c'
+     *
+     * @param tableName name of the table descriptor
+     * @return
+     */
+    private TableDescriptor createBasic3FamilyHTD(final String tableName) {
+        TableDescriptorBuilder tableBuilder = TableDescriptorBuilder.newBuilder(TableName.valueOf(tableName));
+        ColumnFamilyDescriptor a = ColumnFamilyDescriptorBuilder.of(Bytes.toBytes("a"));
+        tableBuilder.addColumnFamily(a);
+        ColumnFamilyDescriptor b = ColumnFamilyDescriptorBuilder.of(Bytes.toBytes("b"));
+        tableBuilder.addColumnFamily(b);
+        ColumnFamilyDescriptor c = ColumnFamilyDescriptorBuilder.of(Bytes.toBytes("c"));
+        tableBuilder.addColumnFamily(c);
+        return tableBuilder.build();
+    }
+
+    /*
+     * @param c
+     * @return WAL with retries set down from 5 to 1 only.
+     * @throws IOException
+     */
+    private WAL createWAL(final Configuration c, WALFactory walFactory) throws IOException {
+        WAL wal = walFactory.getWAL(null);
+
+        // Set down maximum recovery so we dfsclient doesn't linger retrying something
+        // long gone.
+        HBaseTestingUtility.setMaxRecoveryErrorCount(((FSHLog) wal).getOutputStream(), 1);
+        return wal;
+    }
+
+    /*
+     * Run the split. Verify only single split file made.
+     * @param c
+     * @return The single split file made
+     * @throws IOException
+     */
+    private Path runWALSplit(final Configuration c, WALFactory walFactory) throws IOException {
+        FileSystem fs = FileSystem.get(c);
+
+        List<Path> splits = WALSplitter.split(this.hbaseRootDir, new Path(this.logDir, "localhost,1234"),
+                this.oldLogDir, fs, c, walFactory);
+        // Split should generate only 1 file since there's only 1 region
+        assertEquals("splits=" + splits, 1, splits.size());
+        // Make sure the file exists
+        assertTrue(fs.exists(splits.get(0)));
+        LOGGER.info("Split file=" + splits.get(0));
+        return splits.get(0);
+    }
+
+    @SuppressWarnings("deprecation")
+    private int getKeyValueCount(Table table) throws IOException {
+        Scan scan = new Scan();
+        scan.setMaxVersions(Integer.MAX_VALUE - 1);
+
+        ResultScanner results = table.getScanner(scan);
+        int count = 0;
+        for (Result res : results) {
+            count += res.listCells().size();
+            LOGGER.debug(count + ") " + res);
+        }
+        results.close();
+
+        return count;
+    }
 }

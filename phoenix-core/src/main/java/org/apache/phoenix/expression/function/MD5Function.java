@@ -30,7 +30,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.schema.types.PBinary;
 import org.apache.phoenix.schema.types.PDataType;
 
-@BuiltInFunction(name = MD5Function.NAME, args = { @Argument() })
+@BuiltInFunction(name = MD5Function.NAME, args = {@Argument()})
 public class MD5Function extends ScalarFunction {
     public static final String NAME = "MD5";
     public static final Integer LENGTH = 16;
@@ -56,8 +56,12 @@ public class MD5Function extends ScalarFunction {
 
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
-        if (!getChildExpression().evaluate(tuple, ptr)) { return false; }
-        if (ptr.getLength()==0) { return true; }
+        if (!getChildExpression().evaluate(tuple, ptr)) {
+            return false;
+        }
+        if (ptr.getLength() == 0) {
+            return true;
+        }
 
         // Update the digest value
         messageDigest.update(ptr.get(), ptr.getOffset(), ptr.getLength());

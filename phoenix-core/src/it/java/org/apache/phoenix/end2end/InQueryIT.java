@@ -55,7 +55,8 @@ public class InQueryIT extends BaseQueryIT {
         super(idxDdl, columnEncoded, false);
     }
 
-    @Parameters(name="InQueryIT_{index}") // name is used by failsafe as file name in reports
+    @Parameters(name = "InQueryIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         return BaseQueryIT.allIndexes();
     }
@@ -72,12 +73,12 @@ public class InQueryIT extends BaseQueryIT {
             statement.setString(3, ROW4);
             ResultSet rs = statement.executeQuery();
             Set<String> expectedvals = new HashSet<String>();
-            expectedvals.add(ROW2+"_"+C_VALUE);
-            expectedvals.add(ROW4+"_"+B_VALUE);
+            expectedvals.add(ROW2 + "_" + C_VALUE);
+            expectedvals.add(ROW4 + "_" + B_VALUE);
             Set<String> vals = new HashSet<String>();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             vals.add(rs.getString(1) + "_" + rs.getString(2));
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             vals.add(rs.getString(1) + "_" + rs.getString(2));
             assertFalse(rs.next());
             assertEquals(expectedvals, vals);
@@ -85,7 +86,7 @@ public class InQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testDateInList() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE a_date IN (?,?) AND a_integer < 4";
@@ -103,7 +104,7 @@ public class InQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testSimpleInListStatement() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND a_integer IN (2,4)";
@@ -118,7 +119,7 @@ public class InQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testPartiallyQualifiedRVCInList() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE (a_integer,a_string) IN ((2,'a'),(5,'b'))";
@@ -132,7 +133,7 @@ public class InQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testFullyQualifiedRVCInList() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE (a_integer,a_string, organization_id,entity_id) IN ((2,'a',:1,:2),(5,'b',:1,:3))";
@@ -149,7 +150,7 @@ public class InQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testOneInListStatement() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND b_string IN (?)";
@@ -172,7 +173,7 @@ public class InQueryIT extends BaseQueryIT {
         }
     }
 
-    
+
     @Test
     public void testMixedTypeInListStatement() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? AND x_long IN (5, ?)";
@@ -193,7 +194,7 @@ public class InQueryIT extends BaseQueryIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testRowKeySingleIn() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and entity_id IN (?,?,?)";
@@ -206,19 +207,19 @@ public class InQueryIT extends BaseQueryIT {
             statement.setString(3, ROW6);
             statement.setString(4, ROW8);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW8);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
-    
+
+
     @Test
     public void testRowKeyMultiIn() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and entity_id IN (?,?,?) and a_string IN (?,?)";
@@ -233,15 +234,15 @@ public class InQueryIT extends BaseQueryIT {
             statement.setString(5, B_VALUE);
             statement.setString(6, C_VALUE);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW6);
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW9);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
-   
+
+
 }

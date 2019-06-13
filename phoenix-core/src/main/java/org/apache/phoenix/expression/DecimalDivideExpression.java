@@ -41,7 +41,7 @@ public class DecimalDivideExpression extends DivideExpression {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         BigDecimal result = null;
-        for (int i=0; i<children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             Expression childExpr = children.get(i);
             if (!childExpr.evaluate(tuple, ptr)) {
                 return false;
@@ -49,11 +49,11 @@ public class DecimalDivideExpression extends DivideExpression {
             if (ptr.getLength() == 0) {
                 return true;
             }
-            
+
             PDataType childType = childExpr.getDataType();
             SortOrder childSortOrder = childExpr.getSortOrder();
-            BigDecimal bd= (BigDecimal) PDecimal.INSTANCE.toObject(ptr, childType, childSortOrder);
-            
+            BigDecimal bd = (BigDecimal) PDecimal.INSTANCE.toObject(ptr, childType, childSortOrder);
+
             if (result == null) {
                 result = bd;
             } else {

@@ -49,22 +49,24 @@ public class ScanMetricsHolder {
     private final CombinableMetric countOfRemoteRPCRetries;
     private final CombinableMetric countOfRowsScanned;
     private final CombinableMetric countOfRowsFiltered;
-    private  Map<String, Long> scanMetricMap;
+    private Map<String, Long> scanMetricMap;
     private Object scan;
 
     private static final ScanMetricsHolder NO_OP_INSTANCE =
-            new ScanMetricsHolder(new ReadMetricQueue(false,LogLevel.OFF), "",null);
+            new ScanMetricsHolder(new ReadMetricQueue(false, LogLevel.OFF), "", null);
 
     public static ScanMetricsHolder getInstance(ReadMetricQueue readMetrics, String tableName,
-            Scan scan, LogLevel connectionLogLevel) {
-        if (connectionLogLevel == LogLevel.OFF && !readMetrics.isRequestMetricsEnabled()) { return NO_OP_INSTANCE; }
+                                                Scan scan, LogLevel connectionLogLevel) {
+        if (connectionLogLevel == LogLevel.OFF && !readMetrics.isRequestMetricsEnabled()) {
+            return NO_OP_INSTANCE;
+        }
         scan.setScanMetricsEnabled(true);
         return new ScanMetricsHolder(readMetrics, tableName, scan);
     }
 
-    private ScanMetricsHolder(ReadMetricQueue readMetrics, String tableName,Scan scan) {
+    private ScanMetricsHolder(ReadMetricQueue readMetrics, String tableName, Scan scan) {
         readMetrics.addScanHolder(this);
-        this.scan=scan;
+        this.scan = scan;
         countOfRPCcalls = readMetrics.allotMetric(COUNT_RPC_CALLS, tableName);
         countOfRemoteRPCcalls = readMetrics.allotMetric(COUNT_REMOTE_RPC_CALLS, tableName);
         sumOfMillisSecBetweenNexts = readMetrics.allotMetric(COUNT_MILLS_BETWEEN_NEXTS, tableName);
@@ -131,7 +133,7 @@ public class ScanMetricsHolder {
     public void setScanMetricMap(Map<String, Long> scanMetricMap) {
         this.scanMetricMap = scanMetricMap;
     }
-    
+
     @Override
     public String toString() {
         try {

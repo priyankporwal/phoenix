@@ -1,18 +1,18 @@
 /**
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.phoenix.expression.function;
 
@@ -33,13 +33,13 @@ import org.apache.phoenix.util.StringUtil;
 
 /**
  * Implementation of LPAD(input string, length int [, fill string])
- * 
+ *
  * Fills up the input to length (number of characters) by prepending characters in fill (space by default). If the input
  * is already longer than length then it is truncated on the right.
  */
-@BuiltInFunction(name = LpadFunction.NAME, args = { @Argument(allowedTypes = { PVarchar.class }),
-    @Argument(allowedTypes = { PInteger.class }),
-    @Argument(allowedTypes = { PVarchar.class }, defaultValue = "' '") })
+@BuiltInFunction(name = LpadFunction.NAME, args = {@Argument(allowedTypes = {PVarchar.class}),
+        @Argument(allowedTypes = {PInteger.class}),
+        @Argument(allowedTypes = {PVarchar.class}, defaultValue = "' '")})
 public class LpadFunction extends ScalarFunction {
     public static final String NAME = "LPAD";
 
@@ -52,7 +52,7 @@ public class LpadFunction extends ScalarFunction {
 
     /**
      * Helper function to get the utf8 length of CHAR or VARCHAR
-     * 
+     *
      * @param ptr
      *            points to the string
      * @param sortOrder
@@ -63,12 +63,12 @@ public class LpadFunction extends ScalarFunction {
      */
     private int getUTF8Length(ImmutableBytesWritable ptr, SortOrder sortOrder, boolean isCharType) {
         return isCharType ? ptr.getLength() : StringUtil.calculateUTF8Length(ptr.get(), ptr.getOffset(),
-            ptr.getLength(), sortOrder);
+                ptr.getLength(), sortOrder);
     }
 
     /**
      * Helper function to get the byte length of a utf8 encoded string
-     * 
+     *
      * @param ptr
      *            points to the string
      * @param sortOrder
@@ -79,7 +79,7 @@ public class LpadFunction extends ScalarFunction {
      */
     private int getSubstringByteLength(ImmutableBytesWritable ptr, int length, SortOrder sortOrder, boolean isCharType) {
         return isCharType ? length : StringUtil.getByteLengthForUtf8SubStr(ptr.get(), ptr.getOffset(), length,
-            sortOrder);
+                sortOrder);
     }
 
     /**
@@ -91,7 +91,7 @@ public class LpadFunction extends ScalarFunction {
         if (!outputStrLenExpr.evaluate(tuple, ptr)) {
             return false;
         }
-        if (ptr.getLength()==0) {
+        if (ptr.getLength() == 0) {
             return true;
         }
         int outputStrLen = outputStrLenExpr.getDataType().getCodec().decodeInt(ptr, outputStrLenExpr.getSortOrder());
@@ -127,7 +127,7 @@ public class LpadFunction extends ScalarFunction {
         if (!fillExpr.evaluate(tuple, fillPtr)) {
             return false;
         }
-        if (fillPtr.getLength()==0) {
+        if (fillPtr.getLength() == 0) {
             ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
             return true;
         }
@@ -163,8 +163,8 @@ public class LpadFunction extends ScalarFunction {
         // input are different
         boolean invertFill = fillSortOrder != strSortOrder;
         byte[] paddedStr =
-            StringUtil.lpad(ptr.get(), ptr.getOffset(), ptr.getLength(), fillPtr.get(), fillPtr.getOffset(),
-                fillPtr.getLength(), invertFill, strWithPaddingByteLength);
+                StringUtil.lpad(ptr.get(), ptr.getOffset(), ptr.getLength(), fillPtr.get(), fillPtr.getOffset(),
+                        fillPtr.getLength(), invertFill, strWithPaddingByteLength);
         ptr.set(paddedStr);
         return true;
     }

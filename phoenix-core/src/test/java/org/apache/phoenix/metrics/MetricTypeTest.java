@@ -28,15 +28,15 @@ import com.google.common.collect.Maps;
  */
 public class MetricTypeTest {
 
-	@Test
+    @Test
     public void testUniqueShortNames() throws Exception {
-		Map<String, MetricType> shortNameMap = Maps.newHashMapWithExpectedSize(MetricType.values().length);
+        Map<String, MetricType> shortNameMap = Maps.newHashMapWithExpectedSize(MetricType.values().length);
         for (MetricType type : MetricType.values()) {
-        	MetricType oldMetricType = shortNameMap.put(type.shortName(), type);
-        	if (oldMetricType!=null) {
-				fail("Metric short names should be unique found duplicates for " + type.name() + " and "
-						+ oldMetricType.name());
-        	}
+            MetricType oldMetricType = shortNameMap.put(type.shortName(), type);
+            if (oldMetricType != null) {
+                fail("Metric short names should be unique found duplicates for " + type.name() + " and "
+                        + oldMetricType.name());
+            }
         }
     }
 }

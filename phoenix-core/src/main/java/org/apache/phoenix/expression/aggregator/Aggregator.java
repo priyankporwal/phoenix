@@ -23,29 +23,29 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Interface to abstract the incremental calculation of an aggregated value.
  *
- * 
  * @since 0.1
  */
 public interface Aggregator extends Expression {
-    
+
     /**
      * Incrementally aggregate the value with the current row
+     *
      * @param tuple the result containing all the key values of the row
-     * @param ptr the bytes pointer to the underlying result
+     * @param ptr   the bytes pointer to the underlying result
      */
     public void aggregate(Tuple tuple, ImmutableBytesWritable ptr);
-    
+
     /**
      * Get the size in bytes
      */
     public int getSize();
-    
+
     /**
      * Determines whether or not we should track the heap size as
      * this aggregator is executing on the server side.
+     *
      * @return true if the size should be tracked and false
      * otherwise.
      */

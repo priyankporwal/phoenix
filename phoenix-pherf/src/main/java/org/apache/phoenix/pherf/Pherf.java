@@ -55,8 +55,8 @@ public class Pherf {
 
     static {
         options.addOption("disableSchemaApply", false, "Set to disable schema from being applied.");
-		options.addOption("disableRuntimeResult", false,
-				"Set to disable writing detailed CSV file during query execution. Those will eventually get written at the end of query execution.");
+        options.addOption("disableRuntimeResult", false,
+                "Set to disable writing detailed CSV file during query execution. Those will eventually get written at the end of query execution.");
         options.addOption("z", "zookeeper", true,
                 "HBase Zookeeper address for connection. Default: localhost");
         options.addOption("q", "query", false, "Executes multi-threaded query sets");
@@ -88,12 +88,12 @@ public class Pherf {
         options.addOption("d", "debug", false, "Put tool in debug mode");
         options.addOption("stats", false,
                 "Update Phoenix Statistics after data is loaded with -l argument");
-		options.addOption("label", true, "Label a run. Result file name will be suffixed with specified label");
-		options.addOption("compare", true, "Specify labeled run(s) to compare");
-		options.addOption("useAverageCompareType", false, "Compare results with Average query time instead of default is Minimum query time.");
-		    options.addOption("t", "thin", false, "Use the Phoenix Thin Driver");
-		    options.addOption("s", "server", true, "The URL for the Phoenix QueryServer");
-		    options.addOption("b", "batchApi", false, "Use JDBC Batch API for writes");
+        options.addOption("label", true, "Label a run. Result file name will be suffixed with specified label");
+        options.addOption("compare", true, "Specify labeled run(s) to compare");
+        options.addOption("useAverageCompareType", false, "Compare results with Average query time instead of default is Minimum query time.");
+        options.addOption("t", "thin", false, "Use the Phoenix Thin Driver");
+        options.addOption("s", "server", true, "The URL for the Phoenix QueryServer");
+        options.addOption("b", "batchApi", false, "Use JDBC Batch API for writes");
     }
 
     private final String zookeeper;
@@ -173,8 +173,8 @@ public class Pherf {
         }
 
         if (command.hasOption('b')) {
-          // If the '-b' option was provided, set the system property for WriteWorkload to pick up.
-          System.setProperty(WriteWorkload.USE_BATCH_API_PROPERTY, Boolean.TRUE.toString());
+            // If the '-b' option was provided, set the system property for WriteWorkload to pick up.
+            System.setProperty(WriteWorkload.USE_BATCH_API_PROPERTY, Boolean.TRUE.toString());
         }
 
         if ((command.hasOption("h") || (args == null || args.length == 0)) && !command
@@ -227,14 +227,14 @@ public class Pherf {
                 }
                 return;
             }
-            
+
             // Compare results and exit  
-			if (null != compareResults) {
+            if (null != compareResults) {
                 LOGGER.info("\nStarting to compare results and exiting for " + compareResults);
-				new GoogleChartGenerator(compareResults, compareType).readAndRender();
-				return;
+                new GoogleChartGenerator(compareResults, compareType).readAndRender();
+                return;
             }
-            
+
             XMLConfigParser parser = new XMLConfigParser(scenarioFile);
 
             // Drop tables with PHERF schema and regex comparison

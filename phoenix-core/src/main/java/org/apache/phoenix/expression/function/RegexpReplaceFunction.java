@@ -36,36 +36,35 @@ import org.apache.phoenix.schema.types.PVarchar;
 
 
 /**
- * 
  * Function similar to the regexp_replace function in Postgres, which is used to pattern
  * match a segment of the string. Usage:
  * REGEXP_REPLACE(<source_char>,<pattern>,<replace_string>)
  * source_char is the string in which we want to perform string replacement. pattern is a
- * Java compatible regular expression string, and we replace all the matching part with 
+ * Java compatible regular expression string, and we replace all the matching part with
  * replace_string. The first 2 arguments are required and are {@link org.apache.phoenix.schema.types.PVarchar},
  * the replace_string is default to empty string.
- * 
+ * <p>
  * The function returns a {@link org.apache.phoenix.schema.types.PVarchar}
- * 
- * 
+ *
  * @since 0.1
  */
-@BuiltInFunction(name=RegexpReplaceFunction.NAME,
-    nodeClass = RegexpReplaceParseNode.class, args= {
-    @Argument(allowedTypes={PVarchar.class}),
-    @Argument(allowedTypes={PVarchar.class}),
-    @Argument(allowedTypes={PVarchar.class},defaultValue="null")},
-    classType = FunctionParseNode.FunctionClassType.ABSTRACT,
-    derivedFunctions = {ByteBasedRegexpReplaceFunction.class, StringBasedRegexpReplaceFunction.class})
+@BuiltInFunction(name = RegexpReplaceFunction.NAME,
+        nodeClass = RegexpReplaceParseNode.class, args = {
+        @Argument(allowedTypes = {PVarchar.class}),
+        @Argument(allowedTypes = {PVarchar.class}),
+        @Argument(allowedTypes = {PVarchar.class}, defaultValue = "null")},
+        classType = FunctionParseNode.FunctionClassType.ABSTRACT,
+        derivedFunctions = {ByteBasedRegexpReplaceFunction.class, StringBasedRegexpReplaceFunction.class})
 public abstract class RegexpReplaceFunction extends ScalarFunction {
     public static final String NAME = "REGEXP_REPLACE";
 
     private static final PVarchar TYPE = PVarchar.INSTANCE;
-    private byte [] rStrBytes;
+    private byte[] rStrBytes;
     private int rStrOffset, rStrLen;
     private AbstractBasePattern pattern;
 
-    public RegexpReplaceFunction() { }
+    public RegexpReplaceFunction() {
+    }
 
     // Expect 1 arguments, the pattern. 
     public RegexpReplaceFunction(List<Expression> children) {
@@ -80,7 +79,9 @@ public abstract class RegexpReplaceFunction extends ScalarFunction {
         Expression e = getPatternStrExpression();
         if (e.isStateless() && e.getDeterminism() == Determinism.ALWAYS && e.evaluate(null, tmpPtr)) {
             String patternStr = (String) TYPE.toObject(tmpPtr, e.getDataType(), e.getSortOrder());
-            if (patternStr != null) pattern = compilePatternSpec(patternStr);
+            if (patternStr != null) {
+                pattern = compilePatternSpec(patternStr);
+            }
         }
         e = getReplaceStrExpression();
         if (e.isStateless() && e.getDeterminism() == Determinism.ALWAYS && e.evaluate(null, tmpPtr)) {
@@ -101,7 +102,7 @@ public abstract class RegexpReplaceFunction extends ScalarFunction {
             if (!e.evaluate(tuple, ptr)) {
                 return false;
             }
-            if (ptr.getLength()==0) {
+            if (ptr.getLength() == 0) {
                 return true;
             }
             String patternStr = (String) TYPE.toObject(ptr, e.getDataType(), e.getSortOrder());
@@ -119,7 +120,7 @@ public abstract class RegexpReplaceFunction extends ScalarFunction {
             if (!replaceStrExpression.evaluate(tuple, ptr)) {
                 return false;
             }
-            if (ptr.getLength()==0) {
+            if (ptr.getLength() == 0) {
                 return true;
             }
             TYPE.coerceBytes(ptr, TYPE, replaceStrExpression.getSortOrder(), SortOrder.ASC);
@@ -132,7 +133,7 @@ public abstract class RegexpReplaceFunction extends ScalarFunction {
         if (!sourceStrExpression.evaluate(tuple, ptr)) {
             return false;
         }
-        if (ptr.getLength()==0) {
+        if (ptr.getLength() == 0) {
             return true;
         }
         TYPE.coerceBytes(ptr, TYPE, sourceStrExpression.getSortOrder(), SortOrder.ASC);

@@ -27,6 +27,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Properties;
+
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.end2end.ParallelStatsDisabledIT;
@@ -39,7 +40,8 @@ import org.apache.phoenix.schema.TableRef;
 import org.junit.Assert;
 import org.junit.Test;
 
-@SuppressWarnings("deprecated") public class ChunkedResultIteratorTest
+@SuppressWarnings("deprecated")
+public class ChunkedResultIteratorTest
         extends ParallelStatsDisabledIT {
 
     @Test

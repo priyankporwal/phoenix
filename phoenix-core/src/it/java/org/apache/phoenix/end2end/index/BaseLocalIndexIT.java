@@ -47,12 +47,12 @@ public abstract class BaseLocalIndexIT extends BaseUniqueNamesOwnClusterIT {
     public BaseLocalIndexIT(boolean isNamespaceMapped) {
         this.isNamespaceMapped = isNamespaceMapped;
     }
-    
+
     @Before
     public void setup() {
         schemaName = BaseTest.generateUniqueName();
     }
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> serverProps = Maps.newHashMapWithExpectedSize(7);
@@ -65,10 +65,10 @@ public abstract class BaseLocalIndexIT extends BaseUniqueNamesOwnClusterIT {
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), new ReadOnlyProps(clientProps.entrySet().iterator()));
     }
 
-    protected Connection getConnection() throws SQLException{
+    protected Connection getConnection() throws SQLException {
         Properties props = PropertiesUtil.deepCopy(TestUtil.TEST_PROPERTIES);
         props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.toString(isNamespaceMapped));
-        return DriverManager.getConnection(getUrl(),props);
+        return DriverManager.getConnection(getUrl(), props);
     }
 
     protected void createBaseTable(String tableName, Integer saltBuckets, String splits) throws SQLException {
@@ -84,15 +84,16 @@ public abstract class BaseLocalIndexIT extends BaseUniqueNamesOwnClusterIT {
                 "k1 INTEGER NOT NULL,\n" +
                 "k2 INTEGER NOT NULL,\n" +
                 "k3 INTEGER,\n" +
-                (cf != null ? (cf+'.') : "") + "v1 VARCHAR,\n" +
+                (cf != null ? (cf + '.') : "") + "v1 VARCHAR,\n" +
                 "CONSTRAINT pk PRIMARY KEY (t_id, k1, k2))\n"
-                        + (saltBuckets != null && splits == null ? (" salt_buckets=" + saltBuckets) : ""
-                        + (saltBuckets == null && splits != null ? (" split on " + splits) : ""));
+                + (saltBuckets != null && splits == null ? (" salt_buckets=" + saltBuckets) : ""
+                + (saltBuckets == null && splits != null ? (" split on " + splits) : ""));
         conn.createStatement().execute(ddl);
         conn.close();
     }
 
-    @Parameters(name = "LocalIndexIT_isNamespaceMapped={0}") // name is used by failsafe as file name in reports
+    @Parameters(name = "LocalIndexIT_isNamespaceMapped={0}")
+    // name is used by failsafe as file name in reports
     public static Collection<Boolean> data() {
         return Arrays.asList(true, false);
     }

@@ -41,7 +41,7 @@ public class DecimalAddExpression extends AddExpression {
         Expression firstChild = children.get(0);
         maxLength = getPrecision(firstChild);
         scale = getScale(firstChild);
-        for (int i=1; i<children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             Expression childExpr = children.get(i);
             maxLength = getPrecision(maxLength, getPrecision(childExpr), scale, getScale(childExpr));
             scale = getScale(maxLength, getPrecision(childExpr), scale, getScale(childExpr));
@@ -51,7 +51,7 @@ public class DecimalAddExpression extends AddExpression {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         BigDecimal result = null;
-        for (int i=0; i<children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             Expression childExpr = children.get(i);
             if (!childExpr.evaluate(tuple, ptr)) {
                 return false;
@@ -59,11 +59,11 @@ public class DecimalAddExpression extends AddExpression {
             if (ptr.getLength() == 0) {
                 return true;
             }
-            
+
             PDataType childType = childExpr.getDataType();
             SortOrder childSortOrder = childExpr.getSortOrder();
             BigDecimal bd = (BigDecimal) PDecimal.INSTANCE.toObject(ptr, childType, childSortOrder);
-            
+
             if (result == null) {
                 result = bd;
             } else {

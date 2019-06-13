@@ -59,7 +59,7 @@ public class StringToArrayConverterTest extends BaseConnectionlessQueryTest {
     public void testToArray_SingleElement() throws SQLException {
         Array singleElementArray = converter.toArray("value");
         assertArrayEquals(
-                new Object[]{"value"},
+                new Object[] {"value"},
                 (Object[]) singleElementArray.getArray());
     }
 
@@ -67,17 +67,17 @@ public class StringToArrayConverterTest extends BaseConnectionlessQueryTest {
     public void testToArray_MultipleElements() throws SQLException {
         Array multiElementArray = converter.toArray("one:two");
         assertArrayEquals(
-                new Object[]{"one", "two"},
+                new Object[] {"one", "two"},
                 (Object[]) multiElementArray.getArray());
     }
 
     @Test
     public void testToArray_IntegerValues() throws SQLException {
         StringToArrayConverter intArrayConverter = new StringToArrayConverter(
-            conn, ":", PInteger.INSTANCE);
+                conn, ":", PInteger.INSTANCE);
         Array intArray = intArrayConverter.toArray("1:2:3");
         assertArrayEquals(
-                new int[]{1, 2, 3},
+                new int[] {1, 2, 3},
                 (int[]) intArray.getArray());
     }
 }

@@ -29,21 +29,21 @@ public class AlterIndexStatement extends SingleTableStatement {
     private final PIndexState indexState;
     private boolean async;
     private boolean isRebuildAll;
-    private ListMultimap<String,Pair<String,Object>> props;
-    private static final PTableType tableType=PTableType.INDEX;
+    private ListMultimap<String, Pair<String, Object>> props;
+    private static final PTableType tableType = PTableType.INDEX;
 
     public AlterIndexStatement(NamedTableNode indexTableNode, String dataTableName, boolean ifExists, PIndexState indexState, boolean isRebuildAll, boolean async) {
-        this(indexTableNode,dataTableName,ifExists,indexState, isRebuildAll, async,null);
+        this(indexTableNode, dataTableName, ifExists, indexState, isRebuildAll, async, null);
     }
 
-    public AlterIndexStatement(NamedTableNode indexTableNode, String dataTableName, boolean ifExists, PIndexState indexState, boolean isRebuildAll, boolean async, ListMultimap<String,Pair<String,Object>> props) {
-        super(indexTableNode,0);
+    public AlterIndexStatement(NamedTableNode indexTableNode, String dataTableName, boolean ifExists, PIndexState indexState, boolean isRebuildAll, boolean async, ListMultimap<String, Pair<String, Object>> props) {
+        super(indexTableNode, 0);
         this.dataTableName = dataTableName;
         this.ifExists = ifExists;
         this.indexState = indexState;
         this.async = async;
         this.isRebuildAll = isRebuildAll;
-        this.props= props==null ? ImmutableListMultimap.<String,Pair<String,Object>>of() : props;
+        this.props = props == null ? ImmutableListMultimap.<String, Pair<String, Object>>of() : props;
     }
 
     public String getTableName() {
@@ -71,7 +71,11 @@ public class AlterIndexStatement extends SingleTableStatement {
         return isRebuildAll;
     }
 
-    public ListMultimap<String,Pair<String,Object>> getProps() { return props; }
+    public ListMultimap<String, Pair<String, Object>> getProps() {
+        return props;
+    }
 
-    public PTableType getTableType(){ return tableType; }
+    public PTableType getTableType() {
+        return tableType;
+    }
 }

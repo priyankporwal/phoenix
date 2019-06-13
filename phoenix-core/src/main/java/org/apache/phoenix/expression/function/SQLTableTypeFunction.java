@@ -33,27 +33,25 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 
 /**
- * 
  * Function used to get the SQL table type name from the serialized table type.
  * Usage:
  * SqlTableType('v') will return 'VIEW' based on
  * {@link java.sql.DatabaseMetaData#getTableTypes()}
- * 
- * 
+ *
  * @since 2.2
  */
-@BuiltInFunction(name=SQLTableTypeFunction.NAME, args= {
-    @Argument(allowedTypes= PChar.class)} )
+@BuiltInFunction(name = SQLTableTypeFunction.NAME, args = {
+        @Argument(allowedTypes = PChar.class)})
 public class SQLTableTypeFunction extends ScalarFunction {
     public static final String NAME = "SQLTableType";
 
     public SQLTableTypeFunction() {
     }
-    
+
     public SQLTableTypeFunction(List<Expression> children) throws SQLException {
         super(children);
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         Expression child = children.get(0);
@@ -72,7 +70,7 @@ public class SQLTableTypeFunction extends ScalarFunction {
     public PDataType getDataType() {
         return PVarchar.INSTANCE;
     }
-    
+
     @Override
     public String getName() {
         return NAME;

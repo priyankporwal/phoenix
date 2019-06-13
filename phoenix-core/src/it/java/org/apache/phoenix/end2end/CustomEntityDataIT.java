@@ -36,9 +36,8 @@ import org.apache.phoenix.util.PropertiesUtil;
 import org.junit.Test;
 
 
-
 public class CustomEntityDataIT extends ParallelStatsDisabledIT {
-    
+
     private static void initTableValues(Connection conn, String tenantId, String tableName) throws Exception {
         String ddl = "create table " + tableName +
                 "   (organization_id char(15) not null, \n" +
@@ -73,35 +72,35 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
         // Insert all rows at ts
         PreparedStatement stmt = conn.prepareStatement(
                 "upsert into " + tableName +
-                "(" +
-                "    ORGANIZATION_ID, " +
-                "    KEY_PREFIX, " +
-                "    CUSTOM_ENTITY_DATA_ID, " +
-                "    CREATED_BY, " +
-                "    CREATED_DATE, " +
-                "    CURRENCY_ISO_CODE, " +
-                "    DELETED, " +
-                "    DIVISION, " +
-                "    LAST_UPDATE, " +
-                "    LAST_UPDATE_BY," +
-                "    NAME," +
-                "    OWNER," +
-                "    SYSTEM_MODSTAMP," +
-                "    VAL0," +
-                "    VAL1," +
-                "    VAL2," +
-                "    VAL3," +
-                "    VAL4," +
-                "    VAL5," +
-                "    VAL6," +
-                "    VAL7," +
-                "    VAL8," +
-                "    VAL9)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            
+                        "(" +
+                        "    ORGANIZATION_ID, " +
+                        "    KEY_PREFIX, " +
+                        "    CUSTOM_ENTITY_DATA_ID, " +
+                        "    CREATED_BY, " +
+                        "    CREATED_DATE, " +
+                        "    CURRENCY_ISO_CODE, " +
+                        "    DELETED, " +
+                        "    DIVISION, " +
+                        "    LAST_UPDATE, " +
+                        "    LAST_UPDATE_BY," +
+                        "    NAME," +
+                        "    OWNER," +
+                        "    SYSTEM_MODSTAMP," +
+                        "    VAL0," +
+                        "    VAL1," +
+                        "    VAL2," +
+                        "    VAL3," +
+                        "    VAL4," +
+                        "    VAL5," +
+                        "    VAL6," +
+                        "    VAL7," +
+                        "    VAL8," +
+                        "    VAL9)" +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
         // Insert all rows at ts
         stmt.setString(1, tenantId);
-        stmt.setString(2, ROW2.substring(0,3));
+        stmt.setString(2, ROW2.substring(0, 3));
         stmt.setString(3, ROW2.substring(3));
         stmt.setString(4, "Curly");
         stmt.setDate(5, new Date(1));
@@ -126,7 +125,7 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
         stmt.execute();
 
         stmt.setString(1, tenantId);
-        stmt.setString(2, ROW5.substring(0,3));
+        stmt.setString(2, ROW5.substring(0, 3));
         stmt.setString(3, ROW5.substring(3));
         stmt.setString(4, "Moe");
         stmt.setDate(5, new Date(1));
@@ -151,7 +150,7 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
         stmt.execute();
 
         stmt.setString(1, tenantId);
-        stmt.setString(2, ROW9.substring(0,3));
+        stmt.setString(2, ROW9.substring(0, 3));
         stmt.setString(3, ROW9.substring(3));
         stmt.setString(4, "Larry");
         stmt.setDate(5, new Date(1));
@@ -174,9 +173,9 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
         stmt.setString(22, "v9");
         stmt.setString(23, "v9");
         stmt.execute();
-        
+
         conn.commit();
-    }    
+    }
 
     @Test
     public void testUngroupedAggregation() throws Exception {
@@ -196,7 +195,7 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testScan() throws Exception {
         String tenantId = getOrganizationId();
@@ -219,7 +218,7 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testWhereStringConcatExpression() throws Exception {
         String tenantId = getOrganizationId();
@@ -229,12 +228,11 @@ public class CustomEntityDataIT extends ParallelStatsDisabledIT {
         try {
             initTableValues(conn, tenantId, tableName);
             PreparedStatement statement = conn.prepareStatement(query);
-            ResultSet rs=statement.executeQuery();
-            assertTrue (rs.next());
+            ResultSet rs = statement.executeQuery();
+            assertTrue(rs.next());
             assertEquals(ROW2, rs.getString(1));
             assertFalse(rs.next());
-        }
-        finally {
+        } finally {
             conn.close();
         }
     }

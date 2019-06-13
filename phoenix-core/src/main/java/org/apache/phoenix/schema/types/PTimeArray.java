@@ -62,8 +62,8 @@ public class PTimeArray extends PArrayDataType<Time[]> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length,
-            PDataType actualType, SortOrder sortOrder, Integer maxLength,
-            Integer scale) {
+                           PDataType actualType, SortOrder sortOrder, Integer maxLength,
+                           Integer scale) {
         return toObject(bytes, offset, length, PTime.INSTANCE, sortOrder, maxLength, scale,
                 PTime.INSTANCE);
     }

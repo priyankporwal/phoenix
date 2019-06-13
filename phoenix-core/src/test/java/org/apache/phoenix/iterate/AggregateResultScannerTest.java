@@ -38,7 +38,6 @@ import org.apache.phoenix.util.TestUtil;
 import org.junit.Test;
 
 
-
 public class AggregateResultScannerTest extends BaseConnectionlessQueryTest {
     private final static byte[] A = Bytes.toBytes("a");
     private final static byte[] B = Bytes.toBytes("b");
@@ -47,27 +46,27 @@ public class AggregateResultScannerTest extends BaseConnectionlessQueryTest {
     public void testAggregatingMergeSort() throws Throwable {
         Tuple[] results1 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(1L))),
-            };
+        };
         Tuple[] results2 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(1L)))
-            };
+        };
         Tuple[] results3 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(1L))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(1L))),
-            };
+        };
         Tuple[] results4 = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(1L))),
-            };
-        final List<PeekingResultIterator>results = new ArrayList<PeekingResultIterator>(Arrays.asList(new PeekingResultIterator[] {
-                new MaterializedResultIterator(Arrays.asList(results1)), 
-                new MaterializedResultIterator(Arrays.asList(results2)), 
-                new MaterializedResultIterator(Arrays.asList(results3)), 
+        };
+        final List<PeekingResultIterator> results = new ArrayList<PeekingResultIterator>(Arrays.asList(new PeekingResultIterator[] {
+                new MaterializedResultIterator(Arrays.asList(results1)),
+                new MaterializedResultIterator(Arrays.asList(results2)),
+                new MaterializedResultIterator(Arrays.asList(results3)),
                 new MaterializedResultIterator(Arrays.asList(results4))}));
 
         Tuple[] expectedResults = new Tuple[] {
                 new SingleKeyValueTuple(new KeyValue(A, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(3L))),
                 new SingleKeyValueTuple(new KeyValue(B, SINGLE_COLUMN_FAMILY, SINGLE_COLUMN, PLong.INSTANCE.toBytes(2L))),
-            };
+        };
 
         ResultIterators iterators = new MaterializedResultIterators(results);
         ClientAggregators aggregators = TestUtil.getSingleSumAggregator(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES));

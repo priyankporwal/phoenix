@@ -35,7 +35,7 @@ public class SaltingUtilTest {
         for (int i = 0; i < 100; i++) {
             saltBytes.add(SaltingUtil.getSaltingByte(Bytes.toBytes(i), 0, Bytes.SIZEOF_INT, 3));
         }
-        assertEquals(ImmutableSet.of((byte)0, (byte)1, (byte)2), saltBytes);
+        assertEquals(ImmutableSet.of((byte) 0, (byte) 1, (byte) 2), saltBytes);
     }
 
 
@@ -45,11 +45,11 @@ public class SaltingUtilTest {
     @Test
     public void testGetSaltingByte_EdgeCaseHashCode() {
         // This array has a hashCode of Integer.MIN_VALUE based on the hashing in SaltingUtil
-        byte[] rowKey = new byte[] { -106, 0, -10, 0, 19, -2 };
+        byte[] rowKey = new byte[] {-106, 0, -10, 0, 19, -2};
         byte saltingByte = SaltingUtil.getSaltingByte(rowKey, 0, rowKey.length, 3);
 
         assertTrue("Salting byte should be 0 or 1 or 2 but was " + saltingByte,
-                ImmutableSet.of((byte)0, (byte)1, (byte)2).contains(saltingByte));
+                ImmutableSet.of((byte) 0, (byte) 1, (byte) 2).contains(saltingByte));
 
     }
 }

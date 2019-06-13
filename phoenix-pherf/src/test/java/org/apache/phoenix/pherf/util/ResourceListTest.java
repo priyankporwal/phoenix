@@ -27,12 +27,12 @@ import static org.junit.Assert.assertFalse;
 
 public class ResourceListTest {
 
-  @Test
-  public void testMissingJarFileReturnsGracefully() {
-    ResourceList rl = new ResourceList("foo");
-    File missingFile = new File("abracadabraphoenix.txt");
-    assertFalse("Did not expect a fake test file to actually exist", missingFile.exists());
-    assertEquals(Collections.emptyList(), rl.getResourcesFromJarFile(missingFile, Pattern.compile("pattern")));
-  }
+    @Test
+    public void testMissingJarFileReturnsGracefully() {
+        ResourceList rl = new ResourceList("foo");
+        File missingFile = new File("abracadabraphoenix.txt");
+        assertFalse("Did not expect a fake test file to actually exist", missingFile.exists());
+        assertEquals(Collections.emptyList(), rl.getResourcesFromJarFile(missingFile, Pattern.compile("pattern")));
+    }
 
 }

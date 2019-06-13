@@ -30,7 +30,6 @@ import org.apache.hadoop.io.WritableUtils;
 import com.google.common.base.Preconditions;
 
 
-
 /**
  * A WritableComparable to hold the table name and the rowkey.
  */
@@ -78,14 +77,14 @@ public class TableRowkeyPair implements WritableComparable<TableRowkeyPair> {
         tableName = WritableUtils.readString(input);
         rowkey = new ImmutableBytesWritable();
         rowkey.readFields(input);
-   }
+    }
 
     @Override
     public void write(DataOutput output) throws IOException {
-        WritableUtils.writeString(output,tableName);
+        WritableUtils.writeString(output, tableName);
         rowkey.write(output);
     }
-    
+
     @Override
     public int hashCode() {
         int result = this.tableName.hashCode();
@@ -96,14 +95,16 @@ public class TableRowkeyPair implements WritableComparable<TableRowkeyPair> {
     @Override
     public int compareTo(TableRowkeyPair other) {
         String otherTableName = other.getTableName();
-        if(this.tableName.equals(otherTableName)) {
+        if (this.tableName.equals(otherTableName)) {
             return this.rowkey.compareTo(other.getRowkey());
         } else {
             return this.tableName.compareTo(otherTableName);
         }
     }
 
-    /** Comparator for <code>TableRowkeyPair</code>. */
+    /**
+     * Comparator for <code>TableRowkeyPair</code>.
+     */
     public static class Comparator extends WritableComparator {
 
         public Comparator() {
@@ -123,10 +124,10 @@ public class TableRowkeyPair implements WritableComparable<TableRowkeyPair> {
                 // Compare row keys
                 int strL3 = readInt(b1, s1 + Bytes.SIZEOF_INT + strL1);
                 int strL4 = readInt(b2, s2 + Bytes.SIZEOF_INT + strL2);
-                int i = compareBytes(b1, s1 + Bytes.SIZEOF_INT*2 + strL1, strL3, b2, s2
-                        + Bytes.SIZEOF_INT*2 + strL2, strL4);
+                int i = compareBytes(b1, s1 + Bytes.SIZEOF_INT * 2 + strL1, strL3, b2, s2
+                        + Bytes.SIZEOF_INT * 2 + strL2, strL4);
                 return i;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 throw new IllegalArgumentException(ex);
             }
         }

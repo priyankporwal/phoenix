@@ -37,13 +37,10 @@ import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.ServerUtil;
 
 
-
 /**
- * 
  * Modeled after {@link org.apache.hadoop.hbase.filter.SingleColumnValueFilter},
  * but for general expression evaluation in the case where multiple KeyValue
  * columns are referenced in the expression.
- *
  */
 public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFilter {
     private static final byte[] UNITIALIZED_KEY_BUFFER = new byte[0];
@@ -66,26 +63,27 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
 
     private static final class CellRef {
         public Cell cell;
-        
+
         @Override
         public String toString() {
-            if(cell != null) {
+            if (cell != null) {
                 return cell.toString() + " value = " + Bytes.toStringBinary(
-                		cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                        cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             } else {
                 return super.toString();
             }
         }
     }
-    
+
     protected abstract Object setColumnKey(byte[] cf, int cfOffset, int cfLength, byte[] cq, int cqOffset, int cqLength);
+
     protected abstract Object newColumnKey(byte[] cf, int cfOffset, int cfLength, byte[] cq, int cqOffset, int cqLength);
-    
+
     private final class IncrementalResultTuple extends BaseTuple {
         private int refCount;
         private final ImmutableBytesWritable keyPtr = new ImmutableBytesWritable(UNITIALIZED_KEY_BUFFER);
-        private final Map<Object,CellRef> foundColumns = new HashMap<Object,CellRef>(5);
-        
+        private final Map<Object, CellRef> foundColumns = new HashMap<Object, CellRef>(5);
+
         public void reset() {
             refCount = 0;
             keyPtr.set(UNITIALIZED_KEY_BUFFER);
@@ -93,22 +91,22 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
                 ref.cell = null;
             }
         }
-        
+
         @Override
         public boolean isImmutable() {
             return refCount == foundColumns.size();
         }
-        
+
         public void setImmutable() {
             refCount = foundColumns.size();
         }
-        
+
         private ReturnCode resolveColumn(Cell value) {
             // Always set key, in case we never find a key value column of interest,
             // and our expression uses row key columns.
             setKey(value);
-            Object ptr = setColumnKey(value.getFamilyArray(), value.getFamilyOffset(), value.getFamilyLength(), 
-            		value.getQualifierArray(), value.getQualifierOffset(), value.getQualifierLength());
+            Object ptr = setColumnKey(value.getFamilyArray(), value.getFamilyOffset(), value.getFamilyLength(),
+                    value.getQualifierArray(), value.getQualifierOffset(), value.getQualifierLength());
             CellRef ref = foundColumns.get(ptr);
             if (ref == null) {
                 // Return INCLUDE_AND_NEXT_COL here. Although this filter doesn't need this KV
@@ -129,28 +127,28 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
             refCount++;
             return null;
         }
-        
+
         public void addColumn(byte[] cf, byte[] cq) {
             Object ptr = MultiKeyValueComparisonFilter.this.newColumnKey(cf, 0, cf.length, cq, 0, cq.length);
             foundColumns.put(ptr, new CellRef());
         }
-        
+
         public void setKey(Cell value) {
             keyPtr.set(value.getRowArray(), value.getRowOffset(), value.getRowLength());
         }
-        
+
         @Override
         public void getKey(ImmutableBytesWritable ptr) {
-            ptr.set(keyPtr.get(),keyPtr.getOffset(),keyPtr.getLength());
+            ptr.set(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength());
         }
-        
+
         @Override
         public Cell getValue(byte[] cf, byte[] cq) {
             Object ptr = setColumnKey(cf, 0, cf.length, cq, 0, cq.length);
             CellRef ref = foundColumns.get(ptr);
             return ref == null ? null : ref.cell;
         }
-        
+
         @Override
         public String toString() {
             return foundColumns.toString();
@@ -179,15 +177,16 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
 
         @Override
         public boolean getValue(byte[] family, byte[] qualifier,
-                ImmutableBytesWritable ptr) {
+                                ImmutableBytesWritable ptr) {
             Cell cell = getValue(family, qualifier);
-            if (cell == null)
+            if (cell == null) {
                 return false;
+            }
             ptr.set(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             return true;
         }
     }
-    
+
     protected void init() {
         cfSet = new TreeSet<byte[]>(Bytes.BYTES_COMPARATOR);
         ExpressionVisitor<Void> visitor = new StatelessTraverseAllExpressionVisitor<Void>() {
@@ -199,23 +198,23 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
         };
         expression.accept(visitor);
     }
-    
+
     @Override
     public ReturnCode filterKeyValue(Cell cell) {
         if (Boolean.TRUE.equals(this.matchedColumn)) {
-          // We already found and matched the single column, all keys now pass
-          return ReturnCode.INCLUDE_AND_NEXT_COL;
+            // We already found and matched the single column, all keys now pass
+            return ReturnCode.INCLUDE_AND_NEXT_COL;
         }
         if (Boolean.FALSE.equals(this.matchedColumn)) {
-          // We found all the columns, but did not match the expression, so skip to next row
-          return ReturnCode.NEXT_ROW;
+            // We found all the columns, but did not match the expression, so skip to next row
+            return ReturnCode.NEXT_ROW;
         }
         // This is a key value we're not interested in (TODO: why INCLUDE here instead of NEXT_COL?)
         ReturnCode code = inputTuple.resolveColumn(cell);
         if (code != null) {
             return code;
         }
-        
+
         // We found a new column, so we can re-evaluate
         // TODO: if we have row key columns in our expression, should
         // we always evaluate or just wait until the end?
@@ -236,8 +235,8 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
             inputTuple.setImmutable();
             this.matchedColumn = this.evaluate(inputTuple);
         }
-        
-        return ! (Boolean.TRUE.equals(this.matchedColumn));
+
+        return !(Boolean.TRUE.equals(this.matchedColumn));
     }
 
     @Override
@@ -269,7 +268,7 @@ public abstract class MultiKeyValueComparisonFilter extends BooleanExpressionFil
         }
         init();
     }
-    
+
     @Override
     public void write(DataOutput output) throws IOException {
         super.write(output);

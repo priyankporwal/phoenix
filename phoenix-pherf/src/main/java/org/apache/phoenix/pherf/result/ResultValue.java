@@ -34,7 +34,8 @@ public class ResultValue<T> {
         return resultValue;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return resultValue.toString();
     }
 }

@@ -54,10 +54,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PhoenixDriverIT extends BaseUniqueNamesOwnClusterIT {
-    
+
     private static HBaseTestingUtility hbaseTestUtil;
     private static String zkQuorum;
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
         Configuration conf = HBaseConfiguration.create();
@@ -70,31 +70,33 @@ public class PhoenixDriverIT extends BaseUniqueNamesOwnClusterIT {
         url = PhoenixRuntime.JDBC_PROTOCOL + PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + zkQuorum;
         DriverManager.registerDriver(PhoenixDriver.INSTANCE);
     }
-    
+
     public Connection createConnection(String tenantId, boolean isDifferentClient) throws SQLException {
         Properties props = new Properties();
         props.setProperty(QueryServices.RETURN_SEQUENCE_VALUES_ATTRIB, "false");
         // force the use of ConnectionQueryServicesImpl instead of ConnectionQueryServicesTestImpl
         props.put(QueryServices.EXTRA_JDBC_ARGUMENTS_ATTRIB,
-            QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
-        if (tenantId!=null)
+                QueryServicesOptions.DEFAULT_EXTRA_JDBC_ARGUMENTS);
+        if (tenantId != null) {
             props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
+        }
         StringBuilder sb = new StringBuilder(url);
-        if (isDifferentClient)
+        if (isDifferentClient) {
             sb.append(PhoenixRuntime.JDBC_PROTOCOL_SEPARATOR + "Client2");
+        }
         return DriverManager.getConnection(sb.toString(), props);
     }
-    
+
     @Test
     public void testReturnAllSequencesNotCalledForNoOpenConnections() throws Exception {
         String schemaName = "S";
         String sequenceNameWithoutSchema = generateUniqueSequenceName();
         String sequenceName = SchemaUtil.getTableName(schemaName, sequenceNameWithoutSchema);
-        
+
         Connection conn = createConnection(null, false);
         conn.createStatement().execute("CREATE SEQUENCE " + sequenceName + " START WITH 3 INCREMENT BY 2 CACHE 5");
-        
-        String query = "SELECT NEXT VALUE FOR " + sequenceName ;
+
+        String query = "SELECT NEXT VALUE FOR " + sequenceName;
         ResultSet rs = conn.prepareStatement(query).executeQuery();
         assertTrue(rs.next());
         assertEquals(3, rs.getInt(1));
@@ -104,7 +106,7 @@ public class PhoenixDriverIT extends BaseUniqueNamesOwnClusterIT {
         assertEquals(5, rs.getInt(1));
         assertFalse(rs.next());
         conn.close();
-        
+
         conn = createConnection(null, false);
         // verify that calling close() does not return sequence values back to the server
         query = "SELECT CURRENT_VALUE FROM \"SYSTEM\".\"SEQUENCE\" WHERE SEQUENCE_SCHEMA=? AND SEQUENCE_NAME=?";
@@ -117,57 +119,57 @@ public class PhoenixDriverIT extends BaseUniqueNamesOwnClusterIT {
         assertFalse(rs.next());
         conn.close();
     }
-    
+
     @Test
     public void testViewParentIndexLookupMutipleClients() throws Exception {
         helpTestViewParentIndexLookupMutipleClients(false);
     }
-    
+
     @Test
     public void testMulitTenantViewParentIndexLookupMutipleClients() throws Exception {
         helpTestViewParentIndexLookupMutipleClients(true);
     }
-    
+
     public void helpTestViewParentIndexLookupMutipleClients(boolean isMultiTenant) throws Exception {
         final String baseTableName = generateUniqueName();
         final String baseTableIndexName = generateUniqueName();
         final String viewName = generateUniqueName();
         try (Connection globalConn = createConnection(null, false);
-                Connection conn1 = createConnection("tenant1", false);
-                Connection conn2 = createConnection("tenant1", false)) {
+             Connection conn1 = createConnection("tenant1", false);
+             Connection conn2 = createConnection("tenant1", false)) {
             // create base table
             String baseTableDdl = "CREATE TABLE " + baseTableName + " (" +
-                    ( isMultiTenant ? "TENANT_ID VARCHAR(1) NOT NULL," : "") +
+                    (isMultiTenant ? "TENANT_ID VARCHAR(1) NOT NULL," : "") +
                     "PK CHAR(1) NOT NULL," +
                     "V1 CHAR(1)," +
                     "V2 CHAR(1)," +
-                    "V3 CHAR(1)" + 
+                    "V3 CHAR(1)" +
                     "CONSTRAINT pk PRIMARY KEY (" + (isMultiTenant ? "TENANT_ID," : "") + " pk))";
             globalConn.createStatement().execute(baseTableDdl);
-            
+
             // create index on parent view
             globalConn.createStatement().execute("CREATE INDEX " + baseTableIndexName + " ON " + baseTableName + " (V2) INCLUDE (v1, V3)");
-            
+
             // create a view on the base table
             String viewDDL = "CREATE VIEW " + viewName + " AS SELECT * FROM " + baseTableName + " WHERE V1 = 'X'";
             conn1.createStatement().execute(viewDDL);
             conn1.commit();
 
             // ensure we can use parent table index
-            String sql = "SELECT V3 FROM " + viewName +" WHERE V2 = '3'";
+            String sql = "SELECT V3 FROM " + viewName + " WHERE V2 = '3'";
             PhoenixStatement stmt = conn1.createStatement().unwrap(PhoenixStatement.class);
             stmt.executeQuery(sql);
             PTable indexTable = stmt.getQueryPlan().getTableRef().getTable();
             String tableName = indexTable.getName().getString();
             String expectedTableName = viewName + QueryConstants.CHILD_VIEW_INDEX_NAME_SEPARATOR + baseTableIndexName;
             assertEquals("Parent Index table is not used ", expectedTableName, tableName);
-            
+
             // verify that we can look up the index using PhoenixRuntime from a different client
             PTable table = PhoenixRuntime.getTable(conn2, tableName);
             assertEquals(indexTable, table);
         }
     }
-    
+
     @Test
     public void testMapMultiTenantTableToNamespaceDuringUpgrade() throws SQLException,
             SnapshotCreationException, IllegalArgumentException, IOException, InterruptedException {
@@ -182,7 +184,7 @@ public class PhoenixDriverIT extends BaseUniqueNamesOwnClusterIT {
                     + "(k VARCHAR not null, v INTEGER not null, f INTEGER, g INTEGER NULL, h INTEGER NULL CONSTRAINT pk PRIMARY KEY(k,v)) MULTI_TENANT=true");
         }
 
-        String[] tenantIds = new String[] { "tenant1", "tenant2" };
+        String[] tenantIds = new String[] {"tenant1", "tenant2"};
         for (String tenantId : tenantIds) {
             try (Connection conn = createConnection(tenantId, false)) {
                 // create view
@@ -199,9 +201,9 @@ public class PhoenixDriverIT extends BaseUniqueNamesOwnClusterIT {
             Properties props = new Properties();
             props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.toString(true));
             props.setProperty(QueryServices.IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE,
-                Boolean.toString(false));
+                    Boolean.toString(false));
             try (PhoenixConnection phxConn =
-                    DriverManager.getConnection(url, props).unwrap(PhoenixConnection.class)) {
+                         DriverManager.getConnection(url, props).unwrap(PhoenixConnection.class)) {
                 UpgradeUtil.upgradeTable(phxConn, phoenixFullTableName);
             }
 

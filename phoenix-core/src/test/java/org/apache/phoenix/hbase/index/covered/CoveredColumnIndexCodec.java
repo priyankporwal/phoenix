@@ -42,8 +42,7 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
     private List<ColumnGroup> groups;
 
     /**
-     * @param groups
-     *            to initialize the codec with
+     * @param groups to initialize the codec with
      * @return an instance that is initialized with the given {@link ColumnGroup}s, for testing purposes
      */
     public static CoveredColumnIndexCodec getCodecForTesting(List<ColumnGroup> groups) {
@@ -65,7 +64,7 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
             updates.add(update);
         }
         return updates;
-  }
+    }
 
     /**
      * @param group
@@ -75,12 +74,14 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
     private IndexUpdate getIndexUpdateForGroup(ColumnGroup group, TableState state, IndexMetaData indexMetaData) {
         List<CoveredColumn> refs = group.getColumns();
         try {
-            Pair<CoveredDeleteScanner, IndexUpdate> stateInfo = ((LocalTableState)state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
+            Pair<CoveredDeleteScanner, IndexUpdate> stateInfo = ((LocalTableState) state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
             Scanner kvs = stateInfo.getFirst();
             Pair<Integer, List<ColumnEntry>> columns = getNextEntries(refs, kvs, state.getCurrentRowKey());
             // make sure we close the scanner
             kvs.close();
-            if (columns.getFirst().intValue() == 0) { return stateInfo.getSecond(); }
+            if (columns.getFirst().intValue() == 0) {
+                return stateInfo.getSecond();
+            }
             // have all the column entries, so just turn it into a Delete for the row
             // convert the entries to the needed values
             byte[] rowKey = composeRowKey(state.getCurrentRowKey(), columns.getFirst(), columns.getSecond());
@@ -122,20 +123,21 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
 
     /**
      * Get all the deletes necessary for a group of columns - logically, the cleanup the index table for a given index.
-     * 
-     * @param group
-     *            index information
+     *
+     * @param group index information
      * @return the cleanup for the given index, or <tt>null</tt> if no cleanup is necessary
      */
     private IndexUpdate getDeleteForGroup(ColumnGroup group, TableState state, IndexMetaData indexMetaData) {
         List<CoveredColumn> refs = group.getColumns();
         try {
-            Pair<CoveredDeleteScanner, IndexUpdate> kvs = ((LocalTableState)state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
+            Pair<CoveredDeleteScanner, IndexUpdate> kvs = ((LocalTableState) state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
             Pair<Integer, List<ColumnEntry>> columns = getNextEntries(refs, kvs.getFirst(), state.getCurrentRowKey());
             // make sure we close the scanner reference
             kvs.getFirst().close();
             // no change, just return the passed update
-            if (columns.getFirst() == 0) { return kvs.getSecond(); }
+            if (columns.getFirst() == 0) {
+                return kvs.getSecond();
+            }
             // have all the column entries, so just turn it into a Delete for the row
             // convert the entries to the needed values
             byte[] rowKey = composeRowKey(state.getCurrentRowKey(), columns.getFirst(), columns.getSecond());
@@ -152,9 +154,8 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
 
     /**
      * Get the next batch of primary table values for the given columns
-     * 
-     * @param refs
-     *            columns to match against
+     *
+     * @param refs  columns to match against
      * @param state
      * @return the total length of all values found and the entries to add for the index
      */
@@ -174,9 +175,9 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
             // there is a next value - we only care about the current value, so we can just snag that
             Cell next = kvs.next();
             if (ref.matchesFamily(next.getFamilyArray(), next.getFamilyOffset(),
-                next.getFamilyLength())
+                    next.getFamilyLength())
                     && ref.matchesQualifier(next.getQualifierArray(), next.getQualifierOffset(),
-                        next.getQualifierLength())) {
+                    next.getQualifierLength())) {
                 byte[] v = CellUtil.cloneValue(next);
                 totalValueLength += v.length;
                 entries.add(new ColumnEntry(v, ref));
@@ -230,13 +231,10 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
      * <p>
      * This is faster than adding each value independently as we can just build a single a array and copy everything
      * over once.
-     * 
-     * @param pk
-     *            primary key of the original row
-     * @param length
-     *            total number of bytes of all the values that should be added
-     * @param values
-     *            to use when building the key
+     *
+     * @param pk     primary key of the original row
+     * @param length total number of bytes of all the values that should be added
+     * @param values to use when building the key
      */
     public static byte[] composeRowKey(byte[] pk, int length, List<ColumnEntry> values) {
         final int numColumnEntries = values.size() * Bytes.SIZEOF_INT;
@@ -280,17 +278,14 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
 
     /**
      * Essentially a short-cut from building a {@link Put}.
-     * 
-     * @param pk
-     *            row key
-     * @param timestamp
-     *            timestamp of all the keyvalues
-     * @param values
-     *            expected value--column pair
+     *
+     * @param pk        row key
+     * @param timestamp timestamp of all the keyvalues
+     * @param values    expected value--column pair
      * @return a keyvalues that the index contains for a given row at a timestamp with the given value -- column pairs.
      */
     public static List<Cell> getIndexKeyValueForTesting(byte[] pk, long timestamp,
-            List<Pair<byte[], CoveredColumn>> values) {
+                                                        List<Pair<byte[], CoveredColumn>> values) {
 
         int length = 0;
         List<ColumnEntry> expected = new ArrayList<ColumnEntry>(values.size());
@@ -336,12 +331,10 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
 
     /**
      * Read an integer from the preceding {@value Bytes#SIZEOF_INT} bytes
-     * 
-     * @param bytes
-     *            array to read from
-     * @param start
-     *            start point, backwards from which to read. For example, if specifying "25", we would try to read an
-     *            integer from 21 -> 25
+     *
+     * @param bytes array to read from
+     * @param start start point, backwards from which to read. For example, if specifying "25", we would try to read an
+     *              integer from 21 -> 25
      * @return an integer from the proceeding {@value Bytes#SIZEOF_INT} bytes, if it exists.
      */
     private static int getPreviousInteger(byte[] bytes, int start) {
@@ -350,9 +343,8 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
 
     /**
      * Check to see if an row key just contains a list of null values.
-     * 
-     * @param bytes
-     *            row key to examine
+     *
+     * @param bytes row key to examine
      * @return <tt>true</tt> if all the values are zero-length, <tt>false</tt> otherwise
      */
     public static boolean checkRowKeyForAllNulls(byte[] bytes) {
@@ -360,7 +352,9 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
         int pos = bytes.length - Bytes.SIZEOF_INT;
         for (int i = 0; i < keyCount; i++) {
             int next = CoveredColumnIndexCodec.getPreviousInteger(bytes, pos);
-            if (next > 0) { return false; }
+            if (next > 0) {
+                return false;
+            }
             pos -= Bytes.SIZEOF_INT;
         }
 

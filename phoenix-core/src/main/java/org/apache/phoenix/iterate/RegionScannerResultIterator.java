@@ -39,7 +39,7 @@ public class RegionScannerResultIterator extends BaseResultIterator {
     private final Pair<Integer, Integer> minMaxQualifiers;
     private final boolean useQualifierAsIndex;
     private final QualifierEncodingScheme encodingScheme;
-    
+
     public RegionScannerResultIterator(RegionScanner scanner, Pair<Integer, Integer> minMaxQualifiers, QualifierEncodingScheme encodingScheme) {
         this.scanner = scanner;
         this.useQualifierAsIndex = EncodedColumnsUtil.useQualifierAsIndex(minMaxQualifiers);
@@ -54,7 +54,7 @@ public class RegionScannerResultIterator extends BaseResultIterator {
         synchronized (scanner) {
             try {
                 // TODO: size
-                List<Cell> results = useQualifierAsIndex ? new EncodedColumnQualiferCellsList(minMaxQualifiers.getFirst(), minMaxQualifiers.getSecond(), encodingScheme) :  new ArrayList<Cell>();
+                List<Cell> results = useQualifierAsIndex ? new EncodedColumnQualiferCellsList(minMaxQualifiers.getFirst(), minMaxQualifiers.getSecond(), encodingScheme) : new ArrayList<Cell>();
                 // Results are potentially returned even when the return value of s.next is false
                 // since this is an indication of whether or not there are more values after the
                 // ones returned
@@ -74,8 +74,8 @@ public class RegionScannerResultIterator extends BaseResultIterator {
         }
     }
 
-	@Override
-	public String toString() {
-		return "RegionScannerResultIterator [scanner=" + scanner + "]";
-	}
+    @Override
+    public String toString() {
+        return "RegionScannerResultIterator [scanner=" + scanner + "]";
+    }
 }

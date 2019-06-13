@@ -62,7 +62,7 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] {"1","2"};
+        String[] s = new String[] {"1", "2"};
         Array array = conn.createArrayOf("CHAR", s);
         stmt.setArray(2, array);
         stmt.execute();
@@ -72,8 +72,8 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("SELECT k, a[2] FROM  " + table);
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("2",rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals("2", rs.getString(2));
         conn.close();
     }
 
@@ -90,7 +90,7 @@ public class Array2IT extends ArrayIT {
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
             assertTrue(rs.next());
-            Double[] doubleArr =  new Double[4];
+            Double[] doubleArr = new Double[4];
             doubleArr[0] = 25.343;
             doubleArr[1] = 36.763;
             doubleArr[2] = 37.56;
@@ -112,7 +112,7 @@ public class Array2IT extends ArrayIT {
                 getDefaultSplits(tenantId), null);
         initTablesWithArrays(table, tenantId, null, false, getUrl());
         int a_index = 0;
-        String query = "SELECT a_double_array[2] FROM  " + table + "  where a_double_array["+a_index+"2]<?";
+        String query = "SELECT a_double_array[2] FROM  " + table + "  where a_double_array[" + a_index + "2]<?";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
@@ -126,7 +126,7 @@ public class Array2IT extends ArrayIT {
             // Need to support primitive
             doubleArr = new Double[1];
             doubleArr[0] = 36.763;
-            Double result =  rs.getDouble(1);
+            Double result = rs.getDouble(1);
             assertEquals(doubleArr[0], result);
             assertFalse(rs.next());
         } finally {
@@ -152,7 +152,7 @@ public class Array2IT extends ArrayIT {
             assertTrue(rs.next());
             doubleArr = new Double[1];
             doubleArr[0] = 36.763;
-            Double result =  rs.getDouble(1);
+            Double result = rs.getDouble(1);
             assertEquals(doubleArr[0], result);
             assertFalse(rs.next());
         } finally {
@@ -448,10 +448,10 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] {"abc","def", "ghi","jkl"};
+        String[] s = new String[] {"abc", "def", "ghi", "jkl"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] {"abc","def", "ghi","jkl"};
+        s = new String[] {"abc", "def", "ghi", "jkl"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -461,8 +461,8 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         rs = conn.createStatement().executeQuery("SELECT k, a_string_array[2] FROM  " + table + "  where a_string_array=b_string_array");
         assertTrue(rs.next());
-        assertEquals("a",rs.getString(1));
-        assertEquals("def",rs.getString(2));
+        assertEquals("a", rs.getString(1));
+        assertEquals("def", rs.getString(2));
         conn.close();
     }
 
@@ -483,10 +483,10 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] { "abc", "def", "ghi", "jkll" };
+        String[] s = new String[] {"abc", "def", "ghi", "jkll"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "abc", "def", "ghi", "jklm" };
+        s = new String[] {"abc", "def", "ghi", "jklm"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -519,10 +519,10 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] { "abc", "def", "ghi", "jkll", null, null, "xxx" };
+        String[] s = new String[] {"abc", "def", "ghi", "jkll", null, null, "xxx"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "abc", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"abc", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -546,7 +546,7 @@ public class Array2IT extends ArrayIT {
         String query = "upsert into  " + table + " (ORGANIZATION_ID,ENTITY_ID,a_double_array) values('" + tenantId
                 + "','00A123122312312',null)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-                                                                                 // at
+        // at
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
@@ -581,7 +581,7 @@ public class Array2IT extends ArrayIT {
         String table = createTableWithArray(getUrl(), getDefaultSplits(tenantId), null);
         String query = "upsert into  " + table + " (ORGANIZATION_ID,ENTITY_ID,a_string_array) values(?, ?, ?)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
-                                                                                 // at
+        // at
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
@@ -623,15 +623,15 @@ public class Array2IT extends ArrayIT {
         conn.createStatement()
                 .execute(
                         "CREATE TABLE  " + table + "  ( k VARCHAR, a_string_array VARCHAR(100) ARRAY[4], b_string_array VARCHAR(100) ARRAY[4] \n"
-                        + " CONSTRAINT pk PRIMARY KEY (k, b_string_array)) \n");
+                                + " CONSTRAINT pk PRIMARY KEY (k, b_string_array)) \n");
         conn.close();
         conn = DriverManager.getConnection(getUrl(), props);
         stmt = conn.prepareStatement("UPSERT INTO  " + table + "  VALUES(?,?,?)");
         stmt.setString(1, "a");
-        String[] s = new String[] { "abc", "def", "ghi", "jkll", null, null, "xxx" };
+        String[] s = new String[] {"abc", "def", "ghi", "jkll", null, null, "xxx"};
         Array array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(2, array);
-        s = new String[] { "abc", "def", "ghi", "jkll", null, null, null, "xxx" };
+        s = new String[] {"abc", "def", "ghi", "jkll", null, null, null, "xxx"};
         array = conn.createArrayOf("VARCHAR", s);
         stmt.setArray(3, array);
         stmt.execute();
@@ -677,7 +677,7 @@ public class Array2IT extends ArrayIT {
         conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement stmt = conn.prepareStatement("select ?[2] from \"SYSTEM\".\"catalog\" limit 1");
-            Array array = conn.createArrayOf("CHAR", new String[] {"a","b","c"});
+            Array array = conn.createArrayOf("CHAR", new String[] {"a", "b", "c"});
             stmt.setArray(1, array);
             ResultSet rs = stmt.executeQuery();
             assertTrue(rs.next());
@@ -691,7 +691,7 @@ public class Array2IT extends ArrayIT {
         }
 
     }
-    
+
     @Test
     public void testArrayConstructorWithMultipleRows1() throws Exception {
 
@@ -741,13 +741,13 @@ public class Array2IT extends ArrayIT {
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT ARRAY[a,b] from  " + table + " ");
         assertTrue(rs.next());
-        Array arr = conn.createArrayOf("INTEGER", new Object[]{6, 3});
+        Array arr = conn.createArrayOf("INTEGER", new Object[] {6, 3});
         assertEquals(arr, rs.getArray(1));
         rs.next();
-        arr = conn.createArrayOf("INTEGER", new Object[]{2, 4});
+        arr = conn.createArrayOf("INTEGER", new Object[] {2, 4});
         assertEquals(arr, rs.getArray(1));
         rs.next();
-        arr = conn.createArrayOf("INTEGER", new Object[]{6, 3});
+        arr = conn.createArrayOf("INTEGER", new Object[] {6, 3});
         assertEquals(arr, rs.getArray(1));
         rs.next();
     }
@@ -775,13 +775,13 @@ public class Array2IT extends ArrayIT {
         ResultSet rs;
         rs = conn.createStatement().executeQuery("SELECT ARRAY[a,b] from  " + table + " ");
         assertTrue(rs.next());
-        Array arr = conn.createArrayOf("VARCHAR", new Object[]{"foo", "abc"});
+        Array arr = conn.createArrayOf("VARCHAR", new Object[] {"foo", "abc"});
         assertEquals(arr, rs.getArray(1));
         rs.next();
-        arr = conn.createArrayOf("VARCHAR", new Object[]{"abc", "dfg"});
+        arr = conn.createArrayOf("VARCHAR", new Object[] {"abc", "dfg"});
         assertEquals(arr, rs.getArray(1));
         rs.next();
-        arr = conn.createArrayOf("VARCHAR", new Object[]{"foo", "abc"});
+        arr = conn.createArrayOf("VARCHAR", new Object[] {"foo", "abc"});
         assertEquals(arr, rs.getArray(1));
         rs.next();
     }

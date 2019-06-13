@@ -25,26 +25,23 @@ import org.apache.phoenix.optimize.QueryOptimizer;
 import org.apache.phoenix.util.ReadOnlyProps;
 
 
-
 /**
- * 
  * Class that delegates QueryService calls through to
  * a parent QueryService.
  *
- * 
  * @since 0.1
  */
 public class DelegateQueryServices implements QueryServices {
     private final QueryServices parent;
-    
+
     public DelegateQueryServices(QueryServices queryServices) {
         parent = queryServices;
     }
-    
+
     protected QueryServices getDelegate() {
         return parent;
     }
-    
+
     @Override
     public ThreadPoolExecutor getExecutor() {
         return parent.getExecutor();

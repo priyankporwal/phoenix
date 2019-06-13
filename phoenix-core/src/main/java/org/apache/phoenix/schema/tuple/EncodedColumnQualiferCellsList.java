@@ -69,7 +69,7 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
     private final QualifierEncodingScheme encodingScheme;
 
     public EncodedColumnQualiferCellsList(int minQ, int maxQ,
-            QualifierEncodingScheme encodingScheme) {
+                                          QualifierEncodingScheme encodingScheme) {
         checkArgument(minQ <= maxQ, "Invalid arguments. Min: " + minQ + ". Max: " + maxQ);
         this.minQualifier = minQ;
         this.maxQualifier = maxQ;
@@ -122,7 +122,7 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
     public <T> T[] toArray(T[] a) {
         T[] toReturn =
                 (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(),
-                    numNonNullElements);
+                        numNonNullElements);
         int counter = 0;
         for (int i = 0; i < array.length; i++) {
             if (array[i] != null) {
@@ -139,7 +139,7 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
         }
         int columnQualifier =
                 encodingScheme.decode(e.getQualifierArray(), e.getQualifierOffset(),
-                    e.getQualifierLength());
+                        e.getQualifierLength());
 
         checkQualifierRange(columnQualifier);
         int idx = getArrayIndex(columnQualifier);
@@ -234,7 +234,7 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
                 Cell cellInThis = listItr.next();
                 int qualifier =
                         encodingScheme.decode(cellInThis.getQualifierArray(),
-                            cellInThis.getQualifierOffset(), cellInThis.getQualifierLength());
+                                cellInThis.getQualifierOffset(), cellInThis.getQualifierLength());
                 try {
                     Cell cellInParam = list.getCellForColumnQualifier(qualifier);
                     if (cellInParam != null && cellInParam.equals(cellInThis)) {
@@ -367,8 +367,8 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
 
     /**
      * @param qualifierBytes bytes of the column qualifier which serves as the index
-     * @param offset offset in the byte array
-     * @param length length starting from offset
+     * @param offset         offset in the byte array
+     * @param length         length starting from offset
      * @return {@link Cell} at the index
      */
     public Cell getCellForColumnQualifier(byte[] qualifierBytes, int offset, int length) {
@@ -388,6 +388,7 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
         }
 
     }
+
     private Cell getCellForColumnQualifier(int columnQualifier) {
         checkQualifierRange(columnQualifier);
         int idx = getArrayIndex(columnQualifier);
@@ -550,7 +551,7 @@ public class EncodedColumnQualiferCellsList implements List<Cell> {
             }
             int columnQualifier =
                     encodingScheme.decode(e.getQualifierArray(), e.getQualifierOffset(),
-                        e.getQualifierLength());
+                            e.getQualifierLength());
             int idx = getArrayIndex(columnQualifier);
             if (idx != lastRet) {
                 throw new IllegalArgumentException("Cell " + e + " with column qualifier "

@@ -35,13 +35,13 @@ public class CreateTableStatement extends MutableStatement {
     private final PrimaryKeyConstraint pkConstraint;
     private final List<ParseNode> splitNodes;
     private final int bindCount;
-    private final ListMultimap<String,Pair<String,Object>> props;
+    private final ListMultimap<String, Pair<String, Object>> props;
     private final boolean ifNotExists;
     private final TableName baseTableName;
     private final ParseNode whereClause;
     // TODO change this to boolean at the next major release and remove TableProperty.IMMUTABLE_ROWS and QueryServiceOptions.IMMUTABLE_ROWS_ATTRIB
     private final Boolean immutableRows;
-    
+
     public CreateTableStatement(CreateTableStatement createTable, List<ColumnDef> columns) {
         this.tableName = createTable.tableName;
         this.tableType = createTable.tableType;
@@ -55,12 +55,12 @@ public class CreateTableStatement extends MutableStatement {
         this.whereClause = createTable.whereClause;
         this.immutableRows = createTable.immutableRows;
     }
-    
-    protected CreateTableStatement(TableName tableName, ListMultimap<String,Pair<String,Object>> props, List<ColumnDef> columns, PrimaryKeyConstraint pkConstraint,
-            List<ParseNode> splitNodes, PTableType tableType, boolean ifNotExists, 
-            TableName baseTableName, ParseNode whereClause, int bindCount, Boolean immutableRows) {
+
+    protected CreateTableStatement(TableName tableName, ListMultimap<String, Pair<String, Object>> props, List<ColumnDef> columns, PrimaryKeyConstraint pkConstraint,
+                                   List<ParseNode> splitNodes, PTableType tableType, boolean ifNotExists,
+                                   TableName baseTableName, ParseNode whereClause, int bindCount, Boolean immutableRows) {
         this.tableName = tableName;
-        this.props = props == null ? ImmutableListMultimap.<String,Pair<String,Object>>of() : props;
+        this.props = props == null ? ImmutableListMultimap.<String, Pair<String, Object>>of() : props;
         this.tableType = PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA.equals(tableName.getSchemaName()) ? PTableType.SYSTEM : tableType;
         this.columns = columns == null ? ImmutableList.<ColumnDef>of() : ImmutableList.<ColumnDef>copyOf(columns);
         this.pkConstraint = pkConstraint == null ? PrimaryKeyConstraint.EMPTY : pkConstraint;
@@ -71,11 +71,11 @@ public class CreateTableStatement extends MutableStatement {
         this.whereClause = whereClause;
         this.immutableRows = immutableRows;
     }
-    
+
     public ParseNode getWhereClause() {
         return whereClause;
     }
-    
+
     @Override
     public int getBindCount() {
         return bindCount;
@@ -101,7 +101,7 @@ public class CreateTableStatement extends MutableStatement {
         return tableType;
     }
 
-    public ListMultimap<String,Pair<String,Object>> getProps() {
+    public ListMultimap<String, Pair<String, Object>> getProps() {
         return props;
     }
 

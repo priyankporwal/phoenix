@@ -29,15 +29,15 @@ public class DropTableIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testRepeatedDropTable() throws Exception {
-      final String tableName = generateUniqueName();
-      final String url = getUrl();
-      try (final Connection conn = DriverManager.getConnection(url);
-          final Statement stmt = conn.createStatement()) {
-        assertFalse(stmt.execute(String.format("CREATE TABLE %s(pk varchar not null primary key)", tableName)));
-        String dropTable = String.format("DROP TABLE IF EXISTS %s", tableName);
-        for (int i = 0; i < 5; i++) {
-          assertFalse(stmt.execute(dropTable));
+        final String tableName = generateUniqueName();
+        final String url = getUrl();
+        try (final Connection conn = DriverManager.getConnection(url);
+             final Statement stmt = conn.createStatement()) {
+            assertFalse(stmt.execute(String.format("CREATE TABLE %s(pk varchar not null primary key)", tableName)));
+            String dropTable = String.format("DROP TABLE IF EXISTS %s", tableName);
+            for (int i = 0; i < 5; i++) {
+                assertFalse(stmt.execute(dropTable));
+            }
         }
-      }
     }
 }

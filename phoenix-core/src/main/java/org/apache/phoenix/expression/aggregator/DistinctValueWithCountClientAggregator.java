@@ -40,8 +40,7 @@ import org.iq80.snappy.Snappy;
 
 /**
  * Client side Aggregator which will aggregate data and find distinct values with number of occurrences for each.
- * 
- * 
+ *
  * @since 1.2.1
  */
 public abstract class DistinctValueWithCountClientAggregator extends BaseAggregator {
@@ -123,14 +122,14 @@ public abstract class DistinctValueWithCountClientAggregator extends BaseAggrega
         cachedResult = null;
         super.reset();
     }
-    
+
     protected Map<Object, Integer> getSortedValueVsCount(final boolean ascending, final PDataType type) {
         // To sort the valueVsCount
         Comparator<Object> comparator = new Comparator<Object>() {
             @Override
             public int compare(Object o1, Object o2) {
-                if (ascending) { 
-                    return type.compareTo(o1, o2); 
+                if (ascending) {
+                    return type.compareTo(o1, o2);
                 }
                 return type.compareTo(o2, o1);
             }

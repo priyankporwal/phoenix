@@ -71,7 +71,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
     @Parameters(name = "RowTimestampIT_mutable={0},ascending={1}")
     public static Collection<Boolean[]> data() {
         return Arrays.asList(
-            new Boolean[][] { { false, false }, { false, true }, { true, false }, { true, true } });
+                new Boolean[][] {{false, false}, {false, true}, {true, false}, {true, true}});
     }
 
     @Test
@@ -102,8 +102,8 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
         } catch (SQLException e) {
             if (mutable) {
                 assertEquals(SQLExceptionCode.CANNOT_CREATE_INDEX_ON_MUTABLE_TABLE_WITH_ROWTIMESTAMP
-                        .getErrorCode(),
-                    e.getErrorCode());
+                                .getErrorCode(),
+                        e.getErrorCode());
             } else {
                 throw e;
             }
@@ -112,12 +112,12 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
         long rowTimestamp = EnvironmentEdgeManager.currentTimeMillis();
         Date rowTimestampDate = new Date(rowTimestamp);
         Properties props = new Properties();
-        long scn = rowTimestamp-500;
+        long scn = rowTimestamp - 500;
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             // The timestamp of the put will be the value of the row_timestamp column.
             PreparedStatement stmt =
                     conn.prepareStatement(
-                        "UPSERT INTO  " + tableName + "  (PK1, PK2, KV1, KV2) VALUES (?, ?, ?, ?)");
+                            "UPSERT INTO  " + tableName + "  (PK1, PK2, KV1, KV2) VALUES (?, ?, ?, ?)");
             stmt.setString(1, "PK1");
             stmt.setDate(2, rowTimestampDate);
             stmt.setString(3, "KV1");
@@ -132,7 +132,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
             // inserted above. 
             PreparedStatement stmt =
                     conn.prepareStatement(
-                        "SELECT * FROM  " + tableName + "  WHERE PK1 = ? AND PK2 = ?");
+                            "SELECT * FROM  " + tableName + "  WHERE PK1 = ? AND PK2 = ?");
             stmt.setString(1, "PK1");
             stmt.setDate(2, rowTimestampDate);
             ResultSet rs = stmt.executeQuery();
@@ -163,7 +163,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
         }
         if (!mutable) {
             hTable = hbaseConn.getTable(TableName.valueOf(indexName));
-             resultScanner = hTable.getScanner(scan);
+            resultScanner = hTable.getScanner(scan);
             for (Result result : resultScanner) {
                 long timeStamp = result.getColumnLatestCell(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, emptyKVQualifier).getTimestamp();
                 assertEquals(rowTimestampDate.getTime(), timeStamp);
@@ -176,7 +176,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
         try (Connection conn = DriverManager.getConnection(getUrl(), props)) {
             PreparedStatement stmt =
                     conn.prepareStatement(
-                        "SELECT * FROM  " + tableName + "  WHERE PK1 = ? AND PK2 = ?");
+                            "SELECT * FROM  " + tableName + "  WHERE PK1 = ? AND PK2 = ?");
             stmt.setString(1, "PK1");
             stmt.setDate(2, rowTimestampDate);
             ResultSet rs = stmt.executeQuery();
@@ -191,7 +191,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
                 // Data visible when querying the index table too.
                 stmt =
                         conn.prepareStatement(
-                            "SELECT KV2 FROM  " + tableName + "  WHERE PK2 = ? AND KV1 = ?");
+                                "SELECT KV2 FROM  " + tableName + "  WHERE PK2 = ? AND KV1 = ?");
                 stmt.setDate(1, rowTimestampDate);
                 stmt.setString(2, "KV1");
                 rs = stmt.executeQuery();
@@ -204,12 +204,12 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
     }
 
     @Test
-    public void testAutomaticallySettingRowTimestampWithTimestamp () throws Exception {
+    public void testAutomaticallySettingRowTimestampWithTimestamp() throws Exception {
         automaticallySettingRowTimestampForImmutableTableAndIndexes("TIMESTAMP");
     }
 
     @Test
-    public void testAutomaticallySettingRowTimestampWithDate () throws Exception {
+    public void testAutomaticallySettingRowTimestampWithDate() throws Exception {
         automaticallySettingRowTimestampForImmutableTableAndIndexes("DATE");
     }
 
@@ -232,8 +232,8 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
         } catch (SQLException e) {
             if (mutable) {
                 assertEquals(SQLExceptionCode.CANNOT_CREATE_INDEX_ON_MUTABLE_TABLE_WITH_ROWTIMESTAMP
-                        .getErrorCode(),
-                    e.getErrorCode());
+                                .getErrorCode(),
+                        e.getErrorCode());
             } else {
                 throw e;
             }
@@ -244,7 +244,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
             // This should upsert data with the value for PK2 as the s
             PreparedStatement stmt =
                     conn.prepareStatement(
-                        "UPSERT INTO  " + tableName + " (PK1, KV1, KV2) VALUES (?, ?, ?)");
+                            "UPSERT INTO  " + tableName + " (PK1, KV1, KV2) VALUES (?, ?, ?)");
             stmt.setString(1, "PK1");
             stmt.setString(2, "KV1");
             stmt.setString(3, "KV2");
@@ -270,7 +270,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
             assertEquals("KV2", rs.getString(2));
             Date rowTimestampDate = rs.getDate(3);
             assertFalse(rs.next());
-            
+
             // verify that the timestamp of the keyvalues matches the ROW_TIMESTAMP column value
             Scan scan = new Scan();
             byte[] emptyKVQualifier = EncodedColumnsUtil.getEmptyKeyValueInfo(true).getFirst();
@@ -283,7 +283,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
             }
             if (!mutable) {
                 hTable = hbaseConn.getTable(TableName.valueOf(indexName));
-                 resultScanner = hTable.getScanner(scan);
+                resultScanner = hTable.getScanner(scan);
                 for (Result result : resultScanner) {
                     long timeStamp = result.getColumnLatestCell(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, emptyKVQualifier).getTimestamp();
                     assertEquals(rowTimestampDate.getTime(), timeStamp);
@@ -294,7 +294,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
                 // Verify now that the data was correctly added to the immutable index too.
                 stmt =
                         conn.prepareStatement(
-                            "SELECT KV2 FROM " + tableName + " WHERE PK2 = ? AND KV1 = ?");
+                                "SELECT KV2 FROM " + tableName + " WHERE PK2 = ? AND KV1 = ?");
                 stmt.setDate(1, rowTimestampDate);
                 stmt.setString(2, "KV1");
                 rs = stmt.executeQuery();
@@ -339,18 +339,18 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
         }
         try (Connection conn = DriverManager.getConnection(getUrl())) {
             assertNumRecords(3, "SELECT count(*) from " + tableName + " WHERE PK2 > ?", conn,
-                new Date(10));
+                    new Date(10));
             assertNumRecords(1, "SELECT count(*) from " + tableName + " WHERE PK2 < ? AND PK2 > ?",
-                conn, new Date(30), new Date(10));
+                    conn, new Date(30), new Date(10));
             assertNumRecords(3,
-                "SELECT count(*) from " + tableName + " WHERE PK2 <= ? AND PK2 >= ?", conn,
-                new Date(30), new Date(10));
+                    "SELECT count(*) from " + tableName + " WHERE PK2 <= ? AND PK2 >= ?", conn,
+                    new Date(30), new Date(10));
             assertNumRecords(2, "SELECT count(*) from " + tableName + " WHERE PK2 <= ? AND PK2 > ?",
-                conn, new Date(30), new Date(10));
+                    conn, new Date(30), new Date(10));
             assertNumRecords(2, "SELECT count(*) from " + tableName + " WHERE PK2 < ? AND PK2 >= ?",
-                conn, new Date(30), new Date(10));
+                    conn, new Date(30), new Date(10));
             assertNumRecords(0, "SELECT count(*) from " + tableName + " WHERE PK2 < ?", conn,
-                new Date(10));
+                    new Date(10));
             assertNumRecords(4, "SELECT count(*) from " + tableName, conn);
         }
     }
@@ -379,7 +379,7 @@ public class RowTimestampIT extends ParallelStatsDisabledIT {
             Date d = new Date(-100);
             PreparedStatement stmt =
                     conn.prepareStatement(
-                        "UPSERT INTO " + tableName + " VALUES (?, ?) ");
+                            "UPSERT INTO " + tableName + " VALUES (?, ?) ");
             stmt.setDate(1, d);
             stmt.setString(2, "KV1");
             stmt.executeUpdate();

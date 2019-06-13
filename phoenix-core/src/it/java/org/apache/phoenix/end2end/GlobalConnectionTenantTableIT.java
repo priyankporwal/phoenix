@@ -101,13 +101,13 @@ public class GlobalConnectionTenantTableIT extends BaseTest {
         try (Connection conn = getConnection()) {
             PTable table =
                     PhoenixRuntime.getTable(conn, null,
-                        SchemaUtil.getTableName(SCHEMA_NAME, TABLE_NAME));
+                            SchemaUtil.getTableName(SCHEMA_NAME, TABLE_NAME));
             assertNotNull(table);
 
             try {
                 table = PhoenixRuntime.getTable(conn, null, FULL_VIEW_NAME);
                 fail(
-                    "Expected TableNotFoundException for trying to get tenant specific view without tenantid");
+                        "Expected TableNotFoundException for trying to get tenant specific view without tenantid");
             } catch (SQLException e) {
                 assertEquals(e.getErrorCode(), SQLExceptionCode.TABLE_UNDEFINED.getErrorCode());
             }
@@ -138,7 +138,7 @@ public class GlobalConnectionTenantTableIT extends BaseTest {
     }
 
     private static void createBaseTable(String schemaName, String tableName, boolean multiTenant,
-            Integer saltBuckets, String splits) throws SQLException {
+                                        Integer saltBuckets, String splits) throws SQLException {
         Connection conn = getConnection();
         String ddl =
                 "CREATE TABLE " + SchemaUtil.getTableName(schemaName, tableName)
@@ -158,7 +158,7 @@ public class GlobalConnectionTenantTableIT extends BaseTest {
     }
 
     private static void createView(Connection conn, String schemaName, String viewName,
-            String baseTableName) throws SQLException {
+                                   String baseTableName) throws SQLException {
         String fullViewName = SchemaUtil.getTableName(schemaName, viewName);
         String fullTableName = SchemaUtil.getTableName(schemaName, baseTableName);
         conn.createStatement()
@@ -167,10 +167,10 @@ public class GlobalConnectionTenantTableIT extends BaseTest {
     }
 
     private static void createViewIndex(Connection conn, String schemaName, String indexName,
-            String viewName, String indexColumn) throws SQLException {
+                                        String viewName, String indexColumn) throws SQLException {
         String fullViewName = SchemaUtil.getTableName(schemaName, viewName);
         conn.createStatement().execute(
-            "CREATE INDEX " + indexName + " ON " + fullViewName + "(" + indexColumn + ")");
+                "CREATE INDEX " + indexName + " ON " + fullViewName + "(" + indexColumn + ")");
         conn.commit();
     }
 

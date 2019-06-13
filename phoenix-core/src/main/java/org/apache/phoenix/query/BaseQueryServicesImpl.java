@@ -26,12 +26,9 @@ import org.apache.phoenix.optimize.QueryOptimizer;
 import org.apache.phoenix.util.ReadOnlyProps;
 
 
-
 /**
- * 
  * Base class for QueryService implementors.
  *
- * 
  * @since 0.1
  */
 public abstract class BaseQueryServicesImpl implements QueryServices {
@@ -39,11 +36,11 @@ public abstract class BaseQueryServicesImpl implements QueryServices {
     private final MemoryManager memoryManager;
     private final ReadOnlyProps props;
     private final QueryOptimizer queryOptimizer;
-    
+
     public BaseQueryServicesImpl(ReadOnlyProps defaultProps, QueryServicesOptions options) {
-        this.executor =  JobManager.createThreadPoolExec(
-                options.getKeepAliveMs(), 
-                options.getThreadPoolSize(), 
+        this.executor = JobManager.createThreadPoolExec(
+                options.getKeepAliveMs(),
+                options.getThreadPoolSize(),
                 options.getQueueSize(),
                 options.isGlobalMetricsEnabled());
         this.memoryManager = new GlobalMemoryManager(
@@ -51,7 +48,7 @@ public abstract class BaseQueryServicesImpl implements QueryServices {
         this.props = options.getProps(defaultProps);
         this.queryOptimizer = new QueryOptimizer(this);
     }
-    
+
     @Override
     public ThreadPoolExecutor getExecutor() {
         return executor;
@@ -76,5 +73,5 @@ public abstract class BaseQueryServicesImpl implements QueryServices {
     @Override
     public QueryOptimizer getOptimizer() {
         return queryOptimizer;
-    }   
+    }
 }

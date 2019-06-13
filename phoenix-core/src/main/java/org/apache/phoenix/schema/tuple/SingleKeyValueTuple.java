@@ -26,26 +26,26 @@ public class SingleKeyValueTuple extends BaseTuple {
     private static final byte[] UNITIALIZED_KEY_BUFFER = new byte[0];
     private Cell cell;
     private ImmutableBytesWritable keyPtr = new ImmutableBytesWritable(UNITIALIZED_KEY_BUFFER);
-    
+
     public SingleKeyValueTuple() {
     }
-    
+
     public SingleKeyValueTuple(Cell cell) {
         if (cell == null) {
             throw new NullPointerException();
         }
         setCell(cell);
     }
-    
+
     public boolean hasKey() {
         return keyPtr.get() != UNITIALIZED_KEY_BUFFER;
     }
-    
+
     public void reset() {
         this.cell = null;
         keyPtr.set(UNITIALIZED_KEY_BUFFER);
     }
-    
+
     public void setCell(Cell cell) {
         if (cell == null) {
             throw new IllegalArgumentException();
@@ -53,23 +53,23 @@ public class SingleKeyValueTuple extends BaseTuple {
         this.cell = cell;
         setKey(cell);
     }
-    
+
     public void setKey(ImmutableBytesWritable ptr) {
         keyPtr.set(ptr.get(), ptr.getOffset(), ptr.getLength());
     }
-    
+
     public void setKey(Cell cell) {
         if (cell == null) {
             throw new IllegalArgumentException();
         }
         keyPtr.set(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
     }
-    
+
     @Override
     public void getKey(ImmutableBytesWritable ptr) {
         ptr.set(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength());
     }
-    
+
     @Override
     public Cell getValue(byte[] cf, byte[] cq) {
         return cell;
@@ -79,10 +79,10 @@ public class SingleKeyValueTuple extends BaseTuple {
     public boolean isImmutable() {
         return true;
     }
-    
+
     @Override
     public String toString() {
-        return "SingleKeyValueTuple[" + cell == null ? keyPtr.get() == UNITIALIZED_KEY_BUFFER ? "null" : Bytes.toStringBinary(keyPtr.get(),keyPtr.getOffset(),keyPtr.getLength()) : cell.toString() + "]";
+        return "SingleKeyValueTuple[" + cell == null ? keyPtr.get() == UNITIALIZED_KEY_BUFFER ? "null" : Bytes.toStringBinary(keyPtr.get(), keyPtr.getOffset(), keyPtr.getLength()) : cell.toString() + "]";
     }
 
     @Override
@@ -100,9 +100,10 @@ public class SingleKeyValueTuple extends BaseTuple {
 
     @Override
     public boolean getValue(byte[] family, byte[] qualifier,
-            ImmutableBytesWritable ptr) {
-        if (cell == null)
+                            ImmutableBytesWritable ptr) {
+        if (cell == null) {
             return false;
+        }
         ptr.set(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
         return true;
     }

@@ -29,7 +29,7 @@ import org.apache.phoenix.schema.PIndexState;
 import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTableType;
 
-public class BaseMetaDataEndpointObserver implements MetaDataEndpointObserver, PhoenixCoprocessor{
+public class BaseMetaDataEndpointObserver implements MetaDataEndpointObserver, PhoenixCoprocessor {
 
     @Override
     public void start(CoprocessorEnvironment env) throws IOException {
@@ -48,24 +48,24 @@ public class BaseMetaDataEndpointObserver implements MetaDataEndpointObserver, P
 
     }
 
-    
+
     @Override
     public void preCreateTable(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId,
-            String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType tableType,
-            Set<byte[]> familySet, Set<TableName> indexes) throws IOException {
+                               String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType tableType,
+                               Set<byte[]> familySet, Set<TableName> indexes) throws IOException {
 
     }
 
     @Override
     public void preDropTable(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId,
-            String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType tableType,
-            List<PTable> indexes) throws IOException {
+                             String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType tableType,
+                             List<PTable> indexes) throws IOException {
 
     }
 
     @Override
     public void preAlterTable(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId,
-            String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType type) throws IOException {
+                              String tableName, TableName physicalTableName, TableName parentPhysicalTableName, PTableType type) throws IOException {
 
     }
 
@@ -88,13 +88,14 @@ public class BaseMetaDataEndpointObserver implements MetaDataEndpointObserver, P
 
     @Override
     public void preCreateFunction(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId,
-            String functionName) throws IOException {
+                                  String functionName) throws IOException {
 
     }
 
     @Override
     public void preDropFunction(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId, String functionName)
-            throws IOException {}
+            throws IOException {
+    }
 
     @Override
     public void preGetFunctions(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId, String functionName)
@@ -104,7 +105,7 @@ public class BaseMetaDataEndpointObserver implements MetaDataEndpointObserver, P
 
     @Override
     public void preIndexUpdate(ObserverContext<PhoenixMetaDataControllerEnvironment> ctx, String tenantId,
-            String indexName, TableName physicalTableName, TableName parentPhysicalTableName, PIndexState newState)
+                               String indexName, TableName physicalTableName, TableName parentPhysicalTableName, PIndexState newState)
             throws IOException {
 
     }

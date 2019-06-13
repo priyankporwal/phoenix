@@ -36,9 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * Basic tests for Alter Session Statements
- *
  */
 public class AlterSessionIT extends ParallelStatsDisabledIT {
 
@@ -75,10 +73,10 @@ public class AlterSessionIT extends ParallelStatsDisabledIT {
 
     @Test
     public void testSetConsistencyInURL() throws Exception {
-            Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
+        Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn = DriverManager.getConnection(getUrl() + PhoenixRuntime.JDBC_PROTOCOL_TERMINATOR +
-                    "Consistency=TIMELINE", props)) {
-            assertEquals(Consistency.TIMELINE, ((PhoenixConnection)conn).getConsistency());
+                "Consistency=TIMELINE", props)) {
+            assertEquals(Consistency.TIMELINE, ((PhoenixConnection) conn).getConsistency());
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("explain select * from " + tableName);
             String queryPlan = QueryUtil.getExplainPlan(rs);

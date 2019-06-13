@@ -63,7 +63,8 @@ public class GuidePostsCacheImpl implements GuidePostsCache {
                 .maximumWeight(maxTableStatsCacheSize)
                 // Defer actual size to the PTableStats.getEstimatedSize()
                 .weigher(new Weigher<GuidePostsKey, GuidePostsInfo>() {
-                    @Override public int weigh(GuidePostsKey key, GuidePostsInfo info) {
+                    @Override
+                    public int weigh(GuidePostsKey key, GuidePostsInfo info) {
                         return info.getEstimatedSize();
                     }
                 })

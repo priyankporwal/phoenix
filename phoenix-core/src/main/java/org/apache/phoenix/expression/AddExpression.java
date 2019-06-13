@@ -23,10 +23,8 @@ import org.apache.phoenix.expression.visitor.ExpressionVisitor;
 
 
 /**
- * 
  * Subtract expression implementation
  *
- * 
  * @since 0.1
  */
 public abstract class AddExpression extends BaseAddSubtractExpression {

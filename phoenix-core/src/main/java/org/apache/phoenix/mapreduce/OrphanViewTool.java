@@ -76,7 +76,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A tool to identify orphan views and links, and drop them
- *
  */
 public class OrphanViewTool extends Configured implements Tool {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrphanViewTool.class);
@@ -86,7 +85,7 @@ public class OrphanViewTool extends Configured implements Tool {
             TABLE_SCHEM + "," +
             TABLE_NAME +
             " FROM " + SYSTEM_CATALOG_NAME +
-            " WHERE "+ TABLE_TYPE + " = '" + PTableType.VIEW.getSerializedValue() +"' AND NOT " +
+            " WHERE " + TABLE_TYPE + " = '" + PTableType.VIEW.getSerializedValue() + "' AND NOT " +
             VIEW_TYPE + " = " + PTable.ViewType.MAPPED.getSerializedValue();
     // Query all physical links
     private static final String physicalLinkQuery = "SELECT " +
@@ -96,7 +95,7 @@ public class OrphanViewTool extends Configured implements Tool {
             COLUMN_NAME + " AS PHYSICAL_TABLE_TENANT_ID, " +
             COLUMN_FAMILY + " AS PHYSICAL_TABLE_FULL_NAME " +
             " FROM " + SYSTEM_CATALOG_NAME +
-            " WHERE "+ LINK_TYPE + " = " +
+            " WHERE " + LINK_TYPE + " = " +
             PTable.LinkType.PHYSICAL_TABLE.getSerializedValue();
     // Query all child-parent links
     private static final String childParentLinkQuery = "SELECT " +
@@ -106,7 +105,7 @@ public class OrphanViewTool extends Configured implements Tool {
             COLUMN_NAME + " AS PARENT_VIEW_TENANT_ID, " +
             COLUMN_FAMILY + " AS PARENT_VIEW_FULL_NAME " +
             " FROM " + SYSTEM_CATALOG_NAME +
-            " WHERE "+ LINK_TYPE + " = " +
+            " WHERE " + LINK_TYPE + " = " +
             PTable.LinkType.PARENT_TABLE.getSerializedValue();
     // Query all parent-child links
     private static final String parentChildLinkQuery = "SELECT " +
@@ -116,7 +115,7 @@ public class OrphanViewTool extends Configured implements Tool {
             COLUMN_NAME + " AS CHILD_VIEW_TENANT_ID, " +
             COLUMN_FAMILY + " AS CHILD_VIEW_FULL_NAME " +
             " FROM " + SYSTEM_CHILD_LINK_NAME +
-            " WHERE "+ LINK_TYPE + " = " +
+            " WHERE " + LINK_TYPE + " = " +
             PTable.LinkType.CHILD_TABLE.getSerializedValue();
 
     // Query all the tables that can be a base table
@@ -125,7 +124,7 @@ public class OrphanViewTool extends Configured implements Tool {
             TABLE_SCHEM + ", " +
             TABLE_NAME +
             " FROM " + SYSTEM_CATALOG_NAME +
-            " WHERE "+ " NOT " + TABLE_TYPE + " = '" + PTableType.VIEW.getSerializedValue() + "'";
+            " WHERE " + " NOT " + TABLE_TYPE + " = '" + PTableType.VIEW.getSerializedValue() + "'";
     // The path of the directory of the output files
     private String outputPath;
     // The path of the directory of the input files
@@ -135,7 +134,7 @@ public class OrphanViewTool extends Configured implements Tool {
     // The maximum level found in a view tree
     private int maxViewLevel = 0;
     // The age of a view
-    private static final long defaultAgeMs = 24*60*60*1000; // 1 day
+    private static final long defaultAgeMs = 24 * 60 * 60 * 1000; // 1 day
     private long ageMs = 0;
 
     // A separate file is maintained to list orphan views, and each type of orphan links
@@ -185,6 +184,7 @@ public class OrphanViewTool extends Configured implements Tool {
     /**
      * Parses the commandline arguments, throws IllegalStateException if mandatory arguments are
      * missing.
+     *
      * @param args supplied command line arguments
      */
     private void parseOptions(String[] args) throws Exception {
@@ -220,8 +220,7 @@ public class OrphanViewTool extends Configured implements Tool {
         }
         if (cmdLine.hasOption(CLEAN_ORPHAN_VIEWS_OPTION.getOpt())) {
             clean = true;
-        }
-        else if (!cmdLine.hasOption(IDENTIFY_ORPHAN_VIEWS_OPTION.getOpt())) {
+        } else if (!cmdLine.hasOption(IDENTIFY_ORPHAN_VIEWS_OPTION.getOpt())) {
             throw new IllegalStateException("Specify either " +
                     IDENTIFY_ORPHAN_VIEWS_OPTION.getOpt() + " or " + CLEAN_ORPHAN_VIEWS_OPTION.getOpt());
         }
@@ -250,7 +249,7 @@ public class OrphanViewTool extends Configured implements Tool {
     private static class Key {
         private String serializedValue;
 
-        public Key (String tenantId, String schemaName, String tableName) throws IllegalArgumentException {
+        public Key(String tenantId, String schemaName, String tableName) throws IllegalArgumentException {
             if (tableName == null) {
                 throw new IllegalArgumentException();
             }
@@ -259,7 +258,7 @@ public class OrphanViewTool extends Configured implements Tool {
                     tableName;
         }
 
-        public Key (String tenantId, String fullTableName) {
+        public Key(String tenantId, String fullTableName) {
             String[] columns = fullTableName.split("\\.");
             String schemaName;
             String tableName;
@@ -278,7 +277,7 @@ public class OrphanViewTool extends Configured implements Tool {
                     tableName;
         }
 
-        public Key (String serializedKey) {
+        public Key(String serializedKey) {
             serializedValue = serializedKey;
             if (this.getTableName() == null || this.getTableName().compareTo("") == 0) {
                 throw new IllegalArgumentException();
@@ -303,6 +302,7 @@ public class OrphanViewTool extends Configured implements Tool {
         public String getSerializedValue() {
             return serializedValue;
         }
+
         @Override
         public int hashCode() {
             return Objects.hash(getSerializedValue());
@@ -310,13 +310,16 @@ public class OrphanViewTool extends Configured implements Tool {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             Key other = (Key) obj;
-            if (this.getSerializedValue().compareTo(other.getSerializedValue()) != 0)
+            if (this.getSerializedValue().compareTo(other.getSerializedValue()) != 0) {
                 return false;
+            }
             return true;
         }
     }
@@ -347,7 +350,7 @@ public class OrphanViewTool extends Configured implements Tool {
      * A class to represents a base table
      */
     private static class Base extends Table {
-        public Base (Key key) {
+        public Base(Key key) {
             this.key = key;
         }
     }
@@ -359,7 +362,7 @@ public class OrphanViewTool extends Configured implements Tool {
         Key parent;
         Key base;
 
-        public View (Key key) {
+        public View(Key key) {
             this.key = key;
         }
 
@@ -394,7 +397,7 @@ public class OrphanViewTool extends Configured implements Tool {
     }
 
     private void gracefullyDropView(PhoenixConnection phoenixConnection,
-            Configuration configuration, Key key) throws Exception {
+                                    Configuration configuration, Key key) throws Exception {
         PhoenixConnection tenantConnection = null;
         boolean newConn = false;
         try {
@@ -414,8 +417,7 @@ public class OrphanViewTool extends Configured implements Tool {
             try {
                 client.dropTable(
                         new DropTableStatement(pTableName, PTableType.VIEW, false, true, true));
-            }
-            catch (TableNotFoundException e) {
+            } catch (TableNotFoundException e) {
                 LOGGER.info("Ignoring view " + pTableName + " as it has already been dropped");
             }
         } finally {
@@ -442,13 +444,11 @@ public class OrphanViewTool extends Configured implements Tool {
         byte type;
         if (linkType == PTable.LinkType.PHYSICAL_TABLE) {
             type = PHYSICAL_TABLE_LINK;
-        }
-        else if (linkType == PTable.LinkType.PARENT_TABLE) {
+        } else if (linkType == PTable.LinkType.PARENT_TABLE) {
             type = PARENT_TABLE_LINK;
         } else if (linkType == PTable.LinkType.CHILD_TABLE) {
             type = CHILD_TABLE_LINK;
-        }
-        else {
+        } else {
             throw new AssertionError("Unknown Link Type");
         }
         return type;
@@ -458,13 +458,11 @@ public class OrphanViewTool extends Configured implements Tool {
         PTable.LinkType type;
         if (linkType == PHYSICAL_TABLE_LINK) {
             type = PTable.LinkType.PHYSICAL_TABLE;
-        }
-        else if (linkType == PARENT_TABLE_LINK) {
+        } else if (linkType == PARENT_TABLE_LINK) {
             type = PTable.LinkType.PARENT_TABLE;
         } else if (linkType == CHILD_TABLE_LINK) {
             type = PTable.LinkType.CHILD_TABLE;
-        }
-        else {
+        } else {
             throw new AssertionError("Unknown Link Type");
         }
         return type;
@@ -477,8 +475,7 @@ public class OrphanViewTool extends Configured implements Tool {
                 if (outputPath != null) {
                     writer[linkType].write(link.src.getSerializedValue() + "-->" + link.dst.getSerializedValue());
                     writer[linkType].newLine();
-                }
-                else if (!clean){
+                } else if (!clean) {
                     System.out.println(link.src.getSerializedValue() + "-(" + link.type + ")->" + link.dst.getSerializedValue());
                 }
                 if (clean) {
@@ -489,6 +486,7 @@ public class OrphanViewTool extends Configured implements Tool {
             }
         }
     }
+
     private void forcefullyDropView(PhoenixConnection phoenixConnection,
                                     Key key) throws Exception {
         String deleteRowsFromCatalog = "DELETE FROM " + SYSTEM_CATALOG_NAME +
@@ -508,12 +506,11 @@ public class OrphanViewTool extends Configured implements Tool {
     }
 
     private void dropOrLogOrphanViews(PhoenixConnection phoenixConnection, Configuration configuration,
-                          Key key) throws Exception {
+                                      Key key) throws Exception {
         if (outputPath != null) {
             writer[VIEW].write(key.getSerializedValue());
             writer[VIEW].newLine();
-        }
-        else if (!clean) {
+        } else if (!clean) {
             System.out.println(key.getSerializedValue());
             return;
         }
@@ -525,6 +522,7 @@ public class OrphanViewTool extends Configured implements Tool {
 
     /**
      * Go through all the views in the system catalog table and add them to orphanViewSet
+     *
      * @param phoenixConnection
      * @throws Exception
      */
@@ -543,6 +541,7 @@ public class OrphanViewTool extends Configured implements Tool {
 
     /**
      * Go through all the tables in the system catalog table and update baseSet
+     *
      * @param phoenixConnection
      * @throws Exception
      */
@@ -563,6 +562,7 @@ public class OrphanViewTool extends Configured implements Tool {
      * Go through all the physical links in the system catalog table and update the base table info of the
      * view objects in orphanViewSet. If the base or view object does not exist for a given link, then add the link
      * to orphanLinkSet
+     *
      * @param phoenixConnection
      * @throws Exception
      */
@@ -583,8 +583,7 @@ public class OrphanViewTool extends Configured implements Tool {
 
             if (view == null || base == null) {
                 orphanLinkSet.add(new Link(viewKey, baseKey, PTable.LinkType.PHYSICAL_TABLE));
-            }
-            else {
+            } else {
                 view.setBase(baseKey);
             }
         }
@@ -593,6 +592,7 @@ public class OrphanViewTool extends Configured implements Tool {
     /**
      * Go through all the child-parent links and update the parent field of the view objects of orphanViewSet.
      * Check if the child does not exist add the link to orphanLinkSet.
+     *
      * @param phoenixConnection
      * @throws Exception
      */
@@ -622,8 +622,7 @@ public class OrphanViewTool extends Configured implements Tool {
 
             if (childView == null || parentView == null) {
                 orphanLinkSet.add(new Link(childKey, parentKey, PTable.LinkType.PARENT_TABLE));
-            }
-            else {
+            } else {
                 childView.setParent(parentKey);
             }
         }
@@ -634,6 +633,7 @@ public class OrphanViewTool extends Configured implements Tool {
      * child view objects of orphanViewSet and the child links of the parent objects (which can be a view from
      * orphanViewSet or a base table from baseSet. Check if the child or parent does not exist, and if so, add the link
      * to orphanLinkSet.
+     *
      * @param phoenixConnection
      * @throws Exception
      */
@@ -656,14 +656,11 @@ public class OrphanViewTool extends Configured implements Tool {
             if (childView == null) {
                 // No child for this link
                 orphanLinkSet.add(new Link(parentKey, childKey, PTable.LinkType.CHILD_TABLE));
-            }
-            else if (base != null) {
+            } else if (base != null) {
                 base.addChild(childKey);
-            }
-            else if (parentView != null) {
+            } else if (parentView != null) {
                 parentView.addChild(childKey);
-            }
-            else {
+            } else {
                 // No parent for this link
                 orphanLinkSet.add(new Link(parentKey, childKey, PTable.LinkType.CHILD_TABLE));
             }
@@ -685,8 +682,9 @@ public class OrphanViewTool extends Configured implements Tool {
      * missing or broken links, and thereby identify orphan vies
      */
     private void visitViewsLevelByLevelAndIdentifyOrphanViews() {
-        if (baseSet.isEmpty())
+        if (baseSet.isEmpty()) {
             return;
+        }
         HashMap<Key, View> viewSet = new HashMap<>();
         viewSetArray.add(0, viewSet);
         // Remove the child views of the tables of baseSet from orphanViewSet and add them to viewSetArray[0]
@@ -745,8 +743,9 @@ public class OrphanViewTool extends Configured implements Tool {
         // Go through index-view links and update the views of orphanLinkSet
         processChildParentLinks(phoenixConnection);
 
-        if (baseSet == null)
+        if (baseSet == null) {
             return;
+        }
         // Remove the base tables with no child from baseSet
         removeBaseTablesWithNoChildViewFromBaseSet();
         // Starting from the child views of the base tables, visit views level by level and identify
@@ -755,10 +754,10 @@ public class OrphanViewTool extends Configured implements Tool {
     }
 
     private void createSnapshot(PhoenixConnection phoenixConnection, long scn)
-        throws Exception {
+            throws Exception {
         phoenixConnection.getQueryServices().getAdmin().snapshot("OrphanViewTool." + Long.toString(scn),
                 TableName.valueOf(SYSTEM_CATALOG_NAME));
-        phoenixConnection.getQueryServices().getAdmin().snapshot("OrphanViewTool." + Long.toString(scn+1),
+        phoenixConnection.getQueryServices().getAdmin().snapshot("OrphanViewTool." + Long.toString(scn + 1),
                 TableName.valueOf(SYSTEM_CHILD_LINK_NAME));
     }
 
@@ -771,9 +770,9 @@ public class OrphanViewTool extends Configured implements Tool {
         }
     }
 
-    private void readAndRemoveOrphanLinks(PhoenixConnection phoenixConnection) throws Exception{
+    private void readAndRemoveOrphanLinks(PhoenixConnection phoenixConnection) throws Exception {
         String aLine;
-        for (byte i = VIEW+1; i < ORPHAN_TYPE_COUNT; i++) {
+        for (byte i = VIEW + 1; i < ORPHAN_TYPE_COUNT; i++) {
             reader[i] = new BufferedReader(new FileReader(inputPath + fileName[i]));
             while ((aLine = reader[i].readLine()) != null) {
                 String ends[] = aLine.split("-->");
@@ -796,6 +795,7 @@ public class OrphanViewTool extends Configured implements Tool {
 
     /**
      * Try closing a connection if it is not null
+     *
      * @param connection connection object
      * @throws RuntimeException if closing the connection fails
      */
@@ -860,7 +860,8 @@ public class OrphanViewTool extends Configured implements Tool {
                 } catch (Exception e) {
                     // Ignore
                 }
-            };
+            }
+            ;
             if (clean) {
                 // Wait for the view drop tasks in the SYSTEM.TASK table to be processed
                 long timeInterval = configuration.getLong(QueryServices.TASK_HANDLING_INTERVAL_MS_ATTRIB,
@@ -873,12 +874,12 @@ public class OrphanViewTool extends Configured implements Tool {
                     } catch (Exception e) {
                         // Ignore
                     }
-                };
+                }
+                ;
             }
             if (inputPath == null) {
                 removeOrLogOrphanLinks(phoenixConnection);
-            }
-            else {
+            } else {
                 readAndRemoveOrphanLinks(phoenixConnection);
             }
             return 0;

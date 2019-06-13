@@ -29,46 +29,47 @@ import org.slf4j.LoggerFactory;
 /**
  * A group of {@link Task}s. The tasks are all bound together using the same {@link Abortable} (
  * <tt>this</tt>) to ensure that all tasks are aware when any of the other tasks fails.
+ *
  * @param <V> expected result type from all the tasks
  */
 public class TaskBatch<V> implements Abortable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TaskBatch.class);
-  private AtomicBoolean aborted = new AtomicBoolean();
-  private List<Task<V>> tasks;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskBatch.class);
+    private AtomicBoolean aborted = new AtomicBoolean();
+    private List<Task<V>> tasks;
 
-  /**
-   * @param size expected number of tasks
-   */
-  public TaskBatch(int size) {
-    this.tasks = new ArrayList<Task<V>>(size);
-  }
-
-  public void add(Task<V> task) {
-    this.tasks.add(task);
-    task.setBatchMonitor(this);
-  }
-
-  public Collection<Task<V>> getTasks() {
-    return this.tasks;
-  }
-
-  @Override
-  public void abort(String why, Throwable e) {
-    if (this.aborted.getAndSet(true)) {
-      return;
+    /**
+     * @param size expected number of tasks
+     */
+    public TaskBatch(int size) {
+        this.tasks = new ArrayList<Task<V>>(size);
     }
-    LOGGER.info("Aborting batch of tasks because " + why);
-  }
 
-  @Override
-  public boolean isAborted() {
-    return this.aborted.get();
-  }
+    public void add(Task<V> task) {
+        this.tasks.add(task);
+        task.setBatchMonitor(this);
+    }
 
-  /**
-   * @return the number of tasks assigned to this batch
-   */
-  public int size() {
-    return this.tasks.size();
-  }
+    public Collection<Task<V>> getTasks() {
+        return this.tasks;
+    }
+
+    @Override
+    public void abort(String why, Throwable e) {
+        if (this.aborted.getAndSet(true)) {
+            return;
+        }
+        LOGGER.info("Aborting batch of tasks because " + why);
+    }
+
+    @Override
+    public boolean isAborted() {
+        return this.aborted.get();
+    }
+
+    /**
+     * @return the number of tasks assigned to this batch
+     */
+    public int size() {
+        return this.tasks.size();
+    }
 }

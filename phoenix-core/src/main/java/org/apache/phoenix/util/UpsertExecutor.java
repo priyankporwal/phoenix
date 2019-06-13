@@ -73,7 +73,7 @@ public abstract class UpsertExecutor<RECORD, FIELD> implements Closeable {
     protected boolean initFinished = false; // allow subclasses to finish initialization
 
     private static PreparedStatement createStatement(Connection conn, String tableName,
-            List<ColumnInfo> columnInfoList) {
+                                                     List<ColumnInfo> columnInfoList) {
         PreparedStatement preparedStatement;
         try {
             String upsertSql = QueryUtil.constructUpsertStatement(tableName, columnInfoList);
@@ -90,14 +90,16 @@ public abstract class UpsertExecutor<RECORD, FIELD> implements Closeable {
      * statements are to be performed.
      */
     public UpsertExecutor(Connection conn, String tableName,
-            List<ColumnInfo> columnInfoList, UpsertListener<RECORD> upsertListener) {
+                          List<ColumnInfo> columnInfoList, UpsertListener<RECORD> upsertListener) {
         this(conn, columnInfoList, createStatement(conn, tableName, columnInfoList), upsertListener);
     }
 
-    /** Testing constructor. Do not use in prod. */
+    /**
+     * Testing constructor. Do not use in prod.
+     */
     @VisibleForTesting
     protected UpsertExecutor(Connection conn, List<ColumnInfo> columnInfoList,
-            PreparedStatement preparedStatement, UpsertListener<RECORD> upsertListener) {
+                             PreparedStatement preparedStatement, UpsertListener<RECORD> upsertListener) {
         this.conn = conn;
         this.upsertListener = upsertListener;
         this.columnInfos = columnInfoList;

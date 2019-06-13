@@ -51,7 +51,7 @@ public class FunctionAlreadyExistsException extends SQLException {
     public String getFunctionName() {
         return functionName;
     }
-    
+
     public PFunction getFunction() {
         return function;
     }

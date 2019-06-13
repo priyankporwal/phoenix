@@ -61,28 +61,28 @@ import com.google.common.collect.Maps;
 
 @RunWith(Parameterized.class)
 public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterIT {
-	
-	private String tableDDLOptions;
-	private String transactionProvider;
 
-	public StatsEnabledSplitSystemCatalogIT(String transactionProvider) {
-	        StringBuilder optionBuilder = new StringBuilder();
-	        this.transactionProvider = transactionProvider;
-	        if (transactionProvider != null) {
-	            optionBuilder.append(" TRANSACTIONAL=true, TRANSACTION_PROVIDER='" + transactionProvider + "'");
-	        }
-	        this.tableDDLOptions = optionBuilder.toString();
-	    }
+    private String tableDDLOptions;
+    private String transactionProvider;
 
-	@Parameters(name = "transactionProvider = {0}")
-	public static Collection<Object[]> data() {
-        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] { 
-            { "TEPHRA" },
-            { "OMID" }, 
-            { null }}),0);
-	}
-	
-	@BeforeClass
+    public StatsEnabledSplitSystemCatalogIT(String transactionProvider) {
+        StringBuilder optionBuilder = new StringBuilder();
+        this.transactionProvider = transactionProvider;
+        if (transactionProvider != null) {
+            optionBuilder.append(" TRANSACTIONAL=true, TRANSACTION_PROVIDER='" + transactionProvider + "'");
+        }
+        this.tableDDLOptions = optionBuilder.toString();
+    }
+
+    @Parameters(name = "transactionProvider = {0}")
+    public static Collection<Object[]> data() {
+        return TestUtil.filterTxParamData(Arrays.asList(new Object[][] {
+                {"TEPHRA"},
+                {"OMID"},
+                {null}}), 0);
+    }
+
+    @BeforeClass
     public static void doSetup() throws Exception {
         NUM_SLAVES_BASE = 3;
         Map<String, String> props = Maps.newHashMapWithExpectedSize(1);
@@ -92,11 +92,11 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
         setUpTestDriver(new ReadOnlyProps(props.entrySet().iterator()));
     }
 
-	/**
+    /**
      * Salted tests must be in their own test file to ensure that the underlying
      * table is dropped. Otherwise, the splits may not be performed.
      * TODO: we should throw in that case
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -112,12 +112,12 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
             testUpdatableViewWithIndex(3, true);
         }
     }
-	
-	@Test
+
+    @Test
     public void testNonSaltedUpdatableViewWithIndex() throws Exception {
         testUpdatableViewWithIndex(null, false);
     }
-    
+
     @Test
     public void testNonSaltedUpdatableViewWithLocalIndex() throws Exception {
         if (transactionProvider == null ||
@@ -126,7 +126,7 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
             testUpdatableViewWithIndex(null, true);
         }
     }
-    
+
     @Test
     public void testUpdatableOnUpdatableView() throws Exception {
         String fullTableName = SchemaUtil.getTableName(generateUniqueName(), generateUniqueName());
@@ -141,7 +141,7 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
         assertEquals(109, rs.getInt(2));
         assertEquals(2, rs.getInt(3));
         assertFalse(rs.next());
-        
+
         conn.createStatement().execute("UPSERT INTO " + fullViewName2 + "(k2) VALUES(122)");
         conn.commit();
         rs = conn.createStatement().executeQuery("SELECT k1, k2, k3 FROM " + fullViewName2 + " WHERE k2 >= 120");
@@ -150,7 +150,7 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
         assertEquals(122, rs.getInt(2));
         assertEquals(2, rs.getInt(3));
         assertFalse(rs.next());
-        
+
         try {
             conn.createStatement().execute("UPSERT INTO " + fullViewName2 + "(k2,k3) VALUES(123,3)");
             fail();
@@ -165,7 +165,7 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
             assertEquals(SQLExceptionCode.CANNOT_UPDATE_VIEW_COLUMN.getErrorCode(), e.getErrorCode());
         }
     }
-    
+
     private void testUpdatableViewWithIndex(Integer saltBuckets, boolean localIndex) throws Exception {
         String schemaName = TestUtil.DEFAULT_SCHEMA_NAME + "_" + generateUniqueName();
         String tableName = "T_" + generateUniqueName();
@@ -198,7 +198,7 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
             }
         }
     }
-    
+
     @Test
     public void testReadOnlyOnReadOnlyView() throws Exception {
         Connection earlierCon = DriverManager.getConnection(getUrl());
@@ -206,37 +206,37 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
         String fullTableName = SchemaUtil.getTableName(generateUniqueName(), generateUniqueName());
         String fullParentViewName = SchemaUtil.getTableName(generateUniqueName(), generateUniqueName());
         String fullViewName = SchemaUtil.getTableName(generateUniqueName(), generateUniqueName());
-        
-        String ddl = "CREATE TABLE " + fullTableName + " (k INTEGER NOT NULL PRIMARY KEY, v1 DATE) "+ tableDDLOptions;
+
+        String ddl = "CREATE TABLE " + fullTableName + " (k INTEGER NOT NULL PRIMARY KEY, v1 DATE) " + tableDDLOptions;
         conn.createStatement().execute(ddl);
         ddl = "CREATE VIEW " + fullParentViewName + " (v2 VARCHAR) AS SELECT * FROM " + fullTableName + " WHERE k > 5";
         conn.createStatement().execute(ddl);
         ddl = "CREATE VIEW " + fullViewName + " AS SELECT * FROM " + fullParentViewName + " WHERE k < 9";
         conn.createStatement().execute(ddl);
-        
+
         try {
             conn.createStatement().execute("UPSERT INTO " + fullParentViewName + " VALUES(1)");
             fail();
         } catch (ReadOnlyTableException e) {
-            
+
         }
         for (int i = 0; i < 10; i++) {
             conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES(" + i + ")");
         }
         conn.commit();
-        
+
         analyzeTable(conn, fullParentViewName, transactionProvider != null);
-        
+
         List<KeyRange> splits = getAllSplits(conn, fullParentViewName);
         assertEquals(4, splits.size());
-        
+
         int count = 0;
         ResultSet rs = conn.createStatement().executeQuery("SELECT k FROM " + fullTableName);
         while (rs.next()) {
             assertEquals(count++, rs.getInt(1));
         }
         assertEquals(10, count);
-        
+
         count = 0;
         rs = conn.createStatement().executeQuery("SELECT k FROM " + fullParentViewName);
         while (rs.next()) {
@@ -251,12 +251,12 @@ public class StatsEnabledSplitSystemCatalogIT extends BaseUniqueNamesOwnClusterI
             assertEquals(count + 5, rs.getInt(1));
         }
         assertEquals(4, count);
-        
+
         try {
             conn.createStatement().execute("UPSERT INTO " + fullViewName + " VALUES(1)");
             fail();
         } catch (ReadOnlyTableException e) {
-            
+
         } finally {
             conn.close();
         }

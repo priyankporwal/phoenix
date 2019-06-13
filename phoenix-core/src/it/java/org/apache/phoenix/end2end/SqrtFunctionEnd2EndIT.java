@@ -39,7 +39,7 @@ public class SqrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     private static final double ZERO = 1e-8;
     String testUnsignedTable;
     String testSignedTable;
-    
+
     @Before
     public void initTable() throws Exception {
         Connection conn = null;
@@ -89,7 +89,7 @@ public class SqrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void testSignedNumberSpec(Connection conn, double data) throws Exception {
         updateSignedTable(conn, data);
-        ResultSet rs = conn.createStatement().executeQuery("SELECT SQRT(doub),SQRT(fl),SQRT(inte),SQRT(lon),SQRT(smalli),SQRT(tinyi) FROM " + testSignedTable );
+        ResultSet rs = conn.createStatement().executeQuery("SELECT SQRT(doub),SQRT(fl),SQRT(inte),SQRT(lon),SQRT(smalli),SQRT(tinyi) FROM " + testSignedTable);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertTrue(Math.abs(rs.getDouble(1) - Math.sqrt(d.doubleValue())) < ZERO);
@@ -110,7 +110,7 @@ public class SqrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void testUnsignedNumberSpec(Connection conn, double data) throws Exception {
         updateUnsignedTable(conn, data);
-        ResultSet rs = conn.createStatement().executeQuery("SELECT SQRT(doub),SQRT(fl),SQRT(inte),SQRT(lon),SQRT(smalli),SQRT(tinyi) FROM " + testUnsignedTable );
+        ResultSet rs = conn.createStatement().executeQuery("SELECT SQRT(doub),SQRT(fl),SQRT(inte),SQRT(lon),SQRT(smalli),SQRT(tinyi) FROM " + testUnsignedTable);
         assertTrue(rs.next());
         Double d = Double.valueOf(data);
         assertTrue(Math.abs(rs.getDouble(1) - Math.sqrt(d.doubleValue())) < ZERO);
@@ -132,7 +132,7 @@ public class SqrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void testSignedNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, 123.1234}) {
+        for (double d : new double[] {0.0, 1.0, 123.1234}) {
             testSignedNumberSpec(conn, d);
         }
     }
@@ -140,7 +140,7 @@ public class SqrtFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     @Test
     public void testUnsignedNumber() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        for (double d : new double[] { 0.0, 1.0, 123.1234 }) {
+        for (double d : new double[] {0.0, 1.0, 123.1234}) {
             testUnsignedNumberSpec(conn, d);
         }
     }

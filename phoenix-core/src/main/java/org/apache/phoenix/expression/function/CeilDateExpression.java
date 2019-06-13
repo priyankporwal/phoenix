@@ -36,36 +36,35 @@ import org.apache.phoenix.parse.FunctionParseNode.FunctionClassType;
 import com.google.common.collect.Lists;
 
 /**
- * 
  * Class encapsulating ceil operation on {@link org.apache.phoenix.schema.types.PDataType#DATE}.
  *
- * 
  * @since 3.0.0
  */
 @BuiltInFunction(name = CeilFunction.NAME,
         args = {
-                @Argument(allowedTypes={PDate.class}),
-                @Argument(allowedTypes={PVarchar.class, PInteger.class}, defaultValue = "null", isConstant=true),
-                @Argument(allowedTypes={PInteger.class}, defaultValue="1", isConstant=true)
+                @Argument(allowedTypes = {PDate.class}),
+                @Argument(allowedTypes = {PVarchar.class, PInteger.class}, defaultValue = "null", isConstant = true),
+                @Argument(allowedTypes = {PInteger.class}, defaultValue = "1", isConstant = true)
         },
         classType = FunctionClassType.DERIVED
 )
 public class CeilDateExpression extends RoundDateExpression {
-    
-    public CeilDateExpression() {}
-    
+
+    public CeilDateExpression() {
+    }
+
     /**
      * @param timeUnit - unit of time to round up to.
-     * Creates a {@link CeilDateExpression} with default multiplier of 1.
+     *                 Creates a {@link CeilDateExpression} with default multiplier of 1.
      */
     public static Expression create(Expression expr, TimeUnit timeUnit) throws SQLException {
         return create(expr, timeUnit, 1);
     }
-    
+
     /**
-     * @param timeUnit - unit of time to round up to
+     * @param timeUnit   - unit of time to round up to
      * @param multiplier - determines the roll up window size.
-     * Create a {@link CeilDateExpression}. 
+     *                   Create a {@link CeilDateExpression}.
      */
     public static Expression create(Expression expr, TimeUnit timeUnit, int multiplier) throws SQLException {
         Expression timeUnitExpr = getTimeUnitExpr(timeUnit);
@@ -73,37 +72,37 @@ public class CeilDateExpression extends RoundDateExpression {
         List<Expression> expressions = Lists.newArrayList(expr, timeUnitExpr, defaultMultiplierExpr);
         return CeilDateExpression.create(expressions);
     }
-    
+
     public static Expression create(List<Expression> children) throws SQLException {
-        Object timeUnitValue = ((LiteralExpression)children.get(1)).getValue();
+        Object timeUnitValue = ((LiteralExpression) children.get(1)).getValue();
         TimeUnit timeUnit = TimeUnit.getTimeUnit(timeUnitValue != null ? timeUnitValue.toString() : null);
-        switch(timeUnit) {
-        case WEEK:
-            return new CeilWeekExpression(children);
-        case MONTH:
-            return new CeilMonthExpression(children);
-        case YEAR:
-            return new CeilYearExpression(children); 
-         default:
-             return new CeilDateExpression(children);
+        switch (timeUnit) {
+            case WEEK:
+                return new CeilWeekExpression(children);
+            case MONTH:
+                return new CeilMonthExpression(children);
+            case YEAR:
+                return new CeilYearExpression(children);
+            default:
+                return new CeilDateExpression(children);
         }
-        
+
     }
-    
+
     public CeilDateExpression(List<Expression> children) {
         super(children);
     }
-    
+
     @Override
     protected long getRoundUpAmount() {
         return divBy - 1;
     }
-    
+
     @Override
     public String getName() {
         return CeilFunction.NAME;
     }
-    
+
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (children.get(0).evaluate(tuple, ptr)) {

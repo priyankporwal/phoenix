@@ -27,10 +27,8 @@ import org.apache.phoenix.schema.PDatum;
 import org.apache.phoenix.schema.SortOrder;
 
 /**
- * 
  * Common base class for column value accessors
  *
- * 
  * @since 0.1
  */
 abstract public class ColumnExpression extends BaseTerminalExpression {
@@ -56,12 +54,22 @@ abstract public class ColumnExpression extends BaseTerminalExpression {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ColumnExpression other = (ColumnExpression)obj;
-        if (this.isNullable() != other.isNullable()) return false;
-        if (this.getDataType() != other.getDataType()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ColumnExpression other = (ColumnExpression) obj;
+        if (this.isNullable() != other.isNullable()) {
+            return false;
+        }
+        if (this.getDataType() != other.getDataType()) {
+            return false;
+        }
         return true;
     }
 
@@ -75,17 +83,17 @@ abstract public class ColumnExpression extends BaseTerminalExpression {
 
     @Override
     public boolean isNullable() {
-       return isNullable;
+        return isNullable;
     }
-    
+
     @Override
     public PDataType getDataType() {
         return type;
     }
-    
+
     @Override
     public SortOrder getSortOrder() {
-    	return sortOrder;
+        return sortOrder;
     }
 
     @Override
@@ -118,7 +126,7 @@ abstract public class ColumnExpression extends BaseTerminalExpression {
         // read/write type ordinal, maxLength presence, scale presence and isNullable bit together to save space
         int typeAndFlag = (isNullable ? 1 : 0) | ((scale != null ? 1 : 0) << 1) | ((maxLength != null ? 1 : 0) << 2)
                 | (type.ordinal() << 3);
-        WritableUtils.writeVInt(output,typeAndFlag);
+        WritableUtils.writeVInt(output, typeAndFlag);
         if (scale != null) {
             WritableUtils.writeVInt(output, scale);
         }

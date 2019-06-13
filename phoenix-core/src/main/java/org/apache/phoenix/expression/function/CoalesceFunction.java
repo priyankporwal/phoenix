@@ -34,20 +34,19 @@ import org.apache.phoenix.util.ExpressionUtil;
 
 
 /**
- *
  * Function used to provide an alternative value when the first argument is null.
  * Usage:
  * COALESCE(expr1,expr2)
  * If expr1 is not null, then it is returned, otherwise expr2 is returned.
- *
+ * <p>
  * TODO: better bind parameter type matching, since arg2 must be coercible
  * to arg1. consider allowing a common base type?
  *
  * @since 0.1
  */
-@BuiltInFunction(name=CoalesceFunction.NAME, args= {
-    @Argument(),
-    @Argument()} )
+@BuiltInFunction(name = CoalesceFunction.NAME, args = {
+        @Argument(),
+        @Argument()})
 public class CoalesceFunction extends ScalarFunction {
     public static final String NAME = "COALESCE";
 
@@ -65,10 +64,10 @@ public class CoalesceFunction extends ScalarFunction {
             ImmutableBytesWritable ptr = new ImmutableBytesPtr();
             secondChild.evaluate(null, ptr);
 
-            if (ptr.getLength()!=0 && !secondChild.getDataType().isCoercibleTo(firstChild.getDataType(), secondChild.getDataType().toObject(ptr))) {
+            if (ptr.getLength() != 0 && !secondChild.getDataType().isCoercibleTo(firstChild.getDataType(), secondChild.getDataType().toObject(ptr))) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.TYPE_MISMATCH)
-                    .setMessage(getName() + " expected " + firstChild.getDataType() + ", but got " + secondChild.getDataType())
-                    .build().buildException();
+                        .setMessage(getName() + " expected " + firstChild.getDataType() + ", but got " + secondChild.getDataType())
+                        .build().buildException();
             }
         } else { // second parameter is expression
             if (!secondChild.getDataType().isCoercibleTo(getDataType())) {

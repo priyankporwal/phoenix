@@ -22,24 +22,25 @@ import java.sql.SQLException;
 import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 
-public class HashJoinCacheNotFoundException extends SQLException{
+public class HashJoinCacheNotFoundException extends SQLException {
     private static final long serialVersionUID = 1L;
     private Long cacheId;
     private static SQLExceptionCode ERROR_CODE = SQLExceptionCode.HASH_JOIN_CACHE_NOT_FOUND;
+
     public HashJoinCacheNotFoundException() {
         this(null);
     }
 
     public HashJoinCacheNotFoundException(Long cacheId) {
         super(new SQLExceptionInfo.Builder(ERROR_CODE).setMessage("joinId: " + cacheId
-                + ". The cache might have expired and have been removed.").build().toString(),
+                        + ". The cache might have expired and have been removed.").build().toString(),
                 ERROR_CODE.getSQLState(), ERROR_CODE.getErrorCode(), null);
-        this.cacheId=cacheId;
+        this.cacheId = cacheId;
     }
-    
-    public Long getCacheId(){
+
+    public Long getCacheId() {
         return this.cacheId;
     }
-    
+
 
 }

@@ -33,6 +33,7 @@ import org.junit.Test;
 
 /**
  * End to end tests for {@link SignFunction}
+ *
  * @since 4.0.0
  */
 public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
@@ -51,10 +52,10 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
             conn = DriverManager.getConnection(getUrl());
             String ddl;
             ddl = "CREATE TABLE " + signedTableName
-                + " (k VARCHAR NOT NULL PRIMARY KEY, \"DEC\" DECIMAL, doub DOUBLE, fl FLOAT, inte INTEGER, lon BIGINT, smalli SMALLINT, tinyi TINYINT)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, \"DEC\" DECIMAL, doub DOUBLE, fl FLOAT, inte INTEGER, lon BIGINT, smalli SMALLINT, tinyi TINYINT)";
             conn.createStatement().execute(ddl);
             ddl = "CREATE TABLE " + unsignedTableName
-                + " (k VARCHAR NOT NULL PRIMARY KEY, doub UNSIGNED_DOUBLE, fl UNSIGNED_FLOAT, inte UNSIGNED_INT, lon UNSIGNED_LONG, smalli UNSIGNED_SMALLINT, tinyi UNSIGNED_TINYINT)";
+                    + " (k VARCHAR NOT NULL PRIMARY KEY, doub UNSIGNED_DOUBLE, fl UNSIGNED_FLOAT, inte UNSIGNED_INT, lon UNSIGNED_LONG, smalli UNSIGNED_SMALLINT, tinyi UNSIGNED_TINYINT)";
             conn.createStatement().execute(ddl);
             conn.commit();
         } finally {
@@ -64,7 +65,7 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void updateSignedTable(Connection conn, double data) throws Exception {
         PreparedStatement stmt = conn.prepareStatement(
-            "UPSERT INTO " + signedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                "UPSERT INTO " + signedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, KEY);
         Double d = Double.valueOf(data);
         stmt.setBigDecimal(2, BigDecimal.valueOf(data));
@@ -80,7 +81,7 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
 
     private void updateUnsignedTable(Connection conn, double data) throws Exception {
         PreparedStatement stmt = conn.prepareStatement(
-            "UPSERT INTO " + unsignedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)");
+                "UPSERT INTO " + unsignedTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)");
         stmt.setString(1, KEY);
         Double d = Double.valueOf(data);
         stmt.setDouble(2, d.doubleValue());
@@ -96,8 +97,8 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     private void testSignedNumberSpec(Connection conn, double data, int expected) throws Exception {
         updateSignedTable(conn, data);
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT SIGN(\"DEC\"),SIGN(doub),SIGN(fl),SIGN(inte),SIGN(lon),SIGN(smalli),SIGN(tinyi) FROM "
-                + signedTableName);
+                "SELECT SIGN(\"DEC\"),SIGN(doub),SIGN(fl),SIGN(inte),SIGN(lon),SIGN(smalli),SIGN(tinyi) FROM "
+                        + signedTableName);
         assertTrue(rs.next());
         for (int i = 1; i <= 7; ++i) {
             assertEquals(rs.getInt(i), expected);
@@ -105,9 +106,10 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         assertTrue(!rs.next());
 
         PreparedStatement stmt = conn.prepareStatement("SELECT k FROM " + signedTableName
-            + " WHERE SIGN(\"DEC\")=? AND SIGN(doub)=? AND SIGN(fl)=? AND SIGN(inte)=? AND SIGN(lon)=? AND SIGN(smalli)=? AND SIGN(tinyi)=?");
-        for (int i = 1; i <= 7; ++i)
+                + " WHERE SIGN(\"DEC\")=? AND SIGN(doub)=? AND SIGN(fl)=? AND SIGN(inte)=? AND SIGN(lon)=? AND SIGN(smalli)=? AND SIGN(tinyi)=?");
+        for (int i = 1; i <= 7; ++i) {
             stmt.setInt(i, expected);
+        }
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals(KEY, rs.getString(1));
@@ -117,8 +119,8 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
     private void testUnsignedNumberSpec(Connection conn, double data, int expected) throws Exception {
         updateUnsignedTable(conn, data);
         ResultSet rs = conn.createStatement().executeQuery(
-            "SELECT SIGN(doub),SIGN(fl),SIGN(inte),SIGN(lon),SIGN(smalli),SIGN(tinyi) FROM "
-                + unsignedTableName);
+                "SELECT SIGN(doub),SIGN(fl),SIGN(inte),SIGN(lon),SIGN(smalli),SIGN(tinyi) FROM "
+                        + unsignedTableName);
         assertTrue(rs.next());
         for (int i = 1; i <= 6; ++i) {
             assertEquals(rs.getInt(i), expected);
@@ -126,9 +128,10 @@ public class SignFunctionEnd2EndIT extends ParallelStatsDisabledIT {
         assertTrue(!rs.next());
 
         PreparedStatement stmt = conn.prepareStatement("SELECT k FROM " + unsignedTableName
-            + " WHERE SIGN(doub)=? AND SIGN(fl)=? AND SIGN(inte)=? AND SIGN(lon)=? AND SIGN(smalli)=? AND SIGN(tinyi)=?");
-        for (int i = 1; i <= 6; ++i)
+                + " WHERE SIGN(doub)=? AND SIGN(fl)=? AND SIGN(inte)=? AND SIGN(lon)=? AND SIGN(smalli)=? AND SIGN(tinyi)=?");
+        for (int i = 1; i <= 6; ++i) {
             stmt.setInt(i, expected);
+        }
         rs = stmt.executeQuery();
         assertTrue(rs.next());
         assertEquals(KEY, rs.getString(1));

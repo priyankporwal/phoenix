@@ -27,10 +27,8 @@ import org.apache.phoenix.util.SizedUtil;
 
 
 /**
- * 
  * Represents an ordered list of Aggregators
  *
- * 
  * @since 0.1
  */
 abstract public class Aggregators {
@@ -40,11 +38,11 @@ abstract public class Aggregators {
     protected final ValueBitSet valueSet;
     protected final Aggregator[] aggregators;
     protected final SingleAggregateFunction[] functions;
-    
+
     public int getEstimatedByteSize() {
         return estimatedByteSize;
     }
-    
+
     public Aggregators(SingleAggregateFunction[] functions, Aggregator[] aggregators, int minNullableIndex) {
         this.functions = functions;
         this.aggregators = aggregators;
@@ -52,47 +50,48 @@ abstract public class Aggregators {
         this.schema = newValueSchema(aggregators, minNullableIndex);
         this.valueSet = ValueBitSet.newInstance(schema);
     }
-    
+
     public KeyValueSchema getValueSchema() {
         return schema;
     }
-    
+
     public int getMinNullableIndex() {
         return schema.getMinNullable();
     }
-    
+
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder(this.getClass().getName() + " [" + functions.length + "]:");
         for (int i = 0; i < functions.length; i++) {
             SingleAggregateFunction function = functions[i];
-            buf.append("\t" + i + ") " + function );
+            buf.append("\t" + i + ") " + function);
         }
         return buf.toString();
     }
-    
+
     /**
      * Return the aggregate functions
      */
     public SingleAggregateFunction[] getFunctions() {
         return functions;
     }
-    
+
     /**
      * Aggregate over aggregators
+     *
      * @param result the single row Result from scan iteration
      */
     abstract public void aggregate(Aggregator[] aggregators, Tuple result);
 
     protected static int calculateSize(Aggregator[] aggregators) {
-        
-        int size = SizedUtil.ARRAY_SIZE /*aggregators[]*/  + (SizedUtil.POINTER_SIZE  * aggregators.length);
+
+        int size = SizedUtil.ARRAY_SIZE /*aggregators[]*/ + (SizedUtil.POINTER_SIZE * aggregators.length);
         for (Aggregator aggregator : aggregators) {
             size += aggregator.getSize();
         }
         return size;
     }
-    
+
     /**
      * Get the ValueSchema for the Aggregators
      */
@@ -111,7 +110,7 @@ abstract public class Aggregators {
     public byte[] toBytes(Aggregator[] aggregators) {
         return schema.toBytes(aggregators, valueSet, ptr);
     }
-    
+
     public int getAggregatorCount() {
         return aggregators.length;
     }
@@ -119,15 +118,15 @@ abstract public class Aggregators {
     public Aggregator[] getAggregators() {
         return aggregators;
     }
-    
+
     abstract public Aggregator[] newAggregators();
-    
+
     public void reset(Aggregator[] aggregators) {
         for (int i = 0; i < aggregators.length; i++) {
             aggregators[i].reset();
         }
     }
-    
+
     protected Aggregator getAggregator(int position) {
         return aggregators[position];
     }

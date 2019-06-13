@@ -47,79 +47,78 @@ import org.apache.phoenix.mapreduce.util.PhoenixConfigurationUtil;
  */
 public class MapReduceParallelScanGrouper implements ParallelScanGrouper {
 
-	private static final MapReduceParallelScanGrouper INSTANCE = new MapReduceParallelScanGrouper();
+    private static final MapReduceParallelScanGrouper INSTANCE = new MapReduceParallelScanGrouper();
 
     public static MapReduceParallelScanGrouper getInstance() {
-		return INSTANCE;
-	}
+        return INSTANCE;
+    }
 
-   private MapReduceParallelScanGrouper() {}
+    private MapReduceParallelScanGrouper() {
+    }
 
-	@Override
-	public boolean shouldStartNewScan(QueryPlan plan, List<Scan> scans,
-			byte[] startKey, boolean crossedRegionBoundary) {
-		return !plan.isRowKeyOrdered() || crossedRegionBoundary;
-	}
+    @Override
+    public boolean shouldStartNewScan(QueryPlan plan, List<Scan> scans,
+                                      byte[] startKey, boolean crossedRegionBoundary) {
+        return !plan.isRowKeyOrdered() || crossedRegionBoundary;
+    }
 
-	@Override
-	public List<HRegionLocation> getRegionBoundaries(StatementContext context, byte[] tableName) throws SQLException {
-		String snapshotName;
-		Configuration conf = context.getConnection().getQueryServices().getConfiguration();
-		if((snapshotName = getSnapshotName(conf)) != null) {
-			try {
-				Path rootDir = new Path(conf.get(HConstants.HBASE_DIR));
-				FileSystem fs = rootDir.getFileSystem(conf);
-				Path snapshotDir = SnapshotDescriptionUtils.getCompletedSnapshotDir(snapshotName, rootDir);
-				SnapshotDescription snapshotDescription = SnapshotDescriptionUtils.readSnapshotInfo(fs, snapshotDir);
-				SnapshotManifest manifest = SnapshotManifest.open(conf, fs, snapshotDir, snapshotDescription);
-				return getRegionLocationsFromManifest(manifest);
-			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		else {
-			return context.getConnection().getQueryServices().getAllTableRegions(tableName);
-		}
-	}
+    @Override
+    public List<HRegionLocation> getRegionBoundaries(StatementContext context, byte[] tableName) throws SQLException {
+        String snapshotName;
+        Configuration conf = context.getConnection().getQueryServices().getConfiguration();
+        if ((snapshotName = getSnapshotName(conf)) != null) {
+            try {
+                Path rootDir = new Path(conf.get(HConstants.HBASE_DIR));
+                FileSystem fs = rootDir.getFileSystem(conf);
+                Path snapshotDir = SnapshotDescriptionUtils.getCompletedSnapshotDir(snapshotName, rootDir);
+                SnapshotDescription snapshotDescription = SnapshotDescriptionUtils.readSnapshotInfo(fs, snapshotDir);
+                SnapshotManifest manifest = SnapshotManifest.open(conf, fs, snapshotDir, snapshotDescription);
+                return getRegionLocationsFromManifest(manifest);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return context.getConnection().getQueryServices().getAllTableRegions(tableName);
+        }
+    }
 
-	/**
-	 * Get list of region locations from SnapshotManifest
-	 * BaseResultIterators assume that regions are sorted using RegionInfo.COMPARATOR
-	 */
-	private List<HRegionLocation> getRegionLocationsFromManifest(SnapshotManifest manifest) {
-		List<SnapshotRegionManifest> regionManifests = manifest.getRegionManifests();
-		Preconditions.checkNotNull(regionManifests);
+    /**
+     * Get list of region locations from SnapshotManifest
+     * BaseResultIterators assume that regions are sorted using RegionInfo.COMPARATOR
+     */
+    private List<HRegionLocation> getRegionLocationsFromManifest(SnapshotManifest manifest) {
+        List<SnapshotRegionManifest> regionManifests = manifest.getRegionManifests();
+        Preconditions.checkNotNull(regionManifests);
 
-		List<RegionInfo> regionInfos = Lists.newArrayListWithCapacity(regionManifests.size());
-		List<HRegionLocation> hRegionLocations = Lists.newArrayListWithCapacity(regionManifests.size());
+        List<RegionInfo> regionInfos = Lists.newArrayListWithCapacity(regionManifests.size());
+        List<HRegionLocation> hRegionLocations = Lists.newArrayListWithCapacity(regionManifests.size());
 
-		for (SnapshotRegionManifest regionManifest : regionManifests) {
-			RegionInfo regionInfo = ProtobufUtil.toRegionInfo(regionManifest.getRegionInfo());
-			if (isValidRegion(regionInfo)) {
-				regionInfos.add(regionInfo);
-			}
-		}
+        for (SnapshotRegionManifest regionManifest : regionManifests) {
+            RegionInfo regionInfo = ProtobufUtil.toRegionInfo(regionManifest.getRegionInfo());
+            if (isValidRegion(regionInfo)) {
+                regionInfos.add(regionInfo);
+            }
+        }
 
-		regionInfos.sort(RegionInfo.COMPARATOR);
+        regionInfos.sort(RegionInfo.COMPARATOR);
 
-		for (RegionInfo regionInfo : regionInfos) {
-			hRegionLocations.add(new HRegionLocation(regionInfo, null));
-		}
+        for (RegionInfo regionInfo : regionInfos) {
+            hRegionLocations.add(new HRegionLocation(regionInfo, null));
+        }
 
-		return hRegionLocations;
-	}
+        return hRegionLocations;
+    }
 
-	// Exclude offline split parent regions
-	private boolean isValidRegion(RegionInfo hri) {
-		if (hri.isOffline() && (hri.isSplit() || hri.isSplitParent())) {
-			return false;
-		}
-		return true;
-	}
+    // Exclude offline split parent regions
+    private boolean isValidRegion(RegionInfo hri) {
+        if (hri.isOffline() && (hri.isSplit() || hri.isSplitParent())) {
+            return false;
+        }
+        return true;
+    }
 
-	private String getSnapshotName(Configuration conf) {
-		return conf.get(PhoenixConfigurationUtil.SNAPSHOT_NAME_KEY);
-	}
+    private String getSnapshotName(Configuration conf) {
+        return conf.get(PhoenixConfigurationUtil.SNAPSHOT_NAME_KEY);
+    }
 
 }

@@ -52,19 +52,19 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             ddl = "CREATE TABLE IF NOT EXISTS " + target +
                     " (pk VARCHAR NOT NULL PRIMARY KEY, col INTEGER) SALT_BUCKETS=4";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + source + "(pk, col) VALUES(?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
             stmt.setInt(2, 1);
             stmt.execute();
             conn.commit();
-            
+
             query = "UPSERT INTO " + target + "(pk, col) SELECT pk, col from " + source;
             stmt = conn.prepareStatement(query);
             stmt.execute();
             conn.commit();
-            
+
             query = "SELECT * FROM " + target;
             stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -91,7 +91,7 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             ddl = "CREATE TABLE IF NOT EXISTS " + target +
                     " (pk VARCHAR NOT NULL PRIMARY KEY, col INTEGER)";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + source + "(pk, col) VALUES(?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
@@ -115,7 +115,7 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     private void analyzeTable(Connection conn, String tableName) throws IOException, SQLException {
         String query = "UPDATE STATISTICS " + tableName;
         conn.createStatement().execute(query);
@@ -135,19 +135,19 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             ddl = "CREATE TABLE IF NOT EXISTS " + target +
                     " (pk VARCHAR NOT NULL PRIMARY KEY, col INTEGER) SALT_BUCKETS=4";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + source + "(pk, col) VALUES(?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
             stmt.setInt(2, 1);
             stmt.execute();
             conn.commit();
-            
+
             query = "UPSERT INTO " + target + "(pk, col) SELECT pk, col from " + source;
             stmt = conn.prepareStatement(query);
             stmt.execute();
             conn.commit();
-            
+
             query = "SELECT * FROM " + target;
             stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -170,19 +170,19 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             String ddl = "CREATE TABLE IF NOT EXISTS " + source +
                     " (pk VARCHAR NOT NULL PRIMARY KEY, col1 INTEGER, col2 INTEGER) SALT_BUCKETS=4";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + source + "(pk, col1) VALUES(?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
             stmt.setInt(2, 1);
             stmt.execute();
             conn.commit();
-            
+
             query = "UPSERT INTO " + source + "(pk, col2) SELECT pk, col1 from " + source;
             stmt = conn.prepareStatement(query);
             stmt.execute();
             conn.commit();
-            
+
             query = "SELECT col2 FROM " + source;
             stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -202,10 +202,10 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
         try {
             String source1 = generateUniqueName();
             String ddl = "CREATE TABLE IF NOT EXISTS " + source1 +
-                    " (pk1 varchar NULL, pk2 varchar NULL, pk3 integer NOT NULL, col1 INTEGER" + 
+                    " (pk1 varchar NULL, pk2 varchar NULL, pk3 integer NOT NULL, col1 INTEGER" +
                     " CONSTRAINT pk PRIMARY KEY (pk1, pk2, pk3)) SALT_BUCKETS=4";
             createTestTable(getUrl(), ddl);
-            
+
             String query = "UPSERT INTO " + source1 + "(pk1, pk2, pk3, col1) VALUES(?,?,?,?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, "1");
@@ -214,10 +214,10 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             stmt.setInt(4, 1);
             stmt.execute();
             conn.commit();
-            
+
             conn.setAutoCommit(true);
             query = "UPSERT INTO " + source1
-                + "(pk3, col1, pk1) SELECT pk3+1, col1+1, pk2 from " + source1;
+                    + "(pk3, col1, pk1) SELECT pk3+1, col1+1, pk2 from " + source1;
             stmt = conn.prepareStatement(query);
             stmt.execute();
             conn.commit();
@@ -282,11 +282,11 @@ public class SaltedTableUpsertSelectIT extends ParallelStatsDisabledIT {
             createTestTable(getUrl(), ddl3);
 
             String query =
-                "UPSERT INTO " + dest
-                    + "(pk1, pk2, pk3, col1) SELECT S1.pk1, S1.pk2, S2.pk3, S2.col1 FROM "
-                    + source1
-                    + " AS S1 JOIN " + source2
-                    + " AS S2 ON S1.pk1 = S2.pk1 AND S1.pk2 = S2.pk2 AND S1.pk3 = S2.pk3";
+                    "UPSERT INTO " + dest
+                            + "(pk1, pk2, pk3, col1) SELECT S1.pk1, S1.pk2, S2.pk3, S2.col1 FROM "
+                            + source1
+                            + " AS S1 JOIN " + source2
+                            + " AS S2 ON S1.pk1 = S2.pk1 AND S1.pk2 = S2.pk2 AND S1.pk3 = S2.pk3";
             conn.createStatement().execute(query);
             conn.commit();
 

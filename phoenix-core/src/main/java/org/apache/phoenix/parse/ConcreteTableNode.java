@@ -20,40 +20,38 @@ package org.apache.phoenix.parse;
 import org.apache.phoenix.util.SchemaUtil;
 
 /**
- * 
  * Abstract node representing a table reference in the FROM clause in SQL
  *
- * 
  * @since 0.1
  */
 public abstract class ConcreteTableNode extends TableNode {
-	//DEFAULT_TABLE_SAMPLING_RATE alternative is to set as 100d
-	public static final Double DEFAULT_TABLE_SAMPLING_RATE=null;
+    //DEFAULT_TABLE_SAMPLING_RATE alternative is to set as 100d
+    public static final Double DEFAULT_TABLE_SAMPLING_RATE = null;
     private final TableName name;
     private final Double tableSamplingRate;
-    
+
     ConcreteTableNode(String alias, TableName name) {
-    	this(alias,name,DEFAULT_TABLE_SAMPLING_RATE);
+        this(alias, name, DEFAULT_TABLE_SAMPLING_RATE);
     }
-    
+
     ConcreteTableNode(String alias, TableName name, Double tableSamplingRate) {
         super(SchemaUtil.normalizeIdentifier(alias));
         this.name = name;
-        if(tableSamplingRate==null){
-        	this.tableSamplingRate=DEFAULT_TABLE_SAMPLING_RATE;
-        }else if(tableSamplingRate<0d||tableSamplingRate>100d){
-        	throw new IllegalArgumentException("TableSamplingRate is out of bound of 0 and 100");
-        }else{
-        	this.tableSamplingRate=tableSamplingRate;
+        if (tableSamplingRate == null) {
+            this.tableSamplingRate = DEFAULT_TABLE_SAMPLING_RATE;
+        } else if (tableSamplingRate < 0d || tableSamplingRate > 100d) {
+            throw new IllegalArgumentException("TableSamplingRate is out of bound of 0 and 100");
+        } else {
+            this.tableSamplingRate = tableSamplingRate;
         }
     }
 
     public TableName getName() {
         return name;
     }
-    
-    public Double getTableSamplingRate(){
-    	return tableSamplingRate;
+
+    public Double getTableSamplingRate() {
+        return tableSamplingRate;
     }
 
     @Override
@@ -67,16 +65,30 @@ public abstract class ConcreteTableNode extends TableNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ConcreteTableNode other = (ConcreteTableNode)obj;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ConcreteTableNode other = (ConcreteTableNode) obj;
         if (name == null) {
-            if (other.name != null) return false;
-        } else if (!name.equals(other.name)) return false;
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
         if (tableSamplingRate == null) {
-            if (other.tableSamplingRate != null) return false;
-        } else if (!tableSamplingRate.equals(other.tableSamplingRate)) return false;
+            if (other.tableSamplingRate != null) {
+                return false;
+            }
+        } else if (!tableSamplingRate.equals(other.tableSamplingRate)) {
+            return false;
+        }
         return true;
     }
 }

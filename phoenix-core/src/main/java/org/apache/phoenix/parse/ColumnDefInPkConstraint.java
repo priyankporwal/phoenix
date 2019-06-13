@@ -23,7 +23,7 @@ public class ColumnDefInPkConstraint {
     private final ColumnName columnDefName;
     private final SortOrder sortOrder;
     private final boolean isRowTimestamp;
-    
+
     public ColumnDefInPkConstraint(ColumnName columnDefName, SortOrder sortOrder, boolean isRowTimestamp) {
         this.columnDefName = columnDefName;
         this.sortOrder = sortOrder;

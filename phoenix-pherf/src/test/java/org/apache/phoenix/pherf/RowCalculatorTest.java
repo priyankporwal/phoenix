@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertEquals;
 public class RowCalculatorTest {
     /**
      * Test rows divide evenly with large rows and small threadpool
+     *
      * @throws Exception
      */
     @Test

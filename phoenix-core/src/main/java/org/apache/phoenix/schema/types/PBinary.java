@@ -37,8 +37,8 @@ public class PBinary extends PBinaryBase {
 
     @Override
     public void coerceBytes(ImmutableBytesWritable ptr, Object o, PDataType actualType, Integer actualMaxLength,
-            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier) {
+                            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier) {
         PVarbinary.INSTANCE.coerceBytes(ptr, o, actualType, actualMaxLength, actualScale, actualModifier, desiredMaxLength, desiredScale, expectedModifier);
         if (null != desiredMaxLength && null != expectedModifier) {
             pad(ptr, desiredMaxLength, expectedModifier);
@@ -115,7 +115,7 @@ public class PBinary extends PBinaryBase {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType,
-            SortOrder sortOrder, Integer maxLength, Integer scale) {
+                           SortOrder sortOrder, Integer maxLength, Integer scale) {
         if (!actualType.isCoercibleTo(this)) {
             throwConstraintViolationException(actualType, this);
         }
@@ -194,7 +194,7 @@ public class PBinary extends PBinaryBase {
 
     @Override
     public String toStringLiteral(Object o, Format formatter) {
-        return toStringLiteral((byte[])o, 0, ((byte[]) o).length, formatter);
+        return toStringLiteral((byte[]) o, 0, ((byte[]) o).length, formatter);
     }
 
     @Override

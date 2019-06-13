@@ -44,42 +44,42 @@ public class SystemCatalogUpgradeIT extends BaseTest {
     private static boolean reinitialize;
     private static int countUpgradeAttempts;
     private static long systemTableVersion = MetaDataProtocol.getPriorVersion();
-    
+
     private static class PhoenixUpgradeCountingServices extends ConnectionQueryServicesImpl {
         public PhoenixUpgradeCountingServices(QueryServices services, ConnectionInfo connectionInfo, Properties info) {
             super(services, connectionInfo, info);
         }
-        
+
         @Override
         protected void setUpgradeRequired() {
             super.setUpgradeRequired();
             countUpgradeAttempts++;
         }
-        
+
         @Override
         protected long getSystemTableVersion() {
             return systemTableVersion;
         }
-        
+
         @Override
         protected boolean isInitialized() {
             return !reinitialize && super.isInitialized();
         }
     }
-    
+
     public static class PhoenixUpgradeCountingDriver extends PhoenixTestDriver {
         private ConnectionQueryServices cqs;
         private final ReadOnlyProps overrideProps;
-        
+
         public PhoenixUpgradeCountingDriver(ReadOnlyProps props) {
             overrideProps = props;
         }
-        
+
         @Override
         public boolean acceptsURL(String url) throws SQLException {
             return true;
         }
-        
+
         @Override // public for testing
         public synchronized ConnectionQueryServices getConnectionQueryServices(String url, Properties info) throws SQLException {
             if (cqs == null) {
@@ -92,7 +92,7 @@ public class SystemCatalogUpgradeIT extends BaseTest {
             return cqs;
         }
     }
-    
+
     @BeforeClass
     public static void doSetup() throws Exception {
         Map<String, String> props = Maps.newConcurrentMap();

@@ -16,35 +16,36 @@
  * limitations under the License.
  */
 package org.apache.phoenix.query;
+
 import java.util.Properties;
 
 /**
  * Filters {@link Properties} instances based on property policy.
- *
+ * <p>
  * Provided properties, check if each property inside is whitelisted,
  * if not, throws IllegalArgumentException.
  * For best code practice, throws the offending properties list along
  * with exception
- *
+ * <p>
  * An example will be:
- *<code>
- *public class Customized PropertyPolicy implements PropertyPolicy {
- *  final static Set<String> propertiesKeyAllowed = Collections.unmodifiableSet(
- *      new HashSet<>(asList("DriverMajorVersion","DriverMinorVersion","DriverName","CurrentSCN")));
+ * <code>
+ * public class Customized PropertyPolicy implements PropertyPolicy {
+ * final static Set<String> propertiesKeyAllowed = Collections.unmodifiableSet(
+ * new HashSet<>(asList("DriverMajorVersion","DriverMinorVersion","DriverName","CurrentSCN")));
  *
- *      @Override public void evaluate(Properties properties) {
- *      final Set<String> offendingProperties = new HashSet<>();
- *
- *      for(Object k:properties.keySet()){
- *          if (propertiesKeyDisAllowed.contains(k)) offendingProperties
- *          .put((String)k,properties.getProperty((String)k));
- *      }
- *
- *      if (offendingProperties.size()>0) throw new IllegalArgumentException(
- *      "properties not allowed. offending properties" + offendingProperties);
- *  }
- *}
- *</code>
+ * @Override public void evaluate(Properties properties) {
+ * final Set<String> offendingProperties = new HashSet<>();
+ * <p>
+ * for(Object k:properties.keySet()){
+ * if (propertiesKeyDisAllowed.contains(k)) offendingProperties
+ * .put((String)k,properties.getProperty((String)k));
+ * }
+ * <p>
+ * if (offendingProperties.size()>0) throw new IllegalArgumentException(
+ * "properties not allowed. offending properties" + offendingProperties);
+ * }
+ * }
+ * </code>
  */
 public interface PropertyPolicy {
     /**
@@ -58,6 +59,7 @@ public interface PropertyPolicy {
      */
     static class PropertyPolicyImpl implements PropertyPolicy {
         @Override
-        public void evaluate(Properties properties) throws PropertyNotAllowedException{}
+        public void evaluate(Properties properties) throws PropertyNotAllowedException {
+        }
     }
 }

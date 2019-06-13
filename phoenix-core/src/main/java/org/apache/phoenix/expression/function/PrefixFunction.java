@@ -45,7 +45,7 @@ abstract public class PrefixFunction extends ScalarFunction {
     public int getKeyFormationTraversalIndex() {
         return preservesOrder() == OrderPreserving.NO ? NO_TRAVERSAL : 0;
     }
-    
+
     protected boolean extractNode() {
         return false;
     }
@@ -72,19 +72,19 @@ abstract public class PrefixFunction extends ScalarFunction {
                 boolean lowerInclusive = true;
                 PDataType type = getColumn().getDataType();
                 switch (op) {
-                case EQUAL:
-                    lowerRange = evaluateExpression(rhs);
-                    upperRange = ByteUtil.nextKey(lowerRange);
-                    break;
-                case GREATER:
-                    lowerRange = ByteUtil.nextKey(evaluateExpression(rhs));
-                    break;
-                case LESS_OR_EQUAL:
-                    upperRange = ByteUtil.nextKey(evaluateExpression(rhs));
-                    lowerInclusive = false;
-                    break;
-                default:
-                    return childPart.getKeyRange(op, rhs);
+                    case EQUAL:
+                        lowerRange = evaluateExpression(rhs);
+                        upperRange = ByteUtil.nextKey(lowerRange);
+                        break;
+                    case GREATER:
+                        lowerRange = ByteUtil.nextKey(evaluateExpression(rhs));
+                        break;
+                    case LESS_OR_EQUAL:
+                        upperRange = ByteUtil.nextKey(evaluateExpression(rhs));
+                        lowerInclusive = false;
+                        break;
+                    default:
+                        return childPart.getKeyRange(op, rhs);
                 }
                 PColumn column = getColumn();
                 Integer length = column.getMaxLength();
@@ -106,8 +106,8 @@ abstract public class PrefixFunction extends ScalarFunction {
                     // causing rows to be skipped that should be included. For example, with rows 'ab', 'a',
                     // a lowerRange of 'a\xFF' would skip 'ab', while 'a\x00\xFF' would not.
                     if (lowerRange != KeyRange.UNBOUND) {
-                        lowerRange = Arrays.copyOf(lowerRange, lowerRange.length+1);
-                        lowerRange[lowerRange.length-1] = QueryConstants.SEPARATOR_BYTE;
+                        lowerRange = Arrays.copyOf(lowerRange, lowerRange.length + 1);
+                        lowerRange[lowerRange.length - 1] = QueryConstants.SEPARATOR_BYTE;
                     }
                 }
                 KeyRange range = KeyRange.getKeyRange(lowerRange, lowerInclusive, upperRange, false);

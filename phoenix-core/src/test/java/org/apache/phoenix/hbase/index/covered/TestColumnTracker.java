@@ -31,31 +31,31 @@ import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
 
 public class TestColumnTracker {
 
-  @Test
-  public void testEnsureGuarranteedMinValid() {
-    assertFalse("Guarranted min wasn't recognized as having newer timestamps!",
-      ColumnTracker.isNewestTime(ColumnTracker.GUARANTEED_NEWER_UPDATES));
-  }
+    @Test
+    public void testEnsureGuarranteedMinValid() {
+        assertFalse("Guarranted min wasn't recognized as having newer timestamps!",
+                ColumnTracker.isNewestTime(ColumnTracker.GUARANTEED_NEWER_UPDATES));
+    }
 
-  @Test
-  public void testOnlyKeepsOlderTimestamps() {
-    Collection<ColumnReference> columns = new ArrayList<ColumnReference>();
-    ColumnTracker tracker = new ColumnTracker(columns);
-    tracker.setTs(10);
-    assertEquals("Column tracker didn't set original TS", 10, tracker.getTS());
-    tracker.setTs(12);
-    assertEquals("Column tracker allowed newer timestamp to be set.", 10, tracker.getTS());
-    tracker.setTs(9);
-    assertEquals("Column tracker didn't decrease set timestamp for smaller value", 9,
-      tracker.getTS());
-  }
+    @Test
+    public void testOnlyKeepsOlderTimestamps() {
+        Collection<ColumnReference> columns = new ArrayList<ColumnReference>();
+        ColumnTracker tracker = new ColumnTracker(columns);
+        tracker.setTs(10);
+        assertEquals("Column tracker didn't set original TS", 10, tracker.getTS());
+        tracker.setTs(12);
+        assertEquals("Column tracker allowed newer timestamp to be set.", 10, tracker.getTS());
+        tracker.setTs(9);
+        assertEquals("Column tracker didn't decrease set timestamp for smaller value", 9,
+                tracker.getTS());
+    }
 
-  @Test
-  public void testHasNewerTimestamps() throws Exception {
-    Collection<ColumnReference> columns = new ArrayList<ColumnReference>();
-    ColumnTracker tracker = new ColumnTracker(columns);
-    assertFalse("Tracker has newer timestamps when no ts set", tracker.hasNewerTimestamps());
-    tracker.setTs(10);
-    assertTrue("Tracker doesn't have newer timetamps with set ts", tracker.hasNewerTimestamps());
-  }
+    @Test
+    public void testHasNewerTimestamps() throws Exception {
+        Collection<ColumnReference> columns = new ArrayList<ColumnReference>();
+        ColumnTracker tracker = new ColumnTracker(columns);
+        assertFalse("Tracker has newer timestamps when no ts set", tracker.hasNewerTimestamps());
+        tracker.setTs(10);
+        assertTrue("Tracker doesn't have newer timetamps with set ts", tracker.hasNewerTimestamps());
+    }
 }

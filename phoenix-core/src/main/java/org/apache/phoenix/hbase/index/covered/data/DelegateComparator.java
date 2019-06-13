@@ -23,11 +23,11 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellComparator;
 
 public class DelegateComparator implements CellComparator {
-    
+
     private CellComparator delegate;
 
     public DelegateComparator(CellComparator delegate) {
-        this.delegate=delegate;
+        this.delegate = delegate;
     }
 
     @Override

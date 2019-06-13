@@ -43,17 +43,16 @@ import org.apache.phoenix.util.QueryUtil;
 import org.junit.Test;
 
 
-
 public class ReverseScanIT extends ParallelStatsDisabledIT {
 
     private static byte[][] getSplitsAtRowKeys(String tenantId) {
-        return new byte[][] { 
-            Bytes.toBytes(tenantId + ROW3),
-            Bytes.toBytes(tenantId + ROW7),
-            Bytes.toBytes(tenantId + ROW9),
-            };
+        return new byte[][] {
+                Bytes.toBytes(tenantId + ROW3),
+                Bytes.toBytes(tenantId + ROW7),
+                Bytes.toBytes(tenantId + ROW9),
+        };
     }
-    
+
     @Test
     public void testReverseRangeScan() throws Exception {
         String tenantId = getOrganizationId();
@@ -66,47 +65,47 @@ public class ReverseScanIT extends ParallelStatsDisabledIT {
             stmt.setFetchSize(2);
             ResultSet rs = stmt.executeQuery(query);
 
-            assertTrue (rs.next());
-            assertEquals(ROW9,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW8,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW7,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW6,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW5,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW4,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW3,rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW9, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW8, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW7, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW6, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW5, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW4, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW3, rs.getString(1));
 
             assertFalse(rs.next());
-            
+
             rs = conn.createStatement().executeQuery("EXPLAIN " + query);
             assertEquals(
                     "CLIENT PARALLEL 1-WAY REVERSE FULL SCAN OVER " + tableName + "\n" +
-                    "    SERVER FILTER BY FIRST KEY ONLY AND ENTITY_ID >= '00A323122312312'",
+                            "    SERVER FILTER BY FIRST KEY ONLY AND ENTITY_ID >= '00A323122312312'",
                     QueryUtil.getExplainPlan(rs));
-            
+
             PreparedStatement statement = conn.prepareStatement("SELECT entity_id FROM " + tableName + " WHERE organization_id = ? AND entity_id >= ? ORDER BY organization_id DESC, entity_id DESC");
             statement.setString(1, tenantId);
             statement.setString(2, ROW7);
             rs = statement.executeQuery();
 
-            assertTrue (rs.next());
-            assertEquals(ROW9,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW8,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW7,rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW9, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW8, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW7, rs.getString(1));
 
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testReverseSkipScan() throws Exception {
         String tenantId = getOrganizationId();
@@ -124,14 +123,14 @@ public class ReverseScanIT extends ParallelStatsDisabledIT {
             statement.setString(6, "00BOGUSROW00000");
             ResultSet rs = statement.executeQuery();
 
-            assertTrue (rs.next());
-            assertEquals(ROW9,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW7,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW3,rs.getString(1));
-            assertTrue (rs.next());
-            assertEquals(ROW2,rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW9, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW7, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW3, rs.getString(1));
+            assertTrue(rs.next());
+            assertEquals(ROW2, rs.getString(1));
 
             assertFalse(rs.next());
         } finally {
@@ -166,28 +165,28 @@ public class ReverseScanIT extends ParallelStatsDisabledIT {
         String indexName = generateUniqueName();
         String tenantId = getOrganizationId();
         String tableName = initATableValues(tenantId, getSplitsAtRowKeys(tenantId), getUrl());
-        
+
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         String ddl = "CREATE INDEX " + indexName + " ON " + tableName + " (a_integer DESC) INCLUDE ("
-        + "    A_STRING, " + "    B_STRING, " + "    A_DATE)";
+                + "    A_STRING, " + "    B_STRING, " + "    A_DATE)";
         conn.createStatement().execute(ddl);
-        
-        String query = 
+
+        String query =
                 "SELECT a_integer FROM " + tableName + " where a_integer is not null order by a_integer nulls last limit 1";
 
         PreparedStatement statement = conn.prepareStatement(query);
-        ResultSet rs=statement.executeQuery();
+        ResultSet rs = statement.executeQuery();
         assertTrue(rs.next());
-        assertEquals(1,rs.getInt(1));
+        assertEquals(1, rs.getInt(1));
         assertFalse(rs.next());
-        
+
         rs = conn.createStatement().executeQuery("EXPLAIN " + query);
         assertEquals(
                 "CLIENT SERIAL 1-WAY REVERSE RANGE SCAN OVER " + indexName + " [not null]\n" +
-                "    SERVER FILTER BY FIRST KEY ONLY\n" + 
-                "    SERVER 1 ROW LIMIT\n" + 
-                "CLIENT 1 ROW LIMIT",QueryUtil.getExplainPlan(rs));
+                        "    SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "    SERVER 1 ROW LIMIT\n" +
+                        "CLIENT 1 ROW LIMIT", QueryUtil.getExplainPlan(rs));
     }
-    
+
 }

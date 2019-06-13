@@ -56,7 +56,7 @@ public class FilteredKeyValueScanner implements ReseekableScanner {
      * passes the filter.
      *
      * @return the next {@link KeyValue} or <tt>null</tt> if no next {@link KeyValue} is present and passes all the
-     *         filters.
+     * filters.
      */
     @Override
     public Cell next() throws IOException {
@@ -66,9 +66,13 @@ public class FilteredKeyValueScanner implements ReseekableScanner {
 
     @Override
     public boolean seek(Cell key) throws IOException {
-        if (filter.filterAllRemaining()) { return false; }
+        if (filter.filterAllRemaining()) {
+            return false;
+        }
         // see if we can seek to the next key
-        if (!delegate.seek(key)) { return false; }
+        if (!delegate.seek(key)) {
+            return false;
+        }
 
         return seekToNextUnfilteredKeyValue();
     }
@@ -77,29 +81,31 @@ public class FilteredKeyValueScanner implements ReseekableScanner {
         while (true) {
             Cell peeked = delegate.peek();
             // no more key values, so we are done
-            if (peeked == null) { return false; }
+            if (peeked == null) {
+                return false;
+            }
 
             // filter the peeked value to see if it should be served
             ReturnCode code = filter.filterKeyValue(peeked);
             switch (code) {
-            // included, so we are done
-            case INCLUDE:
-            case INCLUDE_AND_NEXT_COL:
-                return true;
+                // included, so we are done
+                case INCLUDE:
+                case INCLUDE_AND_NEXT_COL:
+                    return true;
                 // not included, so we need to go to the next row
-            case SKIP:
-            case NEXT_COL:
-            case NEXT_ROW:
-                delegate.next();
-                break;
-            // use a seek hint to find out where we should go
-            case SEEK_NEXT_USING_HINT:
-                Cell nextCellHint = filter.getNextCellHint(peeked);
-                if(nextCellHint == KeyValue.LOWESTKEY) {
+                case SKIP:
+                case NEXT_COL:
+                case NEXT_ROW:
                     delegate.next();
-                } else {
-                    delegate.seek(PhoenixKeyValueUtil.maybeCopyCell(nextCellHint));
-                }
+                    break;
+                // use a seek hint to find out where we should go
+                case SEEK_NEXT_USING_HINT:
+                    Cell nextCellHint = filter.getNextCellHint(peeked);
+                    if (nextCellHint == KeyValue.LOWESTKEY) {
+                        delegate.next();
+                    } else {
+                        delegate.seek(PhoenixKeyValueUtil.maybeCopyCell(nextCellHint));
+                    }
             }
         }
     }

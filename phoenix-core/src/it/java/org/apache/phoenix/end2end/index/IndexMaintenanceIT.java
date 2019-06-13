@@ -66,9 +66,8 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
 
     /**
      * Adds a row to the index data table
-     * 
-     * @param i
-     *            row number
+     *
+     * @param i row number
      */
     private void insertRow(PreparedStatement stmt, int i) throws SQLException {
         // insert row
@@ -76,20 +75,20 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
         stmt.setString(2, "char" + String.valueOf(i));
         stmt.setInt(3, i);
         stmt.setLong(4, i);
-        stmt.setBigDecimal(5, new BigDecimal(i*0.5d));
+        stmt.setBigDecimal(5, new BigDecimal(i * 0.5d));
         Date date = new Date(DateUtil.parseDate("2015-01-01 00:00:00").getTime() + (i - 1) * MILLIS_IN_DAY);
         stmt.setDate(6, date);
         stmt.setString(7, "a.varchar" + String.valueOf(i));
         stmt.setString(8, "a.char" + String.valueOf(i));
         stmt.setInt(9, i);
         stmt.setLong(10, i);
-        stmt.setBigDecimal(11, new BigDecimal(i*0.5d));
+        stmt.setBigDecimal(11, new BigDecimal(i * 0.5d));
         stmt.setDate(12, date);
         stmt.setString(13, "b.varchar" + String.valueOf(i));
         stmt.setString(14, "b.char" + String.valueOf(i));
         stmt.setInt(15, i);
         stmt.setLong(16, i);
-        stmt.setBigDecimal(17, new BigDecimal(i*0.5d));
+        stmt.setBigDecimal(17, new BigDecimal(i * 0.5d));
         stmt.setDate(18, date);
         stmt.executeUpdate();
     }
@@ -97,7 +96,7 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
     private void verifyResult(ResultSet rs, int i) throws SQLException {
         assertTrue(rs.next());
         assertEquals("VARCHAR" + String.valueOf(i) + "_" + StringUtils.rightPad("CHAR" + String.valueOf(i), 10, ' ')
-                + "_A.VARCHAR" + String.valueOf(i) + "_" + StringUtils.rightPad("B.CHAR" + String.valueOf(i), 10, ' '),
+                        + "_A.VARCHAR" + String.valueOf(i) + "_" + StringUtils.rightPad("B.CHAR" + String.valueOf(i), 10, ' '),
                 rs.getString(1));
         assertEquals(i * 3, rs.getInt(2));
         Date date = new Date(DateUtil.parseDate("2015-01-01 00:00:00").getTime() + (i) * MILLIS_IN_DAY);
@@ -108,7 +107,7 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
         assertEquals("char" + String.valueOf(i), rs.getString(7));
         assertEquals(i, rs.getInt(8));
         assertEquals(i, rs.getLong(9));
-        assertEquals(i*0.5d, rs.getDouble(10), 0.000001);
+        assertEquals(i * 0.5d, rs.getDouble(10), 0.000001);
         assertEquals(i, rs.getLong(11));
         assertEquals(i, rs.getLong(12));
     }
@@ -117,7 +116,7 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
         String tableDDL = "create table " + dataTableName + TestUtil.TEST_TABLE_SCHEMA + tableProps;
         conn.createStatement().execute(tableDDL);
     }
-    
+
     private void helpTestCreateAndUpdate(boolean mutable, boolean localIndex) throws Exception {
         String dataTableName = generateUniqueName();
         String fullDataTableName = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + dataTableName;
@@ -181,7 +180,7 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
                     + fullDataTableName;
             rs = conn.createStatement().executeQuery("EXPLAIN " + indexSelectSql);
             assertEquals(localIndex ? "CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + fullDataTableName
-                    + " [1]\nCLIENT MERGE SORT" : "CLIENT PARALLEL 1-WAY FULL SCAN OVER INDEX_TEST." + indexName,
+                            + " [1]\nCLIENT MERGE SORT" : "CLIENT PARALLEL 1-WAY FULL SCAN OVER INDEX_TEST." + indexName,
                     QueryUtil.getExplainPlan(rs));
             rs = conn.createStatement().executeQuery(indexSelectSql);
             verifyResult(rs, 1);
@@ -206,13 +205,13 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     @Test
     public void testMutableIndexUpdate() throws Exception {
         String dataTableName = generateUniqueName();
         String fullDataTableName = INDEX_DATA_SCHEMA + QueryConstants.NAME_SEPARATOR + dataTableName;
         String indexName = generateUniqueName();
-    	helpTestUpdate(fullDataTableName, indexName, false);
+        helpTestUpdate(fullDataTableName, indexName, false);
     }
 
     @Test
@@ -222,7 +221,7 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
         String indexName = generateUniqueName();
         helpTestUpdate(fullDataTableName, indexName, true);
     }
-    
+
     private void helpTestUpdate(String fullDataTableName, String indexName, boolean localIndex) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
@@ -398,12 +397,12 @@ public class IndexMaintenanceIT extends ParallelStatsDisabledIT {
             rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + fullIndexTableName);
             assertTrue(rs.next());
             assertEquals(2, rs.getInt(1));
-            
+
             String sql = "SELECT LONG_COL1 from " + fullDataTableName + " WHERE LONG_COL2 = 2";
             rs = conn.createStatement().executeQuery(sql);
             assertTrue(rs.next());
             assertFalse(rs.next());
-            
+
             String dml = "DELETE from " + fullDataTableName + " WHERE long_col2 = 2";
             assertEquals(1, conn.createStatement().executeUpdate(dml));
             conn.commit();

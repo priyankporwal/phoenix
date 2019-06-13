@@ -63,7 +63,7 @@ public class SaltedTableIT extends BaseSaltedTableIT {
     public void testTableWithSplit() throws Exception {
         try {
             createTestTable(getUrl(), "create table " + generateUniqueName() + " (a_integer integer not null primary key) SALT_BUCKETS = 4",
-                    new byte[][] {{1}, {2,3}, {2,5}, {3}}, null);
+                    new byte[][] {{1}, {2, 3}, {2, 5}, {3}}, null);
             fail("Should have caught exception");
         } catch (SQLException e) {
             assertTrue(e.getMessage(), e.getMessage().contains("ERROR 1022 (42Y81): Should not specify split points on salted table with default row key order."));

@@ -34,8 +34,8 @@ import org.junit.Test;
 
 public class SerialIteratorsIT extends ParallelStatsDisabledIT {
     private String tableName = generateUniqueName();
-    private final String[] strings = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
-            "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+    private final String[] strings = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+            "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     private final String ddl = "CREATE TABLE " + tableName + " (t_id VARCHAR NOT NULL,\n" + "k1 INTEGER NOT NULL,\n"
             + "k2 INTEGER NOT NULL,\n" + "C3.k3 INTEGER,\n" + "C2.v1 VARCHAR,\n"
             + "CONSTRAINT pk PRIMARY KEY (t_id, k1, k2)) SPLIT ON ('e','i','o')";
@@ -46,7 +46,7 @@ public class SerialIteratorsIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), props);
         return conn;
     }
-    
+
     @Test
     public void testConcatenatingSerialIterators() throws Exception {
         Connection conn;
@@ -71,7 +71,7 @@ public class SerialIteratorsIT extends ParallelStatsDisabledIT {
         }
         conn.close();
     }
-    
+
     private void initTableValues(Connection conn) throws SQLException {
         for (int i = 0; i < 26; i++) {
             conn.createStatement().execute("UPSERT INTO " + tableName + " values('" + strings[i] + "'," + i + ","
@@ -79,5 +79,5 @@ public class SerialIteratorsIT extends ParallelStatsDisabledIT {
         }
         conn.commit();
     }
-    
+
 }

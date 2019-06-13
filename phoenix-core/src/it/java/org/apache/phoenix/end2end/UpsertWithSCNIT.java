@@ -45,7 +45,7 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
     public final ExpectedException exception = ExpectedException.none();
     Properties props = null;
     PreparedStatement prep = null;
-    String tableName =null;
+    String tableName = null;
 
     private void helpTestUpserWithSCNIT(boolean rowColumn, boolean txTable,
                                         boolean mutable, boolean local, boolean global)
@@ -53,29 +53,29 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
 
         tableName = generateUniqueName();
         String indx;
-        String createTable = "CREATE TABLE "+tableName+" ("
-                + (rowColumn ? "CREATED_DATE DATE NOT NULL, ":"")
+        String createTable = "CREATE TABLE " + tableName + " ("
+                + (rowColumn ? "CREATED_DATE DATE NOT NULL, " : "")
                 + "METRIC_ID CHAR(15) NOT NULL,METRIC_VALUE VARCHAR(50) CONSTRAINT PK PRIMARY KEY("
-                + (rowColumn? "CREATED_DATE ROW_TIMESTAMP, ":"") + "METRIC_ID)) "
-                + (mutable? "IMMUTABLE_ROWS=false":"" )
-                + (txTable ? "TRANSACTION_PROVIDER='TEPHRA',TRANSACTIONAL=true":"");
+                + (rowColumn ? "CREATED_DATE ROW_TIMESTAMP, " : "") + "METRIC_ID)) "
+                + (mutable ? "IMMUTABLE_ROWS=false" : "")
+                + (txTable ? "TRANSACTION_PROVIDER='TEPHRA',TRANSACTIONAL=true" : "");
         props = new Properties();
         Connection conn = DriverManager.getConnection(getUrl(), props);
         conn.createStatement().execute(createTable);
 
-        if(local || global ){
-            indx = "CREATE "+ (local? "LOCAL " : "") + "INDEX "+tableName+"_idx ON " +
-                    ""+tableName+" (METRIC_VALUE)";
+        if (local || global) {
+            indx = "CREATE " + (local ? "LOCAL " : "") + "INDEX " + tableName + "_idx ON " +
+                    "" + tableName + " (METRIC_VALUE)";
             conn.createStatement().execute(indx);
         }
 
         props.setProperty("CurrentSCN", Long.toString(System.currentTimeMillis()));
         conn = DriverManager.getConnection(getUrl(), props);
         conn.setAutoCommit(true);
-        String upsert = "UPSERT INTO "+tableName+" (METRIC_ID, METRIC_VALUE) VALUES (?,?)";
+        String upsert = "UPSERT INTO " + tableName + " (METRIC_ID, METRIC_VALUE) VALUES (?,?)";
         prep = conn.prepareStatement(upsert);
-        prep.setString(1,"abc");
-        prep.setString(2,"This is the first comment!");
+        prep.setString(1, "abc");
+        prep.setString(2, "This is the first comment!");
     }
 
     @Test // See https://issues.apache.org/jira/browse/PHOENIX-4983
@@ -85,8 +85,8 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
         exception.expect(SQLException.class);
         exception.expectMessage(containsString(String.valueOf(
                 SQLExceptionCode
-                .CANNOT_SPECIFY_SCN_FOR_TXN_TABLE
-                .getErrorCode())));
+                        .CANNOT_SPECIFY_SCN_FOR_TXN_TABLE
+                        .getErrorCode())));
         prep.executeUpdate();
     }
 
@@ -96,8 +96,8 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
         helpTestUpserWithSCNIT(false, false, true, false, false);
         prep.executeUpdate();
         props = new Properties();
-        Connection conn = DriverManager.getConnection(getUrl(),props);
-        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM "+tableName);
+        Connection conn = DriverManager.getConnection(getUrl(), props);
+        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
         assertEquals("abc", rs.getString(1));
         assertEquals("This is the first comment!", rs.getString(2));
@@ -110,8 +110,8 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
         helpTestUpserWithSCNIT(false, false, false, false, false);
         prep.executeUpdate();
         props = new Properties();
-        Connection conn = DriverManager.getConnection(getUrl(),props);
-        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM "+tableName);
+        Connection conn = DriverManager.getConnection(getUrl(), props);
+        ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
         assertTrue(rs.next());
         assertEquals("abc", rs.getString(1));
         assertEquals("This is the first comment!", rs.getString(2));
@@ -125,10 +125,11 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
         exception.expect(SQLException.class);
         exception.expectMessage(containsString(String.valueOf(
                 SQLExceptionCode
-                .CANNOT_UPSERT_WITH_SCN_FOR_MUTABLE_TABLE_WITH_INDEXES
-                .getErrorCode())));
+                        .CANNOT_UPSERT_WITH_SCN_FOR_MUTABLE_TABLE_WITH_INDEXES
+                        .getErrorCode())));
         prep.executeUpdate();
     }
+
     @Test
     public void testUpsertOnSCNSetMutTableWithGlobalIdx() throws Exception {
 
@@ -141,6 +142,7 @@ public class UpsertWithSCNIT extends ParallelStatsDisabledIT {
         prep.executeUpdate();
 
     }
+
     @Test
     public void testUpsertOnSCNSetWithRowTSColumn() throws Exception {
 

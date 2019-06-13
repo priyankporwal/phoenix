@@ -31,12 +31,10 @@ import org.apache.phoenix.schema.types.PTimestamp;
 import org.joda.time.DateTime;
 
 /**
- * 
  * Implementation of the Year() buildin. Input Date/Timestamp.
- * 
  */
-@BuiltInFunction(name=YearFunction.NAME, 
-args={@Argument(allowedTypes={PTimestamp.class})})
+@BuiltInFunction(name = YearFunction.NAME,
+        args = {@Argument(allowedTypes = {PTimestamp.class})})
 public class YearFunction extends DateScalarFunction {
     public static final String NAME = "YEAR";
 
@@ -53,7 +51,7 @@ public class YearFunction extends DateScalarFunction {
         if (!expression.evaluate(tuple, ptr)) {
             return false;
         }
-        if ( ptr.getLength() == 0) {
+        if (ptr.getLength() == 0) {
             return true; //means null
         }
         long dateTime = inputCodec.decodeLong(ptr, expression.getSortOrder());

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,46 +40,46 @@ import org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter
  */
 public class StoreFailuresInCachePolicy implements IndexFailurePolicy {
 
-  private KillServerOnFailurePolicy delegate;
-  private PerRegionIndexWriteCache cache;
-  private Region region;
+    private KillServerOnFailurePolicy delegate;
+    private PerRegionIndexWriteCache cache;
+    private Region region;
 
-  /**
-   * @param failedIndexEdits cache to update when we find a failure
-   */
-  public StoreFailuresInCachePolicy(PerRegionIndexWriteCache failedIndexEdits) {
-    this.cache = failedIndexEdits;
-  }
-
-  @Override
-  public void setup(Stoppable parent, RegionCoprocessorEnvironment env) {
-    this.region = env.getRegion();
-    this.delegate = new KillServerOnFailurePolicy();
-    this.delegate.setup(parent, env);
-
-  }
-
-  @Override
-  public void handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException {
-    // if its not an exception we can handle, let the delegate take care of it
-    if (!(cause instanceof MultiIndexWriteFailureException)) {
-      delegate.handleFailure(attempted, cause);
+    /**
+     * @param failedIndexEdits cache to update when we find a failure
+     */
+    public StoreFailuresInCachePolicy(PerRegionIndexWriteCache failedIndexEdits) {
+        this.cache = failedIndexEdits;
     }
-    List<HTableInterfaceReference> failedTables =
-        ((MultiIndexWriteFailureException) cause).getFailedTables();
-    for (HTableInterfaceReference table : failedTables) {
-      cache.addEdits(this.region, table, attempted.get(table));
+
+    @Override
+    public void setup(Stoppable parent, RegionCoprocessorEnvironment env) {
+        this.region = env.getRegion();
+        this.delegate = new KillServerOnFailurePolicy();
+        this.delegate.setup(parent, env);
+
     }
-  }
+
+    @Override
+    public void handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException {
+        // if its not an exception we can handle, let the delegate take care of it
+        if (!(cause instanceof MultiIndexWriteFailureException)) {
+            delegate.handleFailure(attempted, cause);
+        }
+        List<HTableInterfaceReference> failedTables =
+                ((MultiIndexWriteFailureException) cause).getFailedTables();
+        for (HTableInterfaceReference table : failedTables) {
+            cache.addEdits(this.region, table, attempted.get(table));
+        }
+    }
 
 
-  @Override
-  public void stop(String why) {
-    this.delegate.stop(why);
-  }
+    @Override
+    public void stop(String why) {
+        this.delegate.stop(why);
+    }
 
-  @Override
-  public boolean isStopped() {
-    return this.delegate.isStopped();
-  }
+    @Override
+    public boolean isStopped() {
+        return this.delegate.isStopped();
+    }
 }

@@ -30,10 +30,8 @@ import org.antlr.runtime.RecognitionException;
 import org.apache.phoenix.exception.PhoenixParserException;
 
 /**
- * 
  * SQL Parser for Phoenix
  *
- * 
  * @since 0.1
  */
 public class SQLParser {
@@ -42,13 +40,15 @@ public class SQLParser {
     private final PhoenixSQLParser parser;
 
     public static ParseNode parseCondition(String expression) throws SQLException {
-        if (expression == null) return null;
+        if (expression == null) {
+            return null;
+        }
         SQLParser parser = new SQLParser(expression);
         return parser.parseExpression();
     }
-    
+
     public SQLParser(String query) {
-        this(query,DEFAULT_NODE_FACTORY);
+        this(query, DEFAULT_NODE_FACTORY);
     }
 
     public SQLParser(String query, ParseNodeFactory factory) {
@@ -79,7 +79,8 @@ public class SQLParser {
 
     /**
      * Parses the input as a series of semicolon-terminated SQL statements.
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     public BindableStatement nextStatement(ParseNodeFactory factory) throws SQLException {
         try {
@@ -101,7 +102,8 @@ public class SQLParser {
 
     /**
      * Parses the input as a SQL select or upsert statement.
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     public BindableStatement parseStatement() throws SQLException {
         try {
@@ -122,7 +124,8 @@ public class SQLParser {
     /**
      * Parses the input as a SQL select statement.
      * Used only in tests
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     public SelectStatement parseQuery() throws SQLException {
         try {
@@ -141,6 +144,7 @@ public class SQLParser {
     /**
      * Parses the input as a SQL declare cursor statement.
      * Used only in tests
+     *
      * @throws SQLException
      */
     public DeclareCursorStatement parseDeclareCursor() throws SQLException {
@@ -160,6 +164,7 @@ public class SQLParser {
     /**
      * Parses the input as a SQL cursor open statement.
      * Used only in tests
+     *
      * @throws SQLException
      */
     public OpenStatement parseOpen() throws SQLException {
@@ -179,6 +184,7 @@ public class SQLParser {
     /**
      * Parses the input as a SQL cursor close statement.
      * Used only in tests
+     *
      * @throws SQLException
      */
     public CloseStatement parseClose() throws SQLException {
@@ -198,6 +204,7 @@ public class SQLParser {
     /**
      * Parses the input as a SQL cursor fetch statement.
      * Used only in tests
+     *
      * @throws SQLException
      */
     public FetchStatement parseFetch() throws SQLException {
@@ -217,7 +224,8 @@ public class SQLParser {
     /**
      * Parses the input as a SQL select statement.
      * Used only in tests
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     public ParseNode parseExpression() throws SQLException {
         try {
@@ -235,7 +243,8 @@ public class SQLParser {
 
     /**
      * Parses the input as a SQL literal
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     public LiteralParseNode parseLiteral() throws SQLException {
         try {
@@ -258,13 +267,16 @@ public class SQLParser {
 
         @Override
         public int LA(int i) {
-            if (i == 0) { return 0; // undefined
+            if (i == 0) {
+                return 0; // undefined
             }
             if (i < 0) {
                 i++; // e.g., translate LA(-1) to use offset 0
             }
 
-            if ((p + i - 1) >= n) { return CharStream.EOF; }
+            if ((p + i - 1) >= n) {
+                return CharStream.EOF;
+            }
             return Character.toLowerCase(data[p + i - 1]);
         }
     }

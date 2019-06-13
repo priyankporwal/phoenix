@@ -45,12 +45,12 @@ class StringToArrayConverter {
     /**
      * Instantiate with the array value separator and data type.
      *
-     * @param conn Phoenix connection to target database
+     * @param conn            Phoenix connection to target database
      * @param separatorString string used to separate incoming array values in strings
      * @param elementDataType datatype of the elements of arrays to be created
      */
     public StringToArrayConverter(Connection conn, String separatorString,
-            PDataType elementDataType) {
+                                  PDataType elementDataType) {
         this.conn = conn;
         this.splitter = Splitter.on(separatorString);
         this.elementDataType = elementDataType;

@@ -50,7 +50,9 @@ public class PhoenixContextExecutor {
         public void after() {
             Thread.currentThread().setContextClassLoader(saveCcl);
 
-        };
+        }
+
+        ;
     }
 
     public static CallWrapper inContext() {

@@ -22,21 +22,21 @@ import java.sql.SQLException;
 public abstract class MetaDataEntityNotFoundException extends SQLException {
     private static final long serialVersionUID = 1L;
 
-  private final String schemaName;
-  private final String tableName;
+    private final String schemaName;
+    private final String tableName;
 
-  public MetaDataEntityNotFoundException(String reason, String sqlState, int code,
-      String schemaName, String tableName, Throwable cause) {
-    super(reason, sqlState, code, cause);
-    this.schemaName = schemaName;
-    this.tableName = tableName;
-  }
+    public MetaDataEntityNotFoundException(String reason, String sqlState, int code,
+                                           String schemaName, String tableName, Throwable cause) {
+        super(reason, sqlState, code, cause);
+        this.schemaName = schemaName;
+        this.tableName = tableName;
+    }
 
-  public String getSchemaName() {
-    return schemaName;
-  }
+    public String getSchemaName() {
+        return schemaName;
+    }
 
-  public String getTableName() {
-    return tableName;
-  }
+    public String getTableName() {
+        return tableName;
+    }
 }

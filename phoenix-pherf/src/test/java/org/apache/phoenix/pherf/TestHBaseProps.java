@@ -25,10 +25,10 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.junit.Test;
 
 public class TestHBaseProps {
-	
-	@Test
-	public void testCheckHBaseProps(){
-		Configuration conf = HBaseConfiguration.create();
-		assertTrue("did not get correct threadpool size", conf.get("phoenix.query.threadPoolSize").equals("128"));
-	}
+
+    @Test
+    public void testCheckHBaseProps() {
+        Configuration conf = HBaseConfiguration.create();
+        assertTrue("did not get correct threadpool size", conf.get("phoenix.query.threadPoolSize").equals("128"));
+    }
 }

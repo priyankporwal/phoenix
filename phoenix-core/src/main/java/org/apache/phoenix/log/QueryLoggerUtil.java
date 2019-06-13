@@ -29,7 +29,7 @@ public class QueryLoggerUtil {
 
 
     public static void logInitialDetails(QueryLogger queryLogger, PName tenantId, ConnectionQueryServices queryServices,
-            String query, List<Object> bindParameters) {
+                                         String query, List<Object> bindParameters) {
         try {
             String clientIP;
             try {

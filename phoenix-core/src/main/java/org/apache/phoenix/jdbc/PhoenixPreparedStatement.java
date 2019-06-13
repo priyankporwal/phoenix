@@ -68,7 +68,6 @@ import org.apache.phoenix.util.SQLCloseable;
  * {@link #setTimestamp(int, Timestamp, Calendar)} - {@link #setNull(int, int)} - {@link #setNull(int, int, String)} -
  * {@link #setBytes(int, byte[])} - {@link #clearParameters()} - {@link #getMetaData()}
  *
- *
  * @since 0.1
  */
 public class PhoenixPreparedStatement extends PhoenixStatement implements PreparedStatement, SQLCloseable {
@@ -81,13 +80,15 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
     public PhoenixPreparedStatement(PhoenixConnection connection, PhoenixStatementParser parser) throws SQLException, IOException {
         super(connection);
         this.statement = parser.nextStatement(new ExecutableNodeFactory());
-        if (this.statement == null) { throw new EOFException(); }
+        if (this.statement == null) {
+            throw new EOFException();
+        }
         this.query = null; // TODO: add toString on SQLStatement
         this.parameterCount = statement.getBindCount();
         this.parameters = Arrays.asList(new Object[statement.getBindCount()]);
         Collections.fill(parameters, BindManager.UNBOUND_PARAMETER);
     }
-    
+
     public PhoenixPreparedStatement(PhoenixConnection connection, String query) throws SQLException {
         super(connection);
         this.query = query;
@@ -113,15 +114,16 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
 
     /**
      * Set a bind parameter's value.
+     *
      * @param parameterIndex 1-based index of the bind parameter to be set
-     * @param value value to be set
+     * @param value          value to be set
      * @throws SQLException if the bind parameter index is invalid
      */
     private void setParameter(int parameterIndex, Object value) throws SQLException {
         if (parameterIndex < 1 || parameterIndex > parameterCount) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.PARAM_INDEX_OUT_OF_BOUND)
                     .setMessage("Can't set parameter at index " + parameterIndex + ", " +
-                             parameterCount + " bind parameters are defined")
+                            parameterCount + " bind parameters are defined")
                     .build().buildException();
         }
         if (parameterIndex < 1) {
@@ -148,7 +150,7 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         for (Object param : getParameters()) {
             if (param == BindManager.UNBOUND_PARAMETER) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.PARAM_VALUE_UNBOUND)
-                    .setMessage("Parameter " + (i + 1) + " is unbound").build().buildException();
+                        .setMessage("Parameter " + (i + 1) + " is unbound").build().buildException();
             }
             i++;
         }
@@ -167,15 +169,15 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         throwIfUnboundParameters();
         if (!batched && statement.getOperation().isMutation() && !batch.isEmpty()) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.EXECUTE_UPDATE_WITH_NON_EMPTY_BATCH)
-            .build().buildException();
+                    .build().buildException();
         }
         if (statement.getOperation().isMutation()) {
             executeMutation(statement);
             return false;
         }
-        executeQuery(statement, createQueryLogger(statement,query));
+        executeQuery(statement, createQueryLogger(statement, query));
         return true;
-        
+
     }
 
     @Override
@@ -189,8 +191,8 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         if (statement.getOperation().isMutation()) {
             throw new ExecuteQueryNotApplicableException(statement.getOperation());
         }
-        
-        return executeQuery(statement,createQueryLogger(statement,query));
+
+        return executeQuery(statement, createQueryLogger(statement, query));
     }
 
     @Override
@@ -201,7 +203,7 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         }
         if (!batch.isEmpty()) {
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.EXECUTE_UPDATE_WITH_NON_EMPTY_BATCH)
-            .build().buildException();
+                    .build().buildException();
         }
         return executeMutation(statement);
     }
@@ -220,7 +222,7 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         List<Object> params = this.getParameters();
         BitSet unsetParams = new BitSet(statement.getBindCount());
         for (int i = 0; i < paramCount; i++) {
-            if ( params.get(i) == BindManager.UNBOUND_PARAMETER) {
+            if (params.get(i) == BindManager.UNBOUND_PARAMETER) {
                 unsetParams.set(i);
                 params.set(i, null);
             }
@@ -244,7 +246,7 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         List<Object> params = this.getParameters();
         BitSet unsetParams = new BitSet(statement.getBindCount());
         for (int i = 0; i < paramCount; i++) {
-            if ( params.get(i) == BindManager.UNBOUND_PARAMETER) {
+            if (params.get(i) == BindManager.UNBOUND_PARAMETER) {
                 unsetParams.set(i);
                 params.set(i, null);
             }
@@ -514,7 +516,7 @@ public class PhoenixPreparedStatement extends PhoenixStatement implements Prepar
         // TODO: deal with Calendar
         setParameter(parameterIndex, x);
     }
-    
+
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         setTimestampParameter(parameterIndex, x, null);

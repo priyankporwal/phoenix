@@ -44,17 +44,17 @@ public class PhoenixClientRpcIT extends BaseUniqueNamesOwnClusterIT {
 
     @BeforeClass
     public static void doSetup() throws Exception {
-        Map<String, String> serverProps = Collections.singletonMap(RSRpcServices.REGION_SERVER_RPC_SCHEDULER_FACTORY_CLASS, 
-        		TestPhoenixIndexRpcSchedulerFactory.class.getName());
+        Map<String, String> serverProps = Collections.singletonMap(RSRpcServices.REGION_SERVER_RPC_SCHEDULER_FACTORY_CLASS,
+                TestPhoenixIndexRpcSchedulerFactory.class.getName());
         NUM_SLAVES_BASE = 2;
         setUpTestDriver(new ReadOnlyProps(serverProps.entrySet().iterator()), ReadOnlyProps.EMPTY_PROPS);
     }
-    
+
     @AfterClass
     public static void cleanUpAfterTestSuite() throws Exception {
         TestPhoenixIndexRpcSchedulerFactory.reset();
     }
-    
+
     @Before
     public void generateTableNames() throws SQLException {
         schemaName = generateUniqueName();

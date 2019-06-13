@@ -62,18 +62,18 @@ import org.mockito.Mockito;
 
 public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
 
-    
+
     private void testTableWithSameSchema(boolean notExists, boolean sameClient) throws Exception {
 
         // use a spyed ConnectionQueryServices so we can verify calls to getTable
         ConnectionQueryServices connectionQueryServices =
                 Mockito.spy(driver.getConnectionQueryServices(getUrl(),
-                    PropertiesUtil.deepCopy(TEST_PROPERTIES)));
+                        PropertiesUtil.deepCopy(TEST_PROPERTIES)));
         Properties props = new Properties();
         props.putAll(PhoenixEmbeddedDriver.DEFAULT_PROPS.asMap());
 
         try (Connection conn1 = connectionQueryServices.connect(getUrl(), props);
-                Connection conn2 = sameClient ? conn1 : connectionQueryServices.connect(getUrl(), props)) {
+             Connection conn2 = sameClient ? conn1 : connectionQueryServices.connect(getUrl(), props)) {
 
             String metricTableName = generateUniqueName();
             String viewName = generateUniqueName();
@@ -81,7 +81,7 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
             // create sequence for auto partition
             conn1.createStatement().execute("CREATE SEQUENCE " + metricIdSeqTableName + " CACHE 1");
             // create base table
-            conn1.createStatement().execute("CREATE TABLE "+ metricTableName + "(metricId INTEGER NOT NULL, metricVal DOUBLE, CONSTRAINT PK PRIMARY KEY(metricId))"
+            conn1.createStatement().execute("CREATE TABLE " + metricTableName + "(metricId INTEGER NOT NULL, metricVal DOUBLE, CONSTRAINT PK PRIMARY KEY(metricId))"
                     + " APPEND_ONLY_SCHEMA = true, UPDATE_CACHE_FREQUENCY=1, AUTO_PARTITION_SEQ=" + metricIdSeqTableName);
             // create view
             String ddl =
@@ -101,24 +101,23 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
                 if (!notExists) {
                     fail("Create Table should fail");
                 }
-            }
-            catch (TableAlreadyExistsException e) {
+            } catch (TableAlreadyExistsException e) {
                 if (notExists) {
                     fail("Create Table should not fail");
                 }
             }
-            
+
             // verify getTable rpcs
             verify(connectionQueryServices, sameClient ? never() : times(1)).getTable(
-                (PName) isNull(), eq(new byte[0]), eq(Bytes.toBytes(viewName)), anyLong(),
-                anyLong(), eq(false), eq(false), (PTable) isNull());
-            
+                    (PName) isNull(), eq(new byte[0]), eq(Bytes.toBytes(viewName)), anyLong(),
+                    anyLong(), eq(false), eq(false), (PTable) isNull());
+
             // verify no create table rpcs
             verify(connectionQueryServices, never()).createTable(anyListOf(Mutation.class),
-                any(byte[].class), any(PTableType.class), anyMap(), anyList(), any(byte[][].class),
-                eq(false), eq(false), eq(false));
+                    any(byte[].class), any(PTableType.class), anyMap(), anyList(), any(byte[][].class),
+                    eq(false), eq(false), eq(false));
             reset(connectionQueryServices);
-            
+
             // execute alter table ddl that adds the same column
             ddl = "ALTER VIEW " + viewName + " ADD " + (notExists ? "IF NOT EXISTS" : "") + " tagName varchar";
             try {
@@ -126,16 +125,15 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
                 if (!notExists) {
                     fail("Alter Table should fail");
                 }
-            }
-            catch (ColumnAlreadyExistsException e) {
+            } catch (ColumnAlreadyExistsException e) {
                 if (notExists) {
                     fail("Alter Table should not fail");
                 }
             }
-            
+
             // if not verify exists is true one call to add column table with empty mutation list (which does not make a rpc) 
             // else verify no add column calls
-            verify(connectionQueryServices, notExists ? times(1) : never() ).addColumn(eq(Collections.<Mutation>emptyList()), any(PTable.class), anyMap(), anySetOf(String.class), anyListOf(PColumn.class));
+            verify(connectionQueryServices, notExists ? times(1) : never()).addColumn(eq(Collections.<Mutation>emptyList()), any(PTable.class), anyMap(), anySetOf(String.class), anyListOf(PColumn.class));
 
             // upsert one row
             conn2.createStatement().execute("UPSERT INTO " + viewName + "(hostName, metricVal) VALUES('host2', 2.0)");
@@ -167,17 +165,17 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
     public void testSameSchemaWithNotExistsSameClient() throws Exception {
         testTableWithSameSchema(true, true);
     }
-    
+
     @Test
     public void testSameSchemaWithNotExistsDifferentClient() throws Exception {
         testTableWithSameSchema(true, false);
     }
-    
+
     @Test
     public void testSameSchemaSameClient() throws Exception {
         testTableWithSameSchema(false, true);
     }
-    
+
     @Test
     public void testSameSchemaDifferentClient() throws Exception {
         testTableWithSameSchema(false, false);
@@ -186,7 +184,7 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
     private void testAddColumns(boolean sameClient) throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn1 = DriverManager.getConnection(getUrl(), props);
-                Connection conn2 = sameClient ? conn1 : DriverManager.getConnection(getUrl(), props)) {
+             Connection conn2 = sameClient ? conn1 : DriverManager.getConnection(getUrl(), props)) {
 
             String metricTableName = generateUniqueName();
             String viewName = generateUniqueName();
@@ -205,7 +203,7 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
                             + " AS SELECT * FROM " + metricTableName
                             + " UPDATE_CACHE_FREQUENCY=300000";
             conn1.createStatement().execute(ddl);
-            
+
             conn1.createStatement().execute("UPSERT INTO " + viewName + "(hostName, metricVal1) VALUES('host1', 1.0)");
             conn1.commit();
 
@@ -221,20 +219,20 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
             conn2.createStatement().execute(ddl);
 
             conn2.createStatement().execute(
-                "UPSERT INTO " + viewName + "(hostName, instanceName, metricVal1, metricval2) VALUES('host2', 'instance2', 21.0, 22.0)");
+                    "UPSERT INTO " + viewName + "(hostName, instanceName, metricVal1, metricval2) VALUES('host2', 'instance2', 21.0, 22.0)");
             conn2.commit();
-            
+
             conn1.createStatement().execute("UPSERT INTO " + viewName + "(hostName, metricVal1) VALUES('host3', 3.0)");
             conn1.commit();
-            
+
             // verify data exists
             ResultSet rs = conn2.createStatement().executeQuery("SELECT * from " + viewName);
-            
+
             // verify the two columns were added correctly
             PTable table =
                     conn2.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, viewName));
             List<PColumn> pkColumns = table.getPKColumns();
-            assertEquals(3,table.getPKColumns().size());
+            assertEquals(3, table.getPKColumns().size());
             // even though the second create view statement changed the order of the pk, the original order is maintained
             PColumn metricId = pkColumns.get(0);
             assertEquals("METRICID", metricId.getName().getString());
@@ -253,7 +251,7 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
             assertEquals("HOSTNAME", columns.get(2).getName().getString());
             assertEquals("INSTANCENAME", columns.get(3).getName().getString());
             assertEquals("METRICVAL2", columns.get(4).getName().getString());
-            
+
             // verify the data
             assertTrue(rs.next());
             assertEquals(1, rs.getInt(1));
@@ -276,12 +274,12 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     @Test
     public void testAddColumnsSameClient() throws Exception {
         testAddColumns(true);
     }
-    
+
     @Test
     public void testTableAddColumnsDifferentClient() throws Exception {
         testAddColumns(false);
@@ -295,35 +293,35 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
             String viewName = generateUniqueName();
             try {
                 conn.createStatement().execute(
-                    "create table IF NOT EXISTS " + tableName + " ( id char(1) NOT NULL,"
-                            + " col1 integer NOT NULL,"
-                            + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1))"
-                            + " APPEND_ONLY_SCHEMA = true");
+                        "create table IF NOT EXISTS " + tableName + " ( id char(1) NOT NULL,"
+                                + " col1 integer NOT NULL,"
+                                + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1))"
+                                + " APPEND_ONLY_SCHEMA = true");
                 fail("UPDATE_CACHE_FREQUENCY attribute must not be set to ALWAYS if APPEND_ONLY_SCHEMA is true");
             } catch (SQLException e) {
                 assertEquals(SQLExceptionCode.UPDATE_CACHE_FREQUENCY_INVALID.getErrorCode(),
-                    e.getErrorCode());
+                        e.getErrorCode());
             }
-            
+
             conn.createStatement().execute(
-                "create table IF NOT EXISTS " + tableName + " ( id char(1) NOT NULL,"
-                        + " col1 integer NOT NULL"
-                        + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1))"
-                        + " APPEND_ONLY_SCHEMA = true, UPDATE_CACHE_FREQUENCY=1000");
+                    "create table IF NOT EXISTS " + tableName + " ( id char(1) NOT NULL,"
+                            + " col1 integer NOT NULL"
+                            + " CONSTRAINT NAME_PK PRIMARY KEY (id, col1))"
+                            + " APPEND_ONLY_SCHEMA = true, UPDATE_CACHE_FREQUENCY=1000");
             conn.createStatement().execute(
-                "create view IF NOT EXISTS " + viewName + " (val1 integer) AS SELECT * FROM " + tableName);
+                    "create view IF NOT EXISTS " + viewName + " (val1 integer) AS SELECT * FROM " + tableName);
             PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
             PTable view = pconn.getTable(new PTableKey(pconn.getTenantId(), viewName));
             assertEquals(true, view.isAppendOnlySchema());
             assertEquals(1000, view.getUpdateCacheFrequency());
         }
     }
-    
+
     @Test
     public void testUpsertRowToDeletedTable() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         try (Connection conn1 = DriverManager.getConnection(getUrl(), props);
-                Connection conn2 = DriverManager.getConnection(getUrl(), props)) {
+             Connection conn2 = DriverManager.getConnection(getUrl(), props)) {
             String metricTableName = generateUniqueName();
             String viewName = generateUniqueName();
             String metricIdSeqTableName = generateUniqueName();
@@ -340,10 +338,10 @@ public class AppendOnlySchemaIT extends ParallelStatsDisabledIT {
                             + " AS SELECT * FROM " + metricTableName
                             + " APPEND_ONLY_SCHEMA = true, UPDATE_CACHE_FREQUENCY=300000";
             conn1.createStatement().execute(ddl);
-            
+
             // drop the table using a different connection
             conn2.createStatement().execute("DROP VIEW " + viewName);
-            
+
             // upsert one row
             conn1.createStatement().execute("UPSERT INTO " + viewName + "(hostName, metricVal) VALUES('host1', 1.0)");
             // upsert doesn't fail since base table still exists

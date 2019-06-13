@@ -31,7 +31,7 @@ public class DataLoadThreadTime {
     }
 
     public void add(String tableName, String threadName, long rowsUpserted,
-            long timeInMsPerMillionRows) {
+                    long timeInMsPerMillionRows) {
         threadTime.add(new WriteThreadTime(tableName, threadName, rowsUpserted,
                 timeInMsPerMillionRows));
     }
@@ -49,7 +49,7 @@ class WriteThreadTime {
     private long timeInMsPerMillionRows;
 
     public WriteThreadTime(String tableName, String threadName, long rowsUpserted,
-            long timeInMsPerMillionRows) {
+                           long timeInMsPerMillionRows) {
         this.tableName = tableName;
         this.threadName = threadName;
         this.rowsUpserted = rowsUpserted;

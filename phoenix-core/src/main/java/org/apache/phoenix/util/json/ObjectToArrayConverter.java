@@ -39,14 +39,14 @@ class ObjectToArrayConverter {
     /**
      * Instantiate with the array value separator and data type.
      *
-     * @param conn Phoenix connection to target database
+     * @param conn            Phoenix connection to target database
      * @param elementDataType datatype of the elements of arrays to be created
      */
     public ObjectToArrayConverter(Connection conn, PDataType elementDataType) {
         this.conn = conn;
         this.elementDataType = elementDataType;
         this.elementConvertFunction =
-            new JsonUpsertExecutor.SimpleDatatypeConversionFunction(elementDataType, this.conn);
+                new JsonUpsertExecutor.SimpleDatatypeConversionFunction(elementDataType, this.conn);
     }
 
     /**
@@ -64,6 +64,6 @@ class ObjectToArrayConverter {
             return conn.createArrayOf(elementDataType.getSqlTypeName(), new Object[0]);
         }
         return conn.createArrayOf(elementDataType.getSqlTypeName(),
-            Lists.newArrayList(Iterables.transform(list, elementConvertFunction)).toArray());
+                Lists.newArrayList(Iterables.transform(list, elementConvertFunction)).toArray());
     }
 }

@@ -35,17 +35,17 @@ import com.google.common.util.concurrent.ListenableFuture;
  * Does not throw an {@link ExecutionException} if any of the tasks fail.
  */
 public class WaitForCompletionTaskRunner extends BaseTaskRunner {
-  
-  /**
-   * @param service thread pool to which {@link Task}s are submitted. This service is then 'owned'
-   *          by <tt>this</tt> and will be shutdown on calls to {@link #stop(String)}.
-   */
-  public WaitForCompletionTaskRunner(ExecutorService service) {
-    super(service);
-  }
 
-  @Override
-  public <R> ListenableFuture<List<R>> submitTasks(List<ListenableFuture<R>> futures) {
-    return Futures.successfulAsList(futures);
-  }
+    /**
+     * @param service thread pool to which {@link Task}s are submitted. This service is then 'owned'
+     *                by <tt>this</tt> and will be shutdown on calls to {@link #stop(String)}.
+     */
+    public WaitForCompletionTaskRunner(ExecutorService service) {
+        super(service);
+    }
+
+    @Override
+    public <R> ListenableFuture<List<R>> submitTasks(List<ListenableFuture<R>> futures) {
+        return Futures.successfulAsList(futures);
+    }
 }

@@ -31,10 +31,8 @@ import org.apache.phoenix.util.NumberUtil;
 
 
 /**
- * 
  * Subtract expression implementation
  *
- * 
  * @since 0.1
  */
 public class DecimalSubtractExpression extends SubtractExpression {
@@ -49,7 +47,7 @@ public class DecimalSubtractExpression extends SubtractExpression {
         Expression firstChild = children.get(0);
         maxLength = getPrecision(firstChild);
         scale = getScale(firstChild);
-        for (int i=1; i<children.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
             Expression childExpr = children.get(i);
             maxLength = getPrecision(maxLength, getPrecision(childExpr), scale, getScale(childExpr));
             scale = getScale(maxLength, getPrecision(childExpr), scale, getScale(childExpr));
@@ -59,22 +57,22 @@ public class DecimalSubtractExpression extends SubtractExpression {
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         BigDecimal result = null;
-        for (int i=0; i<children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             Expression childExpr = children.get(i);
-            if (!childExpr.evaluate(tuple, ptr)) { 
+            if (!childExpr.evaluate(tuple, ptr)) {
                 return false;
             }
             if (ptr.getLength() == 0) {
                 return true;
             }
-            
+
             PDataType childType = childExpr.getDataType();
             boolean isDate = childType.isCoercibleTo(PDate.INSTANCE);
             SortOrder childSortOrder = childExpr.getSortOrder();
             BigDecimal bd = isDate ?
                     BigDecimal.valueOf(childType.getCodec().decodeLong(ptr, childSortOrder)) :
                     (BigDecimal) PDecimal.INSTANCE.toObject(ptr, childType, childSortOrder);
-            
+
             if (result == null) {
                 result = bd;
             } else {

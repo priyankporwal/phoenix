@@ -33,22 +33,20 @@ import org.apache.phoenix.schema.types.PBoolean;
 import org.apache.phoenix.schema.types.PDataType;
 
 /**
- * 
  * Built-in function for PERCENTILE_CONT(<expression>) WITHIN GROUP (ORDER BY <expression> ASC/DESC) aggregate function
  *
- * 
  * @since 1.2.1
  */
-@BuiltInFunction(name = PercentileContAggregateFunction.NAME, args = { @Argument(allowedTypes = { PDecimal.class }),
-        @Argument(allowedTypes = { PBoolean.class }, isConstant = true),
-        @Argument(allowedTypes = { PDecimal.class }, isConstant = true, minValue = "0", maxValue = "1") })
+@BuiltInFunction(name = PercentileContAggregateFunction.NAME, args = {@Argument(allowedTypes = {PDecimal.class}),
+        @Argument(allowedTypes = {PBoolean.class}, isConstant = true),
+        @Argument(allowedTypes = {PDecimal.class}, isConstant = true, minValue = "0", maxValue = "1")})
 public class PercentileContAggregateFunction extends DistinctValueWithCountAggregateFunction {
     public static final String NAME = "PERCENTILE_CONT";
 
     public PercentileContAggregateFunction() {
-        
+
     }
-    
+
     public PercentileContAggregateFunction(List<Expression> childern) {
         super(childern);
     }
@@ -67,7 +65,7 @@ public class PercentileContAggregateFunction extends DistinctValueWithCountAggre
     public String getName() {
         return NAME;
     }
-    
+
     @Override
     public PDataType getDataType() {
         return PDecimal.INSTANCE;

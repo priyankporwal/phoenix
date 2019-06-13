@@ -41,29 +41,29 @@ import org.junit.Test;
 public class DateUtilTest {
 
     private static final long ONE_HOUR_IN_MILLIS = 1000L * 60L * 60L;
-    
+
     @Test
     public void testDemonstrateSetNanosOnTimestampLosingMillis() {
         Timestamp ts1 = new Timestamp(120055);
         ts1.setNanos(60);
-        
+
         Timestamp ts2 = new Timestamp(120100);
         ts2.setNanos(60);
-        
+
         /*
-         * This really should have been assertFalse() because we started with timestamps that 
-         * had different milliseconds 120055 and 120100. THe problem is that the timestamp's 
+         * This really should have been assertFalse() because we started with timestamps that
+         * had different milliseconds 120055 and 120100. THe problem is that the timestamp's
          * constructor converts the milliseconds passed into seconds and assigns the left-over
          * milliseconds to the nanos part of the timestamp. If setNanos() is called after that
          * then the previous value of nanos gets overwritten resulting in loss of milliseconds.
          */
         assertTrue(ts1.equals(ts2));
-        
+
         /*
          * The right way to deal with timestamps when you have both milliseconds and nanos to assign
          * is to use the DateUtil.getTimestamp(long millis, int nanos).
          */
-        ts1 = DateUtil.getTimestamp(120055,  60);
+        ts1 = DateUtil.getTimestamp(120055, 60);
         ts2 = DateUtil.getTimestamp(120100, 60);
         assertFalse(ts1.equals(ts2));
         assertTrue(ts2.after(ts1));
@@ -152,7 +152,7 @@ public class DateUtilTest {
         assertEquals(10000L, DateUtil.parseTime("1970-01-01 00:00:10").getTime());
     }
 
-    @Test(expected=IllegalDataException.class)
+    @Test(expected = IllegalDataException.class)
     public void testParseTime_InvalidTime() {
         DateUtil.parseDate("not-a-time");
     }
@@ -178,21 +178,22 @@ public class DateUtilTest {
 
     }
 
-    @Test(expected=IllegalDataException.class)
+    @Test(expected = IllegalDataException.class)
     public void testParseTimestamp_tooLargeNanos() {
         DateUtil.parseTimestamp("1970-01-01 00:00:10.9999999999");
     }
 
-    @Test(expected=IllegalDataException.class)
+    @Test(expected = IllegalDataException.class)
     public void testParseTimestamp_missingNanos() {
         DateUtil.parseTimestamp("1970-01-01 00:00:10.");
     }
-    @Test(expected=IllegalDataException.class)
+
+    @Test(expected = IllegalDataException.class)
     public void testParseTimestamp_negativeNanos() {
         DateUtil.parseTimestamp("1970-01-01 00:00:10.-1");
     }
 
-    @Test(expected=IllegalDataException.class)
+    @Test(expected = IllegalDataException.class)
     public void testParseTimestamp_InvalidTimestamp() {
         DateUtil.parseTimestamp("not-a-timestamp");
     }

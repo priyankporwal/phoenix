@@ -49,75 +49,76 @@ import static org.junit.Assert.assertTrue;
 
 
 public class QueryMoreIT extends ParallelStatsDisabledIT {
-    
+
     private final String TENANT_SPECIFIC_URL1 = getUrl() + ';' + TENANT_ID_ATTRIB + "=tenant1";
-    
+
     private String dataTableName;
-    //queryAgainstTenantSpecificView = true, dataTableSalted = true 
+
+    //queryAgainstTenantSpecificView = true, dataTableSalted = true
     @Test
     public void testQueryMore1() throws Exception {
         testQueryMore(true, true);
     }
-    
+
     //queryAgainstTenantSpecificView = false, dataTableSalted = true 
     @Test
     public void testQueryMore2() throws Exception {
         testQueryMore(false, true);
     }
-    
+
     //queryAgainstTenantSpecificView = false, dataTableSalted = false
     @Test
     public void testQueryMore3() throws Exception {
         testQueryMore(false, false);
     }
-    
+
     //queryAgainstTenantSpecificView = true, dataTableSalted = false 
     @Test
     public void testQueryMore4() throws Exception {
         testQueryMore(true, false);
     }
-    
+
     private void testQueryMore(boolean queryAgainstTenantSpecificView, boolean dataTableSalted) throws Exception {
         String[] tenantIds = new String[] {"T1_" + generateUniqueName(), "T2_" + generateUniqueName(), "T3_" + generateUniqueName()};
         int numRowsPerTenant = 10;
         String cursorTableName = generateUniqueName();
         String base_history_table = generateUniqueName();
         this.dataTableName = base_history_table + (dataTableSalted ? "_SALTED" : "");
-        String cursorTableDDL = "CREATE TABLE IF NOT EXISTS " + 
-                cursorTableName +  " (\n" +  
-                "TENANT_ID VARCHAR NOT NULL\n," +  
+        String cursorTableDDL = "CREATE TABLE IF NOT EXISTS " +
+                cursorTableName + " (\n" +
+                "TENANT_ID VARCHAR NOT NULL\n," +
                 "QUERY_ID VARCHAR(15) NOT NULL,\n" +
-                "CURSOR_ORDER BIGINT NOT NULL \n" + 
-                "CONSTRAINT CURSOR_TABLE_PK PRIMARY KEY (TENANT_ID, QUERY_ID, CURSOR_ORDER)) "+
+                "CURSOR_ORDER BIGINT NOT NULL \n" +
+                "CONSTRAINT CURSOR_TABLE_PK PRIMARY KEY (TENANT_ID, QUERY_ID, CURSOR_ORDER)) " +
                 "SALT_BUCKETS = 4, TTL=86400";
         String baseDataTableDDL = "CREATE TABLE IF NOT EXISTS " +
-                dataTableName + " (\n" + 
+                dataTableName + " (\n" +
                 "TENANT_ID VARCHAR NOT NULL,\n" +
-                "PARENT_ID CHAR(15) NOT NULL,\n" + 
-                "CREATED_DATE DATE NOT NULL,\n" + 
-                "ENTITY_HISTORY_ID CHAR(15) NOT NULL,\n" + 
-                "DATA_TYPE VARCHAR,\n" + 
-                "OLDVAL_STRING VARCHAR,\n" + 
-                "NEWVAL_STRING VARCHAR\n" + 
-                "CONSTRAINT PK PRIMARY KEY(TENANT_ID, PARENT_ID, CREATED_DATE DESC, ENTITY_HISTORY_ID)) " + 
+                "PARENT_ID CHAR(15) NOT NULL,\n" +
+                "CREATED_DATE DATE NOT NULL,\n" +
+                "ENTITY_HISTORY_ID CHAR(15) NOT NULL,\n" +
+                "DATA_TYPE VARCHAR,\n" +
+                "OLDVAL_STRING VARCHAR,\n" +
+                "NEWVAL_STRING VARCHAR\n" +
+                "CONSTRAINT PK PRIMARY KEY(TENANT_ID, PARENT_ID, CREATED_DATE DESC, ENTITY_HISTORY_ID)) " +
                 "VERSIONS = 1, MULTI_TENANT = true" + (dataTableSalted ? ", SALT_BUCKETS = 4" : "");
-        
+
         //create cursor and data tables.
         Connection conn = DriverManager.getConnection(getUrl());
         conn.createStatement().execute(cursorTableDDL);
         conn.createStatement().execute(baseDataTableDDL);
         conn.close();
-        
+
         //upsert rows in the data table for all the tenantIds
         Map<String, List<String>> historyIdsPerTenant = createHistoryTableRows(dataTableName, tenantIds, numRowsPerTenant);
-        
+
         // assert query more for tenantId -> tenantIds[0]
         String tenantId = tenantIds[0];
         String cursorQueryId = "00TcursrqueryId";
         String tableOrViewName = queryAgainstTenantSpecificView ? ("HISTORY_TABLE_" + tenantId) : dataTableName;
-        
+
         assertEquals(numRowsPerTenant, upsertSelectRecordsInCursorTableForTenant(tableOrViewName, queryAgainstTenantSpecificView, tenantId, cursorQueryId,
-            cursorTableName));
+                cursorTableName));
         
         /*// assert that the data inserted in cursor table matches the data in the data table for tenantId.
         String selectDataTable = "SELECT TENANT_ID, PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID FROM BASE_HISTORY_TABLE WHERE TENANT_ID = ? ";
@@ -144,36 +145,36 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         rs.next();
         assertEquals(numRowsPerTenant, rs.getInt(1));
         conn2.close();
-        
+
         int startOrder = 0;
         int endOrder = 5;
-        int numRecordsThatShouldBeRetrieved = numRowsPerTenant/2; // we will test for two rounds of query more.
-        
+        int numRecordsThatShouldBeRetrieved = numRowsPerTenant / 2; // we will test for two rounds of query more.
+
         // get first batch of cursor ids out of the cursor table.
         String[] cursorIds = getRecordsOutofCursorTable(tableOrViewName, queryAgainstTenantSpecificView, tenantId, cursorQueryId, startOrder, endOrder,
-            cursorTableName);
+                cursorTableName);
         assertEquals(numRecordsThatShouldBeRetrieved, cursorIds.length);
         // now query and fetch first batch of records.
         List<String> historyIds = doQueryMore(queryAgainstTenantSpecificView, tenantId, tableOrViewName, cursorIds);
         // assert that history ids match for this tenant
         assertEquals(historyIdsPerTenant.get(tenantId).subList(startOrder, endOrder), historyIds);
-        
+
         // get the next batch of cursor ids out of the cursor table.
         cursorIds = getRecordsOutofCursorTable(tableOrViewName, queryAgainstTenantSpecificView, tenantId, cursorQueryId, startOrder + numRecordsThatShouldBeRetrieved, endOrder + numRecordsThatShouldBeRetrieved,
-            cursorTableName);
+                cursorTableName);
         assertEquals(numRecordsThatShouldBeRetrieved, cursorIds.length);
         // now query and fetch the next batch of records.
         historyIds = doQueryMore(queryAgainstTenantSpecificView, tenantId, tableOrViewName, cursorIds);
         // assert that the history ids match for this tenant
-        assertEquals(historyIdsPerTenant.get(tenantId).subList(startOrder + numRecordsThatShouldBeRetrieved, endOrder+ numRecordsThatShouldBeRetrieved), historyIds);
-        
-         // get the next batch of cursor ids out of the cursor table.
+        assertEquals(historyIdsPerTenant.get(tenantId).subList(startOrder + numRecordsThatShouldBeRetrieved, endOrder + numRecordsThatShouldBeRetrieved), historyIds);
+
+        // get the next batch of cursor ids out of the cursor table.
         cursorIds = getRecordsOutofCursorTable(tableOrViewName, queryAgainstTenantSpecificView, tenantId, cursorQueryId, startOrder + 2 * numRecordsThatShouldBeRetrieved, endOrder + 2 * numRecordsThatShouldBeRetrieved,
-            cursorTableName);
+                cursorTableName);
         // assert that there are no more cursorids left for this tenant.
         assertEquals(0, cursorIds.length);
     }
-    
+
     private Map<String, List<String>> createHistoryTableRows(String dataTableName, String[] tenantIds, int numRowsPerTenant) throws Exception {
         String upsertDML = "UPSERT INTO " + dataTableName + " VALUES (?, ?, ?, ?, ?, ?, ?)";
         Connection conn = DriverManager.getConnection(getUrl());
@@ -187,7 +188,7 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
                     String parentId = "parentId" + i;
                     stmt.setString(2, parentId);
                     stmt.setDate(3, new Date(100));
-                    String historyId = "historyId" + i; 
+                    String historyId = "historyId" + i;
                     stmt.setString(4, historyId);
                     stmt.setString(5, "datatype");
                     stmt.setString(6, "oldval");
@@ -203,12 +204,12 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
             conn.close();
         }
     }
-    
+
     private int upsertSelectRecordsInCursorTableForTenant(String tableOrViewName, boolean queryAgainstTenantView, String tenantId, String cursorQueryId,
-        final String cursorTable) throws Exception {
+                                                          final String cursorTable) throws Exception {
         String sequenceName = "\"" + tenantId + "_SEQ\"";
         Connection conn = queryAgainstTenantView ? getTenantSpecificConnection(tenantId) : DriverManager.getConnection(getUrl());
-        
+
         // Create a sequence. This sequence is used to fill cursor_order column for each row inserted in the cursor table.
         conn.createStatement().execute("CREATE SEQUENCE " + sequenceName + " CACHE " + Long.MAX_VALUE);
         conn.setAutoCommit(true);
@@ -217,17 +218,17 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         }
         try {
             String tenantIdFilter = queryAgainstTenantView ? "" : " WHERE TENANT_ID = ? ";
-            
+
             // Using dynamic columns, we can use the same cursor table for storing primary keys for all the tables.  
             String upsertSelectDML = "UPSERT INTO " + cursorTable + " " +
-                                     "(TENANT_ID, QUERY_ID, CURSOR_ORDER, PARENT_ID CHAR(15), CREATED_DATE DATE, ENTITY_HISTORY_ID CHAR(15)) " + 
-                                     "SELECT ?, ?, NEXT VALUE FOR " + sequenceName + ", PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID " +
-                                     " FROM " + tableOrViewName + tenantIdFilter;
-            
+                    "(TENANT_ID, QUERY_ID, CURSOR_ORDER, PARENT_ID CHAR(15), CREATED_DATE DATE, ENTITY_HISTORY_ID CHAR(15)) " +
+                    "SELECT ?, ?, NEXT VALUE FOR " + sequenceName + ", PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID " +
+                    " FROM " + tableOrViewName + tenantIdFilter;
+
             PreparedStatement stmt = conn.prepareStatement(upsertSelectDML);
             stmt.setString(1, tenantId);
             stmt.setString(2, cursorQueryId);
-            if (!queryAgainstTenantView)  {
+            if (!queryAgainstTenantView) {
                 stmt.setString(3, tenantId);
             }
             int numRecords = stmt.executeUpdate();
@@ -240,30 +241,30 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
             }
         }
     }
-    
+
     private Connection getTenantSpecificConnection(String tenantId) throws Exception {
         Properties props = new Properties();
         props.setProperty(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
         return DriverManager.getConnection(getUrl(), props);
     }
-    
+
     private String createTenantSpecificViewIfNecessary(String tenantViewName, Connection tenantConn) throws Exception {
         tenantConn.createStatement().execute("CREATE VIEW IF NOT EXISTS " + tenantViewName + " AS SELECT * FROM " + dataTableName);
         return tenantViewName;
     }
-    
+
     private String[] getRecordsOutofCursorTable(String tableOrViewName, boolean queryAgainstTenantSpecificView, String tenantId, String cursorQueryId,
-        int startOrder, int endOrder, final String cursorTable) throws Exception {
+                                                int startOrder, int endOrder, final String cursorTable) throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
         List<String> pkIds = new ArrayList<String>();
         String cols = queryAgainstTenantSpecificView ? "PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID" : "TENANT_ID, PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID";
         String dynCols = queryAgainstTenantSpecificView ? "(PARENT_ID CHAR(15), CREATED_DATE DATE, ENTITY_HISTORY_ID CHAR(15))" : "(TENANT_ID CHAR(15), PARENT_ID CHAR(15), CREATED_DATE DATE, ENTITY_HISTORY_ID CHAR(15))";
         String selectCursorSql = "SELECT " + cols + " " +
-            "FROM " + cursorTable + " \n" +
-                 dynCols +   " \n" + 
-                "WHERE TENANT_ID = ? AND \n" +  
-                "QUERY_ID = ? AND \n" + 
-                "CURSOR_ORDER > ? AND \n" + 
+                "FROM " + cursorTable + " \n" +
+                dynCols + " \n" +
+                "WHERE TENANT_ID = ? AND \n" +
+                "QUERY_ID = ? AND \n" +
+                "CURSOR_ORDER > ? AND \n" +
                 "CURSOR_ORDER <= ?";
 
         PreparedStatement stmt = conn.prepareStatement(selectCursorSql);
@@ -275,7 +276,7 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         ResultSet rs = stmt.executeQuery();
         @SuppressWarnings("unchecked")
         List<Pair<String, String>> columns = queryAgainstTenantSpecificView ? Lists.newArrayList(new Pair<String, String>(null, "PARENT_ID"), new Pair<String, String>(null, "CREATED_DATE"), new Pair<String, String>(null, "ENTITY_HISTORY_ID")) : Lists.newArrayList(new Pair<String, String>(null, "TENANT_ID"), new Pair<String, String>(null, "PARENT_ID"), new Pair<String, String>(null, "CREATED_DATE"), new Pair<String, String>(null, "ENTITY_HISTORY_ID"));
-        while(rs.next()) {
+        while (rs.next()) {
             Object[] values = new Object[columns.size()];
             for (int i = 0; i < columns.size(); i++) {
                 values[i] = rs.getObject(i + 1);
@@ -285,7 +286,7 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         }
         return pkIds.toArray(new String[pkIds.size()]);
     }
-    
+
     private List<String> doQueryMore(boolean queryAgainstTenantView, String tenantId, String tenantViewName, String[] cursorIds) throws Exception {
         Connection conn = queryAgainstTenantView ? getTenantSpecificConnection(tenantId) : DriverManager.getConnection(getUrl());
         String tableName = queryAgainstTenantView ? tenantViewName : dataTableName;
@@ -293,7 +294,7 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         List<Pair<String, String>> columns = queryAgainstTenantView ? Lists.newArrayList(new Pair<String, String>(null, "PARENT_ID"), new Pair<String, String>(null, "CREATED_DATE"), new Pair<String, String>(null, "ENTITY_HISTORY_ID")) : Lists.newArrayList(new Pair<String, String>(null, "TENANT_ID"), new Pair<String, String>(null, "PARENT_ID"), new Pair<String, String>(null, "CREATED_DATE"), new Pair<String, String>(null, "ENTITY_HISTORY_ID"));
         StringBuilder sb = new StringBuilder();
         String where = queryAgainstTenantView ? " WHERE (PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID) IN " : " WHERE (TENANT_ID, PARENT_ID, CREATED_DATE, ENTITY_HISTORY_ID) IN ";
-        sb.append("SELECT ENTITY_HISTORY_ID FROM " + tableName +  where);
+        sb.append("SELECT ENTITY_HISTORY_ID FROM " + tableName + where);
         int numPkCols = columns.size();
         String query = addRvcInBinds(sb, cursorIds.length, numPkCols);
         PreparedStatement stmt = conn.prepareStatement(query);
@@ -306,15 +307,15 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         }
         ResultSet rs = stmt.executeQuery();
         List<String> historyIds = new ArrayList<String>();
-        while(rs.next()) {
+        while (rs.next()) {
             historyIds.add(rs.getString(1));
         }
         return historyIds;
     }
-    
+
     private String addRvcInBinds(StringBuilder sb, int numRvcs, int numPkCols) {
         sb.append("(");
-        for (int i = 0 ; i < numRvcs; i++) {
+        for (int i = 0; i < numRvcs; i++) {
             for (int j = 0; j < numPkCols; j++) {
                 if (j == 0) {
                     sb.append("(");
@@ -333,7 +334,7 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         sb.append(")");
         return sb.toString();
     }
-    
+
     @Test // see - https://issues.apache.org/jira/browse/PHOENIX-1696
     public void testSelectColumnMoreThanOnce() throws Exception {
         Date date = new Date(System.currentTimeMillis());
@@ -353,9 +354,9 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         conn.setAutoCommit(true);
         try (Statement stmt = conn.createStatement()) {
             assertFalse(stmt.execute("CREATE TABLE IF NOT EXISTS " + table + " (\n" +
-                "PK VARCHAR(15) NOT NULL\n," +
-                "\"DEC\" DECIMAL,\n" +
-                "CONSTRAINT TABLE_PK PRIMARY KEY (PK))"));
+                    "PK VARCHAR(15) NOT NULL\n," +
+                    "\"DEC\" DECIMAL,\n" +
+                    "CONSTRAINT TABLE_PK PRIMARY KEY (PK))"));
         }
 
         try (PreparedStatement stmt = conn.prepareStatement("UPSERT INTO " + table + " (PK, \"DEC\") VALUES(?, ?)")) {
@@ -374,24 +375,24 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
             assertNull(rs.getBigDecimal(2, 10));
         }
     }
-    
+
     @Test
     public void testRVCOnDescWithLeadingPKEquality() throws Exception {
         final Connection conn = DriverManager.getConnection(getUrl());
         String fullTableName = generateUniqueName();
         try (Statement stmt = conn.createStatement()) {
-            stmt.execute("CREATE TABLE " + fullTableName + "(\n" + 
-                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" + 
-                    "    SCORE DOUBLE NOT NULL,\n" + 
-                    "    ENTITY_ID CHAR(15) NOT NULL\n" + 
-                    "    CONSTRAINT PAGE_SNAPSHOT_PK PRIMARY KEY (\n" + 
-                    "        ORGANIZATION_ID,\n" + 
-                    "        SCORE DESC,\n" + 
-                    "        ENTITY_ID DESC\n" + 
-                    "    )\n" + 
+            stmt.execute("CREATE TABLE " + fullTableName + "(\n" +
+                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" +
+                    "    SCORE DOUBLE NOT NULL,\n" +
+                    "    ENTITY_ID CHAR(15) NOT NULL\n" +
+                    "    CONSTRAINT PAGE_SNAPSHOT_PK PRIMARY KEY (\n" +
+                    "        ORGANIZATION_ID,\n" +
+                    "        SCORE DESC,\n" +
+                    "        ENTITY_ID DESC\n" +
+                    "    )\n" +
                     ") MULTI_TENANT=TRUE");
         }
-        
+
         conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES ('org1',3,'01')");
         conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES ('org1',2,'04')");
         conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES ('org1',2,'03')");
@@ -399,11 +400,11 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         conn.commit();
 
         try (Statement stmt = conn.createStatement()) {
-            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" + 
-                    "FROM " + fullTableName + "\n" + 
-                    "WHERE organization_id = 'org1'\n" + 
-                    "AND (score, entity_id) < (2, '04')\n" + 
-                    "ORDER BY score DESC, entity_id DESC\n" + 
+            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" +
+                    "FROM " + fullTableName + "\n" +
+                    "WHERE organization_id = 'org1'\n" +
+                    "AND (score, entity_id) < (2, '04')\n" +
+                    "ORDER BY score DESC, entity_id DESC\n" +
                     "LIMIT 3");
             assertTrue(rs.next());
             assertEquals("03", rs.getString(1));
@@ -414,11 +415,11 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
         try (Statement stmt = conn.createStatement()) {
-            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" + 
-                    "FROM " + fullTableName + "\n" + 
-                    "WHERE organization_id = 'org1'\n" + 
-                    "AND (organization_id, score, entity_id) < ('org1', 2, '04')\n" + 
-                    "ORDER BY score DESC, entity_id DESC\n" + 
+            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" +
+                    "FROM " + fullTableName + "\n" +
+                    "WHERE organization_id = 'org1'\n" +
+                    "AND (organization_id, score, entity_id) < ('org1', 2, '04')\n" +
+                    "ORDER BY score DESC, entity_id DESC\n" +
                     "LIMIT 3");
             assertTrue(rs.next());
             assertEquals("03", rs.getString(1));
@@ -429,24 +430,24 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
             assertFalse(rs.next());
         }
     }
-    
+
     @Test
     public void testSingleDescPKColumnComparison() throws Exception {
         final Connection conn = DriverManager.getConnection(getUrl());
         String fullTableName = generateUniqueName();
         try (Statement stmt = conn.createStatement()) {
-            stmt.execute("CREATE TABLE " + fullTableName + "(\n" + 
-                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" + 
-                    "    SCORE DOUBLE NOT NULL,\n" + 
-                    "    ENTITY_ID CHAR(15) NOT NULL\n" + 
-                    "    CONSTRAINT PAGE_SNAPSHOT_PK PRIMARY KEY (\n" + 
-                    "        ORGANIZATION_ID,\n" + 
-                    "        SCORE DESC,\n" + 
-                    "        ENTITY_ID DESC\n" + 
-                    "    )\n" + 
+            stmt.execute("CREATE TABLE " + fullTableName + "(\n" +
+                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" +
+                    "    SCORE DOUBLE NOT NULL,\n" +
+                    "    ENTITY_ID CHAR(15) NOT NULL\n" +
+                    "    CONSTRAINT PAGE_SNAPSHOT_PK PRIMARY KEY (\n" +
+                    "        ORGANIZATION_ID,\n" +
+                    "        SCORE DESC,\n" +
+                    "        ENTITY_ID DESC\n" +
+                    "    )\n" +
                     ") MULTI_TENANT=TRUE");
         }
-        
+
         conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES ('org1',3,'01')");
         conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES ('org1',2,'04')");
         conn.createStatement().execute("UPSERT INTO " + fullTableName + " VALUES ('org1',2,'03')");
@@ -457,11 +458,11 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
             // Even though SCORE is descending, the > comparison makes sense logically
             // and doesn't have to be reversed as RVC expression comparisons do (which
             // is really just a bug - see PHOENIX-3383).
-            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" + 
-                    "FROM " + fullTableName + "\n" + 
-                    "WHERE organization_id = 'org1'\n" + 
-                    "AND score > 2.0\n" + 
-                    "ORDER BY score DESC\n" + 
+            final ResultSet rs = stmt.executeQuery("SELECT entity_id, score\n" +
+                    "FROM " + fullTableName + "\n" +
+                    "WHERE organization_id = 'org1'\n" +
+                    "AND score > 2.0\n" +
+                    "ORDER BY score DESC\n" +
                     "LIMIT 3");
             assertTrue(rs.next());
             assertEquals("01", rs.getString(1));
@@ -479,15 +480,15 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         String fullTableName = generateUniqueName();
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("CREATE TABLE " + fullTableName + "(\n" +
-                "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" +
-                "    SCORE DOUBLE NOT NULL,\n" +
-                "    ENTITY_ID CHAR(15) NOT NULL\n" +
-                "    CONSTRAINT PAGE_SNAPSHOT_PK PRIMARY KEY (\n" +
-                "        ORGANIZATION_ID,\n" +
-                "        SCORE DESC,\n" +
-                "        ENTITY_ID DESC\n" +
-                "    )\n" +
-                ") MULTI_TENANT=TRUE");
+                    "    ORGANIZATION_ID CHAR(15) NOT NULL,\n" +
+                    "    SCORE DOUBLE NOT NULL,\n" +
+                    "    ENTITY_ID CHAR(15) NOT NULL\n" +
+                    "    CONSTRAINT PAGE_SNAPSHOT_PK PRIMARY KEY (\n" +
+                    "        ORGANIZATION_ID,\n" +
+                    "        SCORE DESC,\n" +
+                    "        ENTITY_ID DESC\n" +
+                    "    )\n" +
+                    ") MULTI_TENANT=TRUE");
         }
         upsertRows(connection, fullTableName);
         connection.commit();
@@ -502,7 +503,7 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         // each row should be in its own batch
         assertEquals(2L, connection.getMutationState().getBatchCount());
     }
-    
+
     private void upsertRows(PhoenixConnection conn, String fullTableName) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("upsert into " + fullTableName +
                 " (organization_id, entity_id, score) values (?,?,?)");
@@ -514,7 +515,8 @@ public class QueryMoreIT extends ParallelStatsDisabledIT {
         }
     }
 
-    @Test public void testRVCWithDescAndAscendingPK() throws Exception {
+    @Test
+    public void testRVCWithDescAndAscendingPK() throws Exception {
         final Connection conn = DriverManager.getConnection(getUrl());
         String fullTableName = generateUniqueName();
         try (Statement stmt = conn.createStatement()) {

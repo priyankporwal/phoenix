@@ -34,62 +34,65 @@ import org.junit.Test;
 
 public class TestIndexManagementUtil {
 
-  @Test
-  public void testUncompressedWal() throws Exception {
-    Configuration conf = new Configuration(false);
-    // works with WALEditcodec
-    conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-    IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
-    // clear the codec and set the wal reader
-    conf = new Configuration(false);
-    conf.set(IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
-    IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
-  }
+    @Test
+    public void testUncompressedWal() throws Exception {
+        Configuration conf = new Configuration(false);
+        // works with WALEditcodec
+        conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
+        IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+        // clear the codec and set the wal reader
+        conf = new Configuration(false);
+        conf.set(IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
+        IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+    }
 
-  /**
-   * Compressed WALs are supported when we have the WALEditCodec installed
-   * @throws Exception
-   */
-  @Test
-  public void testCompressedWALWithCodec() throws Exception {
-    Configuration conf = new Configuration(false);
-    conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
-    // works with WALEditcodec
-    conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-    IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
-  }
+    /**
+     * Compressed WALs are supported when we have the WALEditCodec installed
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testCompressedWALWithCodec() throws Exception {
+        Configuration conf = new Configuration(false);
+        conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
+        // works with WALEditcodec
+        conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
+        IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+    }
 
-  /**
-   * We cannot support WAL Compression with the IndexedHLogReader
-   * @throws Exception
-   */
-  @Test(expected = IllegalStateException.class)
-  public void testCompressedWALWithHLogReader() throws Exception {
-    Configuration conf = new Configuration(false);
-    conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
-    // works with WALEditcodec
-    conf.set(IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
-    IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
-  }
+    /**
+     * We cannot support WAL Compression with the IndexedHLogReader
+     *
+     * @throws Exception
+     */
+    @Test(expected = IllegalStateException.class)
+    public void testCompressedWALWithHLogReader() throws Exception {
+        Configuration conf = new Configuration(false);
+        conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
+        // works with WALEditcodec
+        conf.set(IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
+        IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+    }
 
-  /**
-   * Create the specified index table with the necessary columns
-   * @param admin {@link Admin} to use when creating the table
-   * @param indexTable name of the index table.
-   * @throws IOException
-   */
-  public static void createIndexTable(Admin admin, String indexTable) throws IOException {
-    createIndexTable(admin, TableDescriptorBuilder.newBuilder(TableName.valueOf(indexTable)));
-  }
+    /**
+     * Create the specified index table with the necessary columns
+     *
+     * @param admin      {@link Admin} to use when creating the table
+     * @param indexTable name of the index table.
+     * @throws IOException
+     */
+    public static void createIndexTable(Admin admin, String indexTable) throws IOException {
+        createIndexTable(admin, TableDescriptorBuilder.newBuilder(TableName.valueOf(indexTable)));
+    }
 
-  /**
-   * @param admin to create the table
-   * @param index descriptor to update before creating table
-   */
-  public static void createIndexTable(Admin admin, TableDescriptorBuilder indexBuilder) throws IOException {
+    /**
+     * @param admin to create the table
+     * @param index descriptor to update before creating table
+     */
+    public static void createIndexTable(Admin admin, TableDescriptorBuilder indexBuilder) throws IOException {
         indexBuilder.addColumnFamily(
                 ColumnFamilyDescriptorBuilder.newBuilder(CoveredColumnIndexCodec.INDEX_ROW_COLUMN_FAMILY)
                         .setKeepDeletedCells(KeepDeletedCells.TRUE).build());
-    admin.createTable(indexBuilder.build());
-  }
+        admin.createTable(indexBuilder.build());
+    }
 }

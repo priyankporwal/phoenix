@@ -21,10 +21,8 @@ import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.schema.types.PInteger;
 
 /**
- * 
  * Base class for PColumn implementors of type Integer.
  *
- * 
  * @since 0.1
  */
 public abstract class PIntegerColumn extends PBaseColumn {

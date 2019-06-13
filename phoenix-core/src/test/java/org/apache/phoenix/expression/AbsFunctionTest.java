@@ -78,8 +78,8 @@ public class AbsFunctionTest {
     }
 
     private static void
-            testBatch(Number[] value, PNumericType dataType, ArrayList<Number> expected)
-                    throws SQLException {
+    testBatch(Number[] value, PNumericType dataType, ArrayList<Number> expected)
+            throws SQLException {
         assertEquals(value.length, expected.size());
         for (int i = 0; i < value.length; ++i) {
             test(value[i], dataType, expected.get(i));
@@ -91,90 +91,103 @@ public class AbsFunctionTest {
         Random random = new Random();
         Number[] value;
         ArrayList<Number> expected = new ArrayList<Number>();
-        value = new BigDecimal[] { BigDecimal.valueOf(1.0), BigDecimal.valueOf(0.0),
-                        BigDecimal.valueOf(-1.0), BigDecimal.valueOf(123.1234),
-                        BigDecimal.valueOf(-123.1234) };
+        value = new BigDecimal[] {BigDecimal.valueOf(1.0), BigDecimal.valueOf(0.0),
+                BigDecimal.valueOf(-1.0), BigDecimal.valueOf(123.1234),
+                BigDecimal.valueOf(-123.1234)};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(((BigDecimal) value[i]).abs());
+        }
         testBatch(value, PDecimal.INSTANCE, expected);
 
-        value = new Float[] { 1.0f, 0.0f, -1.0f, 123.1234f, -123.1234f, Float.MIN_VALUE,
-                        Float.MAX_VALUE, -Float.MIN_VALUE, -Float.MAX_VALUE, random.nextFloat(),
-                        random.nextFloat(), random.nextFloat() };
+        value = new Float[] {1.0f, 0.0f, -1.0f, 123.1234f, -123.1234f, Float.MIN_VALUE,
+                Float.MAX_VALUE, -Float.MIN_VALUE, -Float.MAX_VALUE, random.nextFloat(),
+                random.nextFloat(), random.nextFloat()};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Float) value[i]));
+        }
         testBatch(value, PFloat.INSTANCE, expected);
 
-        value = new Float[] { 1.0f, 0.0f, 123.1234f, Float.MIN_VALUE, Float.MAX_VALUE, };
+        value = new Float[] {1.0f, 0.0f, 123.1234f, Float.MIN_VALUE, Float.MAX_VALUE,};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Float) value[i]));
+        }
         testBatch(value, PUnsignedFloat.INSTANCE, expected);
 
-        value = new Double[] { 1.0, 0.0, -1.0, 123.1234, -123.1234, Double.MIN_VALUE,
-                        Double.MAX_VALUE, -Double.MIN_VALUE, -Double.MAX_VALUE,
-                        random.nextDouble(), random.nextDouble(), random.nextDouble() };
+        value = new Double[] {1.0, 0.0, -1.0, 123.1234, -123.1234, Double.MIN_VALUE,
+                Double.MAX_VALUE, -Double.MIN_VALUE, -Double.MAX_VALUE,
+                random.nextDouble(), random.nextDouble(), random.nextDouble()};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Double) value[i]));
+        }
         testBatch(value, PDouble.INSTANCE, expected);
 
-        value = new Double[] { 1.0, 0.0, 123.1234, Double.MIN_VALUE, Double.MAX_VALUE, };
+        value = new Double[] {1.0, 0.0, 123.1234, Double.MIN_VALUE, Double.MAX_VALUE,};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Double) value[i]));
+        }
         testBatch(value, PUnsignedDouble.INSTANCE, expected);
 
-        value = new Long[] { 1L, 0L, -1L, 123L, -123L, Long.MIN_VALUE + 1, Long.MAX_VALUE,
-                        random.nextLong(), random.nextLong(), random.nextLong(), };
+        value = new Long[] {1L, 0L, -1L, 123L, -123L, Long.MIN_VALUE + 1, Long.MAX_VALUE,
+                random.nextLong(), random.nextLong(), random.nextLong(),};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Long) value[i]));
+        }
         testBatch(value, PLong.INSTANCE, expected);
 
-        value = new Long[] { 1L, 0L, 123L, Long.MAX_VALUE };
+        value = new Long[] {1L, 0L, 123L, Long.MAX_VALUE};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Long) value[i]));
+        }
         testBatch(value, PUnsignedLong.INSTANCE, expected);
 
-        value = new Integer[] { 1, 0, -1, 123, -123, Integer.MIN_VALUE + 1, Integer.MAX_VALUE,
-                        random.nextInt(), random.nextInt(), random.nextInt(), };
+        value = new Integer[] {1, 0, -1, 123, -123, Integer.MIN_VALUE + 1, Integer.MAX_VALUE,
+                random.nextInt(), random.nextInt(), random.nextInt(),};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Integer) value[i]));
+        }
         testBatch(value, PInteger.INSTANCE, expected);
 
-        value = new Integer[] { 1, 0, 123, Integer.MAX_VALUE };
+        value = new Integer[] {1, 0, 123, Integer.MAX_VALUE};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add(Math.abs((Integer) value[i]));
+        }
         testBatch(value, PUnsignedInt.INSTANCE, expected);
 
-        value = new Short[] { 1, 0, -1, 123, -123, Short.MIN_VALUE + 1, Short.MAX_VALUE };
+        value = new Short[] {1, 0, -1, 123, -123, Short.MIN_VALUE + 1, Short.MAX_VALUE};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add((short) Math.abs((Short) value[i]));
+        }
         testBatch(value, PSmallint.INSTANCE, expected);
 
-        value = new Short[] { 1, 0, 123, Short.MAX_VALUE };
+        value = new Short[] {1, 0, 123, Short.MAX_VALUE};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add((short) Math.abs((Short) value[i]));
+        }
         testBatch(value, PUnsignedSmallint.INSTANCE, expected);
 
-        value = new Byte[] { 1, 0, -1, 123, -123, Byte.MIN_VALUE + 1, Byte.MAX_VALUE };
+        value = new Byte[] {1, 0, -1, 123, -123, Byte.MIN_VALUE + 1, Byte.MAX_VALUE};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add((byte) Math.abs((Byte) value[i]));
+        }
         testBatch(value, PTinyint.INSTANCE, expected);
 
-        value = new Byte[] { 1, 0, 123, Byte.MAX_VALUE };
+        value = new Byte[] {1, 0, 123, Byte.MAX_VALUE};
         expected.clear();
-        for (int i = 0; i < value.length; ++i)
+        for (int i = 0; i < value.length; ++i) {
             expected.add((byte) Math.abs((Byte) value[i]));
+        }
         testBatch(value, PUnsignedTinyint.INSTANCE, expected);
     }
 }

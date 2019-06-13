@@ -41,7 +41,8 @@ public class ResultBaseTestIT extends BaseHBaseManagedTimeIT {
     protected static List<Path> resources;
     protected static ResultUtil resultUtil = new ResultUtil();
 
-    @BeforeClass public static void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
 
         PherfConstants constants = PherfConstants.create();
         properties = constants.getProperties(PherfConstants.PHERF_PROPERTIES, false);
@@ -53,7 +54,8 @@ public class ResultBaseTestIT extends BaseHBaseManagedTimeIT {
         parser = new XMLConfigParser(matcherScenario);
     }
 
-    @AfterClass public static void tearDown() throws Exception {
-    	resultUtil.deleteDir(properties.getProperty("pherf.default.results.dir"));
+    @AfterClass
+    public static void tearDown() throws Exception {
+        resultUtil.deleteDir(properties.getProperty("pherf.default.results.dir"));
     }
 }

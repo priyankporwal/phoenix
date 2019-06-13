@@ -57,7 +57,7 @@ public class PhoenixMRJobUtil {
     public static final String PHOENIX_INDEX_MR_MAP_MEMORY_PROPERTY =
             "phoenix.index.mr.scheduler.capacity.mapMemoryMB";
     public static final String PHOENIX_MR_CONCURRENT_MAP_LIMIT_PROPERTY =
-    		"phoenix.mr.concurrent.map.limit";
+            "phoenix.mr.concurrent.map.limit";
 
     // Default MR Capacity Scheduler Configurations for Phoenix MR Index Build
     // Jobs
@@ -75,9 +75,13 @@ public class PhoenixMRJobUtil {
 
     public static final String PHOENIX_MR_SCHEDULER_TYPE_NAME = "phoenix.index.mr.scheduler.type";
 
-    public enum MR_SCHEDULER_TYPE {
+    public enum MR_SCHEDULER_TYPE
+
+    {
         CAPACITY, FAIR, NONE
-    };
+    }
+
+    ;
 
     public static String getActiveResourceManagerHost(Configuration config, String zkQuorum)
             throws IOException, InterruptedException, JSONException, KeeperException,
@@ -111,15 +115,19 @@ public class PhoenixMRJobUtil {
                 }
             }
         } finally {
-            if (zkw != null) zkw.close();
-            if (zk != null) zk.close();
+            if (zkw != null) {
+                zkw.close();
+            }
+            if (zk != null) {
+                zk.close();
+            }
         }
 
         return activeRMHost;
     }
 
     public static String getJobsInformationFromRM(String rmhost, int rmport,
-            Map<String, String> urlParams) throws MalformedURLException, ProtocolException,
+                                                  Map<String, String> urlParams) throws MalformedURLException, ProtocolException,
             UnsupportedEncodingException, IOException {
         HttpURLConnection con = null;
         String response = null;
@@ -152,7 +160,9 @@ public class PhoenixMRJobUtil {
 
             response = getTextContent(con.getInputStream());
         } finally {
-            if (con != null) con.disconnect();
+            if (con != null) {
+                con.disconnect();
+            }
         }
 
         LOGGER.info("Result of attempt to get running/submitted jobs from RM - URL=" + url
@@ -172,7 +182,9 @@ public class PhoenixMRJobUtil {
                 response.append(inputLine).append("\n");
             }
         } finally {
-            if (in != null) in.close();
+            if (in != null) {
+                in.close();
+            }
             if (is != null) {
                 is.close();
             }
@@ -208,11 +220,12 @@ public class PhoenixMRJobUtil {
 
     /**
      * This method set the configuration values for Capacity scheduler.
+     *
      * @param conf - Configuration to which Capacity Queue information to be added
      */
     public static void updateCapacityQueueInfo(Configuration conf) {
         conf.set(MRJobConfig.QUEUE_NAME,
-            conf.get(PHOENIX_INDEX_MR_QUEUE_NAME_PROPERTY, DEFAULT_QUEUE_NAME));
+                conf.get(PHOENIX_INDEX_MR_QUEUE_NAME_PROPERTY, DEFAULT_QUEUE_NAME));
 
         conf.setInt(MRJobConfig.JOB_RUNNING_MAP_LIMIT,
                 conf.getInt(PHOENIX_MR_CONCURRENT_MAP_LIMIT_PROPERTY, DEFAULT_MR_CONCURRENT_MAP_LIMIT));

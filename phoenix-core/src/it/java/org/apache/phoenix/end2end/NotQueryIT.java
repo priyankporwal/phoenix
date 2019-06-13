@@ -52,7 +52,7 @@ public abstract class NotQueryIT extends BaseQueryIT {
     protected NotQueryIT(String indexDDL, boolean columnEncoded) throws Exception {
         super(indexDDL, columnEncoded, false);
     }
-    
+
     @Test
     public void testNotInList() throws Exception {
         String query = "SELECT entity_id FROM " + tableName + " WHERE organization_id=? and entity_id NOT IN (?,?,?,?,?,?)";
@@ -68,18 +68,18 @@ public abstract class NotQueryIT extends BaseQueryIT {
             statement.setString(6, ROW7);
             statement.setString(7, ROW8);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW3, rs.getString(1));
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW6, rs.getString(1));
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(ROW9, rs.getString(1));
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotInListOfFloat() throws Exception {
         String query = "SELECT a_float FROM " + tableName + " WHERE organization_id=? and a_float NOT IN (?,?,?,?,?,?)";
@@ -95,18 +95,18 @@ public abstract class NotQueryIT extends BaseQueryIT {
             statement.setFloat(6, 0.05f);
             statement.setFloat(7, 0.06f);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.07f)==0);
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.08f)==0);
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.09f)==0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.07f) == 0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.08f) == 0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.09f) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotInListOfDouble() throws Exception {
         String query = "SELECT a_double FROM " + tableName + " WHERE organization_id=? and a_double NOT IN (?,?,?,?,?,?)";
@@ -122,137 +122,137 @@ public abstract class NotQueryIT extends BaseQueryIT {
             statement.setDouble(6, 0.0005);
             statement.setDouble(7, 0.0006);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.0007)==0);
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.0008)==0);
-            assertTrue (rs.next());
-            assertTrue(Doubles.compare(rs.getDouble(1), 0.0009)==0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.0007) == 0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.0008) == 0);
+            assertTrue(rs.next());
+            assertTrue(Doubles.compare(rs.getDouble(1), 0.0009) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEquals() throws Exception {
-        String query = "SELECT entity_id -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_integer != 1 and a_integer <= 2";
+        String query = "SELECT entity_id -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_integer != 1 and a_integer <= 2";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEqualsByTinyInt() throws Exception {
-        String query = "SELECT a_byte -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_byte != 1 and a_byte <= 2";
+        String query = "SELECT a_byte -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_byte != 1 and a_byte <= 2";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getByte(1), 2);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEqualsBySmallInt() throws Exception {
-        String query = "SELECT a_short -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_short != 128 and a_short !=0 and a_short <= 129";
+        String query = "SELECT a_short -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_short != 128 and a_short !=0 and a_short <= 129";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getShort(1), 129);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEqualsByFloat() throws Exception {
-        String query = "SELECT a_float -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_float != CAST(0.01 AS FLOAT) and a_float <= CAST(0.02 AS FLOAT)";
+        String query = "SELECT a_float -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_float != CAST(0.01 AS FLOAT) and a_float <= CAST(0.02 AS FLOAT)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertTrue(Floats.compare(rs.getFloat(1), 0.02f) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEqualsByUnsignedFloat() throws Exception {
-        String query = "SELECT a_unsigned_float -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_unsigned_float != 0.01 and a_unsigned_float <= 0.02";
+        String query = "SELECT a_unsigned_float -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_unsigned_float != 0.01 and a_unsigned_float <= 0.02";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertTrue(Floats.compare(rs.getFloat(1), 0.02f) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEqualsByDouble() throws Exception {
-        String query = "SELECT a_double -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_double != CAST(0.0001 AS DOUBLE) and a_double <= CAST(0.0002 AS DOUBLE)";
+        String query = "SELECT a_double -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_double != CAST(0.0001 AS DOUBLE) and a_double <= CAST(0.0002 AS DOUBLE)";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertTrue(Doubles.compare(rs.getDouble(1), 0.0002) == 0);
             assertFalse(rs.next());
         } finally {
             conn.close();
         }
     }
-    
+
     @Test
     public void testNotEqualsByUnsignedDouble() throws Exception {
-        String query = "SELECT a_unsigned_double -- and here comment\n" + 
-        "FROM " + tableName + " WHERE organization_id=? and a_unsigned_double != 0.0001 and a_unsigned_double <= 0.0002";
+        String query = "SELECT a_unsigned_double -- and here comment\n" +
+                "FROM " + tableName + " WHERE organization_id=? and a_unsigned_double != 0.0001 and a_unsigned_double <= 0.0002";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertTrue(Doubles.compare(rs.getDouble(1), 0.0002) == 0);
             assertFalse(rs.next());
         } finally {
@@ -262,15 +262,15 @@ public abstract class NotQueryIT extends BaseQueryIT {
 
     @Test
     public void testNotEquals2() throws Exception {
-        String query = "SELECT entity_id FROM // one more comment  \n" + tableName + 
-        " WHERE organization_id=? and not a_integer = 1 and a_integer <= 2";
+        String query = "SELECT entity_id FROM // one more comment  \n" + tableName +
+                " WHERE organization_id=? and not a_integer = 1 and a_integer <= 2";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);
         try {
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, tenantId);
             ResultSet rs = statement.executeQuery();
-            assertTrue (rs.next());
+            assertTrue(rs.next());
             assertEquals(rs.getString(1), ROW2);
             assertFalse(rs.next());
         } finally {

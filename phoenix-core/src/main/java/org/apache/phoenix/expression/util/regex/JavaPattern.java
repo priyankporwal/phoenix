@@ -47,7 +47,9 @@ public class JavaPattern extends AbstractBasePattern {
     public void matches(ImmutableBytesWritable srcPtr) {
         Preconditions.checkNotNull(srcPtr);
         String matcherSourceStr = (String) PVarchar.INSTANCE.toObject(srcPtr);
-        if (srcPtr.getLength() == 0 && matcherSourceStr == null) matcherSourceStr = "";
+        if (srcPtr.getLength() == 0 && matcherSourceStr == null) {
+            matcherSourceStr = "";
+        }
         boolean ret = pattern.matcher(matcherSourceStr).matches();
         srcPtr.set(ret ? PDataType.TRUE_BYTES : PDataType.FALSE_BYTES);
     }
@@ -59,13 +61,17 @@ public class JavaPattern extends AbstractBasePattern {
 
     @Override
     public void replaceAll(ImmutableBytesWritable srcPtr, byte[] rStrBytes, int rStrOffset,
-            int rStrLen) {
+                           int rStrLen) {
         Preconditions.checkNotNull(srcPtr);
         Preconditions.checkNotNull(rStrBytes);
         String sourceStr = (String) PVarchar.INSTANCE.toObject(srcPtr);
         String replaceStr = (String) PVarchar.INSTANCE.toObject(rStrBytes, rStrOffset, rStrLen);
-        if (srcPtr.getLength() == 0 && sourceStr == null) sourceStr = "";
-        if (rStrLen == 0 && replaceStr == null) replaceStr = "";
+        if (srcPtr.getLength() == 0 && sourceStr == null) {
+            sourceStr = "";
+        }
+        if (rStrLen == 0 && replaceStr == null) {
+            replaceStr = "";
+        }
         String replacedStr = pattern.matcher(sourceStr).replaceAll(replaceStr);
         srcPtr.set(PVarchar.INSTANCE.toBytes(replacedStr));
     }
@@ -77,7 +83,9 @@ public class JavaPattern extends AbstractBasePattern {
         if (sourceStr == null) {
             ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
         } else {
-            if (offsetInStr < 0) offsetInStr += sourceStr.length();
+            if (offsetInStr < 0) {
+                offsetInStr += sourceStr.length();
+            }
             if (offsetInStr < 0 || offsetInStr >= sourceStr.length()) {
                 ptr.set(ByteUtil.EMPTY_BYTE_ARRAY);
             } else {

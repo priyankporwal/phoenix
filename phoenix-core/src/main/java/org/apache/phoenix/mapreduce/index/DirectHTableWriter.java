@@ -86,7 +86,7 @@ public class DirectHTableWriter {
             List<Mutation> shadowedMutations = Lists.newArrayListWithExpectedSize(mutations.size());
             for (Mutation m : mutations) {
                 if (m instanceof Put) {
-                    shadowedMutations.add(provider.markPutAsCommitted((Put)m, ts, ts));
+                    shadowedMutations.add(provider.markPutAsCommitted((Put) m, ts, ts));
                 }
             }
             table.batch(shadowedMutations, results);

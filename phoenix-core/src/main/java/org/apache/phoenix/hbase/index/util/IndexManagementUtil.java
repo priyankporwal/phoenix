@@ -77,8 +77,8 @@ public class IndexManagementUtil {
         } catch (Throwable t) {
             return false;
         }
-    if (INDEX_WAL_EDIT_CODEC_CLASS_NAME.equals(conf
-        .get(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, null))) {
+        if (INDEX_WAL_EDIT_CODEC_CLASS_NAME.equals(conf
+                .get(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, null))) {
             // its installed, and it can handle compression and non-compression cases
             return true;
         }
@@ -88,7 +88,9 @@ public class IndexManagementUtil {
     public static void ensureMutableIndexingCorrectlyConfigured(Configuration conf) throws IllegalStateException {
 
         // check to see if the WALEditCodec is installed
-        if (isWALEditCodecSet(conf)) { return; }
+        if (isWALEditCodecSet(conf)) {
+            return;
+        }
 
         // otherwise, we have to install the indexedhlogreader, but it cannot have compression
         String codecClass = INDEX_WAL_EDIT_CODEC_CLASS_NAME;
@@ -102,10 +104,11 @@ public class IndexManagementUtil {
                     + indexLogReaderName + " hasn't been installed in hbase-site.xml under " + HLOG_READER_IMPL_KEY);
         }
         if (indexLogReaderName.equals(conf.get(HLOG_READER_IMPL_KEY, indexLogReaderName))) {
-            if (conf.getBoolean(HConstants.ENABLE_WAL_COMPRESSION, false)) { throw new IllegalStateException(
-                    "WAL Compression is only supported with " + codecClass
-            + ". You can install in hbase-site.xml, under " + WALCellCodec.WAL_CELL_CODEC_CLASS_KEY);
-      }
+            if (conf.getBoolean(HConstants.ENABLE_WAL_COMPRESSION, false)) {
+                throw new IllegalStateException(
+                        "WAL Compression is only supported with " + codecClass
+                                + ". You can install in hbase-site.xml, under " + WALCellCodec.WAL_CELL_CODEC_CLASS_KEY);
+            }
         } else {
             throw new IllegalStateException(codecClass + " is not installed, but "
                     + indexLogReaderName + " hasn't been installed in hbase-site.xml under " + HLOG_READER_IMPL_KEY);
@@ -114,7 +117,7 @@ public class IndexManagementUtil {
     }
 
     public static ValueGetter createGetterFromScanner(CoveredDeleteScanner scanner, byte[] currentRow) {
-        return scanner!=null ? new LazyValueGetter(scanner, currentRow) : null;
+        return scanner != null ? new LazyValueGetter(scanner, currentRow) : null;
     }
 
     /**
@@ -127,12 +130,13 @@ public class IndexManagementUtil {
         // assuming that for any index, there are going to small number of columns, versus the number of
         // kvs in any one batch.
         boolean matches = false;
-        outer: for (KeyValue kv : update) {
+        outer:
+        for (KeyValue kv : update) {
             for (ColumnReference ref : columns) {
                 if (ref.matchesFamily(kv.getFamilyArray(), kv.getFamilyOffset(),
-                    kv.getFamilyLength())
+                        kv.getFamilyLength())
                         && ref.matchesQualifier(kv.getQualifierArray(), kv.getQualifierOffset(),
-                            kv.getQualifierLength())) {
+                        kv.getQualifierLength())) {
                     matches = true;
                     // if a single column matches a single kv, we need to build a whole scanner
                     break outer;
@@ -152,12 +156,13 @@ public class IndexManagementUtil {
      */
     public static boolean columnMatchesUpdate(List<ColumnReference> columns, Collection<KeyValue> update) {
         boolean matches = false;
-        outer: for (ColumnReference ref : columns) {
+        outer:
+        for (ColumnReference ref : columns) {
             for (KeyValue kv : update) {
                 if (ref.matchesFamily(kv.getFamilyArray(), kv.getFamilyOffset(),
-                    kv.getFamilyLength())
+                        kv.getFamilyLength())
                         && ref.matchesQualifier(kv.getQualifierArray(), kv.getQualifierOffset(),
-                            kv.getQualifierLength())) {
+                        kv.getQualifierLength())) {
                     matches = true;
                     // if a single column matches a single kv, we need to build a whole scanner
                     break outer;
@@ -189,10 +194,9 @@ public class IndexManagementUtil {
 
     /**
      * Propagate the given failure as a generic {@link IOException}, if it isn't already
-     * 
-     * @param e
-     *            reason indexing failed. If ,tt>null</tt>, throws a {@link NullPointerException}, which should unload
-     *            the coprocessor.
+     *
+     * @param e reason indexing failed. If ,tt>null</tt>, throws a {@link NullPointerException}, which should unload
+     *          the coprocessor.
      */
     public static void rethrowIndexingException(Throwable e) throws IOException {
         try {
@@ -200,8 +204,7 @@ public class IndexManagementUtil {
         } catch (IOException | FatalIndexBuildingFailureException e1) {
             LOGGER.info("Rethrowing " + e);
             throw e1;
-        }
-        catch (Throwable e1) {
+        } catch (Throwable e1) {
             LOGGER.info("Rethrowing " + e1 + " as a " + IndexBuildingFailureException.class.getSimpleName());
             throw new IndexBuildingFailureException("Failed to build index for unexpected reason!", e1);
         }
@@ -216,8 +219,8 @@ public class IndexManagementUtil {
     /**
      * Batch all the {@link KeyValue}s in a collection of kvs by timestamp. Updates any {@link KeyValue} with a
      * timestamp == {@link HConstants#LATEST_TIMESTAMP} to the timestamp at the time the method is called.
-     * 
-     * @param kvs {@link KeyValue}s to break into batches
+     *
+     * @param kvs     {@link KeyValue}s to break into batches
      * @param batches to update with the given kvs
      */
     public static void createTimestampBatchesFromKeyValues(Collection<KeyValue> kvs, Map<Long, Batch> batches) {
@@ -236,7 +239,7 @@ public class IndexManagementUtil {
     /**
      * Batch all the {@link KeyValue}s in a {@link Mutation} by timestamp. Updates any {@link KeyValue} with a timestamp
      * == {@link HConstants#LATEST_TIMESTAMP} to the timestamp at the time the method is called.
-     * 
+     *
      * @param m {@link Mutation} from which to extract the {@link KeyValue}s
      * @return the mutation, broken into batches and sorted in ascending order (smallest first)
      */
@@ -258,35 +261,35 @@ public class IndexManagementUtil {
     }
 
     public static Collection<? extends Mutation> flattenMutationsByTimestamp(Collection<? extends Mutation> mutations) {
-          List<Mutation> flattenedMutations = Lists.newArrayListWithExpectedSize(mutations.size() * 10);
-          for (Mutation m : mutations) {
-              byte[] row = m.getRow();
-              Collection<Batch> batches = createTimestampBatchesFromMutation(m);
-              for (Batch batch : batches) {
-                  Mutation mWithSameTS;
-                  Cell firstCell = batch.getKvs().get(0);
-                  if (KeyValue.Type.codeToType(firstCell.getTypeByte()) == KeyValue.Type.Put) {
-                      mWithSameTS = new Put(row);
-                  } else {
-                      mWithSameTS = new Delete(row);
-                  }
-                  if (m.getAttributesMap() != null) {
-                      for (Map.Entry<String,byte[]> entry : m.getAttributesMap().entrySet()) {
-                          mWithSameTS.setAttribute(entry.getKey(), entry.getValue());
-                      }
-                  }
-                  for (Cell cell : batch.getKvs()) {
-                      byte[] fam = CellUtil.cloneFamily(cell);
-                      List<Cell> famCells = mWithSameTS.getFamilyCellMap().get(fam);
-                      if (famCells == null) {
-                          famCells = Lists.newArrayList();
-                          mWithSameTS.getFamilyCellMap().put(fam, famCells);
-                      }
-                      famCells.add(cell);
-                  }
-                  flattenedMutations.add(mWithSameTS);
-              }
-          }
-          return flattenedMutations;
-      }
+        List<Mutation> flattenedMutations = Lists.newArrayListWithExpectedSize(mutations.size() * 10);
+        for (Mutation m : mutations) {
+            byte[] row = m.getRow();
+            Collection<Batch> batches = createTimestampBatchesFromMutation(m);
+            for (Batch batch : batches) {
+                Mutation mWithSameTS;
+                Cell firstCell = batch.getKvs().get(0);
+                if (KeyValue.Type.codeToType(firstCell.getTypeByte()) == KeyValue.Type.Put) {
+                    mWithSameTS = new Put(row);
+                } else {
+                    mWithSameTS = new Delete(row);
+                }
+                if (m.getAttributesMap() != null) {
+                    for (Map.Entry<String, byte[]> entry : m.getAttributesMap().entrySet()) {
+                        mWithSameTS.setAttribute(entry.getKey(), entry.getValue());
+                    }
+                }
+                for (Cell cell : batch.getKvs()) {
+                    byte[] fam = CellUtil.cloneFamily(cell);
+                    List<Cell> famCells = mWithSameTS.getFamilyCellMap().get(fam);
+                    if (famCells == null) {
+                        famCells = Lists.newArrayList();
+                        mWithSameTS.getFamilyCellMap().put(fam, famCells);
+                    }
+                    famCells.add(cell);
+                }
+                flattenedMutations.add(mWithSameTS);
+            }
+        }
+        return flattenedMutations;
+    }
 }

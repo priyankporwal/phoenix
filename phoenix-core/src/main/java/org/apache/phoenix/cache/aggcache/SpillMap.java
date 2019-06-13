@@ -208,7 +208,7 @@ public class SpillMap extends AbstractMap<ImmutableBytesPtr, byte[]> implements 
         if (!(key instanceof ImmutableBytesPtr)) {
             // TODO ... work on type safety
         }
-        ImmutableBytesPtr ikey = (ImmutableBytesPtr)key;
+        ImmutableBytesPtr ikey = (ImmutableBytesPtr) key;
         byte[] value = null;
 
         int bucketIndex = getBucketIndex(ikey);
@@ -403,14 +403,14 @@ public class SpillMap extends AbstractMap<ImmutableBytesPtr, byte[]> implements 
             if (!pagedIn) {
                 RandomAccessFile file = spillFile.getPage(pageIndex);
                 try {
-                int numElements = file.readInt();
-                for (int i = 0; i < numElements; i++) {
-                    int kvSize = file.readInt();
-                    byte[] data = new byte[kvSize];
-                    file.readFully(data);
-                    pageMap.put(SpillManager.getKey(data), data);
-                    totalResultSize += (data.length + Bytes.SIZEOF_INT);
-                }
+                    int numElements = file.readInt();
+                    for (int i = 0; i < numElements; i++) {
+                        int kvSize = file.readInt();
+                        byte[] data = new byte[kvSize];
+                        file.readFully(data);
+                        pageMap.put(SpillManager.getKey(data), data);
+                        totalResultSize += (data.length + Bytes.SIZEOF_INT);
+                    }
                 } catch (IOException ioe) {
                     // Error during key access on spilled resource
                     // TODO rework error handling
@@ -423,7 +423,7 @@ public class SpillMap extends AbstractMap<ImmutableBytesPtr, byte[]> implements 
 
         /**
          * Return a cache element currently page into memory Direct access via mapped page map
-         * 
+         *
          * @param key
          * @return
          */
@@ -433,7 +433,7 @@ public class SpillMap extends AbstractMap<ImmutableBytesPtr, byte[]> implements 
 
         /**
          * Inserts / Replaces cache element in the currently loaded page. Direct access via mapped page map
-         * 
+         *
          * @param key
          * @param value
          */
@@ -484,7 +484,9 @@ public class SpillMap extends AbstractMap<ImmutableBytesPtr, byte[]> implements 
 
                     while (!found) {
                         pageIndex++;
-                        if (pageIndex >= directory.length) { return false; }
+                        if (pageIndex >= directory.length) {
+                            return false;
+                        }
                         directory[pageIndex - 1].pageMap.clear();
                         // get keys from all spilled pages
                         if (!dups.contains(directory[pageIndex].pageIndex)) {

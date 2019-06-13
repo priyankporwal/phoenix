@@ -55,17 +55,19 @@ public class PTimestamp extends PDataType<Timestamp> {
 
     @Override
     public void coerceBytes(ImmutableBytesWritable ptr, Object o, PDataType actualType, Integer actualMaxLength,
-            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
-            SortOrder expectedModifier) {
+                            Integer actualScale, SortOrder actualModifier, Integer desiredMaxLength, Integer desiredScale,
+                            SortOrder expectedModifier) {
         Preconditions.checkNotNull(actualModifier);
         Preconditions.checkNotNull(expectedModifier);
-        if (ptr.getLength() == 0) { return; }
+        if (ptr.getLength() == 0) {
+            return;
+        }
         if (this.isBytesComparableWith(actualType)) { // No coerce necessary
             if (actualModifier != expectedModifier || (actualType.isFixedWidth() && actualType.getByteSize() < this.getByteSize())) {
                 byte[] b = new byte[this.getByteSize()];
                 System.arraycopy(ptr.get(), ptr.getOffset(), b, 0, actualType.getByteSize());
                 ptr.set(b);
-                
+
                 if (actualModifier != expectedModifier) {
                     SortOrder.invert(b, 0, b, 0, b.length);
                 }
@@ -79,7 +81,7 @@ public class PTimestamp extends PDataType<Timestamp> {
     public int toBytes(Object object, byte[] bytes, int offset) {
         if (object == null) {
             // Create the byte[] of size MAX_TIMESTAMP_BYTES
-            if(bytes.length != getByteSize()) {
+            if (bytes.length != getByteSize()) {
                 bytes = Bytes.padTail(bytes, (getByteSize() - bytes.length));
             }
             PDate.INSTANCE.getCodec().encodeLong(0l, bytes, offset);
@@ -102,7 +104,7 @@ public class PTimestamp extends PDataType<Timestamp> {
 
     @Override
     public boolean isBytesComparableWith(PDataType otherType) {
-      return super.isBytesComparableWith(otherType) || otherType == PTime.INSTANCE || otherType == PDate.INSTANCE || otherType == PLong.INSTANCE;
+        return super.isBytesComparableWith(otherType) || otherType == PTime.INSTANCE || otherType == PDate.INSTANCE || otherType == PLong.INSTANCE;
     }
 
     @Override
@@ -122,7 +124,7 @@ public class PTimestamp extends PDataType<Timestamp> {
             long ms = bd.longValue();
             int nanos =
                     (bd.remainder(BigDecimal.ONE).multiply(QueryConstants.BD_MILLIS_NANOS_CONVERSION))
-                    .intValue();
+                            .intValue();
             return DateUtil.getTimestamp(ms, nanos);
         } else if (actualType == PVarchar.INSTANCE) {
             return DateUtil.parseTimestamp((String) object);
@@ -132,7 +134,7 @@ public class PTimestamp extends PDataType<Timestamp> {
 
     @Override
     public java.sql.Timestamp toObject(byte[] b, int o, int l, PDataType actualType,
-            SortOrder sortOrder, Integer maxLength, Integer scale) {
+                                       SortOrder sortOrder, Integer maxLength, Integer scale) {
         if (actualType == null || l == 0) {
             return null;
         }
@@ -216,7 +218,9 @@ public class PTimestamp extends PDataType<Timestamp> {
             return ((java.sql.Timestamp) lhs).compareTo((java.sql.Timestamp) rhs);
         }
         int c = ((java.util.Date) lhs).compareTo((java.util.Date) rhs);
-        if (c != 0) return c;
+        if (c != 0) {
+            return c;
+        }
         return ((java.sql.Timestamp) lhs).getNanos();
     }
 
@@ -269,7 +273,7 @@ public class PTimestamp extends PDataType<Timestamp> {
          * next key after the smaller key. For example: (A-B] compared against [A-B) An exclusive lower bound A is
          * bigger than an exclusive upper bound B. Forcing a fixed width exclusive lower bound key to be inclusive
          * prevents us from having to do this extra logic in the compare function.
-         * 
+         *
          */
         if (lowerRange != KeyRange.UNBOUND && !lowerInclusive && isFixedWidth()) {
             if (lowerRange.length != MAX_TIMESTAMP_BYTES) {
@@ -278,7 +282,7 @@ public class PTimestamp extends PDataType<Timestamp> {
             // Infer sortOrder based on most significant byte
             SortOrder sortOrder = lowerRange[Bytes.SIZEOF_LONG] < 0 ? SortOrder.DESC : SortOrder.ASC;
             int nanos = PUnsignedInt.INSTANCE.getCodec().decodeInt(lowerRange, Bytes.SIZEOF_LONG, sortOrder);
-            if ((sortOrder == SortOrder.DESC && nanos == 0) || (sortOrder == SortOrder.ASC && nanos == MAX_NANOS_VALUE_EXCLUSIVE-1)) {
+            if ((sortOrder == SortOrder.DESC && nanos == 0) || (sortOrder == SortOrder.ASC && nanos == MAX_NANOS_VALUE_EXCLUSIVE - 1)) {
                 // With timestamp, because our last 4 bytes store a value from [0 - 1000000), we need
                 // to detect when the boundary is crossed with our nextKey
                 byte[] newLowerRange = new byte[MAX_TIMESTAMP_BYTES];
@@ -286,7 +290,7 @@ public class PTimestamp extends PDataType<Timestamp> {
                     // Set nanos part as inverted 999999 as it needs to be the max nano value
                     // The millisecond part is moving to the previous value below
                     System.arraycopy(lowerRange, 0, newLowerRange, 0, Bytes.SIZEOF_LONG);
-                    PUnsignedInt.INSTANCE.getCodec().encodeInt(MAX_NANOS_VALUE_EXCLUSIVE-1, newLowerRange, Bytes.SIZEOF_LONG);
+                    PUnsignedInt.INSTANCE.getCodec().encodeInt(MAX_NANOS_VALUE_EXCLUSIVE - 1, newLowerRange, Bytes.SIZEOF_LONG);
                     SortOrder.invert(newLowerRange, Bytes.SIZEOF_LONG, newLowerRange, Bytes.SIZEOF_LONG, Bytes.SIZEOF_INT);
                 } else {
                     // Leave nanos part as zero as the millisecond part is rolling over to the next value

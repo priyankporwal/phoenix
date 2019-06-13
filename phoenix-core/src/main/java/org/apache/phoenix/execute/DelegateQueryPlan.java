@@ -118,31 +118,31 @@ public abstract class DelegateQueryPlan implements QueryPlan {
     public boolean isRowKeyOrdered() {
         return delegate.isRowKeyOrdered();
     }
-    
+
     @Override
     public boolean useRoundRobinIterator() throws SQLException {
         return delegate.useRoundRobinIterator();
     }
 
-	@Override
-	public Operation getOperation() {
-		return delegate.getOperation();
-	}
-	
-	@Override
+    @Override
+    public Operation getOperation() {
+        return delegate.getOperation();
+    }
+
+    @Override
     public Integer getOffset() {
         return delegate.getOffset();
     }
-     
-     @Override
-     public ResultIterator iterator() throws SQLException {
-         return iterator(DefaultParallelScanGrouper.getInstance());
-     }
- 
-     @Override
-     public ResultIterator iterator(ParallelScanGrouper scanGrouper) throws SQLException {
-         return iterator(scanGrouper, null);
-     }
+
+    @Override
+    public ResultIterator iterator() throws SQLException {
+        return iterator(DefaultParallelScanGrouper.getInstance());
+    }
+
+    @Override
+    public ResultIterator iterator(ParallelScanGrouper scanGrouper) throws SQLException {
+        return iterator(scanGrouper, null);
+    }
 
     public QueryPlan getDelegate() {
         return delegate;

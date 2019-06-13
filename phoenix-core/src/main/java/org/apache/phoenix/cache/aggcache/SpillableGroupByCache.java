@@ -126,7 +126,7 @@ public class SpillableGroupByCache implements GroupByCache {
      * @param ctxt
      */
     public SpillableGroupByCache(final RegionCoprocessorEnvironment env, ImmutableBytesPtr tenantId,
-            ServerAggregators aggs, final int estSizeNum) {
+                                 ServerAggregators aggs, final int estSizeNum) {
         totalNumElements = 0;
         this.aggregators = aggs;
         this.env = env;
@@ -139,7 +139,7 @@ public class SpillableGroupByCache implements GroupByCache {
         final long maxCacheSizeConf = conf.getLong(GROUPBY_MAX_CACHE_SIZE_ATTRIB, DEFAULT_GROUPBY_MAX_CACHE_MAX);
         final int numSpillFilesConf = conf.getInt(GROUPBY_SPILL_FILES_ATTRIB, DEFAULT_GROUPBY_SPILL_FILES);
 
-        final int maxSizeNum = (int)(maxCacheSizeConf / estValueSize);
+        final int maxSizeNum = (int) (maxCacheSizeConf / estValueSize);
         final int minSizeNum = (SPGBY_CACHE_MIN_SIZE / estValueSize);
 
         // use upper and lower bounds for the cache size

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -130,31 +130,31 @@ import org.apache.tephra.TxConstants;
  * @since 0.1
  */
 public class QueryServicesOptions {
-	public static final int DEFAULT_KEEP_ALIVE_MS = 60000;
-	public static final int DEFAULT_THREAD_POOL_SIZE = 128;
-	public static final int DEFAULT_QUEUE_SIZE = 5000;
-	public static final int DEFAULT_THREAD_TIMEOUT_MS = 600000; // 10min
-	public static final int DEFAULT_SPOOL_THRESHOLD_BYTES = 1024 * 1024 * 20; // 20m
-	public static final int DEFAULT_SERVER_SPOOL_THRESHOLD_BYTES = 1024 * 1024 * 20; // 20m
-	public static final int DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES = 1024 * 1024 * 20; // 20m
-	public static final boolean DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED = true;
-	public static final boolean DEFAULT_CLIENT_JOIN_SPOOLING_ENABLED = true;
-	public static final boolean DEFAULT_SERVER_ORDERBY_SPOOLING_ENABLED = true;
+    public static final int DEFAULT_KEEP_ALIVE_MS = 60000;
+    public static final int DEFAULT_THREAD_POOL_SIZE = 128;
+    public static final int DEFAULT_QUEUE_SIZE = 5000;
+    public static final int DEFAULT_THREAD_TIMEOUT_MS = 600000; // 10min
+    public static final int DEFAULT_SPOOL_THRESHOLD_BYTES = 1024 * 1024 * 20; // 20m
+    public static final int DEFAULT_SERVER_SPOOL_THRESHOLD_BYTES = 1024 * 1024 * 20; // 20m
+    public static final int DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES = 1024 * 1024 * 20; // 20m
+    public static final boolean DEFAULT_CLIENT_ORDERBY_SPOOLING_ENABLED = true;
+    public static final boolean DEFAULT_CLIENT_JOIN_SPOOLING_ENABLED = true;
+    public static final boolean DEFAULT_SERVER_ORDERBY_SPOOLING_ENABLED = true;
     public static final String DEFAULT_SPOOL_DIRECTORY = System.getProperty("java.io.tmpdir");
-	public static final int DEFAULT_MAX_MEMORY_PERC = 15; // 15% of heap
-	public static final int DEFAULT_MAX_TENANT_MEMORY_PERC = 100;
-	public static final long DEFAULT_MAX_SERVER_CACHE_SIZE = 1024*1024*100;  // 100 Mb
+    public static final int DEFAULT_MAX_MEMORY_PERC = 15; // 15% of heap
+    public static final int DEFAULT_MAX_TENANT_MEMORY_PERC = 100;
+    public static final long DEFAULT_MAX_SERVER_CACHE_SIZE = 1024 * 1024 * 100;  // 100 Mb
     public static final int DEFAULT_TARGET_QUERY_CONCURRENCY = 32;
     public static final int DEFAULT_MAX_QUERY_CONCURRENCY = 64;
     public static final String DEFAULT_DATE_FORMAT = DateUtil.DEFAULT_DATE_FORMAT;
     public static final String DEFAULT_DATE_FORMAT_TIMEZONE = DateUtil.DEFAULT_TIME_ZONE_ID;
     public static final boolean DEFAULT_CALL_QUEUE_ROUND_ROBIN = true;
     public static final int DEFAULT_MAX_MUTATION_SIZE = 500000;
-    public static final int DEFAULT_MAX_MUTATION_SIZE_BYTES =  104857600; // 100 Mb
+    public static final int DEFAULT_MAX_MUTATION_SIZE_BYTES = 104857600; // 100 Mb
     public static final boolean DEFAULT_USE_INDEXES = true; // Use indexes
     public static final boolean DEFAULT_IMMUTABLE_ROWS = false; // Tables rows may be updated
     public static final boolean DEFAULT_DROP_METADATA = true; // Drop meta data also.
-    public static final long DEFAULT_DRIVER_SHUTDOWN_TIMEOUT_MS = 5  * 1000; // Time to wait in ShutdownHook to exit gracefully.
+    public static final long DEFAULT_DRIVER_SHUTDOWN_TIMEOUT_MS = 5 * 1000; // Time to wait in ShutdownHook to exit gracefully.
     public static final boolean DEFAULT_TRACING_ENABLED = false;
     public static final int DEFAULT_TRACING_THREAD_POOL_SIZE = 5;
     public static final int DEFAULT_TRACING_BATCH_SIZE = 100;
@@ -164,7 +164,7 @@ public class QueryServicesOptions {
     public final static int DEFAULT_MUTATE_BATCH_SIZE = 100; // Batch size for UPSERT SELECT and DELETE
     //Batch size in bytes for UPSERT, SELECT and DELETE. By default, 2MB
     public final static long DEFAULT_MUTATE_BATCH_SIZE_BYTES = 2097152;
-	// The only downside of it being out-of-sync is that the parallelization of the scan won't be as balanced as it could be.
+    // The only downside of it being out-of-sync is that the parallelization of the scan won't be as balanced as it could be.
     public static final int DEFAULT_MAX_SERVER_CACHE_TIME_TO_LIVE_MS = 30000; // 30 sec (with no activity)
     public static final int DEFAULT_MAX_SERVER_CACHE_PERSISTENCE_TIME_TO_LIVE_MS = 30 * 60000; // 30 minutes
     public static final int DEFAULT_SCAN_CACHE_SIZE = 1000;
@@ -190,16 +190,16 @@ public class QueryServicesOptions {
     // Each spill file fits 2GB of data
     public static final int DEFAULT_GROUPBY_SPILL_FILES = 2;
     // Max size of 1st level main memory cache in bytes --> upper bound
-    public static final long DEFAULT_GROUPBY_MAX_CACHE_MAX = 1024L*1024L*100L;  // 100 Mb
+    public static final long DEFAULT_GROUPBY_MAX_CACHE_MAX = 1024L * 1024L * 100L;  // 100 Mb
 
     public static final long DEFAULT_SEQUENCE_CACHE_SIZE = 100;  // reserve 100 sequences at a time
-    public static final long DEFAULT_MAX_SERVER_METADATA_CACHE_TIME_TO_LIVE_MS =  60000 * 30; // 30 mins
-    public static final long DEFAULT_MAX_SERVER_METADATA_CACHE_SIZE =  1024L*1024L*20L; // 20 Mb
-    public static final long DEFAULT_MAX_CLIENT_METADATA_CACHE_SIZE =  1024L*1024L*10L; // 10 Mb
+    public static final long DEFAULT_MAX_SERVER_METADATA_CACHE_TIME_TO_LIVE_MS = 60000 * 30; // 30 mins
+    public static final long DEFAULT_MAX_SERVER_METADATA_CACHE_SIZE = 1024L * 1024L * 20L; // 20 Mb
+    public static final long DEFAULT_MAX_CLIENT_METADATA_CACHE_SIZE = 1024L * 1024L * 10L; // 10 Mb
     public static final int DEFAULT_GROUPBY_ESTIMATED_DISTINCT_VALUES = 1000;
     public static final int DEFAULT_CLOCK_SKEW_INTERVAL = 2000;
     public static final boolean DEFAULT_INDEX_FAILURE_HANDLING_REBUILD = true; // auto rebuild on
-    public static final boolean DEFAULT_INDEX_FAILURE_BLOCK_WRITE = false; 
+    public static final boolean DEFAULT_INDEX_FAILURE_BLOCK_WRITE = false;
     public static final boolean DEFAULT_INDEX_FAILURE_DISABLE_INDEX = true;
     public static final boolean DEFAULT_INDEX_FAILURE_THROW_EXCEPTION = true;
     public static final long DEFAULT_INDEX_FAILURE_HANDLING_REBUILD_INTERVAL = 60000; // 60 secs
@@ -244,7 +244,7 @@ public class QueryServicesOptions {
     // Since we're not taking into account the compression done by FAST_DIFF in our
     // counting of the bytes, default guidepost width to 100MB * 3 (where 3 is the
     // compression we're getting)
-    public static final long DEFAULT_STATS_GUIDEPOST_WIDTH_BYTES = 3* 100 * 1024 *1024;
+    public static final long DEFAULT_STATS_GUIDEPOST_WIDTH_BYTES = 3 * 100 * 1024 * 1024;
     public static final boolean DEFAULT_STATS_USE_CURRENT_TIME = true;
     public static final boolean DEFAULT_RUN_UPDATE_STATS_ASYNC = true;
     public static final boolean DEFAULT_COMMIT_STATS_ASYNC = true;
@@ -264,7 +264,7 @@ public class QueryServicesOptions {
     /**
      * Default value for coprocessor priority is between SYSTEM and USER priority.
      */
-    public static final int DEFAULT_COPROCESSOR_PRIORITY = Coprocessor.PRIORITY_SYSTEM/2 + Coprocessor.PRIORITY_USER/2; // Divide individually to prevent any overflow
+    public static final int DEFAULT_COPROCESSOR_PRIORITY = Coprocessor.PRIORITY_SYSTEM / 2 + Coprocessor.PRIORITY_USER / 2; // Divide individually to prevent any overflow
     public static final boolean DEFAULT_EXPLAIN_CHUNK_COUNT = true;
     public static final boolean DEFAULT_EXPLAIN_ROW_COUNT = true;
     public static final boolean DEFAULT_ALLOW_ONLINE_TABLE_SCHEMA_UPDATE = true;
@@ -341,7 +341,7 @@ public class QueryServicesOptions {
     public static final int DEFAULT_CLIENT_CONNECTION_MAX_ALLOWED_CONNECTIONS = 0;
     public static final boolean DEFAULT_STATS_COLLECTION_ENABLED = true;
     public static final boolean DEFAULT_USE_STATS_FOR_PARALLELIZATION = true;
-    
+
     //Security defaults
     public static final boolean DEFAULT_PHOENIX_ACLS_ENABLED = false;
 
@@ -350,11 +350,11 @@ public class QueryServicesOptions {
     public static final int DEFAULT_SMALL_SCAN_THRESHOLD = 100;
 
     // default system task handling interval in milliseconds
-    public static final long DEFAULT_TASK_HANDLING_INTERVAL_MS = 60*1000; // 1 min
-    public static final long DEFAULT_TASK_HANDLING_MAX_INTERVAL_MS = 30*60*1000; // 30 min
-    public static final long DEFAULT_TASK_HANDLING_INITIAL_DELAY_MS = 10*1000; // 10 sec
+    public static final long DEFAULT_TASK_HANDLING_INTERVAL_MS = 60 * 1000; // 1 min
+    public static final long DEFAULT_TASK_HANDLING_MAX_INTERVAL_MS = 30 * 60 * 1000; // 30 min
+    public static final long DEFAULT_TASK_HANDLING_INITIAL_DELAY_MS = 10 * 1000; // 10 sec
 
-    public static final long DEFAULT_GLOBAL_INDEX_ROW_AGE_THRESHOLD_TO_DELETE_MS = 10*60*1000; /* 10 min */
+    public static final long DEFAULT_GLOBAL_INDEX_ROW_AGE_THRESHOLD_TO_DELETE_MS = 10 * 60 * 1000; /* 10 min */
     public static final int DEFAULT_GLOBAL_INDEX_REPAIR_COUNT = DEFAULT_MUTATE_BATCH_SIZE;
     public static final boolean DEFAULT_INDEX_REGION_OBSERVER_ENABLED = true;
 
@@ -364,18 +364,18 @@ public class QueryServicesOptions {
 
     @SuppressWarnings("serial")
     public static final Set<String> DEFAULT_QUERY_SERVER_SKIP_WORDS = new HashSet<String>() {
-      {
-        add("secret");
-        add("passwd");
-        add("password");
-        add("credential");
-      }
+        {
+            add("secret");
+            add("passwd");
+            add("password");
+            add("credential");
+        }
     };
     public static final String DEFAULT_SCHEMA = null;
     public static final String DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING = "BASE64"; // for backward compatibility, till
-                                                                                    // 4.10, psql and CSVBulkLoad
-                                                                                    // expects binary data to be base 64
-                                                                                    // encoded
+    // 4.10, psql and CSVBulkLoad
+    // expects binary data to be base 64
+    // encoded
     // RS -> RS calls for upsert select statements are disabled by default
     public static final boolean DEFAULT_ENABLE_SERVER_UPSERT_SELECT = false;
 
@@ -389,7 +389,7 @@ public class QueryServicesOptions {
     public static final String DEFAULT_LOG_SAMPLE_RATE = "1.0";
     public static final int DEFAULT_LOG_SALT_BUCKETS = 32;
 
-	public static final boolean DEFAULT_SYSTEM_CATALOG_SPLITTABLE = true;
+    public static final boolean DEFAULT_SYSTEM_CATALOG_SPLITTABLE = true;
 
     public static final String DEFAULT_GUIDE_POSTS_CACHE_FACTORY_CLASS = "org.apache.phoenix.query.DefaultGuidePostsCacheFactory";
 
@@ -404,7 +404,7 @@ public class QueryServicesOptions {
     }
 
     public QueryServicesOptions setAll(ReadOnlyProps props) {
-        for (Entry<String,String> entry : props) {
+        for (Entry<String, String> entry : props) {
             config.set(entry.getKey(), entry.getValue());
         }
         return this;
@@ -413,75 +413,74 @@ public class QueryServicesOptions {
     public static QueryServicesOptions withDefaults() {
         Configuration config = HBaseFactoryProvider.getConfigurationFactory().getConfiguration();
         QueryServicesOptions options = new QueryServicesOptions(config)
-            .setIfUnset(STATS_USE_CURRENT_TIME_ATTRIB, DEFAULT_STATS_USE_CURRENT_TIME)
-            .setIfUnset(RUN_UPDATE_STATS_ASYNC, DEFAULT_RUN_UPDATE_STATS_ASYNC)
-            .setIfUnset(COMMIT_STATS_ASYNC, DEFAULT_COMMIT_STATS_ASYNC)
-            .setIfUnset(KEEP_ALIVE_MS_ATTRIB, DEFAULT_KEEP_ALIVE_MS)
-            .setIfUnset(THREAD_POOL_SIZE_ATTRIB, DEFAULT_THREAD_POOL_SIZE)
-            .setIfUnset(QUEUE_SIZE_ATTRIB, DEFAULT_QUEUE_SIZE)
-            .setIfUnset(THREAD_TIMEOUT_MS_ATTRIB, DEFAULT_THREAD_TIMEOUT_MS)
-            .setIfUnset(CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB, DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES)
-            .setIfUnset(SERVER_SPOOL_THRESHOLD_BYTES_ATTRIB, DEFAULT_SERVER_SPOOL_THRESHOLD_BYTES)
-            .setIfUnset(SPOOL_DIRECTORY, DEFAULT_SPOOL_DIRECTORY)
-            .setIfUnset(MAX_MEMORY_PERC_ATTRIB, DEFAULT_MAX_MEMORY_PERC)
-            .setIfUnset(MAX_TENANT_MEMORY_PERC_ATTRIB, DEFAULT_MAX_TENANT_MEMORY_PERC)
-            .setIfUnset(MAX_SERVER_CACHE_SIZE_ATTRIB, DEFAULT_MAX_SERVER_CACHE_SIZE)
-            .setIfUnset(SCAN_CACHE_SIZE_ATTRIB, DEFAULT_SCAN_CACHE_SIZE)
-            .setIfUnset(DATE_FORMAT_ATTRIB, DEFAULT_DATE_FORMAT)
-            .setIfUnset(DATE_FORMAT_TIMEZONE_ATTRIB, DEFAULT_DATE_FORMAT_TIMEZONE)
-            .setIfUnset(STATS_UPDATE_FREQ_MS_ATTRIB, DEFAULT_STATS_UPDATE_FREQ_MS)
-            .setIfUnset(MIN_STATS_UPDATE_FREQ_MS_ATTRIB, DEFAULT_MIN_STATS_UPDATE_FREQ_MS)
-            .setIfUnset(STATS_CACHE_THREAD_POOL_SIZE, DEFAULT_STATS_CACHE_THREAD_POOL_SIZE)
-            .setIfUnset(CALL_QUEUE_ROUND_ROBIN_ATTRIB, DEFAULT_CALL_QUEUE_ROUND_ROBIN)
-            .setIfUnset(MAX_MUTATION_SIZE_ATTRIB, DEFAULT_MAX_MUTATION_SIZE)
-            .setIfUnset(ROW_KEY_ORDER_SALTED_TABLE_ATTRIB, DEFAULT_FORCE_ROW_KEY_ORDER)
-            .setIfUnset(USE_INDEXES_ATTRIB, DEFAULT_USE_INDEXES)
-            .setIfUnset(IMMUTABLE_ROWS_ATTRIB, DEFAULT_IMMUTABLE_ROWS)
-            .setIfUnset(INDEX_MUTATE_BATCH_SIZE_THRESHOLD_ATTRIB, DEFAULT_INDEX_MUTATE_BATCH_SIZE_THRESHOLD)
-            .setIfUnset(MAX_SPOOL_TO_DISK_BYTES_ATTRIB, DEFAULT_MAX_SPOOL_TO_DISK_BYTES)
-            .setIfUnset(DROP_METADATA_ATTRIB, DEFAULT_DROP_METADATA)
-            .setIfUnset(GROUPBY_SPILLABLE_ATTRIB, DEFAULT_GROUPBY_SPILLABLE)
-            .setIfUnset(GROUPBY_MAX_CACHE_SIZE_ATTRIB, DEFAULT_GROUPBY_MAX_CACHE_MAX)
-            .setIfUnset(GROUPBY_SPILL_FILES_ATTRIB, DEFAULT_GROUPBY_SPILL_FILES)
-            .setIfUnset(SEQUENCE_CACHE_SIZE_ATTRIB, DEFAULT_SEQUENCE_CACHE_SIZE)
-            .setIfUnset(SCAN_RESULT_CHUNK_SIZE, DEFAULT_SCAN_RESULT_CHUNK_SIZE)
-            .setIfUnset(ALLOW_ONLINE_TABLE_SCHEMA_UPDATE, DEFAULT_ALLOW_ONLINE_TABLE_SCHEMA_UPDATE)
-            .setIfUnset(NUM_RETRIES_FOR_SCHEMA_UPDATE_CHECK, DEFAULT_RETRIES_FOR_SCHEMA_UPDATE_CHECK)
-            .setIfUnset(DELAY_FOR_SCHEMA_UPDATE_CHECK, DEFAULT_DELAY_FOR_SCHEMA_UPDATE_CHECK)
-            .setIfUnset(GLOBAL_METRICS_ENABLED, DEFAULT_IS_GLOBAL_METRICS_ENABLED)
-            .setIfUnset(RpcControllerFactory.CUSTOM_CONTROLLER_CONF_KEY, DEFAULT_CLIENT_RPC_CONTROLLER_FACTORY)
-            .setIfUnset(USE_BYTE_BASED_REGEX_ATTRIB, DEFAULT_USE_BYTE_BASED_REGEX)
-            .setIfUnset(FORCE_ROW_KEY_ORDER_ATTRIB, DEFAULT_FORCE_ROW_KEY_ORDER)
-            .setIfUnset(COLLECT_REQUEST_LEVEL_METRICS, DEFAULT_REQUEST_LEVEL_METRICS_ENABLED)
-            .setIfUnset(ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE, DEFAULT_ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE)
-            .setIfUnset(ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE, DEFAULT_ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE)
-            .setIfUnset(RENEW_LEASE_THRESHOLD_MILLISECONDS, DEFAULT_RENEW_LEASE_THRESHOLD_MILLISECONDS)
-            .setIfUnset(RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS, DEFAULT_RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS)
-            .setIfUnset(RENEW_LEASE_THREAD_POOL_SIZE, DEFAULT_RENEW_LEASE_THREAD_POOL_SIZE)
-            .setIfUnset(IS_NAMESPACE_MAPPING_ENABLED, DEFAULT_IS_NAMESPACE_MAPPING_ENABLED)
-            .setIfUnset(IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE, DEFAULT_IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE)
-            .setIfUnset(LOCAL_INDEX_CLIENT_UPGRADE_ATTRIB, DEFAULT_LOCAL_INDEX_CLIENT_UPGRADE)
-            .setIfUnset(AUTO_UPGRADE_ENABLED, DEFAULT_AUTO_UPGRADE_ENABLED)
-            .setIfUnset(PHOENIX_QUERY_SERVER_LOADBALANCER_ENABLED, DEFAULT_PHOENIX_QUERY_SERVER_LOADBALANCER_ENABLED)
-            .setIfUnset(PHOENIX_QUERY_SERVER_CLUSTER_BASE_PATH, DEFAULT_PHOENIX_QUERY_SERVER_CLUSTER_BASE_PATH)
-            .setIfUnset(PHOENIX_QUERY_SERVER_SERVICE_NAME, DEFAULT_PHOENIX_QUERY_SERVER_SERVICE_NAME)
-            .setIfUnset(PHOENIX_QUERY_SERVER_ZK_ACL_USERNAME, DEFAULT_PHOENIX_QUERY_SERVER_ZK_ACL_USERNAME)
-            .setIfUnset(PHOENIX_QUERY_SERVER_ZK_ACL_PASSWORD, DEFAULT_PHOENIX_QUERY_SERVER_ZK_ACL_PASSWORD)
-            .setIfUnset(UPLOAD_BINARY_DATA_TYPE_ENCODING, DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING)
-            .setIfUnset(TRACING_ENABLED, DEFAULT_TRACING_ENABLED)
-            .setIfUnset(TRACING_BATCH_SIZE, DEFAULT_TRACING_BATCH_SIZE)
-            .setIfUnset(TRACING_THREAD_POOL_SIZE, DEFAULT_TRACING_THREAD_POOL_SIZE)
-            .setIfUnset(STATS_COLLECTION_ENABLED, DEFAULT_STATS_COLLECTION_ENABLED)
-            .setIfUnset(USE_STATS_FOR_PARALLELIZATION, DEFAULT_USE_STATS_FOR_PARALLELIZATION)
-            .setIfUnset(USE_STATS_FOR_PARALLELIZATION, DEFAULT_USE_STATS_FOR_PARALLELIZATION)
-            .setIfUnset(UPLOAD_BINARY_DATA_TYPE_ENCODING, DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING)
-            .setIfUnset(COST_BASED_OPTIMIZER_ENABLED, DEFAULT_COST_BASED_OPTIMIZER_ENABLED)
-            .setIfUnset(PHOENIX_ACLS_ENABLED,  DEFAULT_PHOENIX_ACLS_ENABLED)
-            .setIfUnset(LOG_LEVEL,  DEFAULT_LOGGING_LEVEL)
-            .setIfUnset(LOG_SAMPLE_RATE,  DEFAULT_LOG_SAMPLE_RATE)
-            .setIfUnset(TxConstants.TX_PRE_014_CHANGESET_KEY, Boolean.FALSE.toString())
-            .setIfUnset(CLIENT_METRICS_TAG, DEFAULT_CLIENT_METRICS_TAG)
-            ;
+                .setIfUnset(STATS_USE_CURRENT_TIME_ATTRIB, DEFAULT_STATS_USE_CURRENT_TIME)
+                .setIfUnset(RUN_UPDATE_STATS_ASYNC, DEFAULT_RUN_UPDATE_STATS_ASYNC)
+                .setIfUnset(COMMIT_STATS_ASYNC, DEFAULT_COMMIT_STATS_ASYNC)
+                .setIfUnset(KEEP_ALIVE_MS_ATTRIB, DEFAULT_KEEP_ALIVE_MS)
+                .setIfUnset(THREAD_POOL_SIZE_ATTRIB, DEFAULT_THREAD_POOL_SIZE)
+                .setIfUnset(QUEUE_SIZE_ATTRIB, DEFAULT_QUEUE_SIZE)
+                .setIfUnset(THREAD_TIMEOUT_MS_ATTRIB, DEFAULT_THREAD_TIMEOUT_MS)
+                .setIfUnset(CLIENT_SPOOL_THRESHOLD_BYTES_ATTRIB, DEFAULT_CLIENT_SPOOL_THRESHOLD_BYTES)
+                .setIfUnset(SERVER_SPOOL_THRESHOLD_BYTES_ATTRIB, DEFAULT_SERVER_SPOOL_THRESHOLD_BYTES)
+                .setIfUnset(SPOOL_DIRECTORY, DEFAULT_SPOOL_DIRECTORY)
+                .setIfUnset(MAX_MEMORY_PERC_ATTRIB, DEFAULT_MAX_MEMORY_PERC)
+                .setIfUnset(MAX_TENANT_MEMORY_PERC_ATTRIB, DEFAULT_MAX_TENANT_MEMORY_PERC)
+                .setIfUnset(MAX_SERVER_CACHE_SIZE_ATTRIB, DEFAULT_MAX_SERVER_CACHE_SIZE)
+                .setIfUnset(SCAN_CACHE_SIZE_ATTRIB, DEFAULT_SCAN_CACHE_SIZE)
+                .setIfUnset(DATE_FORMAT_ATTRIB, DEFAULT_DATE_FORMAT)
+                .setIfUnset(DATE_FORMAT_TIMEZONE_ATTRIB, DEFAULT_DATE_FORMAT_TIMEZONE)
+                .setIfUnset(STATS_UPDATE_FREQ_MS_ATTRIB, DEFAULT_STATS_UPDATE_FREQ_MS)
+                .setIfUnset(MIN_STATS_UPDATE_FREQ_MS_ATTRIB, DEFAULT_MIN_STATS_UPDATE_FREQ_MS)
+                .setIfUnset(STATS_CACHE_THREAD_POOL_SIZE, DEFAULT_STATS_CACHE_THREAD_POOL_SIZE)
+                .setIfUnset(CALL_QUEUE_ROUND_ROBIN_ATTRIB, DEFAULT_CALL_QUEUE_ROUND_ROBIN)
+                .setIfUnset(MAX_MUTATION_SIZE_ATTRIB, DEFAULT_MAX_MUTATION_SIZE)
+                .setIfUnset(ROW_KEY_ORDER_SALTED_TABLE_ATTRIB, DEFAULT_FORCE_ROW_KEY_ORDER)
+                .setIfUnset(USE_INDEXES_ATTRIB, DEFAULT_USE_INDEXES)
+                .setIfUnset(IMMUTABLE_ROWS_ATTRIB, DEFAULT_IMMUTABLE_ROWS)
+                .setIfUnset(INDEX_MUTATE_BATCH_SIZE_THRESHOLD_ATTRIB, DEFAULT_INDEX_MUTATE_BATCH_SIZE_THRESHOLD)
+                .setIfUnset(MAX_SPOOL_TO_DISK_BYTES_ATTRIB, DEFAULT_MAX_SPOOL_TO_DISK_BYTES)
+                .setIfUnset(DROP_METADATA_ATTRIB, DEFAULT_DROP_METADATA)
+                .setIfUnset(GROUPBY_SPILLABLE_ATTRIB, DEFAULT_GROUPBY_SPILLABLE)
+                .setIfUnset(GROUPBY_MAX_CACHE_SIZE_ATTRIB, DEFAULT_GROUPBY_MAX_CACHE_MAX)
+                .setIfUnset(GROUPBY_SPILL_FILES_ATTRIB, DEFAULT_GROUPBY_SPILL_FILES)
+                .setIfUnset(SEQUENCE_CACHE_SIZE_ATTRIB, DEFAULT_SEQUENCE_CACHE_SIZE)
+                .setIfUnset(SCAN_RESULT_CHUNK_SIZE, DEFAULT_SCAN_RESULT_CHUNK_SIZE)
+                .setIfUnset(ALLOW_ONLINE_TABLE_SCHEMA_UPDATE, DEFAULT_ALLOW_ONLINE_TABLE_SCHEMA_UPDATE)
+                .setIfUnset(NUM_RETRIES_FOR_SCHEMA_UPDATE_CHECK, DEFAULT_RETRIES_FOR_SCHEMA_UPDATE_CHECK)
+                .setIfUnset(DELAY_FOR_SCHEMA_UPDATE_CHECK, DEFAULT_DELAY_FOR_SCHEMA_UPDATE_CHECK)
+                .setIfUnset(GLOBAL_METRICS_ENABLED, DEFAULT_IS_GLOBAL_METRICS_ENABLED)
+                .setIfUnset(RpcControllerFactory.CUSTOM_CONTROLLER_CONF_KEY, DEFAULT_CLIENT_RPC_CONTROLLER_FACTORY)
+                .setIfUnset(USE_BYTE_BASED_REGEX_ATTRIB, DEFAULT_USE_BYTE_BASED_REGEX)
+                .setIfUnset(FORCE_ROW_KEY_ORDER_ATTRIB, DEFAULT_FORCE_ROW_KEY_ORDER)
+                .setIfUnset(COLLECT_REQUEST_LEVEL_METRICS, DEFAULT_REQUEST_LEVEL_METRICS_ENABLED)
+                .setIfUnset(ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE, DEFAULT_ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE)
+                .setIfUnset(ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE, DEFAULT_ALLOW_VIEWS_ADD_NEW_CF_BASE_TABLE)
+                .setIfUnset(RENEW_LEASE_THRESHOLD_MILLISECONDS, DEFAULT_RENEW_LEASE_THRESHOLD_MILLISECONDS)
+                .setIfUnset(RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS, DEFAULT_RUN_RENEW_LEASE_FREQUENCY_INTERVAL_MILLISECONDS)
+                .setIfUnset(RENEW_LEASE_THREAD_POOL_SIZE, DEFAULT_RENEW_LEASE_THREAD_POOL_SIZE)
+                .setIfUnset(IS_NAMESPACE_MAPPING_ENABLED, DEFAULT_IS_NAMESPACE_MAPPING_ENABLED)
+                .setIfUnset(IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE, DEFAULT_IS_SYSTEM_TABLE_MAPPED_TO_NAMESPACE)
+                .setIfUnset(LOCAL_INDEX_CLIENT_UPGRADE_ATTRIB, DEFAULT_LOCAL_INDEX_CLIENT_UPGRADE)
+                .setIfUnset(AUTO_UPGRADE_ENABLED, DEFAULT_AUTO_UPGRADE_ENABLED)
+                .setIfUnset(PHOENIX_QUERY_SERVER_LOADBALANCER_ENABLED, DEFAULT_PHOENIX_QUERY_SERVER_LOADBALANCER_ENABLED)
+                .setIfUnset(PHOENIX_QUERY_SERVER_CLUSTER_BASE_PATH, DEFAULT_PHOENIX_QUERY_SERVER_CLUSTER_BASE_PATH)
+                .setIfUnset(PHOENIX_QUERY_SERVER_SERVICE_NAME, DEFAULT_PHOENIX_QUERY_SERVER_SERVICE_NAME)
+                .setIfUnset(PHOENIX_QUERY_SERVER_ZK_ACL_USERNAME, DEFAULT_PHOENIX_QUERY_SERVER_ZK_ACL_USERNAME)
+                .setIfUnset(PHOENIX_QUERY_SERVER_ZK_ACL_PASSWORD, DEFAULT_PHOENIX_QUERY_SERVER_ZK_ACL_PASSWORD)
+                .setIfUnset(UPLOAD_BINARY_DATA_TYPE_ENCODING, DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING)
+                .setIfUnset(TRACING_ENABLED, DEFAULT_TRACING_ENABLED)
+                .setIfUnset(TRACING_BATCH_SIZE, DEFAULT_TRACING_BATCH_SIZE)
+                .setIfUnset(TRACING_THREAD_POOL_SIZE, DEFAULT_TRACING_THREAD_POOL_SIZE)
+                .setIfUnset(STATS_COLLECTION_ENABLED, DEFAULT_STATS_COLLECTION_ENABLED)
+                .setIfUnset(USE_STATS_FOR_PARALLELIZATION, DEFAULT_USE_STATS_FOR_PARALLELIZATION)
+                .setIfUnset(USE_STATS_FOR_PARALLELIZATION, DEFAULT_USE_STATS_FOR_PARALLELIZATION)
+                .setIfUnset(UPLOAD_BINARY_DATA_TYPE_ENCODING, DEFAULT_UPLOAD_BINARY_DATA_TYPE_ENCODING)
+                .setIfUnset(COST_BASED_OPTIMIZER_ENABLED, DEFAULT_COST_BASED_OPTIMIZER_ENABLED)
+                .setIfUnset(PHOENIX_ACLS_ENABLED, DEFAULT_PHOENIX_ACLS_ENABLED)
+                .setIfUnset(LOG_LEVEL, DEFAULT_LOGGING_LEVEL)
+                .setIfUnset(LOG_SAMPLE_RATE, DEFAULT_LOG_SAMPLE_RATE)
+                .setIfUnset(TxConstants.TX_PRE_014_CHANGESET_KEY, Boolean.FALSE.toString())
+                .setIfUnset(CLIENT_METRICS_TAG, DEFAULT_CLIENT_METRICS_TAG);
         // HBase sets this to 1, so we reset it to something more appropriate.
         // Hopefully HBase will change this, because we can't know if a user set
         // it to 1, so we'll change it.

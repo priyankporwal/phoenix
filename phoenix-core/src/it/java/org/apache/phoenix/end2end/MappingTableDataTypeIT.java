@@ -56,7 +56,7 @@ public class MappingTableDataTypeIT extends ParallelStatsDisabledIT {
         final TableName tableName = TableName.valueOf(mtest);
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         PhoenixConnection conn = DriverManager.getConnection(getUrl(), props).unwrap(PhoenixConnection.class);
-        
+
         Admin admin = conn.getQueryServices().getAdmin();
         try {
             // Create table then get the single region for our new table.
@@ -69,7 +69,7 @@ public class MappingTableDataTypeIT extends ParallelStatsDisabledIT {
             t.close();
             // create phoenix table that maps to existing HBase table
             createPhoenixTable(mtest);
-            
+
             String selectSql = "SELECT * FROM " + mtest;
             ResultSet rs = conn.createStatement().executeQuery(selectSql);
             ResultSetMetaData rsMetaData = rs.getMetaData();
@@ -78,16 +78,16 @@ public class MappingTableDataTypeIT extends ParallelStatsDisabledIT {
             assertEquals("Number of columns", 2, rsMetaData.getColumnCount());
             assertEquals("Column Value", "value1", rs.getString(2));
             assertFalse("Expected single row ", rs.next());
-            
+
             // delete the row
             String deleteSql = "DELETE FROM " + mtest + " WHERE id = 'row'";
             conn.createStatement().executeUpdate(deleteSql);
             conn.commit();
-            
+
             // verify that no rows are returned when querying through phoenix
             rs = conn.createStatement().executeQuery(selectSql);
             assertFalse("Expected no row` ", rs.next());
-            
+
             // verify that row with value for cf2 still exists when using hbase apis
             Scan scan = new Scan();
             ResultScanner results = t.getScanner(scan);
@@ -115,7 +115,7 @@ public class MappingTableDataTypeIT extends ParallelStatsDisabledIT {
      * Create a table in Phoenix that only maps column family cf1
      */
     private void createPhoenixTable(String tableName) throws SQLException {
-        String ddl = "create table IF NOT EXISTS " + tableName+ " (" + " id varchar NOT NULL primary key,"
+        String ddl = "create table IF NOT EXISTS " + tableName + " (" + " id varchar NOT NULL primary key,"
                 + " \"cf1\".\"q1\" varchar" + " ) COLUMN_ENCODED_BYTES=NONE";
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
         Connection conn = DriverManager.getConnection(getUrl(), props);

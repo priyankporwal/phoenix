@@ -62,7 +62,7 @@ public class PUnsignedDateArray extends PArrayDataType<Date> {
 
     @Override
     public Object toObject(byte[] bytes, int offset, int length, PDataType actualType, SortOrder sortOrder,
-            Integer maxLength, Integer scale) {
+                           Integer maxLength, Integer scale) {
         return toObject(bytes, offset, length, PUnsignedDate.INSTANCE, sortOrder, maxLength, scale,
                 PUnsignedDate.INSTANCE);
     }
@@ -74,11 +74,15 @@ public class PUnsignedDateArray extends PArrayDataType<Date> {
 
     @Override
     public boolean isCoercibleTo(PDataType targetType, Object value) {
-        if (value == null) { return true; }
-        PhoenixArray pArr = (PhoenixArray)value;
-        Object[] dateArr = (Object[])pArr.array;
+        if (value == null) {
+            return true;
+        }
+        PhoenixArray pArr = (PhoenixArray) value;
+        Object[] dateArr = (Object[]) pArr.array;
         for (Object i : dateArr) {
-            if (!super.isCoercibleTo(PUnsignedDate.INSTANCE, i)) { return false; }
+            if (!super.isCoercibleTo(PUnsignedDate.INSTANCE, i)) {
+                return false;
+            }
         }
         return true;
     }

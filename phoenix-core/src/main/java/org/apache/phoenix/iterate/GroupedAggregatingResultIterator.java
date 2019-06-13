@@ -26,23 +26,20 @@ import org.apache.phoenix.schema.tuple.SingleKeyValueTuple;
 import org.apache.phoenix.schema.tuple.Tuple;
 
 
-
 /**
- * 
  * Result scanner that aggregates the row count value for rows with duplicate keys.
  * The rows from the backing result iterator must be in key sorted order.  For example,
  * given the following input:
- *   a  1
- *   a  2
- *   b  1
- *   b  3
- *   c  1
+ * a  1
+ * a  2
+ * b  1
+ * b  3
+ * c  1
  * the following will be output:
- *   a  3
- *   b  4
- *   c  1
+ * a  3
+ * b  4
+ * c  1
  *
- * 
  * @since 0.1
  */
 public class GroupedAggregatingResultIterator extends BaseGroupedAggregatingResultIterator {
@@ -62,9 +59,9 @@ public class GroupedAggregatingResultIterator extends BaseGroupedAggregatingResu
         return new SingleKeyValueTuple(keyValue);
     }
 
-	@Override
-	public String toString() {
-		return "GroupedAggregatingResultIterator [resultIterator=" 
-		        + resultIterator + ", aggregators=" + aggregators + "]";
-	}
+    @Override
+    public String toString() {
+        return "GroupedAggregatingResultIterator [resultIterator="
+                + resultIterator + ", aggregators=" + aggregators + "]";
+    }
 }

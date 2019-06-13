@@ -42,11 +42,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 /**
- * 
  * Implementation of ConnectionQueryServices for tests running against
  * the mini cluster
  *
- * 
  * @since 0.1
  */
 public class ConnectionQueryServicesTestImpl extends ConnectionQueryServicesImpl {
@@ -56,16 +54,16 @@ public class ConnectionQueryServicesTestImpl extends ConnectionQueryServicesImpl
     // Track open connections to free them on close as unit tests don't always do this.
     private Set<PhoenixConnection> connections = Sets.newHashSet();
     private final PhoenixTransactionService[] txServices = new PhoenixTransactionService[TransactionFactory.Provider.values().length];
-    
+
     public ConnectionQueryServicesTestImpl(QueryServices services, ConnectionInfo info, Properties props) throws SQLException {
         super(services, info, props);
     }
-    
+
     @Override
     public synchronized void addConnection(PhoenixConnection connection) throws SQLException {
         connections.add(connection);
     }
-    
+
     @Override
     public synchronized void removeConnection(PhoenixConnection connection) throws SQLException {
         connections.remove(connection);
@@ -75,11 +73,11 @@ public class ConnectionQueryServicesTestImpl extends ConnectionQueryServicesImpl
     public void close() throws SQLException {
         try {
             Collection<PhoenixConnection> connections;
-            synchronized(this) {
+            synchronized (this) {
                 // Make copy to prevent ConcurrentModificationException (TODO: figure out why this is necessary)
                 connections = new ArrayList<>(this.connections);
                 this.connections = Sets.newHashSet();
-                
+
                 // shut down the tx client service if we created one to support transactions
                 for (PhoenixTransactionService service : txServices) {
                     if (service != null) {
@@ -99,7 +97,7 @@ public class ConnectionQueryServicesTestImpl extends ConnectionQueryServicesImpl
             super.close();
         }
     }
-    
+
     @Override
     public synchronized PhoenixTransactionClient initTransactionClient(Provider provider) throws SQLException {
         PhoenixTransactionService txService = txServices[provider.ordinal()];

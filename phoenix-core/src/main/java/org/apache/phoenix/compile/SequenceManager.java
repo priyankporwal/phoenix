@@ -50,17 +50,17 @@ public class SequenceManager {
     private int[] sequencePosition;
     private List<SequenceAllocation> nextSequences;
     private List<SequenceKey> currentSequences;
-    private final Map<SequenceKey,SequenceValueExpression> sequenceMap = Maps.newHashMap();
+    private final Map<SequenceKey, SequenceValueExpression> sequenceMap = Maps.newHashMap();
     private final BitSet isNextSequence = new BitSet();
-    
+
     public SequenceManager(PhoenixStatement statement) {
         this.statement = statement;
     }
-    
+
     public int getSequenceCount() {
         return sequenceMap == null ? 0 : sequenceMap.size();
     }
-    
+
     private void setSequenceValues(long[] srcSequenceValues, long[] dstSequenceValues, SQLException[] sqlExceptions) throws SQLException {
         SQLException eTop = null;
         for (int i = 0; i < sqlExceptions.length; i++) {
@@ -80,16 +80,16 @@ public class SequenceManager {
             throw eTop;
         }
     }
-    
+
     public Tuple newSequenceTuple(Tuple tuple) throws SQLException {
         return new SequenceTuple(tuple);
     }
-    
+
     private class SequenceTuple extends DelegateTuple {
         private final long[] srcSequenceValues;
         private final long[] dstSequenceValues;
         private final SQLException[] sqlExceptions;
-        
+
         public SequenceTuple(Tuple delegate) throws SQLException {
             super(delegate);
             int maxSize = sequenceMap.size();
@@ -98,7 +98,7 @@ public class SequenceManager {
             sqlExceptions = new SQLException[nextSequences.size()];
             incrementSequenceValues();
         }
-        
+
         private void incrementSequenceValues() throws SQLException {
             if (sequenceMap == null) {
                 return;
@@ -110,7 +110,7 @@ public class SequenceManager {
             setSequenceValues(srcSequenceValues, dstSequenceValues, sqlExceptions);
             int offset = nextSequences.size();
             for (int i = 0; i < currentSequences.size(); i++) {
-                dstSequenceValues[sequencePosition[offset+i]] = services.currentSequenceValue(currentSequences.get(i), timestamp);
+                dstSequenceValues[sequencePosition[offset + i]] = services.currentSequenceValue(currentSequences.get(i), timestamp);
             }
         }
 
@@ -129,7 +129,7 @@ public class SequenceManager {
         }
         int nSaltBuckets = statement.getConnection().getQueryServices().getSequenceSaltBuckets();
         ParseNode numToAllocateNode = node.getNumToAllocateNode();
-        
+
         long numToAllocate = determineNumToAllocate(tableName, numToAllocateNode);
         SequenceKey key = new SequenceKey(tenantId, tableName.getSchemaName(), tableName.getTableName(), nSaltBuckets);
         SequenceValueExpression expression = sequenceMap.get(key);
@@ -146,19 +146,19 @@ public class SequenceManager {
                 // We override the original expression
                 sequenceMap.put(key, expression);
             }
-        } 
+        }
         // If we see a NEXT and a CURRENT, treat the CURRENT just like a NEXT
         if (node.getOp() == Op.NEXT_VALUE) {
             isNextSequence.set(expression.getIndex());
         }
-           
+
         return expression;
     }
 
     /**
      * If caller specified used NEXT <n> VALUES FOR <seq> expression then we have set the numToAllocate.
      * If numToAllocate is > 1 we treat this as a bulk reservation of a block of sequence slots.
-     * 
+     *
      * @throws a SQLException if we can't compile the expression
      */
     private long determineNumToAllocate(TableName sequenceName, ParseNode numToAllocateNode)
@@ -173,20 +173,20 @@ public class SequenceManager {
             if (ptr.getLength() == 0 || !expression.getDataType().isCoercibleTo(PLong.INSTANCE)) {
                 throw SequenceUtil.getException(sequenceName.getSchemaName(), sequenceName.getTableName(), SQLExceptionCode.NUM_SEQ_TO_ALLOCATE_MUST_BE_CONSTANT);
             }
-            
+
             // Parse <n> and make sure it is greater than 0. We don't support allocating 0 or negative values!
             long numToAllocate = (long) PLong.INSTANCE.toObject(ptr, expression.getDataType());
             if (numToAllocate < 1) {
                 throw SequenceUtil.getException(sequenceName.getSchemaName(), sequenceName.getTableName(), SQLExceptionCode.NUM_SEQ_TO_ALLOCATE_MUST_BE_CONSTANT);
             }
             return numToAllocate;
-            
+
         } else {
             // Standard Sequence Allocation Behavior
             return SequenceUtil.DEFAULT_NUM_SLOTS_TO_ALLOCATE;
         }
     }
-    
+
     public void validateSequences(Sequence.ValueOp action) throws SQLException {
         if (sequenceMap.isEmpty()) {
             return;
@@ -205,7 +205,7 @@ public class SequenceManager {
         }
         long[] srcSequenceValues = new long[nextSequences.size()];
         SQLException[] sqlExceptions = new SQLException[nextSequences.size()];
-        
+
         // Sort the next sequences to prevent deadlocks
         Collections.sort(nextSequences);
 
@@ -215,7 +215,7 @@ public class SequenceManager {
         }
         int offset = nextSequences.size();
         for (int i = 0; i < currentSequences.size(); i++) {
-            sequencePosition[i+offset] = sequenceMap.get(currentSequences.get(i)).getIndex();
+            sequencePosition[i + offset] = sequenceMap.get(currentSequences.get(i)).getIndex();
         }
         ConnectionQueryServices services = this.statement.getConnection().getQueryServices();
         Long scn = statement.getConnection().getSCN();
@@ -223,6 +223,6 @@ public class SequenceManager {
         services.validateSequences(nextSequences, timestamp, srcSequenceValues, sqlExceptions, action);
         setSequenceValues(srcSequenceValues, dstSequenceValues, sqlExceptions);
     }
-    
+
 }    
  

@@ -30,9 +30,9 @@ class RingBufferEventTranslator implements EventTranslator<RingBufferEvent> {
     private LogLevel connectionLogLevel;
     private Map<String, Map<MetricType, Long>> readMetrics;
     private Map<MetricType, Long> overAllMetrics;
-    
+
     public RingBufferEventTranslator(String queryId) {
-        this.queryId=queryId;
+        this.queryId = queryId;
     }
 
     @Override
@@ -46,15 +46,15 @@ class RingBufferEventTranslator implements EventTranslator<RingBufferEvent> {
     }
 
     private void clear() {
-        setQueryInfo(null,null,null,null);
+        setQueryInfo(null, null, null, null);
     }
-   
+
     public void setQueryInfo(LogLevel logLevel, ImmutableMap<QueryLogInfo, Object> queryInfo, Map<String, Map<MetricType, Long>> readMetrics,
-            Map<MetricType, Long> overAllMetrics) {
+                             Map<MetricType, Long> overAllMetrics) {
         this.queryInfo = queryInfo;
         this.connectionLogLevel = logLevel;
         this.readMetrics = readMetrics;
-        this.overAllMetrics=overAllMetrics;
+        this.overAllMetrics = overAllMetrics;
     }
 
 }

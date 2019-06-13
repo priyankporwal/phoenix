@@ -80,19 +80,29 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
 
     protected static final String COUNTER_GROUP_NAME = "Phoenix MapReduce Import";
 
-    /** Configuration key for the name of the output table */
+    /**
+     * Configuration key for the name of the output table
+     */
     public static final String TABLE_NAME_CONFKEY = "phoenix.mapreduce.import.tablename";
 
-    /** Configuration key for the columns to be imported */
+    /**
+     * Configuration key for the columns to be imported
+     */
     public static final String COLUMN_INFO_CONFKEY = "phoenix.mapreduce.import.columninfos";
 
-    /** Configuration key for the flag to ignore invalid rows */
+    /**
+     * Configuration key for the flag to ignore invalid rows
+     */
     public static final String IGNORE_INVALID_ROW_CONFKEY = "phoenix.mapreduce.import.ignoreinvalidrow";
 
-    /** Configuration key for the table names */
+    /**
+     * Configuration key for the table names
+     */
     public static final String TABLE_NAMES_CONFKEY = "phoenix.mapreduce.import.tablenames";
 
-    /** Configuration key for the table logical names */
+    /**
+     * Configuration key for the table logical names
+     */
     public static final String LOGICAL_NAMES_CONFKEY = "phoenix.mapreduce.import.logicalnames";
 
     /**
@@ -114,7 +124,8 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
      */
     protected Map<byte[], Integer> columnIndexes;
 
-    protected abstract UpsertExecutor<RECORD,?> buildUpsertExecutor(Configuration conf);
+    protected abstract UpsertExecutor<RECORD, ?> buildUpsertExecutor(Configuration conf);
+
     protected abstract LineParser<RECORD> getLineParser();
 
     @Override
@@ -253,7 +264,7 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
      * Find the column index which will replace the column name in
      * the aggregated array and will be restored in Reducer
      *
-     * @param cell       KeyValue for the column
+     * @param cell KeyValue for the column
      * @return column index for the specified cell or -1 if was not found
      */
     private int findIndex(Cell cell) throws IOException {
@@ -262,7 +273,7 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
         byte[] cq = Bytes.copy(cell.getQualifierArray(), cell.getQualifierOffset(),
                 cell.getQualifierLength());
         byte[] cfn = Bytes.add(familyName, QueryConstants.NAMESPACE_SEPARATOR_BYTES, cq);
-        if(columnIndexes.containsKey(cfn)) {
+        if (columnIndexes.containsKey(cfn)) {
             return columnIndexes.get(cfn);
         }
         return -1;
@@ -272,9 +283,9 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
      * Collect all column values for the same Row. RowKey may be different if indexes are involved,
      * so it writes a separate record for each unique RowKey
      *
-     * @param context    Current mapper context
+     * @param context   Current mapper context
      * @param tableName Table index in tableNames list
-     * @param lkv        List of KV values that will be combined in a single ImmutableBytesWritable
+     * @param lkv       List of KV values that will be combined in a single ImmutableBytesWritable
      * @throws IOException
      * @throws InterruptedException
      */
@@ -283,7 +294,7 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
             throws IOException, InterruptedException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         DataOutputStream outputStream = new DataOutputStream(bos);
-        ImmutableBytesWritable outputKey =null;
+        ImmutableBytesWritable outputKey = null;
         if (!lkv.isEmpty()) {
             for (Cell cell : lkv) {
                 if (outputKey == null || Bytes.compareTo(outputKey.get(), outputKey.getOffset(),
@@ -305,14 +316,14 @@ public abstract class FormatToBytesWritableMapper<RECORD> extends Mapper<LongWri
                 The order of aggregation: type, index of column, length of value, value itself
                  */
                 int i = findIndex(cell);
-                if(i == -1) {
+                if (i == -1) {
                     //That may happen when we load only local indexes. Since KV pairs for both
                     // table and local index are going to the same physical table at that point
                     // we skip those KVs that are not belongs to loca index
                     continue;
                 }
                 outputStream.writeByte(cell.getTypeByte());
-                WritableUtils.writeVLong(outputStream,cell.getTimestamp());
+                WritableUtils.writeVLong(outputStream, cell.getTimestamp());
                 WritableUtils.writeVInt(outputStream, i);
                 WritableUtils.writeVInt(outputStream, cell.getValueLength());
                 outputStream.write(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());

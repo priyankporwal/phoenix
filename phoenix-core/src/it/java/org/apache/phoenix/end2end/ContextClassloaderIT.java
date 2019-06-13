@@ -47,7 +47,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(NeedsOwnMiniClusterTest.class)
-public class ContextClassloaderIT  extends BaseTest {
+public class ContextClassloaderIT extends BaseTest {
 
     private static HBaseTestingUtility hbaseTestUtil;
     private static PhoenixTestDriver driver;
@@ -63,7 +63,7 @@ public class ContextClassloaderIT  extends BaseTest {
         String url = JDBC_PROTOCOL + JDBC_PROTOCOL_SEPARATOR + LOCALHOST + JDBC_PROTOCOL_SEPARATOR + clientPort
                 + JDBC_PROTOCOL_TERMINATOR + PHOENIX_TEST_DRIVER_URL_PARAM;
         driver = initAndRegisterTestDriver(url, ReadOnlyProps.EMPTY_PROPS);
-        
+
         Connection conn = DriverManager.getConnection(url);
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE test (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR)");
@@ -73,7 +73,7 @@ public class ContextClassloaderIT  extends BaseTest {
         conn.commit();
         conn.close();
         badContextClassloader = new URLClassLoader(new URL[] {
-                File.createTempFile("invalid", ".jar").toURI().toURL() }, null);
+                File.createTempFile("invalid", ".jar").toURI().toURL()}, null);
     }
 
     protected static String getUrl() {

@@ -36,15 +36,15 @@ import org.junit.Test;
 
 
 public class ReadIsolationLevelIT extends ParallelStatsEnabledIT {
-    private static final String ENTITY_ID1= "000000000000001";
-    private static final String ENTITY_ID2= "000000000000002";
+    private static final String ENTITY_ID1 = "000000000000001";
+    private static final String ENTITY_ID2 = "000000000000002";
     private static final String VALUE1 = "a";
-    private static final String VALUE2= "b";
-    
+    private static final String VALUE2 = "b";
+
     private static String initTableValues() throws Exception {
         String tenantId = getOrganizationId();
         String tableName = generateUniqueName();
-        ensureTableCreated(getUrl(),tableName, ATABLE_NAME);
+        ensureTableCreated(getUrl(), tableName, ATABLE_NAME);
 
         Properties props = new Properties();
         Connection upsertConn = DriverManager.getConnection(getUrl(), props);
@@ -55,7 +55,7 @@ public class ReadIsolationLevelIT extends ParallelStatsEnabledIT {
         stmt.setString(2, ENTITY_ID1);
         stmt.setString(3, VALUE1);
         stmt.execute(); // should commit too
-        
+
         stmt.setString(2, ENTITY_ID2);
         stmt.setString(3, VALUE2);
         stmt.execute(); // should commit too
@@ -93,7 +93,7 @@ public class ReadIsolationLevelIT extends ParallelStatsEnabledIT {
             stmt.setString(2, ENTITY_ID1);
             stmt.setString(3, VALUE2);
             stmt.execute();
-            
+
             PreparedStatement statement2 = conn2.prepareStatement(query);
             statement2.setString(1, tenantId);
             statement2.setString(2, ENTITY_ID1);
@@ -125,7 +125,7 @@ public class ReadIsolationLevelIT extends ParallelStatsEnabledIT {
         Connection conn = DriverManager.getConnection(getUrl(), PropertiesUtil.deepCopy(TEST_PROPERTIES));
         conn.setAutoCommit(true);
         long ts = EnvironmentEdgeManager.currentTimeMillis();
-        String url = getUrl() + ";" + PhoenixRuntime.CURRENT_SCN_ATTRIB + "=" + (ts+1);
+        String url = getUrl() + ";" + PhoenixRuntime.CURRENT_SCN_ATTRIB + "=" + (ts + 1);
         Connection conn2 = DriverManager.getConnection(url, PropertiesUtil.deepCopy(TEST_PROPERTIES));
         try {
             String tenantId = getOrganizationId();
@@ -144,7 +144,7 @@ public class ReadIsolationLevelIT extends ParallelStatsEnabledIT {
             stmt.setString(2, ENTITY_ID1);
             stmt.setString(3, VALUE2);
             stmt.execute();
-            
+
             // Run another query through same connection and make sure
             // you can't find the new row
             PreparedStatement statement2 = conn2.prepareStatement(query);

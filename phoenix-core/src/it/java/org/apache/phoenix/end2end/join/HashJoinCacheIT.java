@@ -47,14 +47,14 @@ import org.apache.phoenix.util.TestUtil;
 import org.junit.Test;
 
 public class HashJoinCacheIT extends BaseJoinIT {
-    
+
     @Override
     protected String getTableName(Connection conn, String virtualName) throws Exception {
         String realName = super.getTableName(conn, virtualName);
         TestUtil.addCoprocessor(conn, SchemaUtil.normalizeFullTableName(realName), InvalidateHashCache.class);
         return realName;
     }
-                
+
     @Test
     public void testExpiredCache() throws Exception {
         Properties props = PropertiesUtil.deepCopy(TEST_PROPERTIES);
@@ -76,8 +76,9 @@ public class HashJoinCacheIT extends BaseJoinIT {
     }
 
     public static class InvalidateHashCache extends SimpleRegionObserver {
-        public static Random rand= new Random();
-        public static List<ImmutableBytesPtr> lastRemovedJoinIds=new ArrayList<ImmutableBytesPtr>();
+        public static Random rand = new Random();
+        public static List<ImmutableBytesPtr> lastRemovedJoinIds = new ArrayList<ImmutableBytesPtr>();
+
         @Override
         public void preScannerOpen(final ObserverContext<RegionCoprocessorEnvironment> c, final Scan scan) throws IOException {
             final HashJoinInfo joinInfo = HashJoinInfo.deserializeHashJoinFromScan(scan);
@@ -86,13 +87,13 @@ public class HashJoinCacheIT extends BaseJoinIT {
                 int count = joinInfo.getJoinIds().length;
                 for (int i = 0; i < count; i++) {
                     ImmutableBytesPtr joinId = joinInfo.getJoinIds()[i];
-                    if (!ByteUtil.contains(lastRemovedJoinIds,joinId)) {
+                    if (!ByteUtil.contains(lastRemovedJoinIds, joinId)) {
                         lastRemovedJoinIds.add(joinId);
                         cache.removeServerCache(joinId);
                     }
                 }
             }
         }
-        
+
     }
 }

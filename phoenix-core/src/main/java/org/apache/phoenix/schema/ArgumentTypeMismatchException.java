@@ -30,9 +30,8 @@ import org.apache.phoenix.schema.types.PDataTypeFactory;
 import javax.annotation.Nullable;
 
 /**
- * Exception thrown when we try to use use an argument that has the wrong type. 
- * 
- * 
+ * Exception thrown when we try to use use an argument that has the wrong type.
+ *
  * @since 1.0
  */
 public class ArgumentTypeMismatchException extends SQLException {
@@ -45,12 +44,13 @@ public class ArgumentTypeMismatchException extends SQLException {
 
     public ArgumentTypeMismatchException(Class<? extends PDataType>[] expecteds, PDataType actual, String location) {
         this(Arrays.toString(Collections2.transform(Arrays.asList(expecteds),
-            new Function<Class<? extends PDataType>, PDataType>() {
-              @Nullable @Override
-              public PDataType apply(@Nullable Class<? extends PDataType> input) {
-                return PDataTypeFactory.getInstance().instanceFromClass(input);
-              }
-            }).toArray()), actual.toString(), location);
+                new Function<Class<? extends PDataType>, PDataType>() {
+                    @Nullable
+                    @Override
+                    public PDataType apply(@Nullable Class<? extends PDataType> input) {
+                        return PDataTypeFactory.getInstance().instanceFromClass(input);
+                    }
+                }).toArray()), actual.toString(), location);
     }
 
     public ArgumentTypeMismatchException(String expected, String actual, String location) {

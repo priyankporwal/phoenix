@@ -67,8 +67,8 @@ public class PhoenixIndexPartialBuildMapper extends TableMapper<ImmutableBytesWr
 
     private int batchSize;
 
-    private List<Mutation> mutations ;
-    
+    private List<Mutation> mutations;
+
     private ImmutableBytesPtr maintainers;
 
     @Override
@@ -81,7 +81,7 @@ public class PhoenixIndexPartialBuildMapper extends TableMapper<ImmutableBytesWr
             final Properties overrideProps = new Properties();
             String scn = configuration.get(PhoenixConfigurationUtil.CURRENT_SCN_VALUE);
             String txScnValue = configuration.get(PhoenixConfigurationUtil.TX_SCN_VALUE);
-            if(txScnValue==null && scn!=null) {
+            if (txScnValue == null && scn != null) {
                 overrideProps.put(PhoenixRuntime.BUILD_INDEX_AT_ATTRIB, scn);
             }
             connection = ConnectionUtil.getOutputConnection(configuration, overrideProps).unwrap(PhoenixConnection.class);
@@ -90,15 +90,15 @@ public class PhoenixIndexPartialBuildMapper extends TableMapper<ImmutableBytesWr
             ConnectionQueryServices services = connection.getQueryServices();
             int maxSize =
                     services.getProps().getInt(QueryServices.MAX_MUTATION_SIZE_ATTRIB,
-                        QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE);
+                            QueryServicesOptions.DEFAULT_MAX_MUTATION_SIZE);
             batchSize = Math.min(connection.getMutateBatchSize(), maxSize);
             LOGGER.info("Mutation Batch Size = " + batchSize);
             this.mutations = Lists.newArrayListWithExpectedSize(batchSize);
-            maintainers=new ImmutableBytesPtr(PhoenixConfigurationUtil.getIndexMaintainers(configuration));
+            maintainers = new ImmutableBytesPtr(PhoenixConfigurationUtil.getIndexMaintainers(configuration));
         } catch (SQLException e) {
             tryClosingResources();
             throw new RuntimeException(e.getMessage());
-        } 
+        }
     }
 
     @Override
@@ -164,7 +164,7 @@ public class PhoenixIndexPartialBuildMapper extends TableMapper<ImmutableBytesWr
             // We are writing some dummy key-value as map output here so that we commit only one
             // output to reducer.
             context.write(new ImmutableBytesWritable(UUID.randomUUID().toString().getBytes()),
-                new IntWritable(0));
+                    new IntWritable(0));
             super.cleanup(context);
         } catch (SQLException e) {
             LOGGER.error(" Error {}  while read/write of a record ", e.getMessage());

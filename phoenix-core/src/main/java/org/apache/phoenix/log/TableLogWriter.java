@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Writes RingBuffer log event into table 
- * 
+ * Writes RingBuffer log event into table
  */
 public class TableLogWriter implements LogWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LogWriter.class);
@@ -45,15 +44,15 @@ public class TableLogWriter implements LogWriter {
     private boolean isClosed;
     private PreparedStatement upsertStatement;
     private Configuration config;
-    private Map<MetricType,Integer> metricOrdinals=new HashMap<MetricType,Integer>();
+    private Map<MetricType, Integer> metricOrdinals = new HashMap<MetricType, Integer>();
 
     public TableLogWriter(Configuration configuration) {
-        this.config=configuration;
+        this.config = configuration;
     }
-    
+
     private PreparedStatement buildUpsertStatement(Connection conn) throws SQLException {
         StringBuilder buf = new StringBuilder("UPSERT INTO " + SYSTEM_CATALOG_SCHEMA + ".\"" + SYSTEM_LOG_TABLE + "\"(");
-        int queryLogEntries=0;
+        int queryLogEntries = 0;
         for (QueryLogInfo info : QueryLogInfo.values()) {
             buf.append(info.columnName);
             buf.append(',');
@@ -66,7 +65,7 @@ public class TableLogWriter implements LogWriter {
                 buf.append(',');
             }
         }
-        buf.setLength(buf.length()-1);
+        buf.setLength(buf.length() - 1);
         buf.append(") VALUES (");
         for (int i = 0; i < QueryLogInfo.values().length; i++) {
             buf.append("?,");
@@ -76,7 +75,7 @@ public class TableLogWriter implements LogWriter {
                 buf.append("?,");
             }
         }
-        buf.setLength(buf.length()-1);
+        buf.setLength(buf.length() - 1);
         buf.append(")");
         return conn.prepareStatement(buf.toString());
     }
@@ -133,10 +132,12 @@ public class TableLogWriter implements LogWriter {
         }
         connection.commit();
     }
-    
+
     @Override
     public void close() throws IOException {
-        if (isClosed()) { return; }
+        if (isClosed()) {
+            return;
+        }
         isClosed = true;
         try {
             if (connection != null) {
@@ -148,7 +149,7 @@ public class TableLogWriter implements LogWriter {
         }
     }
 
-    public boolean isClosed(){
+    public boolean isClosed() {
         return isClosed;
     }
 

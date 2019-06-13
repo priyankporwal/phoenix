@@ -30,8 +30,7 @@ import org.apache.phoenix.schema.tuple.Tuple;
 
 /**
  * Client side Aggregator for PERCENT_RANK aggregations
- * 
- * 
+ *
  * @since 1.2.1
  */
 public class PercentRankClientAggregator extends DistinctValueWithCountClientAggregator {
@@ -46,14 +45,14 @@ public class PercentRankClientAggregator extends DistinctValueWithCountClientAgg
     @Override
     public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
         if (cachedResult == null) {
-            ColumnExpression columnExp = (ColumnExpression)exps.get(0);
+            ColumnExpression columnExp = (ColumnExpression) exps.get(0);
             // Second exp will be a LiteralExpression of Boolean type indicating whether the ordering to
             // be ASC/DESC
-            LiteralExpression isAscendingExpression = (LiteralExpression)exps.get(1);
-            boolean isAscending = (Boolean)isAscendingExpression.getValue();
+            LiteralExpression isAscendingExpression = (LiteralExpression) exps.get(1);
+            boolean isAscending = (Boolean) isAscendingExpression.getValue();
 
             // Third expression will be LiteralExpression
-            LiteralExpression valueExp = (LiteralExpression)exps.get(2);
+            LiteralExpression valueExp = (LiteralExpression) exps.get(2);
             Map<Object, Integer> sorted = getSortedValueVsCount(isAscending, columnExp.getDataType());
             long distinctCountsSum = 0;
             Object value = valueExp.getValue();
@@ -61,11 +60,13 @@ public class PercentRankClientAggregator extends DistinctValueWithCountClientAgg
                 Object colValue = entry.getKey();
                 int compareResult = columnExp.getDataType().compareTo(colValue, value, valueExp.getDataType());
                 boolean done = isAscending ? compareResult > 0 : compareResult <= 0;
-                if (done) break;
+                if (done) {
+                    break;
+                }
                 distinctCountsSum += entry.getValue();
             }
 
-            float result = (float)distinctCountsSum / totalCount;
+            float result = (float) distinctCountsSum / totalCount;
             this.cachedResult = new BigDecimal(result);
         }
         if (buffer == null) {

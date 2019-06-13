@@ -22,15 +22,15 @@ import org.apache.phoenix.exception.SQLExceptionInfo;
 
 
 public class SequenceNotFoundException extends MetaDataEntityNotFoundException {
-	private static final long serialVersionUID = 1L;
-	private static SQLExceptionCode code = SQLExceptionCode.SEQUENCE_UNDEFINED;
+    private static final long serialVersionUID = 1L;
+    private static SQLExceptionCode code = SQLExceptionCode.SEQUENCE_UNDEFINED;
 
-	public SequenceNotFoundException(String tableName) {
-		this(null, tableName);
-	}
+    public SequenceNotFoundException(String tableName) {
+        this(null, tableName);
+    }
 
-	public SequenceNotFoundException(String schemaName, String tableName) {
-		super(new SQLExceptionInfo.Builder(code).setSchemaName(schemaName).setTableName(tableName).build().toString(),
-				code.getSQLState(), code.getErrorCode(), schemaName, tableName, null);
-	}
+    public SequenceNotFoundException(String schemaName, String tableName) {
+        super(new SQLExceptionInfo.Builder(code).setSchemaName(schemaName).setTableName(tableName).build().toString(),
+                code.getSQLState(), code.getErrorCode(), schemaName, tableName, null);
+    }
 }

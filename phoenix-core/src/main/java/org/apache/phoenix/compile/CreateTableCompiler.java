@@ -74,7 +74,7 @@ public class CreateTableCompiler {
     private static final PDatum VARBINARY_DATUM = new VarbinaryDatum();
     private final PhoenixStatement statement;
     private final Operation operation;
-    
+
     public CreateTableCompiler(PhoenixStatement statement, Operation operation) {
         this.statement = statement;
         this.operation = operation;
@@ -101,7 +101,7 @@ public class CreateTableCompiler {
         PrimaryKeyConstraint pkConstraint = create.getPrimaryKeyConstraint();
         for (int i = 0; i < columnDefs.size(); i++) {
             ColumnDef columnDef = columnDefs.get(i);
-            if(columnDef.getColumnDefName().getFamilyName()!=null && columnDef.getColumnDefName().getFamilyName().contains(QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX)) {
+            if (columnDef.getColumnDefName().getFamilyName() != null && columnDef.getColumnDefName().getFamilyName().contains(QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX)) {
                 throw new SQLExceptionInfo.Builder(SQLExceptionCode.UNALLOWED_COLUMN_FAMILY)
                         .build().buildException();
             }
@@ -114,10 +114,10 @@ public class CreateTableCompiler {
             }
         }
         if (overideColumnDefs != null) {
-            create = new CreateTableStatement (create,overideColumnDefs);
+            create = new CreateTableStatement(create, overideColumnDefs);
         }
         final CreateTableStatement finalCreate = create;
-        
+
         if (type == PTableType.VIEW) {
             TableRef tableRef = resolver.getTables().get(0);
             int nColumns = tableRef.getTable().getColumns().size();
@@ -132,7 +132,7 @@ public class CreateTableCompiler {
                 whereNode = StatementNormalizer.normalize(whereNode, resolver);
                 if (whereNode.isStateless()) {
                     throw new SQLExceptionInfo.Builder(SQLExceptionCode.VIEW_WHERE_IS_CONSTANT)
-                        .build().buildException();
+                            .build().buildException();
                 }
                 // If our parent has a VIEW statement, combine it with this one
                 if (parentToBe.getViewStatement() != null) {
@@ -163,8 +163,8 @@ public class CreateTableCompiler {
                 if (pkConstraint.getColumnNames().size() > 0) {
                     isPKMissed = false;
                 } else {
-                    for (ColumnDef columnDef: columnDefs) {
-                        if (columnDef.isPK()){
+                    for (ColumnDef columnDef : columnDefs) {
+                        if (columnDef.isPK()) {
                             isPKMissed = false;
                             break;
                         }
@@ -191,17 +191,18 @@ public class CreateTableCompiler {
             }
             if (node.isStateless()) {
                 Expression expression = node.accept(expressionCompiler);
-                if (expression.evaluate(null, ptr)) {;
+                if (expression.evaluate(null, ptr)) {
+                    ;
                     splits[i] = ByteUtil.copyKeyBytesIfNecessary(ptr);
                     continue;
                 }
             }
             throw new SQLExceptionInfo.Builder(SQLExceptionCode.SPLIT_POINT_NOT_CONSTANT)
-                .setMessage("Node: " + node).build().buildException();
+                    .setMessage("Node: " + node).build().buildException();
         }
         final MetaDataClient client = new MetaDataClient(connection);
         final PTable parent = parentToBe;
-        
+
         return new BaseMutationPlan(context, operation) {
 
             @Override
@@ -221,15 +222,15 @@ public class CreateTableCompiler {
             }
         };
     }
-    
+
     public static class ColumnTrackingExpressionCompiler extends ExpressionCompiler {
         private final BitSet isColumnReferenced;
-        
+
         public ColumnTrackingExpressionCompiler(StatementContext context, BitSet isColumnReferenced) {
             super(context, true);
             this.isColumnReferenced = isColumnReferenced;
         }
-        
+
         @Override
         protected ColumnRef resolveColumn(ColumnParseNode node) throws SQLException {
             ColumnRef ref = super.resolveColumn(node);
@@ -237,7 +238,7 @@ public class CreateTableCompiler {
             return ref;
         }
     }
-    
+
     public static class ViewWhereExpressionVisitor extends StatelessTraverseNoExpressionVisitor<Boolean> {
         private boolean isUpdatable = true;
         private final PTable table;
@@ -245,11 +246,11 @@ public class CreateTableCompiler {
         private final byte[][] columnValues;
         private final ImmutableBytesWritable ptr = new ImmutableBytesWritable();
 
-        public ViewWhereExpressionVisitor (PTable table, byte[][] columnValues) {
+        public ViewWhereExpressionVisitor(PTable table, byte[][] columnValues) {
             this.table = table;
             this.columnValues = columnValues;
         }
-        
+
         public boolean isUpdatable() {
             return isUpdatable;
         }
@@ -274,8 +275,8 @@ public class CreateTableCompiler {
 
         @Override
         public Iterator<Expression> visitEnter(ComparisonExpression node) {
-            if (node.getFilterOp() == CompareOp.EQUAL && node.getChildren().get(1).isStateless() 
-            		&& node.getChildren().get(1).getDeterminism() == Determinism.ALWAYS ) {
+            if (node.getFilterOp() == CompareOp.EQUAL && node.getChildren().get(1).isStateless()
+                    && node.getChildren().get(1).getDeterminism() == Determinism.ALWAYS) {
                 return Iterators.singletonIterator(node.getChildren().get(0));
             }
             return super.visitEnter(node);
@@ -286,13 +287,13 @@ public class CreateTableCompiler {
             if (l.isEmpty()) {
                 return null;
             }
-            
+
             node.getChildren().get(1).evaluate(null, ptr);
             // Set the columnValue at the position of the column to the
             // constant with which it is being compared.
             // We always strip the last byte so that we can recognize null
             // as a value with a single byte.
-            columnValues[position] = new byte [ptr.getLength() + 1];
+            columnValues[position] = new byte[ptr.getLength() + 1];
             System.arraycopy(ptr.get(), ptr.getOffset(), columnValues[position], 0, ptr.getLength());
             return Boolean.TRUE;
         }
@@ -301,13 +302,13 @@ public class CreateTableCompiler {
         public Iterator<Expression> visitEnter(IsNullExpression node) {
             return node.isNegate() ? super.visitEnter(node) : node.getChildren().iterator();
         }
-        
+
         @Override
         public Boolean visitLeave(IsNullExpression node, List<Boolean> l) {
             // Nothing to do as we've already set the position to an empty byte array
             return l.isEmpty() ? null : Boolean.TRUE;
         }
-        
+
         @Override
         public Boolean visit(RowKeyColumnExpression node) {
             this.position = table.getPKColumns().get(node.getPosition()).getPosition();
@@ -323,13 +324,14 @@ public class CreateTableCompiler {
             }
             return Boolean.TRUE;
         }
-        
+
         @Override
         public Boolean visit(SingleCellColumnExpression node) {
             return visit(node.getKeyValueExpression());
         }
-        
+
     }
+
     private static class VarbinaryDatum implements PDatum {
 
         @Override
@@ -356,6 +358,6 @@ public class CreateTableCompiler {
         public SortOrder getSortOrder() {
             return SortOrder.getDefault();
         }
-        
+
     }
 }

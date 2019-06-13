@@ -79,8 +79,12 @@ public class RoundRobinResultIterator implements ResultIterator {
     }
 
     public static ResultIterator newIterator(final List<PeekingResultIterator> iterators, QueryPlan plan) {
-        if (iterators.isEmpty()) { return EMPTY_ITERATOR; }
-        if (iterators.size() == 1) { return iterators.get(0); }
+        if (iterators.isEmpty()) {
+            return EMPTY_ITERATOR;
+        }
+        if (iterators.size() == 1) {
+            return iterators.get(0);
+        }
         return new RoundRobinResultIterator(iterators, plan);
     }
 
@@ -117,7 +121,9 @@ public class RoundRobinResultIterator implements ResultIterator {
 
     @Override
     public void close() throws SQLException {
-        if (closed) { return; }
+        if (closed) {
+            return;
+        }
         closed = true;
         SQLException toThrow = null;
         try {
@@ -142,7 +148,9 @@ public class RoundRobinResultIterator implements ResultIterator {
                     }
                 }
             } finally {
-                if (toThrow != null) { throw toThrow; }
+                if (toThrow != null) {
+                    throw toThrow;
+                }
             }
         }
     }
@@ -165,7 +173,9 @@ public class RoundRobinResultIterator implements ResultIterator {
     }
 
     private List<RoundRobinIterator> getIterators() throws SQLException {
-        if (closed) { return Collections.emptyList(); }
+        if (closed) {
+            return Collections.emptyList();
+        }
         if (openIterators.size() > 0 && openIterators.size() == numScannersCacheExhausted) {
             /*
              * All the scanners have exhausted their cache. Submit the scanners back to the pool so that they can fetch
@@ -316,7 +326,9 @@ public class RoundRobinResultIterator implements ResultIterator {
 
         @Override
         public Tuple peek() throws SQLException {
-            if (tuple != null) { return tuple; }
+            if (tuple != null) {
+                return tuple;
+            }
             return delegate.peek();
         }
 

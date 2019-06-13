@@ -26,9 +26,9 @@ import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
 
 public interface HTableFactory {
 
-  public Table getTable(ImmutableBytesPtr tablename) throws IOException;
+    public Table getTable(ImmutableBytesPtr tablename) throws IOException;
 
-  public void shutdown();
+    public void shutdown();
 
-  public Table getTable(ImmutableBytesPtr tablename, ExecutorService pool) throws IOException;
+    public Table getTable(ImmutableBytesPtr tablename, ExecutorService pool) throws IOException;
 }

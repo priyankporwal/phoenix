@@ -25,10 +25,8 @@ import org.apache.phoenix.expression.Expression;
 import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
 
 /**
- *
  * Filter that evaluates WHERE clause expression, used in the case where there
  * are references to multiple unique column qualifiers over one or more column families.
- *
  */
 public class MultiCQKeyValueComparisonFilter extends MultiKeyValueComparisonFilter {
     private ImmutableBytesPtr ptr = new ImmutableBytesPtr();
@@ -42,14 +40,14 @@ public class MultiCQKeyValueComparisonFilter extends MultiKeyValueComparisonFilt
 
     @Override
     protected Object setColumnKey(byte[] cf, int cfOffset, int cfLength, byte[] cq, int cqOffset,
-            int cqLength) {
+                                  int cqLength) {
         ptr.set(cq, cqOffset, cqLength);
         return ptr;
     }
 
     @Override
     protected Object newColumnKey(byte[] cf, int cfOffset, int cfLength, byte[] cq, int cqOffset,
-            int cqLength) {
+                                  int cqLength) {
         byte[] cfKey;
         if (cfOffset == 0 && cf.length == cfLength) {
             cfKey = cf;
@@ -61,9 +59,9 @@ public class MultiCQKeyValueComparisonFilter extends MultiKeyValueComparisonFilt
         return new ImmutableBytesPtr(cq, cqOffset, cqLength);
     }
 
-    public static MultiCQKeyValueComparisonFilter parseFrom(final byte [] pbBytes) throws DeserializationException {
+    public static MultiCQKeyValueComparisonFilter parseFrom(final byte[] pbBytes) throws DeserializationException {
         try {
-            return (MultiCQKeyValueComparisonFilter)Writables.getWritable(pbBytes, new MultiCQKeyValueComparisonFilter());
+            return (MultiCQKeyValueComparisonFilter) Writables.getWritable(pbBytes, new MultiCQKeyValueComparisonFilter());
         } catch (IOException e) {
             throw new DeserializationException(e);
         }

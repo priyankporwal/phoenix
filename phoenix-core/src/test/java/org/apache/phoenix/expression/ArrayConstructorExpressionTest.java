@@ -33,17 +33,17 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 public class ArrayConstructorExpressionTest {
-    
+
     protected static final LiteralExpression CONSTANT_EXPRESSION = LiteralExpression.newConstant(QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
-    protected static final byte[] BYTE_ARRAY1 = new byte[]{1,2,3,4,5};
-    protected static final byte[] BYTE_ARRAY2 = new byte[]{6,7,8};
+    protected static final byte[] BYTE_ARRAY1 = new byte[] {1, 2, 3, 4, 5};
+    protected static final byte[] BYTE_ARRAY2 = new byte[] {6, 7, 8};
     protected Expression FALSE_EVAL_EXPRESSION = new DelegateExpression(LiteralExpression.newConstant(null)) {
         @Override
         public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
             return false;
         }
     };
-    
+
     @Test
     public void testLeadingNulls() throws Exception {
         List<Expression> children = Lists.newArrayListWithExpectedSize(4);
@@ -54,7 +54,7 @@ public class ArrayConstructorExpressionTest {
         children.add(LiteralExpression.newConstant(BYTE_ARRAY2, PVarbinary.INSTANCE));
         ArrayConstructorExpression arrayConstructorExpression = new ArrayConstructorExpression(children, PVarbinary.INSTANCE, false);
         ImmutableBytesPtr ptr = new ImmutableBytesPtr();
-        
+
         ArrayElemRefExpression arrayElemRefExpression = new ArrayElemRefExpression(Lists.<Expression>newArrayList(arrayConstructorExpression));
         arrayElemRefExpression.setIndex(1);
         arrayElemRefExpression.evaluate(null, ptr);
@@ -69,5 +69,5 @@ public class ArrayConstructorExpressionTest {
         arrayElemRefExpression.evaluate(null, ptr);
         assertArrayEquals(BYTE_ARRAY2, ptr.copyBytesIfNecessary());
     }
-    
+
 }

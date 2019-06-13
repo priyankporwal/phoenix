@@ -25,14 +25,12 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.WritableUtils;
 
 /**
- * 
  * Prefix encoder for byte arrays. For decoding, see {@link PrefixByteDecoder}.
- *
  */
 public class PrefixByteEncoder {
     private int maxLength;
     private final ImmutableBytesWritable previous = new ImmutableBytesWritable(ByteUtil.EMPTY_BYTE_ARRAY);
-    
+
     public PrefixByteEncoder() {
     }
 
@@ -43,16 +41,17 @@ public class PrefixByteEncoder {
     public void reset() {
         previous.set(ByteUtil.EMPTY_BYTE_ARRAY);
     }
-    
+
     /**
      * @return the maximum length byte array encountered while encoding
      */
     public int getMaxLength() {
         return maxLength;
     }
-    
+
     /**
      * Prefix encodes the byte array pointed to into the output stream
+     *
      * @param out output stream to encode into
      * @param ptr pointer to byte array to encode.
      * @throws IOException
@@ -60,11 +59,12 @@ public class PrefixByteEncoder {
     public void encode(DataOutput out, ImmutableBytesWritable ptr) throws IOException {
         encode(out, ptr.get(), ptr.getOffset(), ptr.getLength());
     }
-    
+
     /**
      * Prefix encodes the byte array into the output stream
+     *
      * @param out output stream to encode into
-     * @param b byte array to encode
+     * @param b   byte array to encode
      * @throws IOException
      */
     public void encode(DataOutput out, byte[] b) throws IOException {
@@ -72,28 +72,30 @@ public class PrefixByteEncoder {
     }
 
     /**
-     * Prefix encodes the byte array from offset to length into output stream. 
+     * Prefix encodes the byte array from offset to length into output stream.
      * Instead of writing the entire byte array, only the portion of the byte array
      * that differs from the beginning of the previous byte array written is written.
-     *  
-     * @param out output stream to encode into
-     * @param b byte array buffer
+     *
+     * @param out    output stream to encode into
+     * @param b      byte array buffer
      * @param offset offset into byte array to start encoding
      * @param length length of byte array to encode
      * @throws IOException
      */
     public void encode(DataOutput out, byte[] b, int offset, int length) throws IOException {
-          int i = 0;
-          int prevOffset = previous.getOffset();
-          byte[] prevBytes = previous.get();
-          int prevLength = previous.getLength();
-          int minLength = prevLength < b.length ? prevLength : b.length;
-          for(i = 0; (i < minLength) && (prevBytes[prevOffset + i] == b[offset + i]); i++);
-          WritableUtils.writeVInt(out, i);
-          Bytes.writeByteArray(out, b, offset + i, length - i);
-          previous.set(b, offset, length);
-          if (length > maxLength) {
-              maxLength = length;
-          }
+        int i = 0;
+        int prevOffset = previous.getOffset();
+        byte[] prevBytes = previous.get();
+        int prevLength = previous.getLength();
+        int minLength = prevLength < b.length ? prevLength : b.length;
+        for (i = 0; (i < minLength) && (prevBytes[prevOffset + i] == b[offset + i]); i++) {
+            ;
+        }
+        WritableUtils.writeVInt(out, i);
+        Bytes.writeByteArray(out, b, offset + i, length - i);
+        previous.set(b, offset, length);
+        if (length > maxLength) {
+            maxLength = length;
+        }
     }
 }

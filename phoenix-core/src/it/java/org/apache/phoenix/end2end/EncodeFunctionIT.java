@@ -1,18 +1,18 @@
 /**
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements.  See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.phoenix.end2end;
 
@@ -40,7 +40,7 @@ public class EncodeFunctionIT extends ParallelStatsDisabledIT {
 
     /**
      * Helper to test ENCODE function
-     * 
+     *
      * @param conn
      *            connection to be used
      * @param colName
@@ -51,7 +51,7 @@ public class EncodeFunctionIT extends ParallelStatsDisabledIT {
      *            expected output of ENCODE function
      */
     private void testEncodeHelper(Connection conn, String tableName, String colName, List<String> expectedOutputList, String sortOrder)
-        throws Exception {
+            throws Exception {
         for (int id = 0; id < expectedOutputList.size(); ++id) {
             String sql = String.format("SELECT ENCODE(%s, 'base62') FROM " + tableName + "_%s WHERE id=?", colName, sortOrder);
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -66,7 +66,7 @@ public class EncodeFunctionIT extends ParallelStatsDisabledIT {
 
     /**
      * Helper to test ENCODE function
-     * 
+     *
      * @param conn
      *            connection to phoenix
      * @param inputList
@@ -83,16 +83,16 @@ public class EncodeFunctionIT extends ParallelStatsDisabledIT {
     @Test
     public void testEncode() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        testEncode(conn, Lists.<Object> newArrayList(Long.MAX_VALUE, 62, 10, 1, 0, -1, -10, -62, Long.MIN_VALUE),
-            Lists.newArrayList("AzL8n0Y58m7", "10", "A", "1", "0", "-1", "-A", "-10", "-AzL8n0Y58m8"));
+        testEncode(conn, Lists.<Object>newArrayList(Long.MAX_VALUE, 62, 10, 1, 0, -1, -10, -62, Long.MIN_VALUE),
+                Lists.newArrayList("AzL8n0Y58m7", "10", "A", "1", "0", "-1", "-A", "-10", "-AzL8n0Y58m8"));
     }
 
     @Test
     public void testEncodeNullInput() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
-        String tableName = TestUtil.initTables(conn, "BIGINT", Collections.<Object> singletonList(0l));
-        testEncodeHelper(conn, tableName, "kv", Collections.<String> singletonList(null), "ASC");
-        testEncodeHelper(conn, tableName, "kv", Collections.<String> singletonList(null), "DESC");
+        String tableName = TestUtil.initTables(conn, "BIGINT", Collections.<Object>singletonList(0l));
+        testEncodeHelper(conn, tableName, "kv", Collections.<String>singletonList(null), "ASC");
+        testEncodeHelper(conn, tableName, "kv", Collections.<String>singletonList(null), "DESC");
     }
 
     @Test
@@ -122,7 +122,7 @@ public class EncodeFunctionIT extends ParallelStatsDisabledIT {
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName + " WHERE pk = ENCODE(1, NULL)");
         assertFalse(rs.next());
     }
-    
+
     @Test
     public void testNullValue() throws Exception {
         Connection conn = DriverManager.getConnection(getUrl());
@@ -162,12 +162,12 @@ public class EncodeFunctionIT extends ParallelStatsDisabledIT {
         Connection conn = DriverManager.getConnection(getUrl());
         String tableName = generateUniqueName();
         String ddl =
-            "CREATE TABLE " + tableName + " ( some_column BINARY(12) NOT NULL CONSTRAINT PK PRIMARY KEY (some_column))";
+                "CREATE TABLE " + tableName + " ( some_column BINARY(12) NOT NULL CONSTRAINT PK PRIMARY KEY (some_column))";
         conn.createStatement().execute(ddl);
 
         try {
             conn.createStatement().executeQuery(
-                "SELECT * FROM " + tableName + " WHERE some_column = ENCODE(1, 'invalidEncodingFormat')");
+                    "SELECT * FROM " + tableName + " WHERE some_column = ENCODE(1, 'invalidEncodingFormat')");
             fail();
         } catch (SQLException e) {
         }

@@ -18,7 +18,7 @@
 
 package org.apache.phoenix.pherf.jmx;
 
-public class Stat <T>{
+public class Stat<T> {
     private final T stat;
 
     public Stat(T stat) {

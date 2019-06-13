@@ -38,24 +38,22 @@ import org.apache.phoenix.schema.types.PVarchar;
 
 
 /**
- * 
  * Implementation of REGEXP_SUBSTR(<source>, <pattern>, <offset>) built-in function,
  * where <offset> is the offset from the start of <string>. Positive offset is treated as 1-based,
- * a zero offset is treated as 0-based, and a negative offset starts from the end of the string 
+ * a zero offset is treated as 0-based, and a negative offset starts from the end of the string
  * working backwards. The <pattern> is the pattern we would like to search for in the <source> string.
  * The function returns the first occurrence of any substring in the <source> string that matches
- * the <pattern> input as a VARCHAR. 
- * 
- * 
+ * the <pattern> input as a VARCHAR.
+ *
  * @since 0.1
  */
-@BuiltInFunction(name=RegexpSubstrFunction.NAME,
-    nodeClass = RegexpSubstrParseNode.class, args={
-    @Argument(allowedTypes={PVarchar.class}),
-    @Argument(allowedTypes={PVarchar.class}),
-    @Argument(allowedTypes={PLong.class}, defaultValue="1")},
-    classType = FunctionParseNode.FunctionClassType.ABSTRACT,
-    derivedFunctions = {ByteBasedRegexpSubstrFunction.class, StringBasedRegexpSubstrFunction.class})
+@BuiltInFunction(name = RegexpSubstrFunction.NAME,
+        nodeClass = RegexpSubstrParseNode.class, args = {
+        @Argument(allowedTypes = {PVarchar.class}),
+        @Argument(allowedTypes = {PVarchar.class}),
+        @Argument(allowedTypes = {PLong.class}, defaultValue = "1")},
+        classType = FunctionParseNode.FunctionClassType.ABSTRACT,
+        derivedFunctions = {ByteBasedRegexpSubstrFunction.class, StringBasedRegexpSubstrFunction.class})
 public abstract class RegexpSubstrFunction extends PrefixFunction {
     public static final String NAME = "REGEXP_SUBSTR";
 
@@ -64,8 +62,9 @@ public abstract class RegexpSubstrFunction extends PrefixFunction {
     private Integer maxLength;
 
     private static final PDataType TYPE = PVarchar.INSTANCE;
-    
-    public RegexpSubstrFunction() { }
+
+    public RegexpSubstrFunction() {
+    }
 
     public RegexpSubstrFunction(List<Expression> children) {
         super(children);
@@ -89,7 +88,7 @@ public abstract class RegexpSubstrFunction extends PrefixFunction {
         // is not fixed width, the maxLength would be null.
         Expression offsetExpr = getOffsetExpression();
         if (offsetExpr.isStateless() && offsetExpr.getDeterminism() == Determinism.ALWAYS && offsetExpr.evaluate(null, ptr)) {
-            offset = (Integer)PInteger.INSTANCE.toObject(ptr, offsetExpr.getDataType(), offsetExpr.getSortOrder());
+            offset = (Integer) PInteger.INSTANCE.toObject(ptr, offsetExpr.getDataType(), offsetExpr.getSortOrder());
             if (offset != null) {
                 PDataType type = getSourceStrExpression().getDataType();
                 if (type.isFixedWidth()) {

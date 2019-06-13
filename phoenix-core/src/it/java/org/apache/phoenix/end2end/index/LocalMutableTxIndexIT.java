@@ -29,11 +29,12 @@ public class LocalMutableTxIndexIT extends BaseIndexIT {
         super(localIndex, mutable, transactionProvider, columnEncoded);
     }
 
-    @Parameters(name="LocalMutableTxIndexIT_localIndex={0},mutable={1},transactionProvider={2},columnEncoded={3}") // name is used by failsafe as file name in reports
+    @Parameters(name = "LocalMutableTxIndexIT_localIndex={0},mutable={1},transactionProvider={2},columnEncoded={3}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object[]> data() {
         return TestUtil.filterTxParamData(
                 Arrays.asList(new Object[][] {
-                    { true, true, "TEPHRA", false }, { true, true, "TEPHRA", true },
-               }), 2);
+                        {true, true, "TEPHRA", false}, {true, true, "TEPHRA", true},
+                }), 2);
     }
 }

@@ -29,7 +29,7 @@ abstract public class LookAheadResultIterator implements PeekingResultIterator {
         if (iterator instanceof PeekingResultIterator) {
             return (PeekingResultIterator) iterator;
         }
-        
+
         return new LookAheadResultIterator() {
 
             @Override
@@ -48,18 +48,18 @@ abstract public class LookAheadResultIterator implements PeekingResultIterator {
             }
         };
     }
-    
+
     private final static Tuple UNINITIALIZED = ResultTuple.EMPTY_TUPLE;
     private Tuple next = UNINITIALIZED;
-    
+
     abstract protected Tuple advance() throws SQLException;
-    
+
     private void init() throws SQLException {
         if (next == UNINITIALIZED) {
             next = advance();
         }
     }
-    
+
     @Override
     public Tuple next() throws SQLException {
         init();
@@ -67,7 +67,7 @@ abstract public class LookAheadResultIterator implements PeekingResultIterator {
         this.next = advance();
         return next;
     }
-    
+
     @Override
     public Tuple peek() throws SQLException {
         init();

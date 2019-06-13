@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 public class PhoenixContextExecutorTest {
     @Test
     public void testCall() {
-        URLClassLoader customerClassLoader = new URLClassLoader(new URL[]{});
+        URLClassLoader customerClassLoader = new URLClassLoader(new URL[] {});
         ClassLoader saveCcl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(customerClassLoader);
         try {

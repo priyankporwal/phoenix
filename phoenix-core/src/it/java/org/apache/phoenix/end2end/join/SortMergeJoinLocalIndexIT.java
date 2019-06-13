@@ -30,54 +30,55 @@ public class SortMergeJoinLocalIndexIT extends SortMergeJoinIT {
         super(indexDDL, plans);
     }
 
-    @Parameters(name="SortMergeJoinLocalIndexIT_{index}") // name is used by failsafe as file name in reports
+    @Parameters(name = "SortMergeJoinLocalIndexIT_{index}")
+    // name is used by failsafe as file name in reports
     public static Collection<Object> data() {
         List<Object> testCases = Lists.newArrayList();
         testCases.add(new String[][] {
                 {
-                "CREATE LOCAL INDEX \"idx_customer\" ON " + JOIN_CUSTOMER_TABLE_FULL_NAME + " (name)",
-                "CREATE LOCAL INDEX \"idx_item\" ON " + JOIN_ITEM_TABLE_FULL_NAME + " (name) INCLUDE (price, discount1, discount2, \"supplier_id\", description)",
-                "CREATE LOCAL INDEX \"idx_supplier\" ON " + JOIN_SUPPLIER_TABLE_FULL_NAME + " (name)"
+                        "CREATE LOCAL INDEX \"idx_customer\" ON " + JOIN_CUSTOMER_TABLE_FULL_NAME + " (name)",
+                        "CREATE LOCAL INDEX \"idx_item\" ON " + JOIN_ITEM_TABLE_FULL_NAME + " (name) INCLUDE (price, discount1, discount2, \"supplier_id\", description)",
+                        "CREATE LOCAL INDEX \"idx_supplier\" ON " + JOIN_SUPPLIER_TABLE_FULL_NAME + " (name)"
                 }, {
                 "SORT-MERGE-JOIN (LEFT) TABLES\n" +
-                "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " +JOIN_SUPPLIER_TABLE_FULL_NAME + " [1]\n" +
-                "        SERVER FILTER BY FIRST KEY ONLY\n" + 
-                "        SERVER SORTED BY [\"S.:supplier_id\"]\n" +
-                "    CLIENT MERGE SORT\n" +
-                "AND\n" +
-                "    SORT-MERGE-JOIN (INNER) TABLES\n" +
-                "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
-                "            SERVER SORTED BY [\"I.:item_id\"]\n" +
-                "        CLIENT MERGE SORT\n" +
-                "    AND (SKIP MERGE)\n" +
-                "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "            SERVER FILTER BY QUANTITY < 5000\n" +
-                "            SERVER SORTED BY [\"O.item_id\"]\n" +
-                "        CLIENT MERGE SORT\n" +
-                "    CLIENT SORTED BY [\"I.0:supplier_id\"]",
-                
+                        "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_SUPPLIER_TABLE_FULL_NAME + " [1]\n" +
+                        "        SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "        SERVER SORTED BY [\"S.:supplier_id\"]\n" +
+                        "    CLIENT MERGE SORT\n" +
+                        "AND\n" +
+                        "    SORT-MERGE-JOIN (INNER) TABLES\n" +
+                        "        CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
+                        "            SERVER SORTED BY [\"I.:item_id\"]\n" +
+                        "        CLIENT MERGE SORT\n" +
+                        "    AND (SKIP MERGE)\n" +
+                        "        CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "            SERVER FILTER BY QUANTITY < 5000\n" +
+                        "            SERVER SORTED BY [\"O.item_id\"]\n" +
+                        "        CLIENT MERGE SORT\n" +
+                        "    CLIENT SORTED BY [\"I.0:supplier_id\"]",
+
                 "SORT-MERGE-JOIN (INNER) TABLES\n" +
-                "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
-                "        SERVER FILTER BY FIRST KEY ONLY\n" +
-                "        SERVER SORTED BY [\"I.:item_id\"]\n" +
-                "    CLIENT MERGE SORT\n" +
-                "AND\n" +
-                "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
-                "        SERVER SORTED BY [\"O.item_id\"]\n" +
-                "    CLIENT MERGE SORT\n" +
-                "CLIENT 4 ROW LIMIT",
-                
+                        "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
+                        "        SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "        SERVER SORTED BY [\"I.:item_id\"]\n" +
+                        "    CLIENT MERGE SORT\n" +
+                        "AND\n" +
+                        "    CLIENT PARALLEL 1-WAY FULL SCAN OVER " + JOIN_ORDER_TABLE_FULL_NAME + "\n" +
+                        "        SERVER SORTED BY [\"O.item_id\"]\n" +
+                        "    CLIENT MERGE SORT\n" +
+                        "CLIENT 4 ROW LIMIT",
+
                 "SORT-MERGE-JOIN (INNER) TABLES\n" +
-                "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
-                "        SERVER FILTER BY FIRST KEY ONLY\n" +
-                "        SERVER SORTED BY [\"I1.:item_id\"]\n" +
-                "    CLIENT MERGE SORT\n" +
-                "AND\n" +
-                "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
-                "        SERVER FILTER BY FIRST KEY ONLY\n" +
-                "        SERVER SORTED BY [\"I2.:item_id\"]\n" +
-                "    CLIENT MERGE SORT"
-                }});
+                        "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
+                        "        SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "        SERVER SORTED BY [\"I1.:item_id\"]\n" +
+                        "    CLIENT MERGE SORT\n" +
+                        "AND\n" +
+                        "    CLIENT PARALLEL 1-WAY RANGE SCAN OVER " + JOIN_ITEM_TABLE_FULL_NAME + " [1]\n" +
+                        "        SERVER FILTER BY FIRST KEY ONLY\n" +
+                        "        SERVER SORTED BY [\"I2.:item_id\"]\n" +
+                        "    CLIENT MERGE SORT"
+        }});
         return testCases;
     }
 }

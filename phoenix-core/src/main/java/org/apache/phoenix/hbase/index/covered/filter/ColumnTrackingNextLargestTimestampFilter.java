@@ -39,22 +39,22 @@ import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
  */
 public class ColumnTrackingNextLargestTimestampFilter extends FilterBase {
 
-  private long ts;
-  private ColumnTracker column;
+    private long ts;
+    private ColumnTracker column;
 
-  public ColumnTrackingNextLargestTimestampFilter(long maxTime, ColumnTracker toTrack) {
-    this.ts = maxTime;
-    this.column = toTrack;
-  }
-
-  @Override
-  public ReturnCode filterKeyValue(Cell v) {
-    long timestamp = v.getTimestamp();
-    if (timestamp > ts) {
-      this.column.setTs(timestamp);
-      return ReturnCode.SKIP;
+    public ColumnTrackingNextLargestTimestampFilter(long maxTime, ColumnTracker toTrack) {
+        this.ts = maxTime;
+        this.column = toTrack;
     }
-    return ReturnCode.INCLUDE;
-  }
+
+    @Override
+    public ReturnCode filterKeyValue(Cell v) {
+        long timestamp = v.getTimestamp();
+        if (timestamp > ts) {
+            this.column.setTs(timestamp);
+            return ReturnCode.SKIP;
+        }
+        return ReturnCode.INCLUDE;
+    }
 
 }

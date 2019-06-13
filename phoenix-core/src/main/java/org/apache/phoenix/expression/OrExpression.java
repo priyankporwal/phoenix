@@ -23,10 +23,8 @@ import org.apache.phoenix.expression.visitor.ExpressionVisitor;
 
 
 /**
- * 
  * OR expression implementation
  *
- * 
  * @since 0.1
  */
 public class OrExpression extends AndOrExpression {
@@ -48,11 +46,11 @@ public class OrExpression extends AndOrExpression {
         for (int i = 0; i < children.size() - 1; i++) {
             buf.append(children.get(i) + " OR ");
         }
-        buf.append(children.get(children.size()-1));
+        buf.append(children.get(children.size() - 1));
         buf.append(')');
         return buf.toString();
     }
-    
+
     @Override
     public final <T> T accept(ExpressionVisitor<T> visitor) {
         List<T> l = acceptChildren(visitor, visitor.visitEnter(this));

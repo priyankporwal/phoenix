@@ -30,14 +30,15 @@ import com.google.common.collect.Multimap;
  * Handle failures to write to the index tables.
  */
 public interface IndexFailurePolicy extends Stoppable {
-  public void setup(Stoppable parent, RegionCoprocessorEnvironment env);
+    public void setup(Stoppable parent, RegionCoprocessorEnvironment env);
 
-  /**
-   * Handle the failure of the attempted index updates
-   * @param attempted map of index table -> mutations to apply
-   * @param cause reason why there was a failure
- * @throws IOException 
-   */
-  public void
-      handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException;
+    /**
+     * Handle the failure of the attempted index updates
+     *
+     * @param attempted map of index table -> mutations to apply
+     * @param cause     reason why there was a failure
+     * @throws IOException
+     */
+    public void
+    handleFailure(Multimap<HTableInterfaceReference, Mutation> attempted, Exception cause) throws IOException;
 }

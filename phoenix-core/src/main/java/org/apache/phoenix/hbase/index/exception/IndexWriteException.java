@@ -19,6 +19,7 @@ package org.apache.phoenix.hbase.index.exception;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.hadoop.hbase.HBaseIOException;
 import org.apache.phoenix.query.QueryServicesOptions;
 
@@ -37,37 +38,38 @@ public class IndexWriteException extends HBaseIOException {
     private static final String DISABLE_INDEX_ON_FAILURE_MSG = "disableIndexOnFailure=";
     private boolean disableIndexOnFailure = QueryServicesOptions.DEFAULT_INDEX_FAILURE_DISABLE_INDEX;
 
-  public IndexWriteException() {
-    super();
-  }
+    public IndexWriteException() {
+        super();
+    }
 
     /**
      * Used for the case where we cannot reach the index, but not sure of the table or the mutations
      * that caused the failure
+     *
      * @param message
      * @param cause
      */
-  public IndexWriteException(String message, Throwable cause) {
-      super(message, cause);
-  }
+    public IndexWriteException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public IndexWriteException(Throwable cause, boolean disableIndexOnFailure) {
-    super(cause);
-    this.disableIndexOnFailure = disableIndexOnFailure;
-  }
+    public IndexWriteException(Throwable cause, boolean disableIndexOnFailure) {
+        super(cause);
+        this.disableIndexOnFailure = disableIndexOnFailure;
+    }
 
-  public IndexWriteException(boolean disableIndexOnFailure) {
-    this.disableIndexOnFailure = disableIndexOnFailure;
-  }
+    public IndexWriteException(boolean disableIndexOnFailure) {
+        this.disableIndexOnFailure = disableIndexOnFailure;
+    }
 
-public IndexWriteException(Throwable cause) {
-    super(cause);
-  }
+    public IndexWriteException(Throwable cause) {
+        super(cause);
+    }
 
     public static boolean parseDisableIndexOnFailure(String message) {
         Pattern p =
                 Pattern.compile(DISABLE_INDEX_ON_FAILURE_MSG + "(true|false)",
-                    Pattern.CASE_INSENSITIVE);
+                        Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(message);
         if (m.find()) {
             boolean disableIndexOnFailure = Boolean.parseBoolean(m.group(1));

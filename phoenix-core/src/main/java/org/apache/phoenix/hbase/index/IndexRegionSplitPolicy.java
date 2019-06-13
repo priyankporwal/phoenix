@@ -42,7 +42,9 @@ public class IndexRegionSplitPolicy extends IncreasingToUpperBoundRegionSplitPol
     @Override
     protected byte[] getSplitPoint() {
         byte[] oldSplitPoint = super.getSplitPoint();
-        if (oldSplitPoint == null) return null;
+        if (oldSplitPoint == null) {
+            return null;
+        }
         List<HStore> stores = region.getStores();
         byte[] splitPointFromLargestStore = null;
         long largestStoreSize = 0;
@@ -57,7 +59,9 @@ public class IndexRegionSplitPolicy extends IncreasingToUpperBoundRegionSplitPol
                 }
             }
         }
-        if (!isLocalIndexKey) return oldSplitPoint;
+        if (!isLocalIndexKey) {
+            return oldSplitPoint;
+        }
 
         for (HStore s : stores) {
             if (!s.getColumnFamilyName()

@@ -23,7 +23,7 @@
         <value>128</value>
     </property>
     <property>
-       <name>hbase.localcluster.assign.random.ports</name>
-       <value>true</value>
+        <name>hbase.localcluster.assign.random.ports</name>
+        <value>true</value>
     </property>
 </configuration>

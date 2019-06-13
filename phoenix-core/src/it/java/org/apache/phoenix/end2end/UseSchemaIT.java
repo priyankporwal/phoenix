@@ -60,12 +60,12 @@ public class UseSchemaIT extends ParallelStatsDisabledIT {
         Properties props = new Properties();
         props.setProperty(QueryServices.IS_NAMESPACE_MAPPING_ENABLED, Boolean.toString(true));
         Connection conn = DriverManager.getConnection(getUrl(), props);
-        String ddl = "CREATE SCHEMA IF NOT EXISTS "+schema;
+        String ddl = "CREATE SCHEMA IF NOT EXISTS " + schema;
         conn.createStatement().execute(ddl);
         String testTable = generateUniqueName();
-        ddl = "create table "+schema+"." + testTable + "(id varchar primary key)";
+        ddl = "create table " + schema + "." + testTable + "(id varchar primary key)";
         conn.createStatement().execute(ddl);
-        conn.createStatement().execute("use "+schema);
+        conn.createStatement().execute("use " + schema);
         String query = "select count(*) from " + testTable;
         ResultSet rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
@@ -79,7 +79,7 @@ public class UseSchemaIT extends ParallelStatsDisabledIT {
         conn.createStatement().execute("use default");
         ddl = "create table IF NOT EXISTS " + testTable + "(schema_name varchar primary key)";
         conn.createStatement().execute(ddl);
-        conn.createStatement().executeUpdate("upsert into " + testTable + " values('"+SchemaUtil.SCHEMA_FOR_DEFAULT_NAMESPACE+"')");
+        conn.createStatement().executeUpdate("upsert into " + testTable + " values('" + SchemaUtil.SCHEMA_FOR_DEFAULT_NAMESPACE + "')");
         conn.commit();
         rs = conn.createStatement().executeQuery("select schema_name from " + testTable);
         assertTrue(rs.next());
@@ -113,13 +113,13 @@ public class UseSchemaIT extends ParallelStatsDisabledIT {
         ddl = "create table " + testTable + "(schema_name varchar primary key)";
         conn.createStatement().execute(ddl);
         conn.createStatement().executeUpdate("upsert into " + testTable + " values('" + schema + "')");
-        rs = conn.createStatement().executeQuery("select schema_name from " + testTable );
+        rs = conn.createStatement().executeQuery("select schema_name from " + testTable);
         assertTrue(rs.next());
         assertEquals(schema, rs.getString(1));
         conn.createStatement().execute("DROP TABLE " + testTable);
         conn.close();
     }
-    
+
     @Test
     public void testSequences() throws Exception {
         Properties props = new Properties();
@@ -131,26 +131,26 @@ public class UseSchemaIT extends ParallelStatsDisabledIT {
         String ddl = "CREATE SCHEMA IF NOT EXISTS " + schema;
         conn.createStatement().execute(ddl);
         String sequenceName = generateUniqueName();
-        ddl = "create SEQUENCE "+schema + "." + sequenceName + " START WITH 100 INCREMENT BY 2 CACHE 10";
+        ddl = "create SEQUENCE " + schema + "." + sequenceName + " START WITH 100 INCREMENT BY 2 CACHE 10";
         conn.createStatement().execute(ddl);
-        String query = "SELECT NEXT VALUE FOR "+schema + "." + sequenceName;
+        String query = "SELECT NEXT VALUE FOR " + schema + "." + sequenceName;
         ResultSet rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
         assertEquals("100", rs.getString(1));
         conn.createStatement().execute("DROP Sequence " + schema + "." + sequenceName);
-        
+
         schema = generateUniqueName();
         sequenceName = generateUniqueName();
         ddl = "CREATE SCHEMA " + schema;
         conn.createStatement().execute(ddl);
         conn.createStatement().execute("use " + schema);
-        ddl = "create SEQUENCE "+ sequenceName + " START WITH 100 INCREMENT BY 2 CACHE 10";
+        ddl = "create SEQUENCE " + sequenceName + " START WITH 100 INCREMENT BY 2 CACHE 10";
         conn.createStatement().execute(ddl);
-        query = "SELECT NEXT VALUE FOR "+sequenceName;
+        query = "SELECT NEXT VALUE FOR " + sequenceName;
         rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
         assertEquals("100", rs.getString(1));
-        query = "SELECT CURRENT VALUE FOR "+sequenceName;
+        query = "SELECT CURRENT VALUE FOR " + sequenceName;
         rs = conn.createStatement().executeQuery(query);
         assertTrue(rs.next());
         assertEquals("100", rs.getString(1));

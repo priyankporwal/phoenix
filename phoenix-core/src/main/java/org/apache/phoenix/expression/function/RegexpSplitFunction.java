@@ -42,13 +42,13 @@ import org.apache.phoenix.util.ByteUtil;
  * <p>
  * {@code source_str} is the string in which we want to split. {@code split_pattern} is a
  * Java compatible regular expression string to split the source string.
- *
+ * <p>
  * The function returns a {@link org.apache.phoenix.schema.types.PVarcharArray}
  */
- @FunctionParseNode.BuiltInFunction(name=RegexpSplitFunction.NAME,
-        nodeClass = RegexpSplitParseNode.class, args= {
-        @FunctionParseNode.Argument(allowedTypes={PVarchar.class}),
-        @FunctionParseNode.Argument(allowedTypes={PVarchar.class})},
+@FunctionParseNode.BuiltInFunction(name = RegexpSplitFunction.NAME,
+        nodeClass = RegexpSplitParseNode.class, args = {
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class}),
+        @FunctionParseNode.Argument(allowedTypes = {PVarchar.class})},
         classType = FunctionParseNode.FunctionClassType.ABSTRACT,
         derivedFunctions = {ByteBasedRegexpSplitFunction.class, StringBasedRegexpSplitFunction.class})
 public abstract class RegexpSplitFunction extends ScalarFunction {
@@ -59,7 +59,8 @@ public abstract class RegexpSplitFunction extends ScalarFunction {
 
     private AbstractBaseSplitter initializedSplitter = null;
 
-    public RegexpSplitFunction() {}
+    public RegexpSplitFunction() {
+    }
 
     public RegexpSplitFunction(List<Expression> children) {
         super(children);
