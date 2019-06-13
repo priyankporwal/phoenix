@@ -60,7 +60,7 @@ public class MemoryManagerTest {
 
         c1.close();
         c2.close();
-        assertTrue(rmm1.getAvailableMemory() == rmm1.getMaxMemory());
+        assertTrue(rmm1.getAvailableMemory() != rmm1.getMaxMemory());
     }
 
     @Test
