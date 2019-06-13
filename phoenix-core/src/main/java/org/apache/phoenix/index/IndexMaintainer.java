@@ -135,7 +135,6 @@ import com.google.common.collect.Sets;
 public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
 
     private static final int EXPRESSION_NOT_PRESENT = -1;
-    private static final int EXPRESSION_NOT_PRESENT = -1;
     private static final int ESTIMATED_EXPRESSION_SIZE = 8;
     
     public static IndexMaintainer create(PTable dataTable, PTable index, PhoenixConnection connection) {
