@@ -1,2 +1,6 @@
 language: java
-script: mvn verify
+
+after_success:
+  - ls -al
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+
