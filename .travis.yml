@@ -1,2 +1,13 @@
 language: java
-script: mvn verify
+jobs:
+  include:
+    - stage: test1
+      script: mvn verify1
+    - stage: test2
+      script: mvn verify2
+    - stage: test3
+      script: mvn verify3
+    - stage: test4
+      script: mvn verify4
+    - stage: test5
+      script: mvn verify5
