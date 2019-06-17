@@ -245,7 +245,6 @@
               </configuration>
               <goals>
                 <goal>integration-test</goal>
-                <goal>verify1</goal>
                 <goal>verify</goal>
               </goals>
             </execution>
@@ -275,7 +274,6 @@
               </configuration>
               <goals>
                 <goal>integration-test</goal>
-                <goal>verify2</goal>
                 <goal>verify</goal>
               </goals>
             </execution>
@@ -294,7 +292,6 @@
               </configuration>
               <goals>
                 <goal>integration-test</goal>
-                <goal>verify3</goal>
                 <goal>verify</goal>
               </goals>
             </execution>
@@ -313,7 +310,6 @@
               </configuration>
               <goals>
                  <goal>integration-test</goal>
-                 <goal>verify4</goal>
                  <goal>verify</goal>
               </goals>
             </execution>
@@ -332,7 +328,6 @@
               </configuration>
               <goals>
                  <goal>integration-test</goal>
-                 <goal>verify5</goal>
                  <goal>verify</goal>
               </goals>
             </execution>
