@@ -1,2 +1,2 @@
 language: java
-script: mvn "-Dit.test=org.apache.phoenix.end2end.A*IT" verify
+script: mvn "-Dit.test=org.apache.phoenix.end2end.F*IT" verify
