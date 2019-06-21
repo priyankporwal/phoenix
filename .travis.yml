@@ -1,5 +1,14 @@
 language: java
 
+jobs:
+  include:
+    - stage: testA
+      script: mvn "-Dit.test=org.apache.phoenix%regex[[.*]*].A*IT" verify
+    - stage: testB
+      script: mvn "-Dit.test=org.apache.phoenix%regex[[.*]*].B*IT" verify
+    - stage: testC
+      script: mvn "-Dit.test=org.apache.phoenix%regex[[.*]*].C*IT" verify
+
 after_success:
   - ls -al
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
