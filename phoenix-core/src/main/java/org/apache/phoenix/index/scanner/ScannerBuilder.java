@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.index.scanner;
+packge org.apache.phoenix.index.scanner;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -47,16 +47,16 @@ import com.google.common.collect.Lists;
  */
 public class ScannerBuilder {
 
-  private org.apache.phoenix.index.covered.KeyValueStore memstore;
+  private KeyValueStore memstore;
   private Mutation update;
 
 
-  public ScannerBuilder(org.apache.phoenix.index.covered.KeyValueStore memstore, Mutation update) {
+  public ScannerBuilder(KeyValueStore memstore, Mutation update) {
     this.memstore = memstore;
     this.update = update;
   }
 
-  public CoveredDeleteScanner buildIndexedColumnScanner(Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> indexedColumns, org.apache.phoenix.index.covered.update.ColumnTracker tracker, long ts, boolean returnNullIfRowNotFound) {
+  public CoveredDeleteScanner buildIndexedColumnScanner(Collection<? extends ColumnReference> indexedColumns, ColumnTracker tracker, long ts, boolean returnNullIfRowNotFound) {
 
     Filter columnFilters = getColumnFilters(indexedColumns);
     FilterList filters = new FilterList(Lists.newArrayList(columnFilters));
@@ -64,10 +64,10 @@ public class ScannerBuilder {
     // skip to the right TS. This needs to come before the deletes since the deletes will hide any
     // state that comes before the actual kvs, so we need to capture those TS as they change the row
     // state.
-    filters.addFilter(new org.apache.phoenix.index.covered.filter.ColumnTrackingNextLargestTimestampFilter(ts, tracker));
+    filters.addFilter(new ColumnTrackingNextLargestTimestampFilter(ts, tracker));
 
     // filter out kvs based on deletes
-    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter deleteFilter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(getAllFamilies(indexedColumns));
+    ApplyAndFilterDeletesFilter deleteFilter = new ApplyAndFilterDeletesFilter(getAllFamilies(indexedColumns));
     filters.addFilter(deleteFilter);
     
     // combine the family filters and the rest of the filters as a
@@ -80,17 +80,17 @@ public class ScannerBuilder {
    *         and the
    */
   private Filter
-      getColumnFilters(Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> columns) {
+      getColumnFilters(Collection<? extends ColumnReference> columns) {
     // each column needs to be added as an OR, so we need to separate them out
     FilterList columnFilters = new FilterList(FilterList.Operator.MUST_PASS_ONE);
 
     // create a filter that matches each column reference
-    for (org.apache.phoenix.index.covered.update.ColumnReference ref : columns) {
+    for (ColumnReference ref : columns) {
       Filter columnFilter =
           new FamilyFilter(CompareOp.EQUAL, new BinaryComparator(ref.getFamily()));
       // combine with a match for the qualifier, if the qualifier is a specific qualifier
       // in that case we *must* let empty qualifiers through for family delete markers
-      if (!Bytes.equals(org.apache.phoenix.index.covered.update.ColumnReference.ALL_QUALIFIERS, ref.getQualifier())) {
+      if (!Bytes.equals(ColumnReference.ALL_QUALIFIERS, ref.getQualifier())) {
         columnFilter =
             new FilterList(columnFilter,
                     new FilterList(Operator.MUST_PASS_ONE,
@@ -111,22 +111,22 @@ public class ScannerBuilder {
     return columnFilters;
   }
 
-  private Set<org.apache.phoenix.index.util.ImmutableBytesPtr>
-      getAllFamilies(Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> columns) {
-    Set<org.apache.phoenix.index.util.ImmutableBytesPtr> families = new HashSet<org.apache.phoenix.index.util.ImmutableBytesPtr>();
-    for (org.apache.phoenix.index.covered.update.ColumnReference ref : columns) {
+  private Set<ImmutableBytesPtr>
+      getAllFamilies(Collection<? extends ColumnReference> columns) {
+    Set<ImmutableBytesPtr> families = new HashSet<ImmutableBytesPtr>();
+    for (ColumnReference ref : columns) {
       families.add(ref.getFamilyWritable());
     }
     return families;
   }
 
   public static interface CoveredDeleteScanner extends Scanner {
-      public org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter.DeleteTracker getDeleteTracker();
+      public ApplyAndFilterDeletesFilter.DeleteTracker getDeleteTracker();
   }
   
-  private CoveredDeleteScanner getFilteredScanner(Filter filters, boolean returnNullIfRowNotFound, final org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter.DeleteTracker deleteTracker) {
+  private CoveredDeleteScanner getFilteredScanner(Filter filters, boolean returnNullIfRowNotFound, final ApplyAndFilterDeletesFilter.DeleteTracker deleteTracker) {
     // create a scanner and wrap it as an iterator, meaning you can only go forward
-    final org.apache.phoenix.index.scanner.FilteredKeyValueScanner kvScanner = new FilteredKeyValueScanner(filters, memstore);
+    final FilteredKeyValueScanner kvScanner = new FilteredKeyValueScanner(filters, memstore);
     // seek the scanner to initialize it
     KeyValue start = KeyValueUtil.createFirstOnRow(update.getRow());
     try {
@@ -180,7 +180,7 @@ public class ScannerBuilder {
       }
 
       @Override
-      public org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter.DeleteTracker getDeleteTracker() {
+      public ApplyAndFilterDeletesFilter.DeleteTracker getDeleteTracker() {
         return deleteTracker;
       }
     };

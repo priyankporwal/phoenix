@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+packge org.apache.phoenix.index;
 
 import java.io.IOException;
 
@@ -26,14 +26,14 @@ public interface ValueGetter {
   /**
    * Get the most recent (largest timestamp) for the given column reference
    * @param ref to match against an underlying key value. Uses the passed object to match the
-   *          keyValue via {@link org.apache.phoenix.index.covered.update.ColumnReference#matches}
+   *          keyValue via {@link ColumnReference#matches}
  * @param ts time stamp at which mutations will be issued
-   * @return the stored value for the given {@link org.apache.phoenix.index.covered.update.ColumnReference}, <tt>null</tt> if no value is
+   * @return the stored value for the given {@link ColumnReference}, <tt>null</tt> if no value is
    *         present, or {@link ValueGetter#HIDDEN_BY_DELETE} if no value is present and the ref
    *         will be shadowed by a delete marker.
    * @throws IOException if there is an error accessing the underlying data storage
    */
-  public ImmutableBytesWritable getLatestValue(org.apache.phoenix.index.covered.update.ColumnReference ref, long ts) throws IOException;
+  public ImmutableBytesWritable getLatestValue(ColumnReference ref, long ts) throws IOException;
   
   public byte[] getRowKey();
 

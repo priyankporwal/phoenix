@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered.data;
+packge org.apache.phoenix.index.covered.data;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -43,7 +43,7 @@ public interface LocalHBaseState {
    *         {@link Result} with no stored {@link Cell}s.
    * @throws IOException if there is an issue reading the row
    */
-  public Result getCurrentRowState(Mutation m, Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> toCover, boolean ignoreNewerMutations)
+  public Result getCurrentRowState(Mutation m, Collection<? extends ColumnReference> toCover, boolean ignoreNewerMutations)
       throws IOException;
 
 }

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+packge org.apache.phoenix.index;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +26,9 @@ import org.apache.hadoop.hbase.client.Mutation;
 
 public class MultiMutation extends Mutation {
 
-    private org.apache.phoenix.index.util.ImmutableBytesPtr rowKey;
+    private ImmutableBytesPtr rowKey;
 
-    public MultiMutation(org.apache.phoenix.index.util.ImmutableBytesPtr rowkey) {
+    public MultiMutation(ImmutableBytesPtr rowkey) {
       this.rowKey = rowkey;
     }
 

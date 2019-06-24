@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.builder;
+packge org.apache.phoenix.index.builder;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -71,7 +71,7 @@ public interface IndexBuilder extends Stoppable {
    * @return a Map of the mutations to make -> target index table name
    * @throws IOException on failure
    */
-  public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, org.apache.phoenix.index.covered.IndexMetaData context) throws IOException;
+  public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, IndexMetaData context) throws IOException;
 
     /**
      * Build an index update to cleanup the index when we remove {@link KeyValue}s via the normal flush or compaction
@@ -95,7 +95,7 @@ public interface IndexBuilder extends Stoppable {
      * @throws IOException on failure
      */
   public Collection<Pair<Mutation, byte[]>> getIndexUpdateForFilteredRows(
-      Collection<Cell> filtered, org.apache.phoenix.index.covered.IndexMetaData context)
+      Collection<Cell> filtered, IndexMetaData context)
       throws IOException;
 
   /**
@@ -114,9 +114,9 @@ public interface IndexBuilder extends Stoppable {
  * @param context TODO
  * @throws IOException 
    */
-  public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, org.apache.phoenix.index.covered.IndexMetaData context) throws IOException;
+  public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData context) throws IOException;
 
-  public org.apache.phoenix.index.covered.IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException;
+  public IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException;
   
   /**
    * This allows the codec to dynamically change whether or not indexing should take place for a

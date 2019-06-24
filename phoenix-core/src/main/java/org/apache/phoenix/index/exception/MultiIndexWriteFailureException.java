@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.exception;
+packge org.apache.phoenix.index.exception;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,15 +31,15 @@ import com.google.common.collect.Lists;
  * Indicate a failure to write to multiple index tables.
  */
 @SuppressWarnings("serial")
-public class MultiIndexWriteFailureException extends org.apache.phoenix.index.exception.IndexWriteException {
+public class MultiIndexWriteFailureException extends IndexWriteException {
 
   public static final String FAILURE_MSG = "Failed to write to multiple index tables: ";
-  private List<org.apache.phoenix.index.table.HTableInterfaceReference> failures;
+  private List<HTableInterfaceReference> failures;
 
   /**
    * @param failures the tables to which the index write did not succeed
    */
-  public MultiIndexWriteFailureException(List<org.apache.phoenix.index.table.HTableInterfaceReference> failures, boolean disableIndexOnFailure) {
+  public MultiIndexWriteFailureException(List<HTableInterfaceReference> failures, boolean disableIndexOnFailure) {
     super(disableIndexOnFailure);
     this.failures = failures;
   }
@@ -57,17 +57,17 @@ public class MultiIndexWriteFailureException extends org.apache.phoenix.index.ex
           failures = Lists.newArrayList();
           String tablesStr = m.group(1);
           for (String tableName : tablesStr.split(",\\s")) {
-            org.apache.phoenix.index.table.HTableInterfaceReference tableRef = new org.apache.phoenix.index.table.HTableInterfaceReference(new org.apache.phoenix.index.util.ImmutableBytesPtr(Bytes.toBytes(tableName)));
+            HTableInterfaceReference tableRef = new HTableInterfaceReference(new ImmutableBytesPtr(Bytes.toBytes(tableName)));
             failures.add(tableRef);
         }
       }
   }
 
-  public List<org.apache.phoenix.index.table.HTableInterfaceReference> getFailedTables() {
+  public List<HTableInterfaceReference> getFailedTables() {
     return this.failures;
   }
 
-  public void setFailedTables(List<org.apache.phoenix.index.table.HTableInterfaceReference> failedTables) {
+  public void setFailedTables(List<HTableInterfaceReference> failedTables) {
       this.failures = failedTables;
   }
 

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+packge org.apache.phoenix.index;
 
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;

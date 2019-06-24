@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.write;
+packge org.apache.phoenix.index.write;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -81,7 +81,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
         this.env = env;
         this.disableIndexOnFailure = disableIndexOnFailure;
         Configuration conf = env.getConfiguration();
-        setup(org.apache.phoenix.index.write.IndexWriterUtils.getDefaultDelegateHTableFactory(env),
+        setup(IndexWriterUtils.getDefaultDelegateHTableFactory(env),
                 ThreadPoolManager.getExecutor(
                         new ThreadPoolBuilder(name, conf).setMaxThread(NUM_CONCURRENT_INDEX_WRITER_THREADS_CONF_KEY,
                                 DEFAULT_CONCURRENT_INDEX_WRITER_THREADS).setCoreTimeout(

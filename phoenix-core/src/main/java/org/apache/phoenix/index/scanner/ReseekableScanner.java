@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.scanner;
+packge org.apache.phoenix.index.scanner;
 
 import org.apache.hadoop.hbase.Cell;
 

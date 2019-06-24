@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.apache.phoenix.index.covered;
+packge org.apache.phoenix.index.covered;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -43,20 +43,20 @@ import org.slf4j.LoggerFactory;
 public class NonTxIndexBuilder extends BaseIndexBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(NonTxIndexBuilder.class);
 
-    protected org.apache.phoenix.index.covered.data.LocalHBaseState localTable;
+    protected LocalHBaseState localTable;
 
     @Override
     public void setup(RegionCoprocessorEnvironment env) throws IOException {
         super.setup(env);
-        this.localTable = new org.apache.phoenix.index.covered.data.LocalTable(env);
+        this.localTable = new LocalTable(env);
     }
 
     @Override
-    public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
+    public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, IndexMetaData indexMetaData) throws IOException {
     	// create a state manager, so we can manage each batch
-        org.apache.phoenix.index.covered.LocalTableState state = new org.apache.phoenix.index.covered.LocalTableState(localTable, mutation);
+        LocalTableState state = new LocalTableState(localTable, mutation);
         // build the index updates for each group
-        org.apache.phoenix.index.covered.update.IndexUpdateManager manager = new org.apache.phoenix.index.covered.update.IndexUpdateManager(indexMetaData);
+        IndexUpdateManager manager = new IndexUpdateManager(indexMetaData);
 
         batchMutationAndAddUpdates(manager, state, mutation, indexMetaData);
 
@@ -83,7 +83,7 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      * 
      * @throws IOException
      */
-    private void batchMutationAndAddUpdates(org.apache.phoenix.index.covered.update.IndexUpdateManager manager, org.apache.phoenix.index.covered.LocalTableState state, Mutation m, org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
+    private void batchMutationAndAddUpdates(IndexUpdateManager manager, LocalTableState state, Mutation m, IndexMetaData indexMetaData) throws IOException {
         // The cells of a mutation are broken up into time stamp batches prior to this call (in Indexer).
         long ts = m.getFamilyCellMap().values().iterator().next().iterator().next().getTimestamp();
         Batch batch = new Batch(ts);
@@ -130,8 +130,8 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      *         otherwise
      * @throws IOException
      */
-    private boolean addMutationsForBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, Batch batch, org.apache.phoenix.index.covered.LocalTableState state,
-                                         org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
+    private boolean addMutationsForBatch(IndexUpdateManager updateMap, Batch batch, LocalTableState state,
+                                         IndexMetaData indexMetaData) throws IOException {
 
         // need a temporary manager for the current batch. It should resolve any conflicts for the
         // current batch. Essentially, we can get the case where a batch doesn't change the current
@@ -153,14 +153,14 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
         return false;
     }
 
-    private long addUpdateForGivenTimestamp(long ts, org.apache.phoenix.index.covered.LocalTableState state, org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
+    private long addUpdateForGivenTimestamp(long ts, LocalTableState state, IndexUpdateManager updateMap, IndexMetaData indexMetaData)
             throws IOException {
         state.setCurrentTimestamp(ts);
         ts = addCurrentStateMutationsForBatch(updateMap, state, indexMetaData);
         return ts;
     }
 
-    private void addCleanupForCurrentBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, long batchTs, org.apache.phoenix.index.covered.LocalTableState state, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
+    private void addCleanupForCurrentBatch(IndexUpdateManager updateMap, long batchTs, LocalTableState state, IndexMetaData indexMetaData)
             throws IOException {
         // get the cleanup for the current state
         state.setCurrentTimestamp(batchTs);
@@ -180,15 +180,15 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      * @param indexMetaData TODO
      * @param batch
      *            to apply to the current state
-     * @return the minimum timestamp across all index columns requested. If {@link org.apache.phoenix.index.covered.update.ColumnTracker#isNewestTime(long)}
+     * @return the minimum timestamp across all index columns requested. If {@link ColumnTracker#isNewestTime(long)}
      *         returns <tt>true</tt> on the returned timestamp, we know that this <i>was not a back-in-time update</i>.
      * @throws IOException
      */
-    private long addCurrentStateMutationsForBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, org.apache.phoenix.index.covered.LocalTableState state, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
+    private long addCurrentStateMutationsForBatch(IndexUpdateManager updateMap, LocalTableState state, IndexMetaData indexMetaData)
             throws IOException {
 
         // get the index updates for this current batch
-        Iterable<org.apache.phoenix.index.covered.IndexUpdate> upserts = codec.getIndexUpserts(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
+        Iterable<IndexUpdate> upserts = codec.getIndexUpserts(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
         state.resetTrackedColumns();
 
         /*
@@ -199,10 +199,10 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
          * only thing we really care about it if we need to roll up the history and fix it as we go.
          */
         // timestamp of the next update we need to track
-        long minTs = org.apache.phoenix.index.covered.update.ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
-        for (org.apache.phoenix.index.covered.IndexUpdate update : upserts) {
+        long minTs = ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
+        for (IndexUpdate update : upserts) {
             // this is the one bit where we check the timestamps
-            final org.apache.phoenix.index.covered.update.ColumnTracker tracker = update.getIndexedColumns();
+            final ColumnTracker tracker = update.getIndexedColumns();
             long trackerTs = tracker.getTS();
             // update the next min TS we need to track
             if (trackerTs < minTs) {
@@ -226,17 +226,17 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
     }
 
     /**
-     * Get the index deletes from the codec {@link IndexCodec#getIndexDeletes(TableState, org.apache.phoenix.index.covered.IndexMetaData, byte[], byte[])} and then add them to the
+     * Get the index deletes from the codec {@link IndexCodec#getIndexDeletes(TableState, IndexMetaData, byte[], byte[])} and then add them to the
      * update map.
      * <p>
-     * Expects the {@link org.apache.phoenix.index.covered.LocalTableState} to already be correctly setup (correct timestamp, updates applied, etc).
+     * Expects the {@link LocalTableState} to already be correctly setup (correct timestamp, updates applied, etc).
      * @param indexMetaData TODO
      * 
      * @throws IOException
      */
-    protected void addDeleteUpdatesToMap(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, LocalTableState state, long ts, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
+    protected void addDeleteUpdatesToMap(IndexUpdateManager updateMap, LocalTableState state, long ts, IndexMetaData indexMetaData)
             throws IOException {
-        Iterable<org.apache.phoenix.index.covered.IndexUpdate> cleanup = codec.getIndexDeletes(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
+        Iterable<IndexUpdate> cleanup = codec.getIndexDeletes(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
         if (cleanup != null) {
             for (IndexUpdate d : cleanup) {
                 if (!d.isValid()) {
@@ -244,7 +244,7 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
                 }
                 // FIXME: PHOENIX-4057 do not attempt to issue index updates
                 // for out-of-order mutations since it corrupts the index.
-                final org.apache.phoenix.index.covered.update.ColumnTracker tracker = d.getIndexedColumns();
+                final ColumnTracker tracker = d.getIndexedColumns();
                 if (tracker.hasNewerTimestamps()) {
                     continue;
                 }

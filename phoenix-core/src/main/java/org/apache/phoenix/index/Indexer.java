@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+packge org.apache.phoenix.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ import com.google.common.collect.Multimap;
 
 /**
  * Do all the work of managing index updates from a single coprocessor. All Puts/Delets are passed
- * to an {@link org.apache.phoenix.index.builder.IndexBuilder} to determine the actual updates to make.
+ * to an {@link IndexBuilder} to determine the actual updates to make.
  * <p>
  * If the WAL is enabled, these updates are then added to the WALEdit and attempted to be written to
  * the WAL after the WALEdit has been saved. If any of the index updates fail, this server is
@@ -99,8 +99,8 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
   private static final OperationStatus NOWRITE = new OperationStatus(OperationStatusCode.SUCCESS);
   
 
-  protected org.apache.phoenix.index.write.IndexWriter writer;
-  protected org.apache.phoenix.index.builder.IndexBuildManager builder;
+  protected IndexWriter writer;
+  protected IndexBuildManager builder;
   private LockManager lockManager;
 
   // Hack to get around not being able to save any state between
@@ -118,7 +118,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
   private ThreadLocal<BatchMutateContext> batchMutateContext =
           new ThreadLocal<BatchMutateContext>();
   
-  /** Configuration key for the {@link org.apache.phoenix.index.builder.IndexBuilder} to use */
+  /** Configuration key for the {@link IndexBuilder} to use */
   public static final String INDEX_BUILDER_CONF_KEY = "index.builder";
 
   /**
@@ -145,15 +145,15 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
    * more robust in the face of recoverying index regions that were on the same server as the
    * primary table region
    */
-  private org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache failedIndexEdits = new org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache();
+  private PerRegionIndexWriteCache failedIndexEdits = new PerRegionIndexWriteCache();
 
   /**
    * IndexWriter for writing the recovered index edits. Separate from the main indexer since we need
    * different write/failure policies
    */
-  private org.apache.phoenix.index.write.IndexWriter recoveryWriter;
+  private IndexWriter recoveryWriter;
 
-  private org.apache.phoenix.index.metrics.MetricsIndexerSource metricSource;
+  private MetricsIndexerSource metricSource;
 
   private boolean stopped;
   private boolean disabled;
@@ -166,11 +166,11 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
   
   public static final String RecoveryFailurePolicyKeyForTesting = INDEX_RECOVERY_FAILURE_POLICY_KEY;
 
-  public static final int INDEXING_SUPPORTED_MAJOR_VERSION = org.apache.phoenix.index.util.VersionUtil
+  public static final int INDEXING_SUPPORTED_MAJOR_VERSION = VersionUtil
             .encodeMaxPatchVersion(0, 94);
-  public static final int INDEXING_SUPPORTED__MIN_MAJOR_VERSION = org.apache.phoenix.index.util.VersionUtil
+  public static final int INDEXING_SUPPORTED__MIN_MAJOR_VERSION = VersionUtil
             .encodeVersion("0.94.0");
-  private static final int INDEX_WAL_COMPRESSION_MINIMUM_SUPPORTED_VERSION = org.apache.phoenix.index.util.VersionUtil
+  private static final int INDEX_WAL_COMPRESSION_MINIMUM_SUPPORTED_VERSION = VersionUtil
             .encodeVersion("0.94.9");
 
   private static final int DEFAULT_ROWLOCK_WAIT_DURATION = 30000;
@@ -189,35 +189,35 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
           // make sure the right version <-> combinations are allowed.
           String errormsg = Indexer.validateVersion(env.getHBaseVersion(), env.getConfiguration());
           if (errormsg != null) {
-              throw new org.apache.phoenix.index.builder.FatalIndexBuildingFailureException(errormsg);
+              throw new FatalIndexBuildingFailureException(errormsg);
           }
         }
     
-        this.builder = new org.apache.phoenix.index.builder.IndexBuildManager(env);
+        this.builder = new IndexBuildManager(env);
         // Clone the config since it is shared
         DelegateRegionCoprocessorEnvironment indexWriterEnv = new DelegateRegionCoprocessorEnvironment(env, ConnectionType.INDEX_WRITER_CONNECTION);
         // setup the actual index writer
-        this.writer = new org.apache.phoenix.index.write.IndexWriter(indexWriterEnv, serverName + "-index-writer");
+        this.writer = new IndexWriter(indexWriterEnv, serverName + "-index-writer");
         
         this.rowLockWaitDuration = env.getConfiguration().getInt("hbase.rowlock.wait.duration",
                 DEFAULT_ROWLOCK_WAIT_DURATION);
         this.lockManager = new LockManager();
 
         // Metrics impl for the Indexer -- avoiding unnecessary indirection for hadoop-1/2 compat
-        this.metricSource = org.apache.phoenix.index.metrics.MetricsIndexerSourceFactory.getInstance().create();
+        this.metricSource = MetricsIndexerSourceFactory.getInstance().create();
         setSlowThresholds(e.getConfiguration());
 
         try {
           // get the specified failure policy. We only ever override it in tests, but we need to do it
           // here
-          Class<? extends org.apache.phoenix.index.write.IndexFailurePolicy> policyClass =
+          Class<? extends IndexFailurePolicy> policyClass =
               env.getConfiguration().getClass(INDEX_RECOVERY_FAILURE_POLICY_KEY,
-                org.apache.phoenix.index.write.recovery.StoreFailuresInCachePolicy.class, org.apache.phoenix.index.write.IndexFailurePolicy.class);
-          org.apache.phoenix.index.write.IndexFailurePolicy policy =
-              policyClass.getConstructor(org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache.class).newInstance(failedIndexEdits);
+                StoreFailuresInCachePolicy.class, IndexFailurePolicy.class);
+          IndexFailurePolicy policy =
+              policyClass.getConstructor(PerRegionIndexWriteCache.class).newInstance(failedIndexEdits);
           LOGGER.debug("Setting up recovery writter with failure policy: " + policy.getClass());
           recoveryWriter =
-              new org.apache.phoenix.index.write.RecoveryIndexWriter(policy, indexWriterEnv, serverName + "-recovery-writer");
+              new RecoveryIndexWriter(policy, indexWriterEnv, serverName + "-recovery-writer");
         } catch (Exception ex) {
           throw new IOException("Could not instantiate recovery failure policy!", ex);
         }
@@ -322,7 +322,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
           preBatchMutateWithExceptions(c, miniBatchOp);
           return;
       } catch (Throwable t) {
-          org.apache.phoenix.index.util.IndexManagementUtil.rethrowIndexingException(t);
+          IndexManagementUtil.rethrowIndexingException(t);
       } finally {
           long duration = EnvironmentEdgeManager.currentTimeMillis() - start;
           if (duration >= slowIndexPrepareThreshold) {
@@ -346,8 +346,8 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
           MiniBatchOperationInProgress<Mutation> miniBatchOp) throws Throwable {
 
       // first group all the updates for a single row into a single update to be processed
-      Map<org.apache.phoenix.index.util.ImmutableBytesPtr, MultiMutation> mutationsMap =
-              new HashMap<org.apache.phoenix.index.util.ImmutableBytesPtr, MultiMutation>();
+      Map<ImmutableBytesPtr, MultiMutation> mutationsMap =
+              new HashMap<ImmutableBytesPtr, MultiMutation>();
           
       Durability defaultDurability = Durability.SYNC_WAL;
       if(c.getEnvironment().getRegion() != null) {
@@ -377,7 +377,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
                   durability = effectiveDurablity;
               }
               // Track whether or not we need to 
-              org.apache.phoenix.index.util.ImmutableBytesPtr row = new org.apache.phoenix.index.util.ImmutableBytesPtr(m.getRow());
+              ImmutableBytesPtr row = new ImmutableBytesPtr(m.getRow());
               if (mutationsMap.containsKey(row)) {
                   copyMutations = true;
               } else {
@@ -437,7 +437,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
               if (copyMutations) {
                   // Add the mutation to the batch set
 
-                  org.apache.phoenix.index.util.ImmutableBytesPtr row = new org.apache.phoenix.index.util.ImmutableBytesPtr(m.getRow());
+                  ImmutableBytesPtr row = new ImmutableBytesPtr(m.getRow());
                   MultiMutation stored = mutationsMap.get(row);
                   // we haven't seen this row before, so add it
                   if (stored == null) {
@@ -460,7 +460,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
       }
   
       if (copyMutations || replayWrite != null) {
-          mutations = org.apache.phoenix.index.util.IndexManagementUtil.flattenMutationsByTimestamp(mutations);
+          mutations = IndexManagementUtil.flattenMutationsByTimestamp(mutations);
       }
 
       // get the current span, or just use a null-span to avoid a bunch of if statements
@@ -506,7 +506,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
               if (durability != Durability.SKIP_WAL) {
                   // we have all the WAL durability, so we just update the WAL entry and move on
                   for (Pair<Mutation, byte[]> entry : indexUpdates) {
-                    edit.add(new org.apache.phoenix.index.wal.IndexedKeyValue(entry.getSecond(), entry.getFirst()));
+                    edit.add(new IndexedKeyValue(entry.getSecond(), entry.getFirst()));
                   }              
               }
           }
@@ -563,7 +563,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
         doPostWithExceptions(c,context);
         return;
       } catch (Throwable e) {
-        org.apache.phoenix.index.util.IndexManagementUtil.rethrowIndexingException(e);
+        IndexManagementUtil.rethrowIndexingException(e);
       }
       throw new RuntimeException(
           "Somehow didn't complete the index update, but didn't return succesfully either!");
@@ -599,15 +599,15 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
   }
 
   /**
-   * Search the {@link WALEdit} for the first {@link org.apache.phoenix.index.wal.IndexedKeyValue} present
+   * Search the {@link WALEdit} for the first {@link IndexedKeyValue} present
    * @param edit {@link WALEdit}
-   * @return the first {@link org.apache.phoenix.index.wal.IndexedKeyValue} in the {@link WALEdit} or <tt>null</tt> if not
+   * @return the first {@link IndexedKeyValue} in the {@link WALEdit} or <tt>null</tt> if not
    *         present
    */
-  private org.apache.phoenix.index.wal.IndexedKeyValue getFirstIndexedKeyValue(WALEdit edit) {
+  private IndexedKeyValue getFirstIndexedKeyValue(WALEdit edit) {
     for (Cell kv : edit.getCells()) {
-      if (kv instanceof org.apache.phoenix.index.wal.IndexedKeyValue) {
-        return (org.apache.phoenix.index.wal.IndexedKeyValue) kv;
+      if (kv instanceof IndexedKeyValue) {
+        return (IndexedKeyValue) kv;
       }
     }
     return null;
@@ -623,8 +623,8 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
     int initialSize = Math.min(edit.size(), 64);
     Collection<Pair<Mutation, byte[]>> indexUpdates = new ArrayList<Pair<Mutation, byte[]>>(initialSize);
     for (Cell kv : edit.getCells()) {
-      if (kv instanceof org.apache.phoenix.index.wal.IndexedKeyValue) {
-        org.apache.phoenix.index.wal.IndexedKeyValue ikv = (org.apache.phoenix.index.wal.IndexedKeyValue) kv;
+      if (kv instanceof IndexedKeyValue) {
+        IndexedKeyValue ikv = (IndexedKeyValue) kv;
         indexUpdates.add(new Pair<Mutation, byte[]>(ikv.getMutation(), ikv.getIndexTable()));
       }
     }
@@ -634,7 +634,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
 
   @Override
   public void postOpen(final ObserverContext<RegionCoprocessorEnvironment> c) {
-    Multimap<org.apache.phoenix.index.table.HTableInterfaceReference, Mutation> updates = failedIndexEdits.getEdits(c.getEnvironment().getRegion());
+    Multimap<HTableInterfaceReference, Mutation> updates = failedIndexEdits.getEdits(c.getEnvironment().getRegion());
     
     if (this.disabled) {
         return;
@@ -711,7 +711,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
    * Exposed for testing!
    * @return the currently instantiated index builder
    */
-  public org.apache.phoenix.index.builder.IndexBuilder getBuilderForTesting() {
+  public IndexBuilder getBuilderForTesting() {
     return this.builder.getBuilderForTesting();
   }
 
@@ -723,7 +723,7 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
      * @return <tt>null</tt> if the version is supported, the error message to display otherwise
      */
     public static String validateVersion(String hbaseVersion, Configuration conf) {
-        int encodedVersion = org.apache.phoenix.index.util.VersionUtil.encodeVersion(hbaseVersion);
+        int encodedVersion = VersionUtil.encodeVersion(hbaseVersion);
         // above 0.94 everything should be supported
         if (encodedVersion > INDEXING_SUPPORTED_MAJOR_VERSION) {
             return null;
@@ -747,11 +747,11 @@ public class Indexer implements RegionObserver, RegionCoprocessor {
    * @param desc {@link TableDescriptor} for the table on which indexing should be enabled
  * @param builder class to use when building the index for this table
  * @param properties map of custom configuration options to make available to your
-   *          {@link org.apache.phoenix.index.builder.IndexBuilder} on the server-side
+   *          {@link IndexBuilder} on the server-side
  * @param priority TODO
    * @throws IOException the Indexer coprocessor cannot be added
    */
-  public static void enableIndexing(TableDescriptorBuilder descBuilder, Class<? extends org.apache.phoenix.index.builder.IndexBuilder> builder,
+  public static void enableIndexing(TableDescriptorBuilder descBuilder, Class<? extends IndexBuilder> builder,
       Map<String, String> properties, int priority) throws IOException {
     if (properties == null) {
       properties = new HashMap<String, String>();

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered;
+packge org.apache.phoenix.index.covered;
 
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
@@ -29,9 +29,9 @@ import org.apache.phoenix.index.covered.update.ColumnTracker;
 public class IndexUpdate {
   Mutation update;
   byte[] tableName;
-  org.apache.phoenix.index.covered.update.ColumnTracker columns;
+  ColumnTracker columns;
 
-  public IndexUpdate(org.apache.phoenix.index.covered.update.ColumnTracker tracker) {
+  public IndexUpdate(ColumnTracker tracker) {
     this.columns = tracker;
   }
 
@@ -51,7 +51,7 @@ public class IndexUpdate {
     return tableName;
   }
 
-  public org.apache.phoenix.index.covered.update.ColumnTracker getIndexedColumns() {
+  public ColumnTracker getIndexedColumns() {
     return columns;
   }
 
@@ -61,7 +61,7 @@ public class IndexUpdate {
         + "\n\tcolumns: " + columns;
   }
 
-  public static IndexUpdate createIndexUpdateForTesting(org.apache.phoenix.index.covered.update.ColumnTracker tracker, byte[] table, Put p) {
+  public static IndexUpdate createIndexUpdateForTesting(ColumnTracker tracker, byte[] table, Put p) {
     IndexUpdate update = new IndexUpdate(tracker);
     update.setTable(table);
     update.setUpdate(p);

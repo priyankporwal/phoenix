@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.builder;
+packge org.apache.phoenix.index.builder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class IndexBuildManager implements Stoppable {
     }
   }
 
-  public org.apache.phoenix.index.covered.IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
+  public IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
       return this.delegate.getIndexMetaData(miniBatchOp);
   }
 
@@ -82,7 +82,7 @@ public class IndexBuildManager implements Stoppable {
       MiniBatchOperationInProgress<Mutation> miniBatchOp,
       Collection<? extends Mutation> mutations) throws Throwable {
     // notify the delegate that we have started processing a batch
-    final org.apache.phoenix.index.covered.IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
+    final IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
     this.delegate.batchStarted(miniBatchOp, indexMetaData);
 
     // Avoid the Object overhead of the executor when it's not actually parallelizing anything.
@@ -106,7 +106,7 @@ public class IndexBuildManager implements Stoppable {
           MiniBatchOperationInProgress<Mutation> miniBatchOp,
           Collection<? extends Mutation> mutations) throws Throwable {
     // notify the delegate that we have started processing a batch
-    final org.apache.phoenix.index.covered.IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
+    final IndexMetaData indexMetaData = this.delegate.getIndexMetaData(miniBatchOp);
     this.delegate.batchStarted(miniBatchOp, indexMetaData);
 
     // Avoid the Object overhead of the executor when it's not actually parallelizing anything.
@@ -125,7 +125,7 @@ public class IndexBuildManager implements Stoppable {
   }
 
   public Collection<Pair<Mutation, byte[]>> getIndexUpdateForFilteredRows(
-      Collection<Cell> filtered, org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
+      Collection<Cell> filtered, IndexMetaData indexMetaData) throws IOException {
     // this is run async, so we can take our time here
     return delegate.getIndexUpdateForFilteredRows(filtered, indexMetaData);
   }
@@ -134,7 +134,7 @@ public class IndexBuildManager implements Stoppable {
     delegate.batchCompleted(miniBatchOp);
   }
 
-  public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
+  public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData indexMetaData)
       throws IOException {
     delegate.batchStarted(miniBatchOp, indexMetaData);
   }

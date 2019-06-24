@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+packge org.apache.phoenix.index;
 
 import static org.apache.phoenix.index.util.IndexManagementUtil.rethrowIndexingException;
 import static org.apache.phoenix.index.IndexMaintainer.getIndexMaintainer;
@@ -201,7 +201,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
   protected IndexWriter postWriter;
 
   protected IndexBuildManager builder;
-  private org.apache.phoenix.index.LockManager lockManager;
+  private LockManager lockManager;
 
   // The collection of pending data table rows
   private Map<ImmutableBytesPtr, PendingRow> pendingRows = new ConcurrentHashMap<>();
@@ -213,7 +213,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
    */
   private PerRegionIndexWriteCache failedIndexEdits = new PerRegionIndexWriteCache();
 
-  private org.apache.phoenix.index.metrics.MetricsIndexerSource metricSource;
+  private MetricsIndexerSource metricSource;
 
   private boolean stopped;
   private boolean disabled;
@@ -237,9 +237,9 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
         String serverName = env.getServerName().getServerName();
         if (env.getConfiguration().getBoolean(CHECK_VERSION_CONF_KEY, true)) {
           // make sure the right version <-> combinations are allowed.
-          String errormsg = org.apache.phoenix.index.Indexer.validateVersion(env.getHBaseVersion(), env.getConfiguration());
+          String errormsg = Indexer.validateVersion(env.getHBaseVersion(), env.getConfiguration());
           if (errormsg != null) {
-              throw new org.apache.phoenix.index.builder.FatalIndexBuildingFailureException(errormsg);
+              throw new FatalIndexBuildingFailureException(errormsg);
           }
         }
 
@@ -249,7 +249,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
         // setup the actual index preWriter
         this.preWriter = new IndexWriter(indexWriterEnv, serverName + "-index-preWriter", false);
         if (env.getConfiguration().getBoolean(INDEX_LAZY_POST_BATCH_WRITE, INDEX_LAZY_POST_BATCH_WRITE_DEFAULT)) {
-            this.postWriter = new IndexWriter(indexWriterEnv, new org.apache.phoenix.index.write.LazyParallelWriterIndexCommitter(), serverName + "-index-postWriter", false);
+            this.postWriter = new IndexWriter(indexWriterEnv, new LazyParallelWriterIndexCommitter(), serverName + "-index-postWriter", false);
         }
         else {
             this.postWriter = this.preWriter;
@@ -260,7 +260,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
         this.lockManager = new LockManager();
 
         // Metrics impl for the Indexer -- avoiding unnecessary indirection for hadoop-1/2 compat
-        this.metricSource = org.apache.phoenix.index.metrics.MetricsIndexerSourceFactory.getInstance().create();
+        this.metricSource = MetricsIndexerSourceFactory.getInstance().create();
         setSlowThresholds(e.getConfiguration());
 
       } catch (NoSuchMethodError ex) {
@@ -432,7 +432,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
 
   private Collection<? extends Mutation> groupMutations(MiniBatchOperationInProgress<Mutation> miniBatchOp,
                                                         long now, ReplayWrite replayWrite) throws IOException {
-      Map<ImmutableBytesPtr, org.apache.phoenix.index.MultiMutation> mutationsMap = new HashMap<>();
+      Map<ImmutableBytesPtr, MultiMutation> mutationsMap = new HashMap<>();
       boolean copyMutations = false;
       for (int i = 0; i < miniBatchOp.size(); i++) {
           if (miniBatchOp.getOperationStatus(i) == IGNORE) {
@@ -498,7 +498,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
                   // Add the mutation to the batch set
 
                   ImmutableBytesPtr row = new ImmutableBytesPtr(m.getRow());
-                  org.apache.phoenix.index.MultiMutation stored = mutationsMap.get(row);
+                  MultiMutation stored = mutationsMap.get(row);
                   // we haven't seen this row before, so add it
                   if (stored == null) {
                       stored = new MultiMutation(row);

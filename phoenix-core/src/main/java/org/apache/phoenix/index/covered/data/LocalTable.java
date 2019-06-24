@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered.data;
+packge org.apache.phoenix.index.covered.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class LocalTable implements LocalHBaseState {
   }
 
   @Override
-  public Result getCurrentRowState(Mutation m, Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> columns, boolean ignoreNewerMutations)
+  public Result getCurrentRowState(Mutation m, Collection<? extends ColumnReference> columns, boolean ignoreNewerMutations)
       throws IOException {
     byte[] row = m.getRow();
     // need to use a scan here so we can get raw state, which Get doesn't provide.

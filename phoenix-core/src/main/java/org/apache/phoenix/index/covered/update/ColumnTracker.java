@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered.update;
+packge org.apache.phoenix.index.covered.update;
 
 import org.apache.phoenix.index.covered.update.ColumnReference;
 import org.apache.phoenix.index.covered.update.IndexedColumnGroup;
@@ -36,16 +36,16 @@ public class ColumnTracker implements IndexedColumnGroup {
 
   public static final long NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP = Long.MAX_VALUE;
   public static final long GUARANTEED_NEWER_UPDATES = Long.MIN_VALUE;
-  private final List<org.apache.phoenix.index.covered.update.ColumnReference> columns;
+  private final List<ColumnReference> columns;
   private long ts = NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
   private final int hashCode;
 
-  private static int calcHashCode(List<org.apache.phoenix.index.covered.update.ColumnReference> columns) {
+  private static int calcHashCode(List<ColumnReference> columns) {
       return columns.hashCode();
     }
 
-  public ColumnTracker(Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> columns) {
-    this.columns = new ArrayList<org.apache.phoenix.index.covered.update.ColumnReference>(columns);
+  public ColumnTracker(Collection<? extends ColumnReference> columns) {
+    this.columns = new ArrayList<ColumnReference>(columns);
     // sort the columns
     // no need to do this: Collections.sort(this.columns);
     this.hashCode = calcHashCode(this.columns);

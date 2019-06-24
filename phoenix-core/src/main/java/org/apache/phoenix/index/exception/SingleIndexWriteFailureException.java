@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.exception;
+packge org.apache.phoenix.index.exception;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,7 +30,7 @@ import org.apache.phoenix.index.exception.IndexWriteException;
  * Exception thrown if we cannot successfully write to an index table.
  */
 @SuppressWarnings("serial")
-public class SingleIndexWriteFailureException extends org.apache.phoenix.index.exception.IndexWriteException {
+public class SingleIndexWriteFailureException extends IndexWriteException {
 
   public static final String FAILED_MSG = "Failed to make index update:";
   private String table;

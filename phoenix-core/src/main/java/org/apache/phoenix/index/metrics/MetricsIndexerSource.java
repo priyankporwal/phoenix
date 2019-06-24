@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.metrics;
+packge org.apache.phoenix.index.metrics;
 
 import org.apache.hadoop.hbase.metrics.BaseSource;
 import org.apache.phoenix.index.Indexer;

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered;
+packge org.apache.phoenix.index.covered;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,16 +27,16 @@ import org.apache.phoenix.index.covered.LocalTableState;
 import org.apache.phoenix.index.covered.update.ColumnReference;
 
 /**
- * Manage a set of {@link org.apache.phoenix.index.covered.update.ColumnReference}s for the {@link LocalTableState}.
+ * Manage a set of {@link ColumnReference}s for the {@link LocalTableState}.
  */
 public class CoveredColumns {
 
-  Set<org.apache.phoenix.index.covered.update.ColumnReference> columns = new HashSet<org.apache.phoenix.index.covered.update.ColumnReference>();
+  Set<ColumnReference> columns = new HashSet<ColumnReference>();
 
-  public Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> findNonCoveredColumns(
-      Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> columns2) {
-    List<org.apache.phoenix.index.covered.update.ColumnReference> uncovered = new ArrayList<org.apache.phoenix.index.covered.update.ColumnReference>();
-    for (org.apache.phoenix.index.covered.update.ColumnReference column : columns2) {
+  public Collection<? extends ColumnReference> findNonCoveredColumns(
+      Collection<? extends ColumnReference> columns2) {
+    List<ColumnReference> uncovered = new ArrayList<ColumnReference>();
+    for (ColumnReference column : columns2) {
       if (!columns.contains(column)) {
         uncovered.add(column);
       }
@@ -44,7 +44,7 @@ public class CoveredColumns {
     return uncovered;
   }
 
-  public void addColumn(org.apache.phoenix.index.covered.update.ColumnReference column) {
+  public void addColumn(ColumnReference column) {
     this.columns.add(column);
   }
 }

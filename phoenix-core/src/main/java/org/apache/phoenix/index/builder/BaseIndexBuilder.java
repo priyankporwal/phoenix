@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.apache.phoenix.index.builder;
+packge org.apache.phoenix.index.builder;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * You should extend this class, rather than implementing IndexBuilder directly to maintain compatability going forward.
  * <p>
- * Generally, you should consider using one of the implemented IndexBuilders (e.g {@link org.apache.phoenix.index.covered.NonTxIndexBuilder}) as there is
+ * Generally, you should consider using one of the implemented IndexBuilders (e.g {@link NonTxIndexBuilder}) as there is
  * a lot of work required to keep an index table up-to-date.
  */
 public abstract class BaseIndexBuilder implements IndexBuilder {
@@ -39,7 +39,7 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
 
     protected boolean stopped;
     protected RegionCoprocessorEnvironment env;
-    protected org.apache.phoenix.index.covered.IndexCodec codec;
+    protected IndexCodec codec;
 
     @Override
     public void extendBaseIndexBuilderInstead() {}
@@ -50,9 +50,9 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
         // setup the phoenix codec. Generally, this will just be in standard one, but abstracting here
         // so we can use it later when generalizing covered indexes
         Configuration conf = env.getConfiguration();
-        Class<? extends org.apache.phoenix.index.covered.IndexCodec> codecClass = conf.getClass(CODEC_CLASS_NAME_KEY, null, org.apache.phoenix.index.covered.IndexCodec.class);
+        Class<? extends IndexCodec> codecClass = conf.getClass(CODEC_CLASS_NAME_KEY, null, IndexCodec.class);
         try {
-            Constructor<? extends org.apache.phoenix.index.covered.IndexCodec> meth = codecClass.getDeclaredConstructor(new Class[0]);
+            Constructor<? extends IndexCodec> meth = codecClass.getDeclaredConstructor(new Class[0]);
             meth.setAccessible(true);
             this.codec = meth.newInstance();
             this.codec.initialize(conf, env.getRegion().getRegionInfo().getTable().getName());
@@ -62,13 +62,13 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
     }
 
     @Override
-    public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, org.apache.phoenix.index.covered.IndexMetaData context) throws IOException {
+    public void batchStarted(MiniBatchOperationInProgress<Mutation> miniBatchOp, IndexMetaData context) throws IOException {
         // noop
     }
     
     @Override
-    public org.apache.phoenix.index.covered.IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
-        return org.apache.phoenix.index.covered.IndexMetaData.NULL_INDEX_META_DATA;
+    public IndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
+        return IndexMetaData.NULL_INDEX_META_DATA;
     }
 
     @Override
@@ -105,12 +105,12 @@ public abstract class BaseIndexBuilder implements IndexBuilder {
      * @param codec
      *            codec to use for this instance of the builder
      */
-    public void setIndexCodecForTesting(org.apache.phoenix.index.covered.IndexCodec codec) {
+    public void setIndexCodecForTesting(IndexCodec codec) {
         this.codec = codec;
     }
 
     @Override
-    public Collection<Pair<Mutation, byte[]>> getIndexUpdateForFilteredRows(Collection<Cell> filtered, org.apache.phoenix.index.covered.IndexMetaData context)
+    public Collection<Pair<Mutation, byte[]>> getIndexUpdateForFilteredRows(Collection<Cell> filtered, IndexMetaData context)
             throws IOException {
         throw new UnsupportedOperationException();
     }

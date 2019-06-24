@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.index.scanner;
+packge org.apache.phoenix.index.scanner;
 
 import java.io.IOException;
 

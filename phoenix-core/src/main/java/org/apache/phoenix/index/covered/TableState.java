@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.index.covered;
+packge org.apache.phoenix.index.covered;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -52,7 +52,7 @@ public interface TableState {
  * @param indexMetaData TODO
    */
   Pair<ValueGetter, IndexUpdate> getIndexUpdateState(
-          Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean returnNullScannerIfRowNotFound, IndexMetaData indexMetaData) throws IOException;
+          Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean returnNullScannerIfRowNotFound, IndexMetaData indexMetaData) throws IOException;
 
   /**
    * @return the row key for the current row for which we are building an index update.
@@ -66,7 +66,7 @@ public interface TableState {
    * @return the hint the index columns that were queried on the last iteration for the changed
    *         column
    */
-  List<? extends org.apache.phoenix.index.covered.update.IndexedColumnGroup> getIndexColumnHints();
+  List<? extends IndexedColumnGroup> getIndexColumnHints();
 
   /**
    * Can be used to help the codec to determine which columns it should attempt to index.

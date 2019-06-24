@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered.update;
+packge org.apache.phoenix.index.covered.update;
 
 import java.util.Collection;
 import java.util.Comparator;

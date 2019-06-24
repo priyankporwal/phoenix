@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.builder;
+packge org.apache.phoenix.index.builder;
 
 import org.apache.hadoop.hbase.client.Mutation;
 
-public abstract class BaseIndexCodec implements org.apache.phoenix.index.covered.IndexCodec {
+public abstract class BaseIndexCodec implements IndexCodec {
     /**
      * {@inheritDoc}
      * <p>

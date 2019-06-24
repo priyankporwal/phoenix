@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+packge org.apache.phoenix.index;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 public class LockManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(LockManager.class);
 
-    private final ConcurrentHashMap<org.apache.phoenix.index.util.ImmutableBytesPtr, RowLockContext> lockedRows =
-            new ConcurrentHashMap<org.apache.phoenix.index.util.ImmutableBytesPtr, RowLockContext>();
+    private final ConcurrentHashMap<ImmutableBytesPtr, RowLockContext> lockedRows =
+            new ConcurrentHashMap<ImmutableBytesPtr, RowLockContext>();
 
     public LockManager () {
     }
@@ -56,7 +56,7 @@ public class LockManager {
      * allowed rowLockWaitDuration and InterruptedException if interrupted while
      * waiting to acquire lock.
      */
-    public RowLock lockRow(org.apache.phoenix.index.util.ImmutableBytesPtr rowKey, int waitDuration) throws IOException {
+    public RowLock lockRow(ImmutableBytesPtr rowKey, int waitDuration) throws IOException {
         RowLockContext rowLockContext = null;
         RowLockImpl result = null;
         TraceScope traceScope = null;
@@ -114,7 +114,7 @@ public class LockManager {
 
     public RowLock lockRow(byte[] row, int waitDuration) throws IOException {
         // create an object to use a a key in the row lock map
-        org.apache.phoenix.index.util.ImmutableBytesPtr rowKey = new org.apache.phoenix.index.util.ImmutableBytesPtr(row);
+        ImmutableBytesPtr rowKey = new ImmutableBytesPtr(row);
         return lockRow(rowKey, waitDuration);
     }
 
@@ -128,7 +128,7 @@ public class LockManager {
      * @throws IOException
      */
     public void unlockRow(byte[] row) throws IOException {
-        org.apache.phoenix.index.util.ImmutableBytesPtr rowKey = new org.apache.phoenix.index.util.ImmutableBytesPtr(row);
+        ImmutableBytesPtr rowKey = new ImmutableBytesPtr(row);
         RowLockContext lockContext = lockedRows.get(rowKey);
         if (lockContext != null) {
             lockContext.releaseRowLock();
@@ -136,7 +136,7 @@ public class LockManager {
     }
 
     class RowLockContext {
-        private final org.apache.phoenix.index.util.ImmutableBytesPtr rowKey;
+        private final ImmutableBytesPtr rowKey;
         // TODO: consider making this non atomic. It's only saving one
         // synchronization in the case of cleanup() when more than one
         // thread is holding on to the lock.
@@ -147,7 +147,7 @@ public class LockManager {
         private volatile RowLockImpl rowLock = RowLockImpl.UNINITIALIZED;
         private String threadName;
 
-        RowLockContext(org.apache.phoenix.index.util.ImmutableBytesPtr rowKey) {
+        RowLockContext(ImmutableBytesPtr rowKey) {
             this.rowKey = rowKey;
         }
 
@@ -228,7 +228,7 @@ public class LockManager {
         }
 
         @Override
-        public org.apache.phoenix.index.util.ImmutableBytesPtr getRowKey() {
+        public ImmutableBytesPtr getRowKey() {
             return context.rowKey;
         }
 
@@ -255,7 +255,7 @@ public class LockManager {
          */
         void release();
 
-        org.apache.phoenix.index.util.ImmutableBytesPtr getRowKey();
+        ImmutableBytesPtr getRowKey();
     }
 
 }

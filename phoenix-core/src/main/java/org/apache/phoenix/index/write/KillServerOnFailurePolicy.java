@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.write;
+packge org.apache.phoenix.index.write;
 
 import java.io.IOException;
 
@@ -64,7 +64,7 @@ public class KillServerOnFailurePolicy implements IndexFailurePolicy {
     String msg =
         "Could not update the index table, killing server region because couldn't write to an index table";
     LOGGER.error(msg, cause);
-    throw new org.apache.phoenix.index.builder.FatalIndexBuildingFailureException(msg,cause);
+    throw new FatalIndexBuildingFailureException(msg,cause);
   }
 
 }

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.exception;
+packge org.apache.phoenix.index.exception;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

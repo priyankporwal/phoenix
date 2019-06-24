@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.builder;
+packge org.apache.phoenix.index.builder;
 
 /**
  * This exception should be thrown if we are unable to handle Index failure and want regionserver to go down to avoid

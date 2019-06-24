@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.index.scanner;
+packge org.apache.phoenix.index.scanner;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class FilteredKeyValueScanner implements ReseekableScanner {
     private ReseekableScanner delegate;
     private Filter filter;
 
-    public FilteredKeyValueScanner(Filter filter, org.apache.phoenix.index.covered.KeyValueStore store) {
+    public FilteredKeyValueScanner(Filter filter, KeyValueStore store) {
         this(filter, store.getScanner());
     }
 

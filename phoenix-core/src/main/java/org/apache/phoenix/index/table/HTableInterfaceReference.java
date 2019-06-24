@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.index.table;
+packge org.apache.phoenix.index.table;
 
 import org.apache.hadoop.hbase.util.Bytes;
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.index.wal;
+packge org.apache.phoenix.index.wal;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -36,7 +36,7 @@ import org.apache.phoenix.index.wal.KeyValueCodec;
 public class IndexedKeyValue extends KeyValue {
     public static final byte [] COLUMN_QUALIFIER = Bytes.toBytes("INDEXEDKEYVALUE_FAKED_COLUMN");
   
-    private static int calcHashCode(org.apache.phoenix.index.util.ImmutableBytesPtr indexTableName, Mutation mutation) {
+    private static int calcHashCode(ImmutableBytesPtr indexTableName, Mutation mutation) {
         final int prime = 31;
         int result = 1;
         result = prime * result + indexTableName.hashCode();
@@ -44,7 +44,7 @@ public class IndexedKeyValue extends KeyValue {
         return result;
     }
 
-    private org.apache.phoenix.index.util.ImmutableBytesPtr indexTableName;
+    private ImmutableBytesPtr indexTableName;
     private Mutation mutation;
     // optimization check to ensure that batches don't get replayed to the index more than once
     private boolean batchFinished = false;
@@ -57,7 +57,7 @@ public class IndexedKeyValue extends KeyValue {
         this.offset = 0;
         this.length = mutation.getRow().length;
 
-        this.indexTableName = new org.apache.phoenix.index.util.ImmutableBytesPtr(bs);
+        this.indexTableName = new ImmutableBytesPtr(bs);
         this.mutation = mutation;
         this.hashCode = calcHashCode(indexTableName, mutation);
     }
@@ -168,7 +168,7 @@ public class IndexedKeyValue extends KeyValue {
 
     /**
      * Internal write the underlying data for the entry - this does not do any special prefixing. Writing should be done
-     * via {@link org.apache.phoenix.index.wal.KeyValueCodec#write(DataOutput, KeyValue)} to ensure consistent reading/writing of
+     * via {@link KeyValueCodec#write(DataOutput, KeyValue)} to ensure consistent reading/writing of
      * {@link IndexedKeyValue}s.
      * 
      * @param out
@@ -188,7 +188,7 @@ public class IndexedKeyValue extends KeyValue {
      */
     @SuppressWarnings("javadoc")
     public void readFields(DataInput in) throws IOException {
-        this.indexTableName = new org.apache.phoenix.index.util.ImmutableBytesPtr(Bytes.readByteArray(in));
+        this.indexTableName = new ImmutableBytesPtr(Bytes.readByteArray(in));
         byte[] mutationData = Bytes.readByteArray(in);
         MutationProto mProto = MutationProto.parseFrom(mutationData);
         this.mutation = org.apache.hadoop.hbase.protobuf.ProtobufUtil.toMutation(mProto);

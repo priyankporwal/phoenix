@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.covered.data;
+packge org.apache.phoenix.index.covered.data;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -35,12 +35,12 @@ import org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter;
 
 /**
  * {@link ValueGetter} that uses lazy initialization to get the value for the given
- * {@link org.apache.phoenix.index.covered.update.ColumnReference}. Once stored, the mapping for that reference is retained.
+ * {@link ColumnReference}. Once stored, the mapping for that reference is retained.
  */
 public class LazyValueGetter implements ValueGetter {
 
     private CoveredDeleteScanner scan;
-    private volatile Map<org.apache.phoenix.index.covered.update.ColumnReference, ImmutableBytesWritable> values;
+    private volatile Map<ColumnReference, ImmutableBytesWritable> values;
     private byte[] row;
 
     /**
@@ -54,14 +54,14 @@ public class LazyValueGetter implements ValueGetter {
     }
 
     @Override
-    public ImmutableBytesWritable getLatestValue(org.apache.phoenix.index.covered.update.ColumnReference ref, long ts) throws IOException {
-        Map<org.apache.phoenix.index.covered.update.ColumnReference, ImmutableBytesWritable> v = values;
+    public ImmutableBytesWritable getLatestValue(ColumnReference ref, long ts) throws IOException {
+        Map<ColumnReference, ImmutableBytesWritable> v = values;
         // ensure we have a backing map
         if (v == null) {
             synchronized (this) {
                 v = values;
                 if (v == null) {
-                    v = values = Collections.synchronizedMap(new HashMap<org.apache.phoenix.index.covered.update.ColumnReference, ImmutableBytesWritable>());
+                    v = values = Collections.synchronizedMap(new HashMap<ColumnReference, ImmutableBytesWritable>());
                 }
             }
         }
@@ -88,7 +88,7 @@ public class LazyValueGetter implements ValueGetter {
      * @param ref
      * @return the first value on the scanner for the given column
      */
-    private ImmutableBytesPtr get(org.apache.phoenix.index.covered.update.ColumnReference ref) throws IOException {
+    private ImmutableBytesPtr get(ColumnReference ref) throws IOException {
         KeyValue first = ref.getFirstKeyValueForRow(row);
         if (!scan.seek(first)) {
             return null;

@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.apache.phoenix.index.covered;
+packge org.apache.phoenix.index.covered;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,18 +44,18 @@ public class LocalTableState implements TableState {
 
     private long ts;
     private KeyValueStore memstore;
-    private org.apache.phoenix.index.covered.data.LocalHBaseState table;
+    private LocalHBaseState table;
     private Mutation update;
-    private Set<org.apache.phoenix.index.covered.update.ColumnTracker> trackedColumns = new HashSet<org.apache.phoenix.index.covered.update.ColumnTracker>();
+    private Set<ColumnTracker> trackedColumns = new HashSet<ColumnTracker>();
     private ScannerBuilder scannerBuilder;
     private List<Cell> kvs = new ArrayList<Cell>();
-    private List<? extends org.apache.phoenix.index.covered.update.IndexedColumnGroup> hints;
+    private List<? extends IndexedColumnGroup> hints;
     private CoveredColumns columnSet;
 
-    public LocalTableState(org.apache.phoenix.index.covered.data.LocalHBaseState table, Mutation update) {
+    public LocalTableState(LocalHBaseState table, Mutation update) {
         this.table = table;
         this.update = update;
-        this.memstore = new org.apache.phoenix.index.covered.data.IndexMemStore();
+        this.memstore = new IndexMemStore();
         this.scannerBuilder = new ScannerBuilder(memstore, update);
         this.columnSet = new CoveredColumns();
     }
@@ -108,7 +108,7 @@ public class LocalTableState implements TableState {
         this.trackedColumns.clear();
     }
 
-    public Set<org.apache.phoenix.index.covered.update.ColumnTracker> getTrackedColumns() {
+    public Set<ColumnTracker> getTrackedColumns() {
         return this.trackedColumns;
     }
 
@@ -120,8 +120,8 @@ public class LocalTableState implements TableState {
      * current state of the table for which we need to build an update).
      * <p>
      * If none of the passed columns matches any of the columns in the pending update (as determined
-     * by {@link org.apache.phoenix.index.covered.update.ColumnReference#matchesFamily(byte[])} and
-     * {@link org.apache.phoenix.index.covered.update.ColumnReference#matchesQualifier(byte[])}, then an empty scanner will be returned. This
+     * by {@link ColumnReference#matchesFamily(byte[])} and
+     * {@link ColumnReference#matchesQualifier(byte[])}, then an empty scanner will be returned. This
      * is because it doesn't make sense to build index updates when there is no change in the table
      * state for any of the columns you are indexing.
      * <p>
@@ -145,12 +145,12 @@ public class LocalTableState implements TableState {
      * @throws IOException
      */
     public Pair<CoveredDeleteScanner, IndexUpdate> getIndexedColumnsTableState(
-            Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean isStateForDeletes, IndexMetaData indexMetaData) throws IOException {
+            Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean isStateForDeletes, IndexMetaData indexMetaData) throws IOException {
         // check to see if we haven't initialized any columns yet
-        Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> toCover = this.columnSet.findNonCoveredColumns(indexedColumns);
+        Collection<? extends ColumnReference> toCover = this.columnSet.findNonCoveredColumns(indexedColumns);
         
         // add the covered columns to the set
-        for (org.apache.phoenix.index.covered.update.ColumnReference ref : toCover) {
+        for (ColumnReference ref : toCover) {
             this.columnSet.addColumn(ref);
         }
         boolean requiresPriorRowState = indexMetaData.requiresPriorRowState(update);
@@ -167,7 +167,7 @@ public class LocalTableState implements TableState {
         }
 
         // filter out things with a newer timestamp and track the column references to which it applies
-        org.apache.phoenix.index.covered.update.ColumnTracker tracker = new org.apache.phoenix.index.covered.update.ColumnTracker(indexedColumns);
+        ColumnTracker tracker = new ColumnTracker(indexedColumns);
         synchronized (this.trackedColumns) {
             // we haven't seen this set of columns before, so we need to create a new tracker
             if (!this.trackedColumns.contains(tracker)) {
@@ -206,12 +206,12 @@ public class LocalTableState implements TableState {
     /**
      * @param hints
      */
-    public void setHints(List<? extends org.apache.phoenix.index.covered.update.IndexedColumnGroup> hints) {
+    public void setHints(List<? extends IndexedColumnGroup> hints) {
         this.hints = hints;
     }
 
     @Override
-    public List<? extends org.apache.phoenix.index.covered.update.IndexedColumnGroup> getIndexColumnHints() {
+    public List<? extends IndexedColumnGroup> getIndexColumnHints() {
         return this.hints;
     }
 
@@ -251,7 +251,7 @@ public class LocalTableState implements TableState {
     }
 
     @Override
-    public Pair<ValueGetter, IndexUpdate> getIndexUpdateState(Collection<? extends org.apache.phoenix.index.covered.update.ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean isStateForDeletes, IndexMetaData indexMetaData)
+    public Pair<ValueGetter, IndexUpdate> getIndexUpdateState(Collection<? extends ColumnReference> indexedColumns, boolean ignoreNewerMutations, boolean isStateForDeletes, IndexMetaData indexMetaData)
             throws IOException {
         Pair<CoveredDeleteScanner, IndexUpdate> pair = getIndexedColumnsTableState(indexedColumns, ignoreNewerMutations, isStateForDeletes, indexMetaData);
         ValueGetter valueGetter = IndexManagementUtil.createGetterFromScanner(pair.getFirst(), getCurrentRowKey());

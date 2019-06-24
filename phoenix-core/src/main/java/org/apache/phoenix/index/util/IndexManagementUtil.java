@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.util;
+packge org.apache.phoenix.index.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class IndexManagementUtil {
     }
 
     public static ValueGetter createGetterFromScanner(CoveredDeleteScanner scanner, byte[] currentRow) {
-        return scanner!=null ? new org.apache.phoenix.index.covered.data.LazyValueGetter(scanner, currentRow) : null;
+        return scanner!=null ? new LazyValueGetter(scanner, currentRow) : null;
     }
 
     /**
@@ -117,13 +117,13 @@ public class IndexManagementUtil {
      * codec to determine if a given update should even be indexed. This assumes that for any index, there are going to
      * small number of columns, versus the number of kvs in any one batch.
      */
-    public static boolean updateMatchesColumns(Collection<KeyValue> update, List<org.apache.phoenix.index.covered.update.ColumnReference> columns) {
+    public static boolean updateMatchesColumns(Collection<KeyValue> update, List<ColumnReference> columns) {
         // check to see if the kvs in the new update even match any of the columns requested
         // assuming that for any index, there are going to small number of columns, versus the number of
         // kvs in any one batch.
         boolean matches = false;
         outer: for (KeyValue kv : update) {
-            for (org.apache.phoenix.index.covered.update.ColumnReference ref : columns) {
+            for (ColumnReference ref : columns) {
                 if (ref.matchesFamily(kv.getFamilyArray(), kv.getFamilyOffset(),
                     kv.getFamilyLength())
                         && ref.matchesQualifier(kv.getQualifierArray(), kv.getQualifierOffset(),
@@ -145,9 +145,9 @@ public class IndexManagementUtil {
      * This employs the same logic as {@link #updateMatchesColumns(Collection, List)}, but is flips the iteration logic
      * to search columns before kvs.
      */
-    public static boolean columnMatchesUpdate(List<org.apache.phoenix.index.covered.update.ColumnReference> columns, Collection<KeyValue> update) {
+    public static boolean columnMatchesUpdate(List<ColumnReference> columns, Collection<KeyValue> update) {
         boolean matches = false;
-        outer: for (org.apache.phoenix.index.covered.update.ColumnReference ref : columns) {
+        outer: for (ColumnReference ref : columns) {
             for (KeyValue kv : update) {
                 if (ref.matchesFamily(kv.getFamilyArray(), kv.getFamilyOffset(),
                     kv.getFamilyLength())
@@ -162,19 +162,19 @@ public class IndexManagementUtil {
         return matches;
     }
 
-    public static Scan newLocalStateScan(List<? extends Iterable<? extends org.apache.phoenix.index.covered.update.ColumnReference>> refsArray) {
+    public static Scan newLocalStateScan(List<? extends Iterable<? extends ColumnReference>> refsArray) {
         return newLocalStateScan(null, refsArray);
     }
 
-    public static Scan newLocalStateScan(Scan scan, List<? extends Iterable<? extends org.apache.phoenix.index.covered.update.ColumnReference>> refsArray) {
+    public static Scan newLocalStateScan(Scan scan, List<? extends Iterable<? extends ColumnReference>> refsArray) {
         Scan s = scan;
         if (scan == null) {
             s = new Scan();
         }
         s.setRaw(true);
         // add the necessary columns to the scan
-        for (Iterable<? extends org.apache.phoenix.index.covered.update.ColumnReference> refs : refsArray) {
-            for (org.apache.phoenix.index.covered.update.ColumnReference ref : refs) {
+        for (Iterable<? extends ColumnReference> refs : refsArray) {
+            for (ColumnReference ref : refs) {
                 s.addFamily(ref.getFamily());
             }
         }
@@ -192,13 +192,13 @@ public class IndexManagementUtil {
     public static void rethrowIndexingException(Throwable e) throws IOException {
         try {
             throw e;
-        } catch (IOException | org.apache.phoenix.index.builder.FatalIndexBuildingFailureException e1) {
+        } catch (IOException | FatalIndexBuildingFailureException e1) {
             LOGGER.info("Rethrowing " + e);
             throw e1;
         }
         catch (Throwable e1) {
-            LOGGER.info("Rethrowing " + e1 + " as a " + org.apache.phoenix.index.builder.IndexBuildingFailureException.class.getSimpleName());
-            throw new org.apache.phoenix.index.builder.IndexBuildingFailureException("Failed to build index for unexpected reason!", e1);
+            LOGGER.info("Rethrowing " + e1 + " as a " + IndexBuildingFailureException.class.getSimpleName());
+            throw new IndexBuildingFailureException("Failed to build index for unexpected reason!", e1);
         }
     }
 
@@ -215,13 +215,13 @@ public class IndexManagementUtil {
      * @param kvs {@link KeyValue}s to break into batches
      * @param batches to update with the given kvs
      */
-    public static void createTimestampBatchesFromKeyValues(Collection<KeyValue> kvs, Map<Long, org.apache.phoenix.index.covered.Batch> batches) {
+    public static void createTimestampBatchesFromKeyValues(Collection<KeyValue> kvs, Map<Long, Batch> batches) {
         // batch kvs by timestamp
         for (KeyValue kv : kvs) {
             long ts = kv.getTimestamp();
-            org.apache.phoenix.index.covered.Batch batch = batches.get(ts);
+            Batch batch = batches.get(ts);
             if (batch == null) {
-                batch = new org.apache.phoenix.index.covered.Batch(ts);
+                batch = new Batch(ts);
                 batches.put(ts, batch);
             }
             batch.add(kv);
@@ -235,17 +235,17 @@ public class IndexManagementUtil {
      * @param m {@link Mutation} from which to extract the {@link KeyValue}s
      * @return the mutation, broken into batches and sorted in ascending order (smallest first)
      */
-    public static Collection<org.apache.phoenix.index.covered.Batch> createTimestampBatchesFromMutation(Mutation m) {
-        Map<Long, org.apache.phoenix.index.covered.Batch> batches = new HashMap<Long, org.apache.phoenix.index.covered.Batch>();
+    public static Collection<Batch> createTimestampBatchesFromMutation(Mutation m) {
+        Map<Long, Batch> batches = new HashMap<Long, Batch>();
         for (List<Cell> family : m.getFamilyCellMap().values()) {
             List<KeyValue> familyKVs = KeyValueUtil.ensureKeyValues(family);
             createTimestampBatchesFromKeyValues(familyKVs, batches);
         }
         // sort the batches
-        List<org.apache.phoenix.index.covered.Batch> sorted = new ArrayList<org.apache.phoenix.index.covered.Batch>(batches.values());
-        Collections.sort(sorted, new Comparator<org.apache.phoenix.index.covered.Batch>() {
+        List<Batch> sorted = new ArrayList<Batch>(batches.values());
+        Collections.sort(sorted, new Comparator<Batch>() {
             @Override
-            public int compare(org.apache.phoenix.index.covered.Batch o1, org.apache.phoenix.index.covered.Batch o2) {
+            public int compare(Batch o1, Batch o2) {
                 return Longs.compare(o1.getTimestamp(), o2.getTimestamp());
             }
         });
@@ -256,8 +256,8 @@ public class IndexManagementUtil {
           List<Mutation> flattenedMutations = Lists.newArrayListWithExpectedSize(mutations.size() * 10);
           for (Mutation m : mutations) {
               byte[] row = m.getRow();
-              Collection<org.apache.phoenix.index.covered.Batch> batches = createTimestampBatchesFromMutation(m);
-              for (org.apache.phoenix.index.covered.Batch batch : batches) {
+              Collection<Batch> batches = createTimestampBatchesFromMutation(m);
+              for (Batch batch : batches) {
                   Mutation mWithSameTS;
                   Cell firstCell = batch.getKvs().get(0);
                   if (KeyValue.Type.codeToType(firstCell.getTypeByte()) == KeyValue.Type.Put) {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index.metrics;
+packge org.apache.phoenix.index.metrics;
 
 /**
  * Factory class for creating {@link MetricsIndexerSource} instances.
