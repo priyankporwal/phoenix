@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-packge org.apache.phoenix.index.builder;
+package org.apache.phoenix.index.builder;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;

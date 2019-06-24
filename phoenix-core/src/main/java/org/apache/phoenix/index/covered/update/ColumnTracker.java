@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-packge org.apache.phoenix.index.covered.update;
+package org.apache.phoenix.index.covered.update;
 
 import org.apache.phoenix.index.covered.update.ColumnReference;
 import org.apache.phoenix.index.covered.update.IndexedColumnGroup;

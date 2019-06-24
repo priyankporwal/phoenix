@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-packge org.apache.phoenix.index.wal;
+package org.apache.phoenix.index.wal;
 
 import java.io.DataInput;
 import java.io.DataOutput;

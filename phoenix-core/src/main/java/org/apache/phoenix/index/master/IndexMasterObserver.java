@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-packge org.apache.phoenix.index.master;
+package org.apache.phoenix.index.master;
 
 import org.apache.hadoop.hbase.coprocessor.MasterObserver;
 

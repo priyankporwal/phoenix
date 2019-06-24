@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-packge org.apache.phoenix.index.covered;
+package org.apache.phoenix.index.covered;
 
 import java.io.IOException;
 import java.util.Collection;

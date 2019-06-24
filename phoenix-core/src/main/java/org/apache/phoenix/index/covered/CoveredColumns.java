@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-packge org.apache.phoenix.index.covered;
+package org.apache.phoenix.index.covered;
 
 import java.util.ArrayList;
 import java.util.Collection;

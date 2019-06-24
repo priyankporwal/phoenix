@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-packge org.apache.phoenix.index.write.recovery;
+package org.apache.phoenix.index.write.recovery;
 
 import java.io.IOException;
 import java.util.List;

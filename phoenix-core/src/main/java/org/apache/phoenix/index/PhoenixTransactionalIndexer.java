@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-packge org.apache.phoenix.index;
+package org.apache.phoenix.index
 
 import static org.apache.phoenix.index.write.IndexWriterUtils.DEFAULT_INDEX_WRITER_RPC_PAUSE;
 import static org.apache.phoenix.index.write.IndexWriterUtils.DEFAULT_INDEX_WRITER_RPC_RETRIES_NUMBER;

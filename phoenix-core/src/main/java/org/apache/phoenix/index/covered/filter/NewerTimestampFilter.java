@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-packge org.apache.phoenix.index.covered.filter;
+package org.apache.phoenix.index.covered.filter;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.filter.FilterBase;

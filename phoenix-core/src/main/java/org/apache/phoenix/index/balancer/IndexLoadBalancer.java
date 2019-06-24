@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-packge org.apache.phoenix.index.balancer;
+package org.apache.phoenix.index.balancer;
 
 import org.apache.hadoop.hbase.master.balancer.StochasticLoadBalancer;
 
