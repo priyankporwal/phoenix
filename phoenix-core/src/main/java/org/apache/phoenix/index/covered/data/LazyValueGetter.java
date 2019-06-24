@@ -25,12 +25,12 @@ import java.util.Map;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter.DeleteTracker;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.scanner.Scanner;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanner;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.ValueGetter;
+import org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter.DeleteTracker;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.scanner.Scanner;
+import org.apache.phoenix.index.scanner.ScannerBuilder.CoveredDeleteScanner;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 import org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter;
 
 /**

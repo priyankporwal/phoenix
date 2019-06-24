@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.hadoop.hbase.Stoppable;
-import org.apache.phoenix.hbase.index.parallel.EarlyExitFailure;
-import org.apache.phoenix.hbase.index.parallel.TaskBatch;
+import org.apache.phoenix.index.parallel.EarlyExitFailure;
+import org.apache.phoenix.index.parallel.TaskBatch;
 
 /**
  *
@@ -43,16 +43,16 @@ public interface TaskRunner extends Stoppable {
    * @throws InterruptedException if the current thread is interrupted while waiting for the batch
    *           to complete
    */
-  public <R> List<R> submit(org.apache.phoenix.hbase.index.parallel.TaskBatch<R> tasks) throws
+  public <R> List<R> submit(org.apache.phoenix.index.parallel.TaskBatch<R> tasks) throws
       ExecutionException, InterruptedException;
 
   /**
-   * Similar to {@link #submit(org.apache.phoenix.hbase.index.parallel.TaskBatch)}, but is not interruptible. If an interrupt is found while
+   * Similar to {@link #submit(org.apache.phoenix.index.parallel.TaskBatch)}, but is not interruptible. If an interrupt is found while
    * waiting for results, we ignore it and only stop is {@link #stop(String)} has been called. On
    * return from the method, the interrupt status of the thread is restored.
    * @param tasks to run
    * @return the result from each task
-   * @throws org.apache.phoenix.hbase.index.parallel.EarlyExitFailure if there are still tasks to submit to the pool, but there is a stop
+   * @throws org.apache.phoenix.index.parallel.EarlyExitFailure if there are still tasks to submit to the pool, but there is a stop
    *           notification
    * @throws ExecutionException if any of the tasks fails. Wraps the underyling failure, which can
    *           be retrieved via {@link ExecutionException#getCause()}.

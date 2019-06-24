@@ -35,11 +35,11 @@ import org.apache.hadoop.hbase.regionserver.HRegionServer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.VersionInfo;
 import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
-import org.apache.phoenix.hbase.index.IndexTestingUtils;
-import org.apache.phoenix.hbase.index.Indexer;
-import org.apache.phoenix.hbase.index.covered.ColumnGroup;
-import org.apache.phoenix.hbase.index.covered.CoveredColumn;
-import org.apache.phoenix.hbase.index.covered.CoveredColumnIndexSpecifierBuilder;
+import org.apache.phoenix.index.IndexTestingUtils;
+import org.apache.phoenix.index.Indexer;
+import org.apache.phoenix.index.covered.ColumnGroup;
+import org.apache.phoenix.index.covered.CoveredColumn;
+import org.apache.phoenix.index.covered.CoveredColumnIndexSpecifierBuilder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class FailForUnsupportedHBaseVersionsIT {
     @Test
     public void testDoesNotSupportCompressedWAL() {
         Configuration conf = HBaseConfiguration.create();
-        org.apache.phoenix.hbase.index.IndexTestingUtils.setupConfig(conf);
+        org.apache.phoenix.index.IndexTestingUtils.setupConfig(conf);
         // get the current version
         String version = VersionInfo.getVersion();
 
@@ -68,7 +68,7 @@ public class FailForUnsupportedHBaseVersionsIT {
         conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, false);
 
         //we support all versions without WAL Compression
-        String supported = org.apache.phoenix.hbase.index.Indexer.validateVersion(version, conf);
+        String supported = org.apache.phoenix.index.Indexer.validateVersion(version, conf);
         assertNull(
                 "WAL Compression wasn't enabled, but version "+version+" of HBase wasn't supported! All versions should"
                         + " support writing without a compressed WAL. Message: "+supported, supported);
@@ -78,19 +78,19 @@ public class FailForUnsupportedHBaseVersionsIT {
 
         // set the version to something we know isn't supported
         version = "0.94.4";
-        supported = org.apache.phoenix.hbase.index.Indexer.validateVersion(version, conf);
+        supported = org.apache.phoenix.index.Indexer.validateVersion(version, conf);
         assertNotNull("WAL Compression was enabled, but incorrectly marked version as supported",
                 supported);
 
         //make sure the first version of 0.94 that supports Indexing + WAL Compression works
         version = "0.94.9";
-        supported = org.apache.phoenix.hbase.index.Indexer.validateVersion(version, conf);
+        supported = org.apache.phoenix.index.Indexer.validateVersion(version, conf);
         assertNull(
                 "WAL Compression wasn't enabled, but version "+version+" of HBase wasn't supported! Message: "+supported, supported);
 
         //make sure we support snapshot builds too
         version = "0.94.9-SNAPSHOT";
-        supported = org.apache.phoenix.hbase.index.Indexer.validateVersion(version, conf);
+        supported = org.apache.phoenix.index.Indexer.validateVersion(version, conf);
         assertNull(
                 "WAL Compression wasn't enabled, but version "+version+" of HBase wasn't supported! Message: "+supported, supported);
     }

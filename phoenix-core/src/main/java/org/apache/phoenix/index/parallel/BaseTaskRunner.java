@@ -24,9 +24,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.Abortable;
-import org.apache.phoenix.hbase.index.parallel.EarlyExitFailure;
-import org.apache.phoenix.hbase.index.parallel.Task;
-import org.apache.phoenix.hbase.index.parallel.TaskBatch;
+import org.apache.phoenix.index.parallel.EarlyExitFailure;
+import org.apache.phoenix.index.parallel.Task;
+import org.apache.phoenix.index.parallel.TaskBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  * {@link #stop(String)}, the thread pool is shutdown immediately - all pending tasks are cancelled
  * and running tasks receive and interrupt.
  * <p>
- * If we find a failure the failure is propagated to the {@link org.apache.phoenix.hbase.index.parallel.TaskBatch} so any {@link org.apache.phoenix.hbase.index.parallel.Task} that
+ * If we find a failure the failure is propagated to the {@link org.apache.phoenix.index.parallel.TaskBatch} so any {@link org.apache.phoenix.index.parallel.Task} that
  * is interested can kill itself as well.
  */
 public abstract class BaseTaskRunner implements TaskRunner {
@@ -53,7 +53,7 @@ public abstract class BaseTaskRunner implements TaskRunner {
   }
 
   @Override
-  public <R> List<R> submit(org.apache.phoenix.hbase.index.parallel.TaskBatch<R> tasks) throws CancellationException, ExecutionException,
+  public <R> List<R> submit(org.apache.phoenix.index.parallel.TaskBatch<R> tasks) throws CancellationException, ExecutionException,
       InterruptedException {
     // submit each task to the pool and queue it up to be watched
     List<ListenableFuture<R>> futures = new ArrayList<ListenableFuture<R>>(tasks.size());
@@ -93,7 +93,7 @@ public abstract class BaseTaskRunner implements TaskRunner {
   protected abstract <R> ListenableFuture<List<R>> submitTasks(List<ListenableFuture<R>> futures);
 
   @Override
-  public <R> List<R> submitUninterruptible(TaskBatch<R> tasks) throws org.apache.phoenix.hbase.index.parallel.EarlyExitFailure,
+  public <R> List<R> submitUninterruptible(TaskBatch<R> tasks) throws org.apache.phoenix.index.parallel.EarlyExitFailure,
       ExecutionException {
     boolean interrupted = false;
     try {

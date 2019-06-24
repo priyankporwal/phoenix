@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import org.apache.phoenix.hbase.index.parallel.TaskBatch;
+import org.apache.phoenix.index.parallel.TaskBatch;
 
 /**
  * A {@link TaskRunner} that ensures that all the tasks have been attempted before we return, even

@@ -18,8 +18,8 @@
 package org.apache.phoenix.schema;
 
 import static org.apache.phoenix.coprocessor.ScanRegionObserver.DYNAMIC_COLUMN_METADATA_STORED_FOR_MUTATION;
-import static org.apache.phoenix.hbase.index.util.KeyValueBuilder.addQuietly;
-import static org.apache.phoenix.hbase.index.util.KeyValueBuilder.deleteQuietly;
+import static org.apache.phoenix.index.util.KeyValueBuilder.addQuietly;
+import static org.apache.phoenix.index.util.KeyValueBuilder.deleteQuietly;
 import static org.apache.phoenix.schema.SaltingUtil.SALTING_COLUMN;
 import static org.apache.phoenix.schema.types.PDataType.TRUE_BYTES;
 
@@ -61,8 +61,8 @@ import org.apache.phoenix.exception.DataExceedsCapacityException;
 import org.apache.phoenix.expression.Expression;
 import org.apache.phoenix.expression.LiteralExpression;
 import org.apache.phoenix.expression.SingleCellConstructorExpression;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.KeyValueBuilder;
 import org.apache.phoenix.index.IndexMaintainer;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixStatement;

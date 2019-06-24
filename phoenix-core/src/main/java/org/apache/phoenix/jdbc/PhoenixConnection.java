@@ -69,7 +69,7 @@ import org.apache.phoenix.exception.SQLExceptionInfo;
 import org.apache.phoenix.execute.CommitException;
 import org.apache.phoenix.execute.MutationState;
 import org.apache.phoenix.expression.function.FunctionArgumentType;
-import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
+import org.apache.phoenix.index.util.KeyValueBuilder;
 import org.apache.phoenix.iterate.DefaultTableResultIteratorFactory;
 import org.apache.phoenix.iterate.ParallelIteratorFactory;
 import org.apache.phoenix.iterate.TableResultIterator;

@@ -32,7 +32,7 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.MiniBatchOperationInProgress;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
-import org.apache.phoenix.hbase.index.Indexer;
+import org.apache.phoenix.index.Indexer;
 
 /**
  * Interface to build updates ({@link Mutation}s) to the index tables, based on the primary table

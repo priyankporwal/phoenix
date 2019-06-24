@@ -21,16 +21,16 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.covered.IndexCodec;
-import org.apache.phoenix.hbase.index.covered.data.IndexMemStore;
-import org.apache.phoenix.hbase.index.covered.data.LocalHBaseState;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
-import org.apache.phoenix.hbase.index.covered.update.IndexedColumnGroup;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanner;
-import org.apache.phoenix.hbase.index.util.IndexManagementUtil;
+import org.apache.phoenix.index.ValueGetter;
+import org.apache.phoenix.index.covered.IndexCodec;
+import org.apache.phoenix.index.covered.data.IndexMemStore;
+import org.apache.phoenix.index.covered.data.LocalHBaseState;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.update.ColumnTracker;
+import org.apache.phoenix.index.covered.update.IndexedColumnGroup;
+import org.apache.phoenix.index.scanner.ScannerBuilder;
+import org.apache.phoenix.index.scanner.ScannerBuilder.CoveredDeleteScanner;
+import org.apache.phoenix.index.util.IndexManagementUtil;
 
 /**
  * Manage the state of the HRegion's view of the table, for the single row.

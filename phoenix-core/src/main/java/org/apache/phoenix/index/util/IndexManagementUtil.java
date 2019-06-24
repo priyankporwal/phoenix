@@ -37,8 +37,8 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.wal.WALCellCodec;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanner;
+import org.apache.phoenix.index.ValueGetter;
+import org.apache.phoenix.index.scanner.ScannerBuilder.CoveredDeleteScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

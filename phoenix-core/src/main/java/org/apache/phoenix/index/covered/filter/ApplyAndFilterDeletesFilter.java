@@ -29,7 +29,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.KeyValue.Type;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.filter.FilterBase;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 
 /**

@@ -44,9 +44,9 @@ import org.apache.hadoop.hbase.util.FSUtils;
 import org.apache.hadoop.hbase.wal.WAL;
 import org.apache.hadoop.hbase.wal.WALFactory;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -154,7 +154,7 @@ public class TestPerRegionIndexWriteCache {
   
   @Test
   public void testAddRemoveSingleRegion() {
-    org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache cache = new org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache();
+    org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache cache = new org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache();
     HTableInterfaceReference t1 = new HTableInterfaceReference(new ImmutableBytesPtr(Bytes.toBytes("t1")));
     List<Mutation> mutations = new ArrayList<Mutation>();
     mutations.add(p);
@@ -176,7 +176,7 @@ public class TestPerRegionIndexWriteCache {
 
   @Test
   public void testMultipleAddsForSingleRegion() {
-    org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache cache = new org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache();
+    org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache cache = new org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache();
     HTableInterfaceReference t1 =
         new HTableInterfaceReference(new ImmutableBytesPtr(Bytes.toBytes("t1")));
     List<Mutation> mutations = Lists.<Mutation> newArrayList(p);
@@ -201,7 +201,7 @@ public class TestPerRegionIndexWriteCache {
 
   @Test
   public void testMultipleRegions() {
-    org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache cache = new PerRegionIndexWriteCache();
+    org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache cache = new PerRegionIndexWriteCache();
     HTableInterfaceReference t1 =
         new HTableInterfaceReference(new ImmutableBytesPtr(Bytes.toBytes("t1")));
     List<Mutation> mutations = Lists.<Mutation> newArrayList(p);

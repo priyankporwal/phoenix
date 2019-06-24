@@ -26,11 +26,11 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.Region;
 
 import com.google.common.collect.Multimap;
-import org.apache.phoenix.hbase.index.exception.MultiIndexWriteFailureException;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.write.IndexFailurePolicy;
-import org.apache.phoenix.hbase.index.write.KillServerOnFailurePolicy;
-import org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter;
+import org.apache.phoenix.index.exception.MultiIndexWriteFailureException;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.write.IndexFailurePolicy;
+import org.apache.phoenix.index.write.KillServerOnFailurePolicy;
+import org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter;
 
 /**
  * Tracks any failed writes in The {@link PerRegionIndexWriteCache}, given a

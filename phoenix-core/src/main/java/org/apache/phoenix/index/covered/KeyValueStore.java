@@ -18,7 +18,7 @@
 package org.apache.phoenix.index.covered;
 
 import org.apache.hadoop.hbase.Cell;
-import org.apache.phoenix.hbase.index.scanner.ReseekableScanner;
+import org.apache.phoenix.index.scanner.ReseekableScanner;
 
 /**
  * Store a collection of KeyValues in memory.

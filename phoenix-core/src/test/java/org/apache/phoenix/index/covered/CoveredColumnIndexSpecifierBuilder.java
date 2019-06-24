@@ -29,12 +29,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
-import org.apache.phoenix.hbase.index.Indexer;
-import org.apache.phoenix.hbase.index.covered.ColumnGroup;
-import org.apache.phoenix.hbase.index.covered.CoveredColumn;
-import org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexCodec;
-import org.apache.phoenix.hbase.index.covered.NonTxIndexBuilder;
+import org.apache.phoenix.index.Indexer;
+import org.apache.phoenix.index.covered.ColumnGroup;
+import org.apache.phoenix.index.covered.CoveredColumn;
+import org.apache.phoenix.index.covered.CoveredColumnIndexCodec;
+import org.apache.phoenix.index.covered.IndexCodec;
+import org.apache.phoenix.index.covered.NonTxIndexBuilder;
 
 /**
  * Helper to build the configuration for the {@link NonTxIndexker}.
@@ -56,7 +56,7 @@ public class CoveredColumnIndexSpecifierBuilder {
   // right now, we don't support this should be easy enough to add later
   // private static final String INDEX_GROUP_FULLY_COVERED = ".covered";
 
-  List<org.apache.phoenix.hbase.index.covered.ColumnGroup> groups = new ArrayList<org.apache.phoenix.hbase.index.covered.ColumnGroup>();
+  List<org.apache.phoenix.index.covered.ColumnGroup> groups = new ArrayList<org.apache.phoenix.index.covered.ColumnGroup>();
   private Map<String, String> specs = new HashMap<String, String>();
 
   /**
@@ -65,7 +65,7 @@ public class CoveredColumnIndexSpecifierBuilder {
    * @return the index of the group. This can be used to remove or modify the group via
    *         {@link #remove(int)} or {@link #get(int)}, any time before building
    */
-  public int addIndexGroup(org.apache.phoenix.hbase.index.covered.ColumnGroup columns) {
+  public int addIndexGroup(org.apache.phoenix.index.covered.ColumnGroup columns) {
     if (columns == null || columns.size() == 0) {
       throw new IllegalArgumentException("Must specify some columns to index!");
     }
@@ -78,12 +78,12 @@ public class CoveredColumnIndexSpecifierBuilder {
     this.groups.remove(i);
   }
 
-  public org.apache.phoenix.hbase.index.covered.ColumnGroup get(int i) {
+  public org.apache.phoenix.index.covered.ColumnGroup get(int i) {
     return this.groups.get(i);
   }
 
   /**
-   * Clear the stored {@link org.apache.phoenix.hbase.index.covered.ColumnGroup}s for resuse.
+   * Clear the stored {@link org.apache.phoenix.index.covered.ColumnGroup}s for resuse.
    */
   public void reset() {
     this.groups.clear();
@@ -95,7 +95,7 @@ public class CoveredColumnIndexSpecifierBuilder {
     specs.put(INDEX_GROUPS_COUNT_KEY, Integer.toString(total));
 
     int i = 0;
-    for (org.apache.phoenix.hbase.index.covered.ColumnGroup group : groups) {
+    for (org.apache.phoenix.index.covered.ColumnGroup group : groups) {
       addIndexGroupToSpecs(specs, group, i++);
     }
 
@@ -107,7 +107,7 @@ public class CoveredColumnIndexSpecifierBuilder {
    * @param columns
    * @param index
    */
-  private void addIndexGroupToSpecs(Map<String, String> specs, org.apache.phoenix.hbase.index.covered.ColumnGroup columns, int index) {
+  private void addIndexGroupToSpecs(Map<String, String> specs, org.apache.phoenix.index.covered.ColumnGroup columns, int index) {
     // hbase.index.covered.group.<i>
     String prefix = INDEX_GROUP_PREFIX + Integer.toString(index);
 
@@ -124,7 +124,7 @@ public class CoveredColumnIndexSpecifierBuilder {
     
     // add each column in the group
     int i=0; 
-    for (org.apache.phoenix.hbase.index.covered.CoveredColumn column : columns) {
+    for (org.apache.phoenix.index.covered.CoveredColumn column : columns) {
       // hbase.index.covered.group.<i>.columns.<j>
       String nextKey = columnPrefix + "." + Integer.toString(i);
       String nextValue = column.serialize();
@@ -140,27 +140,27 @@ public class CoveredColumnIndexSpecifierBuilder {
   public TableDescriptor build(TableDescriptor desc, Class<? extends IndexCodec> clazz) throws IOException {
     // add the codec for the index to the map of options
     Map<String, String> opts = this.convertToMap();
-    opts.put(org.apache.phoenix.hbase.index.covered.NonTxIndexBuilder.CODEC_CLASS_NAME_KEY, clazz.getName());
+    opts.put(org.apache.phoenix.index.covered.NonTxIndexBuilder.CODEC_CLASS_NAME_KEY, clazz.getName());
         TableDescriptorBuilder newBuilder = TableDescriptorBuilder.newBuilder(desc);
         Indexer.enableIndexing(newBuilder, NonTxIndexBuilder.class, opts, Coprocessor.PRIORITY_USER);
         return newBuilder.build();
   }
 
-  public static List<org.apache.phoenix.hbase.index.covered.ColumnGroup> getColumns(Configuration conf) {
+  public static List<org.apache.phoenix.index.covered.ColumnGroup> getColumns(Configuration conf) {
     int count= conf.getInt(INDEX_GROUPS_COUNT_KEY, 0);
     if (count ==0) {
       return Collections.emptyList();
     }
 
     // parse out all the column groups we should index
-    List<org.apache.phoenix.hbase.index.covered.ColumnGroup> columns = new ArrayList<org.apache.phoenix.hbase.index.covered.ColumnGroup>(count);
+    List<org.apache.phoenix.index.covered.ColumnGroup> columns = new ArrayList<org.apache.phoenix.index.covered.ColumnGroup>(count);
     for (int i = 0; i < count; i++) {
       // parse out each group
       String prefix = INDEX_GROUP_PREFIX + i;
 
       // hbase.index.covered.group.<i>.table
       String table = conf.get(prefix + TABLE_SUFFIX);
-      org.apache.phoenix.hbase.index.covered.ColumnGroup group = new ColumnGroup(table);
+      org.apache.phoenix.index.covered.ColumnGroup group = new ColumnGroup(table);
 
       // parse out each column in the group
       // hbase.index.covered.group.<i>.columns
@@ -170,7 +170,7 @@ public class CoveredColumnIndexSpecifierBuilder {
       int columnCount = conf.getInt(columnsSizeKey, 0);
       for(int j=0; j< columnCount; j++){
         String columnKey = columnPrefix + "." + j;
-        org.apache.phoenix.hbase.index.covered.CoveredColumn column = CoveredColumn.parse(conf.get(columnKey));
+        org.apache.phoenix.index.covered.CoveredColumn column = CoveredColumn.parse(conf.get(columnKey));
         group.add(column);
       }
 

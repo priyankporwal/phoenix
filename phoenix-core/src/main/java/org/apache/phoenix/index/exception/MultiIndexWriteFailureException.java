@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.exception.IndexWriteException;
+import org.apache.phoenix.index.exception.IndexWriteException;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
  * Indicate a failure to write to multiple index tables.
  */
 @SuppressWarnings("serial")
-public class MultiIndexWriteFailureException extends org.apache.phoenix.hbase.index.exception.IndexWriteException {
+public class MultiIndexWriteFailureException extends org.apache.phoenix.index.exception.IndexWriteException {
 
   public static final String FAILURE_MSG = "Failed to write to multiple index tables: ";
   private List<org.apache.phoenix.index.table.HTableInterfaceReference> failures;

@@ -27,7 +27,7 @@ import org.apache.hadoop.hbase.regionserver.Region;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
 
 
 public class PerRegionIndexWriteCache {

@@ -31,7 +31,7 @@ import org.apache.hadoop.hbase.protobuf.generated.ClientProtos.MutationProto;
 import org.apache.hadoop.hbase.protobuf.generated.ClientProtos.MutationProto.MutationType;
 import org.apache.hadoop.hbase.wal.WALEdit;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.wal.KeyValueCodec;
+import org.apache.phoenix.index.wal.KeyValueCodec;
 
 public class IndexedKeyValue extends KeyValue {
     public static final byte [] COLUMN_QUALIFIER = Bytes.toBytes("INDEXEDKEYVALUE_FAKED_COLUMN");
@@ -168,7 +168,7 @@ public class IndexedKeyValue extends KeyValue {
 
     /**
      * Internal write the underlying data for the entry - this does not do any special prefixing. Writing should be done
-     * via {@link org.apache.phoenix.hbase.index.wal.KeyValueCodec#write(DataOutput, KeyValue)} to ensure consistent reading/writing of
+     * via {@link org.apache.phoenix.index.wal.KeyValueCodec#write(DataOutput, KeyValue)} to ensure consistent reading/writing of
      * {@link IndexedKeyValue}s.
      * 
      * @param out

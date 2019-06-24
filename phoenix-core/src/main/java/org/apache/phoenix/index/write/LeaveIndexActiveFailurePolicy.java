@@ -22,8 +22,8 @@ import java.io.IOException;
 import org.apache.hadoop.hbase.Stoppable;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.write.IndexFailurePolicy;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.write.IndexFailurePolicy;
 import org.apache.phoenix.util.ServerUtil;
 
 import com.google.common.collect.Multimap;

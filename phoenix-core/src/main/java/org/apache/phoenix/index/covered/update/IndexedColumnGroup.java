@@ -17,7 +17,7 @@
  */
 package org.apache.phoenix.index.covered.update;
 
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.update.ColumnReference;
 
 import java.util.List;
 

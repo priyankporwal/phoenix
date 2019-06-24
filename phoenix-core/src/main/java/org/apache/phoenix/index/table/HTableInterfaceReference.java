@@ -20,7 +20,7 @@ package org.apache.phoenix.index.table;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 
 /**
  * Reference to an HTableInterface. Currently, its pretty simple in that it is just a wrapper around

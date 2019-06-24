@@ -38,11 +38,11 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.Region;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.apache.phoenix.hbase.index.IndexTableName;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.write.FakeTableFactory;
-import org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter;
+import org.apache.phoenix.index.IndexTableName;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.write.FakeTableFactory;
+import org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter;
 import org.apache.phoenix.util.ScanUtil;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,9 +65,9 @@ public class TestParalleWriterIndexCommitter {
   @Test
   public void testCorrectlyCleansUpResources() throws Exception{
     ExecutorService exec = Executors.newFixedThreadPool(1);
-    org.apache.phoenix.hbase.index.write.FakeTableFactory factory = new org.apache.phoenix.hbase.index.write.FakeTableFactory(
+    org.apache.phoenix.index.write.FakeTableFactory factory = new org.apache.phoenix.index.write.FakeTableFactory(
         Collections.<ImmutableBytesPtr, Table> emptyMap());
-    org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter writer = new org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
+    org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter writer = new org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
     Stoppable mockStop = Mockito.mock(Stoppable.class);
     RegionCoprocessorEnvironment e =Mockito.mock(RegionCoprocessorEnvironment.class);
     Configuration conf =new Configuration();
@@ -102,7 +102,7 @@ public class TestParalleWriterIndexCommitter {
     ExecutorService exec = Executors.newFixedThreadPool(1);
     Map<ImmutableBytesPtr, Table> tables =
         new LinkedHashMap<ImmutableBytesPtr, Table>();
-    org.apache.phoenix.hbase.index.write.FakeTableFactory factory = new org.apache.phoenix.hbase.index.write.FakeTableFactory(tables);
+    org.apache.phoenix.index.write.FakeTableFactory factory = new org.apache.phoenix.index.write.FakeTableFactory(tables);
 
     ImmutableBytesPtr tableName = new ImmutableBytesPtr(this.test.getTableName());
     Put m = new Put(row);
@@ -126,7 +126,7 @@ public class TestParalleWriterIndexCommitter {
     tables.put(tableName, table);
 
     // setup the writer and failure policy
-    org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter writer = new TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
+    org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter writer = new TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
     writer.setup(factory, exec, stop, e);
     writer.write(indexUpdates, true, ScanUtil.UNKNOWN_CLIENT_VERSION);
     assertTrue("Writer returned before the table batch completed! Likely a race condition tripped",

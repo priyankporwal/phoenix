@@ -23,7 +23,7 @@ import java.util.Collection;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.update.ColumnReference;
 
 /**
  * Access the current state of the row in the local HBase table, given a mutation

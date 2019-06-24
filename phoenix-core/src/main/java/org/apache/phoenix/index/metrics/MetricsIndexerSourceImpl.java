@@ -19,7 +19,7 @@ package org.apache.phoenix.index.metrics;
 import org.apache.hadoop.hbase.metrics.BaseSourceImpl;
 import org.apache.hadoop.metrics2.MetricHistogram;
 import org.apache.hadoop.metrics2.lib.MutableFastCounter;
-import org.apache.phoenix.hbase.index.metrics.MetricsIndexerSource;
+import org.apache.phoenix.index.metrics.MetricsIndexerSource;
 
 /**
  * Implementation for tracking Phoenix Indexer metrics.

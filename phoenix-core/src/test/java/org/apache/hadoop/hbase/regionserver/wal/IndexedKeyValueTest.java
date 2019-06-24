@@ -21,8 +21,8 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.wal.WALEdit;
-import org.apache.phoenix.hbase.index.wal.IndexedKeyValue;
-import org.apache.phoenix.hbase.index.wal.KeyValueCodec;
+import org.apache.phoenix.index.wal.IndexedKeyValue;
+import org.apache.phoenix.index.wal.KeyValueCodec;
 import org.junit.Assert;
 import org.junit.Test;
 

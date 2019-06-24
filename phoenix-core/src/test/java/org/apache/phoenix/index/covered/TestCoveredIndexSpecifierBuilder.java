@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.CoveredColumn;
+import org.apache.phoenix.index.covered.CoveredColumn;
 import org.junit.Test;
 
 public class TestCoveredIndexSpecifierBuilder {
@@ -43,15 +43,15 @@ public class TestCoveredIndexSpecifierBuilder {
     CoveredColumnIndexSpecifierBuilder builder = new CoveredColumnIndexSpecifierBuilder();
     ColumnGroup fam1 = new ColumnGroup(INDEX_TABLE);
     // match a single family:qualifier pair
-    org.apache.phoenix.hbase.index.covered.CoveredColumn col1 = new org.apache.phoenix.hbase.index.covered.CoveredColumn(FAMILY, indexed_qualifer);
+    org.apache.phoenix.index.covered.CoveredColumn col1 = new org.apache.phoenix.index.covered.CoveredColumn(FAMILY, indexed_qualifer);
     fam1.add(col1);
     // matches the family2:* columns
-    org.apache.phoenix.hbase.index.covered.CoveredColumn col2 = new org.apache.phoenix.hbase.index.covered.CoveredColumn(FAMILY2, null);
+    org.apache.phoenix.index.covered.CoveredColumn col2 = new org.apache.phoenix.index.covered.CoveredColumn(FAMILY2, null);
     fam1.add(col2);
     builder.addIndexGroup(fam1);
     ColumnGroup fam2 = new ColumnGroup(INDEX_TABLE2);
     // match a single family2:qualifier pair
-    org.apache.phoenix.hbase.index.covered.CoveredColumn col3 = new CoveredColumn(FAMILY2, indexed_qualifer);
+    org.apache.phoenix.index.covered.CoveredColumn col3 = new CoveredColumn(FAMILY2, indexed_qualifer);
     fam2.add(col3);
     builder.addIndexGroup(fam2);
     

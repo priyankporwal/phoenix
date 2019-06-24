@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.phoenix.hbase.index.covered.LocalTableState;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.LocalTableState;
+import org.apache.phoenix.index.covered.update.ColumnReference;
 
 /**
  * Manage a set of {@link org.apache.phoenix.index.covered.update.ColumnReference}s for the {@link LocalTableState}.

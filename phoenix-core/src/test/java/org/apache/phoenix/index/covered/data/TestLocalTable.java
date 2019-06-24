@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.data.LocalTable;
+import org.apache.phoenix.index.covered.data.LocalTable;
 import org.junit.Test;
 
 public class TestLocalTable {
@@ -35,7 +35,7 @@ public class TestLocalTable {
 
     @Test
     public void testGetOldestTimestamp() {
-        org.apache.phoenix.hbase.index.covered.data.LocalTable localTable = new LocalTable(null);
+        org.apache.phoenix.index.covered.data.LocalTable localTable = new LocalTable(null);
 
         List<Cell> cellList1 = getCellList(new KeyValue(ROW, 5L), new KeyValue(ROW, 4L));
         assertEquals(4L, localTable.getOldestTimestamp(Collections.singletonList(cellList1)));

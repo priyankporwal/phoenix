@@ -32,7 +32,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import org.apache.phoenix.end2end.BaseUniqueNamesOwnClusterIT;
 import org.apache.phoenix.end2end.IndexToolIT;
-import org.apache.phoenix.hbase.index.IndexRegionObserver;
+import org.apache.phoenix.index.IndexRegionObserver;
 import org.apache.phoenix.util.QueryUtil;
 import org.apache.phoenix.util.ReadOnlyProps;
 import org.junit.BeforeClass;

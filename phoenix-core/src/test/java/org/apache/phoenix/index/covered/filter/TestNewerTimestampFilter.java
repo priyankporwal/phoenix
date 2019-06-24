@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter.ReturnCode;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.filter.NewerTimestampFilter;
+import org.apache.phoenix.index.covered.filter.NewerTimestampFilter;
 import org.junit.Test;
 
 public class TestNewerTimestampFilter {

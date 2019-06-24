@@ -30,8 +30,8 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.update.IndexUpdateManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -51,7 +51,7 @@ public class TestIndexUpdateManager {
 
   @Test
   public void testMutationComparator() throws Exception {
-    org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager manager = new org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager(mockIndexMetaData);
+    org.apache.phoenix.index.covered.update.IndexUpdateManager manager = new org.apache.phoenix.index.covered.update.IndexUpdateManager(mockIndexMetaData);
     Comparator<Mutation> comparator = manager.COMPARATOR;
     Put p = new Put(row, 10);
     // lexigraphically earlier should sort earlier
@@ -88,7 +88,7 @@ public class TestIndexUpdateManager {
    */
   @Test
   public void testCancelingUpdates() throws Exception {
-    org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager manager = new org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager(mockIndexMetaData);
+    org.apache.phoenix.index.covered.update.IndexUpdateManager manager = new org.apache.phoenix.index.covered.update.IndexUpdateManager(mockIndexMetaData);
 
     long ts1 = 10, ts2 = 11;
     // at different timestamps, so both should be retained
@@ -115,13 +115,13 @@ public class TestIndexUpdateManager {
     validate(manager, pending);
 
     // if there is just a put and a delete at the same ts, no pending updates should be returned
-    manager = new org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager(mockIndexMetaData);
+    manager = new org.apache.phoenix.index.covered.update.IndexUpdateManager(mockIndexMetaData);
     manager.addIndexUpdate(table, d2);
     manager.addIndexUpdate(table, p);
     validate(manager, Collections.<Mutation> emptyList());
 
     // different row insertions can be tricky too, if you don't get the base cases right
-    manager = new org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager(mockIndexMetaData);
+    manager = new org.apache.phoenix.index.covered.update.IndexUpdateManager(mockIndexMetaData);
     manager.addIndexUpdate(table, p);
     // this row definitely sorts after the current row
     byte[] row1 = Bytes.toBytes("row1");

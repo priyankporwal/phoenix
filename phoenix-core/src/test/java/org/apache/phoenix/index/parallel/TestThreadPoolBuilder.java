@@ -20,8 +20,8 @@ package org.apache.phoenix.index.parallel;
 import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.phoenix.hbase.index.IndexTableName;
-import org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder;
+import org.apache.phoenix.index.IndexTableName;
+import org.apache.phoenix.index.parallel.ThreadPoolBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ public class TestThreadPoolBuilder {
   public void testCoreThreadTimeoutNonZero() {
     Configuration conf = new Configuration(false);
     String key = name.getTableNameString()+"-key";
-    org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder builder = new org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder(name.getTableNameString(), conf);
+    org.apache.phoenix.index.parallel.ThreadPoolBuilder builder = new org.apache.phoenix.index.parallel.ThreadPoolBuilder(name.getTableNameString(), conf);
     assertTrue("core threads not set, but failed return", builder.getKeepAliveTime() > 0);
     // set an negative value
     builder.setCoreTimeout(key, -1);
@@ -51,7 +51,7 @@ public class TestThreadPoolBuilder {
   public void testMaxThreadsNonZero() {
     Configuration conf = new Configuration(false);
     String key = name.getTableNameString()+"-key";
-    org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), conf);
+    org.apache.phoenix.index.parallel.ThreadPoolBuilder builder = new ThreadPoolBuilder(name.getTableNameString(), conf);
     assertTrue("core threads not set, but failed return", builder.getMaxThreads() > 0);
     // set an negative value
     builder.setMaxThread(key, -1);

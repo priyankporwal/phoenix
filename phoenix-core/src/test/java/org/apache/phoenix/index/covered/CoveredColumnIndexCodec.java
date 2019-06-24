@@ -25,13 +25,13 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.builder.BaseIndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.IndexUpdate;
-import org.apache.phoenix.hbase.index.covered.LocalTableState;
-import org.apache.phoenix.hbase.index.covered.TableState;
-import org.apache.phoenix.hbase.index.scanner.Scanner;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanner;
+import org.apache.phoenix.index.builder.BaseIndexCodec;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexUpdate;
+import org.apache.phoenix.index.covered.LocalTableState;
+import org.apache.phoenix.index.covered.TableState;
+import org.apache.phoenix.index.scanner.Scanner;
+import org.apache.phoenix.index.scanner.ScannerBuilder.CoveredDeleteScanner;
 
 import com.google.common.collect.Lists;
 
@@ -62,10 +62,10 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
     }
 
     @Override
-    public Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> getIndexUpserts(org.apache.phoenix.hbase.index.covered.TableState state, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData, byte[] regionStartKey, byte[] regionEndKey) {
-        List<org.apache.phoenix.hbase.index.covered.IndexUpdate> updates = new ArrayList<org.apache.phoenix.hbase.index.covered.IndexUpdate>(groups.size());
+    public Iterable<org.apache.phoenix.index.covered.IndexUpdate> getIndexUpserts(org.apache.phoenix.index.covered.TableState state, org.apache.phoenix.index.covered.IndexMetaData indexMetaData, byte[] regionStartKey, byte[] regionEndKey) {
+        List<org.apache.phoenix.index.covered.IndexUpdate> updates = new ArrayList<org.apache.phoenix.index.covered.IndexUpdate>(groups.size());
         for (ColumnGroup group : groups) {
-            org.apache.phoenix.hbase.index.covered.IndexUpdate update = getIndexUpdateForGroup(group, state, indexMetaData);
+            org.apache.phoenix.index.covered.IndexUpdate update = getIndexUpdateForGroup(group, state, indexMetaData);
             updates.add(update);
         }
         return updates;
@@ -76,10 +76,10 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
      * @param state
      * @return the update that should be made to the table
      */
-    private org.apache.phoenix.hbase.index.covered.IndexUpdate getIndexUpdateForGroup(ColumnGroup group, org.apache.phoenix.hbase.index.covered.TableState state, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData) {
+    private org.apache.phoenix.index.covered.IndexUpdate getIndexUpdateForGroup(ColumnGroup group, org.apache.phoenix.index.covered.TableState state, org.apache.phoenix.index.covered.IndexMetaData indexMetaData) {
         List<CoveredColumn> refs = group.getColumns();
         try {
-            Pair<CoveredDeleteScanner, org.apache.phoenix.hbase.index.covered.IndexUpdate> stateInfo = ((org.apache.phoenix.hbase.index.covered.LocalTableState)state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
+            Pair<CoveredDeleteScanner, org.apache.phoenix.index.covered.IndexUpdate> stateInfo = ((org.apache.phoenix.index.covered.LocalTableState)state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
             Scanner kvs = stateInfo.getFirst();
             Pair<Integer, List<ColumnEntry>> columns = getNextEntries(refs, kvs, state.getCurrentRowKey());
             // make sure we close the scanner
@@ -93,7 +93,7 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
             addColumnsToPut(p, columns.getSecond());
 
             // update the index info
-            org.apache.phoenix.hbase.index.covered.IndexUpdate update = stateInfo.getSecond();
+            org.apache.phoenix.index.covered.IndexUpdate update = stateInfo.getSecond();
             update.setTable(Bytes.toBytes(group.getTable()));
             update.setUpdate(p);
             return update;
@@ -116,8 +116,8 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
     }
 
     @Override
-    public Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> getIndexDeletes(org.apache.phoenix.hbase.index.covered.TableState state, org.apache.phoenix.hbase.index.covered.IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) {
-        List<org.apache.phoenix.hbase.index.covered.IndexUpdate> deletes = new ArrayList<org.apache.phoenix.hbase.index.covered.IndexUpdate>(groups.size());
+    public Iterable<org.apache.phoenix.index.covered.IndexUpdate> getIndexDeletes(org.apache.phoenix.index.covered.TableState state, org.apache.phoenix.index.covered.IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) {
+        List<org.apache.phoenix.index.covered.IndexUpdate> deletes = new ArrayList<org.apache.phoenix.index.covered.IndexUpdate>(groups.size());
         for (ColumnGroup group : groups) {
             deletes.add(getDeleteForGroup(group, state, context));
         }
@@ -131,10 +131,10 @@ public class CoveredColumnIndexCodec extends BaseIndexCodec {
      *            index information
      * @return the cleanup for the given index, or <tt>null</tt> if no cleanup is necessary
      */
-    private org.apache.phoenix.hbase.index.covered.IndexUpdate getDeleteForGroup(ColumnGroup group, TableState state, IndexMetaData indexMetaData) {
+    private org.apache.phoenix.index.covered.IndexUpdate getDeleteForGroup(ColumnGroup group, TableState state, IndexMetaData indexMetaData) {
         List<CoveredColumn> refs = group.getColumns();
         try {
-            Pair<CoveredDeleteScanner, org.apache.phoenix.hbase.index.covered.IndexUpdate> kvs = ((LocalTableState)state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
+            Pair<CoveredDeleteScanner, org.apache.phoenix.index.covered.IndexUpdate> kvs = ((LocalTableState)state).getIndexedColumnsTableState(refs, false, false, indexMetaData);
             Pair<Integer, List<ColumnEntry>> columns = getNextEntries(refs, kvs.getFirst(), state.getCurrentRowKey());
             // make sure we close the scanner reference
             kvs.getFirst().close();

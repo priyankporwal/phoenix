@@ -21,7 +21,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.FilterBase;
 
-import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
+import org.apache.phoenix.index.covered.update.ColumnTracker;
 
 /**
  * Similar to the {@link MaxTimestampFilter}, but also updates the 'next largest' timestamp seen

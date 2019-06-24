@@ -27,9 +27,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.phoenix.hbase.index.IndexTableName;
-import org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder;
-import org.apache.phoenix.hbase.index.parallel.ThreadPoolManager;
+import org.apache.phoenix.index.IndexTableName;
+import org.apache.phoenix.index.parallel.ThreadPoolBuilder;
+import org.apache.phoenix.index.parallel.ThreadPoolManager;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -41,23 +41,23 @@ public class TestThreadPoolManager {
   @Test
   public void testShutdownGetsNewThreadPool() throws Exception{
     Map<String, Object> cache = new HashMap<String, Object>();
-    org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder builder = new org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    ThreadPoolExecutor exec = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    org.apache.phoenix.index.parallel.ThreadPoolBuilder builder = new org.apache.phoenix.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+    ThreadPoolExecutor exec = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertNotNull("Got a null exector from the pool!", exec);
     //shutdown the pool and ensure that it actually shutdown
     exec.shutdown();
-    ThreadPoolExecutor exec2 = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    ThreadPoolExecutor exec2 = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertFalse("Got the same exectuor, even though the original shutdown", exec2 == exec);
   }
 
   @Test
   public void testShutdownWithReferencesDoesNotStopExecutor() throws Exception {
     Map<String, Object> cache = new HashMap<String, Object>();
-    org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder builder =
-        new org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    ThreadPoolExecutor exec = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    org.apache.phoenix.index.parallel.ThreadPoolBuilder builder =
+        new org.apache.phoenix.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+    ThreadPoolExecutor exec = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertNotNull("Got a null exector from the pool!", exec);
-    ThreadPoolExecutor exec2 = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    ThreadPoolExecutor exec2 = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertTrue("Should have gotten the same executor", exec2 == exec);
     exec.shutdown();
     assertFalse("Executor is shutting down, even though we have a live reference!",
@@ -71,14 +71,14 @@ public class TestThreadPoolManager {
   @Test
   public void testGetExpectedExecutorForName() throws Exception {
     Map<String, Object> cache = new HashMap<String, Object>();
-    org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder builder =
-        new org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    ThreadPoolExecutor exec = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    org.apache.phoenix.index.parallel.ThreadPoolBuilder builder =
+        new org.apache.phoenix.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+    ThreadPoolExecutor exec = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertNotNull("Got a null exector from the pool!", exec);
-    ThreadPoolExecutor exec2 = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    ThreadPoolExecutor exec2 = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertTrue("Got a different exectuor, even though they have the same name", exec2 == exec);
-    builder = new org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
-    exec2 = org.apache.phoenix.hbase.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
+    builder = new org.apache.phoenix.index.parallel.ThreadPoolBuilder(name.getTableNameString(), new Configuration(false));
+    exec2 = org.apache.phoenix.index.parallel.ThreadPoolManager.getExecutor(builder, cache);
     assertTrue(
       "Got a different exectuor, even though they have the same name, but different confs",
       exec2 == exec);

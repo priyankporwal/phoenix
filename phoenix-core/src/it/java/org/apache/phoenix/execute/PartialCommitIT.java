@@ -51,7 +51,7 @@ import org.apache.hadoop.hbase.wal.WALEdit;
 
 import org.apache.phoenix.end2end.BaseUniqueNamesOwnClusterIT;
 import org.apache.phoenix.execute.MutationState.MultiRowMutationState;
-import org.apache.phoenix.hbase.index.Indexer;
+import org.apache.phoenix.index.Indexer;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.monitoring.GlobalMetric;
 import org.apache.phoenix.monitoring.MetricType;

@@ -25,7 +25,7 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.phoenix.cache.IndexMetaDataCache;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexMetaData;
 import org.apache.phoenix.transaction.PhoenixTransactionContext;
 
 public class PhoenixIndexMetaData implements IndexMetaData {

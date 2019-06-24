@@ -38,15 +38,15 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.CoveredColumn;
-import org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec;
-import org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.ColumnEntry;
-import org.apache.phoenix.hbase.index.covered.IndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.IndexUpdate;
-import org.apache.phoenix.hbase.index.covered.LocalTableState;
-import org.apache.phoenix.hbase.index.covered.data.LocalHBaseState;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.CoveredColumn;
+import org.apache.phoenix.index.covered.CoveredColumnIndexCodec;
+import org.apache.phoenix.index.covered.CoveredColumnIndexCodec.ColumnEntry;
+import org.apache.phoenix.index.covered.IndexCodec;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexUpdate;
+import org.apache.phoenix.index.covered.LocalTableState;
+import org.apache.phoenix.index.covered.data.LocalHBaseState;
+import org.apache.phoenix.index.covered.update.ColumnReference;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -57,10 +57,10 @@ public class TestCoveredColumnIndexCodec {
   private static final String FAMILY_STRING = "family";
   private static final byte[] FAMILY = Bytes.toBytes(FAMILY_STRING);
   private static final byte[] QUAL = Bytes.toBytes("qual");
-  private static final org.apache.phoenix.hbase.index.covered.CoveredColumn COLUMN_REF = new CoveredColumn(FAMILY_STRING, QUAL);
-  private static final byte[] EMPTY_INDEX_KEY = org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, 0,
+  private static final org.apache.phoenix.index.covered.CoveredColumn COLUMN_REF = new CoveredColumn(FAMILY_STRING, QUAL);
+  private static final byte[] EMPTY_INDEX_KEY = org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, 0,
     Arrays.asList(toColumnEntry(new byte[0])));
-  private static final byte[] BLANK_INDEX_KEY = org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, 0,
+  private static final byte[] BLANK_INDEX_KEY = org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, 0,
     Collections.<ColumnEntry> emptyList());
 
   private static ColumnEntry toColumnEntry(byte[] bytes) {
@@ -75,13 +75,13 @@ public class TestCoveredColumnIndexCodec {
   public void toFromIndexKey() throws Exception {
     // start with empty values
     byte[] indexKey = BLANK_INDEX_KEY;
-    List<byte[]> stored = org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.getValues(indexKey);
+    List<byte[]> stored = org.apache.phoenix.index.covered.CoveredColumnIndexCodec.getValues(indexKey);
     assertEquals("Found some stored values in an index row key that wasn't created with values!",
       0, stored.size());
 
     // a single, empty value
     indexKey = EMPTY_INDEX_KEY;
-    stored = org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.getValues(indexKey);
+    stored = org.apache.phoenix.index.covered.CoveredColumnIndexCodec.getValues(indexKey);
     assertEquals("Found some stored values in an index row key that wasn't created with values!",
       1, stored.size());
     assertEquals("Found a non-zero length value: " + Bytes.toString(stored.get(0)), 0,
@@ -93,9 +93,9 @@ public class TestCoveredColumnIndexCodec {
     byte[] v3 = Bytes.toBytes("v3");
     int len = v1.length + v2.length + v3.length;
     indexKey =
-        org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, len,
+        org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, len,
           Arrays.asList(toColumnEntry(v1), toColumnEntry(v2), toColumnEntry(v3)));
-    stored = org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.getValues(indexKey);
+    stored = org.apache.phoenix.index.covered.CoveredColumnIndexCodec.getValues(indexKey);
     assertEquals("Didn't find expected number of values in index key!", 3, stored.size());
     assertTrue("First index keys don't match!", Bytes.equals(v1, stored.get(0)));
     assertTrue("Second index keys don't match!", Bytes.equals(v2, stored.get(1)));
@@ -111,24 +111,24 @@ public class TestCoveredColumnIndexCodec {
     // check positive cases first
     byte[] result = EMPTY_INDEX_KEY;
     assertTrue("Didn't correctly read single element as being null in row key",
-      org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
+      org.apache.phoenix.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
     result =
-        org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(pk, 0,
+        org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(pk, 0,
           Lists.newArrayList(toColumnEntry(new byte[0]), toColumnEntry(new byte[0])));
     assertTrue("Didn't correctly read two elements as being null in row key",
-      org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
+      org.apache.phoenix.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
 
     // check cases where it isn't null
     result =
-        org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(pk, 2,
+        org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(pk, 2,
           Arrays.asList(toColumnEntry(new byte[] { 1, 2 })));
     assertFalse("Found a null key, when it wasn't!",
-      org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
+      org.apache.phoenix.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
     result =
-        org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(pk, 2,
+        org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(pk, 2,
           Arrays.asList(toColumnEntry(new byte[] { 1, 2 }), toColumnEntry(new byte[0])));
     assertFalse("Found a null key, when it wasn't!",
-      org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
+      org.apache.phoenix.index.covered.CoveredColumnIndexCodec.checkRowKeyForAllNulls(result));
   }
 
   private static class SimpleTableState implements LocalHBaseState {
@@ -165,8 +165,8 @@ public class TestCoveredColumnIndexCodec {
     LocalHBaseState table = new SimpleTableState(emptyState);
 
     // make a new codec on those kvs
-    org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec codec =
-        org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.getCodecForTesting(Arrays.asList(group));
+    org.apache.phoenix.index.covered.CoveredColumnIndexCodec codec =
+        org.apache.phoenix.index.covered.CoveredColumnIndexCodec.getCodecForTesting(Arrays.asList(group));
 
     // start with a basic put that has some keyvalues
     Put p = new Put(PK);
@@ -182,23 +182,23 @@ public class TestCoveredColumnIndexCodec {
     p.add(kv);
 
     // check the codec for deletes it should send
-    org.apache.phoenix.hbase.index.covered.LocalTableState state = new org.apache.phoenix.hbase.index.covered.LocalTableState(table, p);
-    Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> updates = codec.getIndexDeletes(state, org.apache.phoenix.hbase.index.covered.IndexMetaData.NULL_INDEX_META_DATA, null, null);
+    org.apache.phoenix.index.covered.LocalTableState state = new org.apache.phoenix.index.covered.LocalTableState(table, p);
+    Iterable<org.apache.phoenix.index.covered.IndexUpdate> updates = codec.getIndexDeletes(state, org.apache.phoenix.index.covered.IndexMetaData.NULL_INDEX_META_DATA, null, null);
     assertFalse("Found index updates without any existing kvs in table!", updates.iterator().next()
         .isValid());
 
     // get the updates with the pending update
     state.setCurrentTimestamp(1);
     state.addPendingUpdates(kvs);
-    updates = codec.getIndexUpserts(state, org.apache.phoenix.hbase.index.covered.IndexMetaData.NULL_INDEX_META_DATA, null, null);
+    updates = codec.getIndexUpserts(state, org.apache.phoenix.index.covered.IndexMetaData.NULL_INDEX_META_DATA, null, null);
     assertTrue("Didn't find index updates for pending primary table update!", updates.iterator()
         .hasNext());
-    for (org.apache.phoenix.hbase.index.covered.IndexUpdate update : updates) {
+    for (org.apache.phoenix.index.covered.IndexUpdate update : updates) {
       assertTrue("Update marked as invalid, but should be a pending index write!", update.isValid());
       Put m = (Put) update.getUpdate();
       // should just be the single update for the column reference
       byte[] expected =
-          org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, v1.length, Arrays.asList(toColumnEntry(v1)));
+          org.apache.phoenix.index.covered.CoveredColumnIndexCodec.composeRowKey(PK, v1.length, Arrays.asList(toColumnEntry(v1)));
       assertArrayEquals("Didn't get expected index value", expected, m.getRow());
     }
 
@@ -210,11 +210,11 @@ public class TestCoveredColumnIndexCodec {
     // setup the next batch of 'current state', basically just ripping out the current state from
     // the last round
     table = new SimpleTableState(Result.create(kvs));
-    state = new org.apache.phoenix.hbase.index.covered.LocalTableState(table, d);
+    state = new org.apache.phoenix.index.covered.LocalTableState(table, d);
     state.setCurrentTimestamp(2);
     // check the cleanup of the current table, after the puts (mocking a 'next' update)
-    updates = codec.getIndexDeletes(state, org.apache.phoenix.hbase.index.covered.IndexMetaData.NULL_INDEX_META_DATA, null, null);
-    for (org.apache.phoenix.hbase.index.covered.IndexUpdate update : updates) {
+    updates = codec.getIndexDeletes(state, org.apache.phoenix.index.covered.IndexMetaData.NULL_INDEX_META_DATA, null, null);
+    for (org.apache.phoenix.index.covered.IndexUpdate update : updates) {
       assertTrue("Didn't have any index cleanup, even though there is current state",
         update.isValid());
       Delete m = (Delete) update.getUpdate();
@@ -239,11 +239,11 @@ public class TestCoveredColumnIndexCodec {
   private void ensureNoUpdatesWhenCoveredByDelete(RegionCoprocessorEnvironment env, IndexCodec codec, List<Cell> currentState,
                                                   Delete d) throws IOException {
     LocalHBaseState table = new SimpleTableState(Result.create(currentState));
-    org.apache.phoenix.hbase.index.covered.LocalTableState state = new LocalTableState(table, d);
+    org.apache.phoenix.index.covered.LocalTableState state = new LocalTableState(table, d);
     state.setCurrentTimestamp(d.getTimeStamp());
     // now we shouldn't see anything when getting the index update
     state.addPendingUpdates(d.getFamilyCellMap().get(FAMILY));
-    Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> updates = codec.getIndexUpserts(state, IndexMetaData.NULL_INDEX_META_DATA, null, null);
+    Iterable<org.apache.phoenix.index.covered.IndexUpdate> updates = codec.getIndexUpserts(state, IndexMetaData.NULL_INDEX_META_DATA, null, null);
     for (IndexUpdate update : updates) {
       assertFalse("Had some index updates, though it should have been covered by the delete",
         update.isValid());

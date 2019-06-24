@@ -23,22 +23,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.CoveredColumn;
+import org.apache.phoenix.index.covered.CoveredColumn;
 
 
 /**
- * A collection of {@link org.apache.phoenix.hbase.index.covered.CoveredColumn}s that should be included in a covered index.
+ * A collection of {@link org.apache.phoenix.index.covered.CoveredColumn}s that should be included in a covered index.
  */
-public class ColumnGroup implements Iterable<org.apache.phoenix.hbase.index.covered.CoveredColumn> {
+public class ColumnGroup implements Iterable<org.apache.phoenix.index.covered.CoveredColumn> {
 
-  private List<org.apache.phoenix.hbase.index.covered.CoveredColumn> columns = new ArrayList<org.apache.phoenix.hbase.index.covered.CoveredColumn>();
+  private List<org.apache.phoenix.index.covered.CoveredColumn> columns = new ArrayList<org.apache.phoenix.index.covered.CoveredColumn>();
   private String table;
 
   public ColumnGroup(String tableName) {
     this.table = tableName;
   }
 
-  public void add(org.apache.phoenix.hbase.index.covered.CoveredColumn column) {
+  public void add(org.apache.phoenix.index.covered.CoveredColumn column) {
     this.columns.add(column);
   }
 
@@ -47,12 +47,12 @@ public class ColumnGroup implements Iterable<org.apache.phoenix.hbase.index.cove
   }
 
   /**
-   * Check to see if any {@link org.apache.phoenix.hbase.index.covered.CoveredColumn} in <tt>this</tt> matches the given family
+   * Check to see if any {@link org.apache.phoenix.index.covered.CoveredColumn} in <tt>this</tt> matches the given family
    * @param family to check
    * @return <tt>true</tt> if any column covers the family
    */
   public boolean matches(String family) {
-    for (org.apache.phoenix.hbase.index.covered.CoveredColumn column : columns) {
+    for (org.apache.phoenix.index.covered.CoveredColumn column : columns) {
       if (column.matchesFamily(family)) {
         return true;
       }
@@ -71,7 +71,7 @@ public class ColumnGroup implements Iterable<org.apache.phoenix.hbase.index.cove
   public boolean matches(byte[] family, byte[] qualifier) {
     // families are always printable characters
     String fam = Bytes.toString(family);
-    for (org.apache.phoenix.hbase.index.covered.CoveredColumn column : columns) {
+    for (org.apache.phoenix.index.covered.CoveredColumn column : columns) {
       if (column.matchesFamily(fam)) {
         // check the qualifier
           if (column.matchesQualifier(qualifier)) {
@@ -90,7 +90,7 @@ public class ColumnGroup implements Iterable<org.apache.phoenix.hbase.index.cove
   }
 
   @Override
-  public Iterator<org.apache.phoenix.hbase.index.covered.CoveredColumn> iterator() {
+  public Iterator<org.apache.phoenix.index.covered.CoveredColumn> iterator() {
     return columns.iterator();
   }
 
@@ -98,7 +98,7 @@ public class ColumnGroup implements Iterable<org.apache.phoenix.hbase.index.cove
    * @param index index of the column to get
    * @return the specified column
    */
-  public org.apache.phoenix.hbase.index.covered.CoveredColumn getColumnForTesting(int index) {
+  public org.apache.phoenix.index.covered.CoveredColumn getColumnForTesting(int index) {
     return this.columns.get(index);
   }
 

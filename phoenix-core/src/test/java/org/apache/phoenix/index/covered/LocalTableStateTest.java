@@ -35,14 +35,14 @@ import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.IndexUpdate;
-import org.apache.phoenix.hbase.index.covered.LocalTableState;
-import org.apache.phoenix.hbase.index.covered.data.LocalHBaseState;
-import org.apache.phoenix.hbase.index.covered.data.LocalTable;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.scanner.Scanner;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanner;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexUpdate;
+import org.apache.phoenix.index.covered.LocalTableState;
+import org.apache.phoenix.index.covered.data.LocalHBaseState;
+import org.apache.phoenix.index.covered.data.LocalTable;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.scanner.Scanner;
+import org.apache.phoenix.index.scanner.ScannerBuilder.CoveredDeleteScanner;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 import org.apache.phoenix.util.ScanUtil;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class LocalTableStateTest {
   private static final byte[] qual = Bytes.toBytes("qual");
   private static final byte[] val = Bytes.toBytes("val");
   private static final long ts = 10;
-  private static final org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData = new org.apache.phoenix.hbase.index.covered.IndexMetaData() {
+  private static final org.apache.phoenix.index.covered.IndexMetaData indexMetaData = new org.apache.phoenix.index.covered.IndexMetaData() {
 
     @Override
     public ReplayWrite getReplayWrite() {
@@ -107,7 +107,7 @@ public class LocalTableStateTest {
 
 
     LocalHBaseState state = new LocalTable(env);
-    org.apache.phoenix.hbase.index.covered.LocalTableState table = new org.apache.phoenix.hbase.index.covered.LocalTableState(state, m);
+    org.apache.phoenix.index.covered.LocalTableState table = new org.apache.phoenix.index.covered.LocalTableState(state, m);
     //add the kvs from the mutation
     table.addPendingUpdates(m.get(fam, qual));
 
@@ -115,7 +115,7 @@ public class LocalTableStateTest {
     ColumnReference col = new ColumnReference(fam, qual);
     table.setCurrentTimestamp(ts);
     //check that our value still shows up first on scan, even though this is a lazy load
-    Pair<CoveredDeleteScanner, org.apache.phoenix.hbase.index.covered.IndexUpdate> p = table.getIndexedColumnsTableState(Arrays.asList(col), false, false, indexMetaData);
+    Pair<CoveredDeleteScanner, org.apache.phoenix.index.covered.IndexUpdate> p = table.getIndexedColumnsTableState(Arrays.asList(col), false, false, indexMetaData);
     Scanner s = p.getFirst();
     assertEquals("Didn't get the pending mutation's value first", m.get(fam, qual).get(0), s.next());
   }
@@ -128,7 +128,7 @@ public class LocalTableStateTest {
   
   @Test(expected = ScannerCreatedException.class)
   public void testScannerForMutableRows() throws Exception {
-      org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData = new org.apache.phoenix.hbase.index.covered.IndexMetaData() {
+      org.apache.phoenix.index.covered.IndexMetaData indexMetaData = new org.apache.phoenix.index.covered.IndexMetaData() {
 
           @Override
           public ReplayWrite getReplayWrite() {
@@ -158,7 +158,7 @@ public class LocalTableStateTest {
     Mockito.when(region.getScanner(Mockito.any(Scan.class))).thenThrow(new ScannerCreatedException("Should not open scanner when data is immutable"));
 
     LocalHBaseState state = new LocalTable(env);
-    org.apache.phoenix.hbase.index.covered.LocalTableState table = new org.apache.phoenix.hbase.index.covered.LocalTableState(state, m);
+    org.apache.phoenix.index.covered.LocalTableState table = new org.apache.phoenix.index.covered.LocalTableState(state, m);
     //add the kvs from the mutation
     table.addPendingUpdates(m.get(fam, qual));
 
@@ -170,7 +170,7 @@ public class LocalTableStateTest {
 
   @Test
   public void testNoScannerForImmutableRows() throws Exception {
-      org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData = new IndexMetaData() {
+      org.apache.phoenix.index.covered.IndexMetaData indexMetaData = new IndexMetaData() {
 
           @Override
           public ReplayWrite getReplayWrite() {
@@ -200,7 +200,7 @@ public class LocalTableStateTest {
     Mockito.when(region.getScanner(Mockito.any(Scan.class))).thenThrow(new ScannerCreatedException("Should not open scanner when data is immutable"));
 
     LocalHBaseState state = new LocalTable(env);
-    org.apache.phoenix.hbase.index.covered.LocalTableState table = new org.apache.phoenix.hbase.index.covered.LocalTableState(state, m);
+    org.apache.phoenix.index.covered.LocalTableState table = new org.apache.phoenix.index.covered.LocalTableState(state, m);
     //add the kvs from the mutation
     table.addPendingUpdates(m.get(fam, qual));
 
@@ -208,7 +208,7 @@ public class LocalTableStateTest {
     ColumnReference col = new ColumnReference(fam, qual);
     table.setCurrentTimestamp(ts);
     //check that our value still shows up first on scan, even though this is a lazy load
-    Pair<CoveredDeleteScanner, org.apache.phoenix.hbase.index.covered.IndexUpdate> p = table.getIndexedColumnsTableState(Arrays.asList(col), false, false, indexMetaData);
+    Pair<CoveredDeleteScanner, org.apache.phoenix.index.covered.IndexUpdate> p = table.getIndexedColumnsTableState(Arrays.asList(col), false, false, indexMetaData);
     Scanner s = p.getFirst();
     assertEquals("Didn't get the pending mutation's value first", m.get(fam, qual).get(0), s.next());
   }
@@ -242,7 +242,7 @@ public class LocalTableStateTest {
       }
     });
     LocalHBaseState state = new LocalTable(env);
-    org.apache.phoenix.hbase.index.covered.LocalTableState table = new org.apache.phoenix.hbase.index.covered.LocalTableState(state, m);
+    org.apache.phoenix.index.covered.LocalTableState table = new org.apache.phoenix.index.covered.LocalTableState(state, m);
     // add the kvs from the mutation
     KeyValue kv = PhoenixKeyValueUtil.maybeCopyCell(m.get(fam, qual).get(0));
     kv.setSequenceId(0);
@@ -252,7 +252,7 @@ public class LocalTableStateTest {
     ColumnReference col = new ColumnReference(fam, qual);
     table.setCurrentTimestamp(ts);
     // check that the value is there
-    Pair<CoveredDeleteScanner, org.apache.phoenix.hbase.index.covered.IndexUpdate> p = table.getIndexedColumnsTableState(Arrays.asList(col), false, false, indexMetaData);
+    Pair<CoveredDeleteScanner, org.apache.phoenix.index.covered.IndexUpdate> p = table.getIndexedColumnsTableState(Arrays.asList(col), false, false, indexMetaData);
     Scanner s = p.getFirst();
     assertEquals("Didn't get the pending mutation's value first", kv, s.next());
 
@@ -290,7 +290,7 @@ public class LocalTableStateTest {
     LocalHBaseState state = new LocalTable(env);
     Put pendingUpdate = new Put(row);
     pendingUpdate.addColumn(fam, qual, ts, val);
-    org.apache.phoenix.hbase.index.covered.LocalTableState table = new LocalTableState(state, pendingUpdate);
+    org.apache.phoenix.index.covered.LocalTableState table = new LocalTableState(state, pendingUpdate);
 
     // do the lookup for the given column
     ColumnReference col = new ColumnReference(fam, qual);

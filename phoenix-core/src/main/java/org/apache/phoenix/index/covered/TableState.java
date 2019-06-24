@@ -27,9 +27,9 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.covered.update.IndexedColumnGroup;
+import org.apache.phoenix.index.ValueGetter;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.update.IndexedColumnGroup;
 
 /**
  * Interface for the current state of the table. This is generally going to be as of a timestamp - a

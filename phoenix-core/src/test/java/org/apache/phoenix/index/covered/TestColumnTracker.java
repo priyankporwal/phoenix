@@ -26,8 +26,8 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.update.ColumnTracker;
 
 public class TestColumnTracker {
 

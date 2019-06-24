@@ -12,9 +12,9 @@ package org.apache.phoenix.index.write;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.hadoop.hbase.client.Mutation;
-import org.apache.phoenix.hbase.index.exception.SingleIndexWriteFailureException;
-import org.apache.phoenix.hbase.index.parallel.EarlyExitFailure;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.exception.SingleIndexWriteFailureException;
+import org.apache.phoenix.index.parallel.EarlyExitFailure;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

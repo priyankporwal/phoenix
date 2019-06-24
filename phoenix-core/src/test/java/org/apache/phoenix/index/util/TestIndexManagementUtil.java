@@ -29,7 +29,7 @@ import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.regionserver.wal.IndexedHLogReader;
 import org.apache.hadoop.hbase.regionserver.wal.IndexedWALEditCodec;
 import org.apache.hadoop.hbase.regionserver.wal.WALCellCodec;
-import org.apache.phoenix.hbase.index.util.IndexManagementUtil;
+import org.apache.phoenix.index.util.IndexManagementUtil;
 import org.junit.Test;
 
 public class TestIndexManagementUtil {
@@ -39,11 +39,11 @@ public class TestIndexManagementUtil {
     Configuration conf = new Configuration(false);
     // works with WALEditcodec
     conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-    org.apache.phoenix.hbase.index.util.IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+    org.apache.phoenix.index.util.IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
     // clear the codec and set the wal reader
     conf = new Configuration(false);
-    conf.set(org.apache.phoenix.hbase.index.util.IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
-    org.apache.phoenix.hbase.index.util.IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+    conf.set(org.apache.phoenix.index.util.IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
+    org.apache.phoenix.index.util.IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
   }
 
   /**
@@ -56,7 +56,7 @@ public class TestIndexManagementUtil {
     conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
     // works with WALEditcodec
     conf.set(WALCellCodec.WAL_CELL_CODEC_CLASS_KEY, IndexedWALEditCodec.class.getName());
-    org.apache.phoenix.hbase.index.util.IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
+    org.apache.phoenix.index.util.IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
   }
 
   /**
@@ -68,7 +68,7 @@ public class TestIndexManagementUtil {
     Configuration conf = new Configuration(false);
     conf.setBoolean(HConstants.ENABLE_WAL_COMPRESSION, true);
     // works with WALEditcodec
-    conf.set(org.apache.phoenix.hbase.index.util.IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
+    conf.set(org.apache.phoenix.index.util.IndexManagementUtil.HLOG_READER_IMPL_KEY, IndexedHLogReader.class.getName());
     IndexManagementUtil.ensureMutableIndexingCorrectlyConfigured(conf);
   }
 

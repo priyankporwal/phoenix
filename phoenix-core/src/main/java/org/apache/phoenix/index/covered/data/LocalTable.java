@@ -30,9 +30,9 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.Region;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
-import org.apache.phoenix.hbase.index.covered.data.LocalHBaseState;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.util.IndexManagementUtil;
+import org.apache.phoenix.index.covered.data.LocalHBaseState;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.util.IndexManagementUtil;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;

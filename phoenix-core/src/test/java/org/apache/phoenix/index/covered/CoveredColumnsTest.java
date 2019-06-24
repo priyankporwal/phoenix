@@ -24,8 +24,8 @@ import java.util.Arrays;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
-import org.apache.phoenix.hbase.index.covered.CoveredColumns;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.CoveredColumns;
+import org.apache.phoenix.index.covered.update.ColumnReference;
 
 public class CoveredColumnsTest {
 

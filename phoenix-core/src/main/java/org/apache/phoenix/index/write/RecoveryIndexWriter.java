@@ -31,11 +31,11 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.exception.MultiIndexWriteFailureException;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.write.IndexWriter;
-import org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter;
+import org.apache.phoenix.index.exception.MultiIndexWriteFailureException;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.write.IndexWriter;
+import org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

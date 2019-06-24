@@ -31,8 +31,8 @@ import org.apache.hadoop.hbase.KeyValueUtil;
 import org.apache.hadoop.hbase.KeyValue.Type;
 import org.apache.hadoop.hbase.filter.Filter.ReturnCode;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 import org.junit.Test;
 
 /**
@@ -51,7 +51,7 @@ public class TestApplyAndFilterDeletesFilter {
   @Test
   public void testDeletesAreNotReturned() {
     KeyValue kv = createKvForType(Type.Delete);
-    org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
+    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
     assertEquals("Didn't skip point delete!", ReturnCode.SKIP, filter.filterKeyValue(kv));
 
     filter.reset();
@@ -71,7 +71,7 @@ public class TestApplyAndFilterDeletesFilter {
   public void testHintCorrectlyToNextFamily() {
     // start with doing a family delete, so we will seek to the next column
     KeyValue kv = createKvForType(Type.DeleteFamily);
-    org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
+    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
     assertEquals(ReturnCode.SKIP, filter.filterKeyValue(kv));
     KeyValue next = createKvForType(Type.Put);
     // make sure the hint is our attempt at the end key, because we have no more families to seek
@@ -81,7 +81,7 @@ public class TestApplyAndFilterDeletesFilter {
       filter.getNextCellHint(next));
 
     // check for a family that comes before our family, so we always seek to the end as well
-    filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(asSet(Bytes.toBytes("afamily")));
+    filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(asSet(Bytes.toBytes("afamily")));
     assertEquals(ReturnCode.SKIP, filter.filterKeyValue(kv));
     // make sure the hint is our attempt at the end key, because we have no more families to seek
     assertEquals("Didn't get a hint from a family delete", ReturnCode.SEEK_NEXT_USING_HINT,
@@ -91,7 +91,7 @@ public class TestApplyAndFilterDeletesFilter {
 
     // check that we seek to the correct family that comes after our family
     byte[] laterFamily = Bytes.toBytes("zfamily");
-    filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(asSet(laterFamily));
+    filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(asSet(laterFamily));
     assertEquals(ReturnCode.SKIP, filter.filterKeyValue(kv));
     KeyValue expected = KeyValueUtil.createFirstOnRow(CellUtil.cloneRow(kv), laterFamily, new byte[0]);
     assertEquals("Didn't get a hint from a family delete", ReturnCode.SEEK_NEXT_USING_HINT,
@@ -108,7 +108,7 @@ public class TestApplyAndFilterDeletesFilter {
   public void testCoveringPointDelete() {
     // start with doing a family delete, so we will seek to the next column
     KeyValue kv = createKvForType(Type.Delete);
-    org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
+    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
     filter.filterKeyValue(kv);
     KeyValue put = createKvForType(Type.Put);
     assertEquals("Didn't filter out put with same timestamp!", ReturnCode.SKIP,
@@ -139,7 +139,7 @@ public class TestApplyAndFilterDeletesFilter {
    */
   @Test
   public void testCoverForDeleteColumn() throws Exception {
-    org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
+    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
     KeyValue dc = createKvForType(Type.DeleteColumn, 11);
     KeyValue put = createKvForType(Type.Put, 10);
     assertEquals("Didn't filter out delete column.", ReturnCode.SKIP, filter.filterKeyValue(dc));
@@ -157,7 +157,7 @@ public class TestApplyAndFilterDeletesFilter {
    */
   @Test
   public void testDeleteFamilyCorrectlyCoversColumns() {
-    org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
+    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter filter = new org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter(EMPTY_SET);
     KeyValue df = createKvForType(Type.DeleteFamily, 11);
     KeyValue put = createKvForType(Type.Put, 12);
 
@@ -179,7 +179,7 @@ public class TestApplyAndFilterDeletesFilter {
    */
   @Test
   public void testDeleteColumnCorrectlyCoversColumns() {
-    org.apache.phoenix.hbase.index.covered.filter.ApplyAndFilterDeletesFilter filter = new ApplyAndFilterDeletesFilter(EMPTY_SET);
+    org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter filter = new ApplyAndFilterDeletesFilter(EMPTY_SET);
     KeyValue d = createKvForType(Type.DeleteColumn, 12);
     byte[] qual2 = Bytes.add(qualifier, Bytes.toBytes("-other"));
     KeyValue put = new KeyValue(row, family, qual2, 11, Type.Put, value);

@@ -24,13 +24,13 @@ import java.util.regex.Pattern;
 import org.apache.hadoop.hbase.client.Mutation;
 
 import com.google.common.base.Objects;
-import org.apache.phoenix.hbase.index.exception.IndexWriteException;
+import org.apache.phoenix.index.exception.IndexWriteException;
 
 /**
  * Exception thrown if we cannot successfully write to an index table.
  */
 @SuppressWarnings("serial")
-public class SingleIndexWriteFailureException extends org.apache.phoenix.hbase.index.exception.IndexWriteException {
+public class SingleIndexWriteFailureException extends org.apache.phoenix.index.exception.IndexWriteException {
 
   public static final String FAILED_MSG = "Failed to make index update:";
   private String table;

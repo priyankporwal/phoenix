@@ -50,14 +50,14 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.coprocessor.BaseRegionScanner;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
-import org.apache.phoenix.hbase.index.MultiMutation;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.NonTxIndexBuilder;
-import org.apache.phoenix.hbase.index.covered.data.LocalTable;
-import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
-import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.util.IndexManagementUtil;
+import org.apache.phoenix.index.MultiMutation;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.NonTxIndexBuilder;
+import org.apache.phoenix.index.covered.data.LocalTable;
+import org.apache.phoenix.index.covered.update.ColumnTracker;
+import org.apache.phoenix.index.util.GenericKeyValueBuilder;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.IndexManagementUtil;
 import org.apache.phoenix.index.IndexMaintainer;
 import org.apache.phoenix.index.PhoenixIndexCodec;
 import org.apache.phoenix.index.PhoenixIndexMetaData;
@@ -107,7 +107,7 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
     private static final byte[] VALUE_3 = Bytes.toBytes(333);
     private static final byte[] VALUE_4 = Bytes.toBytes(444);
 
-    private org.apache.phoenix.hbase.index.covered.NonTxIndexBuilder indexBuilder;
+    private org.apache.phoenix.index.covered.NonTxIndexBuilder indexBuilder;
     private PhoenixIndexMetaData mockIndexMetaData;
     // Put your current row state in here - the index builder will read from this in LocalTable
     // to determine whether the index has changed.
@@ -115,7 +115,7 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
     private List<Cell> currentRowCells;
 
     /**
-     * Test setup so that {@link org.apache.phoenix.hbase.index.covered.NonTxIndexBuilder#getIndexUpdate(Mutation, IndexMetaData)} can be
+     * Test setup so that {@link org.apache.phoenix.index.covered.NonTxIndexBuilder#getIndexUpdate(Mutation, IndexMetaData)} can be
      * called, where any read requests to
      * {@link LocalTable#getCurrentRowState(Mutation, Collection, boolean)} are read from our test
      * field 'currentRowCells'
@@ -124,7 +124,7 @@ public class NonTxIndexBuilderTest extends BaseConnectionlessQueryTest {
     public void setup() throws Exception {
         RegionCoprocessorEnvironment env = Mockito.mock(RegionCoprocessorEnvironment.class);
         Configuration conf = new Configuration(false);
-        conf.set(org.apache.phoenix.hbase.index.covered.NonTxIndexBuilder.CODEC_CLASS_NAME_KEY, PhoenixIndexCodec.class.getName());
+        conf.set(org.apache.phoenix.index.covered.NonTxIndexBuilder.CODEC_CLASS_NAME_KEY, PhoenixIndexCodec.class.getName());
         Mockito.when(env.getConfiguration()).thenReturn(conf);
 
         // the following is used by LocalTable#getCurrentRowState()

@@ -19,7 +19,7 @@
 package org.apache.phoenix.index.covered;
 
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.covered.update.ColumnReference;
 
 /**
  * A single Column (either a Column Family or a full Family:Qualifier pair) in a {@link ColumnGroup}

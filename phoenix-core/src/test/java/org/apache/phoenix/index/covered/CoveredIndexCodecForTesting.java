@@ -23,11 +23,11 @@ import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Mutation;
-import org.apache.phoenix.hbase.index.builder.BaseIndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.IndexUpdate;
-import org.apache.phoenix.hbase.index.covered.TableState;
+import org.apache.phoenix.index.builder.BaseIndexCodec;
+import org.apache.phoenix.index.covered.IndexCodec;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexUpdate;
+import org.apache.phoenix.index.covered.TableState;
 
 /**
  * An {@link IndexCodec} for testing that allow you to specify the index updates/deletes, regardless of the current
@@ -35,14 +35,14 @@ import org.apache.phoenix.hbase.index.covered.TableState;
  */
 public class CoveredIndexCodecForTesting extends BaseIndexCodec {
 
-    private List<org.apache.phoenix.hbase.index.covered.IndexUpdate> deletes = new ArrayList<org.apache.phoenix.hbase.index.covered.IndexUpdate>();
-    private List<org.apache.phoenix.hbase.index.covered.IndexUpdate> updates = new ArrayList<org.apache.phoenix.hbase.index.covered.IndexUpdate>();
+    private List<org.apache.phoenix.index.covered.IndexUpdate> deletes = new ArrayList<org.apache.phoenix.index.covered.IndexUpdate>();
+    private List<org.apache.phoenix.index.covered.IndexUpdate> updates = new ArrayList<org.apache.phoenix.index.covered.IndexUpdate>();
 
-    public void addIndexDelete(org.apache.phoenix.hbase.index.covered.IndexUpdate... deletes) {
+    public void addIndexDelete(org.apache.phoenix.index.covered.IndexUpdate... deletes) {
         this.deletes.addAll(Arrays.asList(deletes));
     }
 
-    public void addIndexUpserts(org.apache.phoenix.hbase.index.covered.IndexUpdate... updates) {
+    public void addIndexUpserts(org.apache.phoenix.index.covered.IndexUpdate... updates) {
         this.updates.addAll(Arrays.asList(updates));
     }
 
@@ -52,7 +52,7 @@ public class CoveredIndexCodecForTesting extends BaseIndexCodec {
     }
 
     @Override
-    public Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> getIndexDeletes(org.apache.phoenix.hbase.index.covered.TableState state, org.apache.phoenix.hbase.index.covered.IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) {
+    public Iterable<org.apache.phoenix.index.covered.IndexUpdate> getIndexDeletes(org.apache.phoenix.index.covered.TableState state, org.apache.phoenix.index.covered.IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) {
         return this.deletes;
     }
 

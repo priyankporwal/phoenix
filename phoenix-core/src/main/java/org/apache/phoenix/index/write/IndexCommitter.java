@@ -22,9 +22,9 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 
 import com.google.common.collect.Multimap;
-import org.apache.phoenix.hbase.index.exception.IndexWriteException;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.write.IndexWriter;
+import org.apache.phoenix.index.exception.IndexWriteException;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.write.IndexWriter;
 
 /**
  * Write the index updates to the index tables

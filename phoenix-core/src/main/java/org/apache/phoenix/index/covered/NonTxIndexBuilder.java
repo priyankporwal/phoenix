@@ -18,16 +18,16 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.builder.BaseIndexBuilder;
-import org.apache.phoenix.hbase.index.covered.IndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.IndexUpdate;
-import org.apache.phoenix.hbase.index.covered.LocalTableState;
-import org.apache.phoenix.hbase.index.covered.TableState;
-import org.apache.phoenix.hbase.index.covered.data.LocalHBaseState;
-import org.apache.phoenix.hbase.index.covered.data.LocalTable;
-import org.apache.phoenix.hbase.index.covered.update.ColumnTracker;
-import org.apache.phoenix.hbase.index.covered.update.IndexUpdateManager;
+import org.apache.phoenix.index.builder.BaseIndexBuilder;
+import org.apache.phoenix.index.covered.IndexCodec;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexUpdate;
+import org.apache.phoenix.index.covered.LocalTableState;
+import org.apache.phoenix.index.covered.TableState;
+import org.apache.phoenix.index.covered.data.LocalHBaseState;
+import org.apache.phoenix.index.covered.data.LocalTable;
+import org.apache.phoenix.index.covered.update.ColumnTracker;
+import org.apache.phoenix.index.covered.update.IndexUpdateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +52,9 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
     }
 
     @Override
-    public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData) throws IOException {
+    public Collection<Pair<Mutation, byte[]>> getIndexUpdate(Mutation mutation, org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
     	// create a state manager, so we can manage each batch
-        org.apache.phoenix.hbase.index.covered.LocalTableState state = new org.apache.phoenix.hbase.index.covered.LocalTableState(localTable, mutation);
+        org.apache.phoenix.index.covered.LocalTableState state = new org.apache.phoenix.index.covered.LocalTableState(localTable, mutation);
         // build the index updates for each group
         org.apache.phoenix.index.covered.update.IndexUpdateManager manager = new org.apache.phoenix.index.covered.update.IndexUpdateManager(indexMetaData);
 
@@ -83,7 +83,7 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      * 
      * @throws IOException
      */
-    private void batchMutationAndAddUpdates(org.apache.phoenix.index.covered.update.IndexUpdateManager manager, org.apache.phoenix.hbase.index.covered.LocalTableState state, Mutation m, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData) throws IOException {
+    private void batchMutationAndAddUpdates(org.apache.phoenix.index.covered.update.IndexUpdateManager manager, org.apache.phoenix.index.covered.LocalTableState state, Mutation m, org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
         // The cells of a mutation are broken up into time stamp batches prior to this call (in Indexer).
         long ts = m.getFamilyCellMap().values().iterator().next().iterator().next().getTimestamp();
         Batch batch = new Batch(ts);
@@ -130,8 +130,8 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      *         otherwise
      * @throws IOException
      */
-    private boolean addMutationsForBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, Batch batch, org.apache.phoenix.hbase.index.covered.LocalTableState state,
-                                         org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData) throws IOException {
+    private boolean addMutationsForBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, Batch batch, org.apache.phoenix.index.covered.LocalTableState state,
+                                         org.apache.phoenix.index.covered.IndexMetaData indexMetaData) throws IOException {
 
         // need a temporary manager for the current batch. It should resolve any conflicts for the
         // current batch. Essentially, we can get the case where a batch doesn't change the current
@@ -153,14 +153,14 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
         return false;
     }
 
-    private long addUpdateForGivenTimestamp(long ts, org.apache.phoenix.hbase.index.covered.LocalTableState state, org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData)
+    private long addUpdateForGivenTimestamp(long ts, org.apache.phoenix.index.covered.LocalTableState state, org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
             throws IOException {
         state.setCurrentTimestamp(ts);
         ts = addCurrentStateMutationsForBatch(updateMap, state, indexMetaData);
         return ts;
     }
 
-    private void addCleanupForCurrentBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, long batchTs, org.apache.phoenix.hbase.index.covered.LocalTableState state, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData)
+    private void addCleanupForCurrentBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, long batchTs, org.apache.phoenix.index.covered.LocalTableState state, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
             throws IOException {
         // get the cleanup for the current state
         state.setCurrentTimestamp(batchTs);
@@ -184,11 +184,11 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
      *         returns <tt>true</tt> on the returned timestamp, we know that this <i>was not a back-in-time update</i>.
      * @throws IOException
      */
-    private long addCurrentStateMutationsForBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, org.apache.phoenix.hbase.index.covered.LocalTableState state, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData)
+    private long addCurrentStateMutationsForBatch(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, org.apache.phoenix.index.covered.LocalTableState state, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
             throws IOException {
 
         // get the index updates for this current batch
-        Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> upserts = codec.getIndexUpserts(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
+        Iterable<org.apache.phoenix.index.covered.IndexUpdate> upserts = codec.getIndexUpserts(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
         state.resetTrackedColumns();
 
         /*
@@ -200,7 +200,7 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
          */
         // timestamp of the next update we need to track
         long minTs = org.apache.phoenix.index.covered.update.ColumnTracker.NO_NEWER_PRIMARY_TABLE_ENTRY_TIMESTAMP;
-        for (org.apache.phoenix.hbase.index.covered.IndexUpdate update : upserts) {
+        for (org.apache.phoenix.index.covered.IndexUpdate update : upserts) {
             // this is the one bit where we check the timestamps
             final org.apache.phoenix.index.covered.update.ColumnTracker tracker = update.getIndexedColumns();
             long trackerTs = tracker.getTS();
@@ -226,17 +226,17 @@ public class NonTxIndexBuilder extends BaseIndexBuilder {
     }
 
     /**
-     * Get the index deletes from the codec {@link IndexCodec#getIndexDeletes(TableState, org.apache.phoenix.hbase.index.covered.IndexMetaData, byte[], byte[])} and then add them to the
+     * Get the index deletes from the codec {@link IndexCodec#getIndexDeletes(TableState, org.apache.phoenix.index.covered.IndexMetaData, byte[], byte[])} and then add them to the
      * update map.
      * <p>
-     * Expects the {@link org.apache.phoenix.hbase.index.covered.LocalTableState} to already be correctly setup (correct timestamp, updates applied, etc).
+     * Expects the {@link org.apache.phoenix.index.covered.LocalTableState} to already be correctly setup (correct timestamp, updates applied, etc).
      * @param indexMetaData TODO
      * 
      * @throws IOException
      */
-    protected void addDeleteUpdatesToMap(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, LocalTableState state, long ts, org.apache.phoenix.hbase.index.covered.IndexMetaData indexMetaData)
+    protected void addDeleteUpdatesToMap(org.apache.phoenix.index.covered.update.IndexUpdateManager updateMap, LocalTableState state, long ts, org.apache.phoenix.index.covered.IndexMetaData indexMetaData)
             throws IOException {
-        Iterable<org.apache.phoenix.hbase.index.covered.IndexUpdate> cleanup = codec.getIndexDeletes(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
+        Iterable<org.apache.phoenix.index.covered.IndexUpdate> cleanup = codec.getIndexDeletes(state, indexMetaData, env.getRegionInfo().getStartKey(), env.getRegionInfo().getEndKey());
         if (cleanup != null) {
             for (IndexUpdate d : cleanup) {
                 if (!d.isValid()) {

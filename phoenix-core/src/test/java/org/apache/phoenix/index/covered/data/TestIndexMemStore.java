@@ -26,9 +26,9 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.KeyValue.Type;
 import org.apache.hadoop.hbase.KeyValueUtil;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.covered.data.DelegateComparator;
-import org.apache.phoenix.hbase.index.covered.data.IndexMemStore;
-import org.apache.phoenix.hbase.index.scanner.ReseekableScanner;
+import org.apache.phoenix.index.covered.data.DelegateComparator;
+import org.apache.phoenix.index.covered.data.IndexMemStore;
+import org.apache.phoenix.index.scanner.ReseekableScanner;
 import org.junit.Test;
 
 public class TestIndexMemStore {
@@ -41,7 +41,7 @@ public class TestIndexMemStore {
 
   @Test
   public void testCorrectOverwritting() throws Exception {
-    org.apache.phoenix.hbase.index.covered.data.IndexMemStore store = new org.apache.phoenix.hbase.index.covered.data.IndexMemStore(new DelegateComparator(new CellComparatorImpl()){
+    org.apache.phoenix.index.covered.data.IndexMemStore store = new org.apache.phoenix.index.covered.data.IndexMemStore(new DelegateComparator(new CellComparatorImpl()){
         @Override
         public int compare(Cell leftCell, Cell rightCell) {
             return super.compare(leftCell, rightCell, true);
@@ -76,7 +76,7 @@ public class TestIndexMemStore {
    */
   @Test
   public void testExpectedOrdering() throws Exception {
-    org.apache.phoenix.hbase.index.covered.data.IndexMemStore store = new IndexMemStore();
+    org.apache.phoenix.index.covered.data.IndexMemStore store = new IndexMemStore();
     KeyValue kv = new KeyValue(row, family, qual, 12, Type.Put, val);
     store.add(kv, true);
     KeyValue kv2 = new KeyValue(row, family, qual, 10, Type.Put, val2);

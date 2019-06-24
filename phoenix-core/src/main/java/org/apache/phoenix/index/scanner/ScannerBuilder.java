@@ -37,8 +37,8 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FilterList.Operator;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.scanner.EmptyScanner;
-import org.apache.phoenix.hbase.index.scanner.FilteredKeyValueScanner;
+import org.apache.phoenix.index.scanner.EmptyScanner;
+import org.apache.phoenix.index.scanner.FilteredKeyValueScanner;
 
 import com.google.common.collect.Lists;
 
@@ -126,7 +126,7 @@ public class ScannerBuilder {
   
   private CoveredDeleteScanner getFilteredScanner(Filter filters, boolean returnNullIfRowNotFound, final org.apache.phoenix.index.covered.filter.ApplyAndFilterDeletesFilter.DeleteTracker deleteTracker) {
     // create a scanner and wrap it as an iterator, meaning you can only go forward
-    final org.apache.phoenix.hbase.index.scanner.FilteredKeyValueScanner kvScanner = new FilteredKeyValueScanner(filters, memstore);
+    final org.apache.phoenix.index.scanner.FilteredKeyValueScanner kvScanner = new FilteredKeyValueScanner(filters, memstore);
     // seek the scanner to initialize it
     KeyValue start = KeyValueUtil.createFirstOnRow(update.getRow());
     try {

@@ -32,18 +32,18 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.phoenix.coprocessor.MetaDataProtocol;
-import org.apache.phoenix.hbase.index.exception.SingleIndexWriteFailureException;
-import org.apache.phoenix.hbase.index.parallel.QuickFailingTaskRunner;
-import org.apache.phoenix.hbase.index.parallel.Task;
-import org.apache.phoenix.hbase.index.parallel.TaskBatch;
-import org.apache.phoenix.hbase.index.parallel.ThreadPoolBuilder;
-import org.apache.phoenix.hbase.index.parallel.ThreadPoolManager;
-import org.apache.phoenix.hbase.index.table.HTableFactory;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
-import org.apache.phoenix.hbase.index.write.IndexCommitter;
-import org.apache.phoenix.hbase.index.write.IndexWriter;
-import org.apache.phoenix.hbase.index.write.IndexWriterUtils;
+import org.apache.phoenix.index.exception.SingleIndexWriteFailureException;
+import org.apache.phoenix.index.parallel.QuickFailingTaskRunner;
+import org.apache.phoenix.index.parallel.Task;
+import org.apache.phoenix.index.parallel.TaskBatch;
+import org.apache.phoenix.index.parallel.ThreadPoolBuilder;
+import org.apache.phoenix.index.parallel.ThreadPoolManager;
+import org.apache.phoenix.index.table.HTableFactory;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.util.KeyValueBuilder;
+import org.apache.phoenix.index.write.IndexCommitter;
+import org.apache.phoenix.index.write.IndexWriter;
+import org.apache.phoenix.index.write.IndexWriterUtils;
 import org.apache.phoenix.index.PhoenixIndexFailurePolicy;
 import org.apache.phoenix.util.IndexUtil;
 
@@ -81,7 +81,7 @@ public abstract class AbstractParallelWriterIndexCommitter implements IndexCommi
         this.env = env;
         this.disableIndexOnFailure = disableIndexOnFailure;
         Configuration conf = env.getConfiguration();
-        setup(org.apache.phoenix.hbase.index.write.IndexWriterUtils.getDefaultDelegateHTableFactory(env),
+        setup(org.apache.phoenix.index.write.IndexWriterUtils.getDefaultDelegateHTableFactory(env),
                 ThreadPoolManager.getExecutor(
                         new ThreadPoolBuilder(name, conf).setMaxThread(NUM_CONCURRENT_INDEX_WRITER_THREADS_CONF_KEY,
                                 DEFAULT_CONCURRENT_INDEX_WRITER_THREADS).setCoreTimeout(

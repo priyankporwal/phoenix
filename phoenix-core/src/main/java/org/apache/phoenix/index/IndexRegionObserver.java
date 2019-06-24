@@ -17,7 +17,7 @@
  */
 package org.apache.phoenix.index;
 
-import static org.apache.phoenix.hbase.index.util.IndexManagementUtil.rethrowIndexingException;
+import static org.apache.phoenix.index.util.IndexManagementUtil.rethrowIndexingException;
 import static org.apache.phoenix.index.IndexMaintainer.getIndexMaintainer;
 
 import java.io.IOException;
@@ -63,18 +63,18 @@ import org.apache.htrace.Trace;
 import org.apache.htrace.TraceScope;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
 import org.apache.phoenix.coprocessor.DelegateRegionCoprocessorEnvironment;
-import org.apache.phoenix.hbase.index.Indexer;
-import org.apache.phoenix.hbase.index.LockManager;
-import org.apache.phoenix.hbase.index.LockManager.RowLock;
-import org.apache.phoenix.hbase.index.MultiMutation;
-import org.apache.phoenix.hbase.index.builder.IndexBuildManager;
-import org.apache.phoenix.hbase.index.builder.IndexBuilder;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.util.IndexManagementUtil;
-import org.apache.phoenix.hbase.index.write.IndexWriter;
-import org.apache.phoenix.hbase.index.write.recovery.PerRegionIndexWriteCache;
+import org.apache.phoenix.index.Indexer;
+import org.apache.phoenix.index.LockManager;
+import org.apache.phoenix.index.LockManager.RowLock;
+import org.apache.phoenix.index.MultiMutation;
+import org.apache.phoenix.index.builder.IndexBuildManager;
+import org.apache.phoenix.index.builder.IndexBuilder;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.table.HTableInterfaceReference;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.IndexManagementUtil;
+import org.apache.phoenix.index.write.IndexWriter;
+import org.apache.phoenix.index.write.recovery.PerRegionIndexWriteCache;
 import org.apache.phoenix.query.QueryServicesOptions;
 import org.apache.phoenix.trace.TracingUtils;
 import org.apache.phoenix.trace.util.NullSpan;
@@ -201,7 +201,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
   protected IndexWriter postWriter;
 
   protected IndexBuildManager builder;
-  private org.apache.phoenix.hbase.index.LockManager lockManager;
+  private org.apache.phoenix.index.LockManager lockManager;
 
   // The collection of pending data table rows
   private Map<ImmutableBytesPtr, PendingRow> pendingRows = new ConcurrentHashMap<>();
@@ -237,7 +237,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
         String serverName = env.getServerName().getServerName();
         if (env.getConfiguration().getBoolean(CHECK_VERSION_CONF_KEY, true)) {
           // make sure the right version <-> combinations are allowed.
-          String errormsg = org.apache.phoenix.hbase.index.Indexer.validateVersion(env.getHBaseVersion(), env.getConfiguration());
+          String errormsg = org.apache.phoenix.index.Indexer.validateVersion(env.getHBaseVersion(), env.getConfiguration());
           if (errormsg != null) {
               throw new org.apache.phoenix.index.builder.FatalIndexBuildingFailureException(errormsg);
           }
@@ -432,7 +432,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
 
   private Collection<? extends Mutation> groupMutations(MiniBatchOperationInProgress<Mutation> miniBatchOp,
                                                         long now, ReplayWrite replayWrite) throws IOException {
-      Map<ImmutableBytesPtr, org.apache.phoenix.hbase.index.MultiMutation> mutationsMap = new HashMap<>();
+      Map<ImmutableBytesPtr, org.apache.phoenix.index.MultiMutation> mutationsMap = new HashMap<>();
       boolean copyMutations = false;
       for (int i = 0; i < miniBatchOp.size(); i++) {
           if (miniBatchOp.getOperationStatus(i) == IGNORE) {
@@ -498,7 +498,7 @@ public class IndexRegionObserver implements RegionObserver, RegionCoprocessor {
                   // Add the mutation to the batch set
 
                   ImmutableBytesPtr row = new ImmutableBytesPtr(m.getRow());
-                  org.apache.phoenix.hbase.index.MultiMutation stored = mutationsMap.get(row);
+                  org.apache.phoenix.index.MultiMutation stored = mutationsMap.get(row);
                   // we haven't seen this row before, so add it
                   if (stored == null) {
                       stored = new MultiMutation(row);

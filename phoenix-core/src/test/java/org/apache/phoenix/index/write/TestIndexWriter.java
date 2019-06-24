@@ -47,14 +47,14 @@ import org.apache.hadoop.hbase.regionserver.Region;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.apache.phoenix.hbase.index.IndexTableName;
-import org.apache.phoenix.hbase.index.StubAbortable;
-import org.apache.phoenix.hbase.index.exception.IndexWriteException;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.write.FakeTableFactory;
-import org.apache.phoenix.hbase.index.write.IndexWriter;
-import org.apache.phoenix.hbase.index.write.KillServerOnFailurePolicy;
-import org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter;
+import org.apache.phoenix.index.IndexTableName;
+import org.apache.phoenix.index.StubAbortable;
+import org.apache.phoenix.index.exception.IndexWriteException;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.write.FakeTableFactory;
+import org.apache.phoenix.index.write.IndexWriter;
+import org.apache.phoenix.index.write.KillServerOnFailurePolicy;
+import org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter;
 import org.apache.phoenix.util.ScanUtil;
 import org.junit.Rule;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class TestIndexWriter {
     Configuration conf = new Configuration(false);
     RegionCoprocessorEnvironment env = Mockito.mock(RegionCoprocessorEnvironment.class);
     Mockito.when(env.getConfiguration()).thenReturn(conf);
-    assertNotNull(org.apache.phoenix.hbase.index.write.IndexWriter.getCommitter(env));
+    assertNotNull(org.apache.phoenix.index.write.IndexWriter.getCommitter(env));
   }
 
   @Test
@@ -87,7 +87,7 @@ public class TestIndexWriter {
     Mockito.when(env.getConfiguration()).thenReturn(conf);
     Mockito.when(region.getTableDescriptor()).thenReturn(
         TableDescriptorBuilder.newBuilder(TableName.valueOf("dummy")).build());
-    assertNotNull(org.apache.phoenix.hbase.index.write.IndexWriter.getFailurePolicy(env));
+    assertNotNull(org.apache.phoenix.index.write.IndexWriter.getFailurePolicy(env));
   }
 
   /**
@@ -115,7 +115,7 @@ public class TestIndexWriter {
     Mockito.when(e.getConnection()).thenReturn(mockConnection);
     ExecutorService exec = Executors.newFixedThreadPool(1);
     Map<ImmutableBytesPtr, Table> tables = new HashMap<ImmutableBytesPtr, Table>();
-    org.apache.phoenix.hbase.index.write.FakeTableFactory factory = new org.apache.phoenix.hbase.index.write.FakeTableFactory(tables);
+    org.apache.phoenix.index.write.FakeTableFactory factory = new org.apache.phoenix.index.write.FakeTableFactory(tables);
 
     byte[] tableName = this.testName.getTableName();
     Put m = new Put(row);
@@ -138,11 +138,11 @@ public class TestIndexWriter {
     tables.put(new ImmutableBytesPtr(tableName), table);
 
     // setup the writer and failure policy
-    org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter committer = new org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
+    org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter committer = new org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
     committer.setup(factory, exec, stop, e);
-    org.apache.phoenix.hbase.index.write.KillServerOnFailurePolicy policy = new org.apache.phoenix.hbase.index.write.KillServerOnFailurePolicy();
+    org.apache.phoenix.index.write.KillServerOnFailurePolicy policy = new org.apache.phoenix.index.write.KillServerOnFailurePolicy();
     policy.setup(stop, e);
-    org.apache.phoenix.hbase.index.write.IndexWriter writer = new org.apache.phoenix.hbase.index.write.IndexWriter(committer, policy);
+    org.apache.phoenix.index.write.IndexWriter writer = new org.apache.phoenix.index.write.IndexWriter(committer, policy);
     writer.write(indexUpdates, ScanUtil.UNKNOWN_CLIENT_VERSION);
     assertTrue("Writer returned before the table batch completed! Likely a race condition tripped",
       completed[0]);
@@ -174,7 +174,7 @@ public class TestIndexWriter {
     Mockito.when(mockTableDesc.getTableName()).thenReturn(TableName.valueOf("test"));
     Connection mockConnection = Mockito.mock(Connection.class);
     Mockito.when(e.getConnection()).thenReturn(mockConnection);
-    org.apache.phoenix.hbase.index.write.FakeTableFactory factory = new org.apache.phoenix.hbase.index.write.FakeTableFactory(tables);
+    org.apache.phoenix.index.write.FakeTableFactory factory = new org.apache.phoenix.index.write.FakeTableFactory(tables);
 
     byte[] tableName = this.testName.getTableName();
     Table table = Mockito.mock(Table.class);
@@ -207,11 +207,11 @@ public class TestIndexWriter {
     indexUpdates.add(new Pair<Mutation, byte[]>(m, tableName));
 
     // setup the writer
-    org.apache.phoenix.hbase.index.write.TrackingParallelWriterIndexCommitter committer = new TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
+    org.apache.phoenix.index.write.TrackingParallelWriterIndexCommitter committer = new TrackingParallelWriterIndexCommitter(VersionInfo.getVersion());
     committer.setup(factory, exec, stop, e );
-    org.apache.phoenix.hbase.index.write.KillServerOnFailurePolicy policy = new KillServerOnFailurePolicy();
+    org.apache.phoenix.index.write.KillServerOnFailurePolicy policy = new KillServerOnFailurePolicy();
     policy.setup(stop, e);
-    final org.apache.phoenix.hbase.index.write.IndexWriter writer = new IndexWriter(committer, policy);
+    final org.apache.phoenix.index.write.IndexWriter writer = new IndexWriter(committer, policy);
 
     final boolean[] failedWrite = new boolean[] { false };
     Thread primaryWriter = new Thread() {
