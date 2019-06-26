@@ -20,7 +20,7 @@ package org.apache.phoenix.schema;
 import net.jcip.annotations.Immutable;
 
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 import org.apache.phoenix.util.SizedUtil;
 
 @Immutable

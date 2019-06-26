@@ -27,7 +27,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.KeyValue.Type;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.IndexMaintainer;
+import org.apache.phoenix.index.IndexMaintainer;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 
 import static org.apache.hadoop.hbase.KeyValue.ROW_LENGTH_SIZE;

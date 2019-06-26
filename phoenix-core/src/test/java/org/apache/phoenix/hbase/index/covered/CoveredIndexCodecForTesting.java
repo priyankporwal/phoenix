@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index.covered;
+package org.apache.phoenix.index.covered;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Mutation;
-import org.apache.phoenix.hbase.index.builder.BaseIndexCodec;
+import org.apache.phoenix.index.builder.BaseIndexCodec;
 
 /**
  * An {@link IndexCodec} for testing that allow you to specify the index updates/deletes, regardless of the current

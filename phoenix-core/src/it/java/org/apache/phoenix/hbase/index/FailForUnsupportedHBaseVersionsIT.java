@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index;
+package org.apache.phoenix.index;
 
 import static org.apache.phoenix.query.BaseTest.setUpConfigForMiniCluster;
 import static org.junit.Assert.assertFalse;
@@ -35,9 +35,9 @@ import org.apache.hadoop.hbase.regionserver.HRegionServer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.VersionInfo;
 import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
-import org.apache.phoenix.hbase.index.covered.ColumnGroup;
-import org.apache.phoenix.hbase.index.covered.CoveredColumn;
-import org.apache.phoenix.hbase.index.covered.CoveredColumnIndexSpecifierBuilder;
+import org.apache.phoenix.index.covered.ColumnGroup;
+import org.apache.phoenix.index.covered.CoveredColumn;
+import org.apache.phoenix.index.covered.CoveredColumnIndexSpecifierBuilder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;

@@ -35,7 +35,7 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.io.Reference;
 import org.apache.hadoop.hbase.io.hfile.CacheConfig;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.IndexMaintainer;
+import org.apache.phoenix.index.IndexMaintainer;
 
 /**
  * A facade for a {@link org.apache.hadoop.hbase.io.hfile.HFile.Reader} that serves up either the

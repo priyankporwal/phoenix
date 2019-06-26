@@ -33,9 +33,9 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.codec.BaseDecoder;
 import org.apache.hadoop.hbase.codec.BaseEncoder;
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.apache.phoenix.hbase.index.util.VersionUtil;
-import org.apache.phoenix.hbase.index.wal.IndexedKeyValue;
-import org.apache.phoenix.hbase.index.wal.KeyValueCodec;
+import org.apache.phoenix.index.util.VersionUtil;
+import org.apache.phoenix.index.wal.IndexedKeyValue;
+import org.apache.phoenix.index.wal.KeyValueCodec;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 
 

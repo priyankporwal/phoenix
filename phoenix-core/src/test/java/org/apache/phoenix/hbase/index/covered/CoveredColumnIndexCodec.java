@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.apache.phoenix.hbase.index.covered;
+package org.apache.phoenix.index.covered;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,9 +25,9 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.builder.BaseIndexCodec;
-import org.apache.phoenix.hbase.index.scanner.Scanner;
-import org.apache.phoenix.hbase.index.scanner.ScannerBuilder.CoveredDeleteScanner;
+import org.apache.phoenix.index.builder.BaseIndexCodec;
+import org.apache.phoenix.index.scanner.Scanner;
+import org.apache.phoenix.index.scanner.ScannerBuilder.CoveredDeleteScanner;
 
 import com.google.common.collect.Lists;
 

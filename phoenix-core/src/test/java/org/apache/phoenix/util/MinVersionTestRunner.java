@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.apache.phoenix.hbase.index.util.VersionUtil;
+import org.apache.phoenix.index.util.VersionUtil;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;

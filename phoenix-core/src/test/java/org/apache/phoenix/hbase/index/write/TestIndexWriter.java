@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index.write;
+package org.apache.phoenix.index.write;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -47,10 +47,10 @@ import org.apache.hadoop.hbase.regionserver.Region;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.hadoop.hbase.util.VersionInfo;
-import org.apache.phoenix.hbase.index.IndexTableName;
-import org.apache.phoenix.hbase.index.StubAbortable;
-import org.apache.phoenix.hbase.index.exception.IndexWriteException;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.IndexTableName;
+import org.apache.phoenix.index.StubAbortable;
+import org.apache.phoenix.index.exception.IndexWriteException;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 import org.apache.phoenix.util.ScanUtil;
 import org.junit.Rule;
 import org.junit.Test;
