@@ -41,7 +41,7 @@ import org.apache.phoenix.hbase.index.parallel.ThreadPoolManager;
 import org.apache.phoenix.hbase.index.table.HTableFactory;
 import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
 import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
-import org.apache.phoenix.index.PhoenixIndexFailurePolicy;
+import org.apache.phoenix.hbase.index.PhoenixIndexFailurePolicy;
 import org.apache.phoenix.util.IndexUtil;
 
 import com.google.common.collect.Multimap;

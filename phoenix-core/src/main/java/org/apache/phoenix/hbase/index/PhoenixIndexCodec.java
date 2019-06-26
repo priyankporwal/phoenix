@@ -7,7 +7,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.apache.phoenix.index;
+package org.apache.phoenix.hbase.index;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -21,7 +21,6 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.ValueGetter;
 import org.apache.phoenix.hbase.index.builder.BaseIndexCodec;
 import org.apache.phoenix.hbase.index.covered.IndexCodec;
 import org.apache.phoenix.hbase.index.covered.IndexMetaData;
@@ -72,14 +71,14 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
     @Override
     public Iterable<IndexUpdate> getIndexUpserts(TableState state, IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) throws IOException {
         PhoenixIndexMetaData metaData = (PhoenixIndexMetaData)context;
-        List<IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
+        List<org.apache.phoenix.hbase.index.IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
         if (indexMaintainers.get(0).isRowDeleted(state.getPendingUpdate())) {
             return Collections.emptyList();
         }
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         ptr.set(state.getCurrentRowKey());
         List<IndexUpdate> indexUpdates = Lists.newArrayList();
-        for (IndexMaintainer maintainer : indexMaintainers) {
+        for (org.apache.phoenix.hbase.index.IndexMaintainer maintainer : indexMaintainers) {
             Pair<ValueGetter, IndexUpdate> statePair = state.getIndexUpdateState(maintainer.getAllColumns(), metaData.getReplayWrite() != null, false, context);
             ValueGetter valueGetter = statePair.getFirst();
             IndexUpdate indexUpdate = statePair.getSecond();
@@ -95,7 +94,7 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
     @Override
     public Iterable<IndexUpdate> getIndexDeletes(TableState state, IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) throws IOException {
         PhoenixIndexMetaData metaData = (PhoenixIndexMetaData)context;
-        List<IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
+        List<org.apache.phoenix.hbase.index.IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         ptr.set(state.getCurrentRowKey());
         List<IndexUpdate> indexUpdates = Lists.newArrayList();

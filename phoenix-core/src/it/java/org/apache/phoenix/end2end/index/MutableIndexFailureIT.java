@@ -54,7 +54,7 @@ import org.apache.phoenix.coprocessor.MetaDataRegionObserver.BuildIndexScheduleT
 import org.apache.phoenix.end2end.NeedsOwnMiniClusterTest;
 import org.apache.phoenix.execute.CommitException;
 import org.apache.phoenix.hbase.index.write.IndexWriterUtils;
-import org.apache.phoenix.index.PhoenixIndexFailurePolicy;
+import org.apache.phoenix.hbase.index.PhoenixIndexFailurePolicy;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixDatabaseMetaData;
 import org.apache.phoenix.query.BaseTest;

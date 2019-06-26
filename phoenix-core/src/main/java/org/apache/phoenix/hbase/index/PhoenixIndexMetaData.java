@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.index;
+package org.apache.phoenix.hbase.index;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.phoenix.cache.IndexMetaDataCache;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
+import org.apache.phoenix.hbase.index.IndexMaintainer;
 import org.apache.phoenix.hbase.index.covered.IndexMetaData;
 import org.apache.phoenix.transaction.PhoenixTransactionContext;
 
@@ -50,7 +51,7 @@ public class PhoenixIndexMetaData implements IndexMetaData {
         boolean isImmutable = true;
         boolean hasNonPkColumns = false;
         boolean hasLocalIndexes = false;
-        for (IndexMaintainer maintainer : indexMetaDataCache.getIndexMaintainers()) {
+        for (org.apache.phoenix.hbase.index.IndexMaintainer maintainer : indexMetaDataCache.getIndexMaintainers()) {
             isImmutable &= maintainer.isImmutableRows();
             hasNonPkColumns |= !maintainer.getIndexedColumns().isEmpty();
             hasLocalIndexes |= maintainer.isLocalIndex();

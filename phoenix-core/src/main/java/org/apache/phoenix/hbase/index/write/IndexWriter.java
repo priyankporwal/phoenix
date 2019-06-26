@@ -31,7 +31,7 @@ import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.hbase.index.exception.IndexWriteException;
 import org.apache.phoenix.hbase.index.table.HTableInterfaceReference;
 import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.index.PhoenixIndexFailurePolicy;
+import org.apache.phoenix.hbase.index.PhoenixIndexFailurePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

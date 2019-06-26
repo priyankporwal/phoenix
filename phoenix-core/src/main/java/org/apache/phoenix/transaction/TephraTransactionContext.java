@@ -38,7 +38,7 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
 import org.apache.phoenix.execute.DelegateHTable;
 import org.apache.phoenix.execute.PhoenixTxIndexMutationGenerator;
-import org.apache.phoenix.index.IndexMetaDataCacheClient;
+import org.apache.phoenix.hbase.index.IndexMetaDataCacheClient;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTableType;
