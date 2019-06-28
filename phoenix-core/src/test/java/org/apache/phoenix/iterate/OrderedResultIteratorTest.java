@@ -29,7 +29,7 @@ import org.apache.phoenix.coprocessor.ScanRegionObserver;
 import org.apache.phoenix.expression.Expression;
 import org.apache.phoenix.expression.LiteralExpression;
 import org.apache.phoenix.expression.OrderByExpression;
-import org.apache.phoenix.hbase.index.util.VersionUtil;
+import org.apache.phoenix.index.util.VersionUtil;
 import org.apache.phoenix.util.ScanUtil;
 import org.junit.Test;
 import org.mockito.Mockito;

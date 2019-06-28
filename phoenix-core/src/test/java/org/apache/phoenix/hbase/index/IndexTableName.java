@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index;
+package org.apache.phoenix.index;
 
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.rules.TestWatcher;

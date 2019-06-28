@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.hbase.index.write;
+package org.apache.phoenix.index.write;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.phoenix.hbase.index.table.HTableFactory;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.table.HTableFactory;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 
 /**
  * Simple table factory that just looks up the tables based on name. Useful for mocking up

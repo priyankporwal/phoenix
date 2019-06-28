@@ -25,7 +25,8 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.phoenix.cache.IndexMetaDataCache;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver.ReplayWrite;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
+import org.apache.phoenix.index.IndexMaintainer;
+import org.apache.phoenix.index.covered.IndexMetaData;
 import org.apache.phoenix.transaction.PhoenixTransactionContext;
 
 public class PhoenixIndexMetaData implements IndexMetaData {
@@ -50,7 +51,7 @@ public class PhoenixIndexMetaData implements IndexMetaData {
         boolean isImmutable = true;
         boolean hasNonPkColumns = false;
         boolean hasLocalIndexes = false;
-        for (IndexMaintainer maintainer : indexMetaDataCache.getIndexMaintainers()) {
+        for (org.apache.phoenix.index.IndexMaintainer maintainer : indexMetaDataCache.getIndexMaintainers()) {
             isImmutable &= maintainer.isImmutableRows();
             hasNonPkColumns |= !maintainer.getIndexedColumns().isEmpty();
             hasLocalIndexes |= maintainer.isLocalIndex();

@@ -27,7 +27,8 @@ import java.util.List;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.phoenix.cache.IndexMetaDataCache;
 import org.apache.phoenix.coprocessor.ServerCachingProtocol.ServerCacheFactory;
-import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
+import org.apache.phoenix.index.IndexMaintainer;
+import org.apache.phoenix.index.util.GenericKeyValueBuilder;
 import org.apache.phoenix.memory.MemoryManager.MemoryChunk;
 import org.apache.phoenix.transaction.PhoenixTransactionContext;
 import org.apache.phoenix.transaction.TransactionFactory;
@@ -48,8 +49,8 @@ public class IndexMetaDataCacheFactory implements ServerCacheFactory {
     public Closeable newCache (ImmutableBytesWritable cachePtr, byte[] txState, final MemoryChunk chunk, boolean useProtoForIndexMaintainer, final int clientVersion) throws SQLException {
         // just use the standard keyvalue builder - this doesn't really need to be fast
         
-        final List<IndexMaintainer> maintainers = 
-                IndexMaintainer.deserialize(cachePtr, GenericKeyValueBuilder.INSTANCE, useProtoForIndexMaintainer);
+        final List<org.apache.phoenix.index.IndexMaintainer> maintainers =
+                org.apache.phoenix.index.IndexMaintainer.deserialize(cachePtr, GenericKeyValueBuilder.INSTANCE, useProtoForIndexMaintainer);
         final PhoenixTransactionContext txnContext;
         try {
             txnContext = TransactionFactory.getTransactionContext(txState, clientVersion);

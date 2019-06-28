@@ -42,11 +42,12 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.end2end.index.IndexTestUtil;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
+import org.apache.phoenix.index.IndexMaintainer;
+import org.apache.phoenix.index.ValueGetter;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.util.GenericKeyValueBuilder;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.KeyValueBuilder;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.query.BaseConnectionlessQueryTest;
 import org.apache.phoenix.schema.PTable;
@@ -110,9 +111,9 @@ public class IndexMaintainerTest  extends BaseConnectionlessQueryTest {
             PTable index = pconn.getTable(new PTableKey(pconn.getTenantId(),fullIndexName));
             ImmutableBytesWritable ptr = new ImmutableBytesWritable();
             table.getIndexMaintainers(ptr, pconn);
-            List<IndexMaintainer> c1 = IndexMaintainer.deserialize(ptr, builder, true);
+            List<org.apache.phoenix.index.IndexMaintainer> c1 = org.apache.phoenix.index.IndexMaintainer.deserialize(ptr, builder, true);
             assertEquals(1,c1.size());
-            IndexMaintainer im1 = c1.get(0);
+            org.apache.phoenix.index.IndexMaintainer im1 = c1.get(0);
             
             StringBuilder buf = new StringBuilder("UPSERT INTO " + fullTableName  + " VALUES(");
             for (int i = 0; i < values.length; i++) {
@@ -311,7 +312,7 @@ public class IndexMaintainerTest  extends BaseConnectionlessQueryTest {
             PTable table = pconn.getTable(new PTableKey(pconn.getTenantId(), "FHA"));
             ImmutableBytesWritable ptr = new ImmutableBytesWritable();
             table.getIndexMaintainers(ptr, pconn);
-            List<IndexMaintainer> indexMaintainerList = IndexMaintainer.deserialize(ptr, GenericKeyValueBuilder.INSTANCE, true);
+            List<org.apache.phoenix.index.IndexMaintainer> indexMaintainerList = org.apache.phoenix.index.IndexMaintainer.deserialize(ptr, GenericKeyValueBuilder.INSTANCE, true);
             assertEquals(1,indexMaintainerList.size());
             IndexMaintainer indexMaintainer = indexMaintainerList.get(0);
             Set<ColumnReference> indexedColumns = indexMaintainer.getIndexedColumns();

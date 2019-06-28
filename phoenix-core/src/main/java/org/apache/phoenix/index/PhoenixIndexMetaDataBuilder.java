@@ -33,7 +33,10 @@ import org.apache.phoenix.cache.TenantCache;
 import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.exception.SQLExceptionInfo;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.IndexMaintainer;
+import org.apache.phoenix.index.PhoenixIndexCodec;
+import org.apache.phoenix.index.PhoenixIndexMetaData;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 import org.apache.phoenix.transaction.PhoenixTransactionContext;
 import org.apache.phoenix.transaction.TransactionFactory;
 import org.apache.phoenix.util.PhoenixRuntime;
@@ -47,23 +50,23 @@ public class PhoenixIndexMetaDataBuilder {
         this.env = env;
     }
     
-    public PhoenixIndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
+    public org.apache.phoenix.index.PhoenixIndexMetaData getIndexMetaData(MiniBatchOperationInProgress<Mutation> miniBatchOp) throws IOException {
         IndexMetaDataCache indexMetaDataCache = getIndexMetaDataCache(env, miniBatchOp.getOperation(0).getAttributesMap());
         return new PhoenixIndexMetaData(indexMetaDataCache, miniBatchOp.getOperation(0).getAttributesMap());
     }
 
     private static IndexMetaDataCache getIndexMetaDataCache(RegionCoprocessorEnvironment env, Map<String, byte[]> attributes) throws IOException {
         if (attributes == null) { return IndexMetaDataCache.EMPTY_INDEX_META_DATA_CACHE; }
-        byte[] uuid = attributes.get(PhoenixIndexCodec.INDEX_UUID);
+        byte[] uuid = attributes.get(org.apache.phoenix.index.PhoenixIndexCodec.INDEX_UUID);
         if (uuid == null) { return IndexMetaDataCache.EMPTY_INDEX_META_DATA_CACHE; }
-        byte[] md = attributes.get(PhoenixIndexCodec.INDEX_PROTO_MD);
+        byte[] md = attributes.get(org.apache.phoenix.index.PhoenixIndexCodec.INDEX_PROTO_MD);
         if (md == null) {
             md = attributes.get(PhoenixIndexCodec.INDEX_MD);
         }
         if (md != null) {
             boolean useProto = md != null;
             byte[] txState = attributes.get(BaseScannerRegionObserver.TX_STATE);
-            final List<IndexMaintainer> indexMaintainers = IndexMaintainer.deserialize(md, useProto);
+            final List<org.apache.phoenix.index.IndexMaintainer> indexMaintainers = org.apache.phoenix.index.IndexMaintainer.deserialize(md, useProto);
             byte[] clientVersionBytes = attributes.get(BaseScannerRegionObserver.CLIENT_VERSION);
             final int clientVersion = clientVersionBytes == null ? ScanUtil.UNKNOWN_CLIENT_VERSION : Bytes.toInt(clientVersionBytes);
             final PhoenixTransactionContext txnContext = TransactionFactory.getTransactionContext(txState, clientVersion);

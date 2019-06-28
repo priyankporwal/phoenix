@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.phoenix.hbase.index.covered;
+package org.apache.phoenix.index.covered;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.client.TableDescriptor;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
-import org.apache.phoenix.hbase.index.Indexer;
+import org.apache.phoenix.index.Indexer;
 
 /**
  * Helper to build the configuration for the {@link NonTxIndexker}.

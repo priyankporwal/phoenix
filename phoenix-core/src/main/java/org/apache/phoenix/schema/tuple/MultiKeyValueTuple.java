@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
+import org.apache.phoenix.index.util.GenericKeyValueBuilder;
 import org.apache.phoenix.util.PhoenixKeyValueUtil;
 
 /**

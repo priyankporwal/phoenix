@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index.parallel;
+package org.apache.phoenix.index.parallel;
 
 import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.phoenix.hbase.index.IndexTableName;
+import org.apache.phoenix.index.IndexTableName;
 import org.junit.Rule;
 import org.junit.Test;
 

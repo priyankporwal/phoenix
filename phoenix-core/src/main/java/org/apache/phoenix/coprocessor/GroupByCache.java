@@ -21,7 +21,7 @@ import java.io.Closeable;
 
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.phoenix.expression.aggregator.Aggregator;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
 
 /**
  * 

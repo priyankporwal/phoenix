@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index.util;
+package org.apache.phoenix.index.util;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
 import org.apache.hadoop.hbase.regionserver.wal.IndexedHLogReader;
 import org.apache.hadoop.hbase.regionserver.wal.IndexedWALEditCodec;
 import org.apache.hadoop.hbase.regionserver.wal.WALCellCodec;
-import org.apache.phoenix.hbase.index.covered.CoveredColumnIndexCodec;
+import org.apache.phoenix.index.covered.CoveredColumnIndexCodec;
 import org.junit.Test;
 
 public class TestIndexManagementUtil {

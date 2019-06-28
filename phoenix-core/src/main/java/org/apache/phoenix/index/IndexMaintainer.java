@@ -68,10 +68,9 @@ import org.apache.phoenix.expression.LiteralExpression;
 import org.apache.phoenix.expression.SingleCellColumnExpression;
 import org.apache.phoenix.expression.SingleCellConstructorExpression;
 import org.apache.phoenix.expression.visitor.KeyValueExpressionVisitor;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
-import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.index.util.KeyValueBuilder;
 import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.parse.FunctionParseNode;
@@ -125,7 +124,7 @@ import com.google.common.collect.Sets;
  * row and caches any covered columns. Client-side serializes into byte array using 
  * @link #serialize(PTable, ImmutableBytesWritable)}
  * and transmits to server-side through either the 
- * {@link org.apache.phoenix.index.PhoenixIndexCodec#INDEX_PROTO_MD}
+ * {@link PhoenixIndexCodec#INDEX_PROTO_MD}
  * Mutation attribute or as a separate RPC call using 
  * {@link org.apache.phoenix.cache.ServerCacheClient})
  * 

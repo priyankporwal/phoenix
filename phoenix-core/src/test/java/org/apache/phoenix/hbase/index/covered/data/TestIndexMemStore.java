@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.phoenix.hbase.index.covered.data;
+package org.apache.phoenix.index.covered.data;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +26,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.KeyValue.Type;
 import org.apache.hadoop.hbase.KeyValueUtil;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.scanner.ReseekableScanner;
+import org.apache.phoenix.index.scanner.ReseekableScanner;
 import org.junit.Test;
 
 public class TestIndexMemStore {

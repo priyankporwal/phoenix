@@ -21,15 +21,14 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.phoenix.hbase.index.ValueGetter;
-import org.apache.phoenix.hbase.index.builder.BaseIndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexCodec;
-import org.apache.phoenix.hbase.index.covered.IndexMetaData;
-import org.apache.phoenix.hbase.index.covered.IndexUpdate;
-import org.apache.phoenix.hbase.index.covered.TableState;
-import org.apache.phoenix.hbase.index.covered.update.ColumnReference;
-import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
-import org.apache.phoenix.hbase.index.util.KeyValueBuilder;
+import org.apache.phoenix.index.builder.BaseIndexCodec;
+import org.apache.phoenix.index.covered.IndexCodec;
+import org.apache.phoenix.index.covered.IndexMetaData;
+import org.apache.phoenix.index.covered.IndexUpdate;
+import org.apache.phoenix.index.covered.TableState;
+import org.apache.phoenix.index.covered.update.ColumnReference;
+import org.apache.phoenix.index.util.GenericKeyValueBuilder;
+import org.apache.phoenix.index.util.KeyValueBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -72,14 +71,14 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
     @Override
     public Iterable<IndexUpdate> getIndexUpserts(TableState state, IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) throws IOException {
         PhoenixIndexMetaData metaData = (PhoenixIndexMetaData)context;
-        List<IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
+        List<org.apache.phoenix.index.IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
         if (indexMaintainers.get(0).isRowDeleted(state.getPendingUpdate())) {
             return Collections.emptyList();
         }
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         ptr.set(state.getCurrentRowKey());
         List<IndexUpdate> indexUpdates = Lists.newArrayList();
-        for (IndexMaintainer maintainer : indexMaintainers) {
+        for (org.apache.phoenix.index.IndexMaintainer maintainer : indexMaintainers) {
             Pair<ValueGetter, IndexUpdate> statePair = state.getIndexUpdateState(maintainer.getAllColumns(), metaData.getReplayWrite() != null, false, context);
             ValueGetter valueGetter = statePair.getFirst();
             IndexUpdate indexUpdate = statePair.getSecond();
@@ -95,7 +94,7 @@ public class PhoenixIndexCodec extends BaseIndexCodec {
     @Override
     public Iterable<IndexUpdate> getIndexDeletes(TableState state, IndexMetaData context, byte[] regionStartKey, byte[] regionEndKey) throws IOException {
         PhoenixIndexMetaData metaData = (PhoenixIndexMetaData)context;
-        List<IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
+        List<org.apache.phoenix.index.IndexMaintainer> indexMaintainers = metaData.getIndexMaintainers();
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
         ptr.set(state.getCurrentRowKey());
         List<IndexUpdate> indexUpdates = Lists.newArrayList();

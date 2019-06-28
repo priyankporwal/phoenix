@@ -20,7 +20,7 @@ package org.apache.phoenix.end2end.index;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.phoenix.hbase.index.IndexRegionObserver;
+import org.apache.phoenix.index.IndexRegionObserver;
 import org.junit.runners.Parameterized.Parameters;
 
 public class GlobalMutableNonTxIndexIT extends BaseIndexIT {
