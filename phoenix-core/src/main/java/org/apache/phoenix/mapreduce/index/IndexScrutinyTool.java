@@ -375,7 +375,7 @@ public class IndexScrutinyTool extends Configured implements Tool {
             if (useTenantId) {
                 tenantId = cmdLine.getOptionValue(TENANT_ID_OPTION.getOpt());
                 configuration.set(PhoenixRuntime.TENANT_ID_ATTRIB, tenantId);
-                LOG.info(String.format("IndexScrutinyTool uses a tenantId %s", tenantId));
+                LOGGER.info(String.format("IndexScrutinyTool uses a tenantId %s", tenantId));
             }
             connection = ConnectionUtil.getInputConnection(configuration);
             final String schemaName = cmdLine.getOptionValue(SCHEMA_NAME_OPTION.getOpt());
