@@ -144,25 +144,6 @@ public class IndexedKeyValue extends KeyValue {
     public int getQualifierLength() {
         return COLUMN_QUALIFIER.length;
     }
-
-    @Override
-    public int getRowOffset() {
-        return this.offset;
-    }
-
-    @Override
-    public short getRowLength() {
-        return (short) this.length;
-    }
-
-    @Override
-    public int getKeyLength(){
-        //normally the key is row key + other key fields such as timestamp,
-        // but those aren't defined here because a Mutation can contain multiple,
-        // so we just return the length of the row key
-        return this.length;
-    }
-
     @Override
     public String toString() {
         return "IndexWrite:\n\ttable: " + indexTableName + "\n\tmutation:" + mutation;
