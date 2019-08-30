@@ -23,6 +23,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Mutation;
@@ -50,10 +52,36 @@ public class IndexedKeyValue extends KeyValue {
     private boolean batchFinished = false;
     private int hashCode;
 
+    public static IndexedKeyValue newIndexedKeyValue(byte[] bs, Mutation m){
+        Cell indexWALCell = adaptFirstCellFromMutation(m);
+        return new IndexedKeyValue(indexWALCell, bs, m);
+    }
+
+    private static Cell adaptFirstCellFromMutation(Mutation m) {
+        if (m != null && m.getFamilyCellMap() != null &&
+            m.getFamilyCellMap().firstEntry() != null &&
+            m.getFamilyCellMap().firstEntry().getValue() != null
+            && m.getFamilyCellMap().firstEntry().getValue().get(0) != null) {
+            //have to replace the column family with WALEdit.METAFAMILY to make sure
+            //that IndexedKeyValues don't get replicated. The superclass KeyValue fields
+            //like row, qualifier and value are placeholders to prevent NPEs
+            // when using the KeyValue APIs. See PHOENIX-5188 / 5455
+            Cell mutationCell = m.getFamilyCellMap().firstEntry().getValue().get(0);
+            return CellUtil.createCell(m.getRow(), WALEdit.METAFAMILY,
+                mutationCell.getQualifierArray(), mutationCell.getTimestamp(),
+                mutationCell.getTypeByte(), mutationCell.getValueArray());
+        } else {
+            throw new IllegalArgumentException("Tried to create an IndexedKeyValue with a " +
+                "Mutation with no Cells!");
+        }
+
+    }
+
+    //used for deserialization
     public IndexedKeyValue() {}
 
-    public IndexedKeyValue(byte[] bs, Mutation mutation) {
-        super(mutation.getRow(), 0, mutation.getRow().length);
+    private IndexedKeyValue(Cell c, byte[] bs, Mutation mutation){
+        super(c);
         this.indexTableName = new ImmutableBytesPtr(bs);
         this.mutation = mutation;
         this.hashCode = calcHashCode(indexTableName, mutation);
@@ -172,9 +200,9 @@ public class IndexedKeyValue extends KeyValue {
     }
 
     /**
-     * Internal write the underlying data for the entry - this does not do any special prefixing. Writing should be done
-     * via {@link KeyValueCodec#write(DataOutput, KeyValue)} to ensure consistent reading/writing of
-     * {@link IndexedKeyValue}s.
+     * Internal write the underlying data for the entry - this does not do any special prefixing.
+     * Writing should be done via {@link KeyValueCodec#write(DataOutput, KeyValue)} to ensure
+     * consistent reading/writing of {@link IndexedKeyValue}s.
      * 
      * @param out
      *            to write data to. Does not close or flush the passed object.
