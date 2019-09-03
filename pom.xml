@@ -47,6 +47,12 @@
     <module>phoenix-hive</module>
   -->
   </modules>
+  <scm>
+    <connection>scm:git:git@git.soma.salesforce.com:bigdata-packaging/phoenix.git</connection>
+    <developerConnection>scm:git:git@git.soma.salesforce.com:bigdata-packaging/phoenix.git</developerConnection>
+    <url>https://git.soma.salesforce.com/bigdata-packaging/phoenix.git</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <properties>
     <!-- General Properties -->
