@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.phoenix</groupId>
     <artifactId>phoenix</artifactId>
-    <version>4.14.3-hbase-1.3-sfdc-1.0.0</version>
+    <version>4.14.3-hbase-1.3-sfdc-1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>phoenix-queryserver</artifactId>
   <name>Phoenix Query Server</name>
@@ -99,8 +99,7 @@
                   <pattern>org.eclipse.jetty</pattern>
                   <shadedPattern>${shaded.package}.org.eclipse.jetty</shadedPattern>
                 </relocation>
-                <!-- Calcite/Avatica is not relocated because the wire API (as of <=1.8.0) expects consistent class names on client and server. Relocating these would break
-                     backwards compatibility. -->
+                <!-- Calcite/Avatica is not relocated because the wire API (as of <=1.8.0) expects consistent class names on client and server. Relocating these would break backwards compatibility. -->
               </relocations>
             </configuration>
           </execution>
