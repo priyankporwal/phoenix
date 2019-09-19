@@ -110,11 +110,7 @@ abstract public class PrefixFunction extends ScalarFunction {
                         lowerRange[lowerRange.length-1] = QueryConstants.SEPARATOR_BYTE;
                     }
                 }
-                KeyRange range = KeyRange.getKeyRange(lowerRange, lowerInclusive, upperRange, false);
-                if (column.getSortOrder() == SortOrder.DESC) {
-                    range = range.invert();
-                }
-                return range;
+                return KeyRange.getKeyRange(lowerRange, lowerInclusive, upperRange, false);
             }
 
             @Override
