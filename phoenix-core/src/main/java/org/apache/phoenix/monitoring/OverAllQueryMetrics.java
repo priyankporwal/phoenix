@@ -43,8 +43,8 @@ public class OverAllQueryMetrics {
     private final CombinableMetric cacheRefreshedDueToSplits;
 
     public OverAllQueryMetrics(boolean isRequestMetricsEnabled, LogLevel connectionLogLevel) {
-        queryWatch = new MetricsStopWatch(WALL_CLOCK_TIME_MS.isLoggingEnabled(connectionLogLevel));
-        resultSetWatch = new MetricsStopWatch(RESULT_SET_TIME_MS.isLoggingEnabled(connectionLogLevel));
+        queryWatch = new MetricsStopWatch(true); //BUG: PHOENIX-4701
+        resultSetWatch = new MetricsStopWatch(true); //BUG: PHOENIX-4701 
         numParallelScans = MetricUtil.getCombinableMetric(isRequestMetricsEnabled,connectionLogLevel, NUM_PARALLEL_SCANS);
         wallClockTimeMS = MetricUtil.getCombinableMetric(isRequestMetricsEnabled,connectionLogLevel, WALL_CLOCK_TIME_MS);
         resultSetTimeMS = MetricUtil.getCombinableMetric(isRequestMetricsEnabled,connectionLogLevel, RESULT_SET_TIME_MS);
