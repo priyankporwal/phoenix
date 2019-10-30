@@ -47,6 +47,7 @@ import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.SYSTEM_STATS_NAME;
 import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.TABLE_NAME;
 import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.TABLE_SCHEM;
 import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.TENANT_ID;
+import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.TRANSACTIONAL;
 import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.VIEW_CONSTANT;
 import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_HCONNECTIONS_COUNTER;
 import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_PHOENIX_CONNECTIONS_THROTTLED_COUNTER;
@@ -861,11 +862,23 @@ public class ConnectionQueryServicesImpl extends DelegateQueryServices implement
                     QueryServices.INDEX_REGION_OBSERVER_ENABLED_ATTRIB,
                     QueryServicesOptions.DEFAULT_INDEX_REGION_OBSERVER_ENABLED);
 
-            if ((tableType == PTableType.INDEX && !isTransactional) || isViewIndex ) {
+            boolean isViewBaseTransactional = false;
+            if (!isTransactional && isViewIndex) {
+                if (tableProps.containsKey(TRANSACTIONAL) &&
+                        Boolean.TRUE.equals(tableProps.get(TRANSACTIONAL))) {
+                    isViewBaseTransactional = true;
+                }
+            }
+
+            if (!isTransactional && !isViewBaseTransactional
+                    && (tableType == PTableType.INDEX || isViewIndex)) {
                 if (!indexRegionObserverEnabled && descriptor.hasCoprocessor(GlobalIndexChecker.class.getName())) {
                     descriptor.removeCoprocessor(GlobalIndexChecker.class.getName());
                 } else if (indexRegionObserverEnabled && !descriptor.hasCoprocessor(GlobalIndexChecker.class.getName()) &&
                         !isLocalIndexTable(descriptor.getFamiliesKeys())) {
+                    if (descriptor.hasCoprocessor(IndexRegionObserver.class.getName())) {
+                        descriptor.removeCoprocessor(IndexRegionObserver.class.getName());
+                    }
                     descriptor.addCoprocessor(GlobalIndexChecker.class.getName(), null, priority - 1, null);
                 }
             }
