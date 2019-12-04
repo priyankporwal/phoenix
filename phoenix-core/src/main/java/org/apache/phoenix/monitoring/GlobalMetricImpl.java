@@ -16,6 +16,9 @@ public class GlobalMetricImpl implements GlobalMetric {
     private AtomicLong numberOfSamples = new AtomicLong(0);
     private Metric metric;
 
+    /**
+     * Default implementation used when GlobalMetrics are enabled
+     */
     public GlobalMetricImpl(MetricType type) {
         this.metric = new AtomicMetric(type);
     }
