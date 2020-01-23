@@ -187,7 +187,8 @@ public enum ExpressionType {
     CollationKeyFunction(CollationKeyFunction.class),
     ArrayRemoveFunction(ArrayRemoveFunction.class),
     TransactionProviderNameFunction(TransactionProviderNameFunction.class),
-    RowKeyBytesStringFunction(RowKeyBytesStringFunction.class)
+    RowKeyBytesStringFunction(RowKeyBytesStringFunction.class),
+    RowTimestampStringFunction(RowTimestampStringFunction.class)
     ;
 
     ExpressionType(Class<? extends Expression> clazz) {
