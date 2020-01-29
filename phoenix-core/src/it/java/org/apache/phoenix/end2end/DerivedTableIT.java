@@ -63,6 +63,7 @@ import com.google.common.collect.Lists;
 
 
 @RunWith(Parameterized.class)
+@Ignore //Ignoring this class since it has flappers
 public class DerivedTableIT extends ParallelStatsDisabledIT {
     private static final String tenantId = getOrganizationId();
     private static final String dynamicTableName = "_TABLENAME_REPLACEABLE_";

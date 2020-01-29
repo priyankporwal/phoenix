@@ -48,6 +48,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.google.common.collect.Lists;
 
+@Ignore //Ignoring this class since it has flappers
 public class NullIT extends BaseQueryIT {
     
     @Parameters(name="NullIT_{index},columnEncoded={1}")
