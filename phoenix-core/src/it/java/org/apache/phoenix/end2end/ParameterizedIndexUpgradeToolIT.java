@@ -46,7 +46,11 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.Parameterized;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -69,6 +73,7 @@ import static org.apache.phoenix.mapreduce.index.IndexUpgradeTool.ROLLBACK_OP;
 import static org.apache.phoenix.mapreduce.index.IndexUpgradeTool.UPGRADE_OP;
 import static org.apache.phoenix.query.QueryServices.DROP_METADATA_ATTRIB;
 import static org.apache.phoenix.util.TestUtil.TEST_PROPERTIES;
+import static org.mockito.Mockito.times;
 
 @RunWith(Parameterized.class)
 @Category(NeedsOwnMiniClusterTest.class)
@@ -103,8 +108,16 @@ public class ParameterizedIndexUpgradeToolIT extends BaseTest {
     private Admin admin;
     private IndexUpgradeTool iut;
 
+    @Mock
+    private IndexTool indexToolMock;
+
+    @Captor
+    private ArgumentCaptor<String []> argCapture;
+
     @Before
     public void setup () throws Exception {
+        MockitoAnnotations.initMocks(this);
+
         optionsBuilder = new StringBuilder();
 
         setClusterProperties();
@@ -125,7 +138,7 @@ public class ParameterizedIndexUpgradeToolIT extends BaseTest {
         admin = queryServices.getAdmin();
         iut = new IndexUpgradeTool(upgrade ? UPGRADE_OP : ROLLBACK_OP, INPUT_LIST,
                 null, "/tmp/index_upgrade_" + UUID.randomUUID().toString(),
-                true, Mockito.mock(IndexTool.class));
+                true, indexToolMock);
         iut.setConf(getUtility().getConfiguration());
         iut.setTest(true);
         if (!mutable) {
@@ -312,8 +325,22 @@ public class ParameterizedIndexUpgradeToolIT extends BaseTest {
         iut.executeTool();
         //testing actual run
         validate(false);
-        Assert.assertEquals("Index upgrade tool didn't wait for client cache to expire",
-                true, iut.getIsWaitComplete());
+        // testing if tool waited in case of immutable tables
+        if (!mutable) {
+            Assert.assertEquals("Index upgrade tool didn't wait for client cache to expire "
+                    + "for immutable tables", true, iut.getIsWaitComplete());
+        } else {
+            Assert.assertEquals("Index upgrade tool waited for client cache to expire "
+                    + "for mutable tables", false, iut.getIsWaitComplete());
+        }
+        if(upgrade) {
+            //verifying if index tool was started
+            Mockito.verify(indexToolMock,
+                    times(11)) // for every index/view-index except index on transaction table
+                    .run(argCapture.capture());
+        } else {
+            Mockito.verifyZeroInteractions(indexToolMock);
+        }
     }
 
     @Test
@@ -353,24 +380,11 @@ public class ParameterizedIndexUpgradeToolIT extends BaseTest {
         }
     }
 
-    @Test
-    public void testCommandLineParsing() {
-
-        String outputFile = "/tmp/index_upgrade_" + UUID.randomUUID().toString();
-        String [] args = {"-o", upgrade ? UPGRADE_OP : ROLLBACK_OP, "-tb",
-                INPUT_LIST, "-lf", outputFile, "-d"};
-        IndexUpgradeTool iut = new IndexUpgradeTool();
-
-        CommandLine cmd = iut.parseOptions(args);
-        iut.initializeTool(cmd);
-        Assert.assertEquals(iut.getDryRun(),true);
-        Assert.assertEquals(iut.getInputTables(), INPUT_LIST);
-        Assert.assertEquals(iut.getOperation(), upgrade ? UPGRADE_OP : ROLLBACK_OP);
-        Assert.assertEquals(iut.getLogFile(), outputFile);
-    }
-
     @After
     public void cleanup() throws IOException, SQLException {
+        if (conn == null) {
+            return;
+        }
         //TEST.MOCK1,TEST1.MOCK2,TEST.MOCK3
         conn.createStatement().execute("DROP INDEX INDEX1 ON TEST.MOCK1");
         conn.createStatement().execute("DROP INDEX INDEX2 ON TEST.MOCK1");
@@ -407,8 +421,9 @@ public class ParameterizedIndexUpgradeToolIT extends BaseTest {
         conn.close();
         connTenant.close();
         assertTableNotExists("TEST.MOCK1");
-        assertTableNotExists("TEST.MOCK2");
+        assertTableNotExists("TEST1.MOCK2");
         assertTableNotExists("TEST.MOCK3");
+        assertTableNotExists("TRANSACTIONAL_TABLE");
         assertTableNotExists("TEST.MULTI_TENANT_TABLE");
     }
 
