@@ -683,9 +683,7 @@ public class IndexRebuildRegionScanner extends BaseRegionScanner {
         Put indexPut = indexMaintainer.buildUpdateMutation(GenericKeyValueBuilder.INSTANCE,
                 valueGetter, new ImmutableBytesWritable(dataRow.getRow()), ts, null, null);
         if (indexPut == null) {
-            String errorMsg = "Empty index update";
-            logToIndexToolOutputTable(dataRow.getRow(), indexRow.getRow(), ts, getMaxTimestamp(indexRow), errorMsg);
-            return false;
+            indexPut = new Put(indexRow.getRow());
         }
         else {
             // Remove the empty column prepared by Index codec as we need to change its value
