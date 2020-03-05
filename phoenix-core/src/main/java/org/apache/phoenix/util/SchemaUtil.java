@@ -29,6 +29,7 @@ import static org.apache.phoenix.jdbc.PhoenixDatabaseMetaData.TABLE_FAMILY_BYTES
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ import javax.annotation.Nullable;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
@@ -300,12 +304,12 @@ public class SchemaUtil {
         Preconditions.checkNotNull(columnName,"Column name cannot be null");
         if (familyName == null) {
             return ByteUtil.concat(tenantId == null  ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(tenantId),
-                    QueryConstants.SEPARATOR_BYTE_ARRAY, schemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(schemaName), 
+                    QueryConstants.SEPARATOR_BYTE_ARRAY, schemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(schemaName),
                     QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(tableName),
                     QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(columnName));
         }
         return ByteUtil.concat(tenantId == null  ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(tenantId),
-                QueryConstants.SEPARATOR_BYTE_ARRAY, schemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(schemaName), 
+                QueryConstants.SEPARATOR_BYTE_ARRAY, schemaName == null ? ByteUtil.EMPTY_BYTE_ARRAY : Bytes.toBytes(schemaName),
                 QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(tableName),
                 QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(columnName),
                 QueryConstants.SEPARATOR_BYTE_ARRAY, Bytes.toBytes(familyName));
@@ -1157,7 +1161,27 @@ public class SchemaUtil {
         }
     }
 
-    public static boolean hasGlobalIndex(PTable table) {
+	public static int getIsNullableInt(boolean isNullable) {
+		return isNullable ? ResultSetMetaData.columnNullable : ResultSetMetaData.columnNoNulls;
+	}
+
+	public static int getTimeToLive(PhoenixConnection conn, String physicalName) throws SQLException {
+        byte[] tableQualifier = Bytes.toBytes(physicalName);
+        return getTimeToLive(conn, tableQualifier);
+    }
+
+    public static int getTimeToLive(PhoenixConnection conn, byte[] tableQualifier)
+     throws SQLException {
+        HTableDescriptor td = conn.getQueryServices().getTableDescriptor(tableQualifier);
+        HColumnDescriptor[] cds = td.getColumnFamilies();
+        if (cds.length > 0){
+            return cds[0].getTimeToLive();
+        } else {
+            return HConstants.FOREVER;
+        }
+    }
+
+	public static boolean hasGlobalIndex(PTable table) {
         for (PTable index : table.getIndexes()) {
             if (index.getIndexType() == IndexType.GLOBAL) {
                 return true;
@@ -1174,6 +1198,6 @@ public class SchemaUtil {
     public static boolean isLogTable(String schemaName, String tableName) {
         return PhoenixDatabaseMetaData.SYSTEM_CATALOG_SCHEMA.equals(schemaName) && PhoenixDatabaseMetaData.SYSTEM_LOG_TABLE.equals(tableName);
     }
-    
+
 
 }
