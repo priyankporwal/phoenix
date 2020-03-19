@@ -30,6 +30,7 @@ import org.apache.phoenix.query.BaseConnectionlessQueryTest;
 import org.apache.phoenix.util.PropertiesUtil;
 import org.apache.phoenix.util.SchemaUtil;
 import org.apache.phoenix.util.TestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -267,6 +268,36 @@ public class PhoenixConfigurationUtilTest extends BaseConnectionlessQueryTest {
         String zkQuorumOverride3 =
                 PhoenixConfigurationUtil.getOutputCluster(configuration3);
         assertEquals(zkQuorumOverride3, OVERRIDE_CLUSTER_QUORUM);
+
+    }
+
+    @Test
+    public void testMrJobTypeOverride() throws Exception {
+        final Job job = Job.getInstance();
+        Configuration configuration = job.getConfiguration();
+        MRJobType mrJobType = PhoenixConfigurationUtil.getMRJobType(configuration,
+                MRJobType.QUERY.name());
+        assertEquals(MRJobType.QUERY.name(), mrJobType.name());
+
+        PhoenixConfigurationUtil.setMRJobType(configuration, MRJobType.UPDATE_STATS);
+        mrJobType = PhoenixConfigurationUtil.getMRJobType(configuration,
+                MRJobType.QUERY.name());
+        assertEquals(MRJobType.UPDATE_STATS.name(), mrJobType.name());
+
+    }
+
+    @Test
+    public void testTimeRangeOverride() {
+        final Configuration configuration = new Configuration();
+        Long startTime = 1L;
+        Long endTime = 2L;
+
+        PhoenixConfigurationUtil.setIndexToolStartTime(configuration, startTime);
+        PhoenixConfigurationUtil.setCurrentScnValue(configuration, endTime);
+        Assert.assertEquals(startTime.longValue(),
+                Long.parseLong(PhoenixConfigurationUtil.getIndexToolStartTime(configuration)));
+        Assert.assertEquals(endTime.longValue(),
+                Long.parseLong(PhoenixConfigurationUtil.getCurrentScnValue(configuration)));
 
     }
 }
