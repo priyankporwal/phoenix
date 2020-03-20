@@ -272,21 +272,6 @@ public class PhoenixConfigurationUtilTest extends BaseConnectionlessQueryTest {
     }
 
     @Test
-    public void testMrJobTypeOverride() throws Exception {
-        final Job job = Job.getInstance();
-        Configuration configuration = job.getConfiguration();
-        MRJobType mrJobType = PhoenixConfigurationUtil.getMRJobType(configuration,
-                MRJobType.QUERY.name());
-        assertEquals(MRJobType.QUERY.name(), mrJobType.name());
-
-        PhoenixConfigurationUtil.setMRJobType(configuration, MRJobType.UPDATE_STATS);
-        mrJobType = PhoenixConfigurationUtil.getMRJobType(configuration,
-                MRJobType.QUERY.name());
-        assertEquals(MRJobType.UPDATE_STATS.name(), mrJobType.name());
-
-    }
-
-    @Test
     public void testTimeRangeOverride() {
         final Configuration configuration = new Configuration();
         Long startTime = 1L;
