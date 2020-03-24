@@ -77,14 +77,14 @@ public class ScanRanges {
 
 
     public static ScanRanges create(RowKeySchema schema, List<List<KeyRange>> ranges, int[] slotSpan, KeyRange minMaxRange, Integer nBuckets, boolean useSkipScan, int rowTimestampColIndex) {
-        return create(schema,ranges,slotSpan,KeyRange.EVERYTHING_RANGE,nBuckets,useSkipScan,rowTimestampColIndex,Optional.<byte[]>absent());
+        return create(schema,ranges,slotSpan,minMaxRange,nBuckets,useSkipScan,rowTimestampColIndex,Optional.<byte[]>absent());
     }
 
     public static ScanRanges create(RowKeySchema schema, List<List<KeyRange>> ranges, int[] slotSpan, KeyRange minMaxRange, Integer nBuckets, boolean useSkipScan, int rowTimestampColIndex, Optional<byte[]> scanMinOffset) {
         int offset = nBuckets == null ? 0 : SaltingUtil.NUM_SALTING_BYTES;
         int nSlots = ranges.size();
 
-        if (nSlots == offset && !scanMinOffset.isPresent()) {
+        if (nSlots == offset && minMaxRange == KeyRange.EVERYTHING_RANGE && !scanMinOffset.isPresent()) {
             return EVERYTHING;
         } else if (minMaxRange == KeyRange.EMPTY_RANGE || (nSlots == 1 + offset && ranges.get(offset).size() == 1 && ranges.get(offset).get(0) == KeyRange.EMPTY_RANGE)) {
             return NOTHING;
