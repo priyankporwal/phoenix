@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.AuthUtil;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.security.AccessDeniedException;
 import org.apache.hadoop.hbase.security.access.AccessControlClient;
+import org.apache.hadoop.hbase.security.access.Permission;
 import org.apache.hadoop.hbase.security.access.Permission.Action;
 import org.apache.phoenix.util.SchemaUtil;
 import org.junit.Test;
@@ -217,6 +218,46 @@ public class TableDDLPermissionsIT extends BasePermissionsIT {
             verifyAllowed(dropView(viewName1), superUser2);
             verifyAllowed(dropTable(phoenixTableName), superUser2);
 
+        } finally {
+            revokeAll();
+        }
+    }
+
+    @Test
+    public void testUpsertIntoImmutableTable() throws Throwable {
+        startNewMiniCluster();
+        final String schema = generateUniqueName();
+        final String tableName = generateUniqueName();
+        final String phoenixTableName = schema + "." + tableName;
+        grantSystemTableAccess();
+        try {
+            superUser1.runAs(new PrivilegedExceptionAction<Void>() {
+                @Override
+                public Void run() throws Exception {
+                    try {
+                        verifyAllowed(createSchema(schema), superUser1);
+                        verifyAllowed(onlyCreateImmutableTable(phoenixTableName), superUser1);
+                    } catch (Throwable e) {
+                        if (e instanceof Exception) {
+                            throw (Exception) e;
+                        } else {
+                            throw new Exception(e);
+                        }
+                    }
+                    return null;
+                }
+            });
+
+            if (isNamespaceMapped) {
+                grantPermissions(unprivilegedUser.getShortName(), schema, Permission.Action.WRITE,
+                    Permission.Action.READ, Permission.Action.EXEC);
+            } else {
+                grantPermissions(unprivilegedUser.getShortName(),
+                    NamespaceDescriptor.DEFAULT_NAMESPACE.getName(), Permission.Action.WRITE,
+                    Permission.Action.READ, Permission.Action.EXEC);
+            }
+            verifyAllowed(upsertRowsIntoTable(phoenixTableName), unprivilegedUser);
+            verifyAllowed(readTable(phoenixTableName), unprivilegedUser);
         } finally {
             revokeAll();
         }
