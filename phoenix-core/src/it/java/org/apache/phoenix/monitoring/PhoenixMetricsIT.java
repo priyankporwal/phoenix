@@ -675,6 +675,23 @@ public class PhoenixMetricsIT extends BaseUniqueNamesOwnClusterIT {
         }
     }
 
+    // Partial cherry-pick from PHOENIX-5801. The code change is not required since it is 4.15
+    // specific, but adding this test for connection leaks since it is useful nevertheless
+    @Test
+    public void createViewWithWhereConditionNoConnLeak() throws SQLException {
+        resetGlobalMetrics();
+        String tableName = generateUniqueName();
+        String viewName = generateUniqueName();
+        try (Connection conn = DriverManager.getConnection(getUrl())) {
+            conn.createStatement().execute("CREATE TABLE " + tableName +
+                    " (K INTEGER PRIMARY KEY, V VARCHAR(10))");
+            conn.createStatement().execute("CREATE VIEW " + viewName +
+                    " AS SELECT * FROM " + tableName + " WHERE K = 1");
+        }
+        assertTrue(PhoenixRuntime.areGlobalClientMetricsBeingCollected());
+        assertEquals(0, GLOBAL_OPEN_PHOENIX_CONNECTIONS.getMetric().getValue());
+    }
+
     @Test
     public void testClosingConnectionClearsMetrics() throws Exception {
         Connection conn = null;
