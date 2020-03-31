@@ -78,20 +78,20 @@ import com.google.common.collect.Lists;
 @RunWith(Parameterized.class)
 public class IndexScrutinyToolIT extends IndexScrutinyToolBaseIT {
     public static final String MISSING_ROWS_QUERY_TEMPLATE =
-        "SELECT \"SOURCE_TABLE\" , \"TARGET_TABLE\" , \"SCRUTINY_EXECUTE_TIME\" , " +
-        "\"SOURCE_ROW_PK_HASH\" , \"SOURCE_TS\" , \"TARGET_TS\" , \"HAS_TARGET_ROW\" , " +
-        "\"BEYOND_MAX_LOOKBACK\" , \"ID\" , \"NAME\" , \"EMPLOY_DATE\" , \"ZIP\" , \":ID\" , " +
-        "\"0:NAME\" , \"0:EMPLOY_DATE\" , \"0:ZIP\" " +
+        "SELECT \"SOURCE_TABLE\",\"TARGET_TABLE\",\"SCRUTINY_EXECUTE_TIME\"," +
+        "\"SOURCE_ROW_PK_HASH\",\"SOURCE_TS\",\"TARGET_TS\",\"HAS_TARGET_ROW\"," +
+        "\"BEYOND_MAX_LOOKBACK\",\"ID\",\"NAME\",\"EMPLOY_DATE\",\"ZIP\",\":ID\"," +
+        "\"0:NAME\",\"0:EMPLOY_DATE\",\"0:ZIP\" " +
         "FROM PHOENIX_INDEX_SCRUTINY(\"ID\" INTEGER,\"NAME\" VARCHAR," +
         "\"EMPLOY_DATE\" TIMESTAMP,\"ZIP\" INTEGER,\":ID\" INTEGER,\"0:NAME\" VARCHAR," +
         "\"0:EMPLOY_DATE\" DECIMAL,\"0:ZIP\" INTEGER) WHERE (\"SOURCE_TABLE\",\"TARGET_TABLE\"," +
         "\"SCRUTINY_EXECUTE_TIME\", \"HAS_TARGET_ROW\") IN (('[TableName]','[IndexName]'," +
         "[ScrutinyTs],[HasTargetRow]))";
     public static final String BEYOND_MAX_LOOKBACK_QUERY_TEMPLATE =
-        "SELECT \"SOURCE_TABLE\" , \"TARGET_TABLE\" , \"SCRUTINY_EXECUTE_TIME\" , " +
-            "\"SOURCE_ROW_PK_HASH\" , \"SOURCE_TS\" , \"TARGET_TS\" , \"HAS_TARGET_ROW\" , " +
-            "\"BEYOND_MAX_LOOKBACK\" , \"ID\" , \"NAME\" , \"EMPLOY_DATE\" , \"ZIP\" , \":ID\" , " +
-            "\"0:NAME\" , \"0:EMPLOY_DATE\" , \"0:ZIP\" " +
+        "SELECT \"SOURCE_TABLE\",\"TARGET_TABLE\",\"SCRUTINY_EXECUTE_TIME\"," +
+            "\"SOURCE_ROW_PK_HASH\",\"SOURCE_TS\",\"TARGET_TS\",\"HAS_TARGET_ROW\"," +
+            "\"BEYOND_MAX_LOOKBACK\",\"ID\",\"NAME\",\"EMPLOY_DATE\",\"ZIP\",\":ID\"," +
+            "\"0:NAME\",\"0:EMPLOY_DATE\",\"0:ZIP\" " +
             "FROM PHOENIX_INDEX_SCRUTINY(\"ID\" INTEGER,\"NAME\" VARCHAR," +
             "\"EMPLOY_DATE\" TIMESTAMP,\"ZIP\" INTEGER,\":ID\" INTEGER,\"0:NAME\" VARCHAR," +
             "\"0:EMPLOY_DATE\" DECIMAL,\"0:ZIP\" INTEGER) WHERE (\"SOURCE_TABLE\",\"TARGET_TABLE\"," +
